@@ -1,0 +1,10 @@
+<view class="page">
+  <view class="masthead">
+    <text class="title">{{title}}</text>
+    <text class="subtitle">UNCHARTED WATERS ORIGIN</text>
+  </view>
+  <view class="module" aria-label="{{moduleName}}">
+    <text class="module__name">{{moduleName}}</text>
+    <text class="module__status">{{status}}</text>
+  </view>
+</view>

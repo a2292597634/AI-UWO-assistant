@@ -1,0 +1,44 @@
+.page {
+  min-height: 100vh;
+  padding: 32rpx 28rpx;
+}
+
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 20rpx 0 28rpx;
+  border-bottom: 2rpx solid #8f7848;
+}
+
+.title {
+  color: #34342f;
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #75684d;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+}
+
+.module {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border: 2rpx solid #8f7848;
+  background: #eee8da;
+}
+
+.module__name {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.module__status {
+  color: #765f35;
+  font-size: 24rpx;
+}
