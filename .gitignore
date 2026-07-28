@@ -3,6 +3,7 @@ miniprogram_npm/
 dist/
 coverage/
 .superpowers/
+.worktrees/
 .env
 .env.*
 !.env.example
