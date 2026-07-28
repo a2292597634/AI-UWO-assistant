@@ -16,7 +16,8 @@
 - Do not retain login, profile, cloud, remote-avatar, or network-request code from the generated template.
 - V1 runtime code and formal copy use Traditional Chinese.
 - Do not create feature cards for unfinished modules.
-- Tests for independently verifiable behavior are written before implementation.
+- Production TypeScript behavior is written with strict red-green-refactor TDD.
+- User-approved exception: configuration, human documentation, and the logic-free UI shell use executable CLI or WeChat DevTools verification instead of source-text tests.
 - Keep the worktree clean after each task commit.
 
 ---
@@ -30,8 +31,6 @@
 - `.prettierrc.json`: repository formatting rules.
 - `.prettierignore`: immutable/archive/generated exclusions.
 - `vitest.config.ts`: deterministic Node test configuration.
-- `tests/config/project-config.test.ts`: executable architecture contract.
-- `tests/config/app-shell.test.ts`: shell route and local-only contract.
 - `tests/unit/local-only.test.ts`: network-reference scanner behavior.
 - `tools/quality/find-runtime-network-references.ts`: pure scanner used by tests and CLI.
 - `tools/quality/check-runtime-network.ts`: CLI wrapper for the scanner.
@@ -50,7 +49,6 @@
 - Create: `package.json`
 - Create: `package-lock.json`
 - Create: `vitest.config.ts`
-- Create: `tests/config/tooling-config.test.ts`
 - Create: `tsconfig.json`
 - Create: `eslint.config.mjs`
 - Create: `.prettierrc.json`
@@ -91,50 +89,7 @@ npm.cmd install --save-dev typescript vitest eslint @eslint/js typescript-eslint
 
 Expected: `package-lock.json` is created and npm exits with code 0.
 
-- [ ] **Step 2: Write the failing tooling contract**
-
-Create `tests/config/tooling-config.test.ts`:
-
-```ts
-import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-
-const readJson = (path: string): Record<string, unknown> =>
-  JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
-
-describe('local toolchain', () => {
-  it('uses strict TypeScript without emitting build files', () => {
-    const config = readJson('tsconfig.json')
-    expect(config.compilerOptions).toMatchObject({
-      strict: true,
-      noEmit: true,
-      moduleResolution: 'Bundler',
-    })
-  })
-
-  it('exposes the complete local verification command', () => {
-    const pkg = readJson('package.json')
-    expect(pkg.scripts).toMatchObject({
-      lint: 'eslint . --max-warnings 0',
-      'format:check': 'prettier --check .',
-      typecheck: 'tsc --noEmit',
-      test: 'vitest run',
-    })
-  })
-})
-```
-
-- [ ] **Step 3: Run the contract to verify it fails**
-
-Run:
-
-```powershell
-npm.cmd test -- tests/config/tooling-config.test.ts
-```
-
-Expected: FAIL because `tsconfig.json` does not exist.
-
-- [ ] **Step 4: Add the minimal tool configuration**
+- [ ] **Step 2: Add the minimal tool configuration**
 
 Create `tsconfig.json`:
 
@@ -217,21 +172,20 @@ package-lock.json
 游戏内菜单图.png
 ```
 
-- [ ] **Step 5: Run the focused and complete tooling checks**
+- [ ] **Step 3: Run the focused tooling checks**
 
 Run:
 
 ```powershell
-npm.cmd test -- tests/config/tooling-config.test.ts
 npm.cmd run typecheck
 ```
 
-Expected: both commands exit with code 0. Full-repository lint and formatting are first required after Task 2 removes the generated JavaScript template.
+Expected: TypeScript loads the complete configuration and exits with code 0. Full-repository lint and formatting are first required after Task 2 removes the generated JavaScript template.
 
-- [ ] **Step 6: Commit the toolchain**
+- [ ] **Step 4: Commit the toolchain**
 
 ```powershell
-git add package.json package-lock.json tsconfig.json vitest.config.ts eslint.config.mjs .prettierrc.json .prettierignore tests/config/tooling-config.test.ts
+git add package.json package-lock.json tsconfig.json vitest.config.ts eslint.config.mjs .prettierrc.json .prettierignore
 git commit -m "chore: add TypeScript quality toolchain"
 ```
 
@@ -239,7 +193,6 @@ git commit -m "chore: add TypeScript quality toolchain"
 
 **Files:**
 - Modify: `project.config.json`
-- Create: `tests/config/project-config.test.ts`
 - Create: `miniprogram/app.ts`
 - Create: `miniprogram/app.json`
 - Create: `miniprogram/app.wxss`
@@ -257,47 +210,7 @@ git commit -m "chore: add TypeScript quality toolchain"
 - Consumes: Task 1 Vitest and TypeScript configuration.
 - Produces: `project.config.json` with `miniprogramRoot: "miniprogram/"` and TypeScript compilation enabled.
 
-- [ ] **Step 1: Write the failing project-configuration contract**
-
-Create `tests/config/project-config.test.ts`:
-
-```ts
-import { existsSync, readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-
-const project = JSON.parse(readFileSync('project.config.json', 'utf8')) as {
-  appid: string
-  miniprogramRoot?: string
-  setting: { useCompilerPlugins?: string[] }
-}
-
-describe('WeChat project structure', () => {
-  it('keeps the existing App ID and points DevTools at the TypeScript source root', () => {
-    expect(project.appid).toBe('wx8f961bcd8b26996a')
-    expect(project.miniprogramRoot).toBe('miniprogram/')
-    expect(project.setting.useCompilerPlugins).toContain('typescript')
-  })
-
-  it('has one application entry and no root JavaScript template', () => {
-    expect(existsSync('miniprogram/app.ts')).toBe(true)
-    expect(existsSync('miniprogram/app.json')).toBe(true)
-    expect(existsSync('app.js')).toBe(false)
-    expect(existsSync('pages/logs/logs.js')).toBe(false)
-  })
-})
-```
-
-- [ ] **Step 2: Run the test to verify it fails**
-
-Run:
-
-```powershell
-npm.cmd test -- tests/config/project-config.test.ts
-```
-
-Expected: FAIL because `miniprogramRoot` and the TypeScript compiler plugin are absent.
-
-- [ ] **Step 3: Configure the WeChat source root**
+- [ ] **Step 1: Configure the WeChat source root**
 
 Modify `project.config.json` without changing `appid`:
 
@@ -325,7 +238,7 @@ Modify `project.config.json` without changing `appid`:
 }
 ```
 
-- [ ] **Step 4: Add the minimal application entry and typings**
+- [ ] **Step 2: Add the minimal application entry and typings**
 
 Create `miniprogram/app.ts`:
 
@@ -395,16 +308,15 @@ Create `miniprogram/sitemap.json`:
 }
 ```
 
-- [ ] **Step 5: Remove the generated JavaScript template**
+- [ ] **Step 3: Remove the generated JavaScript template**
 
 Delete only the paths listed in this task: root `app.*`, root `sitemap.json`, `pages/index`, `pages/logs`, and `utils/util.js`. Preserve the two reference screenshots, documents, Git metadata, and `project.config.json`.
 
-- [ ] **Step 6: Run the focused test**
+- [ ] **Step 4: Run the static project checks**
 
 Run:
 
 ```powershell
-npm.cmd test -- tests/config/project-config.test.ts
 npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run format:check
@@ -412,17 +324,16 @@ npm.cmd run format:check
 
 Expected: all commands exit with code 0 after the legacy template has been removed.
 
-- [ ] **Step 7: Commit the source-root migration**
+- [ ] **Step 5: Commit the source-root migration**
 
 ```powershell
-git add project.config.json miniprogram tests/config/project-config.test.ts app.js app.json app.wxss sitemap.json pages utils
+git add project.config.json miniprogram app.js app.json app.wxss sitemap.json pages utils
 git commit -m "refactor: migrate mini program source to TypeScript"
 ```
 
 ### Task 3: Add a minimal Traditional Chinese application shell
 
 **Files:**
-- Create: `tests/config/app-shell.test.ts`
 - Create: `miniprogram/pages/home/index.ts`
 - Create: `miniprogram/pages/home/index.json`
 - Create: `miniprogram/pages/home/index.wxml`
@@ -432,40 +343,7 @@ git commit -m "refactor: migrate mini program source to TypeScript"
 - Consumes: Task 2 `miniprogram/app.json` home route.
 - Produces: a compilable home page with no unfinished feature cards or remote dependencies.
 
-- [ ] **Step 1: Write the failing shell contract**
-
-Create `tests/config/app-shell.test.ts`:
-
-```ts
-import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-
-describe('application shell', () => {
-  it('uses the confirmed home route and Traditional Chinese copy', () => {
-    const app = JSON.parse(readFileSync('miniprogram/app.json', 'utf8')) as {
-      pages: string[]
-    }
-    const wxml = readFileSync('miniprogram/pages/home/index.wxml', 'utf8')
-
-    expect(app.pages).toEqual(['pages/home/index'])
-    expect(wxml).toContain('航海助手')
-    expect(wxml).toContain('航海士名鑑')
-    expect(wxml).not.toContain('即將推出')
-  })
-})
-```
-
-- [ ] **Step 2: Run the test to verify it fails**
-
-Run:
-
-```powershell
-npm.cmd test -- tests/config/app-shell.test.ts
-```
-
-Expected: FAIL because the home page files do not exist.
-
-- [ ] **Step 3: Add the minimal page**
+- [ ] **Step 1: Add the minimal page**
 
 Create `miniprogram/pages/home/index.ts`:
 
@@ -551,12 +429,11 @@ Create `miniprogram/pages/home/index.wxss`:
 }
 ```
 
-- [ ] **Step 4: Run the shell contract and static checks**
+- [ ] **Step 2: Run the static checks**
 
 Run:
 
 ```powershell
-npm.cmd test -- tests/config/app-shell.test.ts
 npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run format:check
@@ -564,7 +441,7 @@ npm.cmd run format:check
 
 Expected: all commands exit with code 0.
 
-- [ ] **Step 5: Compile in WeChat DevTools**
+- [ ] **Step 3: Compile in WeChat DevTools**
 
 Open the repository root in WeChat DevTools and compile once. Verify:
 
@@ -573,10 +450,10 @@ Open the repository root in WeChat DevTools and compile once. Verify:
 - The simulator shows the Traditional Chinese shell.
 - No login permission, network, missing route, or TypeScript diagnostics appear.
 
-- [ ] **Step 6: Commit the shell**
+- [ ] **Step 4: Commit the shell**
 
 ```powershell
-git add miniprogram/pages/home tests/config/app-shell.test.ts
+git add miniprogram/pages/home
 git commit -m "feat: add Traditional Chinese app shell"
 ```
 
@@ -730,43 +607,13 @@ git commit -m "test: enforce local-only runtime boundary"
 ### Task 5: Document and verify the development baseline
 
 **Files:**
-- Create: `tests/config/readme-contract.test.ts`
 - Create: `README.md`
 
 **Interfaces:**
 - Consumes: Tasks 1–4 commands and project layout.
 - Produces: a zero-context setup guide and one complete `npm run verify` gate.
 
-- [ ] **Step 1: Write the failing documentation contract**
-
-Create `tests/config/readme-contract.test.ts`:
-
-```ts
-import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-
-describe('developer documentation', () => {
-  it('documents installation, verification, and DevTools source root', () => {
-    const readme = readFileSync('README.md', 'utf8')
-    expect(readme).toContain('npm.cmd ci')
-    expect(readme).toContain('npm.cmd run verify')
-    expect(readme).toContain('miniprogram/')
-    expect(readme).toContain('微信開發者工具')
-  })
-})
-```
-
-- [ ] **Step 2: Run the test to verify it fails**
-
-Run:
-
-```powershell
-npm.cmd test -- tests/config/readme-contract.test.ts
-```
-
-Expected: FAIL because `README.md` does not exist.
-
-- [ ] **Step 3: Create the setup guide**
+- [ ] **Step 1: Create the setup guide**
 
 Create `README.md`:
 
@@ -805,17 +652,7 @@ npm.cmd run verify
 - `docs/superpowers/`：已確認規格與實施計畫。
 ````
 
-- [ ] **Step 4: Run the documentation test**
-
-Run:
-
-```powershell
-npm.cmd test -- tests/config/readme-contract.test.ts
-```
-
-Expected: PASS.
-
-- [ ] **Step 5: Run the complete automated gate**
+- [ ] **Step 2: Run the complete automated gate**
 
 Run:
 
@@ -825,18 +662,18 @@ npm.cmd run verify
 
 Expected: formatting, lint, typecheck, all Vitest tests, and the runtime-network check exit with code 0.
 
-- [ ] **Step 6: Perform final DevTools verification**
+- [ ] **Step 3: Perform final DevTools verification**
 
 Compile in WeChat DevTools and verify the four Task 3 conditions again, then commit the verified documentation:
 
 ```powershell
-git add README.md tests/config/readme-contract.test.ts
+git add README.md
 git commit -m "docs: document local development workflow"
 ```
 
 ## Plan Self-Review
 
-- Spec coverage for this phase: native TypeScript source root, local Git workflow, Traditional Chinese shell, no login/network starter behavior, ESLint, Prettier, automated tests, TDD-ready scripts, and DevTools compilation.
+- Spec coverage for this phase: native TypeScript source root, local Git workflow, Traditional Chinese shell, no login/network starter behavior, ESLint, Prettier, automated behavior tests, TDD-ready scripts, and DevTools compilation.
 - Deliberately deferred to the named later phases in the roadmap: voyage.tw field audit, canonical schemas, import, asset compression/package experiments, runtime query engine, production UI, and release verification.
 - Public names used consistently: `miniprogram/`, `findRuntimeNetworkReferences`, `npm run verify`, and `check:runtime-network`.
 - No production page reads canonical or generated officer data in this phase.
