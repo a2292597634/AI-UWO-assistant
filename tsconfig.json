@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "types": ["miniprogram-api-typings", "node", "vitest/globals"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["miniprogram/**/*.ts", "tools/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "archive", "miniprogram/generated"]
+}

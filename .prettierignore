@@ -1,0 +1,8 @@
+archive/
+coverage/
+docs/superpowers/
+miniprogram/generated/
+node_modules/
+package-lock.json
+游戏内被动技能查询截图.png
+游戏内菜单图.png
