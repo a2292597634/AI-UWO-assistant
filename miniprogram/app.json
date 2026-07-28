@@ -1,0 +1,14 @@
+{
+  "pages": ["pages/home/index"],
+  "window": {
+    "navigationBarBackgroundColor": "#2f302b",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "航海助手",
+    "backgroundColor": "#ded7c7",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

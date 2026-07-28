@@ -1,0 +1,4 @@
+{
+  "desc": "航海助手頁面索引",
+  "rules": [{ "action": "allow", "page": "*" }]
+}
