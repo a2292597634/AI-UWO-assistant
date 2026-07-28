@@ -1,0 +1,11 @@
+node_modules/
+miniprogram_npm/
+dist/
+coverage/
+.superpowers/
+.env
+.env.*
+!.env.example
+project.private.config.json
+.DS_Store
+Thumbs.db
