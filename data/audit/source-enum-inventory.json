@@ -1,0 +1,386 @@
+[
+  {
+    "sourcePath": "rank",
+    "sourceValue": "3",
+    "canonicalId": "rank_3",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "rank",
+    "sourceValue": "4",
+    "canonicalId": "rank_4",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "rank",
+    "sourceValue": "5",
+    "canonicalId": "rank_5",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "type",
+    "sourceValue": "class_1",
+    "canonicalId": "officer_type_class_1",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "type",
+    "sourceValue": "class_2",
+    "canonicalId": "officer_type_class_2",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "type",
+    "sourceValue": "class_3",
+    "canonicalId": "officer_type_class_3",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "gender",
+    "sourceValue": "f",
+    "canonicalId": "gender_f",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "gender",
+    "sourceValue": "m",
+    "canonicalId": "gender_m",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "country",
+    "sourceValue": "ctn_irl",
+    "canonicalId": "country_ctn_irl",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "country",
+    "sourceValue": "ctn_ita",
+    "canonicalId": "country_ctn_ita",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "country",
+    "sourceValue": "ctn_swe",
+    "canonicalId": "country_ctn_swe",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "country",
+    "sourceValue": "ctn_tur",
+    "canonicalId": "country_ctn_tur",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "job21400002",
+    "canonicalId": "job_job21400002",
+    "evidenceOfficerIds": ["chasT101"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "job21400006",
+    "canonicalId": "job_job21400006",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "job21401001",
+    "canonicalId": "job_job21401001",
+    "evidenceOfficerIds": ["chasT090"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "job21401015",
+    "canonicalId": "job_job21401015",
+    "evidenceOfficerIds": ["chasT100"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "job21402014",
+    "canonicalId": "job_job21402014",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "jobchasT089",
+    "canonicalId": "job_jobchast089",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "jobchasT096",
+    "canonicalId": "job_jobchast096",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "job",
+    "sourceValue": "jobchasab001",
+    "canonicalId": "job_jobchasab001",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "lang.*",
+    "sourceValue": "lang140",
+    "canonicalId": "language_lang140",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "lang.*",
+    "sourceValue": "lang20",
+    "canonicalId": "language_lang20",
+    "evidenceOfficerIds": ["chasT090"]
+  },
+  {
+    "sourcePath": "lang.*",
+    "sourceValue": "lang40",
+    "canonicalId": "language_lang40",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "lang.*",
+    "sourceValue": "lang60",
+    "canonicalId": "language_lang60",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "lang.*",
+    "sourceValue": "lang70",
+    "canonicalId": "language_lang70",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "lang.*",
+    "sourceValue": "lang80",
+    "canonicalId": "language_lang80",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "chasT051",
+    "canonicalId": "officer_chast051",
+    "evidenceOfficerIds": ["chasT101"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town10105",
+    "canonicalId": "city_town10105",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town10201",
+    "canonicalId": "city_town10201",
+    "evidenceOfficerIds": ["chasT090"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town11101",
+    "canonicalId": "city_town11101",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town1205",
+    "canonicalId": "city_town1205",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town1301",
+    "canonicalId": "city_town1301",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town13204",
+    "canonicalId": "city_town13204",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town14105",
+    "canonicalId": "city_town14105",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town14201",
+    "canonicalId": "city_town14201",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town14203",
+    "canonicalId": "city_town14203",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town14205",
+    "canonicalId": "city_town14205",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town14207",
+    "canonicalId": "city_town14207",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town15201",
+    "canonicalId": "city_town15201",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town15301",
+    "canonicalId": "city_town15301",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town17301",
+    "canonicalId": "city_town17301",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town2202",
+    "canonicalId": "city_town2202",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town2204",
+    "canonicalId": "city_town2204",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town3301",
+    "canonicalId": "city_town3301",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town3303",
+    "canonicalId": "city_town3303",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town4105",
+    "canonicalId": "city_town4105",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town4302",
+    "canonicalId": "city_town4302",
+    "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town5201",
+    "canonicalId": "city_town5201",
+    "evidenceOfficerIds": ["chasT100"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town5202",
+    "canonicalId": "city_town5202",
+    "evidenceOfficerIds": ["chasT100"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town5301",
+    "canonicalId": "city_town5301",
+    "evidenceOfficerIds": ["chasT100"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town5302",
+    "canonicalId": "city_town5302",
+    "evidenceOfficerIds": ["chasT100"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town5303",
+    "canonicalId": "city_town5303",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town6104",
+    "canonicalId": "city_town6104",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town6201",
+    "canonicalId": "city_town6201",
+    "evidenceOfficerIds": ["chasT101"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town6301",
+    "canonicalId": "city_town6301",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town7101",
+    "canonicalId": "city_town7101",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town7201",
+    "canonicalId": "city_town7201",
+    "evidenceOfficerIds": ["chasT101"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town7202",
+    "canonicalId": "city_town7202",
+    "evidenceOfficerIds": ["chasT101"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town8105",
+    "canonicalId": "city_town8105",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town8301",
+    "canonicalId": "city_town8301",
+    "evidenceOfficerIds": ["chasT098"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town8302",
+    "canonicalId": "city_town8302",
+    "evidenceOfficerIds": ["chasT099"]
+  },
+  {
+    "sourcePath": "city",
+    "sourceValue": "town9104",
+    "canonicalId": "city_town9104",
+    "evidenceOfficerIds": ["chasT096"]
+  },
+  {
+    "sourcePath": "req",
+    "sourceValue": "reqchasT089",
+    "canonicalId": "requirement_reqchast089",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "sourcePath": "req",
+    "sourceValue": "reqchasT090",
+    "canonicalId": "requirement_reqchast090",
+    "evidenceOfficerIds": ["chasT090"]
+  }
+]
