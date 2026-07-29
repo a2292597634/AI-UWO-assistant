@@ -19,13 +19,25 @@ const unprefix = (id: string): string => {
   return idx >= 0 ? id.slice(idx + 1) : id
 }
 
+/** Deterministic shard index for an image filename. */
+const shardFor = (filename: string): number => {
+  const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
+  let hash = 0
+  for (let i = 0; i < id.length; i++) hash = ((hash * 31 + id.charCodeAt(i)) >>> 0)
+  return hash % 10
+}
+
 /** Portrait asset path from officer ID. */
-const portraitPath = (officerId: string): string =>
-  `/assets/${officerId}.png`
+const portraitPath = (officerId: string): string => {
+  const filename = `${officerId}.png`
+  return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
+}
 
 /** Skill icon path from skill ID. */
-const iconPath = (skillId: string): string =>
-  `/assets/${skillId.replace(/^skill_/, 'skill_')}.png`
+const iconPath = (skillId: string): string => {
+  const filename = `${skillId.replace(/^skill_/, 'skill_')}.png`
+  return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
+}
 
 // ── Catalog (compact: skill IDs only, names/icons looked up from skills.js) ──
 

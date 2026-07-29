@@ -45,7 +45,7 @@ describe('buildSkills', () => {
     const s = runtime[firstKey]!
     expect(s.id).toMatch(/^skill_/)
     expect(s.n).toBeTruthy() // name
-    expect(s.ip).toMatch(/^\/assets\//) // iconPath
+    expect(s.ip).toMatch(/^\/subpkg-a\d\/imgs\//) // iconPath in shard
     expect(s.cat).toBeTruthy() // categoryId
   })
 })

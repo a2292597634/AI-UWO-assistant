@@ -7,23 +7,71 @@
     {
       "root": "subpkg-detail",
       "name": "detail",
-      "pages": [
-        "pages/detail/index"
-      ]
+      "pages": ["pages/detail/index"]
+    },
+    {
+      "root": "subpkg-a0",
+      "name": "assets0",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a1",
+      "name": "assets1",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a2",
+      "name": "assets2",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a3",
+      "name": "assets3",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a4",
+      "name": "assets4",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a5",
+      "name": "assets5",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a6",
+      "name": "assets6",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a7",
+      "name": "assets7",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a8",
+      "name": "assets8",
+      "pages": ["pages/placeholder/index"]
+    },
+    {
+      "root": "subpkg-a9",
+      "name": "assets9",
+      "pages": ["pages/placeholder/index"]
     }
   ],
+  "preloadRule": {
+    "pages/catalog/index": {
+      "network": "all",
+      "packages": ["detail", "assets0", "assets1", "assets2"]
+    }
+  },
   "window": {
     "navigationBarBackgroundColor": "#2f302b",
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "航海助手",
     "backgroundColor": "#ded7c7",
     "backgroundTextStyle": "dark"
-  },
-  "preloadRule": {
-    "pages/catalog/index": {
-      "network": "all",
-      "packages": ["detail"]
-    }
   },
   "style": "v2",
   "componentFramework": "glass-easel",
