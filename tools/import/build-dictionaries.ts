@@ -135,8 +135,8 @@ export const buildDictionaries = (
         if (id && !seenIds.has(id)) {
           seenIds.add(id)
           const rawSource = id.startsWith(group.idPrefix) ? id.slice(group.idPrefix.length) : id
-          // nationality_unknown has source value "" (empty)
-          const sourceValue = id === 'nationality_unknown' ? '' : rawSource
+          // Use placeholder for empty source values (required by schema minLength:1)
+          const sourceValue = rawSource === '' ? '_unknown' : rawSource
           items.push({
             id,
             name: resolveDictName(sourceValue, id, group.key, languageMap),
@@ -153,8 +153,8 @@ export const buildDictionaries = (
         if (id && !seenIds.has(id)) {
           seenIds.add(id)
           const rawSource = id.startsWith(group.idPrefix) ? id.slice(group.idPrefix.length) : id
-          // nationality_unknown has source value "" (empty)
-          const sourceValue = id === 'nationality_unknown' ? '' : rawSource
+          // Use placeholder for empty source values (required by schema minLength:1)
+          const sourceValue = rawSource === '' ? '_unknown' : rawSource
           items.push({
             id,
             name: resolveDictName(sourceValue, id, group.key, languageMap),

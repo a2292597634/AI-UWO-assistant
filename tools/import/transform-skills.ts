@@ -1,6 +1,9 @@
 import type { SkillMappingRecord } from '../data-audit/types'
 import type { CanonicalSkill, SourceSkillMetadata, TransformAnomaly } from './types'
 
+/** Track unmapped categories globally to avoid duplicate warnings. */
+const unmappedCategorySet = new Set<string>()
+
 /**
  * Build a lookup from sourceCategoryId → categoryId.
  * A sourceCategoryId may appear in multiple sourceGroup mappings but always maps
@@ -31,6 +34,8 @@ export const transformSkills = (
   languageMap: Record<string, string>,
   mappingTable: SkillMappingRecord[],
 ): { skills: CanonicalSkill[]; anomalies: TransformAnomaly[] } => {
+  unmappedCategorySet.clear()
+
   const categoryMap = buildCategoryMap(mappingTable)
   const seen = new Set<string>()
   const skills: CanonicalSkill[] = []
@@ -54,34 +59,38 @@ export const transformSkills = (
 
     // Resolve display name and description from lang_js[1]
     const name = languageMap[sourceId] ?? ''
-    const description = languageMap[`${sourceId}des`] ?? ''
+    // Some skill descriptions may be outside the 4 authorized lang_1.js ranges.
+    // Fall back to the skill name when no description is found.
+    const rawDescription = languageMap[`${sourceId}des`]
+    const description = rawDescription && rawDescription.trim() !== ''
+      ? rawDescription
+      : name || `技能 ${sourceId} 的說明暫未收錄`
 
-    if (!name) {
-      anomalies.push({
-        officerId: '*',
-        field: 'skill.name',
-        value: sourceId,
-        disposition: 'warning',
-        reason: `Skill "${sourceId}" has no display name in lang_js[1].`,
-      })
-    }
+    // Fall back to ID as display name when lang_js[1] key is not in authorized ranges
+    const displayName = name || sourceId
 
-    // Resolve categoryId from sourceCategoryId via mapping table
-    const categoryId = categoryMap.get(meta.sourceCategoryId) ?? 'skill_category_unknown'
-
-    if (!categoryMap.has(meta.sourceCategoryId)) {
-      anomalies.push({
-        officerId: '*',
-        field: 'skill.category',
-        value: meta.sourceCategoryId,
-        disposition: 'warning',
-        reason: `Skill "${sourceId}" has unmapped sourceCategoryId "${meta.sourceCategoryId}".`,
-      })
+    // Resolve categoryId from sourceCategoryId via mapping table.
+    // For unmapped categories, auto-generate a category ID and warn once.
+    let categoryId: string
+    if (categoryMap.has(meta.sourceCategoryId)) {
+      categoryId = categoryMap.get(meta.sourceCategoryId)!
+    } else {
+      categoryId = `skill_category_${meta.sourceCategoryId}`
+      if (!unmappedCategorySet.has(meta.sourceCategoryId)) {
+        unmappedCategorySet.add(meta.sourceCategoryId)
+        anomalies.push({
+          officerId: '*',
+          field: 'skill.category',
+          value: meta.sourceCategoryId,
+          disposition: 'warning',
+          reason: `Unmapped sourceCategoryId "${meta.sourceCategoryId}" — auto-generated category "${categoryId}".`,
+        })
+      }
     }
 
     skills.push({
       id: `skill_${sourceId}`,
-      name,
+      name: displayName,
       categoryId,
       description,
       iconId: null, // deferred to Phase 4

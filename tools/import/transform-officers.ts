@@ -73,6 +73,9 @@ const OFFICER_ID_PATTERN = /^chas/i
 
 const isOfficerShapedCity = (value: string): boolean => OFFICER_ID_PATTERN.test(value)
 
+// Track unknown enums globally to avoid duplicate warnings for the same (path, value)
+const unknownEnumSet = new Set<string>()
+
 const checkKnown = (
   knownEnums: Set<string>,
   sourcePath: string,
@@ -80,7 +83,9 @@ const checkKnown = (
   officerId: string,
   anomalies: TransformAnomaly[],
 ): void => {
-  if (!knownEnums.has(`${sourcePath}\0${sourceValue}`)) {
+  const key = `${sourcePath}\0${sourceValue}`
+  if (!knownEnums.has(key) && !unknownEnumSet.has(key)) {
+    unknownEnumSet.add(key)
     anomalies.push({
       officerId,
       field: sourcePath,
@@ -101,6 +106,9 @@ export const transformOfficers = (
   enumInventory: SourceEnumValue[],
   mappingTable: SkillMappingRecord[],
 ): { officers: CanonicalOfficer[]; anomalies: TransformAnomaly[] } => {
+  // Clear the global unknown enum tracker for deterministic output
+  unknownEnumSet.clear()
+
   const knownEnums = buildKnownEnumSet(enumInventory)
   const mappingMap = buildMappingMap(mappingTable)
   const officers: CanonicalOfficer[] = []
@@ -150,6 +158,8 @@ export const transformOfficers = (
     // Recruitment
     const recruitment = {
       cityIds: (src.city || []).flatMap((cityValue) => {
+        // Skip empty strings
+        if (cityValue === '') return []
         if (isOfficerShapedCity(cityValue)) {
           anomalies.push({
             officerId: sourceId,

@@ -5,15 +5,26 @@ import { extractJsString } from '../data-audit/extract-js-value'
  * Supports bracketed names like `lang_js[1]={...}`.
  */
 export const extractJsAssignment = <T>(source: string, varName: string): T => {
-  // Find the variable name followed by =
-  const marker = `${varName}=`
-  const markerIndex = source.indexOf(marker)
-  if (markerIndex < 0) {
+  // Find the variable name, then skip whitespace to find =
+  const nameIndex = source.indexOf(varName)
+  if (nameIndex < 0) {
     throw new Error(`IMPORT_VARIABLE_MISSING:${varName}`)
   }
 
-  let pos = markerIndex + marker.length
+  let pos = nameIndex + varName.length
   // Skip whitespace
+  while (/\s/.test(source[pos] ?? '')) pos += 1
+  // Expect = (may be preceded by whitespace, as in `var json_char   = {...}`)
+  if (source[pos] !== '=') {
+    // Try looking ahead a bit for =
+    const eqIndex = source.indexOf('=', pos)
+    if (eqIndex < 0 || eqIndex - pos > 20) {
+      throw new Error(`IMPORT_VARIABLE_MISSING:${varName}`)
+    }
+    pos = eqIndex
+  }
+  pos += 1 // skip =
+  // Skip whitespace after =
   while (/\s/.test(source[pos] ?? '')) pos += 1
 
   const startIndex = pos

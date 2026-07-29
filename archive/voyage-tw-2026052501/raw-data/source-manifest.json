@@ -1,0 +1,52 @@
+{
+  "snapshotDate": "2026-07-29T15:48:29.923Z",
+  "sourceOrigin": "https://voyage.tw",
+  "dataVersion": "2026052501",
+  "languageVersion": "1779690379",
+  "files": [
+    {
+      "path": "json_char.js",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501",
+      "byteSize": 567976,
+      "sha256": "cc5ef49f9e2feec5fb423693adee517e5bc445ce348aecdf2fafed3fe891662e",
+      "downloadedAt": "2026-07-29T15:48:29.923Z",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT"
+    },
+    {
+      "path": "lang_1_ranges/r0.txt",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379",
+      "byteSize": 47238,
+      "sha256": "2c8f27af71cc4c2dc7059a82817d24da56fb7061a4f7be110d658fccf301ef36",
+      "downloadedAt": "2026-07-29T15:48:29.923Z",
+      "contentRange": "bytes 0-47237/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT"
+    },
+    {
+      "path": "lang_1_ranges/r1.txt",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379",
+      "byteSize": 40951,
+      "sha256": "9159c473007ea6d000aa01b76f4e45ee645f00c1ba7c52ebd675a646526f335f",
+      "downloadedAt": "2026-07-29T15:48:29.923Z",
+      "contentRange": "bytes 47238-88188/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT"
+    },
+    {
+      "path": "lang_1_ranges/r2.txt",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379",
+      "byteSize": 86238,
+      "sha256": "751aea64b5560931e31d651f6a6966b614b0ade42604a485a34e008315f2ce22",
+      "downloadedAt": "2026-07-29T15:48:29.923Z",
+      "contentRange": "bytes 92126-178363/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT"
+    },
+    {
+      "path": "lang_1_ranges/r3.txt",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379",
+      "byteSize": 83780,
+      "sha256": "ae3a8dfdcb8ca41457e0d0937e599ac8d15757c59065970f26c232865152c189",
+      "downloadedAt": "2026-07-29T15:48:29.923Z",
+      "contentRange": "bytes 178364-262143/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT"
+    }
+  ]
+}

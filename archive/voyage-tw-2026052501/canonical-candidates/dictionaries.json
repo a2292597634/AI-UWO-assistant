@@ -1,0 +1,4636 @@
+{
+  "rarities": [
+    {
+      "id": "rarity_5",
+      "name": "★★★★★",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "5"
+      }
+    },
+    {
+      "id": "rarity_4",
+      "name": "★★★★",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "4"
+      }
+    },
+    {
+      "id": "rarity_3",
+      "name": "★★★",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "3"
+      }
+    },
+    {
+      "id": "rarity_2",
+      "name": "★★",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "2"
+      }
+    }
+  ],
+  "types": [
+    {
+      "id": "type_class_2",
+      "name": "交易",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "class_2"
+      }
+    },
+    {
+      "id": "type_class_3",
+      "name": "戰鬥",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "class_3"
+      }
+    },
+    {
+      "id": "type_class_1",
+      "name": "冒險",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "class_1"
+      }
+    }
+  ],
+  "genders": [
+    {
+      "id": "gender_f",
+      "name": "女性",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "f"
+      }
+    },
+    {
+      "id": "gender_m",
+      "name": "男性",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "m"
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job_jobchasT089",
+      "name": "北方的工藝家",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "jobchasT089"
+      }
+    },
+    {
+      "id": "job_job21401001",
+      "name": "食品商",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "job21401001"
+      }
+    },
+    {
+      "id": "job_job21400006",
+      "name": "操舵長",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "job21400006"
+      }
+    },
+    {
+      "id": "job_jobchasT093",
+      "name": "白玫瑰",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "jobchasT093"
+      }
+    },
+    {
+      "id": "job_jobchasT094",
+      "name": "琳德爾女大公",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "jobchasT094"
+      }
+    },
+    {
+      "id": "job_jobchasT095",
+      "name": "首席護衛騎士",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "jobchasT095"
+      }
+    },
+    {
+      "id": "job_jobchasT096",
+      "name": "灰色的外科醫生",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "jobchasT096"
+      }
+    },
+    {
+      "id": "job_job21400012",
+      "name": "專科醫生",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "job21400012"
+      }
+    },
+    {
+      "id": "job_job21402014",
+      "name": "諮詢師",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "job21402014"
+      }
+    },
+    {
+      "id": "job_job21401015",
+      "name": "談判家",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "job21401015"
+      }
+    },
+    {
+      "id": "job_job21400002",
+      "name": "艦砲手",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "job21400002"
+      }
+    },
+    {
+      "id": "job_job21401013",
+      "name": "會計師",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "job21401013"
+      }
+    },
+    {
+      "id": "job_jobchasab001",
+      "name": "愛爾蘭海盜",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "jobchasab001"
+      }
+    },
+    {
+      "id": "job_jobchasab002",
+      "name": "德土安領主",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "jobchasab002"
+      }
+    },
+    {
+      "id": "job_jobchasab003",
+      "name": "阿爾及爾海盜",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "jobchasab003"
+      }
+    },
+    {
+      "id": "job_jobchasab004",
+      "name": "拿索海盜",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "jobchasab004"
+      }
+    },
+    {
+      "id": "job_jobchasab006",
+      "name": "私掠海盜",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "jobchasab006"
+      }
+    },
+    {
+      "id": "job_jobchasab007",
+      "name": "水軍節度使",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "jobchasab007"
+      }
+    },
+    {
+      "id": "job_jobchasab008",
+      "name": "忠義之士",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "jobchasab008"
+      }
+    },
+    {
+      "id": "job_jobchasab009",
+      "name": "戚家軍隊長",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "jobchasab009"
+      }
+    },
+    {
+      "id": "job_jobchasab010",
+      "name": "海軍軍官",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "jobchasab010"
+      }
+    },
+    {
+      "id": "job_skill509998264",
+      "name": "漂泊的海盜",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "skill509998264"
+      }
+    },
+    {
+      "id": "job_jobchasab012",
+      "name": "復仇女王",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "jobchasab012"
+      }
+    },
+    {
+      "id": "job_jobchasab013",
+      "name": "造船廠廠長",
+      "displayOrder": 23,
+      "sourceRefs": {
+        "voyageTw": "jobchasab013"
+      }
+    },
+    {
+      "id": "job_jobchasad001",
+      "name": "遺址探險家",
+      "displayOrder": 24,
+      "sourceRefs": {
+        "voyageTw": "jobchasad001"
+      }
+    },
+    {
+      "id": "job_jobchasad002",
+      "name": "費雷羅户主",
+      "displayOrder": 25,
+      "sourceRefs": {
+        "voyageTw": "jobchasad002"
+      }
+    },
+    {
+      "id": "job_jobchasad003",
+      "name": "祕境探險家",
+      "displayOrder": 26,
+      "sourceRefs": {
+        "voyageTw": "jobchasad003"
+      }
+    },
+    {
+      "id": "job_jobchasad004",
+      "name": "地理學講師",
+      "displayOrder": 27,
+      "sourceRefs": {
+        "voyageTw": "jobchasad004"
+      }
+    },
+    {
+      "id": "job_jobchasad005",
+      "name": "太監",
+      "displayOrder": 28,
+      "sourceRefs": {
+        "voyageTw": "jobchasad005"
+      }
+    },
+    {
+      "id": "job_jobchasad006",
+      "name": "王國探險家",
+      "displayOrder": 29,
+      "sourceRefs": {
+        "voyageTw": "jobchasad006"
+      }
+    },
+    {
+      "id": "job_jobchasad008",
+      "name": "偏遠地區探險家",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "jobchasad008"
+      }
+    },
+    {
+      "id": "job_jobchasad009",
+      "name": "鄂圖曼提督",
+      "displayOrder": 31,
+      "sourceRefs": {
+        "voyageTw": "jobchasad009"
+      }
+    },
+    {
+      "id": "job_jobchasad010",
+      "name": "活貧黨黨主",
+      "displayOrder": 32,
+      "sourceRefs": {
+        "voyageTw": "jobchasad010"
+      }
+    },
+    {
+      "id": "job_jobchasat001",
+      "name": "濟州島上游商人",
+      "displayOrder": 33,
+      "sourceRefs": {
+        "voyageTw": "jobchasat001"
+      }
+    },
+    {
+      "id": "job_jobchasat002",
+      "name": "仙台藩主",
+      "displayOrder": 34,
+      "sourceRefs": {
+        "voyageTw": "jobchasat002"
+      }
+    },
+    {
+      "id": "job_jobchasat003",
+      "name": "鄂圖曼貿易商",
+      "displayOrder": 35,
+      "sourceRefs": {
+        "voyageTw": "jobchasat003"
+      }
+    },
+    {
+      "id": "job_jobchasat004",
+      "name": "帛畫商",
+      "displayOrder": 36,
+      "sourceRefs": {
+        "voyageTw": "jobchasat004"
+      }
+    },
+    {
+      "id": "job_jobchasat005",
+      "name": "維賈普爾攝政",
+      "displayOrder": 37,
+      "sourceRefs": {
+        "voyageTw": "jobchasat005"
+      }
+    },
+    {
+      "id": "job_jobchasT024",
+      "name": "南蠻航海士",
+      "displayOrder": 38,
+      "sourceRefs": {
+        "voyageTw": "jobchasT024"
+      }
+    },
+    {
+      "id": "job_jobchasT032",
+      "name": "沙皇",
+      "displayOrder": 39,
+      "sourceRefs": {
+        "voyageTw": "jobchasT032"
+      }
+    },
+    {
+      "id": "job_jobchasT035",
+      "name": "英格蘭私掠海盜",
+      "displayOrder": 40,
+      "sourceRefs": {
+        "voyageTw": "jobchasT035"
+      }
+    },
+    {
+      "id": "job_jobchasT049",
+      "name": "自由的英雄",
+      "displayOrder": 41,
+      "sourceRefs": {
+        "voyageTw": "jobchasT049"
+      }
+    },
+    {
+      "id": "job_jobchasT062",
+      "name": "蘇家的新家主",
+      "displayOrder": 42,
+      "sourceRefs": {
+        "voyageTw": "jobchasT062"
+      }
+    },
+    {
+      "id": "job_jobchasT078",
+      "name": "死亡的君主",
+      "displayOrder": 43,
+      "sourceRefs": {
+        "voyageTw": "jobchasT078"
+      }
+    },
+    {
+      "id": "job_jobchasT083",
+      "name": "北方的發明家",
+      "displayOrder": 44,
+      "sourceRefs": {
+        "voyageTw": "jobchasT083"
+      }
+    },
+    {
+      "id": "job_jobchasT092",
+      "name": "人類最強者",
+      "displayOrder": 45,
+      "sourceRefs": {
+        "voyageTw": "jobchasT092"
+      }
+    },
+    {
+      "id": "job_job21400008",
+      "name": "打擊隊",
+      "displayOrder": 46,
+      "sourceRefs": {
+        "voyageTw": "job21400008"
+      }
+    },
+    {
+      "id": "job_job21400003",
+      "name": "神射手",
+      "displayOrder": 47,
+      "sourceRefs": {
+        "voyageTw": "job21400003"
+      }
+    },
+    {
+      "id": "job_job21401007",
+      "name": "礦物商",
+      "displayOrder": 48,
+      "sourceRefs": {
+        "voyageTw": "job21401007"
+      }
+    },
+    {
+      "id": "job_job21401002",
+      "name": "家畜商",
+      "displayOrder": 49,
+      "sourceRefs": {
+        "voyageTw": "job21401002"
+      }
+    },
+    {
+      "id": "job_job21400001",
+      "name": "榴彈手",
+      "displayOrder": 50,
+      "sourceRefs": {
+        "voyageTw": "job21400001"
+      }
+    },
+    {
+      "id": "job_job21400011",
+      "name": "普通醫生",
+      "displayOrder": 51,
+      "sourceRefs": {
+        "voyageTw": "job21400011"
+      }
+    },
+    {
+      "id": "job_job21400013",
+      "name": "修理工",
+      "displayOrder": 52,
+      "sourceRefs": {
+        "voyageTw": "job21400013"
+      }
+    },
+    {
+      "id": "job_job21400009",
+      "name": "特工隊",
+      "displayOrder": 53,
+      "sourceRefs": {
+        "voyageTw": "job21400009"
+      }
+    },
+    {
+      "id": "job_job21400014",
+      "name": "造船工",
+      "displayOrder": 54,
+      "sourceRefs": {
+        "voyageTw": "job21400014"
+      }
+    },
+    {
+      "id": "job_job21400004",
+      "name": "操舵員",
+      "displayOrder": 55,
+      "sourceRefs": {
+        "voyageTw": "job21400004"
+      }
+    },
+    {
+      "id": "job_job21400005",
+      "name": "操舵手",
+      "displayOrder": 56,
+      "sourceRefs": {
+        "voyageTw": "job21400005"
+      }
+    },
+    {
+      "id": "job_job21400015",
+      "name": "技士",
+      "displayOrder": 57,
+      "sourceRefs": {
+        "voyageTw": "job21400015"
+      }
+    },
+    {
+      "id": "job_job21400007",
+      "name": "肉搏隊",
+      "displayOrder": 58,
+      "sourceRefs": {
+        "voyageTw": "job21400007"
+      }
+    },
+    {
+      "id": "job_job21400010",
+      "name": "實習醫生",
+      "displayOrder": 59,
+      "sourceRefs": {
+        "voyageTw": "job21400010"
+      }
+    },
+    {
+      "id": "job_job21402011",
+      "name": "測量技師",
+      "displayOrder": 60,
+      "sourceRefs": {
+        "voyageTw": "job21402011"
+      }
+    },
+    {
+      "id": "job_job21402004",
+      "name": "藝術學者",
+      "displayOrder": 61,
+      "sourceRefs": {
+        "voyageTw": "job21402004"
+      }
+    },
+    {
+      "id": "job_job21402010",
+      "name": "首席航海士",
+      "displayOrder": 62,
+      "sourceRefs": {
+        "voyageTw": "job21402010"
+      }
+    },
+    {
+      "id": "job_job21402003",
+      "name": "生物學者",
+      "displayOrder": 63,
+      "sourceRefs": {
+        "voyageTw": "job21402003"
+      }
+    },
+    {
+      "id": "job_job21401011",
+      "name": "寶石商",
+      "displayOrder": 64,
+      "sourceRefs": {
+        "voyageTw": "job21401011"
+      }
+    },
+    {
+      "id": "job_job21402002",
+      "name": "考古學家",
+      "displayOrder": 65,
+      "sourceRefs": {
+        "voyageTw": "job21402002"
+      }
+    },
+    {
+      "id": "job_job21402008",
+      "name": "操帆手",
+      "displayOrder": 66,
+      "sourceRefs": {
+        "voyageTw": "job21402008"
+      }
+    },
+    {
+      "id": "job_job21402007",
+      "name": "探險家",
+      "displayOrder": 67,
+      "sourceRefs": {
+        "voyageTw": "job21402007"
+      }
+    },
+    {
+      "id": "job_job21402006",
+      "name": "獵人",
+      "displayOrder": 68,
+      "sourceRefs": {
+        "voyageTw": "job21402006"
+      }
+    },
+    {
+      "id": "job_job21402012",
+      "name": "航海長",
+      "displayOrder": 69,
+      "sourceRefs": {
+        "voyageTw": "job21402012"
+      }
+    },
+    {
+      "id": "job_job21402009",
+      "name": "水手長",
+      "displayOrder": 70,
+      "sourceRefs": {
+        "voyageTw": "job21402009"
+      }
+    },
+    {
+      "id": "job_job21402013",
+      "name": "補給長",
+      "displayOrder": 71,
+      "sourceRefs": {
+        "voyageTw": "job21402013"
+      }
+    },
+    {
+      "id": "job_job21401014",
+      "name": "投資家",
+      "displayOrder": 72,
+      "sourceRefs": {
+        "voyageTw": "job21401014"
+      }
+    },
+    {
+      "id": "job_job21401009",
+      "name": "美術商",
+      "displayOrder": 73,
+      "sourceRefs": {
+        "voyageTw": "job21401009"
+      }
+    },
+    {
+      "id": "job_job21402015",
+      "name": "衛生管理師",
+      "displayOrder": 74,
+      "sourceRefs": {
+        "voyageTw": "job21402015"
+      }
+    },
+    {
+      "id": "job_job21401005",
+      "name": "酒商",
+      "displayOrder": 75,
+      "sourceRefs": {
+        "voyageTw": "job21401005"
+      }
+    },
+    {
+      "id": "job_skill100019",
+      "name": "談判家",
+      "displayOrder": 76,
+      "sourceRefs": {
+        "voyageTw": "skill100019"
+      }
+    },
+    {
+      "id": "job_job21401004",
+      "name": "雜貨商",
+      "displayOrder": 77,
+      "sourceRefs": {
+        "voyageTw": "job21401004"
+      }
+    },
+    {
+      "id": "job_job21401012",
+      "name": "加工商",
+      "displayOrder": 78,
+      "sourceRefs": {
+        "voyageTw": "job21401012"
+      }
+    },
+    {
+      "id": "job_job21401003",
+      "name": "藥品商",
+      "displayOrder": 79,
+      "sourceRefs": {
+        "voyageTw": "job21401003"
+      }
+    },
+    {
+      "id": "job_job21401006",
+      "name": "染料商",
+      "displayOrder": 80,
+      "sourceRefs": {
+        "voyageTw": "job21401006"
+      }
+    },
+    {
+      "id": "job_job21401008",
+      "name": "紡織商",
+      "displayOrder": 81,
+      "sourceRefs": {
+        "voyageTw": "job21401008"
+      }
+    },
+    {
+      "id": "job_job21401010",
+      "name": "香料商",
+      "displayOrder": 82,
+      "sourceRefs": {
+        "voyageTw": "job21401010"
+      }
+    },
+    {
+      "id": "job_job21402005",
+      "name": "口譯員",
+      "displayOrder": 83,
+      "sourceRefs": {
+        "voyageTw": "job21402005"
+      }
+    },
+    {
+      "id": "job_job21402001",
+      "name": "地理學者",
+      "displayOrder": 84,
+      "sourceRefs": {
+        "voyageTw": "job21402001"
+      }
+    },
+    {
+      "id": "job_jobchasT056",
+      "name": "皇家學會會長",
+      "displayOrder": 85,
+      "sourceRefs": {
+        "voyageTw": "jobchasT056"
+      }
+    },
+    {
+      "id": "job_jobchasT063",
+      "name": "威尼斯總督",
+      "displayOrder": 86,
+      "sourceRefs": {
+        "voyageTw": "jobchasT063"
+      }
+    },
+    {
+      "id": "job_jobchasT086",
+      "name": "倫敦的砝碼",
+      "displayOrder": 87,
+      "sourceRefs": {
+        "voyageTw": "jobchasT086"
+      }
+    },
+    {
+      "id": "job_jobchasT087",
+      "name": "絲綢商人",
+      "displayOrder": 88,
+      "sourceRefs": {
+        "voyageTw": "jobchasT087"
+      }
+    },
+    {
+      "id": "job_jobchasT088",
+      "name": "純白的商人",
+      "displayOrder": 89,
+      "sourceRefs": {
+        "voyageTw": "jobchasT088"
+      }
+    }
+  ],
+  "nationalities": [
+    {
+      "id": "nationality_ctn_swe",
+      "name": "瑞典",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "ctn_swe"
+      }
+    },
+    {
+      "id": "nationality_ctn_ntc",
+      "name": "中立國",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "ctn_ntc"
+      }
+    },
+    {
+      "id": "nationality_ctn_ita",
+      "name": "義大利",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "ctn_ita"
+      }
+    },
+    {
+      "id": "nationality_ctn_prt",
+      "name": "葡萄牙",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "ctn_prt"
+      }
+    },
+    {
+      "id": "nationality_ctn_tur",
+      "name": "鄂圖曼",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "ctn_tur"
+      }
+    },
+    {
+      "id": "nationality_unknown",
+      "name": "未知",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "unknown"
+      }
+    },
+    {
+      "id": "nationality_ctn_irl",
+      "name": "愛爾蘭",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "ctn_irl"
+      }
+    },
+    {
+      "id": "nationality_ctn_rop",
+      "name": "海盜",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "ctn_rop"
+      }
+    },
+    {
+      "id": "nationality_ctn_eng",
+      "name": "英格蘭",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "ctn_eng"
+      }
+    },
+    {
+      "id": "nationality_ctn_kor",
+      "name": "朝鮮",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "ctn_kor"
+      }
+    },
+    {
+      "id": "nationality_ctn_drd",
+      "name": "大肚王國",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "ctn_drd"
+      }
+    },
+    {
+      "id": "nationality_ctn_chn",
+      "name": "明朝",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "ctn_chn"
+      }
+    },
+    {
+      "id": "nationality_ctn_esp",
+      "name": "西班牙",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "ctn_esp"
+      }
+    },
+    {
+      "id": "nationality_ctn_pdg",
+      "name": "彭德拉貢",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "ctn_pdg"
+      }
+    },
+    {
+      "id": "nationality_ctn_taw",
+      "name": "印加",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "ctn_taw"
+      }
+    },
+    {
+      "id": "nationality_town5303",
+      "name": "熱那亞",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "town5303"
+      }
+    },
+    {
+      "id": "nationality_ctn_nld",
+      "name": "尼德蘭",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "ctn_nld"
+      }
+    },
+    {
+      "id": "nationality_ctn_jpn",
+      "name": "日本",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "ctn_jpn"
+      }
+    },
+    {
+      "id": "nationality_ctn_adr",
+      "name": "阿迪勒沙希",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "ctn_adr"
+      }
+    },
+    {
+      "id": "nationality_ctn_zzo",
+      "name": "扎扎烏",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "ctn_zzo"
+      }
+    },
+    {
+      "id": "nationality_ctn_con",
+      "name": "高麗",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "ctn_con"
+      }
+    },
+    {
+      "id": "nationality_ctn_fra",
+      "name": "法蘭西",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "ctn_fra"
+      }
+    },
+    {
+      "id": "nationality_ctn_bfl",
+      "name": "比佛羅斯特",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "ctn_bfl"
+      }
+    },
+    {
+      "id": "nationality_ctn_sod",
+      "name": "蘇打島",
+      "displayOrder": 23,
+      "sourceRefs": {
+        "voyageTw": "ctn_sod"
+      }
+    },
+    {
+      "id": "nationality_discov01s009",
+      "name": "蓋錫爾",
+      "displayOrder": 24,
+      "sourceRefs": {
+        "voyageTw": "discov01s009"
+      }
+    },
+    {
+      "id": "nationality_town18103",
+      "name": "馬尼拉",
+      "displayOrder": 25,
+      "sourceRefs": {
+        "voyageTw": "town18103"
+      }
+    },
+    {
+      "id": "nationality_ctn_flo",
+      "name": "佛羅倫斯",
+      "displayOrder": 26,
+      "sourceRefs": {
+        "voyageTw": "ctn_flo"
+      }
+    },
+    {
+      "id": "nationality_ctn_deu",
+      "name": "德國",
+      "displayOrder": 27,
+      "sourceRefs": {
+        "voyageTw": "ctn_deu"
+      }
+    },
+    {
+      "id": "nationality_ctn_crb",
+      "name": "加勒比",
+      "displayOrder": 28,
+      "sourceRefs": {
+        "voyageTw": "ctn_crb"
+      }
+    },
+    {
+      "id": "nationality_ctn_azt",
+      "name": "阿茲特克",
+      "displayOrder": 29,
+      "sourceRefs": {
+        "voyageTw": "ctn_azt"
+      }
+    },
+    {
+      "id": "nationality_ctn_aut",
+      "name": "奧地利",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "ctn_aut"
+      }
+    },
+    {
+      "id": "nationality_ctn_pps",
+      "name": "教宗國",
+      "displayOrder": 31,
+      "sourceRefs": {
+        "voyageTw": "ctn_pps"
+      }
+    },
+    {
+      "id": "nationality_ctn_rus",
+      "name": "俄羅斯",
+      "displayOrder": 32,
+      "sourceRefs": {
+        "voyageTw": "ctn_rus"
+      }
+    },
+    {
+      "id": "nationality_ctn_sls",
+      "name": "賽羅瑟",
+      "displayOrder": 33,
+      "sourceRefs": {
+        "voyageTw": "ctn_sls"
+      }
+    },
+    {
+      "id": "nationality_town6301",
+      "name": "威尼斯",
+      "displayOrder": 34,
+      "sourceRefs": {
+        "voyageTw": "town6301"
+      }
+    },
+    {
+      "id": "nationality_ctn_dnk",
+      "name": "丹麥",
+      "displayOrder": 35,
+      "sourceRefs": {
+        "voyageTw": "ctn_dnk"
+      }
+    },
+    {
+      "id": "nationality_ctn_sco",
+      "name": "蘇格蘭",
+      "displayOrder": 36,
+      "sourceRefs": {
+        "voyageTw": "ctn_sco"
+      }
+    },
+    {
+      "id": "nationality_town17103",
+      "name": "亞齊",
+      "displayOrder": 37,
+      "sourceRefs": {
+        "voyageTw": "town17103"
+      }
+    },
+    {
+      "id": "nationality_ctn_che",
+      "name": "瑞士",
+      "displayOrder": 38,
+      "sourceRefs": {
+        "voyageTw": "ctn_che"
+      }
+    },
+    {
+      "id": "nationality_ctn_nor",
+      "name": "挪威",
+      "displayOrder": 39,
+      "sourceRefs": {
+        "voyageTw": "ctn_nor"
+      }
+    },
+    {
+      "id": "nationality_ctn_dvq",
+      "name": "大越國",
+      "displayOrder": 40,
+      "sourceRefs": {
+        "voyageTw": "ctn_dvq"
+      }
+    },
+    {
+      "id": "nationality_ctn_mav",
+      "name": "馬爾瓦",
+      "displayOrder": 41,
+      "sourceRefs": {
+        "voyageTw": "ctn_mav"
+      }
+    },
+    {
+      "id": "nationality_ctn_mrl",
+      "name": "馬林王朝",
+      "displayOrder": 42,
+      "sourceRefs": {
+        "voyageTw": "ctn_mrl"
+      }
+    },
+    {
+      "id": "nationality_ctn_nue",
+      "name": "努埃娃·埃斯帕尼亞",
+      "displayOrder": 43,
+      "sourceRefs": {
+        "voyageTw": "ctn_nue"
+      }
+    },
+    {
+      "id": "nationality_ctn_al",
+      "name": "阿爾巴尼亞",
+      "displayOrder": 44,
+      "sourceRefs": {
+        "voyageTw": "ctn_al"
+      }
+    },
+    {
+      "id": "nationality_ctn_sol",
+      "name": "阿曼",
+      "displayOrder": 45,
+      "sourceRefs": {
+        "voyageTw": "ctn_sol"
+      }
+    },
+    {
+      "id": "nationality_ctn_vij",
+      "name": "毗奢耶那伽羅",
+      "displayOrder": 46,
+      "sourceRefs": {
+        "voyageTw": "ctn_vij"
+      }
+    },
+    {
+      "id": "nationality_ctn_mar",
+      "name": "瓦塔斯王朝",
+      "displayOrder": 47,
+      "sourceRefs": {
+        "voyageTw": "ctn_mar"
+      }
+    },
+    {
+      "id": "nationality_ctn_mng",
+      "name": "蒙兀兒",
+      "displayOrder": 48,
+      "sourceRefs": {
+        "voyageTw": "ctn_mng"
+      }
+    },
+    {
+      "id": "nationality_ctn_maj",
+      "name": "滿者伯夷",
+      "displayOrder": 49,
+      "sourceRefs": {
+        "voyageTw": "ctn_maj"
+      }
+    },
+    {
+      "id": "nationality_ctn_nas",
+      "name": "奈斯爾王朝",
+      "displayOrder": 50,
+      "sourceRefs": {
+        "voyageTw": "ctn_nas"
+      }
+    },
+    {
+      "id": "nationality_ctn_lka",
+      "name": "甘波羅",
+      "displayOrder": 51,
+      "sourceRefs": {
+        "voyageTw": "ctn_lka"
+      }
+    },
+    {
+      "id": "nationality_ctn_yua",
+      "name": "元朝",
+      "displayOrder": 52,
+      "sourceRefs": {
+        "voyageTw": "ctn_yua"
+      }
+    },
+    {
+      "id": "nationality_ctn_tos",
+      "name": "托斯卡納",
+      "displayOrder": 53,
+      "sourceRefs": {
+        "voyageTw": "ctn_tos"
+      }
+    },
+    {
+      "id": "nationality_ctn_sfv",
+      "name": "薩法維",
+      "displayOrder": 54,
+      "sourceRefs": {
+        "voyageTw": "ctn_sfv"
+      }
+    },
+    {
+      "id": "nationality_ctn_mrt",
+      "name": "馬拉塔帝國",
+      "displayOrder": 55,
+      "sourceRefs": {
+        "voyageTw": "ctn_mrt"
+      }
+    },
+    {
+      "id": "nationality_ctn_smr",
+      "name": "喀什米爾",
+      "displayOrder": 56,
+      "sourceRefs": {
+        "voyageTw": "ctn_smr"
+      }
+    },
+    {
+      "id": "nationality_ctn_pol",
+      "name": "波蘭",
+      "displayOrder": 57,
+      "sourceRefs": {
+        "voyageTw": "ctn_pol"
+      }
+    },
+    {
+      "id": "nationality_ctn_kbs",
+      "name": "賽普勒斯王國",
+      "displayOrder": 58,
+      "sourceRefs": {
+        "voyageTw": "ctn_kbs"
+      }
+    },
+    {
+      "id": "nationality_ctn_brs",
+      "name": "普魯士公國",
+      "displayOrder": 59,
+      "sourceRefs": {
+        "voyageTw": "ctn_brs"
+      }
+    }
+  ],
+  "languages": [
+    {
+      "id": "language_lang70",
+      "name": "瑞典語",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "lang70"
+      }
+    },
+    {
+      "id": "language_lang80",
+      "name": "拉丁語",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "lang80"
+      }
+    },
+    {
+      "id": "language_lang20",
+      "name": "西班牙語",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "lang20"
+      }
+    },
+    {
+      "id": "language_lang100",
+      "name": "尼德蘭語",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "lang100"
+      }
+    },
+    {
+      "id": "language_lang40",
+      "name": "法語",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "lang40"
+      }
+    },
+    {
+      "id": "language_lang60",
+      "name": "鄂圖曼語",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "lang60"
+      }
+    },
+    {
+      "id": "language_lang10",
+      "name": "葡萄牙語",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "lang10"
+      }
+    },
+    {
+      "id": "language_lang140",
+      "name": "希臘語",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "lang140"
+      }
+    },
+    {
+      "id": "language_lang50",
+      "name": "德語",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "lang50"
+      }
+    },
+    {
+      "id": "language_lang150",
+      "name": "阿拉伯語",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "lang150"
+      }
+    },
+    {
+      "id": "language_lang180",
+      "name": "班圖語",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "lang180"
+      }
+    },
+    {
+      "id": "language_lang30",
+      "name": "英語",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "lang30"
+      }
+    },
+    {
+      "id": "language_lang260",
+      "name": "阿拉瓦克語",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "lang260"
+      }
+    },
+    {
+      "id": "language_lang360",
+      "name": "朝鮮語",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "lang360"
+      }
+    },
+    {
+      "id": "language_lang340",
+      "name": "漢語",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "lang340"
+      }
+    },
+    {
+      "id": "language_lang350",
+      "name": "日語",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "lang350"
+      }
+    },
+    {
+      "id": "language_lang240",
+      "name": "北美諸語",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "lang240"
+      }
+    },
+    {
+      "id": "language_lang210",
+      "name": "克丘亞語",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "lang210"
+      }
+    },
+    {
+      "id": "language_lang200",
+      "name": "梵語",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "lang200"
+      }
+    },
+    {
+      "id": "language_lang300",
+      "name": "孟高棉語",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "lang300"
+      }
+    },
+    {
+      "id": "language_lang190",
+      "name": "波斯語",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "lang190"
+      }
+    },
+    {
+      "id": "language_lang290",
+      "name": "馬來語",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "lang290"
+      }
+    },
+    {
+      "id": "language_lang320",
+      "name": "他加祿語",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "lang320"
+      }
+    },
+    {
+      "id": "language_lang280",
+      "name": "阿瑜陀耶語",
+      "displayOrder": 23,
+      "sourceRefs": {
+        "voyageTw": "lang280"
+      }
+    },
+    {
+      "id": "language_lang90",
+      "name": "俄語",
+      "displayOrder": 24,
+      "sourceRefs": {
+        "voyageTw": "lang90"
+      }
+    },
+    {
+      "id": "language_lang160",
+      "name": "曼德語",
+      "displayOrder": 25,
+      "sourceRefs": {
+        "voyageTw": "lang160"
+      }
+    },
+    {
+      "id": "language_lang270",
+      "name": "加勒比語",
+      "displayOrder": 26,
+      "sourceRefs": {
+        "voyageTw": "lang270"
+      }
+    },
+    {
+      "id": "language_lang130",
+      "name": "斯拉夫語",
+      "displayOrder": 27,
+      "sourceRefs": {
+        "voyageTw": "lang130"
+      }
+    },
+    {
+      "id": "language_lang330",
+      "name": "爪哇語",
+      "displayOrder": 28,
+      "sourceRefs": {
+        "voyageTw": "lang330"
+      }
+    },
+    {
+      "id": "language_lang110",
+      "name": "挪威語",
+      "displayOrder": 29,
+      "sourceRefs": {
+        "voyageTw": "lang110"
+      }
+    },
+    {
+      "id": "language_lang120",
+      "name": "丹麥語",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "lang120"
+      }
+    },
+    {
+      "id": "language_lang310",
+      "name": "大洋洲諸語",
+      "displayOrder": 31,
+      "sourceRefs": {
+        "voyageTw": "lang310"
+      }
+    },
+    {
+      "id": "language_lang230",
+      "name": "納瓦特爾語",
+      "displayOrder": 32,
+      "sourceRefs": {
+        "voyageTw": "lang230"
+      }
+    },
+    {
+      "id": "language_lang250",
+      "name": "南美諸語",
+      "displayOrder": 33,
+      "sourceRefs": {
+        "voyageTw": "lang250"
+      }
+    },
+    {
+      "id": "language_lang220",
+      "name": "馬雅語",
+      "displayOrder": 34,
+      "sourceRefs": {
+        "voyageTw": "lang220"
+      }
+    },
+    {
+      "id": "language_lang170",
+      "name": "史瓦希利語",
+      "displayOrder": 35,
+      "sourceRefs": {
+        "voyageTw": "lang170"
+      }
+    }
+  ],
+  "cities": [
+    {
+      "id": "city_town4105",
+      "name": "科科拉",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "town4105"
+      }
+    },
+    {
+      "id": "city_town10105",
+      "name": "聖胡安",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "town10105"
+      }
+    },
+    {
+      "id": "city_town5303",
+      "name": "熱那亞",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "town5303"
+      }
+    },
+    {
+      "id": "city_town6301",
+      "name": "威尼斯",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "town6301"
+      }
+    },
+    {
+      "id": "city_town14205",
+      "name": "蘇伊士",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "town14205"
+      }
+    },
+    {
+      "id": "city_town10201",
+      "name": "聖多明哥",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "town10201"
+      }
+    },
+    {
+      "id": "city_town4201",
+      "name": "盧貝克",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "town4201"
+      }
+    },
+    {
+      "id": "city_town3302",
+      "name": "阿姆斯特丹",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "town3302"
+      }
+    },
+    {
+      "id": "city_town1201",
+      "name": "馬拉加",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "town1201"
+      }
+    },
+    {
+      "id": "city_town0301",
+      "name": "蘇打島",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "town0301"
+      }
+    },
+    {
+      "id": "city_town7203",
+      "name": "甘地亞",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "town7203"
+      }
+    },
+    {
+      "id": "city_town10101",
+      "name": "馬拉開波",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "town10101"
+      }
+    },
+    {
+      "id": "city_town9104",
+      "name": "梅里達",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "town9104"
+      }
+    },
+    {
+      "id": "city_town14203",
+      "name": "亞丁",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "town14203"
+      }
+    },
+    {
+      "id": "city_town15201",
+      "name": "果阿",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "town15201"
+      }
+    },
+    {
+      "id": "city_town11101",
+      "name": "里約熱內盧",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "town11101"
+      }
+    },
+    {
+      "id": "city_town14105",
+      "name": "索科特拉",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "town14105"
+      }
+    },
+    {
+      "id": "city_town8301",
+      "name": "雅典",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "town8301"
+      }
+    },
+    {
+      "id": "city_town6104",
+      "name": "的黎波里",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "town6104"
+      }
+    },
+    {
+      "id": "city_town14201",
+      "name": "馬斯喀特",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "town14201"
+      }
+    },
+    {
+      "id": "city_town8105",
+      "name": "薩洛尼卡",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "town8105"
+      }
+    },
+    {
+      "id": "city_town1205",
+      "name": "阿爾及爾",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "town1205"
+      }
+    },
+    {
+      "id": "city_town8302",
+      "name": "伊斯坦堡",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "town8302"
+      }
+    },
+    {
+      "id": "city_town7101",
+      "name": "尼克西亞",
+      "displayOrder": 23,
+      "sourceRefs": {
+        "voyageTw": "town7101"
+      }
+    },
+    {
+      "id": "city_town14207",
+      "name": "荷姆茲",
+      "displayOrder": 24,
+      "sourceRefs": {
+        "voyageTw": "town14207"
+      }
+    },
+    {
+      "id": "city_town5202",
+      "name": "比薩",
+      "displayOrder": 25,
+      "sourceRefs": {
+        "voyageTw": "town5202"
+      }
+    },
+    {
+      "id": "city_town5301",
+      "name": "拿坡里",
+      "displayOrder": 26,
+      "sourceRefs": {
+        "voyageTw": "town5301"
+      }
+    },
+    {
+      "id": "city_town5302",
+      "name": "馬賽",
+      "displayOrder": 27,
+      "sourceRefs": {
+        "voyageTw": "town5302"
+      }
+    },
+    {
+      "id": "city_town5201",
+      "name": "突尼斯",
+      "displayOrder": 28,
+      "sourceRefs": {
+        "voyageTw": "town5201"
+      }
+    },
+    {
+      "id": "city_town6201",
+      "name": "拉古薩",
+      "displayOrder": 29,
+      "sourceRefs": {
+        "voyageTw": "town6201"
+      }
+    },
+    {
+      "id": "city_town7201",
+      "name": "貝魯特",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "town7201"
+      }
+    },
+    {
+      "id": "city_town7202",
+      "name": "開羅",
+      "displayOrder": 31,
+      "sourceRefs": {
+        "voyageTw": "town7202"
+      }
+    },
+    {
+      "id": "city_town3201",
+      "name": "不來梅",
+      "displayOrder": 32,
+      "sourceRefs": {
+        "voyageTw": "town3201"
+      }
+    },
+    {
+      "id": "city_town1203",
+      "name": "瓦倫西亞",
+      "displayOrder": 33,
+      "sourceRefs": {
+        "voyageTw": "town1203"
+      }
+    },
+    {
+      "id": "city_town3301",
+      "name": "倫敦",
+      "displayOrder": 34,
+      "sourceRefs": {
+        "voyageTw": "town3301"
+      }
+    },
+    {
+      "id": "city_town15301",
+      "name": "卡利卡特",
+      "displayOrder": 35,
+      "sourceRefs": {
+        "voyageTw": "town15301"
+      }
+    },
+    {
+      "id": "city_town4302",
+      "name": "哥本哈根",
+      "displayOrder": 36,
+      "sourceRefs": {
+        "voyageTw": "town4302"
+      }
+    },
+    {
+      "id": "city_town2204",
+      "name": "布里斯托爾",
+      "displayOrder": 37,
+      "sourceRefs": {
+        "voyageTw": "town2204"
+      }
+    },
+    {
+      "id": "city_town3303",
+      "name": "漢堡",
+      "displayOrder": 38,
+      "sourceRefs": {
+        "voyageTw": "town3303"
+      }
+    },
+    {
+      "id": "city_town2202",
+      "name": "都柏林",
+      "displayOrder": 39,
+      "sourceRefs": {
+        "voyageTw": "town2202"
+      }
+    },
+    {
+      "id": "city_town1301",
+      "name": "里斯本",
+      "displayOrder": 40,
+      "sourceRefs": {
+        "voyageTw": "town1301"
+      }
+    },
+    {
+      "id": "city_town13204",
+      "name": "開普敦",
+      "displayOrder": 41,
+      "sourceRefs": {
+        "voyageTw": "town13204"
+      }
+    },
+    {
+      "id": "city_town17301",
+      "name": "馬六甲",
+      "displayOrder": 42,
+      "sourceRefs": {
+        "voyageTw": "town17301"
+      }
+    },
+    {
+      "id": "city_town1204",
+      "name": "休達",
+      "displayOrder": 43,
+      "sourceRefs": {
+        "voyageTw": "town1204"
+      }
+    },
+    {
+      "id": "city_town3204",
+      "name": "加萊",
+      "displayOrder": 44,
+      "sourceRefs": {
+        "voyageTw": "town3204"
+      }
+    },
+    {
+      "id": "city_town4103",
+      "name": "卑爾根",
+      "displayOrder": 45,
+      "sourceRefs": {
+        "voyageTw": "town4103"
+      }
+    },
+    {
+      "id": "city_town5103",
+      "name": "卡利亞里",
+      "displayOrder": 46,
+      "sourceRefs": {
+        "voyageTw": "town5103"
+      }
+    },
+    {
+      "id": "city_town3203",
+      "name": "愛丁堡",
+      "displayOrder": 47,
+      "sourceRefs": {
+        "voyageTw": "town3203"
+      }
+    },
+    {
+      "id": "city_town4202",
+      "name": "斯德哥爾摩",
+      "displayOrder": 48,
+      "sourceRefs": {
+        "voyageTw": "town4202"
+      }
+    },
+    {
+      "id": "city_town2206",
+      "name": "普利茅斯",
+      "displayOrder": 49,
+      "sourceRefs": {
+        "voyageTw": "town2206"
+      }
+    },
+    {
+      "id": "city_town6101",
+      "name": "班加西",
+      "displayOrder": 50,
+      "sourceRefs": {
+        "voyageTw": "town6101"
+      }
+    },
+    {
+      "id": "city_town1302",
+      "name": "塞維爾",
+      "displayOrder": 51,
+      "sourceRefs": {
+        "voyageTw": "town1302"
+      }
+    },
+    {
+      "id": "city_town18108",
+      "name": "安汶",
+      "displayOrder": 52,
+      "sourceRefs": {
+        "voyageTw": "town18108"
+      }
+    },
+    {
+      "id": "city_town18106",
+      "name": "馬辰",
+      "displayOrder": 53,
+      "sourceRefs": {
+        "voyageTw": "town18106"
+      }
+    },
+    {
+      "id": "city_town7301",
+      "name": "亞歷山大",
+      "displayOrder": 54,
+      "sourceRefs": {
+        "voyageTw": "town7301"
+      }
+    },
+    {
+      "id": "city_town9102",
+      "name": "拿索",
+      "displayOrder": 55,
+      "sourceRefs": {
+        "voyageTw": "town9102"
+      }
+    },
+    {
+      "id": "city_town10202",
+      "name": "皇家港",
+      "displayOrder": 56,
+      "sourceRefs": {
+        "voyageTw": "town10202"
+      }
+    },
+    {
+      "id": "city_town12106",
+      "name": "聖多美",
+      "displayOrder": 57,
+      "sourceRefs": {
+        "voyageTw": "town12106"
+      }
+    },
+    {
+      "id": "city_town16106",
+      "name": "阿爾漢格爾斯克",
+      "displayOrder": 58,
+      "sourceRefs": {
+        "voyageTw": "town16106"
+      }
+    },
+    {
+      "id": "city_town17201",
+      "name": "雅加達",
+      "displayOrder": 59,
+      "sourceRefs": {
+        "voyageTw": "town17201"
+      }
+    },
+    {
+      "id": "city_town20102",
+      "name": "馬希納",
+      "displayOrder": 60,
+      "sourceRefs": {
+        "voyageTw": "town20102"
+      }
+    },
+    {
+      "id": "city_town2201",
+      "name": "南特",
+      "displayOrder": 61,
+      "sourceRefs": {
+        "voyageTw": "town2201"
+      }
+    },
+    {
+      "id": "city_town10109",
+      "name": "卡宴",
+      "displayOrder": 62,
+      "sourceRefs": {
+        "voyageTw": "town10109"
+      }
+    },
+    {
+      "id": "city_town3202",
+      "name": "安特衛普",
+      "displayOrder": 63,
+      "sourceRefs": {
+        "voyageTw": "town3202"
+      }
+    },
+    {
+      "id": "city_town2101",
+      "name": "希洪",
+      "displayOrder": 64,
+      "sourceRefs": {
+        "voyageTw": "town2101"
+      }
+    },
+    {
+      "id": "city_town2203",
+      "name": "波爾多",
+      "displayOrder": 65,
+      "sourceRefs": {
+        "voyageTw": "town2203"
+      }
+    },
+    {
+      "id": "city_town21201",
+      "name": "東萊",
+      "displayOrder": 66,
+      "sourceRefs": {
+        "voyageTw": "town21201"
+      }
+    },
+    {
+      "id": "city_town21301",
+      "name": "漢陽",
+      "displayOrder": 67,
+      "sourceRefs": {
+        "voyageTw": "town21301"
+      }
+    },
+    {
+      "id": "city_town19301",
+      "name": "北京",
+      "displayOrder": 68,
+      "sourceRefs": {
+        "voyageTw": "town19301"
+      }
+    },
+    {
+      "id": "city_town19304",
+      "name": "杭州",
+      "displayOrder": 69,
+      "sourceRefs": {
+        "voyageTw": "town19304"
+      }
+    },
+    {
+      "id": "city_town19202",
+      "name": "泉州",
+      "displayOrder": 70,
+      "sourceRefs": {
+        "voyageTw": "town19202"
+      }
+    },
+    {
+      "id": "city_town19303",
+      "name": "重慶",
+      "displayOrder": 71,
+      "sourceRefs": {
+        "voyageTw": "town19303"
+      }
+    },
+    {
+      "id": "city_town19302",
+      "name": "長安",
+      "displayOrder": 72,
+      "sourceRefs": {
+        "voyageTw": "town19302"
+      }
+    },
+    {
+      "id": "city_town18301",
+      "name": "淡水",
+      "displayOrder": 73,
+      "sourceRefs": {
+        "voyageTw": "town18301"
+      }
+    },
+    {
+      "id": "city_town22201",
+      "name": "長崎",
+      "displayOrder": 74,
+      "sourceRefs": {
+        "voyageTw": "town22201"
+      }
+    },
+    {
+      "id": "city_town17104",
+      "name": "帕賽",
+      "displayOrder": 75,
+      "sourceRefs": {
+        "voyageTw": "town17104"
+      }
+    },
+    {
+      "id": "city_town17108",
+      "name": "河內",
+      "displayOrder": 76,
+      "sourceRefs": {
+        "voyageTw": "town17108"
+      }
+    },
+    {
+      "id": "city_town19201",
+      "name": "澳門",
+      "displayOrder": 77,
+      "sourceRefs": {
+        "voyageTw": "town19201"
+      }
+    },
+    {
+      "id": "city_town19101",
+      "name": "燕雲",
+      "displayOrder": 78,
+      "sourceRefs": {
+        "voyageTw": "town19101"
+      }
+    },
+    {
+      "id": "city_town1202",
+      "name": "巴塞隆納",
+      "displayOrder": 79,
+      "sourceRefs": {
+        "voyageTw": "town1202"
+      }
+    },
+    {
+      "id": "city_town14102",
+      "name": "馬薩瓦",
+      "displayOrder": 80,
+      "sourceRefs": {
+        "voyageTw": "town14102"
+      }
+    },
+    {
+      "id": "city_town1303",
+      "name": "聖誕島",
+      "displayOrder": 81,
+      "sourceRefs": {
+        "voyageTw": "town1303"
+      }
+    },
+    {
+      "id": "city_town2205",
+      "name": "奧波多",
+      "displayOrder": 82,
+      "sourceRefs": {
+        "voyageTw": "town2205"
+      }
+    },
+    {
+      "id": "city_town12103",
+      "name": "巴瑟斯特",
+      "displayOrder": 83,
+      "sourceRefs": {
+        "voyageTw": "town12103"
+      }
+    },
+    {
+      "id": "city_town4203",
+      "name": "奧斯陸",
+      "displayOrder": 84,
+      "sourceRefs": {
+        "voyageTw": "town4203"
+      }
+    },
+    {
+      "id": "city_town4104",
+      "name": "維斯比",
+      "displayOrder": 85,
+      "sourceRefs": {
+        "voyageTw": "town4104"
+      }
+    },
+    {
+      "id": "city_town22101",
+      "name": "堺",
+      "displayOrder": 86,
+      "sourceRefs": {
+        "voyageTw": "town22101"
+      }
+    },
+    {
+      "id": "city_town11108",
+      "name": "伯南布哥",
+      "displayOrder": 87,
+      "sourceRefs": {
+        "voyageTw": "town11108"
+      }
+    },
+    {
+      "id": "city_town14204",
+      "name": "巴士拉",
+      "displayOrder": 88,
+      "sourceRefs": {
+        "voyageTw": "town14204"
+      }
+    },
+    {
+      "id": "city_town11105",
+      "name": "烏斯懷亞",
+      "displayOrder": 89,
+      "sourceRefs": {
+        "voyageTw": "town11105"
+      }
+    },
+    {
+      "id": "city_town11106",
+      "name": "科皮亞波",
+      "displayOrder": 90,
+      "sourceRefs": {
+        "voyageTw": "town11106"
+      }
+    },
+    {
+      "id": "city_town15102",
+      "name": "第烏",
+      "displayOrder": 91,
+      "sourceRefs": {
+        "voyageTw": "town15102"
+      }
+    },
+    {
+      "id": "city_town1102",
+      "name": "法羅",
+      "displayOrder": 92,
+      "sourceRefs": {
+        "voyageTw": "town1102"
+      }
+    },
+    {
+      "id": "city_town17102",
+      "name": "泗水",
+      "displayOrder": 93,
+      "sourceRefs": {
+        "voyageTw": "town17102"
+      }
+    },
+    {
+      "id": "city_town11301",
+      "name": "利馬",
+      "displayOrder": 94,
+      "sourceRefs": {
+        "voyageTw": "town11301"
+      }
+    },
+    {
+      "id": "city_town20111",
+      "name": "平哈拉",
+      "displayOrder": 95,
+      "sourceRefs": {
+        "voyageTw": "town20111"
+      }
+    },
+    {
+      "id": "city_town9201",
+      "name": "維拉克斯",
+      "displayOrder": 96,
+      "sourceRefs": {
+        "voyageTw": "town9201"
+      }
+    },
+    {
+      "id": "city_town10108",
+      "name": "迦太基",
+      "displayOrder": 97,
+      "sourceRefs": {
+        "voyageTw": "town10108"
+      }
+    },
+    {
+      "id": "city_town14202",
+      "name": "巴格達",
+      "displayOrder": 98,
+      "sourceRefs": {
+        "voyageTw": "town14202"
+      }
+    },
+    {
+      "id": "city_town12301",
+      "name": "廷巴克圖",
+      "displayOrder": 99,
+      "sourceRefs": {
+        "voyageTw": "town12301"
+      }
+    },
+    {
+      "id": "city_town15106",
+      "name": "本地治里",
+      "displayOrder": 100,
+      "sourceRefs": {
+        "voyageTw": "town15106"
+      }
+    },
+    {
+      "id": "city_town18107",
+      "name": "汶萊",
+      "displayOrder": 101,
+      "sourceRefs": {
+        "voyageTw": "town18107"
+      }
+    },
+    {
+      "id": "city_town13103",
+      "name": "麻林地",
+      "displayOrder": 102,
+      "sourceRefs": {
+        "voyageTw": "town13103"
+      }
+    },
+    {
+      "id": "city_town20109",
+      "name": "卡卡圖瓦",
+      "displayOrder": 103,
+      "sourceRefs": {
+        "voyageTw": "town20109"
+      }
+    },
+    {
+      "id": "city_town20108",
+      "name": "栗島",
+      "displayOrder": 104,
+      "sourceRefs": {
+        "voyageTw": "town20108"
+      }
+    },
+    {
+      "id": "city_town22301",
+      "name": "江戶",
+      "displayOrder": 105,
+      "sourceRefs": {
+        "voyageTw": "town22301"
+      }
+    },
+    {
+      "id": "city_town21103",
+      "name": "濟州",
+      "displayOrder": 106,
+      "sourceRefs": {
+        "voyageTw": "town21103"
+      }
+    },
+    {
+      "id": "city_town20103",
+      "name": "薩馬賴",
+      "displayOrder": 107,
+      "sourceRefs": {
+        "voyageTw": "town20103"
+      }
+    },
+    {
+      "id": "city_town22103",
+      "name": "蝦夷",
+      "displayOrder": 108,
+      "sourceRefs": {
+        "voyageTw": "town22103"
+      }
+    },
+    {
+      "id": "city_town10102",
+      "name": "威廉斯塔德",
+      "displayOrder": 109,
+      "sourceRefs": {
+        "voyageTw": "town10102"
+      }
+    },
+    {
+      "id": "city_town4301",
+      "name": "聖彼得堡",
+      "displayOrder": 110,
+      "sourceRefs": {
+        "voyageTw": "town4301"
+      }
+    },
+    {
+      "id": "city_town18103",
+      "name": "馬尼拉",
+      "displayOrder": 111,
+      "sourceRefs": {
+        "voyageTw": "town18103"
+      }
+    },
+    {
+      "id": "city_town10106",
+      "name": "哈瓦那",
+      "displayOrder": 112,
+      "sourceRefs": {
+        "voyageTw": "town10106"
+      }
+    },
+    {
+      "id": "city_town9106",
+      "name": "阿卡普高",
+      "displayOrder": 113,
+      "sourceRefs": {
+        "voyageTw": "town9106"
+      }
+    },
+    {
+      "id": "city_town9109",
+      "name": "巴拿馬",
+      "displayOrder": 114,
+      "sourceRefs": {
+        "voyageTw": "town9109"
+      }
+    },
+    {
+      "id": "city_town10110",
+      "name": "波拉馬爾",
+      "displayOrder": 115,
+      "sourceRefs": {
+        "voyageTw": "town10110"
+      }
+    },
+    {
+      "id": "city_town20106",
+      "name": "烏納拉斯卡",
+      "displayOrder": 116,
+      "sourceRefs": {
+        "voyageTw": "town20106"
+      }
+    },
+    {
+      "id": "city_town13202",
+      "name": "莫三比克",
+      "displayOrder": 117,
+      "sourceRefs": {
+        "voyageTw": "town13202"
+      }
+    },
+    {
+      "id": "city_town15104",
+      "name": "錫蘭",
+      "displayOrder": 118,
+      "sourceRefs": {
+        "voyageTw": "town15104"
+      }
+    },
+    {
+      "id": "city_town16112",
+      "name": "科孚島（柯爾夫）",
+      "displayOrder": 119,
+      "sourceRefs": {
+        "voyageTw": "town16112"
+      }
+    },
+    {
+      "id": "city_town8104",
+      "name": "塔甘羅格",
+      "displayOrder": 120,
+      "sourceRefs": {
+        "voyageTw": "town8104"
+      }
+    },
+    {
+      "id": "city_town10103",
+      "name": "紹斯賽德",
+      "displayOrder": 121,
+      "sourceRefs": {
+        "voyageTw": "town10103"
+      }
+    },
+    {
+      "id": "city_town18110",
+      "name": "安平",
+      "displayOrder": 122,
+      "sourceRefs": {
+        "voyageTw": "town18110"
+      }
+    },
+    {
+      "id": "city_town17105",
+      "name": "巨港",
+      "displayOrder": 123,
+      "sourceRefs": {
+        "voyageTw": "town17105"
+      }
+    },
+    {
+      "id": "city_town1103",
+      "name": "帕爾瑪",
+      "displayOrder": 124,
+      "sourceRefs": {
+        "voyageTw": "town1103"
+      }
+    },
+    {
+      "id": "city_town12101",
+      "name": "杜阿拉",
+      "displayOrder": 125,
+      "sourceRefs": {
+        "voyageTw": "town12101"
+      }
+    },
+    {
+      "id": "city_town12104",
+      "name": "貝南",
+      "displayOrder": 126,
+      "sourceRefs": {
+        "voyageTw": "town12104"
+      }
+    },
+    {
+      "id": "city_town12202",
+      "name": "埃爾米納",
+      "displayOrder": 127,
+      "sourceRefs": {
+        "voyageTw": "town12202"
+      }
+    },
+    {
+      "id": "city_town12107",
+      "name": "獅子山",
+      "displayOrder": 128,
+      "sourceRefs": {
+        "voyageTw": "town12107"
+      }
+    },
+    {
+      "id": "city_town12201",
+      "name": "阿比讓",
+      "displayOrder": 129,
+      "sourceRefs": {
+        "voyageTw": "town12201"
+      }
+    },
+    {
+      "id": "city_town11102",
+      "name": "巴伊亞",
+      "displayOrder": 130,
+      "sourceRefs": {
+        "voyageTw": "town11102"
+      }
+    },
+    {
+      "id": "city_town11104",
+      "name": "布宜諾斯艾利斯",
+      "displayOrder": 131,
+      "sourceRefs": {
+        "voyageTw": "town11104"
+      }
+    },
+    {
+      "id": "city_town10104",
+      "name": "聖地牙哥",
+      "displayOrder": 132,
+      "sourceRefs": {
+        "voyageTw": "town10104"
+      }
+    },
+    {
+      "id": "city_town10107",
+      "name": "加拉卡斯",
+      "displayOrder": 133,
+      "sourceRefs": {
+        "voyageTw": "town10107"
+      }
+    },
+    {
+      "id": "city_town21101",
+      "name": "德源",
+      "displayOrder": 134,
+      "sourceRefs": {
+        "voyageTw": "town21101"
+      }
+    },
+    {
+      "id": "city_town21102",
+      "name": "迎日",
+      "displayOrder": 135,
+      "sourceRefs": {
+        "voyageTw": "town21102"
+      }
+    },
+    {
+      "id": "city_town12102",
+      "name": "拉斯帕爾馬斯",
+      "displayOrder": 136,
+      "sourceRefs": {
+        "voyageTw": "town12102"
+      }
+    },
+    {
+      "id": "city_town9108",
+      "name": "科哈塞特",
+      "displayOrder": 137,
+      "sourceRefs": {
+        "voyageTw": "town9108"
+      }
+    },
+    {
+      "id": "city_town8106",
+      "name": "特拉布宗",
+      "displayOrder": 138,
+      "sourceRefs": {
+        "voyageTw": "town8106"
+      }
+    },
+    {
+      "id": "city_town5101",
+      "name": "蒙彼利埃",
+      "displayOrder": 139,
+      "sourceRefs": {
+        "voyageTw": "town5101"
+      }
+    },
+    {
+      "id": "city_town12105",
+      "name": "比紹",
+      "displayOrder": 140,
+      "sourceRefs": {
+        "voyageTw": "town12105"
+      }
+    },
+    {
+      "id": "city_town13109",
+      "name": "塔瑪塔夫",
+      "displayOrder": 141,
+      "sourceRefs": {
+        "voyageTw": "town13109"
+      }
+    },
+    {
+      "id": "city_town5104",
+      "name": "卡爾維",
+      "displayOrder": 142,
+      "sourceRefs": {
+        "voyageTw": "town5104"
+      }
+    },
+    {
+      "id": "city_town22102",
+      "name": "那霸",
+      "displayOrder": 143,
+      "sourceRefs": {
+        "voyageTw": "town22102"
+      }
+    },
+    {
+      "id": "city_town18101",
+      "name": "達沃",
+      "displayOrder": 144,
+      "sourceRefs": {
+        "voyageTw": "town18101"
+      }
+    },
+    {
+      "id": "city_town18112",
+      "name": "和魯",
+      "displayOrder": 145,
+      "sourceRefs": {
+        "voyageTw": "town18112"
+      }
+    },
+    {
+      "id": "city_town6102",
+      "name": "安科納",
+      "displayOrder": 146,
+      "sourceRefs": {
+        "voyageTw": "town6102"
+      }
+    },
+    {
+      "id": "city_town3103",
+      "name": "格羅寧根",
+      "displayOrder": 147,
+      "sourceRefs": {
+        "voyageTw": "town3103"
+      }
+    },
+    {
+      "id": "city_town4101",
+      "name": "但澤",
+      "displayOrder": 148,
+      "sourceRefs": {
+        "voyageTw": "town4101"
+      }
+    },
+    {
+      "id": "city_town14101",
+      "name": "杜法爾",
+      "displayOrder": 149,
+      "sourceRefs": {
+        "voyageTw": "town14101"
+      }
+    },
+    {
+      "id": "city_town1105",
+      "name": "馬德拉",
+      "displayOrder": 150,
+      "sourceRefs": {
+        "voyageTw": "town1105"
+      }
+    },
+    {
+      "id": "city_town1104",
+      "name": "亞速爾",
+      "displayOrder": 151,
+      "sourceRefs": {
+        "voyageTw": "town1104"
+      }
+    },
+    {
+      "id": "city_town12109",
+      "name": "維德角",
+      "displayOrder": 152,
+      "sourceRefs": {
+        "voyageTw": "town12109"
+      }
+    },
+    {
+      "id": "city_town9202",
+      "name": "特魯希略",
+      "displayOrder": 153,
+      "sourceRefs": {
+        "voyageTw": "town9202"
+      }
+    },
+    {
+      "id": "city_town9203",
+      "name": "波多貝羅",
+      "displayOrder": 154,
+      "sourceRefs": {
+        "voyageTw": "town9203"
+      }
+    },
+    {
+      "id": "city_town20112",
+      "name": "關島",
+      "displayOrder": 155,
+      "sourceRefs": {
+        "voyageTw": "town20112"
+      }
+    },
+    {
+      "id": "city_town1101",
+      "name": "卡薩布蘭加",
+      "displayOrder": 156,
+      "sourceRefs": {
+        "voyageTw": "town1101"
+      }
+    },
+    {
+      "id": "city_town18111",
+      "name": "特爾納特",
+      "displayOrder": 157,
+      "sourceRefs": {
+        "voyageTw": "town18111"
+      }
+    },
+    {
+      "id": "city_town3102",
+      "name": "多佛",
+      "displayOrder": 158,
+      "sourceRefs": {
+        "voyageTw": "town3102"
+      }
+    },
+    {
+      "id": "city_town3101",
+      "name": "海爾德",
+      "displayOrder": 159,
+      "sourceRefs": {
+        "voyageTw": "town3101"
+      }
+    },
+    {
+      "id": "city_town6202",
+      "name": "錫拉庫薩",
+      "displayOrder": 160,
+      "sourceRefs": {
+        "voyageTw": "town6202"
+      }
+    },
+    {
+      "id": "city_town14103",
+      "name": "夕拉茲",
+      "displayOrder": 161,
+      "sourceRefs": {
+        "voyageTw": "town14103"
+      }
+    },
+    {
+      "id": "city_town7104",
+      "name": "雅法",
+      "displayOrder": 162,
+      "sourceRefs": {
+        "voyageTw": "town7104"
+      }
+    },
+    {
+      "id": "city_town7103",
+      "name": "安塔利亞",
+      "displayOrder": 163,
+      "sourceRefs": {
+        "voyageTw": "town7103"
+      }
+    },
+    {
+      "id": "city_town18104",
+      "name": "望加錫",
+      "displayOrder": 164,
+      "sourceRefs": {
+        "voyageTw": "town18104"
+      }
+    },
+    {
+      "id": "city_town4102",
+      "name": "里加",
+      "displayOrder": 165,
+      "sourceRefs": {
+        "voyageTw": "town4102"
+      }
+    },
+    {
+      "id": "city_town7102",
+      "name": "賽德港",
+      "displayOrder": 166,
+      "sourceRefs": {
+        "voyageTw": "town7102"
+      }
+    },
+    {
+      "id": "city_town20101",
+      "name": "芬瑟島",
+      "displayOrder": 167,
+      "sourceRefs": {
+        "voyageTw": "town20101"
+      }
+    },
+    {
+      "id": "city_town9107",
+      "name": "歐隆",
+      "displayOrder": 168,
+      "sourceRefs": {
+        "voyageTw": "town9107"
+      }
+    },
+    {
+      "id": "city_town15105",
+      "name": "加爾各答",
+      "displayOrder": 169,
+      "sourceRefs": {
+        "voyageTw": "town15105"
+      }
+    },
+    {
+      "id": "city_town20107",
+      "name": "旺加努伊",
+      "displayOrder": 170,
+      "sourceRefs": {
+        "voyageTw": "town20107"
+      }
+    },
+    {
+      "id": "city_town8103",
+      "name": "刻赤",
+      "displayOrder": 171,
+      "sourceRefs": {
+        "voyageTw": "town8103"
+      }
+    },
+    {
+      "id": "city_town8101",
+      "name": "瓦爾納",
+      "displayOrder": 172,
+      "sourceRefs": {
+        "voyageTw": "town8101"
+      }
+    },
+    {
+      "id": "city_town13105",
+      "name": "本格拉",
+      "displayOrder": 173,
+      "sourceRefs": {
+        "voyageTw": "town13105"
+      }
+    },
+    {
+      "id": "city_town13201",
+      "name": "羅安達",
+      "displayOrder": 174,
+      "sourceRefs": {
+        "voyageTw": "town13201"
+      }
+    },
+    {
+      "id": "city_town17103",
+      "name": "亞齊",
+      "displayOrder": 175,
+      "sourceRefs": {
+        "voyageTw": "town17103"
+      }
+    },
+    {
+      "id": "city_town17107",
+      "name": "嘉定",
+      "displayOrder": 176,
+      "sourceRefs": {
+        "voyageTw": "town17107"
+      }
+    },
+    {
+      "id": "city_town13205",
+      "name": "桑給巴爾",
+      "displayOrder": 177,
+      "sourceRefs": {
+        "voyageTw": "town13205"
+      }
+    },
+    {
+      "id": "city_town18109",
+      "name": "古晉",
+      "displayOrder": 178,
+      "sourceRefs": {
+        "voyageTw": "town18109"
+      }
+    },
+    {
+      "id": "city_town17101",
+      "name": "洛布里",
+      "displayOrder": 179,
+      "sourceRefs": {
+        "voyageTw": "town17101"
+      }
+    },
+    {
+      "id": "city_town13102",
+      "name": "蒙巴薩",
+      "displayOrder": 180,
+      "sourceRefs": {
+        "voyageTw": "town13102"
+      }
+    },
+    {
+      "id": "city_town15103",
+      "name": "默蘇利珀德姆",
+      "displayOrder": 181,
+      "sourceRefs": {
+        "voyageTw": "town15103"
+      }
+    },
+    {
+      "id": "city_town13203",
+      "name": "索法拉",
+      "displayOrder": 182,
+      "sourceRefs": {
+        "voyageTw": "town13203"
+      }
+    },
+    {
+      "id": "city_town15101",
+      "name": "科欽",
+      "displayOrder": 183,
+      "sourceRefs": {
+        "voyageTw": "town15101"
+      }
+    },
+    {
+      "id": "city_town5102",
+      "name": "薩沙里",
+      "displayOrder": 184,
+      "sourceRefs": {
+        "voyageTw": "town5102"
+      }
+    },
+    {
+      "id": "city_town6103",
+      "name": "札達爾",
+      "displayOrder": 185,
+      "sourceRefs": {
+        "voyageTw": "town6103"
+      }
+    },
+    {
+      "id": "city_town6105",
+      "name": "第里雅斯特",
+      "displayOrder": 186,
+      "sourceRefs": {
+        "voyageTw": "town6105"
+      }
+    },
+    {
+      "id": "city_town13108",
+      "name": "基爾瓦",
+      "displayOrder": 187,
+      "sourceRefs": {
+        "voyageTw": "town13108"
+      }
+    },
+    {
+      "id": "city_town16109",
+      "name": "切爾斯基",
+      "displayOrder": 188,
+      "sourceRefs": {
+        "voyageTw": "town16109"
+      }
+    },
+    {
+      "id": "city_town8102",
+      "name": "奧德薩",
+      "displayOrder": 189,
+      "sourceRefs": {
+        "voyageTw": "town8102"
+      }
+    },
+    {
+      "id": "city_town11103",
+      "name": "瓦爾帕萊索",
+      "displayOrder": 190,
+      "sourceRefs": {
+        "voyageTw": "town11103"
+      }
+    },
+    {
+      "id": "city_town9101",
+      "name": "瓜地馬拉",
+      "displayOrder": 191,
+      "sourceRefs": {
+        "voyageTw": "town9101"
+      }
+    },
+    {
+      "id": "city_town16104",
+      "name": "瓦爾德",
+      "displayOrder": 192,
+      "sourceRefs": {
+        "voyageTw": "town16104"
+      }
+    },
+    {
+      "id": "city_town13104",
+      "name": "摩加迪休",
+      "displayOrder": 193,
+      "sourceRefs": {
+        "voyageTw": "town13104"
+      }
+    },
+    {
+      "id": "city_town14206",
+      "name": "吉達",
+      "displayOrder": 194,
+      "sourceRefs": {
+        "voyageTw": "town14206"
+      }
+    },
+    {
+      "id": "city_town11107",
+      "name": "通貝斯",
+      "displayOrder": 195,
+      "sourceRefs": {
+        "voyageTw": "town11107"
+      }
+    },
+    {
+      "id": "city_town15107",
+      "name": "勃固",
+      "displayOrder": 196,
+      "sourceRefs": {
+        "voyageTw": "town15107"
+      }
+    },
+    {
+      "id": "city_town20114",
+      "name": "荷巴特",
+      "displayOrder": 197,
+      "sourceRefs": {
+        "voyageTw": "town20114"
+      }
+    },
+    {
+      "id": "city_town16105",
+      "name": "巴羅",
+      "displayOrder": 198,
+      "sourceRefs": {
+        "voyageTw": "town16105"
+      }
+    },
+    {
+      "id": "city_town9105",
+      "name": "亞懷亞特",
+      "displayOrder": 199,
+      "sourceRefs": {
+        "voyageTw": "town9105"
+      }
+    },
+    {
+      "id": "city_town10111",
+      "name": "塔科馬",
+      "displayOrder": 200,
+      "sourceRefs": {
+        "voyageTw": "town10111"
+      }
+    },
+    {
+      "id": "city_town13101",
+      "name": "納塔爾",
+      "displayOrder": 201,
+      "sourceRefs": {
+        "voyageTw": "town13101"
+      }
+    },
+    {
+      "id": "city_town13106",
+      "name": "卡里比布",
+      "displayOrder": 202,
+      "sourceRefs": {
+        "voyageTw": "town13106"
+      }
+    },
+    {
+      "id": "city_town13107",
+      "name": "克利馬內",
+      "displayOrder": 203,
+      "sourceRefs": {
+        "voyageTw": "town13107"
+      }
+    },
+    {
+      "id": "city_town20110",
+      "name": "皮里港",
+      "displayOrder": 204,
+      "sourceRefs": {
+        "voyageTw": "town20110"
+      }
+    },
+    {
+      "id": "city_town12108",
+      "name": "阿爾金",
+      "displayOrder": 205,
+      "sourceRefs": {
+        "voyageTw": "town12108"
+      }
+    },
+    {
+      "id": "city_town14104",
+      "name": "多哈",
+      "displayOrder": 206,
+      "sourceRefs": {
+        "voyageTw": "town14104"
+      }
+    },
+    {
+      "id": "city_town9103",
+      "name": "努塔克",
+      "displayOrder": 207,
+      "sourceRefs": {
+        "voyageTw": "town9103"
+      }
+    },
+    {
+      "id": "city_town16103",
+      "name": "雷克雅維克",
+      "displayOrder": 208,
+      "sourceRefs": {
+        "voyageTw": "town16103"
+      }
+    },
+    {
+      "id": "city_town16107",
+      "name": "鄂霍次克",
+      "displayOrder": 209,
+      "sourceRefs": {
+        "voyageTw": "town16107"
+      }
+    },
+    {
+      "id": "city_town16101",
+      "name": "那維克",
+      "displayOrder": 210,
+      "sourceRefs": {
+        "voyageTw": "town16101"
+      }
+    },
+    {
+      "id": "city_town20113",
+      "name": "夏威夷",
+      "displayOrder": 211,
+      "sourceRefs": {
+        "voyageTw": "town20113"
+      }
+    },
+    {
+      "id": "city_town18102",
+      "name": "帝利",
+      "displayOrder": 212,
+      "sourceRefs": {
+        "voyageTw": "town18102"
+      }
+    },
+    {
+      "id": "city_town18105",
+      "name": "班達",
+      "displayOrder": 213,
+      "sourceRefs": {
+        "voyageTw": "town18105"
+      }
+    },
+    {
+      "id": "city_town20105",
+      "name": "希瓦瓦",
+      "displayOrder": 214,
+      "sourceRefs": {
+        "voyageTw": "town20105"
+      }
+    },
+    {
+      "id": "city_town20104",
+      "name": "蘇瓦",
+      "displayOrder": 215,
+      "sourceRefs": {
+        "voyageTw": "town20104"
+      }
+    },
+    {
+      "id": "city_town17106",
+      "name": "檳港",
+      "displayOrder": 216,
+      "sourceRefs": {
+        "voyageTw": "town17106"
+      }
+    }
+  ],
+  "requirements": [
+    {
+      "id": "requirement_reqchasT089",
+      "name": "維托里奧·薩托里編年史中獲得",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "reqchasT089"
+      }
+    },
+    {
+      "id": "requirement_reqchasT090",
+      "name": "維托里奧·薩托里編年史中獲得",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "reqchasT090"
+      }
+    },
+    {
+      "id": "requirement_reqchasT091",
+      "name": "維托里奧·薩托里編年史中獲得",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "reqchasT091"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb002",
+      "name": "卡塔利娜·艾蘭茨編年史任務完成度（113/114）",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb002"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb003",
+      "name": "可在約翰·費雷羅編年史中獲得",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb003"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb007",
+      "name": "皮瑞·雷斯編年史任務成就 (106/108)",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb007"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb008",
+      "name": "賽義達·赫拉編年史任務完成度（200/201）",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb008"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb010",
+      "name": "伊達政宗編年史任務完成度 (171/173)",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb010"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb011",
+      "name": "今井咲編年史任務完成度（194/196）",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb011"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb012",
+      "name": "阿爾·維斯特編年史任務完成度（98/99）",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb012"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb016",
+      "name": "埃內斯特·洛佩斯編年史任務完成度（121/180）",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb016"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb018",
+      "name": "薩爾巴多爾·雷斯編年史任務完成度（107/108）",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb018"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb019",
+      "name": "格蕾絲·奧馬利編年史任務完成度（126/127）",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb019"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb021",
+      "name": "戚繼光年代任務完成度 (134/136)",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb021"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb022",
+      "name": "萊昂·費雷羅編年史任務完成度（196/198）",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb022"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb024",
+      "name": "安妮·邦妮編年史任務完成度（171/172）",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb024"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb029",
+      "name": "requirement_reqchasbb029",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb029"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb031",
+      "name": "requirement_reqchasbb031",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb031"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb032",
+      "name": "requirement_reqchasbb032",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb032"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb033",
+      "name": "requirement_reqchasbb033",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb033"
+      }
+    },
+    {
+      "id": "requirement_reqchasbb067",
+      "name": "羅莎莉亞·波爾漢姆編年史任務成就 (176/179)",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "reqchasbb067"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd004",
+      "name": "鄭和編年史任務成就 (161/163)",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd004"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd005",
+      "name": "皮耶德·康迪編年史任務完成度（73/74）",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd005"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd007",
+      "name": "鄭成功年代任務完成度(174/176)",
+      "displayOrder": 23,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd007"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd009",
+      "name": "茹伊·霍可編年史任務完成度 (120/122）",
+      "displayOrder": 24,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd009"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd010",
+      "name": "埃內斯特·洛佩斯編年史任務完成度（179/180）",
+      "displayOrder": 25,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd010"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd013",
+      "name": "米蘭達·貝爾蒂編年史任務完成度（134/135）",
+      "displayOrder": 26,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd013"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd015",
+      "name": "奧托·斯賓諾拉編年史任務完成度（110/111）",
+      "displayOrder": 27,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd015"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd018",
+      "name": "requirement_reqchasbd018",
+      "displayOrder": 28,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd018"
+      }
+    },
+    {
+      "id": "requirement_reqchasbd019",
+      "name": "瑪麗貝爾編年史完程度 (137/139)",
+      "displayOrder": 29,
+      "sourceRefs": {
+        "voyageTw": "reqchasbd019"
+      }
+    },
+    {
+      "id": "requirement_reqchasbt003",
+      "name": "金萬德編年史任務完成率（133/135）",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "reqchasbt003"
+      }
+    },
+    {
+      "id": "requirement_reqchasbt004",
+      "name": "昌德·比比編年史任務完成度（116/116）",
+      "displayOrder": 31,
+      "sourceRefs": {
+        "voyageTw": "reqchasbt004"
+      }
+    },
+    {
+      "id": "requirement_reqchasbt007",
+      "name": "約翰·費雷羅編年史任務完成度（140/141）",
+      "displayOrder": 32,
+      "sourceRefs": {
+        "voyageTw": "reqchasbt007"
+      }
+    },
+    {
+      "id": "requirement_reqchasbt009",
+      "name": "洪吉童編年史任務完成度 (136/138)",
+      "displayOrder": 33,
+      "sourceRefs": {
+        "voyageTw": "reqchasbt009"
+      }
+    },
+    {
+      "id": "requirement_reqchasbt014",
+      "name": "requirement_reqchasbt014",
+      "displayOrder": 34,
+      "sourceRefs": {
+        "voyageTw": "reqchasbt014"
+      }
+    },
+    {
+      "id": "requirement_reqchasbt016",
+      "name": "requirement_reqchasbt016",
+      "displayOrder": 35,
+      "sourceRefs": {
+        "voyageTw": "reqchasbt016"
+      }
+    },
+    {
+      "id": "requirement_reqchasT027",
+      "name": "威廉·亞當斯編年史中獲得",
+      "displayOrder": 36,
+      "sourceRefs": {
+        "voyageTw": "reqchasT027"
+      }
+    },
+    {
+      "id": "requirement_reqchasT031",
+      "name": "競賽商店兌換（第１季）",
+      "displayOrder": 37,
+      "sourceRefs": {
+        "voyageTw": "reqchasT031"
+      }
+    },
+    {
+      "id": "requirement_reqchasT036",
+      "name": "伊莉莎白·雪蘭編年史中獲得(154/154)",
+      "displayOrder": 38,
+      "sourceRefs": {
+        "voyageTw": "reqchasT036"
+      }
+    },
+    {
+      "id": "requirement_reqchasT044",
+      "name": "競賽商店兌換（第２季）",
+      "displayOrder": 39,
+      "sourceRefs": {
+        "voyageTw": "reqchasT044"
+      }
+    },
+    {
+      "id": "requirement_reqchasT050",
+      "name": "伊莉安娜·費萊歐斯編年史中獲得",
+      "displayOrder": 40,
+      "sourceRefs": {
+        "voyageTw": "reqchasT050"
+      }
+    },
+    {
+      "id": "requirement_reqchasT056",
+      "name": "投資商店兌換（第１季）",
+      "displayOrder": 41,
+      "sourceRefs": {
+        "voyageTw": "reqchasT056"
+      }
+    },
+    {
+      "id": "requirement_reqchasT057",
+      "name": "競賽商店兌換（第３季）",
+      "displayOrder": 42,
+      "sourceRefs": {
+        "voyageTw": "reqchasT057"
+      }
+    },
+    {
+      "id": "requirement_reqchasT063",
+      "name": "投資商店兌換（第2季）",
+      "displayOrder": 43,
+      "sourceRefs": {
+        "voyageTw": "reqchasT063"
+      }
+    },
+    {
+      "id": "requirement_reqchasT065",
+      "name": "蘇燕美編年史中獲得",
+      "displayOrder": 44,
+      "sourceRefs": {
+        "voyageTw": "reqchasT065"
+      }
+    },
+    {
+      "id": "requirement_reqchasT084",
+      "name": "萊納斯·拉契特編年史中獲得",
+      "displayOrder": 45,
+      "sourceRefs": {
+        "voyageTw": "reqchasT084"
+      }
+    },
+    {
+      "id": "requirement_reqchasT086",
+      "name": "投資商店兌換（第3季）",
+      "displayOrder": 46,
+      "sourceRefs": {
+        "voyageTw": "reqchasT086"
+      }
+    },
+    {
+      "id": "requirement_reqchasT087",
+      "name": "投資商店兌換（第4季）",
+      "displayOrder": 47,
+      "sourceRefs": {
+        "voyageTw": "reqchasT087"
+      }
+    },
+    {
+      "id": "requirement_reqchasT088",
+      "name": "投資商店兌換（第5季）",
+      "displayOrder": 48,
+      "sourceRefs": {
+        "voyageTw": "reqchasT088"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb001",
+      "name": "可在昌德·比比編年史中獲得",
+      "displayOrder": 49,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb001"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb006",
+      "name": "安妮·邦妮編年史完成度（18/172）",
+      "displayOrder": 50,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb006"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb012",
+      "name": "安妮·邦妮編年史完成度（55/172）",
+      "displayOrder": 51,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb012"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb018",
+      "name": "洪吉童編年史中可獲得該航海士",
+      "displayOrder": 52,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb018"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb029",
+      "name": "可在薩爾巴多爾·雷斯編年史中獲得",
+      "displayOrder": 53,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb029"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb030",
+      "name": "可在伊達政宗編年史中獲得",
+      "displayOrder": 54,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb030"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb034",
+      "name": "可在埃爾南的告白活動中獲得",
+      "displayOrder": 55,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb034"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb035",
+      "name": "金萬德編年史中獲得",
+      "displayOrder": 56,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb035"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb039",
+      "name": "瑪麗貝爾編年史完程度 (133/139)",
+      "displayOrder": 57,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb039"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb040",
+      "name": "羅莎莉亞·普爾海姆編年史中獲得 (3/176)",
+      "displayOrder": 58,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb040"
+      }
+    },
+    {
+      "id": "requirement_reqchaabb043",
+      "name": "羅莎莉亞·普爾海姆編年史中獲得 (13/176)",
+      "displayOrder": 59,
+      "sourceRefs": {
+        "voyageTw": "reqchaabb043"
+      }
+    },
+    {
+      "id": "requirement_reqchaabd001",
+      "name": "昌德·比比編年史完成度（50/116）",
+      "displayOrder": 60,
+      "sourceRefs": {
+        "voyageTw": "reqchaabd001"
+      }
+    },
+    {
+      "id": "requirement_reqchaabd002",
+      "name": "金萬德編年史中獲得",
+      "displayOrder": 61,
+      "sourceRefs": {
+        "voyageTw": "reqchaabd002"
+      }
+    },
+    {
+      "id": "requirement_reqchaabd003",
+      "name": "金萬德編年史任務完成度（133/135）",
+      "displayOrder": 62,
+      "sourceRefs": {
+        "voyageTw": "reqchaabd003"
+      }
+    },
+    {
+      "id": "requirement_reqchaabd007",
+      "name": "可在今井咲編年史中獲得",
+      "displayOrder": 63,
+      "sourceRefs": {
+        "voyageTw": "reqchaabd007"
+      }
+    },
+    {
+      "id": "requirement_reqchaabd011",
+      "name": "安妮·邦妮編年史完成度（53/172）",
+      "displayOrder": 64,
+      "sourceRefs": {
+        "voyageTw": "reqchaabd011"
+      }
+    },
+    {
+      "id": "requirement_reqchaabd014",
+      "name": "戚繼光編年史中可得",
+      "displayOrder": 65,
+      "sourceRefs": {
+        "voyageTw": "reqchaabd014"
+      }
+    },
+    {
+      "id": "requirement_reqchaabt005",
+      "name": "可在萊昂·費雷羅編年史中獲得",
+      "displayOrder": 66,
+      "sourceRefs": {
+        "voyageTw": "reqchaabt005"
+      }
+    },
+    {
+      "id": "requirement_reqchaabt008",
+      "name": "格蕾絲·奧馬利編年史完成度（58/127）",
+      "displayOrder": 67,
+      "sourceRefs": {
+        "voyageTw": "reqchaabt008"
+      }
+    },
+    {
+      "id": "requirement_reqchaabt015",
+      "name": "金萬德編年史中獲得",
+      "displayOrder": 68,
+      "sourceRefs": {
+        "voyageTw": "reqchaabt015"
+      }
+    },
+    {
+      "id": "requirement_reqchaabt019",
+      "name": "在茹伊·霍可編年史中獲得",
+      "displayOrder": 69,
+      "sourceRefs": {
+        "voyageTw": "reqchaabt019"
+      }
+    },
+    {
+      "id": "requirement_reqchaabt020",
+      "name": "瑪麗貝爾編年史中獲得",
+      "displayOrder": 70,
+      "sourceRefs": {
+        "voyageTw": "reqchaabt020"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb031",
+      "name": "皮瑞·雷斯編年史中獲得",
+      "displayOrder": 71,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb031"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd041",
+      "name": "鄭和編年史中獲得",
+      "displayOrder": 72,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd041"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb007",
+      "name": "鄭成功編年史中獲得",
+      "displayOrder": 73,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb007"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb035",
+      "name": "鄭成功編年史中獲得",
+      "displayOrder": 74,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb035"
+      }
+    },
+    {
+      "id": "requirement_reqchaaT025",
+      "name": "威廉·亞當斯編年史中獲得(1/136)",
+      "displayOrder": 75,
+      "sourceRefs": {
+        "voyageTw": "reqchaaT025"
+      }
+    },
+    {
+      "id": "requirement_reqchasT037",
+      "name": "伊莉莎白·雪蘭編年史中獲得 (2/154)",
+      "displayOrder": 76,
+      "sourceRefs": {
+        "voyageTw": "reqchasT037"
+      }
+    },
+    {
+      "id": "requirement_reqchasT038",
+      "name": "伊莉莎白·雪蘭編年史中獲得(139/154)",
+      "displayOrder": 77,
+      "sourceRefs": {
+        "voyageTw": "reqchasT038"
+      }
+    },
+    {
+      "id": "requirement_reqchasT039",
+      "name": "伊莉莎白·雪蘭編年史中獲得(19/154)",
+      "displayOrder": 78,
+      "sourceRefs": {
+        "voyageTw": "reqchasT039"
+      }
+    },
+    {
+      "id": "requirement_reqchasT051",
+      "name": "伊莉安娜·費萊歐斯編年史中獲得",
+      "displayOrder": 79,
+      "sourceRefs": {
+        "voyageTw": "reqchasT051"
+      }
+    },
+    {
+      "id": "requirement_reqchasT052",
+      "name": "伊莉安娜·費萊歐斯編年史中獲得",
+      "displayOrder": 80,
+      "sourceRefs": {
+        "voyageTw": "reqchasT052"
+      }
+    },
+    {
+      "id": "requirement_reqchasT085",
+      "name": "萊納斯·拉契特編年史中獲得",
+      "displayOrder": 81,
+      "sourceRefs": {
+        "voyageTw": "reqchasT085"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb004",
+      "name": "鄭和編年史中獲得",
+      "displayOrder": 82,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb004"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb008",
+      "name": "皮瑞·雷斯編年史任務成就 (78/108)",
+      "displayOrder": 83,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb008"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb014",
+      "name": "格蕾絲·奧馬利編年史完成度（104/127）",
+      "displayOrder": 84,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb014"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb018",
+      "name": "可在薩爾巴多爾·雷斯編年史中獲得",
+      "displayOrder": 85,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb018"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb022",
+      "name": "安妮·邦妮編年史完成度（122/172）",
+      "displayOrder": 86,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb022"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb025",
+      "name": "洪吉童編年史任務完成度 (39/138)",
+      "displayOrder": 87,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb025"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb026",
+      "name": "可在賽義達·赫拉編年史中獲得",
+      "displayOrder": 88,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb026"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb030",
+      "name": "鄭成功編年史中獲得",
+      "displayOrder": 89,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb030"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb032",
+      "name": "可在卡塔利娜·艾蘭茨編年史中獲得",
+      "displayOrder": 90,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb032"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb037",
+      "name": "今井咲編年史任務完成度（168/196）",
+      "displayOrder": 91,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb037"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb045",
+      "name": "戚繼光編年史中可得",
+      "displayOrder": 92,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb045"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb049",
+      "name": "戚繼光編年史中可得",
+      "displayOrder": 93,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb049"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb050",
+      "name": "可在阿爾·維斯特編年史中獲得",
+      "displayOrder": 94,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb050"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb065",
+      "name": "可在卡塔利娜·艾蘭茨編年史中獲得",
+      "displayOrder": 95,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb065"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb068",
+      "name": "戚繼光編年史中可得",
+      "displayOrder": 96,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb068"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb097",
+      "name": "在茹伊·霍可編年史中獲得",
+      "displayOrder": 97,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb097"
+      }
+    },
+    {
+      "id": "requirement_reqchabbb098",
+      "name": "瑪麗貝爾編年史中獲得",
+      "displayOrder": 98,
+      "sourceRefs": {
+        "voyageTw": "reqchabbb098"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd003",
+      "name": "在茹伊·霍可編年史中獲得",
+      "displayOrder": 99,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd003"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd011",
+      "name": "今井咲編年史任務完成度（123/196）",
+      "displayOrder": 100,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd011"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd012",
+      "name": "可在埃內斯特·洛佩斯編年史中獲得",
+      "displayOrder": 101,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd012"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd017",
+      "name": "可在奧托·斯賓諾拉編年史中獲得",
+      "displayOrder": 102,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd017"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd027",
+      "name": "瑪麗貝爾編年史完程度 (47/139)",
+      "displayOrder": 103,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd027"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd028",
+      "name": "可在阿爾·維斯特編年史中獲得",
+      "displayOrder": 104,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd028"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd030",
+      "name": "鄭成功年代任務完成度 (2/176)",
+      "displayOrder": 105,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd030"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd032",
+      "name": "洪吉童編年史任務完成度(32/138)",
+      "displayOrder": 106,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd032"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd035",
+      "name": "可在賽義達·赫拉編年史中獲得",
+      "displayOrder": 107,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd035"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd043",
+      "name": "洪吉童編年史中可獲得該獎項",
+      "displayOrder": 108,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd043"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd044",
+      "name": "今井咲編年史任務完成度（63/196）",
+      "displayOrder": 109,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd044"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd049",
+      "name": "可在米蘭達·貝爾蒂編年史中獲得",
+      "displayOrder": 110,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd049"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd051",
+      "name": "可在米蘭達·貝爾蒂編年史中獲得",
+      "displayOrder": 111,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd051"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd052",
+      "name": "昌德·比比編年史完成度（79/116）",
+      "displayOrder": 112,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd052"
+      }
+    },
+    {
+      "id": "requirement_reqchabbd061",
+      "name": "皮瑞·雷斯編年史任務成就 (55/108)",
+      "displayOrder": 113,
+      "sourceRefs": {
+        "voyageTw": "reqchabbd061"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt004",
+      "name": "可在今井咲編年史中獲得",
+      "displayOrder": 114,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt004"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt005",
+      "name": "今井咲編年史任務完成度（39/196）",
+      "displayOrder": 115,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt005"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt008",
+      "name": "在茹伊·霍可編年史中獲得",
+      "displayOrder": 116,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt008"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt009",
+      "name": "賽義達·赫拉編年史完成度（70/201）",
+      "displayOrder": 117,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt009"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt014",
+      "name": "金萬德編年史中獲得",
+      "displayOrder": 118,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt014"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt021",
+      "name": "安妮·邦妮編年史任務完成度 (6/173)",
+      "displayOrder": 119,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt021"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt022",
+      "name": "可在賽義達·赫拉編年史中獲得",
+      "displayOrder": 120,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt022"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt030",
+      "name": "奧托·斯賓諾拉編年史完成度（89/111）",
+      "displayOrder": 121,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt030"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt032",
+      "name": "奧托·斯賓諾拉編年史完成度（110/111）",
+      "displayOrder": 122,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt032"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt034",
+      "name": "可在約翰·費雷羅編年史中獲得",
+      "displayOrder": 123,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt034"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt042",
+      "name": "可在安妮·邦妮編年史中獲得",
+      "displayOrder": 124,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt042"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt045",
+      "name": "可在皮耶德·康迪編年史中獲得",
+      "displayOrder": 125,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt045"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt049",
+      "name": "可在埃內斯特·洛佩斯編年史中獲得",
+      "displayOrder": 126,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt049"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt054",
+      "name": "可在伊達政宗編年史中獲得",
+      "displayOrder": 127,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt054"
+      }
+    },
+    {
+      "id": "requirement_reqchabbt055",
+      "name": "洪吉童編年史中可獲得該獎項",
+      "displayOrder": 128,
+      "sourceRefs": {
+        "voyageTw": "reqchabbt055"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb008",
+      "name": "可在格蕾絲·奧馬利編年史中獲得",
+      "displayOrder": 129,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb008"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb022",
+      "name": "洪吉童編年史任務完成度（129/138）",
+      "displayOrder": 130,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb022"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb059",
+      "name": "皮瑞·雷斯編年史任務成就 (17/108)",
+      "displayOrder": 131,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb059"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd001",
+      "name": "昌德·比比編年史任務完成度 (105/118)",
+      "displayOrder": 132,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd001"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd014",
+      "name": "鄭和編年史中獲得",
+      "displayOrder": 133,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd014"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd025",
+      "name": "格蕾絲·奧馬利編年史任務完成度（57/127）",
+      "displayOrder": 134,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd025"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd038",
+      "name": "可在萊昂·費雷羅編年史中獲得",
+      "displayOrder": 135,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd038"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd045",
+      "name": "皮瑞·雷斯編年史中獲得",
+      "displayOrder": 136,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd045"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd052",
+      "name": "鄭和編年史中獲得",
+      "displayOrder": 137,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd052"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt002",
+      "name": "金萬德編年史中獲得",
+      "displayOrder": 138,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt002"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt005",
+      "name": "格蕾絲·奧馬利編年史任務完成度（89/127）",
+      "displayOrder": 139,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt005"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt022",
+      "name": "洪吉童編年史任務完成度（87/138）",
+      "displayOrder": 140,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt022"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt028",
+      "name": "可在昌德·比比編年史中獲得",
+      "displayOrder": 141,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt028"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt036",
+      "name": "金萬德編年史中獲得",
+      "displayOrder": 142,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt036"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt040",
+      "name": "今井咲編年史任務完成度（153/196）",
+      "displayOrder": 143,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt040"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt041",
+      "name": "可在今井咲編年史中獲得",
+      "displayOrder": 144,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt041"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt046",
+      "name": "鄭和編年史中獲得",
+      "displayOrder": 145,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt046"
+      }
+    },
+    {
+      "id": "requirement_reqchabT026",
+      "name": "威廉·亞當斯編年史中獲得(99/136)",
+      "displayOrder": 146,
+      "sourceRefs": {
+        "voyageTw": "reqchabT026"
+      }
+    },
+    {
+      "id": "requirement_reqchasT053",
+      "name": "伊莉安娜·費萊歐斯編年史中獲得",
+      "displayOrder": 147,
+      "sourceRefs": {
+        "voyageTw": "reqchasT053"
+      }
+    },
+    {
+      "id": "requirement_reqchasT067",
+      "name": "蘇燕美編年史中獲得",
+      "displayOrder": 148,
+      "sourceRefs": {
+        "voyageTw": "reqchasT067"
+      }
+    },
+    {
+      "id": "requirement_reqchasT068",
+      "name": "蘇燕美編年史中獲得",
+      "displayOrder": 149,
+      "sourceRefs": {
+        "voyageTw": "reqchasT068"
+      }
+    },
+    {
+      "id": "requirement_reqchasT069",
+      "name": "蘇燕美編年史中獲得",
+      "displayOrder": 150,
+      "sourceRefs": {
+        "voyageTw": "reqchasT069"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb028",
+      "name": "安妮·邦妮編年史任務完成度（105/172）",
+      "displayOrder": 151,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb028"
+      }
+    },
+    {
+      "id": "requirement_reqchacbb061",
+      "name": "奧托·斯賓諾拉編年史任務完成度（51/111）",
+      "displayOrder": 152,
+      "sourceRefs": {
+        "voyageTw": "reqchacbb061"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd015",
+      "name": "埃內斯特·洛佩斯編年史任務完成度（9/180）",
+      "displayOrder": 153,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd015"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd021",
+      "name": "安妮·邦妮編年史任務完成度（91/172）",
+      "displayOrder": 154,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd021"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd024",
+      "name": "可在萊昂·費雷羅編年史中獲得",
+      "displayOrder": 155,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd024"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd039",
+      "name": "阿爾·維斯特編年史任務完成度（33/99）",
+      "displayOrder": 156,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd039"
+      }
+    },
+    {
+      "id": "requirement_reqchacbd042",
+      "name": "卡塔利娜·艾蘭茨編年史任務完成度（23/114）",
+      "displayOrder": 157,
+      "sourceRefs": {
+        "voyageTw": "reqchacbd042"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt010",
+      "name": "約翰·費雷羅編年史任務完成度（8/141）",
+      "displayOrder": 158,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt010"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt016",
+      "name": "卡塔利娜·艾蘭茨編年史任務完成度（53/114）",
+      "displayOrder": 159,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt016"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt035",
+      "name": "奧托·斯賓諾拉編年史任務完成度（5/111）",
+      "displayOrder": 160,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt035"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt038",
+      "name": "阿爾·維斯特編年史任務完成度（5/99）",
+      "displayOrder": 161,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt038"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt050",
+      "name": "奧托·斯賓諾拉編年史任務完成度（31/111）",
+      "displayOrder": 162,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt050"
+      }
+    },
+    {
+      "id": "requirement_reqchacbt052",
+      "name": "可在賽義達·赫拉編年史中獲得",
+      "displayOrder": 163,
+      "sourceRefs": {
+        "voyageTw": "reqchacbt052"
+      }
+    }
+  ],
+  "skillCategories": [
+    {
+      "id": "skill_category_",
+      "name": "skill_category_",
+      "displayOrder": 0,
+      "sourceRefs": {
+        "voyageTw": "_unknown"
+      }
+    }
+  ]
+}
