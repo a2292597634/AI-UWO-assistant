@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import { captureOfficerNameEvidence } from '../../tools/data-audit/capture-source-samples'
+import { sourceConfig } from '../../tools/data-audit/source-config'
 
 const pinnedUrl = 'https://voyage.tw/js/lang_1.js?v=1779690379'
 
@@ -34,6 +35,21 @@ describe('officer name evidence', () => {
     })
   })
 
+  it('rejects an over-budget configured range set before fetching', async () => {
+    const ranges = sourceConfig.languageRanges as unknown as Array<[number, number]>
+    ranges.push([262144, 266081])
+    const fetcher = vi.fn<typeof fetch>()
+
+    try {
+      await expect(captureOfficerNameEvidence('chasab001', fetcher)).rejects.toThrow(
+        'AUDIT_SOURCE_LIMIT_EXCEEDED:languageBytes',
+      )
+      expect(fetcher).not.toHaveBeenCalled()
+    } finally {
+      ranges.pop()
+    }
+  })
+
   it('blocks rather than expanding beyond the approved language ranges', async () => {
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_input, init) => {
       const range = String((init?.headers as Record<string, string>).Range)
@@ -55,7 +71,6 @@ describe('officer name evidence', () => {
     ).toEqual([
       'bytes=0-47237',
       'bytes=47238-88188',
-      'bytes=88189-92125',
       'bytes=92126-178363',
       'bytes=178364-262143',
     ])

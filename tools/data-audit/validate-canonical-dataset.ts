@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import type { AuditFinding, SkillMappingRecord } from './types'
+import { sourceConfig } from './source-config'
 
 type DictionaryItem = { id: string }
 type AssetResolution = {
@@ -187,6 +188,26 @@ export const validateCanonicalDataset = (dataset: CanonicalDataset): AuditFindin
     readFileSync('data/audit/skill-group-mapping.json', 'utf8'),
   ) as SkillMappingRecord[]
 
+  const expectedSelection: Array<[string, readonly string[], string[]]> = [
+    ['officers', sourceConfig.officerIds, dataset.officers.map((officer) => officer.sourceRefs.voyageTw)],
+    ['skills', sourceConfig.skillIds, dataset.skills.map((skill) => skill.sourceRefs.voyageTw)],
+  ]
+  for (const [kind, expected, actual] of expectedSelection) {
+    if (expected.length !== actual.length || expected.some((id) => !actual.includes(id))) {
+      findings.push(
+        finding(
+          'DATA_SELECTION_MISMATCH',
+          'dataset',
+          '*',
+          `/selection/${kind}`,
+          actual,
+          'Canonical source selection must exactly match the approved representative selection.',
+        ),
+      )
+    }
+  }
+
+  const expectedCounts = { officers: 8, skills: 20, assets: 9, dictionaryItems: 72 }
   const counts = {
     officers: dataset.officers.length,
     skills: dataset.skills.length,
@@ -194,7 +215,8 @@ export const validateCanonicalDataset = (dataset: CanonicalDataset): AuditFindin
     dictionaryItems: Object.values(dataset.dictionaries).reduce((total, items) => total + items.length, 0),
   }
   for (const [key, actual] of Object.entries(counts)) {
-    if (dataset.dataset.counts[key as keyof typeof counts] !== actual) {
+    const expected = expectedCounts[key as keyof typeof expectedCounts]
+    if (actual !== expected || dataset.dataset.counts[key as keyof typeof counts] !== actual) {
       findings.push(
         finding(
           'DATA_COUNT_MISMATCH',

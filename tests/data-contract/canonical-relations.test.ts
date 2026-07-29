@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { sourceConfig } from '../../tools/data-audit/source-config'
 import {
   type CanonicalDataset,
   validateCanonicalDataset,
@@ -53,6 +54,24 @@ describe('canonical data relationships', () => {
     const invalid = readJson<CanonicalDataset>(`tests/fixtures/invalid/${fixture}`)
 
     expect(validateCanonicalDataset(invalid).map((finding) => finding.code)).toEqual([code])
+  })
+
+  it('blocks coordinated count changes and source substitutions from the approved selection', () => {
+    const countChanged = clone(readCanonicalDataset())
+    countChanged.officers.pop()
+    countChanged.dataset.counts.officers--
+
+    const substituted = clone(readCanonicalDataset())
+    substituted.skills[0]!.sourceRefs.voyageTw = 'skill_unapproved'
+
+    expect(validateCanonicalDataset(countChanged).map((finding) => finding.code)).toContain(
+      'DATA_SELECTION_MISMATCH',
+    )
+    expect(validateCanonicalDataset(substituted).map((finding) => finding.code)).toContain(
+      'DATA_SELECTION_MISMATCH',
+    )
+    expect(sourceConfig.officerIds).toHaveLength(8)
+    expect(sourceConfig.skillIds).toHaveLength(20)
   })
 
   it('requires deterministic resolution evidence for every nullable asset ID', () => {

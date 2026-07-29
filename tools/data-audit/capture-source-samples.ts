@@ -140,6 +140,11 @@ export const captureOfficerNameEvidence = async (
   fetcher: typeof fetch = fetch,
 ): Promise<OfficerNameEvidence> => {
   assertApprovedIds([officerId], sourceConfig.officerIds, 'officer')
+  assertWithinLimit(
+    totalRangeBytes(sourceConfig.languageRanges),
+    sourceConfig.limits.languageBytesPerFile,
+    'languageBytes',
+  )
   const sourceUrl = new URL(sourceConfig.languageScript, sourceConfig.origin).toString()
 
   for (const range of sourceConfig.languageRanges) {
