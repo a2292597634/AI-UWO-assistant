@@ -20,6 +20,7 @@
     "import:run": "tsx tools/import/run-import.ts",
     "data:generate": "tsx tools/data-pipeline/generate.ts",
     "assets:download": "tsx tools/asset-pipeline/download-assets.ts",
+    "assets:setup": "node -e \"const fs=require('fs');const src='archive/voyage-tw-2026052501/raw-assets';for(const f of fs.readdirSync(src).filter(x=>x.endsWith('.png'))){const id=f.replace(/\\.png\\$/,'').replace(/^(officer|skill)_/,'');let h=0;for(let i=0;i<id.length;i++)h=((h*31+id.charCodeAt(i))>>>0);fs.copyFileSync(src+'/'+f,'miniprogram/subpkg-a'+(h%10)+'/imgs/'+f)};console.log('Assets linked to subpackages')\"",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run data:check"
   },
   "devDependencies": {
