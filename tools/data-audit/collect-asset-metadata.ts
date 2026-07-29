@@ -9,6 +9,7 @@ export interface AssetSampleEntry {
   ownerType: 'officer' | 'skill'
   ownerSourceId: string
   url: string
+  resolution?: AssetObservation['resolution']
 }
 
 export interface AssetObservation {
@@ -23,6 +24,16 @@ export interface AssetObservation {
   sha256: string | null
   duplicateOf: string | null
   localFixturePath: string | null
+  resolution?: {
+    imageOverrideId: string | null
+    metadataSourceRange: string | null
+    rule: string
+  }
+}
+
+export interface SkillImageMetadata {
+  imageOverrideId: string | null
+  metadataSourceRange: string
 }
 
 const pngSignature = Buffer.from('89504e470d0a1a0a', 'hex')
@@ -90,6 +101,8 @@ const collect = async (
   entries: readonly AssetSampleEntry[],
   fetcher: typeof fetch,
   writeFixture?: WriteFixture,
+  skillMetadata: Record<string, SkillImageMetadata> = {},
+  knownHashes = new Map<string, string>(),
   allowFallback = true,
 ): Promise<AssetObservation[]> => {
   assertWithinLimit(entries.length, sourceConfig.limits.assets, 'assets')
@@ -101,7 +114,6 @@ const collect = async (
       left.ownerSourceId.localeCompare(right.ownerSourceId) ||
       left.url.localeCompare(right.url),
   )
-  const knownHashes = new Map<string, string>()
   const observations: AssetObservation[] = []
 
   for (const entry of orderedEntries) {
@@ -146,27 +158,35 @@ const collect = async (
       sha256,
       duplicateOf,
       localFixturePath,
+      resolution: entry.resolution,
     })
   }
 
   const fallbackEntries = allowFallback
     ? observations
-        .filter(
-          ({ ownerType, ownerSourceId, status }) =>
-            ownerType === 'skill' && status === 404 && ownerSourceId.length > 11,
-        )
-        .map(({ ownerType, ownerSourceId }) => ({
-          ownerType,
-          ownerSourceId,
-          url: new URL(
-            `/img/skill/uwo_${ownerSourceId.slice(0, 11)}.png`,
-            sourceConfig.origin,
-          ).toString(),
-        }))
+        .filter(({ ownerType, status }) => ownerType === 'skill' && status === 404)
+        .map(({ ownerType, ownerSourceId }) => {
+          const metadata = skillMetadata[ownerSourceId]
+          const requestedImageId = metadata?.imageOverrideId ?? ownerSourceId
+          const imageId =
+            requestedImageId.length > 11 ? requestedImageId.slice(0, 11) : requestedImageId
+          return {
+            ownerType,
+            ownerSourceId,
+            url: new URL(`/img/skill/uwo_${imageId}.png`, sourceConfig.origin).toString(),
+            resolution: {
+              imageOverrideId: metadata?.imageOverrideId ?? null,
+              metadataSourceRange: metadata?.metadataSourceRange ?? null,
+              rule: 'Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters.',
+            },
+          }
+        })
     : []
   assertWithinLimit(entries.length + fallbackEntries.length, sourceConfig.limits.assets, 'assets')
   const fallbackObservations =
-    fallbackEntries.length === 0 ? [] : await collect(fallbackEntries, fetcher, writeFixture, false)
+    fallbackEntries.length === 0
+      ? []
+      : await collect(fallbackEntries, fetcher, writeFixture, skillMetadata, knownHashes, false)
 
   return [...observations, ...fallbackObservations].sort(
     (left, right) =>
@@ -179,7 +199,8 @@ const collect = async (
 export const collectAssetMetadata = async (
   entries: AssetSampleEntry[],
   fetcher: typeof fetch = fetch,
-): Promise<AssetObservation[]> => collect(entries, fetcher)
+  skillMetadata: Record<string, SkillImageMetadata> = {},
+): Promise<AssetObservation[]> => collect(entries, fetcher, undefined, skillMetadata)
 
 const writeSamples = async () => {
   const outputDirectory = resolve(assetsDirectory)
