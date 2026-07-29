@@ -1,0 +1,56 @@
+[
+  {
+    "ownerType": "officer",
+    "ownerSourceId": "chasT089",
+    "url": "https://voyage.tw/img/char/uwo_chasT089.png",
+    "expectedStatus": 200
+  },
+  {
+    "ownerType": "officer",
+    "ownerSourceId": "chasT096",
+    "url": "https://voyage.tw/img/char/uwo_chasT096.png",
+    "expectedStatus": 200
+  },
+  {
+    "ownerType": "officer",
+    "ownerSourceId": "chasab001",
+    "url": "https://voyage.tw/img/char/uwo_chasab001.png",
+    "expectedStatus": 200
+  },
+  {
+    "ownerType": "skill",
+    "ownerSourceId": "skill400591",
+    "url": "https://voyage.tw/img/skill/uwo_skill400591.png",
+    "expectedStatus": 200
+  },
+  {
+    "ownerType": "skill",
+    "ownerSourceId": "skill300001",
+    "url": "https://voyage.tw/img/skill/uwo_skill300001.png",
+    "expectedStatus": "observe"
+  },
+  {
+    "ownerType": "skill",
+    "ownerSourceId": "skill203426",
+    "url": "https://voyage.tw/img/skill/uwo_skill203426.png",
+    "expectedStatus": "observe"
+  },
+  {
+    "ownerType": "skill",
+    "ownerSourceId": "skill100043",
+    "url": "https://voyage.tw/img/skill/uwo_skill100043.png",
+    "expectedStatus": "observe"
+  },
+  {
+    "ownerType": "skill",
+    "ownerSourceId": "skill400973",
+    "url": "https://voyage.tw/img/skill/uwo_skill400973.png",
+    "expectedStatus": "observe"
+  },
+  {
+    "ownerType": "skill",
+    "ownerSourceId": "skill509998139",
+    "url": "https://voyage.tw/img/skill/uwo_skill509998139.png",
+    "expectedStatus": "observe"
+  }
+]
