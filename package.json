@@ -16,6 +16,7 @@
     "data:schema:check": "vitest run tests/data-contract",
     "data:check": "npm run data:audit:check && npm run data:schema:check",
     "check:runtime-network": "tsx tools/quality/check-runtime-network.ts",
+    "import:download": "tsx tools/import/download-source.ts",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run data:check"
   },
   "devDependencies": {
