@@ -1,8 +1,22 @@
-{
-  "id": "skill_test",
-  "name": "Test Skill",
-  "categoryId": "category_1",
-  "description": "Test description.",
-  "iconId": "asset_skill_test",
-  "sourceRefs": { "voyageTw": "skillT001" }
-}
+[
+  { "id": "skill_skill100043", "name": "神之手腕", "categoryId": "skill_category_barter", "description": "以物易物時﹐貿易品消耗量減少1％。", "iconId": "asset_skill_skill100043", "sourceRefs": { "voyageTw": "skill100043" } },
+  { "id": "skill_skill100051", "name": "冷靜的協商", "categoryId": "skill_category_barter", "description": "以物易物價格協商時﹐友好度消耗量減少1.1％。", "iconId": null, "sourceRefs": { "voyageTw": "skill100051" } },
+  { "id": "skill_skill100063", "name": "報仇的決心", "categoryId": "skill_category_admiral", "description": "2 回合內﹐賦予我軍全體每失去 1％ 的耐久度或船員體力﹐所有攻擊力增加1.7％。(以失去的耐久度和失去的船員體力中更較高的數值為基準計算﹐失去的船員體力以當前船員體力和受傷的船員體力計算後套用。在套用其他效果所有攻擊力的最終數值上增加。)", "iconId": null, "sourceRefs": { "voyageTw": "skill100063" } },
+  { "id": "skill_skill100064", "name": "嚴寒的風暴", "categoryId": "skill_category_admiral", "description": "2回合內﹐使全體敵人的移動力減少3﹐直接受到的傷害增加30％。 額外造成每回合耐久度和船員生命值 20％ 的傷害。", "iconId": null, "sourceRefs": { "voyageTw": "skill100064" } },
+  { "id": "skill_skill200681", "name": "工藝品購買折扣", "categoryId": "skill_category_trade_price_adjustment", "description": "購買工藝品時﹐可以用減少1％的價格購買。", "iconId": null, "sourceRefs": { "voyageTw": "skill200681" } },
+  { "id": "skill_skill200921", "name": "探索基礎", "categoryId": "skill_category_adventure", "description": "探險中戰鬥力、採集力、觀察力增加1。", "iconId": null, "sourceRefs": { "voyageTw": "skill200921" } },
+  { "id": "skill_skill203306", "name": "工業製品出售溢價", "categoryId": "skill_category_trade_price_adjustment", "description": "出售工業製品時﹐可以用增加1％的價格出售。", "iconId": null, "sourceRefs": { "voyageTw": "skill203306" } },
+  { "id": "skill_skill203426", "name": "工藝品出售溢價", "categoryId": "skill_category_trade_price_adjustment", "description": "出售工藝品時﹐可以用增加1％的價格出售。", "iconId": "asset_skill_skill203426", "sourceRefs": { "voyageTw": "skill203426" } },
+  { "id": "skill_skill203826", "name": "工藝品交易專業", "categoryId": "skill_category_trade_expertise", "description": "工藝品可購買数量增加5.6%。", "iconId": null, "sourceRefs": { "voyageTw": "skill203826" } },
+  { "id": "skill_skill300001", "name": "必死攻擊", "categoryId": "skill_category_combat_other", "description": "展示強大的攻擊。", "iconId": "asset_skill_skill300001", "sourceRefs": { "voyageTw": "skill300001" } },
+  { "id": "skill_skill300004", "name": "絕對反擊", "categoryId": "skill_category_combat_other", "description": "一定會反擊敵人的攻擊。", "iconId": null, "sourceRefs": { "voyageTw": "skill300004" } },
+  { "id": "skill_skill400581", "name": "額外機動力減少", "categoryId": "skill_category_naval_active_enhancement", "description": "使全體敵軍的額外機動力在3回合內減少8.8％﹐", "iconId": null, "sourceRefs": { "voyageTw": "skill400581" } },
+  { "id": "skill_skill400591", "name": "行動封鎖", "categoryId": "skill_category_naval_active_enhancement", "description": "以35％的機率封鎖目標的行動2回合。", "iconId": "asset_skill_skill400591", "sourceRefs": { "voyageTw": "skill400591" } },
+  { "id": "skill_skill400861", "name": "淨化：戰鬥姿勢", "categoryId": "skill_category_naval_active_enhancement", "description": "使指定範圍內目標的所有額外防禦力3回合內增加7％﹐解除1個狀態異常。", "iconId": null, "sourceRefs": { "voyageTw": "skill400861" } },
+  { "id": "skill_skill400973", "name": "艦隊突襲", "categoryId": "skill_category_admiral", "description": "所有我軍造成的衝破攻擊套用為暴擊攻擊﹐額外衝破攻擊力增加17.5％。", "iconId": "asset_skill_skill400973", "sourceRefs": { "voyageTw": "skill400973" } },
+  { "id": "skill_skill400974", "name": "深化艦隊衝破", "categoryId": "skill_category_admiral", "description": "所有我軍的額外衝破攻擊力增加30％﹐額外衝破暴擊傷害量增加30％。", "iconId": null, "sourceRefs": { "voyageTw": "skill400974" } },
+  { "id": "skill_skill500436", "name": "抓住機會", "categoryId": "skill_category_naval_passive_other", "description": "行動結束時以12.6％的機率再次行動一次﹐機動力恢復6.1％。  不發生其他行動效果﹐只可進行1次以抓住機會發生的額外行動。", "iconId": null, "sourceRefs": { "voyageTw": "skill500436" } },
+  { "id": "skill_skill509998139", "name": "愛爾蘭的海盜", "categoryId": "skill_category_innate_buff", "description": "額外衝破暴擊傷害量增加0.3％。", "iconId": "asset_skill_skill509998139", "sourceRefs": { "voyageTw": "skill509998139" } },
+  { "id": "skill_skillT0053", "name": "工藝品購買達人", "categoryId": "skill_category_trade_price_adjustment", "description": "購買工藝品時﹐可以用減少2.5%的價格購買", "iconId": null, "sourceRefs": { "voyageTw": "skillT0053" } },
+  { "id": "skill_skillT0073", "name": "工藝品出售達人", "categoryId": "skill_category_trade_price_adjustment", "description": "出售工藝品時﹐可以用增加2.5%的價格出售", "iconId": null, "sourceRefs": { "voyageTw": "skillT0073" } }
+]

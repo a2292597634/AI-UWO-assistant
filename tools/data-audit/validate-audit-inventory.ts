@@ -400,20 +400,20 @@ export const validateAuditInventory = (input: AuditInventoryInput): AuditFinding
     if (
       value.sourcePath === 'city' &&
       value.sourceValue === 'chasT051' &&
-      value.status !== 'anomaly'
+      value.status !== 'rejected'
     ) {
       findings.push(
         finding(
           'AUDIT_CITY_ANOMALY_UNMARKED',
           value.sourcePath,
           value.sourceValue,
-          'Known city-to-officer anomaly is not marked.',
-          'Mark it as an anomaly with a reason.',
+          'Known city-to-officer anomaly is not explicitly rejected.',
+          'Mark it as rejected with a reason.',
         ),
       )
     }
     if (
-      value.status === 'anomaly' &&
+      (value.status === 'anomaly' || value.status === 'rejected') &&
       (value.reason === null || value.reason === undefined || value.reason.trim() === '')
     ) {
       findings.push(

@@ -1,0 +1,22 @@
+[
+  {
+    "ownerSourceId": "chasab001",
+    "name": "格蕾絲·奧馬利",
+    "sourceUrl": "https://voyage.tw/js/lang_1.js?v=1779690379",
+    "metadataSourceRange": "bytes=178364-262143",
+    "contentRange": "bytes 178364-262143/337759",
+    "lastModified": "Mon, 25 May 2026 06:35:21 GMT",
+    "sha256": "ae3a8dfdcb8ca41457e0d0937e599ac8d15757c59065970f26c232865152c189",
+    "rule": "Use the exact lang_js[1][officerId] value from the first approved bounded range containing the key."
+  },
+  {
+    "ownerSourceId": "chasab012",
+    "name": "伊歐琳·潘德萊肯",
+    "sourceUrl": "https://voyage.tw/js/lang_1.js?v=1779690379",
+    "metadataSourceRange": "bytes=178364-262143",
+    "contentRange": "bytes 178364-262143/337759",
+    "lastModified": "Mon, 25 May 2026 06:35:21 GMT",
+    "sha256": "ae3a8dfdcb8ca41457e0d0937e599ac8d15757c59065970f26c232865152c189",
+    "rule": "Use the exact lang_js[1][officerId] value from the first approved bounded range containing the key."
+  }
+]

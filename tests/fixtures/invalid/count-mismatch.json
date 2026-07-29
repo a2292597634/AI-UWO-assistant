@@ -1,0 +1,1719 @@
+{
+  "dataset": {
+    "schemaVersion": "1.0.0",
+    "contentVersion": "1.0.0",
+    "updatedAt": "2026-07-29T00:00:00Z",
+    "sourceSnapshot": "fixture-snapshot",
+    "counts": {
+      "officers": 8,
+      "skills": 21,
+      "assets": 9,
+      "dictionaryItems": 72
+    }
+  },
+  "officers": [
+    {
+      "id": "officer_chast089",
+      "name": "??????",
+      "rarityId": "rarity_5",
+      "typeId": "type_class_2",
+      "genderId": "gender_f",
+      "jobId": "job_jobchasT089",
+      "nationalityId": "nationality_ctn_swe",
+      "languages": [
+        {
+          "languageId": "language_lang70",
+          "level": 5
+        },
+        {
+          "languageId": "language_lang80",
+          "level": 3
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill100043",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 0,
+          "unlockLevel": 50,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill100051",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 1,
+          "unlockLevel": 70,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill200681",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 2,
+          "unlockLevel": 10,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill200921",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 3,
+          "unlockLevel": 30,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill203306",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 4,
+          "unlockLevel": 30,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill203426",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 5,
+          "unlockLevel": 70,
+          "level": 2
+        },
+        {
+          "skillId": "skill_skill203826",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 6,
+          "unlockLevel": 10,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill500436",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 7,
+          "unlockLevel": 50,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill400581",
+          "kind": "active",
+          "sourceGroup": "sk2",
+          "slot": 0,
+          "unlockLevel": 50,
+          "level": 2
+        },
+        {
+          "skillId": "skill_skill400591",
+          "kind": "active",
+          "sourceGroup": "sk2",
+          "slot": 1,
+          "unlockLevel": 1,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill300001",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 3
+        },
+        {
+          "skillId": "skill_skillT0053",
+          "kind": "passive",
+          "sourceGroup": "sk5",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skillT0073",
+          "kind": "passive",
+          "sourceGroup": "sk5",
+          "slot": 1,
+          "unlockLevel": 1,
+          "level": 1
+        }
+      ],
+      "recruitment": {
+        "cityIds": [
+          "city_town4105",
+          "city_town10105",
+          "city_town5303",
+          "city_town6301",
+          "city_town14205"
+        ],
+        "requirementId": "requirement_reqchasT089",
+        "requiredOfficerIds": [
+          "officer_chast096"
+        ],
+        "note": "5000??????"
+      },
+      "portraitId": "asset_portrait_chast089",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "chasT089"
+      }
+    },
+    {
+      "id": "officer_chast096",
+      "name": "????????",
+      "rarityId": "rarity_5",
+      "typeId": "type_class_3",
+      "genderId": "gender_m",
+      "jobId": "job_jobchasT096",
+      "nationalityId": "nationality_ctn_ita",
+      "languages": [
+        {
+          "languageId": "language_lang60",
+          "level": 4
+        },
+        {
+          "languageId": "language_lang80",
+          "level": 4
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill100043",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 0,
+          "unlockLevel": 70,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill500436",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 1,
+          "unlockLevel": 70,
+          "level": 2
+        },
+        {
+          "skillId": "skill_skill400591",
+          "kind": "active",
+          "sourceGroup": "sk2",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill400861",
+          "kind": "active",
+          "sourceGroup": "sk2",
+          "slot": 1,
+          "unlockLevel": 50,
+          "level": 2
+        },
+        {
+          "skillId": "skill_skill300001",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 4
+        }
+      ],
+      "recruitment": {
+        "cityIds": [
+          "city_town5303",
+          "city_town9104",
+          "city_town14203",
+          "city_town15201",
+          "city_town11101"
+        ],
+        "requirementId": null,
+        "requiredOfficerIds": [
+          "officer_chast089"
+        ],
+        "note": "5000??????"
+      },
+      "portraitId": "asset_portrait_chast096",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "chasT096"
+      }
+    },
+    {
+      "id": "officer_chast098",
+      "name": "??????",
+      "rarityId": "rarity_3",
+      "typeId": "type_class_3",
+      "genderId": "gender_m",
+      "jobId": "job_job21400006",
+      "nationalityId": "nationality_ctn_tur",
+      "languages": [
+        {
+          "languageId": "language_lang60",
+          "level": 2
+        }
+      ],
+      "skills": [],
+      "recruitment": {
+        "cityIds": [
+          "city_town14105",
+          "city_town8301",
+          "city_town6104",
+          "city_town14201",
+          "city_town8105"
+        ],
+        "requirementId": null,
+        "requiredOfficerIds": [],
+        "note": "?????????????"
+      },
+      "portraitId": null,
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "chasT098"
+      }
+    },
+    {
+      "id": "officer_chast099",
+      "name": "???",
+      "rarityId": "rarity_4",
+      "typeId": "type_class_1",
+      "genderId": "gender_f",
+      "jobId": "job_job21402014",
+      "nationalityId": "nationality_ctn_tur",
+      "languages": [
+        {
+          "languageId": "language_lang140",
+          "level": 2
+        },
+        {
+          "languageId": "language_lang60",
+          "level": 3
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill400581",
+          "kind": "active",
+          "sourceGroup": "sk2",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill300004",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 2
+        }
+      ],
+      "recruitment": {
+        "cityIds": [
+          "city_town1205",
+          "city_town6301",
+          "city_town8302",
+          "city_town7101",
+          "city_town14207"
+        ],
+        "requirementId": null,
+        "requiredOfficerIds": [],
+        "note": "?????????????"
+      },
+      "portraitId": null,
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "chasT099"
+      }
+    },
+    {
+      "id": "officer_chast100",
+      "name": "???????",
+      "rarityId": "rarity_5",
+      "typeId": "type_class_2",
+      "genderId": "gender_f",
+      "jobId": "job_job21401015",
+      "nationalityId": "nationality_unknown",
+      "languages": [
+        {
+          "languageId": "language_lang40",
+          "level": 3
+        },
+        {
+          "languageId": "language_lang80",
+          "level": 5
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill400591",
+          "kind": "active",
+          "sourceGroup": "sk2",
+          "slot": 0,
+          "unlockLevel": 50,
+          "level": 2
+        },
+        {
+          "skillId": "skill_skill300001",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 3
+        }
+      ],
+      "recruitment": {
+        "cityIds": [
+          "city_town6301",
+          "city_town5202",
+          "city_town5301",
+          "city_town5302",
+          "city_town5201",
+          "city_town1205"
+        ],
+        "requirementId": null,
+        "requiredOfficerIds": [],
+        "note": "menu224"
+      },
+      "portraitId": null,
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "chasT100"
+      }
+    },
+    {
+      "id": "officer_chast101",
+      "name": "????????",
+      "rarityId": "rarity_5",
+      "typeId": "type_class_3",
+      "genderId": "gender_f",
+      "jobId": "job_job21400002",
+      "nationalityId": "nationality_unknown",
+      "languages": [
+        {
+          "languageId": "language_lang140",
+          "level": 3
+        },
+        {
+          "languageId": "language_lang80",
+          "level": 5
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill300004",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 1,
+          "level": 3
+        }
+      ],
+      "recruitment": {
+        "cityIds": [
+          "city_town6301",
+          "city_town6201",
+          "city_town8301",
+          "city_town7201",
+          "city_town7202"
+        ],
+        "requirementId": null,
+        "requiredOfficerIds": [],
+        "note": null
+      },
+      "portraitId": null,
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "chasT101"
+      },
+      "maintenanceNote": "Rejected source city value chasT051 because it is an officer-shaped ID; it is neither a city nor an inferred prerequisite."
+    },
+    {
+      "id": "officer_chasab001",
+      "name": "???????",
+      "rarityId": "rarity_5",
+      "typeId": "type_class_3",
+      "genderId": "gender_f",
+      "jobId": "job_jobchasab001",
+      "nationalityId": "nationality_ctn_irl",
+      "languages": [
+        {
+          "languageId": "language_lang40",
+          "level": 3
+        },
+        {
+          "languageId": "language_lang80",
+          "level": 3
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill500436",
+          "kind": "passive",
+          "sourceGroup": "sk0",
+          "slot": 0,
+          "unlockLevel": 30,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill509998139",
+          "kind": "passive",
+          "sourceGroup": "sk1",
+          "slot": 0,
+          "unlockLevel": 0,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill300004",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 0,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill400973",
+          "kind": "active",
+          "sourceGroup": "sk4",
+          "slot": 1,
+          "unlockLevel": 1,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill400974",
+          "kind": "active",
+          "sourceGroup": "sk4",
+          "slot": 20,
+          "unlockLevel": 20,
+          "level": 1
+        }
+      ],
+      "recruitment": {
+        "cityIds": [
+          "city_town3301",
+          "city_town15301",
+          "city_town4302",
+          "city_town2204",
+          "city_town3303",
+          "city_town10105",
+          "city_town2202",
+          "city_town1301",
+          "city_town13204",
+          "city_town17301"
+        ],
+        "requirementId": null,
+        "requiredOfficerIds": [],
+        "note": null
+      },
+      "portraitId": "asset_portrait_chasab001",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "chasab001"
+      }
+    },
+    {
+      "id": "officer_chasab012",
+      "name": "????????",
+      "rarityId": "rarity_5",
+      "typeId": "type_class_3",
+      "genderId": "gender_f",
+      "jobId": "job_jobchasab012",
+      "nationalityId": "nationality_ctn_pdg",
+      "languages": [
+        {
+          "languageId": "language_lang20",
+          "level": 3
+        }
+      ],
+      "skills": [
+        {
+          "skillId": "skill_skill300001",
+          "kind": "active",
+          "sourceGroup": "sk3",
+          "slot": 0,
+          "unlockLevel": 0,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill100063",
+          "kind": "active",
+          "sourceGroup": "sk4",
+          "slot": 1,
+          "unlockLevel": 1,
+          "level": 1
+        },
+        {
+          "skillId": "skill_skill100064",
+          "kind": "active",
+          "sourceGroup": "sk4",
+          "slot": 60,
+          "unlockLevel": 60,
+          "level": 1
+        }
+      ],
+      "recruitment": {
+        "cityIds": [],
+        "requirementId": null,
+        "requiredOfficerIds": [],
+        "note": null
+      },
+      "portraitId": null,
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "chasab012"
+      }
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill_skill100043",
+      "name": "????",
+      "categoryId": "skill_category_barter",
+      "description": "??????????????1??",
+      "iconId": "asset_skill_skill100043",
+      "sourceRefs": {
+        "voyageTw": "skill100043"
+      }
+    },
+    {
+      "id": "skill_skill100051",
+      "name": "?????",
+      "categoryId": "skill_category_barter",
+      "description": "??????????????????1.1??",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill100051"
+      }
+    },
+    {
+      "id": "skill_skill100063",
+      "name": "?????",
+      "categoryId": "skill_category_admiral",
+      "description": "2 ????????????? 1? ?????????????????1.7??(?????????????????????????????????????????????????????????????????????????????)",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill100063"
+      }
+    },
+    {
+      "id": "skill_skill100064",
+      "name": "?????",
+      "categoryId": "skill_category_admiral",
+      "description": "2???????????????3??????????30?? ???????????????? 20? ????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill100064"
+      }
+    },
+    {
+      "id": "skill_skill200681",
+      "name": "???????",
+      "categoryId": "skill_category_trade_price_adjustment",
+      "description": "????????????1???????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill200681"
+      }
+    },
+    {
+      "id": "skill_skill200921",
+      "name": "????",
+      "categoryId": "skill_category_adventure",
+      "description": "????????????????1?",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill200921"
+      }
+    },
+    {
+      "id": "skill_skill203306",
+      "name": "????????",
+      "categoryId": "skill_category_trade_price_adjustment",
+      "description": "?????????????1???????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill203306"
+      }
+    },
+    {
+      "id": "skill_skill203426",
+      "name": "???????",
+      "categoryId": "skill_category_trade_price_adjustment",
+      "description": "????????????1???????",
+      "iconId": "asset_skill_skill203426",
+      "sourceRefs": {
+        "voyageTw": "skill203426"
+      }
+    },
+    {
+      "id": "skill_skill203826",
+      "name": "???????",
+      "categoryId": "skill_category_trade_expertise",
+      "description": "??????????5.6%?",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill203826"
+      }
+    },
+    {
+      "id": "skill_skill300001",
+      "name": "????",
+      "categoryId": "skill_category_combat_other",
+      "description": "????????",
+      "iconId": "asset_skill_skill300001",
+      "sourceRefs": {
+        "voyageTw": "skill300001"
+      }
+    },
+    {
+      "id": "skill_skill300004",
+      "name": "????",
+      "categoryId": "skill_category_combat_other",
+      "description": "???????????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill300004"
+      }
+    },
+    {
+      "id": "skill_skill400581",
+      "name": "???????",
+      "categoryId": "skill_category_naval_active_enhancement",
+      "description": "????????????3?????8.8??",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill400581"
+      }
+    },
+    {
+      "id": "skill_skill400591",
+      "name": "????",
+      "categoryId": "skill_category_naval_active_enhancement",
+      "description": "?35???????????2???",
+      "iconId": "asset_skill_skill400591",
+      "sourceRefs": {
+        "voyageTw": "skill400591"
+      }
+    },
+    {
+      "id": "skill_skill400861",
+      "name": "???????",
+      "categoryId": "skill_category_naval_active_enhancement",
+      "description": "????????????????3?????7????1??????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill400861"
+      }
+    },
+    {
+      "id": "skill_skill400973",
+      "name": "????",
+      "categoryId": "skill_category_admiral",
+      "description": "????????????????????????????17.5??",
+      "iconId": "asset_skill_skill400973",
+      "sourceRefs": {
+        "voyageTw": "skill400973"
+      }
+    },
+    {
+      "id": "skill_skill400974",
+      "name": "??????",
+      "categoryId": "skill_category_admiral",
+      "description": "??????????????30?????????????30??",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill400974"
+      }
+    },
+    {
+      "id": "skill_skill500436",
+      "name": "????",
+      "categoryId": "skill_category_naval_passive_other",
+      "description": "??????12.6????????????????6.1??  ??????????????1??????????????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skill500436"
+      }
+    },
+    {
+      "id": "skill_skill509998139",
+      "name": "??????",
+      "categoryId": "skill_category_innate_buff",
+      "description": "???????????0.3??",
+      "iconId": "asset_skill_skill509998139",
+      "sourceRefs": {
+        "voyageTw": "skill509998139"
+      }
+    },
+    {
+      "id": "skill_skillT0053",
+      "name": "???????",
+      "categoryId": "skill_category_trade_price_adjustment",
+      "description": "????????????2.5%?????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skillT0053"
+      }
+    },
+    {
+      "id": "skill_skillT0073",
+      "name": "???????",
+      "categoryId": "skill_category_trade_price_adjustment",
+      "description": "????????????2.5%?????",
+      "iconId": null,
+      "sourceRefs": {
+        "voyageTw": "skillT0073"
+      }
+    }
+  ],
+  "dictionaries": {
+    "rarities": [
+      {
+        "id": "rarity_3",
+        "name": "rarity_3",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "3"
+        }
+      },
+      {
+        "id": "rarity_4",
+        "name": "rarity_4",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "4"
+        }
+      },
+      {
+        "id": "rarity_5",
+        "name": "rarity_5",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "5"
+        }
+      }
+    ],
+    "types": [
+      {
+        "id": "type_class_1",
+        "name": "type_class_1",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "class_1"
+        }
+      },
+      {
+        "id": "type_class_2",
+        "name": "type_class_2",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "class_2"
+        }
+      },
+      {
+        "id": "type_class_3",
+        "name": "type_class_3",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "class_3"
+        }
+      }
+    ],
+    "genders": [
+      {
+        "id": "gender_f",
+        "name": "gender_f",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "f"
+        }
+      },
+      {
+        "id": "gender_m",
+        "name": "gender_m",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "m"
+        }
+      }
+    ],
+    "jobs": [
+      {
+        "id": "job_job21400002",
+        "name": "job_job21400002",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "job21400002"
+        }
+      },
+      {
+        "id": "job_job21400006",
+        "name": "job_job21400006",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "job21400006"
+        }
+      },
+      {
+        "id": "job_job21401015",
+        "name": "job_job21401015",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "job21401015"
+        }
+      },
+      {
+        "id": "job_job21402014",
+        "name": "job_job21402014",
+        "displayOrder": 4,
+        "sourceRefs": {
+          "voyageTw": "job21402014"
+        }
+      },
+      {
+        "id": "job_jobchasT089",
+        "name": "job_jobchasT089",
+        "displayOrder": 5,
+        "sourceRefs": {
+          "voyageTw": "jobchasT089"
+        }
+      },
+      {
+        "id": "job_jobchasT096",
+        "name": "job_jobchasT096",
+        "displayOrder": 6,
+        "sourceRefs": {
+          "voyageTw": "jobchasT096"
+        }
+      },
+      {
+        "id": "job_jobchasab001",
+        "name": "job_jobchasab001",
+        "displayOrder": 7,
+        "sourceRefs": {
+          "voyageTw": "jobchasab001"
+        }
+      },
+      {
+        "id": "job_jobchasab012",
+        "name": "job_jobchasab012",
+        "displayOrder": 8,
+        "sourceRefs": {
+          "voyageTw": "jobchasab012"
+        }
+      }
+    ],
+    "nationalities": [
+      {
+        "id": "nationality_ctn_irl",
+        "name": "nationality_ctn_irl",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "ctn_irl"
+        }
+      },
+      {
+        "id": "nationality_ctn_ita",
+        "name": "nationality_ctn_ita",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "ctn_ita"
+        }
+      },
+      {
+        "id": "nationality_ctn_pdg",
+        "name": "nationality_ctn_pdg",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "ctn_pdg"
+        }
+      },
+      {
+        "id": "nationality_ctn_swe",
+        "name": "nationality_ctn_swe",
+        "displayOrder": 4,
+        "sourceRefs": {
+          "voyageTw": "ctn_swe"
+        }
+      },
+      {
+        "id": "nationality_ctn_tur",
+        "name": "nationality_ctn_tur",
+        "displayOrder": 5,
+        "sourceRefs": {
+          "voyageTw": "ctn_tur"
+        }
+      },
+      {
+        "id": "nationality_unknown",
+        "name": "nationality_unknown",
+        "displayOrder": 6,
+        "sourceRefs": {
+          "voyageTw": "unknown"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "id": "language_lang140",
+        "name": "language_lang140",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "lang140"
+        }
+      },
+      {
+        "id": "language_lang20",
+        "name": "language_lang20",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "lang20"
+        }
+      },
+      {
+        "id": "language_lang40",
+        "name": "language_lang40",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "lang40"
+        }
+      },
+      {
+        "id": "language_lang60",
+        "name": "language_lang60",
+        "displayOrder": 4,
+        "sourceRefs": {
+          "voyageTw": "lang60"
+        }
+      },
+      {
+        "id": "language_lang70",
+        "name": "language_lang70",
+        "displayOrder": 5,
+        "sourceRefs": {
+          "voyageTw": "lang70"
+        }
+      },
+      {
+        "id": "language_lang80",
+        "name": "language_lang80",
+        "displayOrder": 6,
+        "sourceRefs": {
+          "voyageTw": "lang80"
+        }
+      }
+    ],
+    "cities": [
+      {
+        "id": "city_town10105",
+        "name": "city_town10105",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "town10105"
+        }
+      },
+      {
+        "id": "city_town11101",
+        "name": "city_town11101",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "town11101"
+        }
+      },
+      {
+        "id": "city_town1205",
+        "name": "city_town1205",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "town1205"
+        }
+      },
+      {
+        "id": "city_town1301",
+        "name": "city_town1301",
+        "displayOrder": 4,
+        "sourceRefs": {
+          "voyageTw": "town1301"
+        }
+      },
+      {
+        "id": "city_town13204",
+        "name": "city_town13204",
+        "displayOrder": 5,
+        "sourceRefs": {
+          "voyageTw": "town13204"
+        }
+      },
+      {
+        "id": "city_town14105",
+        "name": "city_town14105",
+        "displayOrder": 6,
+        "sourceRefs": {
+          "voyageTw": "town14105"
+        }
+      },
+      {
+        "id": "city_town14201",
+        "name": "city_town14201",
+        "displayOrder": 7,
+        "sourceRefs": {
+          "voyageTw": "town14201"
+        }
+      },
+      {
+        "id": "city_town14203",
+        "name": "city_town14203",
+        "displayOrder": 8,
+        "sourceRefs": {
+          "voyageTw": "town14203"
+        }
+      },
+      {
+        "id": "city_town14205",
+        "name": "city_town14205",
+        "displayOrder": 9,
+        "sourceRefs": {
+          "voyageTw": "town14205"
+        }
+      },
+      {
+        "id": "city_town14207",
+        "name": "city_town14207",
+        "displayOrder": 10,
+        "sourceRefs": {
+          "voyageTw": "town14207"
+        }
+      },
+      {
+        "id": "city_town15201",
+        "name": "city_town15201",
+        "displayOrder": 11,
+        "sourceRefs": {
+          "voyageTw": "town15201"
+        }
+      },
+      {
+        "id": "city_town15301",
+        "name": "city_town15301",
+        "displayOrder": 12,
+        "sourceRefs": {
+          "voyageTw": "town15301"
+        }
+      },
+      {
+        "id": "city_town17301",
+        "name": "city_town17301",
+        "displayOrder": 13,
+        "sourceRefs": {
+          "voyageTw": "town17301"
+        }
+      },
+      {
+        "id": "city_town2202",
+        "name": "city_town2202",
+        "displayOrder": 14,
+        "sourceRefs": {
+          "voyageTw": "town2202"
+        }
+      },
+      {
+        "id": "city_town2204",
+        "name": "city_town2204",
+        "displayOrder": 15,
+        "sourceRefs": {
+          "voyageTw": "town2204"
+        }
+      },
+      {
+        "id": "city_town3301",
+        "name": "city_town3301",
+        "displayOrder": 16,
+        "sourceRefs": {
+          "voyageTw": "town3301"
+        }
+      },
+      {
+        "id": "city_town3303",
+        "name": "city_town3303",
+        "displayOrder": 17,
+        "sourceRefs": {
+          "voyageTw": "town3303"
+        }
+      },
+      {
+        "id": "city_town4105",
+        "name": "city_town4105",
+        "displayOrder": 18,
+        "sourceRefs": {
+          "voyageTw": "town4105"
+        }
+      },
+      {
+        "id": "city_town4302",
+        "name": "city_town4302",
+        "displayOrder": 19,
+        "sourceRefs": {
+          "voyageTw": "town4302"
+        }
+      },
+      {
+        "id": "city_town5201",
+        "name": "city_town5201",
+        "displayOrder": 20,
+        "sourceRefs": {
+          "voyageTw": "town5201"
+        }
+      },
+      {
+        "id": "city_town5202",
+        "name": "city_town5202",
+        "displayOrder": 21,
+        "sourceRefs": {
+          "voyageTw": "town5202"
+        }
+      },
+      {
+        "id": "city_town5301",
+        "name": "city_town5301",
+        "displayOrder": 22,
+        "sourceRefs": {
+          "voyageTw": "town5301"
+        }
+      },
+      {
+        "id": "city_town5302",
+        "name": "city_town5302",
+        "displayOrder": 23,
+        "sourceRefs": {
+          "voyageTw": "town5302"
+        }
+      },
+      {
+        "id": "city_town5303",
+        "name": "city_town5303",
+        "displayOrder": 24,
+        "sourceRefs": {
+          "voyageTw": "town5303"
+        }
+      },
+      {
+        "id": "city_town6104",
+        "name": "city_town6104",
+        "displayOrder": 25,
+        "sourceRefs": {
+          "voyageTw": "town6104"
+        }
+      },
+      {
+        "id": "city_town6201",
+        "name": "city_town6201",
+        "displayOrder": 26,
+        "sourceRefs": {
+          "voyageTw": "town6201"
+        }
+      },
+      {
+        "id": "city_town6301",
+        "name": "city_town6301",
+        "displayOrder": 27,
+        "sourceRefs": {
+          "voyageTw": "town6301"
+        }
+      },
+      {
+        "id": "city_town7101",
+        "name": "city_town7101",
+        "displayOrder": 28,
+        "sourceRefs": {
+          "voyageTw": "town7101"
+        }
+      },
+      {
+        "id": "city_town7201",
+        "name": "city_town7201",
+        "displayOrder": 29,
+        "sourceRefs": {
+          "voyageTw": "town7201"
+        }
+      },
+      {
+        "id": "city_town7202",
+        "name": "city_town7202",
+        "displayOrder": 30,
+        "sourceRefs": {
+          "voyageTw": "town7202"
+        }
+      },
+      {
+        "id": "city_town8105",
+        "name": "city_town8105",
+        "displayOrder": 31,
+        "sourceRefs": {
+          "voyageTw": "town8105"
+        }
+      },
+      {
+        "id": "city_town8301",
+        "name": "city_town8301",
+        "displayOrder": 32,
+        "sourceRefs": {
+          "voyageTw": "town8301"
+        }
+      },
+      {
+        "id": "city_town8302",
+        "name": "city_town8302",
+        "displayOrder": 33,
+        "sourceRefs": {
+          "voyageTw": "town8302"
+        }
+      },
+      {
+        "id": "city_town9104",
+        "name": "city_town9104",
+        "displayOrder": 34,
+        "sourceRefs": {
+          "voyageTw": "town9104"
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "id": "requirement_reqchasT089",
+        "name": "requirement_reqchasT089",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "reqchasT089"
+        }
+      }
+    ],
+    "skillCategories": [
+      {
+        "id": "skill_category_admiral",
+        "name": "skill_category_admiral",
+        "displayOrder": 1,
+        "sourceRefs": {
+          "voyageTw": "admiral"
+        }
+      },
+      {
+        "id": "skill_category_adventure",
+        "name": "skill_category_adventure",
+        "displayOrder": 2,
+        "sourceRefs": {
+          "voyageTw": "adventure"
+        }
+      },
+      {
+        "id": "skill_category_barter",
+        "name": "skill_category_barter",
+        "displayOrder": 3,
+        "sourceRefs": {
+          "voyageTw": "barter"
+        }
+      },
+      {
+        "id": "skill_category_combat_other",
+        "name": "skill_category_combat_other",
+        "displayOrder": 4,
+        "sourceRefs": {
+          "voyageTw": "combat_other"
+        }
+      },
+      {
+        "id": "skill_category_innate_buff",
+        "name": "skill_category_innate_buff",
+        "displayOrder": 5,
+        "sourceRefs": {
+          "voyageTw": "innate_buff"
+        }
+      },
+      {
+        "id": "skill_category_naval_active_enhancement",
+        "name": "skill_category_naval_active_enhancement",
+        "displayOrder": 6,
+        "sourceRefs": {
+          "voyageTw": "naval_active_enhancement"
+        }
+      },
+      {
+        "id": "skill_category_naval_passive_other",
+        "name": "skill_category_naval_passive_other",
+        "displayOrder": 7,
+        "sourceRefs": {
+          "voyageTw": "naval_passive_other"
+        }
+      },
+      {
+        "id": "skill_category_trade_expertise",
+        "name": "skill_category_trade_expertise",
+        "displayOrder": 8,
+        "sourceRefs": {
+          "voyageTw": "trade_expertise"
+        }
+      },
+      {
+        "id": "skill_category_trade_price_adjustment",
+        "name": "skill_category_trade_price_adjustment",
+        "displayOrder": 9,
+        "sourceRefs": {
+          "voyageTw": "trade_price_adjustment"
+        }
+      }
+    ]
+  },
+  "assets": [
+    {
+      "id": "asset_portrait_chast089",
+      "kind": "portrait",
+      "ownerType": "officer",
+      "ownerId": "officer_chast089",
+      "source": {
+        "url": "https://voyage.tw/img/char/uwo_chasT089.png",
+        "originalFilename": "chasT089.png",
+        "mimeType": "image/png",
+        "byteSize": 30789,
+        "sha256": "7dcad4559615ff09b15701d72be8f61190296b0ba5f36deff7cbd3df225881a7",
+        "width": 129,
+        "height": 129
+      }
+    },
+    {
+      "id": "asset_portrait_chast096",
+      "kind": "portrait",
+      "ownerType": "officer",
+      "ownerId": "officer_chast096",
+      "source": {
+        "url": "https://voyage.tw/img/char/uwo_chasT096.png",
+        "originalFilename": "chasT096.png",
+        "mimeType": "image/png",
+        "byteSize": 27083,
+        "sha256": "6a12e07848a41c5d3367fb8a1ad5f8568f105352ffc5ee005fa343d021052959",
+        "width": 129,
+        "height": 129
+      }
+    },
+    {
+      "id": "asset_portrait_chasab001",
+      "kind": "portrait",
+      "ownerType": "officer",
+      "ownerId": "officer_chasab001",
+      "source": {
+        "url": "https://voyage.tw/img/char/uwo_chasab001.png",
+        "originalFilename": "chasab001.png",
+        "mimeType": "image/png",
+        "byteSize": 8471,
+        "sha256": "7c2b8f5fe62f1492531c9eaee5e19482e7319e14905e7dca76d207d4b3359cff",
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "id": "asset_skill_skill100043",
+      "kind": "icon",
+      "ownerType": "skill",
+      "ownerId": "skill_skill100043",
+      "source": {
+        "url": "https://voyage.tw/img/skill/uwo_skill100043.png",
+        "originalFilename": "skill100043.png",
+        "mimeType": "image/png",
+        "byteSize": 10751,
+        "sha256": "699c5d3ec8df878b44f8e3b67d5eea01e56291325f41101e92ea0795a3fda7a3",
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "id": "asset_skill_skill203426",
+      "kind": "icon",
+      "ownerType": "skill",
+      "ownerId": "skill_skill203426",
+      "source": {
+        "url": "https://voyage.tw/img/skill/uwo_skill203426.png",
+        "originalFilename": "skill203426.png",
+        "mimeType": "image/png",
+        "byteSize": 7495,
+        "sha256": "ab012e9493a2a429a2a0b4958cda56d59e3ef226aed605f9c6196c110c49c970",
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "id": "asset_skill_skill300001",
+      "kind": "icon",
+      "ownerType": "skill",
+      "ownerId": "skill_skill300001",
+      "source": {
+        "url": "https://voyage.tw/img/skill/uwo_skill300001.png",
+        "originalFilename": "skill300001.png",
+        "mimeType": "image/png",
+        "byteSize": 9341,
+        "sha256": "68dc29a3fb42c1f828786bc5e174ddc66ee2f8984893960a763fbd494fc6f8d0",
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "id": "asset_skill_skill400591",
+      "kind": "icon",
+      "ownerType": "skill",
+      "ownerId": "skill_skill400591",
+      "source": {
+        "url": "https://voyage.tw/img/skill/uwo_skill400591.png",
+        "originalFilename": "skill400591.png",
+        "mimeType": "image/png",
+        "byteSize": 9937,
+        "sha256": "868278dec539685d2776b6057682e35c81a309240a899371d598ea51c3e0c77e",
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "id": "asset_skill_skill400973",
+      "kind": "icon",
+      "ownerType": "skill",
+      "ownerId": "skill_skill400973",
+      "source": {
+        "url": "https://voyage.tw/img/skill/uwo_skill400973.png",
+        "originalFilename": "skill400973.png",
+        "mimeType": "image/png",
+        "byteSize": 11695,
+        "sha256": "d3cb3bedc4e65a85be7ad2ca54f43bcfbb5c35d98f3e52f05ea0a9c333d60188",
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "id": "asset_skill_skill509998139",
+      "kind": "icon",
+      "ownerType": "skill",
+      "ownerId": "skill_skill509998139",
+      "source": {
+        "url": "https://voyage.tw/img/skill/uwo_skill509998.png",
+        "originalFilename": "skill509998.png",
+        "mimeType": "image/png",
+        "byteSize": 8593,
+        "sha256": "919a4d716da665443b4a4eafc1b62d8b428ac3f4d44bb32d12ad19409396d9f4",
+        "width": 60,
+        "height": 60
+      }
+    }
+  ],
+  "skillIconResolutions": [
+    {
+      "ownerSourceId": "skill100043",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill100043",
+      "url": "https://voyage.tw/img/skill/uwo_skill100043.png",
+      "metadataSourceRange": "bytes=507904-511999",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill100051",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill100051",
+      "url": "https://voyage.tw/img/skill/uwo_skill100051.png",
+      "metadataSourceRange": "bytes=466944-471039",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill100063",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill100063",
+      "url": "https://voyage.tw/img/skill/uwo_skill100063.png",
+      "metadataSourceRange": "bytes=520192-524287",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill100064",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill100064",
+      "url": "https://voyage.tw/img/skill/uwo_skill100064.png",
+      "metadataSourceRange": "bytes=520192-524287",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill200681",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill200681",
+      "url": "https://voyage.tw/img/skill/uwo_skill200681.png",
+      "metadataSourceRange": "bytes=475136-479231",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill200921",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill200921",
+      "url": "https://voyage.tw/img/skill/uwo_skill200921.png",
+      "metadataSourceRange": "bytes=516096-520191",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill203306",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill203306",
+      "url": "https://voyage.tw/img/skill/uwo_skill203306.png",
+      "metadataSourceRange": "bytes=454656-458751",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill203426",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill203426",
+      "url": "https://voyage.tw/img/skill/uwo_skill203426.png",
+      "metadataSourceRange": "bytes=512000-516095",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill203826",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill203826",
+      "url": "https://voyage.tw/img/skill/uwo_skill203826.png",
+      "metadataSourceRange": "bytes=512000-516095",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill300001",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill300001",
+      "url": "https://voyage.tw/img/skill/uwo_skill300001.png",
+      "metadataSourceRange": "bytes=446464-450559",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill300004",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill300004",
+      "url": "https://voyage.tw/img/skill/uwo_skill300004.png",
+      "metadataSourceRange": "bytes=450560-454655",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill400581",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill400581",
+      "url": "https://voyage.tw/img/skill/uwo_skill400581.png",
+      "metadataSourceRange": "bytes=471040-475135",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill400591",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill400591",
+      "url": "https://voyage.tw/img/skill/uwo_skill400591.png",
+      "metadataSourceRange": "bytes=466944-471039",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill400861",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill400861",
+      "url": "https://voyage.tw/img/skill/uwo_skill400861.png",
+      "metadataSourceRange": "bytes=479232-483327",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill400973",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill400973",
+      "url": "https://voyage.tw/img/skill/uwo_skill400973.png",
+      "metadataSourceRange": "bytes=520192-524287",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill400974",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill400974",
+      "url": "https://voyage.tw/img/skill/uwo_skill400974.png",
+      "metadataSourceRange": "bytes=520192-524287",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill500436",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill500436",
+      "url": "https://voyage.tw/img/skill/uwo_skill500436.png",
+      "metadataSourceRange": "bytes=454656-458751",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skill509998139",
+      "imageOverrideId": null,
+      "resolvedImageId": "skill509998",
+      "url": "https://voyage.tw/img/skill/uwo_skill509998.png",
+      "metadataSourceRange": "bytes=520192-524287",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skillT0053",
+      "imageOverrideId": "skill200681",
+      "resolvedImageId": "skill200681",
+      "url": "https://voyage.tw/img/skill/uwo_skill200681.png",
+      "metadataSourceRange": "bytes=532480-536575",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    },
+    {
+      "ownerSourceId": "skillT0073",
+      "imageOverrideId": "skill203426",
+      "resolvedImageId": "skill203426",
+      "url": "https://voyage.tw/img/skill/uwo_skill203426.png",
+      "metadataSourceRange": "bytes=536576-540671",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    }
+  ],
+  "portraitResolutions": [
+    {
+      "ownerSourceId": "chasT089",
+      "resolvedImageId": "chasT089",
+      "url": "https://voyage.tw/img/char/uwo_chasT089.png",
+      "sourceRef": "data/audit/asset-sample-manifest.json",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasT096",
+      "resolvedImageId": "chasT096",
+      "url": "https://voyage.tw/img/char/uwo_chasT096.png",
+      "sourceRef": "data/audit/asset-sample-manifest.json",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasT098",
+      "resolvedImageId": "chasT098",
+      "url": "https://voyage.tw/img/char/uwo_chasT098.png",
+      "sourceRef": "data/audit/sample-selection.json#officerIds",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasT099",
+      "resolvedImageId": "chasT099",
+      "url": "https://voyage.tw/img/char/uwo_chasT099.png",
+      "sourceRef": "data/audit/sample-selection.json#officerIds",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasT100",
+      "resolvedImageId": "chasT100",
+      "url": "https://voyage.tw/img/char/uwo_chasT100.png",
+      "sourceRef": "data/audit/sample-selection.json#officerIds",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasT101",
+      "resolvedImageId": "chasT101",
+      "url": "https://voyage.tw/img/char/uwo_chasT101.png",
+      "sourceRef": "data/audit/sample-selection.json#officerIds",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasab001",
+      "resolvedImageId": "chasab001",
+      "url": "https://voyage.tw/img/char/uwo_chasab001.png",
+      "sourceRef": "data/audit/asset-sample-manifest.json",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    },
+    {
+      "ownerSourceId": "chasab012",
+      "resolvedImageId": "chasab012",
+      "url": "https://voyage.tw/img/char/uwo_chasab012.png",
+      "sourceRef": "data/audit/sample-selection.json#officerIds",
+      "rule": "Use the selected officer source ID as the voyage.tw portrait image ID."
+    }
+  ]
+}

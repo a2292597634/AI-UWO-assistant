@@ -1,15 +1,11 @@
-{
-  "id": "asset_test",
-  "kind": "portrait",
-  "ownerType": "officer",
-  "ownerId": "officer_test",
-  "source": {
-    "url": "https://example.test/portrait.png",
-    "originalFilename": "portrait.png",
-    "mimeType": "image/png",
-    "byteSize": 1,
-    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "width": 1,
-    "height": 1
-  }
-}
+[
+  { "id": "asset_portrait_chast089", "kind": "portrait", "ownerType": "officer", "ownerId": "officer_chast089", "source": { "url": "https://voyage.tw/img/char/uwo_chasT089.png", "originalFilename": "chasT089.png", "mimeType": "image/png", "byteSize": 30789, "sha256": "7dcad4559615ff09b15701d72be8f61190296b0ba5f36deff7cbd3df225881a7", "width": 129, "height": 129 } },
+  { "id": "asset_portrait_chast096", "kind": "portrait", "ownerType": "officer", "ownerId": "officer_chast096", "source": { "url": "https://voyage.tw/img/char/uwo_chasT096.png", "originalFilename": "chasT096.png", "mimeType": "image/png", "byteSize": 27083, "sha256": "6a12e07848a41c5d3367fb8a1ad5f8568f105352ffc5ee005fa343d021052959", "width": 129, "height": 129 } },
+  { "id": "asset_portrait_chasab001", "kind": "portrait", "ownerType": "officer", "ownerId": "officer_chasab001", "source": { "url": "https://voyage.tw/img/char/uwo_chasab001.png", "originalFilename": "chasab001.png", "mimeType": "image/png", "byteSize": 8471, "sha256": "7c2b8f5fe62f1492531c9eaee5e19482e7319e14905e7dca76d207d4b3359cff", "width": 60, "height": 60 } },
+  { "id": "asset_skill_skill100043", "kind": "icon", "ownerType": "skill", "ownerId": "skill_skill100043", "source": { "url": "https://voyage.tw/img/skill/uwo_skill100043.png", "originalFilename": "skill100043.png", "mimeType": "image/png", "byteSize": 10751, "sha256": "699c5d3ec8df878b44f8e3b67d5eea01e56291325f41101e92ea0795a3fda7a3", "width": 60, "height": 60 } },
+  { "id": "asset_skill_skill203426", "kind": "icon", "ownerType": "skill", "ownerId": "skill_skill203426", "source": { "url": "https://voyage.tw/img/skill/uwo_skill203426.png", "originalFilename": "skill203426.png", "mimeType": "image/png", "byteSize": 7495, "sha256": "ab012e9493a2a429a2a0b4958cda56d59e3ef226aed605f9c6196c110c49c970", "width": 60, "height": 60 } },
+  { "id": "asset_skill_skill300001", "kind": "icon", "ownerType": "skill", "ownerId": "skill_skill300001", "source": { "url": "https://voyage.tw/img/skill/uwo_skill300001.png", "originalFilename": "skill300001.png", "mimeType": "image/png", "byteSize": 9341, "sha256": "68dc29a3fb42c1f828786bc5e174ddc66ee2f8984893960a763fbd494fc6f8d0", "width": 60, "height": 60 } },
+  { "id": "asset_skill_skill400591", "kind": "icon", "ownerType": "skill", "ownerId": "skill_skill400591", "source": { "url": "https://voyage.tw/img/skill/uwo_skill400591.png", "originalFilename": "skill400591.png", "mimeType": "image/png", "byteSize": 9937, "sha256": "868278dec539685d2776b6057682e35c81a309240a899371d598ea51c3e0c77e", "width": 60, "height": 60 } },
+  { "id": "asset_skill_skill400973", "kind": "icon", "ownerType": "skill", "ownerId": "skill_skill400973", "source": { "url": "https://voyage.tw/img/skill/uwo_skill400973.png", "originalFilename": "skill400973.png", "mimeType": "image/png", "byteSize": 11695, "sha256": "d3cb3bedc4e65a85be7ad2ca54f43bcfbb5c35d98f3e52f05ea0a9c333d60188", "width": 60, "height": 60 } },
+  { "id": "asset_skill_skill509998139", "kind": "icon", "ownerType": "skill", "ownerId": "skill_skill509998139", "source": { "url": "https://voyage.tw/img/skill/uwo_skill509998.png", "originalFilename": "skill509998.png", "mimeType": "image/png", "byteSize": 8593, "sha256": "919a4d716da665443b4a4eafc1b62d8b428ac3f4d44bb32d12ad19409396d9f4", "width": 60, "height": 60 } }
+]

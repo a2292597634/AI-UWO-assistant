@@ -19,6 +19,17 @@ export interface CapturedSkillSample {
   sourceCategoryName: string
 }
 
+export interface OfficerNameEvidence {
+  ownerSourceId: string
+  name: string
+  sourceUrl: string
+  metadataSourceRange: string
+  contentRange: string
+  lastModified: string | null
+  sha256: string
+  rule: string
+}
+
 export interface CapturedSourceSamples {
   officers: Record<string, Record<string, unknown>>
   skills: Record<string, CapturedSkillSample>
@@ -71,7 +82,7 @@ const validateSelection = (selection: SourceSelection) => {
   )
   assertWithinLimit(
     totalRangeBytes(sourceConfig.languageRanges),
-    sourceConfig.limits.bytesPerFile,
+    sourceConfig.limits.languageBytesPerFile,
     'languageBytes',
   )
 }
@@ -122,6 +133,41 @@ const extractOptionalString = (source: string, key: string): string | undefined 
       return undefined
     throw error
   }
+}
+
+export const captureOfficerNameEvidence = async (
+  officerId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<OfficerNameEvidence> => {
+  assertApprovedIds([officerId], sourceConfig.officerIds, 'officer')
+  const sourceUrl = new URL(sourceConfig.languageScript, sourceConfig.origin).toString()
+
+  for (const range of sourceConfig.languageRanges) {
+    const captured = await readBoundedRange(fetcher, sourceUrl, range)
+    let name: string
+    try {
+      name = extractJsString(captured.source, officerId)
+    } catch (error) {
+      if (error instanceof Error && error.message === `AUDIT_SOURCE_KEY_MISSING:${officerId}`) {
+        continue
+      }
+      throw error
+    }
+
+    return {
+      ownerSourceId: officerId,
+      name,
+      sourceUrl,
+      metadataSourceRange: rangeHeader(range),
+      contentRange: captured.metadata.contentRange,
+      lastModified: captured.metadata.lastModified,
+      sha256: captured.metadata.sha256,
+      rule:
+        'Use the exact lang_js[1][officerId] value from the first approved bounded range containing the key.',
+    }
+  }
+
+  throw new Error(`AUDIT_SOURCE_KEY_MISSING:${officerId}`)
 }
 
 export const captureSourceSamples = async (
@@ -200,7 +246,7 @@ export const captureSourceSamples = async (
   for (const range of sourceConfig.languageRanges) {
     const captured = await readBoundedRange(fetcher, languageUrl, range)
     languageBytes += captured.byteLength
-    assertBelowLimit(languageBytes, sourceConfig.limits.bytesPerFile, 'languageBytes')
+    assertBelowLimit(languageBytes, sourceConfig.limits.languageBytesPerFile, 'languageBytes')
     metadata.push(captured.metadata)
     for (const skillId of selected.skillIds) {
       if (skillNames[skillId] === undefined) {

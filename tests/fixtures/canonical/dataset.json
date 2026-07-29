@@ -4,9 +4,9 @@
   "updatedAt": "2026-07-29T00:00:00Z",
   "sourceSnapshot": "fixture-snapshot",
   "counts": {
-    "officers": 1,
-    "skills": 1,
-    "assets": 1,
-    "dictionaryItems": 1
+    "officers": 8,
+    "skills": 20,
+    "assets": 9,
+    "dictionaryItems": 72
   }
 }

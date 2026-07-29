@@ -1,0 +1,10 @@
+[
+  { "ownerSourceId": "chasT089", "resolvedImageId": "chasT089", "url": "https://voyage.tw/img/char/uwo_chasT089.png", "sourceRef": "data/audit/asset-sample-manifest.json", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasT096", "resolvedImageId": "chasT096", "url": "https://voyage.tw/img/char/uwo_chasT096.png", "sourceRef": "data/audit/asset-sample-manifest.json", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasT098", "resolvedImageId": "chasT098", "url": "https://voyage.tw/img/char/uwo_chasT098.png", "sourceRef": "data/audit/sample-selection.json#officerIds", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasT099", "resolvedImageId": "chasT099", "url": "https://voyage.tw/img/char/uwo_chasT099.png", "sourceRef": "data/audit/sample-selection.json#officerIds", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasT100", "resolvedImageId": "chasT100", "url": "https://voyage.tw/img/char/uwo_chasT100.png", "sourceRef": "data/audit/sample-selection.json#officerIds", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasT101", "resolvedImageId": "chasT101", "url": "https://voyage.tw/img/char/uwo_chasT101.png", "sourceRef": "data/audit/sample-selection.json#officerIds", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasab001", "resolvedImageId": "chasab001", "url": "https://voyage.tw/img/char/uwo_chasab001.png", "sourceRef": "data/audit/asset-sample-manifest.json", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." },
+  { "ownerSourceId": "chasab012", "resolvedImageId": "chasab012", "url": "https://voyage.tw/img/char/uwo_chasab012.png", "sourceRef": "data/audit/sample-selection.json#officerIds", "rule": "Use the selected officer source ID as the voyage.tw portrait image ID." }
+]

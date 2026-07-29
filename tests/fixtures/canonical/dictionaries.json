@@ -1,6 +1,596 @@
 {
-  "id": "dictionary_test",
-  "name": "Test Dictionary Item",
-  "displayOrder": 1,
-  "sourceRefs": { "voyageTw": "dictionaryT001" }
+  "rarities": [
+    {
+      "id": "rarity_3",
+      "name": "rarity_3",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "3"
+      }
+    },
+    {
+      "id": "rarity_4",
+      "name": "rarity_4",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "4"
+      }
+    },
+    {
+      "id": "rarity_5",
+      "name": "rarity_5",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "5"
+      }
+    }
+  ],
+  "types": [
+    {
+      "id": "type_class_1",
+      "name": "type_class_1",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "class_1"
+      }
+    },
+    {
+      "id": "type_class_2",
+      "name": "type_class_2",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "class_2"
+      }
+    },
+    {
+      "id": "type_class_3",
+      "name": "type_class_3",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "class_3"
+      }
+    }
+  ],
+  "genders": [
+    {
+      "id": "gender_f",
+      "name": "gender_f",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "f"
+      }
+    },
+    {
+      "id": "gender_m",
+      "name": "gender_m",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "m"
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job_job21400002",
+      "name": "job_job21400002",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "job21400002"
+      }
+    },
+    {
+      "id": "job_job21400006",
+      "name": "job_job21400006",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "job21400006"
+      }
+    },
+    {
+      "id": "job_job21401015",
+      "name": "job_job21401015",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "job21401015"
+      }
+    },
+    {
+      "id": "job_job21402014",
+      "name": "job_job21402014",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "job21402014"
+      }
+    },
+    {
+      "id": "job_jobchasT089",
+      "name": "job_jobchasT089",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "jobchasT089"
+      }
+    },
+    {
+      "id": "job_jobchasT096",
+      "name": "job_jobchasT096",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "jobchasT096"
+      }
+    },
+    {
+      "id": "job_jobchasab001",
+      "name": "job_jobchasab001",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "jobchasab001"
+      }
+    },
+    {
+      "id": "job_jobchasab012",
+      "name": "job_jobchasab012",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "jobchasab012"
+      }
+    }
+  ],
+  "nationalities": [
+    {
+      "id": "nationality_ctn_irl",
+      "name": "nationality_ctn_irl",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "ctn_irl"
+      }
+    },
+    {
+      "id": "nationality_ctn_ita",
+      "name": "nationality_ctn_ita",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "ctn_ita"
+      }
+    },
+    {
+      "id": "nationality_ctn_pdg",
+      "name": "nationality_ctn_pdg",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "ctn_pdg"
+      }
+    },
+    {
+      "id": "nationality_ctn_swe",
+      "name": "nationality_ctn_swe",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "ctn_swe"
+      }
+    },
+    {
+      "id": "nationality_ctn_tur",
+      "name": "nationality_ctn_tur",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "ctn_tur"
+      }
+    },
+    {
+      "id": "nationality_unknown",
+      "name": "nationality_unknown",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "unknown"
+      }
+    }
+  ],
+  "languages": [
+    {
+      "id": "language_lang140",
+      "name": "language_lang140",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "lang140"
+      }
+    },
+    {
+      "id": "language_lang20",
+      "name": "language_lang20",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "lang20"
+      }
+    },
+    {
+      "id": "language_lang40",
+      "name": "language_lang40",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "lang40"
+      }
+    },
+    {
+      "id": "language_lang60",
+      "name": "language_lang60",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "lang60"
+      }
+    },
+    {
+      "id": "language_lang70",
+      "name": "language_lang70",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "lang70"
+      }
+    },
+    {
+      "id": "language_lang80",
+      "name": "language_lang80",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "lang80"
+      }
+    }
+  ],
+  "cities": [
+    {
+      "id": "city_town10105",
+      "name": "city_town10105",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "town10105"
+      }
+    },
+    {
+      "id": "city_town11101",
+      "name": "city_town11101",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "town11101"
+      }
+    },
+    {
+      "id": "city_town1205",
+      "name": "city_town1205",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "town1205"
+      }
+    },
+    {
+      "id": "city_town1301",
+      "name": "city_town1301",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "town1301"
+      }
+    },
+    {
+      "id": "city_town13204",
+      "name": "city_town13204",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "town13204"
+      }
+    },
+    {
+      "id": "city_town14105",
+      "name": "city_town14105",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "town14105"
+      }
+    },
+    {
+      "id": "city_town14201",
+      "name": "city_town14201",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "town14201"
+      }
+    },
+    {
+      "id": "city_town14203",
+      "name": "city_town14203",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "town14203"
+      }
+    },
+    {
+      "id": "city_town14205",
+      "name": "city_town14205",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "town14205"
+      }
+    },
+    {
+      "id": "city_town14207",
+      "name": "city_town14207",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "town14207"
+      }
+    },
+    {
+      "id": "city_town15201",
+      "name": "city_town15201",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "town15201"
+      }
+    },
+    {
+      "id": "city_town15301",
+      "name": "city_town15301",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "town15301"
+      }
+    },
+    {
+      "id": "city_town17301",
+      "name": "city_town17301",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "town17301"
+      }
+    },
+    {
+      "id": "city_town2202",
+      "name": "city_town2202",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "town2202"
+      }
+    },
+    {
+      "id": "city_town2204",
+      "name": "city_town2204",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "town2204"
+      }
+    },
+    {
+      "id": "city_town3301",
+      "name": "city_town3301",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "town3301"
+      }
+    },
+    {
+      "id": "city_town3303",
+      "name": "city_town3303",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "town3303"
+      }
+    },
+    {
+      "id": "city_town4105",
+      "name": "city_town4105",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "town4105"
+      }
+    },
+    {
+      "id": "city_town4302",
+      "name": "city_town4302",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "town4302"
+      }
+    },
+    {
+      "id": "city_town5201",
+      "name": "city_town5201",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "town5201"
+      }
+    },
+    {
+      "id": "city_town5202",
+      "name": "city_town5202",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "town5202"
+      }
+    },
+    {
+      "id": "city_town5301",
+      "name": "city_town5301",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "town5301"
+      }
+    },
+    {
+      "id": "city_town5302",
+      "name": "city_town5302",
+      "displayOrder": 23,
+      "sourceRefs": {
+        "voyageTw": "town5302"
+      }
+    },
+    {
+      "id": "city_town5303",
+      "name": "city_town5303",
+      "displayOrder": 24,
+      "sourceRefs": {
+        "voyageTw": "town5303"
+      }
+    },
+    {
+      "id": "city_town6104",
+      "name": "city_town6104",
+      "displayOrder": 25,
+      "sourceRefs": {
+        "voyageTw": "town6104"
+      }
+    },
+    {
+      "id": "city_town6201",
+      "name": "city_town6201",
+      "displayOrder": 26,
+      "sourceRefs": {
+        "voyageTw": "town6201"
+      }
+    },
+    {
+      "id": "city_town6301",
+      "name": "city_town6301",
+      "displayOrder": 27,
+      "sourceRefs": {
+        "voyageTw": "town6301"
+      }
+    },
+    {
+      "id": "city_town7101",
+      "name": "city_town7101",
+      "displayOrder": 28,
+      "sourceRefs": {
+        "voyageTw": "town7101"
+      }
+    },
+    {
+      "id": "city_town7201",
+      "name": "city_town7201",
+      "displayOrder": 29,
+      "sourceRefs": {
+        "voyageTw": "town7201"
+      }
+    },
+    {
+      "id": "city_town7202",
+      "name": "city_town7202",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "town7202"
+      }
+    },
+    {
+      "id": "city_town8105",
+      "name": "city_town8105",
+      "displayOrder": 31,
+      "sourceRefs": {
+        "voyageTw": "town8105"
+      }
+    },
+    {
+      "id": "city_town8301",
+      "name": "city_town8301",
+      "displayOrder": 32,
+      "sourceRefs": {
+        "voyageTw": "town8301"
+      }
+    },
+    {
+      "id": "city_town8302",
+      "name": "city_town8302",
+      "displayOrder": 33,
+      "sourceRefs": {
+        "voyageTw": "town8302"
+      }
+    },
+    {
+      "id": "city_town9104",
+      "name": "city_town9104",
+      "displayOrder": 34,
+      "sourceRefs": {
+        "voyageTw": "town9104"
+      }
+    }
+  ],
+  "requirements": [
+    {
+      "id": "requirement_reqchasT089",
+      "name": "requirement_reqchasT089",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "reqchasT089"
+      }
+    }
+  ],
+  "skillCategories": [
+    {
+      "id": "skill_category_admiral",
+      "name": "skill_category_admiral",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "admiral"
+      }
+    },
+    {
+      "id": "skill_category_adventure",
+      "name": "skill_category_adventure",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "adventure"
+      }
+    },
+    {
+      "id": "skill_category_barter",
+      "name": "skill_category_barter",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "barter"
+      }
+    },
+    {
+      "id": "skill_category_combat_other",
+      "name": "skill_category_combat_other",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "combat_other"
+      }
+    },
+    {
+      "id": "skill_category_innate_buff",
+      "name": "skill_category_innate_buff",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "innate_buff"
+      }
+    },
+    {
+      "id": "skill_category_naval_active_enhancement",
+      "name": "skill_category_naval_active_enhancement",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "naval_active_enhancement"
+      }
+    },
+    {
+      "id": "skill_category_naval_passive_other",
+      "name": "skill_category_naval_passive_other",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "naval_passive_other"
+      }
+    },
+    {
+      "id": "skill_category_trade_expertise",
+      "name": "skill_category_trade_expertise",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "trade_expertise"
+      }
+    },
+    {
+      "id": "skill_category_trade_price_adjustment",
+      "name": "skill_category_trade_price_adjustment",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "trade_price_adjustment"
+      }
+    }
+  ]
 }

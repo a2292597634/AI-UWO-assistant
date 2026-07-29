@@ -68,7 +68,7 @@
         "note": { "type": ["string", "null"] }
       }
     },
-    "portraitId": { "type": "string", "minLength": 1 },
+    "portraitId": { "type": ["string", "null"], "minLength": 1 },
     "displayOrder": { "type": "integer" },
     "sourceRefs": {
       "type": "object",

@@ -8,7 +8,9 @@ export const sourceConfig = {
   languageRanges: [
     [0, 47237],
     [47238, 88188],
+    [88189, 92125],
     [92126, 178363],
+    [178364, 262143],
   ],
   skillMetadataRanges: [
     [446464, 450559],
@@ -27,6 +29,7 @@ export const sourceConfig = {
   ],
   limits: {
     bytesPerFile: 192 * 1024,
+    languageBytesPerFile: 256 * 1024,
     officers: 12,
     skills: 25,
     assets: 12,

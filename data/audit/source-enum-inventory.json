@@ -166,8 +166,8 @@
     "sourceValue": "chasT051",
     "canonicalId": "officer_chast051",
     "evidenceOfficerIds": ["chasT101"],
-    "status": "anomaly",
-    "reason": "Source city list contains an officer-shaped ID; it is not approved as a city."
+    "status": "rejected",
+    "reason": "Rejected: source city list contains an officer-shaped ID; it is neither approved as a city nor inferred as a prerequisite."
   },
   {
     "sourcePath": "city",

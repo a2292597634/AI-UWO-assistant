@@ -19,7 +19,7 @@ export interface SourceEnumValue {
   sourceValue: string
   canonicalId: string
   evidenceOfficerIds: string[]
-  status?: 'approved' | 'anomaly'
+  status?: 'approved' | 'anomaly' | 'rejected'
   reason?: string | null
 }
 
