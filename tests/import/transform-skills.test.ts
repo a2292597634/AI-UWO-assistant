@@ -61,14 +61,17 @@ describe('transformSkills', () => {
     expect(entries).toHaveLength(1)
   })
 
-  it('flags skills with missing names', () => {
-    const { anomalies } = transformSkills(
+  it('falls back to skill ID when name is missing from lang_js', () => {
+    const { skills, anomalies } = transformSkills(
       ['skill999999'],
       { skill999999: { sourceCategoryId: 'menuskt3', imageOverrideId: null } },
       {}, // empty languageMap
       mappings,
     )
 
-    expect(anomalies.length).toBeGreaterThan(0)
+    // Should still produce a skill record with the ID as display name
+    expect(skills).toHaveLength(1)
+    expect(skills[0]!.name).toBe('skill999999')
+    // The unmapped category menuskt3 actually IS mapped, so no anomaly
   })
 })
