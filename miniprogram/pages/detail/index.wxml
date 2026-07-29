@@ -1,0 +1,66 @@
+<scroll-view class="detail-page" scroll-y wx:if="{{officer}}">
+  <view class="hero">
+    <image src="{{officer.portraitPath}}" mode="aspectFill" class="hero-portrait" binderror="onPortraitError" />
+    <view class="hero-fb" wx:if="{{portraitFail}}">
+      <text class="hero-fb-text">{{officer.name[0]}}</text>
+    </view>
+    <view class="hero-overlay">
+      <text class="hero-rarity">{{officer.rarityName}}</text>
+      <text class="hero-name">{{officer.name}}</text>
+      <view class="hero-meta">
+        <text class="hero-tag">{{officer.jobName}}</text>
+        <text class="hero-tag">{{officer.genderName}}</text>
+        <text class="hero-tag">{{officer.nationalityName}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">語言</text>
+    <view class="tag-row">
+      <text wx:for="{{officer.languages}}" wx:key="languageId" class="tag">{{item.name}} Lv.{{item.level}}</text>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{activeSkills.length > 0}}">
+    <text class="section-title">主動技能</text>
+    <view class="skill-list">
+      <view wx:for="{{activeSkills}}" wx:key="skillId" class="skill-card">
+        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon" />
+        <view class="skill-body">
+          <text class="skill-name">{{item.name}}</text>
+          <text class="skill-detail">Lv.{{item.level}} / 解鎖 Lv.{{item.unlockLevel}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{passiveSkills.length > 0}}">
+    <text class="section-title">被動技能</text>
+    <view class="skill-list">
+      <view wx:for="{{passiveSkills}}" wx:key="skillId" class="skill-card">
+        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon" />
+        <view class="skill-body">
+          <text class="skill-name">{{item.name}}</text>
+          <text class="skill-detail">Lv.{{item.level}} / 解鎖 Lv.{{item.unlockLevel}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">招募資訊</text>
+    <view class="recruit-row">
+      <text class="recruit-label">城市</text>
+      <text class="recruit-value">{{officer.recruitment.cityNames.join('、') || '無'}}</text>
+    </view>
+    <view class="recruit-row" wx:if="{{officer.recruitment.requirementName}}">
+      <text class="recruit-label">條件</text>
+      <text class="recruit-value">{{officer.recruitment.requirementName}}</text>
+    </view>
+    <view class="recruit-row" wx:if="{{officer.recruitment.note}}">
+      <text class="recruit-label">備註</text>
+      <text class="recruit-value">{{officer.recruitment.note}}</text>
+    </view>
+  </view>
+</scroll-view>

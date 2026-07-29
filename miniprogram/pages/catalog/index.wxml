@@ -1,0 +1,85 @@
+<view class="catalog-page">
+  <view class="tabs">
+    <view wx:for="{{tabs}}" wx:key="*this" class="tab {{activeTab === index ? 'tab--active' : ''}}" bindtap="onTabTap" data-index="{{index}}">{{item}}</view>
+  </view>
+
+  <view class="filter-panel" wx:if="{{activeTab === 0}}">
+    <view class="filter-group">
+      <text class="filter-label">稀有度</text>
+      <view class="filter-chips">
+        <view wx:for="{{rarities}}" wx:key="id" class="chip {{selectedRarities.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedRarities" data-id="{{item.id}}">{{item.name}}</view>
+      </view>
+    </view>
+    <view class="filter-group">
+      <text class="filter-label">類型</text>
+      <view class="filter-chips">
+        <view wx:for="{{types}}" wx:key="id" class="chip {{selectedTypes.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedTypes" data-id="{{item.id}}">{{item.name}}</view>
+      </view>
+    </view>
+    <view class="filter-group">
+      <text class="filter-label">性別</text>
+      <view class="filter-chips">
+        <view wx:for="{{genders}}" wx:key="id" class="chip {{selectedGenders.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedGenders" data-id="{{item.id}}">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="filter-panel" wx:if="{{activeTab === 1}}">
+    <view class="skill-kind-tabs">
+      <view class="kind-tab {{activeFilter === 'all' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="all">全部</view>
+      <view class="kind-tab {{activeFilter === 'active' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="active">主動</view>
+      <view class="kind-tab {{activeFilter === 'passive' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="passive">被動</view>
+    </view>
+    <view class="filter-chips">
+      <view wx:for="{{skillCategories}}" wx:key="id" class="chip {{selectedSkillCategories.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="filter-panel" wx:if="{{activeTab === 2}}">
+    <view class="filter-chips">
+      <view wx:for="{{languages}}" wx:key="id" class="chip {{selectedLanguages.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="filter-panel" wx:if="{{activeTab === 3}}">
+    <view class="filter-chips">
+      <view wx:for="{{jobs}}" wx:key="id" class="chip {{selectedJobs.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedJobs" data-id="{{item.id}}">{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="count-bar">
+    <text>{{filterCount}} 位航海士</text>
+    <text class="count-clear" bindtap="clearFilters" wx:if="{{filterCount < 8}}">清除篩選</text>
+  </view>
+
+  <scroll-view class="list" scroll-y>
+    <view wx:for="{{filtered}}" wx:key="id" class="officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
+      <view class="row-portrait">
+        <image src="{{item.portraitPath}}" mode="aspectFill" class="row-avatar" binderror="onPortraitError" data-index="{{index}}" />
+        <view class="row-portrait-fb" wx:if="{{item.portraitFail}}">
+          <text class="row-portrait-initial">{{item.name[0]}}</text>
+        </view>
+      </view>
+      <view class="row-info">
+        <view class="row-top">
+          <text class="row-name">{{item.name}}</text>
+          <text class="row-rarity">{{item.rarityName}}</text>
+        </view>
+        <view class="row-meta">
+          <text class="row-job">{{item.jobName}}</text>
+          <text class="row-gender">{{item.genderLabel}}</text>
+        </view>
+        <view class="row-skills">
+          <view class="skill-icon-group" wx:if="{{item.activeSkills.length > 0}}">
+            <image wx:for="{{item.activeSkills}}" wx:key="id" wx:for-item="sk" src="{{sk.iconPath}}" mode="aspectFit" class="row-skill-icon" />
+          </view>
+          <view class="skill-icon-group" wx:if="{{item.passiveSkills.length > 0}}">
+            <view class="skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
+            <image wx:for="{{item.passiveSkills}}" wx:key="id" wx:for-item="sk" src="{{sk.iconPath}}" mode="aspectFit" class="row-skill-icon" />
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{filtered.length === 0}}" class="empty">沒有符合條件的航海士</view>
+  </scroll-view>
+</view>
