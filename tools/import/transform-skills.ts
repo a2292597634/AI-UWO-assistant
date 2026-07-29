@@ -6,9 +6,7 @@ import type { CanonicalSkill, SourceSkillMetadata, TransformAnomaly } from './ty
  * A sourceCategoryId may appear in multiple sourceGroup mappings but always maps
  * to the same categoryId (verified by Phase 2 audit). Use the first match.
  */
-const buildCategoryMap = (
-  mappings: SkillMappingRecord[],
-): Map<string, string> => {
+const buildCategoryMap = (mappings: SkillMappingRecord[]): Map<string, string> => {
   const map = new Map<string, string>()
   for (const m of mappings) {
     if (m.status !== 'approved') continue

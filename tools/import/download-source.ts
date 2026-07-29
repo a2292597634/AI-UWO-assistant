@@ -12,17 +12,11 @@ export interface DownloadResult {
   contentRange?: string
 }
 
-interface RangeSpec {
-  start: number
-  end: number
-}
-
 // ── Helpers ──
 
 export const rangeHeader = (start: number, end: number): string => `bytes=${start}-${end}`
 
-const sha256Hex = (buffer: Buffer): string =>
-  createHash('sha256').update(buffer).digest('hex')
+const sha256Hex = (buffer: Buffer): string => createHash('sha256').update(buffer).digest('hex')
 
 // ── Full-file download ──
 
@@ -121,7 +115,9 @@ export const downloadAll = async (
   const dataFile = await downloadFullFile(dataUrl, `${outputDir}/json_char.js`, fetcher)
 
   // Download lang_1.js (4 ranges)
-  const langRanges = sourceConfig.languageRanges.map((r) => [r[0], r[1]] as readonly [number, number])
+  const langRanges = sourceConfig.languageRanges.map(
+    (r) => [r[0], r[1]] as readonly [number, number],
+  )
   const langResult = await downloadWithRanges(langUrl, langRanges, langRangesDir, fetcher)
 
   const manifest: SourceManifest = {

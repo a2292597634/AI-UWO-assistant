@@ -5,20 +5,46 @@ import { buildDictionaries } from '../../tools/import/build-dictionaries'
 // Minimal sample data matching Phase 2 fixtures
 const sampleOfficers: CanonicalOfficer[] = [
   {
-    id: 'officer_chast089', name: '達納·卡洛斯',
-    rarityId: 'rarity_5', typeId: 'type_class_2', genderId: 'gender_f',
-    jobId: 'job_jobchasT089', nationalityId: 'nationality_ctn_swe',
-    languages: [{ languageId: 'language_lang70', level: 5 }, { languageId: 'language_lang80', level: 3 }],
-    skills: [{ skillId: 'skill_skill100043', kind: 'passive', sourceGroup: 'sk0', slot: 0, unlockLevel: 50, level: 1 }],
-    recruitment: { cityIds: ['city_town4105'], requirementId: 'requirement_reqchasT089', requiredOfficerIds: [], note: null },
-    portraitId: null, displayOrder: 1, sourceRefs: { voyageTw: 'chasT089' },
+    id: 'officer_chast089',
+    name: '達納·卡洛斯',
+    rarityId: 'rarity_5',
+    typeId: 'type_class_2',
+    genderId: 'gender_f',
+    jobId: 'job_jobchasT089',
+    nationalityId: 'nationality_ctn_swe',
+    languages: [
+      { languageId: 'language_lang70', level: 5 },
+      { languageId: 'language_lang80', level: 3 },
+    ],
+    skills: [
+      {
+        skillId: 'skill_skill100043',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 0,
+        unlockLevel: 50,
+        level: 1,
+      },
+    ],
+    recruitment: {
+      cityIds: ['city_town4105'],
+      requirementId: 'requirement_reqchasT089',
+      requiredOfficerIds: [],
+      note: null,
+    },
+    portraitId: null,
+    displayOrder: 1,
+    sourceRefs: { voyageTw: 'chasT089' },
   },
 ]
 
 const sampleSkills: CanonicalSkill[] = [
   {
-    id: 'skill_skill100043', name: '神之手腕', categoryId: 'skill_category_barter',
-    description: '以物易物時，可進行更有利的協商。', iconId: null,
+    id: 'skill_skill100043',
+    name: '神之手腕',
+    categoryId: 'skill_category_barter',
+    description: '以物易物時，可進行更有利的協商。',
+    iconId: null,
     sourceRefs: { voyageTw: 'skill100043' },
   },
 ]
@@ -41,9 +67,7 @@ const languageMap: Record<string, string> = {
 
 describe('buildDictionaries', () => {
   it('builds all dictionary groups from officer and skill data', () => {
-    const { dictionaries, anomalies } = buildDictionaries(
-      sampleOfficers, sampleSkills, languageMap,
-    )
+    const { dictionaries, anomalies } = buildDictionaries(sampleOfficers, sampleSkills, languageMap)
 
     // Should have all 9 required groups
     expect(dictionaries.rarities).toBeDefined()
@@ -75,10 +99,12 @@ describe('buildDictionaries', () => {
   })
 
   it('falls back to star characters for rarity names', () => {
-    const officers: CanonicalOfficer[] = [{
-      ...sampleOfficers[0]!,
-      rarityId: 'rarity_3',
-    }]
+    const officers: CanonicalOfficer[] = [
+      {
+        ...sampleOfficers[0]!,
+        rarityId: 'rarity_3',
+      },
+    ]
 
     const { dictionaries } = buildDictionaries(officers, sampleSkills, {})
 

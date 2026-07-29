@@ -32,11 +32,7 @@ export const createSchemaValidator = (): AuditSchemaValidator => {
     ajv.addSchema(schema, name)
   }
 
-  const validateRecord = (
-    name: SchemaName,
-    value: unknown,
-    pathPrefix = '',
-  ): AuditFinding[] => {
+  const validateRecord = (name: SchemaName, value: unknown, pathPrefix = ''): AuditFinding[] => {
     const valid = ajv.validate(name, value)
     if (valid) return []
     const entityId =

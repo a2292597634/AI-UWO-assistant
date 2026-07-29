@@ -106,8 +106,10 @@ const resolveDictName = (
 
   // Hardcoded fallbacks
   if (groupKey === 'rarities') return RARITY_STARS[sourceValue] ?? `★×${sourceValue}`
-  if (groupKey === 'genders') return sourceValue === 'f' ? '女性' : sourceValue === 'm' ? '男性' : sourceValue
-  if (groupKey === 'nationalities' && (sourceValue === 'unknown' || sourceValue === '')) return '未知'
+  if (groupKey === 'genders')
+    return sourceValue === 'f' ? '女性' : sourceValue === 'm' ? '男性' : sourceValue
+  if (groupKey === 'nationalities' && (sourceValue === 'unknown' || sourceValue === ''))
+    return '未知'
 
   // Fallback: use the canonical ID itself
   return canonicalId
@@ -132,9 +134,7 @@ export const buildDictionaries = (
       for (const id of group.extractFromOfficer(officer)) {
         if (id && !seenIds.has(id)) {
           seenIds.add(id)
-          const rawSource = id.startsWith(group.idPrefix)
-            ? id.slice(group.idPrefix.length)
-            : id
+          const rawSource = id.startsWith(group.idPrefix) ? id.slice(group.idPrefix.length) : id
           // nationality_unknown has source value "" (empty)
           const sourceValue = id === 'nationality_unknown' ? '' : rawSource
           items.push({
@@ -152,9 +152,7 @@ export const buildDictionaries = (
       for (const id of group.extractFromSkill(skill)) {
         if (id && !seenIds.has(id)) {
           seenIds.add(id)
-          const rawSource = id.startsWith(group.idPrefix)
-            ? id.slice(group.idPrefix.length)
-            : id
+          const rawSource = id.startsWith(group.idPrefix) ? id.slice(group.idPrefix.length) : id
           // nationality_unknown has source value "" (empty)
           const sourceValue = id === 'nationality_unknown' ? '' : rawSource
           items.push({

@@ -138,9 +138,9 @@ describe('canonical data relationships', () => {
     }
     alias.extra = { aliases: [] }
 
-    expect(
-      validateCanonicalDataset(duplicateResolution).map((finding) => finding.code),
-    ).toContain('DATA_ASSET_RESOLUTION_DUPLICATE')
+    expect(validateCanonicalDataset(duplicateResolution).map((finding) => finding.code)).toContain(
+      'DATA_ASSET_RESOLUTION_DUPLICATE',
+    )
     expect(validateCanonicalDataset(unknownResolution).map((finding) => finding.code)).toContain(
       'DATA_ASSET_RESOLUTION_UNKNOWN',
     )

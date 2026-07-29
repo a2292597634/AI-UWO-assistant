@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import type { SourceFieldRecord, SourceEnumValue, SkillMappingRecord } from '../../tools/data-audit/types'
+import type {
+  SourceFieldRecord,
+  SourceEnumValue,
+  SkillMappingRecord,
+} from '../../tools/data-audit/types'
 import type { SourceOfficer, SourceSkillMetadata } from '../../tools/import/types'
 import { transformOfficers } from '../../tools/import/transform-officers'
 
@@ -85,7 +89,16 @@ describe('transformOfficers', () => {
         gender: 'f',
         lang: { lang70: '5', lang80: '3' },
         skill: {
-          sk0: { skill100043: '50', skill100051: '70', skill200681: '10', skill200921: '30', skill203306: '30', skill203426: '70', skill203826: '10', skill500436: '50' },
+          sk0: {
+            skill100043: '50',
+            skill100051: '70',
+            skill200681: '10',
+            skill200921: '30',
+            skill203306: '30',
+            skill203426: '70',
+            skill203826: '10',
+            skill500436: '50',
+          },
           sk2: { skill400581: '50', skill400591: '1' },
           sk3: { skill300001: '1' },
           sk5: { skillT0053: 1, skillT0073: 1 },
@@ -99,7 +112,12 @@ describe('transformOfficers', () => {
     }
 
     const { officers, anomalies } = transformOfficers(
-      source, languageMap, skillMetadata, fieldInventory, enumInventory, mappingTable,
+      source,
+      languageMap,
+      skillMetadata,
+      fieldInventory,
+      enumInventory,
+      mappingTable,
     )
 
     expect(officers).toHaveLength(1)
@@ -124,7 +142,11 @@ describe('transformOfficers', () => {
 
     // Recruitment
     expect(officer.recruitment.cityIds).toEqual([
-      'city_town4105', 'city_town10105', 'city_town5303', 'city_town6301', 'city_town14205',
+      'city_town4105',
+      'city_town10105',
+      'city_town5303',
+      'city_town6301',
+      'city_town14205',
     ])
     expect(officer.recruitment.requirementId).toBe('requirement_reqchasT089')
     expect(officer.recruitment.requiredOfficerIds).toEqual(['officer_chast096'])
@@ -150,7 +172,11 @@ describe('transformOfficers', () => {
   it('rejects chasT051 from city IDs', () => {
     const source: Record<string, SourceOfficer> = {
       chasT101: {
-        rank: '5', type: 'class_3', job: 'job21400002', country: '', gender: 'f',
+        rank: '5',
+        type: 'class_3',
+        job: 'job21400002',
+        country: '',
+        gender: 'f',
         lang: { lang140: '3', lang80: '5' },
         skill: { sk3: { skill300004: '1' } },
         city: ['town6301', 'town6201', 'chasT051', 'town8301', 'town7201', 'town7202'],
@@ -159,7 +185,12 @@ describe('transformOfficers', () => {
     }
 
     const { officers, anomalies } = transformOfficers(
-      source, languageMap, skillMetadata, fieldInventory, enumInventory, mappingTable,
+      source,
+      languageMap,
+      skillMetadata,
+      fieldInventory,
+      enumInventory,
+      mappingTable,
     )
 
     expect(officers).toHaveLength(1)
@@ -181,15 +212,26 @@ describe('transformOfficers', () => {
   it('handles empty country as nationality_unknown', () => {
     const source: Record<string, SourceOfficer> = {
       chasT100: {
-        cht: '碧安卡·卡佩羅', rank: '5', type: 'class_2', job: 'job21401015',
-        country: '', gender: 'f', lang: { lang40: '3', lang80: '5' },
+        cht: '碧安卡·卡佩羅',
+        rank: '5',
+        type: 'class_2',
+        job: 'job21401015',
+        country: '',
+        gender: 'f',
+        lang: { lang40: '3', lang80: '5' },
         skill: { sk2: { skill400591: '50' }, sk3: { skill300001: '1' } },
-        city: ['town6301'], req: '',
+        city: ['town6301'],
+        req: '',
       },
     }
 
     const { officers } = transformOfficers(
-      source, languageMap, skillMetadata, fieldInventory, enumInventory, mappingTable,
+      source,
+      languageMap,
+      skillMetadata,
+      fieldInventory,
+      enumInventory,
+      mappingTable,
     )
 
     expect(officers[0]!.nationalityId).toBe('nationality_unknown')
@@ -198,15 +240,26 @@ describe('transformOfficers', () => {
   it('falls back to lang_js[1] when cht is missing', () => {
     const source: Record<string, SourceOfficer> = {
       chasab012: {
-        rank: '5', type: 'class_3', job: 'jobchasab012', country: 'ctn_pdg', gender: 'f',
+        rank: '5',
+        type: 'class_3',
+        job: 'jobchasab012',
+        country: 'ctn_pdg',
+        gender: 'f',
         lang: { lang20: '3' },
         skill: { sk3: { skill300001: null }, sk4: { skill100063: '1', skill100064: '60' } },
-        city: [], req: '', slv: { skill100064: '60' },
+        city: [],
+        req: '',
+        slv: { skill100064: '60' },
       },
     }
 
     const { officers } = transformOfficers(
-      source, languageMap, skillMetadata, fieldInventory, enumInventory, mappingTable,
+      source,
+      languageMap,
+      skillMetadata,
+      fieldInventory,
+      enumInventory,
+      mappingTable,
     )
 
     expect(officers[0]!.name).toBe('伊歐琳·潘德萊肯')
@@ -215,13 +268,26 @@ describe('transformOfficers', () => {
   it('flags unknown enum values as warnings', () => {
     const source: Record<string, SourceOfficer> = {
       chasX001: {
-        cht: '測試', rank: '99', type: 'class_99', job: 'unknown_job',
-        country: 'unknown', gender: 'x', lang: {}, skill: {}, city: [], req: '',
+        cht: '測試',
+        rank: '99',
+        type: 'class_99',
+        job: 'unknown_job',
+        country: 'unknown',
+        gender: 'x',
+        lang: {},
+        skill: {},
+        city: [],
+        req: '',
       },
     }
 
     const { anomalies } = transformOfficers(
-      source, languageMap, skillMetadata, fieldInventory, enumInventory, mappingTable,
+      source,
+      languageMap,
+      skillMetadata,
+      fieldInventory,
+      enumInventory,
+      mappingTable,
     )
 
     // Should have warnings for unknown enum values

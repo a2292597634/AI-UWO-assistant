@@ -16,6 +16,17 @@ npm.cmd run verify
 
 此命令依序檢查格式、ESLint、TypeScript、Vitest，以及小程序執行碼是否包含遠端資料或網路 API。
 
+## 來源資料一次性匯入
+
+Phase 3 匯入器從 voyage.tw 下載完整資料並轉換為規範格式：
+
+```powershell
+npm run import:download   # 下載 json_char.js 和 lang_1.js
+npm run import:run        # 解析、轉換、校驗、輸出候選資料
+```
+
+匯入結果輸出至 `archive/voyage-tw-2026052501/canonical-candidates/`。
+
 ## 資料審計
 
 `npm run data:check` 執行完整的本機資料審計，包含欄位清單覆蓋率、技能對映驗證、JSON Schema 檢查與跨檔案關係驗證。範例擷取 (`npm run data:audit:capture`) 是明確的網路維護者操作，須手動執行並提交結果。

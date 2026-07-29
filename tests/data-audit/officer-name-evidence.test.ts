@@ -53,10 +53,7 @@ describe('officer name evidence', () => {
   it('blocks rather than expanding beyond the approved language ranges', async () => {
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_input, init) => {
       const range = String((init?.headers as Record<string, string>).Range)
-      const [start, end] = range
-        .replace('bytes=', '')
-        .split('-')
-        .map(Number) as [number, number]
+      const [start, end] = range.replace('bytes=', '').split('-').map(Number) as [number, number]
       return new Response(Buffer.alloc(end - start + 1, 0x20), {
         status: 206,
         headers: { 'content-range': `bytes ${start}-${end}/337759` },
@@ -68,11 +65,6 @@ describe('officer name evidence', () => {
     )
     expect(
       fetcher.mock.calls.map(([, init]) => String((init?.headers as Record<string, string>).Range)),
-    ).toEqual([
-      'bytes=0-47237',
-      'bytes=47238-88188',
-      'bytes=92126-178363',
-      'bytes=178364-262143',
-    ])
+    ).toEqual(['bytes=0-47237', 'bytes=47238-88188', 'bytes=92126-178363', 'bytes=178364-262143'])
   })
 })

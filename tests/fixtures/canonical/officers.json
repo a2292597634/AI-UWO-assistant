@@ -1,10 +1,479 @@
 [
-  { "id": "officer_chast089", "name": "達納·卡洛斯", "rarityId": "rarity_5", "typeId": "type_class_2", "genderId": "gender_f", "jobId": "job_jobchasT089", "nationalityId": "nationality_ctn_swe", "languages": [{ "languageId": "language_lang70", "level": 5 }, { "languageId": "language_lang80", "level": 3 }], "skills": [{ "skillId": "skill_skill100043", "kind": "passive", "sourceGroup": "sk0", "slot": 0, "unlockLevel": 50, "level": 1 }, { "skillId": "skill_skill100051", "kind": "passive", "sourceGroup": "sk0", "slot": 1, "unlockLevel": 70, "level": 1 }, { "skillId": "skill_skill200681", "kind": "passive", "sourceGroup": "sk0", "slot": 2, "unlockLevel": 10, "level": 1 }, { "skillId": "skill_skill200921", "kind": "passive", "sourceGroup": "sk0", "slot": 3, "unlockLevel": 30, "level": 1 }, { "skillId": "skill_skill203306", "kind": "passive", "sourceGroup": "sk0", "slot": 4, "unlockLevel": 30, "level": 1 }, { "skillId": "skill_skill203426", "kind": "passive", "sourceGroup": "sk0", "slot": 5, "unlockLevel": 70, "level": 2 }, { "skillId": "skill_skill203826", "kind": "passive", "sourceGroup": "sk0", "slot": 6, "unlockLevel": 10, "level": 1 }, { "skillId": "skill_skill500436", "kind": "passive", "sourceGroup": "sk0", "slot": 7, "unlockLevel": 50, "level": 1 }, { "skillId": "skill_skill400581", "kind": "active", "sourceGroup": "sk2", "slot": 0, "unlockLevel": 50, "level": 2 }, { "skillId": "skill_skill400591", "kind": "active", "sourceGroup": "sk2", "slot": 1, "unlockLevel": 1, "level": 1 }, { "skillId": "skill_skill300001", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 1, "level": 3 }, { "skillId": "skill_skillT0053", "kind": "passive", "sourceGroup": "sk5", "slot": 0, "unlockLevel": 1, "level": 1 }, { "skillId": "skill_skillT0073", "kind": "passive", "sourceGroup": "sk5", "slot": 1, "unlockLevel": 1, "level": 1 }], "recruitment": { "cityIds": ["city_town4105", "city_town10105", "city_town5303", "city_town6301", "city_town14205"], "requirementId": "requirement_reqchasT089", "requiredOfficerIds": ["officer_chast096"], "note": "5000紅鑽購買提督" }, "portraitId": "asset_portrait_chast089", "displayOrder": 1, "sourceRefs": { "voyageTw": "chasT089" } },
-  { "id": "officer_chast096", "name": "維托里奧·薩托里", "rarityId": "rarity_5", "typeId": "type_class_3", "genderId": "gender_m", "jobId": "job_jobchasT096", "nationalityId": "nationality_ctn_ita", "languages": [{ "languageId": "language_lang60", "level": 4 }, { "languageId": "language_lang80", "level": 4 }], "skills": [{ "skillId": "skill_skill100043", "kind": "passive", "sourceGroup": "sk0", "slot": 0, "unlockLevel": 70, "level": 1 }, { "skillId": "skill_skill500436", "kind": "passive", "sourceGroup": "sk0", "slot": 1, "unlockLevel": 70, "level": 2 }, { "skillId": "skill_skill400591", "kind": "active", "sourceGroup": "sk2", "slot": 0, "unlockLevel": 1, "level": 1 }, { "skillId": "skill_skill400861", "kind": "active", "sourceGroup": "sk2", "slot": 1, "unlockLevel": 50, "level": 2 }, { "skillId": "skill_skill300001", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 1, "level": 4 }], "recruitment": { "cityIds": ["city_town5303", "city_town9104", "city_town14203", "city_town15201", "city_town11101"], "requirementId": null, "requiredOfficerIds": ["officer_chast089"], "note": "5000紅鑽購買提督" }, "portraitId": "asset_portrait_chast096", "displayOrder": 2, "sourceRefs": { "voyageTw": "chasT096" } },
-  { "id": "officer_chast098", "name": "穆拉特·雷斯", "rarityId": "rarity_3", "typeId": "type_class_3", "genderId": "gender_m", "jobId": "job_job21400006", "nationalityId": "nationality_ctn_tur", "languages": [{ "languageId": "language_lang60", "level": 2 }], "skills": [], "recruitment": { "cityIds": ["city_town14105", "city_town8301", "city_town6104", "city_town14201", "city_town8105"], "requirementId": null, "requiredOfficerIds": [], "note": "維托里奧·薩托里編年史獎勵" }, "portraitId": null, "displayOrder": 3, "sourceRefs": { "voyageTw": "chasT098" } },
-  { "id": "officer_chast099", "name": "賽莉梅", "rarityId": "rarity_4", "typeId": "type_class_1", "genderId": "gender_f", "jobId": "job_job21402014", "nationalityId": "nationality_ctn_tur", "languages": [{ "languageId": "language_lang140", "level": 2 }, { "languageId": "language_lang60", "level": 3 }], "skills": [{ "skillId": "skill_skill400581", "kind": "active", "sourceGroup": "sk2", "slot": 0, "unlockLevel": 1, "level": 1 }, { "skillId": "skill_skill300004", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 1, "level": 2 }], "recruitment": { "cityIds": ["city_town1205", "city_town6301", "city_town8302", "city_town7101", "city_town14207"], "requirementId": null, "requiredOfficerIds": [], "note": "維托里奧·薩托里編年史獎勵" }, "portraitId": null, "displayOrder": 4, "sourceRefs": { "voyageTw": "chasT099" } },
-  { "id": "officer_chast100", "name": "碧安卡·卡佩羅", "rarityId": "rarity_5", "typeId": "type_class_2", "genderId": "gender_f", "jobId": "job_job21401015", "nationalityId": "nationality_unknown", "languages": [{ "languageId": "language_lang40", "level": 3 }, { "languageId": "language_lang80", "level": 5 }], "skills": [{ "skillId": "skill_skill400591", "kind": "active", "sourceGroup": "sk2", "slot": 0, "unlockLevel": 50, "level": 2 }, { "skillId": "skill_skill300001", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 1, "level": 3 }], "recruitment": { "cityIds": ["city_town6301", "city_town5202", "city_town5301", "city_town5302", "city_town5201", "city_town1205"], "requirementId": null, "requiredOfficerIds": [], "note": "menu224" }, "portraitId": null, "displayOrder": 5, "sourceRefs": { "voyageTw": "chasT100" } },
-  { "id": "officer_chast101", "name": "斯佩蘭扎·摩里亞", "rarityId": "rarity_5", "typeId": "type_class_3", "genderId": "gender_f", "jobId": "job_job21400002", "nationalityId": "nationality_unknown", "languages": [{ "languageId": "language_lang140", "level": 3 }, { "languageId": "language_lang80", "level": 5 }], "skills": [{ "skillId": "skill_skill300004", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 1, "level": 3 }], "recruitment": { "cityIds": ["city_town6301", "city_town6201", "city_town8301", "city_town7201", "city_town7202"], "requirementId": null, "requiredOfficerIds": [], "note": null }, "portraitId": null, "displayOrder": 6, "sourceRefs": { "voyageTw": "chasT101" }, "maintenanceNote": "Rejected source city value chasT051 because it is an officer-shaped ID; it is neither a city nor an inferred prerequisite." },
-  { "id": "officer_chasab001", "name": "格蕾絲·奧馬利", "rarityId": "rarity_5", "typeId": "type_class_3", "genderId": "gender_f", "jobId": "job_jobchasab001", "nationalityId": "nationality_ctn_irl", "languages": [{ "languageId": "language_lang40", "level": 3 }, { "languageId": "language_lang80", "level": 3 }], "skills": [{ "skillId": "skill_skill500436", "kind": "passive", "sourceGroup": "sk0", "slot": 0, "unlockLevel": 30, "level": 1 }, { "skillId": "skill_skill509998139", "kind": "passive", "sourceGroup": "sk1", "slot": 0, "unlockLevel": 0, "level": 1 }, { "skillId": "skill_skill300004", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 0, "level": 1 }, { "skillId": "skill_skill400973", "kind": "active", "sourceGroup": "sk4", "slot": 1, "unlockLevel": 1, "level": 1 }, { "skillId": "skill_skill400974", "kind": "active", "sourceGroup": "sk4", "slot": 20, "unlockLevel": 20, "level": 1 }], "recruitment": { "cityIds": ["city_town3301", "city_town15301", "city_town4302", "city_town2204", "city_town3303", "city_town10105", "city_town2202", "city_town1301", "city_town13204", "city_town17301"], "requirementId": null, "requiredOfficerIds": [], "note": null }, "portraitId": "asset_portrait_chasab001", "displayOrder": 7, "sourceRefs": { "voyageTw": "chasab001" } },
-  { "id": "officer_chasab012", "name": "伊歐琳·潘德萊肯", "rarityId": "rarity_5", "typeId": "type_class_3", "genderId": "gender_f", "jobId": "job_jobchasab012", "nationalityId": "nationality_ctn_pdg", "languages": [{ "languageId": "language_lang20", "level": 3 }], "skills": [{ "skillId": "skill_skill300001", "kind": "active", "sourceGroup": "sk3", "slot": 0, "unlockLevel": 0, "level": 1 }, { "skillId": "skill_skill100063", "kind": "active", "sourceGroup": "sk4", "slot": 1, "unlockLevel": 1, "level": 1 }, { "skillId": "skill_skill100064", "kind": "active", "sourceGroup": "sk4", "slot": 60, "unlockLevel": 60, "level": 1 }], "recruitment": { "cityIds": [], "requirementId": null, "requiredOfficerIds": [], "note": null }, "portraitId": null, "displayOrder": 8, "sourceRefs": { "voyageTw": "chasab012" } }
+  {
+    "id": "officer_chast089",
+    "name": "達納·卡洛斯",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_f",
+    "jobId": "job_jobchasT089",
+    "nationalityId": "nationality_ctn_swe",
+    "languages": [
+      { "languageId": "language_lang70", "level": 5 },
+      { "languageId": "language_lang80", "level": 3 }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill100043",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100051",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200681",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200921",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203306",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203426",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill203826",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400581",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 3
+      },
+      {
+        "skillId": "skill_skillT0053",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0073",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town4105",
+        "city_town10105",
+        "city_town5303",
+        "city_town6301",
+        "city_town14205"
+      ],
+      "requirementId": "requirement_reqchasT089",
+      "requiredOfficerIds": ["officer_chast096"],
+      "note": "5000紅鑽購買提督"
+    },
+    "portraitId": "asset_portrait_chast089",
+    "displayOrder": 1,
+    "sourceRefs": { "voyageTw": "chasT089" }
+  },
+  {
+    "id": "officer_chast096",
+    "name": "維托里奧·薩托里",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_m",
+    "jobId": "job_jobchasT096",
+    "nationalityId": "nationality_ctn_ita",
+    "languages": [
+      { "languageId": "language_lang60", "level": 4 },
+      { "languageId": "language_lang80", "level": 4 }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill100043",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400861",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 4
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town5303",
+        "city_town9104",
+        "city_town14203",
+        "city_town15201",
+        "city_town11101"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": ["officer_chast089"],
+      "note": "5000紅鑽購買提督"
+    },
+    "portraitId": "asset_portrait_chast096",
+    "displayOrder": 2,
+    "sourceRefs": { "voyageTw": "chasT096" }
+  },
+  {
+    "id": "officer_chast098",
+    "name": "穆拉特·雷斯",
+    "rarityId": "rarity_3",
+    "typeId": "type_class_3",
+    "genderId": "gender_m",
+    "jobId": "job_job21400006",
+    "nationalityId": "nationality_ctn_tur",
+    "languages": [{ "languageId": "language_lang60", "level": 2 }],
+    "skills": [],
+    "recruitment": {
+      "cityIds": [
+        "city_town14105",
+        "city_town8301",
+        "city_town6104",
+        "city_town14201",
+        "city_town8105"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "維托里奧·薩托里編年史獎勵"
+    },
+    "portraitId": null,
+    "displayOrder": 3,
+    "sourceRefs": { "voyageTw": "chasT098" }
+  },
+  {
+    "id": "officer_chast099",
+    "name": "賽莉梅",
+    "rarityId": "rarity_4",
+    "typeId": "type_class_1",
+    "genderId": "gender_f",
+    "jobId": "job_job21402014",
+    "nationalityId": "nationality_ctn_tur",
+    "languages": [
+      { "languageId": "language_lang140", "level": 2 },
+      { "languageId": "language_lang60", "level": 3 }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400581",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 2
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town1205",
+        "city_town6301",
+        "city_town8302",
+        "city_town7101",
+        "city_town14207"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "維托里奧·薩托里編年史獎勵"
+    },
+    "portraitId": null,
+    "displayOrder": 4,
+    "sourceRefs": { "voyageTw": "chasT099" }
+  },
+  {
+    "id": "officer_chast100",
+    "name": "碧安卡·卡佩羅",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_f",
+    "jobId": "job_job21401015",
+    "nationalityId": "nationality_unknown",
+    "languages": [
+      { "languageId": "language_lang40", "level": 3 },
+      { "languageId": "language_lang80", "level": 5 }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 3
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town6301",
+        "city_town5202",
+        "city_town5301",
+        "city_town5302",
+        "city_town5201",
+        "city_town1205"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "menu224"
+    },
+    "portraitId": null,
+    "displayOrder": 5,
+    "sourceRefs": { "voyageTw": "chasT100" }
+  },
+  {
+    "id": "officer_chast101",
+    "name": "斯佩蘭扎·摩里亞",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_f",
+    "jobId": "job_job21400002",
+    "nationalityId": "nationality_unknown",
+    "languages": [
+      { "languageId": "language_lang140", "level": 3 },
+      { "languageId": "language_lang80", "level": 5 }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 3
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town6301",
+        "city_town6201",
+        "city_town8301",
+        "city_town7201",
+        "city_town7202"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 6,
+    "sourceRefs": { "voyageTw": "chasT101" },
+    "maintenanceNote": "Rejected source city value chasT051 because it is an officer-shaped ID; it is neither a city nor an inferred prerequisite."
+  },
+  {
+    "id": "officer_chasab001",
+    "name": "格蕾絲·奧馬利",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_f",
+    "jobId": "job_jobchasab001",
+    "nationalityId": "nationality_ctn_irl",
+    "languages": [
+      { "languageId": "language_lang40", "level": 3 },
+      { "languageId": "language_lang80", "level": 3 }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill509998139",
+        "kind": "passive",
+        "sourceGroup": "sk1",
+        "slot": 0,
+        "unlockLevel": 0,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 0,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400973",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400974",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 20,
+        "unlockLevel": 20,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town3301",
+        "city_town15301",
+        "city_town4302",
+        "city_town2204",
+        "city_town3303",
+        "city_town10105",
+        "city_town2202",
+        "city_town1301",
+        "city_town13204",
+        "city_town17301"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": "asset_portrait_chasab001",
+    "displayOrder": 7,
+    "sourceRefs": { "voyageTw": "chasab001" }
+  },
+  {
+    "id": "officer_chasab012",
+    "name": "伊歐琳·潘德萊肯",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_f",
+    "jobId": "job_jobchasab012",
+    "nationalityId": "nationality_ctn_pdg",
+    "languages": [{ "languageId": "language_lang20", "level": 3 }],
+    "skills": [
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 0,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100063",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100064",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 60,
+        "unlockLevel": 60,
+        "level": 1
+      }
+    ],
+    "recruitment": { "cityIds": [], "requirementId": null, "requiredOfficerIds": [], "note": null },
+    "portraitId": null,
+    "displayOrder": 8,
+    "sourceRefs": { "voyageTw": "chasab012" }
+  }
 ]

@@ -149,9 +149,7 @@
           "city_town14205"
         ],
         "requirementId": "requirement_reqchasT089",
-        "requiredOfficerIds": [
-          "officer_chast096"
-        ],
+        "requiredOfficerIds": ["officer_chast096"],
         "note": "5000??????"
       },
       "portraitId": "asset_portrait_chast089",
@@ -229,9 +227,7 @@
           "city_town11101"
         ],
         "requirementId": null,
-        "requiredOfficerIds": [
-          "officer_chast089"
-        ],
+        "requiredOfficerIds": ["officer_chast089"],
         "note": "5000??????"
       },
       "portraitId": "asset_portrait_chast096",

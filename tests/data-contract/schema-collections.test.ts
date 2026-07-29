@@ -31,7 +31,9 @@ describe('canonical collection schema validation', () => {
   })
 
   it('reports indexed collection paths while preserving single-record strictness', () => {
-    const records = readJson<Array<Record<string, unknown>>>('tests/fixtures/canonical/officers.json')
+    const records = readJson<Array<Record<string, unknown>>>(
+      'tests/fixtures/canonical/officers.json',
+    )
     const record = records[0]
     if (record === undefined) throw new Error('fixture requires an officer')
     const invalid = { ...record }
@@ -48,7 +50,9 @@ describe('canonical collection schema validation', () => {
   })
 
   it('accepts required nullable skill and portrait asset IDs', () => {
-    const officers = readJson<Array<Record<string, unknown>>>('tests/fixtures/canonical/officers.json')
+    const officers = readJson<Array<Record<string, unknown>>>(
+      'tests/fixtures/canonical/officers.json',
+    )
     const skills = readJson<Array<Record<string, unknown>>>('tests/fixtures/canonical/skills.json')
     const officer = officers[0]
     const skill = skills[0]

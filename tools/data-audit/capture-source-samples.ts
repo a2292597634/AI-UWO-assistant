@@ -167,8 +167,7 @@ export const captureOfficerNameEvidence = async (
       contentRange: captured.metadata.contentRange,
       lastModified: captured.metadata.lastModified,
       sha256: captured.metadata.sha256,
-      rule:
-        'Use the exact lang_js[1][officerId] value from the first approved bounded range containing the key.',
+      rule: 'Use the exact lang_js[1][officerId] value from the first approved bounded range containing the key.',
     }
   }
 

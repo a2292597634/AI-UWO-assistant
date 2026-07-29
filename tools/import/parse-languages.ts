@@ -66,9 +66,7 @@ export const extractJsAssignment = <T>(source: string, varName: string): T => {
  * - ctn_<id>        → nationality display name
  * - chasT<N>        → officer display name (fallback when cht is missing)
  */
-export const parseLanguageMap = (
-  rangeFiles: string[],
-): Record<string, string> => {
+export const parseLanguageMap = (rangeFiles: string[]): Record<string, string> => {
   // Strategy 1: Try concatenation + full extraction
   const concatenated = rangeFiles.join('')
   try {

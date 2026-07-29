@@ -1,7 +1,5 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
-import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
 import type { SourceEnumValue, SkillMappingRecord, SourceFieldRecord } from '../data-audit/types'
 import { createSchemaValidator } from '../data-audit/create-schema-validator'
 import type { CanonicalOutput, ImportReport } from './types'
@@ -77,8 +75,12 @@ const runImport = async (): Promise<void> => {
   ) as SkillMappingRecord[]
 
   const { officers, anomalies: officerAnomalies } = transformOfficers(
-    sourceOfficers, languageMap, skillMetadata,
-    fieldInventory, enumInventory, mappingTable,
+    sourceOfficers,
+    languageMap,
+    skillMetadata,
+    fieldInventory,
+    enumInventory,
+    mappingTable,
   )
   console.log(`  Canonical officers: ${officers.length}`)
   if (officerAnomalies.length > 0) {
@@ -94,7 +96,10 @@ const runImport = async (): Promise<void> => {
   }
 
   const { skills, anomalies: skillAnomalies } = transformSkills(
-    [...skillIds], skillMetadata, languageMap, mappingTable,
+    [...skillIds],
+    skillMetadata,
+    languageMap,
+    mappingTable,
   )
   console.log(`  Canonical skills: ${skills.length}`)
   if (skillAnomalies.length > 0) {
@@ -203,7 +208,9 @@ const runImport = async (): Promise<void> => {
   console.log('\n=== Import Complete ===')
   console.log(`Officers: ${officers.length}`)
   console.log(`Skills: ${skills.length}`)
-  console.log(`Dictionaries: ${dictItemCount} items across ${Object.keys(dictionaries).length} groups`)
+  console.log(
+    `Dictionaries: ${dictItemCount} items across ${Object.keys(dictionaries).length} groups`,
+  )
   console.log(`Validation: ${errors.length} errors, ${warnings.length} warnings`)
   console.log(`Anomalies: ${allAnomalies.length}`)
   console.log(`Output: ${OUTPUT_DIR}/`)

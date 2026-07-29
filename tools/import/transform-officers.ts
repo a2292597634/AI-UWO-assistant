@@ -14,15 +14,15 @@ import type {
  * These match the naming conventions in tests/fixtures/canonical/.
  */
 const ID_RULES: Record<string, { prefix: string; transform?: (v: string) => string }> = {
-  rank: { prefix: 'rarity_' },        // rarity_5
-  type: { prefix: 'type_' },          // type_class_2
-  gender: { prefix: 'gender_' },      // gender_f
-  job: { prefix: 'job_' },            // job_jobchasT089
+  rank: { prefix: 'rarity_' }, // rarity_5
+  type: { prefix: 'type_' }, // type_class_2
+  gender: { prefix: 'gender_' }, // gender_f
+  job: { prefix: 'job_' }, // job_jobchasT089
   // country → nationality (special: empty → nationality_unknown)
-  city: { prefix: 'city_' },          // city_town4105
-  'lang.*': { prefix: 'language_' },  // language_lang70
-  req: { prefix: 'requirement_' },    // requirement_reqchasT089
-  skill: { prefix: 'skill_' },        // skill_skill100043
+  city: { prefix: 'city_' }, // city_town4105
+  'lang.*': { prefix: 'language_' }, // language_lang70
+  req: { prefix: 'requirement_' }, // requirement_reqchasT089
+  skill: { prefix: 'skill_' }, // skill_skill100043
 }
 
 /** Generate a canonical ID from a source path and source value. */
@@ -131,7 +131,8 @@ export const transformOfficers = (
     checkKnown(knownEnums, 'job', src.job, sourceId, anomalies)
 
     // Country: empty → unknown
-    const nationalityId = src.country === '' ? 'nationality_unknown' : canonicalId('country', src.country)
+    const nationalityId =
+      src.country === '' ? 'nationality_unknown' : canonicalId('country', src.country)
     if (src.country !== '') checkKnown(knownEnums, 'country', src.country, sourceId, anomalies)
 
     // Languages
@@ -144,9 +145,7 @@ export const transformOfficers = (
     })
 
     // Skills
-    const skills = buildSkillRelations(
-      src, sourceId, skillMetadata, mappingMap, anomalies,
-    )
+    const skills = buildSkillRelations(src, sourceId, skillMetadata, mappingMap, anomalies)
 
     // Recruitment
     const recruitment = {
@@ -164,10 +163,11 @@ export const transformOfficers = (
         checkKnown(knownEnums, 'city', cityValue, sourceId, anomalies)
         return [canonicalId('city', cityValue)]
       }),
-      requirementId: src.req && src.req !== ''
-        ? (checkKnown(knownEnums, 'req', src.req, sourceId, anomalies),
-           canonicalId('req', src.req))
-        : null,
+      requirementId:
+        src.req && src.req !== ''
+          ? (checkKnown(knownEnums, 'req', src.req, sourceId, anomalies),
+            canonicalId('req', src.req))
+          : null,
       requiredOfficerIds: src.char_reqs
         ? src.char_reqs.map((id) => `officer_${id.toLowerCase()}`)
         : src.req_char
@@ -227,7 +227,12 @@ const buildSkillRelations = (
   }
 
   const groups: Array<'sk0' | 'sk1' | 'sk2' | 'sk3' | 'sk4' | 'sk5'> = [
-    'sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5',
+    'sk0',
+    'sk1',
+    'sk2',
+    'sk3',
+    'sk4',
+    'sk5',
   ]
 
   for (const group of groups) {
@@ -261,9 +266,12 @@ const buildSkillRelations = (
         })
       }
 
-      const baseLevel = levelValue === null ? 1
-        : typeof levelValue === 'number' ? levelValue
-        : parseInt(String(levelValue), 10) || 1
+      const baseLevel =
+        levelValue === null
+          ? 1
+          : typeof levelValue === 'number'
+            ? levelValue
+            : parseInt(String(levelValue), 10) || 1
 
       const duelOverride = duelLevelMap[skillSourceId]
       const level = duelOverride ?? baseLevel

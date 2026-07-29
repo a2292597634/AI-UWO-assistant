@@ -38,7 +38,9 @@ describe('canonical JSON Schemas', () => {
   })
 
   it('rejects officer-only maintenance notes on assets', () => {
-    const assets = readJson('tests/fixtures/canonical/assets.json') as Array<Record<string, unknown>>
+    const assets = readJson('tests/fixtures/canonical/assets.json') as Array<
+      Record<string, unknown>
+    >
     const asset = assets[0]
     if (asset === undefined) throw new Error('fixture requires an asset')
 

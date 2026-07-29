@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { downloadFullFile, downloadWithRanges, rangeHeader } from '../../tools/import/download-source'
+import {
+  downloadFullFile,
+  downloadWithRanges,
+  rangeHeader,
+} from '../../tools/import/download-source'
 import { sourceConfig } from '../../tools/data-audit/source-config'
 
 describe('rangeHeader', () => {
@@ -48,10 +52,14 @@ describe('downloadFullFile', () => {
 
 describe('downloadWithRanges', () => {
   it('sends Range requests for each range and saves individual files', async () => {
-    const rangeParts = ['"skill100043":"神之手腕"', '"skill200681":"砲擊術"', '"job_jobchasT089":"大商人"']
-    const allParts = rangeParts.join(',')
+    const rangeParts = [
+      '"skill100043":"神之手腕"',
+      '"skill200681":"砲擊術"',
+      '"job_jobchasT089":"大商人"',
+    ]
     // Make each range response contain one part
-    const fetcher = vi.fn<typeof fetch>()
+    const fetcher = vi
+      .fn<typeof fetch>()
       .mockResolvedValueOnce(
         new Response(rangeParts[0], {
           status: 206,
@@ -116,7 +124,9 @@ describe('downloadWithRanges', () => {
     }
 
     // Combined byte count equals sum of individual parts (as UTF-8 bytes)
-    const expectedBytes = rangeParts.map((p) => Buffer.byteLength(p, 'utf8')).reduce((a, b) => a + b, 0)
+    const expectedBytes = rangeParts
+      .map((p) => Buffer.byteLength(p, 'utf8'))
+      .reduce((a, b) => a + b, 0)
     expect(result.combinedByteCount).toBe(expectedBytes)
     expect(result.results).toHaveLength(4)
     expect(result.results[0]!.contentRange).toBe('bytes 0-47237/337759')
@@ -125,12 +135,7 @@ describe('downloadWithRanges', () => {
   it('rejects non-206 responses for Range requests', async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response('{}', { status: 200 }))
     await expect(
-      downloadWithRanges(
-        'https://voyage.tw/js/lang_1.js',
-        [[0, 100]],
-        '/tmp/lang-out',
-        fetcher,
-      ),
+      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 100]], '/tmp/lang-out', fetcher),
     ).rejects.toThrow('IMPORT_RANGE_REQUIRED')
   })
 })
