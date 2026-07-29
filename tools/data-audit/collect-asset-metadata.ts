@@ -37,8 +37,23 @@ export interface SkillImageMetadata {
   metadataSourceRange: string
 }
 
+export interface SkillIconResolution {
+  ownerSourceId: string
+  imageOverrideId: string | null
+  resolvedImageId: string
+  url: string
+  metadataSourceRange: string
+  rule: string
+}
+
+export const skillIconResolutionRule =
+  'Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters.'
+
 const pngSignature = Buffer.from('89504e470d0a1a0a', 'hex')
 const assetsDirectory = 'tests/fixtures/source-audit/assets'
+
+const compareUtf8Bytes = (left: string, right: string) =>
+  Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'))
 
 const boundedSkillMetadata = Object.fromEntries(
   Object.entries(boundedSkills).map(([skillId, skill]) => [
@@ -103,6 +118,96 @@ const parsePngDimensions = (body: Buffer): { width: number; height: number } => 
 
 const fixturePathFor = (entry: AssetSampleEntry) => `${assetsDirectory}/${entry.ownerSourceId}.png`
 
+export const resolveSkillIconResolutions = (
+  selectedSkillIds: readonly string[],
+  skillMetadata: Record<string, SkillImageMetadata>,
+): SkillIconResolution[] => {
+  if (selectedSkillIds.length !== 20) {
+    throw new Error(`AUDIT_SKILL_ICON_SELECTION_COUNT:${selectedSkillIds.length}`)
+  }
+  const seen = new Set<string>()
+  for (const skillId of selectedSkillIds) {
+    if (seen.has(skillId)) throw new Error(`AUDIT_SKILL_ICON_SELECTION_DUPLICATE:${skillId}`)
+    seen.add(skillId)
+  }
+
+  return selectedSkillIds
+    .map((ownerSourceId) => {
+      const metadata = skillMetadata[ownerSourceId]
+      if (
+        metadata === undefined ||
+        typeof metadata.metadataSourceRange !== 'string' ||
+        metadata.metadataSourceRange.trim() === ''
+      ) {
+        throw new Error(`AUDIT_SKILL_ICON_METADATA_MISSING:${ownerSourceId}`)
+      }
+      if (
+        metadata.imageOverrideId !== null &&
+        (typeof metadata.imageOverrideId !== 'string' || metadata.imageOverrideId.trim() === '')
+      ) {
+        throw new Error(`AUDIT_SKILL_ICON_OVERRIDE_UNKNOWN:${ownerSourceId}`)
+      }
+      const requestedImageId = metadata.imageOverrideId ?? ownerSourceId
+      const resolvedImageId =
+        requestedImageId.length > 11 ? requestedImageId.slice(0, 11) : requestedImageId
+      if (resolvedImageId === '') {
+        throw new Error(`AUDIT_SKILL_ICON_RESOLUTION_UNRESOLVED:${ownerSourceId}`)
+      }
+      return {
+        ownerSourceId,
+        imageOverrideId: metadata.imageOverrideId,
+        resolvedImageId,
+        url: new URL(`/img/skill/uwo_${resolvedImageId}.png`, sourceConfig.origin).toString(),
+        metadataSourceRange: metadata.metadataSourceRange,
+        rule: skillIconResolutionRule,
+      }
+    })
+    .sort((left, right) => compareUtf8Bytes(left.ownerSourceId, right.ownerSourceId))
+}
+
+export const validateSkillIconResolutions = (
+  selectedSkillIds: readonly string[],
+  skillMetadata: Record<string, SkillImageMetadata>,
+  records: readonly SkillIconResolution[],
+): void => {
+  const expected = resolveSkillIconResolutions(selectedSkillIds, skillMetadata)
+  if (records.length !== 20) {
+    throw new Error(`AUDIT_SKILL_ICON_RESOLUTION_COUNT:${records.length}`)
+  }
+
+  const byOwnerSourceId = new Map<string, SkillIconResolution>()
+  for (const record of records) {
+    if (byOwnerSourceId.has(record.ownerSourceId)) {
+      throw new Error(`AUDIT_SKILL_ICON_RESOLUTION_DUPLICATE:${record.ownerSourceId}`)
+    }
+    byOwnerSourceId.set(record.ownerSourceId, record)
+  }
+
+  for (const expectedRecord of expected) {
+    const record = byOwnerSourceId.get(expectedRecord.ownerSourceId)
+    if (record === undefined) {
+      throw new Error(`AUDIT_SKILL_ICON_RESOLUTION_MISSING:${expectedRecord.ownerSourceId}`)
+    }
+    if (record.imageOverrideId !== expectedRecord.imageOverrideId) {
+      throw new Error(`AUDIT_SKILL_ICON_OVERRIDE_UNKNOWN:${record.ownerSourceId}`)
+    }
+    if (record.rule !== expectedRecord.rule) {
+      throw new Error(`AUDIT_SKILL_ICON_RULE_UNKNOWN:${record.ownerSourceId}`)
+    }
+    if (
+      record.resolvedImageId !== expectedRecord.resolvedImageId ||
+      record.url !== expectedRecord.url ||
+      record.resolvedImageId === '' ||
+      record.url === ''
+    ) {
+      throw new Error(`AUDIT_SKILL_ICON_RESOLUTION_UNRESOLVED:${record.ownerSourceId}`)
+    }
+    if (record.metadataSourceRange !== expectedRecord.metadataSourceRange) {
+      throw new Error(`AUDIT_SKILL_ICON_METADATA_RANGE_UNKNOWN:${record.ownerSourceId}`)
+    }
+  }
+}
+
 type WriteFixture = (path: string, body: Buffer) => Promise<void>
 
 const collect = async (
@@ -118,9 +223,9 @@ const collect = async (
 
   const orderedEntries = [...entries].sort(
     (left, right) =>
-      left.ownerType.localeCompare(right.ownerType) ||
-      left.ownerSourceId.localeCompare(right.ownerSourceId) ||
-      left.url.localeCompare(right.url),
+      compareUtf8Bytes(left.ownerType, right.ownerType) ||
+      compareUtf8Bytes(left.ownerSourceId, right.ownerSourceId) ||
+      compareUtf8Bytes(left.url, right.url),
   )
   const observations: AssetObservation[] = []
 
@@ -186,7 +291,7 @@ const collect = async (
             resolution: {
               imageOverrideId: metadata?.imageOverrideId ?? null,
               metadataSourceRange: metadata?.metadataSourceRange ?? null,
-              rule: 'Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters.',
+              rule: skillIconResolutionRule,
             },
           }
         })
@@ -200,9 +305,9 @@ const collect = async (
 
   return [...observations, ...fallbackObservations].sort(
     (left, right) =>
-      left.ownerType.localeCompare(right.ownerType) ||
-      left.ownerSourceId.localeCompare(right.ownerSourceId) ||
-      left.url.localeCompare(right.url),
+      compareUtf8Bytes(left.ownerType, right.ownerType) ||
+      compareUtf8Bytes(left.ownerSourceId, right.ownerSourceId) ||
+      compareUtf8Bytes(left.url, right.url),
   )
 }
 
@@ -212,25 +317,41 @@ export const collectAssetMetadata = async (
   skillMetadata: Record<string, SkillImageMetadata> = {},
 ): Promise<AssetObservation[]> => collect(entries, fetcher, undefined, skillMetadata)
 
-const writeSamples = async () => {
-  const outputDirectory = resolve(assetsDirectory)
-  await mkdir(outputDirectory, { recursive: true })
+const observationsPath = 'tests/fixtures/source-audit/asset-observations.json'
+
+export const writeAssetSamples = async (
+  entries: readonly AssetSampleEntry[],
+  outputRoot: string,
+  fetcher: typeof fetch = fetch,
+  skillMetadata: Record<string, SkillImageMetadata> = {},
+): Promise<AssetObservation[]> => {
+  await mkdir(resolve(outputRoot, assetsDirectory), { recursive: true })
   const observations = await collect(
-    manifest as unknown as AssetSampleEntry[],
-    fetch,
+    entries,
+    fetcher,
     async (path, body) => {
-      await writeFile(resolve(path), body)
+      await writeFile(resolve(outputRoot, path), body)
     },
-    boundedSkillMetadata,
+    skillMetadata,
   )
   await writeFile(
-    resolve('tests/fixtures/source-audit/asset-observations.json'),
+    resolve(outputRoot, observationsPath),
     `${JSON.stringify(observations, null, 2)}\n`,
     'utf8',
+  )
+  return observations
+}
+
+const runCli = async () => {
+  const observations = await writeAssetSamples(
+    manifest as unknown as AssetSampleEntry[],
+    process.cwd(),
+    fetch,
+    boundedSkillMetadata,
   )
   console.log(`Source asset audit: ${observations.length} observations`)
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  void writeSamples()
+  void runCli()
 }

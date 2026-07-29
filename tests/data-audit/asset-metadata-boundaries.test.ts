@@ -98,27 +98,23 @@ describe('asset metadata boundaries', () => {
     await expect(
       collectAssetMetadata(
         [{ ownerType: 'skill', ownerSourceId: 'skill1', url: 'https://voyage.tw/mime.png' }],
-        vi
-          .fn<typeof fetch>()
-          .mockResolvedValue(
-            new Response(Buffer.from('nope'), {
-              status: 200,
-              headers: { 'content-type': 'image/jpeg' },
-            }),
-          ),
+        vi.fn<typeof fetch>().mockResolvedValue(
+          new Response(Buffer.from('nope'), {
+            status: 200,
+            headers: { 'content-type': 'image/jpeg' },
+          }),
+        ),
       ),
     ).rejects.toThrow('AUDIT_ASSET_MIME_INVALID')
     await expect(
       collectAssetMetadata(
         [{ ownerType: 'skill', ownerSourceId: 'skill1', url: 'https://voyage.tw/signature.png' }],
-        vi
-          .fn<typeof fetch>()
-          .mockResolvedValue(
-            new Response(Buffer.alloc(24), {
-              status: 200,
-              headers: { 'content-type': 'image/png' },
-            }),
-          ),
+        vi.fn<typeof fetch>().mockResolvedValue(
+          new Response(Buffer.alloc(24), {
+            status: 200,
+            headers: { 'content-type': 'image/png' },
+          }),
+        ),
       ),
     ).rejects.toThrow('AUDIT_ASSET_PNG_INVALID')
   })

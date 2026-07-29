@@ -1,0 +1,162 @@
+[
+  {
+    "ownerSourceId": "skill100043",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill100043",
+    "url": "https://voyage.tw/img/skill/uwo_skill100043.png",
+    "metadataSourceRange": "bytes=507904-511999",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill100051",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill100051",
+    "url": "https://voyage.tw/img/skill/uwo_skill100051.png",
+    "metadataSourceRange": "bytes=466944-471039",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill100063",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill100063",
+    "url": "https://voyage.tw/img/skill/uwo_skill100063.png",
+    "metadataSourceRange": "bytes=520192-524287",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill100064",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill100064",
+    "url": "https://voyage.tw/img/skill/uwo_skill100064.png",
+    "metadataSourceRange": "bytes=520192-524287",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill200681",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill200681",
+    "url": "https://voyage.tw/img/skill/uwo_skill200681.png",
+    "metadataSourceRange": "bytes=475136-479231",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill200921",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill200921",
+    "url": "https://voyage.tw/img/skill/uwo_skill200921.png",
+    "metadataSourceRange": "bytes=516096-520191",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill203306",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill203306",
+    "url": "https://voyage.tw/img/skill/uwo_skill203306.png",
+    "metadataSourceRange": "bytes=454656-458751",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill203426",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill203426",
+    "url": "https://voyage.tw/img/skill/uwo_skill203426.png",
+    "metadataSourceRange": "bytes=512000-516095",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill203826",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill203826",
+    "url": "https://voyage.tw/img/skill/uwo_skill203826.png",
+    "metadataSourceRange": "bytes=512000-516095",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill300001",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill300001",
+    "url": "https://voyage.tw/img/skill/uwo_skill300001.png",
+    "metadataSourceRange": "bytes=446464-450559",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill300004",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill300004",
+    "url": "https://voyage.tw/img/skill/uwo_skill300004.png",
+    "metadataSourceRange": "bytes=450560-454655",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill400581",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill400581",
+    "url": "https://voyage.tw/img/skill/uwo_skill400581.png",
+    "metadataSourceRange": "bytes=471040-475135",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill400591",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill400591",
+    "url": "https://voyage.tw/img/skill/uwo_skill400591.png",
+    "metadataSourceRange": "bytes=466944-471039",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill400861",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill400861",
+    "url": "https://voyage.tw/img/skill/uwo_skill400861.png",
+    "metadataSourceRange": "bytes=479232-483327",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill400973",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill400973",
+    "url": "https://voyage.tw/img/skill/uwo_skill400973.png",
+    "metadataSourceRange": "bytes=520192-524287",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill400974",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill400974",
+    "url": "https://voyage.tw/img/skill/uwo_skill400974.png",
+    "metadataSourceRange": "bytes=520192-524287",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill500436",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill500436",
+    "url": "https://voyage.tw/img/skill/uwo_skill500436.png",
+    "metadataSourceRange": "bytes=454656-458751",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skill509998139",
+    "imageOverrideId": null,
+    "resolvedImageId": "skill509998",
+    "url": "https://voyage.tw/img/skill/uwo_skill509998.png",
+    "metadataSourceRange": "bytes=520192-524287",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skillT0053",
+    "imageOverrideId": "skill200681",
+    "resolvedImageId": "skill200681",
+    "url": "https://voyage.tw/img/skill/uwo_skill200681.png",
+    "metadataSourceRange": "bytes=532480-536575",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  },
+  {
+    "ownerSourceId": "skillT0073",
+    "imageOverrideId": "skill203426",
+    "resolvedImageId": "skill203426",
+    "url": "https://voyage.tw/img/skill/uwo_skill203426.png",
+    "metadataSourceRange": "bytes=536576-540671",
+    "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+  }
+]
