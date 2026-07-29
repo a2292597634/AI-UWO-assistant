@@ -74,3 +74,21 @@ GREEN evidence after implementation and formatting:
 - `git diff --check`: no whitespace errors.
 
 No network scan, full source download, runtime network path, placeholder category, or unresolved mapping was introduced.
+
+## Controller review fix round 1
+
+- The public `SkillMappingInput` contract now requires `selectedSkillIds`.
+- Relationship validation uses the complete eight-officer fixture but projects validation to the explicit selection boundary. A selected ID absent from `skills` still emits `AUDIT_SKILL_RELATIONSHIP_SAMPLE_MISSING`.
+- Duplicate, unknown, and relationship-free selected IDs are blocking findings: `AUDIT_SKILL_SELECTION_DUPLICATE`, `AUDIT_SKILL_SELECTION_UNKNOWN`, and `AUDIT_SKILL_SELECTION_RELATIONSHIP_MISSING`.
+- Mapping evidence validation continues to inspect the complete officer fixture, independently of relationship selection.
+- The tests no longer privately prefilter officer relationships and now include a direct `AUDIT_SKILL_MAPPING_SAMPLE_MISSING` assertion.
+
+Review-fix RED evidence:
+
+- `npm.cmd test -- tests/data-contract/skill-mapping.test.ts`: 11 tests, 2 expected failures. The selection-contract test lacked all three selection findings, and the full eight-officer positive fixture produced 97 unselected relationship-missing findings.
+
+Review-fix GREEN evidence:
+
+- Focused skill-mapping suite: 11 tests passed.
+- Combined Task 1-3 suite: 4 files, 28 tests passed.
+- `npm.cmd run verify`: formatting, lint, typecheck, 6 files/36 tests, and runtime network boundary passed.

@@ -8,31 +8,12 @@ import {
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
 
-const selectFixedRelationships = (
-  officers: Record<string, unknown>,
-  skills: Record<string, unknown>,
-): Record<string, unknown> => {
-  const selected = new Set(Object.keys(skills))
-  return Object.fromEntries(
-    Object.entries(officers).map(([officerId, value]) => {
-      const officer = value as { skill?: Record<string, Record<string, unknown>> }
-      const skill = Object.fromEntries(
-        Object.entries(officer.skill ?? {}).map(([group, relationships]) => [
-          group,
-          Object.fromEntries(
-            Object.entries(relationships).filter(([skillId]) => selected.has(skillId)),
-          ),
-        ]),
-      )
-      return [officerId, { skill }]
-    }),
-  )
-}
-
 describe('skill group mapping', () => {
   it('requires all six source groups to have approved evidence-backed mappings', () => {
     expect(
-      validateSkillMappings({ officers: {}, skills: {}, mappings: [] }).map((item) => item.code),
+      validateSkillMappings({ officers: {}, skills: {}, mappings: [], selectedSkillIds: [] }).map(
+        (item) => item.code,
+      ),
     ).toEqual([
       'AUDIT_SKILL_GROUP_UNMAPPED',
       'AUDIT_SKILL_GROUP_UNMAPPED',
@@ -47,6 +28,7 @@ describe('skill group mapping', () => {
     const findings = validateSkillMappings({
       officers: {},
       skills: {},
+      selectedSkillIds: [],
       mappings: [
         {
           sourceGroup: 'sk2',
@@ -86,6 +68,7 @@ describe('skill group mapping', () => {
     const findings = validateSkillMappings({
       officers: {},
       skills: {},
+      selectedSkillIds: [],
       mappings: [incomplete, { ...incomplete }],
     })
 
@@ -106,6 +89,7 @@ describe('skill group mapping', () => {
       skills: {
         skill400591: { sourceCategoryId: 'menuskt5' },
       },
+      selectedSkillIds: ['skill400591'],
       mappings: [],
     })
 
@@ -118,6 +102,7 @@ describe('skill group mapping', () => {
       skills: {
         skill400591: { sourceCategoryId: 'menuskt11' },
       },
+      selectedSkillIds: [],
       mappings: [
         {
           sourceGroup: 'sk2',
@@ -142,6 +127,7 @@ describe('skill group mapping', () => {
       skills: {
         skill200681: { sourceCategoryId: 'menuskt2' },
       },
+      selectedSkillIds: [],
       mappings: [
         {
           sourceGroup: 'sk5',
@@ -164,24 +150,67 @@ describe('skill group mapping', () => {
         officer_1: { skill: { sk2: { skillMissing: '1' } } },
       },
       skills: {},
+      selectedSkillIds: ['skillMissing'],
       mappings: [],
     })
 
     expect(findings.map((item) => item.code)).toContain('AUDIT_SKILL_RELATIONSHIP_SAMPLE_MISSING')
   })
 
-  it('accepts the fixed twenty-skill fixture and every observed exact pair', () => {
+  it('rejects mapping evidence skills missing from the fixed skill fixture', () => {
+    const findings = validateSkillMappings({
+      officers: {},
+      skills: {},
+      selectedSkillIds: [],
+      mappings: [
+        {
+          sourceGroup: 'sk2',
+          sourceCategoryId: 'menuskt11',
+          kind: 'active',
+          categoryId: 'skill_category_naval_active_enhancement',
+          evidenceSkillIds: ['skillMissing'],
+          evidence: ['source category label'],
+          status: 'approved',
+        },
+      ],
+    })
+
+    expect(findings.map((item) => item.code)).toContain('AUDIT_SKILL_MAPPING_SAMPLE_MISSING')
+  })
+
+  it('blocks duplicate, unknown, and relationship-free selected skill IDs', () => {
+    const findings = validateSkillMappings({
+      officers: {},
+      skills: {
+        skillOrphan: { sourceCategoryId: 'menuskt2' },
+      },
+      selectedSkillIds: ['skillGhost', 'skillGhost', 'skillOrphan'],
+      mappings: [],
+    })
+
+    expect(findings.map((item) => item.code)).toEqual(
+      expect.arrayContaining([
+        'AUDIT_SKILL_SELECTION_DUPLICATE',
+        'AUDIT_SKILL_SELECTION_UNKNOWN',
+        'AUDIT_SKILL_SELECTION_RELATIONSHIP_MISSING',
+      ]),
+    )
+  })
+
+  it('accepts the full eight-officer fixture for the selected twenty skills', () => {
     const sample = readJson<{ officers: Record<string, unknown> }>(
       'tests/fixtures/source-audit/source-samples.json',
     )
     const skills = readJson<Record<string, unknown>>('tests/fixtures/source-audit/skills.json')
     const mappings = readJson<SkillMappingRecord[]>('data/audit/skill-group-mapping.json')
+    const selection = readJson<{ skillIds: string[] }>('data/audit/sample-selection.json')
 
     expect(
       validateSkillMappings({
-        officers: selectFixedRelationships(sample.officers, skills),
+        officers: sample.officers,
         skills,
         mappings,
+        selectedSkillIds: selection.skillIds,
       }),
     ).toEqual([])
 

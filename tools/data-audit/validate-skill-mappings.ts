@@ -9,6 +9,7 @@ export interface SkillMappingInput {
   officers: Record<string, unknown>
   skills: Record<string, unknown>
   mappings: SkillMappingRecord[]
+  selectedSkillIds: readonly string[]
 }
 
 const pairKey = (sourceGroup: SourceGroup, sourceCategoryId: string) =>
@@ -65,9 +66,54 @@ const hasRelationshipInGroup = (
     return relationships !== undefined && skillId in relationships
   })
 
+const hasRelationship = (officers: Record<string, unknown>, skillId: string) =>
+  requiredGroups.some((sourceGroup) => hasRelationshipInGroup(officers, sourceGroup, skillId))
+
 export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] => {
   const findings: AuditFinding[] = []
   const byPair = new Map<string, SkillMappingRecord[]>()
+  const selectedSkillIds = new Set(input.selectedSkillIds)
+
+  for (const skillId of selectedSkillIds) {
+    if (
+      input.selectedSkillIds.filter((selectedSkillId) => selectedSkillId === skillId).length > 1
+    ) {
+      findings.push(
+        finding(
+          'AUDIT_SKILL_SELECTION_DUPLICATE',
+          skillId,
+          'selectedSkillIds',
+          skillId,
+          'Selected skill ID appears more than once.',
+          'Keep each explicitly selected skill ID exactly once.',
+        ),
+      )
+    }
+    if (!(skillId in input.skills)) {
+      findings.push(
+        finding(
+          'AUDIT_SKILL_SELECTION_UNKNOWN',
+          skillId,
+          'selectedSkillIds',
+          skillId,
+          'Selected skill ID is absent from the fixed skill fixture.',
+          'Capture the selected skill fixture or remove the ID from the explicit selection.',
+        ),
+      )
+    }
+    if (!hasRelationship(input.officers, skillId)) {
+      findings.push(
+        finding(
+          'AUDIT_SKILL_SELECTION_RELATIONSHIP_MISSING',
+          skillId,
+          'selectedSkillIds',
+          skillId,
+          'Selected skill ID is absent from the fixed officer relationships.',
+          'Select only skills observed in the fixed officer relationship fixture.',
+        ),
+      )
+    }
+  }
 
   for (const mapping of input.mappings) {
     const key = pairKey(mapping.sourceGroup, mapping.sourceCategoryId)
@@ -206,6 +252,7 @@ export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] 
       const relationships = asRecord(relationshipGroups[group])
       if (relationships === undefined) continue
       for (const skillId of Object.keys(relationships)) {
+        if (!selectedSkillIds.has(skillId)) continue
         if (!(skillId in input.skills)) {
           findings.push(
             finding(
