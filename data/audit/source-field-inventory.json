@@ -92,7 +92,7 @@
     "disposition": "derived",
     "canonicalPath": "skills",
     "transform": "Convert each dynamic skill ID and source level into an sk0 skill relationship.",
-    "reason": "sk0 contains dynamic active-skill IDs and levels.",
+    "reason": "sk0 contains dynamic passive-effect skill IDs and levels across several audited categories.",
     "evidenceOfficerIds": ["chasT089"]
   },
   {
@@ -158,14 +158,14 @@
   {
     "entity": "officer",
     "sourcePath": "slv.*",
-    "observedTypes": ["string"],
+    "observedTypes": ["number", "string"],
     "optional": true,
     "nullable": false,
     "disposition": "derived",
     "canonicalPath": "skills[].unlockLevel",
-    "transform": "Apply each dynamic skill ID's numeric-string unlock level to its matching source skill relationship.",
-    "reason": "slv holds skill-specific unlock-level overrides.",
-    "evidenceOfficerIds": ["chasT089"]
+    "transform": "Normalize each dynamic skill ID's numeric or numeric-string unlock level and apply it to the matching source skill relationship.",
+    "reason": "slv holds skill-specific unlock-level overrides in both numeric and numeric-string forms.",
+    "evidenceOfficerIds": ["chasT089", "chasab012"]
   },
   {
     "entity": "officer",
@@ -302,13 +302,49 @@
   {
     "entity": "skill",
     "sourcePath": "sourceCategoryId",
-    "observedTypes": ["null"],
+    "observedTypes": ["string"],
     "optional": false,
-    "nullable": true,
+    "nullable": false,
+    "disposition": "derived",
+    "canonicalPath": "categoryId",
+    "transform": "Resolve the exact sourceGroup and sourceCategoryId pair through the approved skill mapping table.",
+    "reason": "Every fixed skill has an exact skill_arr category used by audited relationship mappings.",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "entity": "skill",
+    "sourcePath": "sourceCategoryName",
+    "observedTypes": ["string"],
+    "optional": false,
+    "nullable": false,
     "disposition": "archive-only",
     "canonicalPath": null,
     "transform": null,
-    "reason": "All twenty captured source category IDs are explicitly null.",
+    "reason": "The captured lang_1.js label is retained as human-review evidence for the category mapping.",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "entity": "skill",
+    "sourcePath": "imageOverrideId",
+    "observedTypes": ["null", "string"],
+    "optional": false,
+    "nullable": true,
+    "disposition": "derived",
+    "canonicalPath": "iconId",
+    "transform": "Use the image override source ID when present; otherwise use the skill source ID.",
+    "reason": "skill_arr explicitly assigns shared source icons to some skills.",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "entity": "skill",
+    "sourcePath": "metadataSourceRange",
+    "observedTypes": ["string"],
+    "optional": false,
+    "nullable": false,
+    "disposition": "archive-only",
+    "canonicalPath": null,
+    "transform": null,
+    "reason": "The exact bounded json_char.js range is reproducibility evidence, not canonical skill content.",
     "evidenceOfficerIds": ["chasT089"]
   }
 ]

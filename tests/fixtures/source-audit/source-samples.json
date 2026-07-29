@@ -8,6 +8,104 @@
       "url": "https://voyage.tw/js/json_char.js?v=2026052501"
     },
     {
+      "contentRange": "bytes 446464-450559/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=446464-450559",
+      "sha256": "901f2b4684debe39556d88955f4420d28748ea71738d037686273780b76b0c57",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 450560-454655/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=450560-454655",
+      "sha256": "37fab7f40a639a5e318f64bb23901188b974623812892ed07d18654c823c30f3",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 454656-458751/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=454656-458751",
+      "sha256": "c11382d260a4049b324d47ce0f53ca4fec909e505bf5b2528f5dd1925e4bcbf7",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 466944-471039/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=466944-471039",
+      "sha256": "d126081a52657fb94f7174f6170a558d546f81733583f6bdff3597b800c23175",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 471040-475135/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=471040-475135",
+      "sha256": "46f6bdbf53ece536f9c9c6bb965c3fb18a86115bf78c5ee0bbfb4188a4d1d8ac",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 475136-479231/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=475136-479231",
+      "sha256": "c780b5304309b85e4f075801ba80ec93aaf899b130e780d001ffaf325428aac6",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 479232-483327/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=479232-483327",
+      "sha256": "27d2892b9325eb2792dae1c575b4320d7547f066e5c7baccdb3467c61ecd2c3e",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 507904-511999/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=507904-511999",
+      "sha256": "aeda4c42e109e1f0421fdb418158c922e92b6cc7492c94e3253388a4cf8e325c",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 512000-516095/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=512000-516095",
+      "sha256": "c4b9580301fde5ba15d3e7832211b09d863b5afd5873d0112644674278f2ee70",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 516096-520191/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=516096-520191",
+      "sha256": "85dabe943aa6990906a81a37d35db005304591f7be641db679afcc3112170f7e",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 520192-524287/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=520192-524287",
+      "sha256": "82c4f29d524a75ea1dae592615cad6ac9e75d2cbaadde13ba516ae4dc3c980f5",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 532480-536575/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=532480-536575",
+      "sha256": "a3185fa66546ef3b6ab25196394dc8dc07e433cd0fa3c94d4341a2d070c1242a",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 536576-540671/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=536576-540671",
+      "sha256": "482753dae734fe32b82bd1334f7fc2d7517ebbe1c4c71dc27c59d92b44989b46",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 0-47237/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT",
+      "range": "bytes=0-47237",
+      "sha256": "2c8f27af71cc4c2dc7059a82817d24da56fb7061a4f7be110d658fccf301ef36",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379"
+    },
+    {
       "contentRange": "bytes 47238-88188/337759",
       "lastModified": "Mon, 25 May 2026 06:35:21 GMT",
       "range": "bytes=47238-88188",
@@ -82,6 +180,56 @@
       },
       "type": "class_3"
     },
+    "chasab012": {
+      "boss": 1,
+      "city": [],
+      "country": "ctn_pdg",
+      "gender": "f",
+      "job": "jobchasab012",
+      "lang": {
+        "lang20": "3"
+      },
+      "need": null,
+      "rank": "5",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill500064": 70,
+          "skill500096": 50,
+          "skill500366": "30",
+          "skill500606": 70,
+          "skill500876": "10",
+          "skill500906": "10",
+          "skill501026": 50,
+          "skill501546": "30"
+        },
+        "sk1": {
+          "skill509998274": null
+        },
+        "sk2": {
+          "skill400821": "50",
+          "skill400841": "1"
+        },
+        "sk3": {
+          "skill300001": null
+        },
+        "sk4": {
+          "skill100003": "20",
+          "skill100019": "40",
+          "skill100063": "1",
+          "skill100064": "60"
+        },
+        "sk5": {
+          "skillT0123": 1,
+          "skillT0133": 1
+        }
+      },
+      "slv": {
+        "skill400821": 2,
+        "skill500064": 2
+      },
+      "type": "class_3"
+    },
     "chasT089": {
       "boss": 1,
       "cht": "達納·卡洛斯",
@@ -135,55 +283,6 @@
       "slv": {
         "skill203426": "2",
         "skill400581": "2"
-      },
-      "type": "class_2"
-    },
-    "chasT090": {
-      "cht": "芙莉達·斯滕斯多特爾",
-      "city": ["town10201"],
-      "country": "ctn_swe",
-      "gender": "f",
-      "job": "job21401001",
-      "lang": {
-        "lang20": "3",
-        "lang70": "5"
-      },
-      "need": null,
-      "new": 1,
-      "note": "完成達納·卡洛斯編年史后在旅館招募",
-      "rank": "5",
-      "req": "reqchasT090",
-      "req_char": "chasT096",
-      "skill": {
-        "sk0": {
-          "skill200021": "50",
-          "skill200401": "30",
-          "skill203166": "70",
-          "skill203546": "10",
-          "skill203566": "30",
-          "skill501356": "10",
-          "skillT0204": "70",
-          "skillT0208": "50"
-        },
-        "sk1": {
-          "skill509998407": 1
-        },
-        "sk2": {
-          "skill400591": "50",
-          "skill400711": "1"
-        },
-        "sk3": {
-          "skill300001": "1"
-        },
-        "sk5": {
-          "skillT0041": 1,
-          "skillT0061": 1
-        }
-      },
-      "skillT0221": "3",
-      "slv": {
-        "skill203166": "2",
-        "skill400591": "2"
       },
       "type": "class_2"
     },
@@ -432,103 +531,163 @@
   "skills": {
     "skill100043": {
       "description": "以物易物時﹐貿易品消耗量減少1％。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=507904-511999",
       "name": "神之手腕",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt3",
+      "sourceCategoryName": "以物易物相關技能"
     },
     "skill100051": {
       "description": "以物易物價格協商時﹐友好度消耗量減少1.1％。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=466944-471039",
       "name": "冷靜的協商",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt3",
+      "sourceCategoryName": "以物易物相關技能"
+    },
+    "skill100063": {
+      "description": "2 回合內﹐賦予我軍全體每失去 1％ 的耐久度或船員體力﹐所有攻擊力增加1.7％。(以失去的耐久度和失去的船員體力中更較高的數值為基準計算﹐失去的船員體力以當前船員體力和受傷的船員體力計算後套用。在套用其他效果所有攻擊力的最終數值上增加。)",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=520192-524287",
+      "name": "報仇的決心",
+      "sourceCategoryId": "menuskt18",
+      "sourceCategoryName": "提督技能"
+    },
+    "skill100064": {
+      "description": "2回合內﹐使全體敵人的移動力減少3﹐直接受到的傷害增加30％。 額外造成每回合耐久度和船員生命值 20％ 的傷害。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=520192-524287",
+      "name": "嚴寒的風暴",
+      "sourceCategoryId": "menuskt18",
+      "sourceCategoryName": "提督技能"
     },
     "skill200681": {
       "description": "購買工藝品時﹐可以用減少1％的價格購買。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=475136-479231",
       "name": "工藝品購買折扣",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt2",
+      "sourceCategoryName": "交易價格調整技能"
     },
     "skill200921": {
       "description": "探險中戰鬥力、採集力、觀察力增加1。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=516096-520191",
       "name": "探索基礎",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt16",
+      "sourceCategoryName": "冒險相關技能"
     },
     "skill203306": {
       "description": "出售工業製品時﹐可以用增加1％的價格出售。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=454656-458751",
       "name": "工業製品出售溢價",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt2",
+      "sourceCategoryName": "交易價格調整技能"
     },
     "skill203426": {
       "description": "出售工藝品時﹐可以用增加1％的價格出售。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=512000-516095",
       "name": "工藝品出售溢價",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt2",
+      "sourceCategoryName": "交易價格調整技能"
     },
     "skill203826": {
       "description": "工藝品可購買数量增加5.6%。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=512000-516095",
       "name": "工藝品交易專業",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt1",
+      "sourceCategoryName": "交易用取引技"
     },
     "skill300001": {
       "description": "展示強大的攻擊。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=446464-450559",
       "name": "必死攻擊",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt22",
+      "sourceCategoryName": "其他技能"
     },
     "skill300004": {
       "description": "一定會反擊敵人的攻擊。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=450560-454655",
       "name": "絕對反擊",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt22",
+      "sourceCategoryName": "其他技能"
     },
     "skill400581": {
       "description": "使全體敵軍的額外機動力在3回合內減少8.8％﹐",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=471040-475135",
       "name": "額外機動力減少",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt11",
+      "sourceCategoryName": "海戰／主動（強化系）"
     },
     "skill400591": {
       "description": "以35％的機率封鎖目標的行動2回合。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=466944-471039",
       "name": "行動封鎖",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt11",
+      "sourceCategoryName": "海戰／主動（強化系）"
     },
     "skill400861": {
       "description": "使指定範圍內目標的所有額外防禦力3回合內增加7％﹐解除1個狀態異常。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=479232-483327",
       "name": "淨化：戰鬥姿勢",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt11",
+      "sourceCategoryName": "海戰／主動（強化系）"
+    },
+    "skill400973": {
+      "description": "所有我軍造成的衝破攻擊套用為暴擊攻擊﹐額外衝破攻擊力增加17.5％。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=520192-524287",
+      "name": "艦隊突襲",
+      "sourceCategoryId": "menuskt18",
+      "sourceCategoryName": "提督技能"
+    },
+    "skill400974": {
+      "description": "所有我軍的額外衝破攻擊力增加30％﹐額外衝破暴擊傷害量增加30％。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=520192-524287",
+      "name": "深化艦隊衝破",
+      "sourceCategoryId": "menuskt18",
+      "sourceCategoryName": "提督技能"
     },
     "skill500436": {
       "description": "行動結束時以12.6％的機率再次行動一次﹐機動力恢復6.1％。  不發生其他行動效果﹐只可進行1次以抓住機會發生的額外行動。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=454656-458751",
       "name": "抓住機會",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt13",
+      "sourceCategoryName": "海戰／被動（其他）"
     },
-    "skill509998406": {
-      "description": "工藝品出售溢價增加0.2%",
-      "name": "工匠的手藝",
-      "sourceCategoryId": null
+    "skill509998139": {
+      "description": "額外衝破暴擊傷害量增加0.3％。",
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=520192-524287",
+      "name": "愛爾蘭的海盜",
+      "sourceCategoryId": "menuskt19",
+      "sourceCategoryName": "天生效果／增益"
     },
     "skillT0053": {
       "description": "購買工藝品時﹐可以用減少2.5%的價格購買",
+      "imageOverrideId": "skill200681",
+      "metadataSourceRange": "bytes=532480-536575",
       "name": "工藝品購買達人",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt2",
+      "sourceCategoryName": "交易價格調整技能"
     },
     "skillT0073": {
       "description": "出售工藝品時﹐可以用增加2.5%的價格出售",
+      "imageOverrideId": "skill203426",
+      "metadataSourceRange": "bytes=536576-540671",
       "name": "工藝品出售達人",
-      "sourceCategoryId": null
-    },
-    "skillT0218": {
-      "description": "10分鐘內貿易品出售收盒增加10%",
-      "name": "高段數",
-      "sourceCategoryId": null
-    },
-    "skillT0219": {
-      "description": "1小時內工藝品、工業製品、寶石出售收益增加8.5%",
-      "name": "眼光",
-      "sourceCategoryId": null
-    },
-    "skillT0220": {
-      "description": "1小時內艦隊的每日水消耗量及每日糧食消耗量減少30%",
-      "name": "運用",
-      "sourceCategoryId": null
-    },
-    "skillT0221": {
-      "description": "1小時內工藝等級增加1",
-      "name": "工匠精神",
-      "sourceCategoryId": null
+      "sourceCategoryId": "menuskt2",
+      "sourceCategoryName": "交易價格調整技能"
     }
   }
 }

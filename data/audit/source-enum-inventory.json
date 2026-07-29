@@ -61,6 +61,12 @@
   },
   {
     "sourcePath": "country",
+    "sourceValue": "ctn_pdg",
+    "canonicalId": "country_ctn_pdg",
+    "evidenceOfficerIds": ["chasab012"]
+  },
+  {
+    "sourcePath": "country",
     "sourceValue": "ctn_swe",
     "canonicalId": "country_ctn_swe",
     "evidenceOfficerIds": ["chasT089"]
@@ -85,9 +91,9 @@
   },
   {
     "sourcePath": "job",
-    "sourceValue": "job21401001",
-    "canonicalId": "job_job21401001",
-    "evidenceOfficerIds": ["chasT090"]
+    "sourceValue": "jobchasab012",
+    "canonicalId": "job_jobchasab012",
+    "evidenceOfficerIds": ["chasab012"]
   },
   {
     "sourcePath": "job",
@@ -129,7 +135,7 @@
     "sourcePath": "lang.*",
     "sourceValue": "lang20",
     "canonicalId": "language_lang20",
-    "evidenceOfficerIds": ["chasT090"]
+    "evidenceOfficerIds": ["chasab012"]
   },
   {
     "sourcePath": "lang.*",
@@ -168,12 +174,6 @@
     "sourceValue": "town10105",
     "canonicalId": "city_town10105",
     "evidenceOfficerIds": ["chasab001"]
-  },
-  {
-    "sourcePath": "city",
-    "sourceValue": "town10201",
-    "canonicalId": "city_town10201",
-    "evidenceOfficerIds": ["chasT090"]
   },
   {
     "sourcePath": "city",
@@ -378,11 +378,5 @@
     "sourceValue": "reqchasT089",
     "canonicalId": "requirement_reqchast089",
     "evidenceOfficerIds": ["chasT089"]
-  },
-  {
-    "sourcePath": "req",
-    "sourceValue": "reqchasT090",
-    "canonicalId": "requirement_reqchast090",
-    "evidenceOfficerIds": ["chasT090"]
   }
 ]

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { extractJsString, extractJsValue } from './extract-js-value'
 import { sourceConfig } from './source-config'
@@ -13,7 +13,10 @@ export interface SourceSelection {
 export interface CapturedSkillSample {
   name: string
   description: string
-  sourceCategoryId: string | null
+  sourceCategoryId: string
+  imageOverrideId: string | null
+  metadataSourceRange: string
+  sourceCategoryName: string
 }
 
 export interface CapturedSourceSamples {
@@ -62,7 +65,7 @@ const validateSelection = (selection: SourceSelection) => {
   assertWithinLimit(0, sourceConfig.limits.assets, 'assets')
   assertWithinLimit(0, sourceConfig.limits.assetBytes, 'assetBytes')
   assertWithinLimit(
-    totalRangeBytes(sourceConfig.officerRanges),
+    totalRangeBytes([...sourceConfig.officerRanges, ...sourceConfig.skillMetadataRanges]),
     sourceConfig.limits.bytesPerFile,
     'officerBytes',
   )
@@ -138,6 +141,13 @@ export const captureSourceSamples = async (
   const skills: Record<string, CapturedSkillSample> = {}
   const skillNames: Partial<Record<string, string>> = {}
   const skillDescriptions: Partial<Record<string, string>> = {}
+  const skillCategoryNames: Partial<Record<string, string>> = {}
+  const skillMetadata: Partial<
+    Record<
+      string,
+      Pick<CapturedSkillSample, 'sourceCategoryId' | 'imageOverrideId' | 'metadataSourceRange'>
+    >
+  > = {}
   let officerBytes = 0
   let languageBytes = 0
 
@@ -162,6 +172,31 @@ export const captureSourceSamples = async (
     if (!(officerId in officers)) throw new Error(`AUDIT_SOURCE_KEY_MISSING:${officerId}`)
   }
 
+  const metadataChunks: Array<{ range: Range; source: string }> = []
+  for (const range of sourceConfig.skillMetadataRanges) {
+    const captured = await readBoundedRange(fetcher, officerUrl, range)
+    officerBytes += captured.byteLength
+    assertBelowLimit(officerBytes, sourceConfig.limits.bytesPerFile, 'officerBytes')
+    metadata.push(captured.metadata)
+    metadataChunks.push({ range, source: captured.source })
+  }
+  const metadataSource = metadataChunks.map((chunk) => chunk.source).join('')
+  for (const skillId of selected.skillIds) {
+    const sourceMetadata = extractJsValue<Record<string, unknown>>(metadataSource, skillId)
+    if (typeof sourceMetadata.t !== 'string' || sourceMetadata.t.trim() === '') {
+      throw new Error(`AUDIT_SKILL_CATEGORY_MISSING:${skillId}`)
+    }
+    const sourceChunk = metadataChunks.find((chunk) => chunk.source.includes(`"${skillId}"`))
+    if (sourceChunk === undefined) throw new Error(`AUDIT_SKILL_METADATA_RANGE_MISSING:${skillId}`)
+    if (sourceMetadata.i !== undefined && typeof sourceMetadata.i !== 'string') {
+      throw new Error(`AUDIT_SKILL_IMAGE_OVERRIDE_INVALID:${skillId}`)
+    }
+    skillMetadata[skillId] = {
+      sourceCategoryId: sourceMetadata.t,
+      imageOverrideId: sourceMetadata.i ?? null,
+      metadataSourceRange: rangeHeader(sourceChunk.range),
+    }
+  }
   for (const range of sourceConfig.languageRanges) {
     const captured = await readBoundedRange(fetcher, languageUrl, range)
     languageBytes += captured.byteLength
@@ -176,10 +211,18 @@ export const captureSourceSamples = async (
         const description = extractOptionalString(captured.source, `${skillId}des`)
         if (description !== undefined) skillDescriptions[skillId] = description
       }
+      const sourceCategoryId = skillMetadata[skillId]?.sourceCategoryId
+      if (sourceCategoryId !== undefined && skillCategoryNames[sourceCategoryId] === undefined) {
+        const categoryName = extractOptionalString(captured.source, sourceCategoryId)
+        if (categoryName !== undefined) skillCategoryNames[sourceCategoryId] = categoryName
+      }
     }
     if (
       selected.skillIds.every(
-        (skillId) => skillNames[skillId] !== undefined && skillDescriptions[skillId] !== undefined,
+        (skillId) =>
+          skillNames[skillId] !== undefined &&
+          skillDescriptions[skillId] !== undefined &&
+          skillCategoryNames[skillMetadata[skillId]?.sourceCategoryId ?? ''] !== undefined,
       )
     ) {
       break
@@ -192,7 +235,13 @@ export const captureSourceSamples = async (
     if (name === undefined || description === undefined) {
       throw new Error(`AUDIT_SOURCE_KEY_MISSING:${skillId}`)
     }
-    skills[skillId] = { name, description, sourceCategoryId: null }
+    const capturedMetadata = skillMetadata[skillId]
+    if (capturedMetadata === undefined) throw new Error(`AUDIT_SOURCE_KEY_MISSING:${skillId}`)
+    const sourceCategoryName = skillCategoryNames[capturedMetadata.sourceCategoryId]
+    if (sourceCategoryName === undefined) {
+      throw new Error(`AUDIT_SOURCE_KEY_MISSING:${capturedMetadata.sourceCategoryId}`)
+    }
+    skills[skillId] = { name, description, sourceCategoryName, ...capturedMetadata }
   }
 
   return { officers, skills, metadata }
@@ -212,9 +261,26 @@ const sortJson = (value: unknown): unknown => {
 
 const writeSamples = async () => {
   const samples = await captureSourceSamples()
-  const outputPath = resolve('tests/fixtures/source-audit/source-samples.json')
-  await mkdir(dirname(outputPath), { recursive: true })
-  await writeFile(outputPath, `${JSON.stringify(sortJson(samples), null, 2)}\n`, 'utf8')
+  const outputDirectory = resolve('tests/fixtures/source-audit')
+  await mkdir(outputDirectory, { recursive: true })
+  await Promise.all([
+    writeFile(
+      resolve(outputDirectory, 'source-samples.json'),
+      `${JSON.stringify(sortJson(samples), null, 2)}\n`,
+      'utf8',
+    ),
+    writeFile(
+      resolve(outputDirectory, 'skills.json'),
+      `${JSON.stringify(sortJson(samples.skills), null, 2)}\n`,
+      'utf8',
+    ),
+    writeFile(
+      resolve(outputDirectory, 'source-metadata.json'),
+      `${JSON.stringify(sortJson(samples.metadata), null, 2)}\n`,
+      'utf8',
+    ),
+  ])
+
   console.log(
     `Source audit capture: ${Object.keys(samples.officers).length} officers, ${Object.keys(samples.skills).length} skills`,
   )

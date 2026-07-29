@@ -1,7 +1,7 @@
 {
   "officerIds": [
     "chasT089",
-    "chasT090",
+    "chasab012",
     "chasT096",
     "chasT098",
     "chasT099",
@@ -18,22 +18,50 @@
     "skill100043",
     "skill203426",
     "skill100051",
-    "skill509998406",
+    "skill509998139",
     "skill400591",
     "skill400581",
     "skill300001",
-    "skillT0218",
-    "skillT0219",
-    "skillT0220",
-    "skillT0221",
+    "skill400973",
+    "skill400974",
+    "skill100063",
+    "skill100064",
     "skillT0053",
     "skillT0073",
     "skill400861",
     "skill300004"
   ],
+  "replacementReasons": {
+    "skill509998406": {
+      "replacementSkillId": "skill509998139",
+      "reason": "The original sk1 relationship and language text exist, but the fixed skill_arr segment has no exact object and map.js has no ID normalization or category fallback; skill509998139 is observed in the same sk1 source group with exact menuskt19 metadata."
+    },
+    "skillT0218": {
+      "replacementSkillId": "skill400973",
+      "reason": "The original sk4 relationship and language text exist, but the fixed skill_arr segment has no exact object and map.js has no ID normalization or category fallback; skill400973 is observed in chasab001's sk4 group with exact menuskt18 metadata and complete language text."
+    },
+    "skillT0219": {
+      "replacementSkillId": "skill400974",
+      "reason": "The original sk4 relationship and language text exist, but the fixed skill_arr segment has no exact object and map.js has no ID normalization or category fallback; skill400974 is observed in chasab001's sk4 group with exact menuskt18 metadata and complete language text."
+    },
+    "skillT0220": {
+      "replacementSkillId": "skill100063",
+      "reason": "The original sk4 relationship and language text exist, but the fixed skill_arr segment has no exact object and map.js has no ID normalization or category fallback; skill100063 is observed in chasab012's sk4 group with exact menuskt18 metadata and complete language text."
+    },
+    "skillT0221": {
+      "replacementSkillId": "skill100064",
+      "reason": "The original sk4 relationship and language text exist, but the fixed skill_arr segment has no exact object and map.js has no ID normalization or category fallback; skill100064 is observed in chasab012's sk4 group with exact menuskt18 metadata and complete language text."
+    }
+  },
+  "officerReplacementReasons": {
+    "chasT090": {
+      "replacementOfficerId": "chasab012",
+      "reason": "chasab012 is complete inside the existing fixed officer range and adds two fully evidenced sk4 menuskt18 skills while preserving every field shape and critical anomaly covered by the other seven officers; it minimizes enum drift to three removals and two additions."
+    }
+  },
   "coverageReasons": {
     "chasT089": "all `sk0`–`sk5`, `req_char`, `boss`, note, multiple languages.",
-    "chasT090": "missing `sk4`, relationship-level skill overrides.",
+    "chasab012": "empty city list, null sk1 level, sk4 evidence, relationship overrides, and boss.",
     "chasT096": "`char_reqs`, `sk4`, male, combat type.",
     "chasT098": "rank 3, single language, no `slv`.",
     "chasT099": "rank 4, adventure type.",

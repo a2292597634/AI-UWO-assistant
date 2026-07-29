@@ -233,8 +233,24 @@ export const sourceConfig = {
   languageScript: '/js/lang_1.js?v=1779690379',
   officerRanges: [[0, 32767]],
   languageRanges: [
+    [0, 47237],
     [47238, 88188],
     [92126, 178363],
+  ],
+  skillMetadataRanges: [
+    [446464, 450559],
+    [450560, 454655],
+    [454656, 458751],
+    [466944, 471039],
+    [471040, 475135],
+    [475136, 479231],
+    [479232, 483327],
+    [507904, 511999],
+    [512000, 516095],
+    [516096, 520191],
+    [520192, 524287],
+    [532480, 536575],
+    [536576, 540671],
   ],
   limits: {
     bytesPerFile: 192 * 1024,
@@ -245,7 +261,7 @@ export const sourceConfig = {
   },
   officerIds: [
     'chasT089',
-    'chasT090',
+    'chasab012',
     'chasT096',
     'chasT098',
     'chasT099',
@@ -262,14 +278,14 @@ export const sourceConfig = {
     'skill100043',
     'skill203426',
     'skill100051',
-    'skill509998406',
+    'skill509998139',
     'skill400591',
     'skill400581',
     'skill300001',
-    'skillT0218',
-    'skillT0219',
-    'skillT0220',
-    'skillT0221',
+    'skill400973',
+    'skill400974',
+    'skill100063',
+    'skill100064',
     'skillT0053',
     'skillT0073',
     'skill400861',
@@ -278,12 +294,12 @@ export const sourceConfig = {
 } as const
 ```
 
-The language ranges are fixed raw UTF-8 byte offsets: names use `47238-88188` (40951 bytes) and descriptions use `92126-178363` (86238 bytes), for 127189 bytes total. The obsolete ranges were derived from decoded-string character positions; multi-byte UTF-8 characters therefore shifted the requested byte positions and left selected names outside the capture. The sampler must accumulate each selected skill's name and description across the fixed range responses, verify each body length matches its requested range, and keep the actual byte total for each source file strictly below `bytesPerFile`.
+The language ranges are fixed raw UTF-8 byte offsets `0-47237`, `47238-88188`, and `92126-178363`, totaling 174427 bytes. The obsolete ranges were derived from decoded-string character positions; multi-byte UTF-8 characters therefore shifted the requested byte positions and left selected names or category labels outside the capture. The officer source uses `0-32767` plus the 13 explicit successful 4 KiB `skill_arr` ranges listed above, totaling 86016 bytes. The sampler must accumulate selected names, descriptions, and category labels across the fixed responses, verify each body length matches its requested range, and keep each source file strictly below `bytesPerFile`.
 
 Create `data/audit/sample-selection.json` with the same IDs and these coverage reasons:
 
 - `chasT089`: all `sk0`–`sk5`, `req_char`, `boss`, note, multiple languages.
-- `chasT090`: missing `sk4`, relationship-level skill overrides.
+- `chasab012`: empty city list, null `sk1` level, exact `sk4` metadata evidence, relationship overrides, and boss.
 - `chasT096`: `char_reqs`, `sk4`, male, combat type.
 - `chasT098`: rank 3, single language, no `slv`.
 - `chasT099`: rank 4, adventure type.
@@ -302,7 +318,10 @@ export interface SourceSelection {
 export interface CapturedSkillSample {
   name: string
   description: string
-  sourceCategoryId: string | null
+  sourceCategoryId: string
+  sourceCategoryName: string
+  imageOverrideId: string | null
+  metadataSourceRange: string
 }
 
 export interface CapturedSourceSamples {
@@ -837,7 +856,7 @@ Extend validation to reject duplicate pairs, conflicting `kind`, empty evidence,
 - [ ] **Step 4: Inspect only the selected twenty skills and write approved mappings**
 
 For each selected skill:
-Use a bounded 4 KiB window search for the selected skill IDs in `json.js?v=2026052501`. Stop as soon as every selected skill has a `skill_arr` metadata object or total reads reach 192 KiB. After discovery, replace the search windows with the exact successful ranges in `source-config.ts`; normal capture runs must never scan dynamically. Store each selected skill's observed category key, image override `i` when present, and metadata source range in the fixed skill fixture.
+Use a bounded 4 KiB window search for the selected skill IDs in the dynamic `skill_arr` section of `json_char.js?v=2026052501`; `json.js` is not the metadata source. Stop as soon as every selected skill has an exact metadata object or total reads reach 192 KiB. After discovery, normal capture must keep only the 13 explicit successful ranges containing the selected metadata objects: `446464-450559`, `450560-454655`, `454656-458751`, `466944-471039`, `471040-475135`, `475136-479231`, `479232-483327`, `507904-511999`, `512000-516095`, `516096-520191`, `520192-524287`, `532480-536575`, and `536576-540671`. Together with officer range `0-32767`, the fixed `json_char.js` total is 86016 bytes. Normal capture must never fetch the discarded discovery windows or scan dynamically. Store each selected skill's observed category key, image override `i` when present, and exact metadata source range in the fixed skill fixture.
 
 1. Read its source group from the eight officer fixtures.
 2. Read its source category identifier from the bounded source metadata.
@@ -853,6 +872,14 @@ Create `data/audit/skill-group-mapping.json`. It must:
 - Keep active/passive only in relationship mappings, never in skill entities.
 
 If any selected skill lacks category metadata within the 192 KiB source limit, replace that skill with another skill from the same group and record the replacement reason in `sample-selection.json`; do not increase the byte limit or download the full source file.
+
+The verified bounded capture requires these minimal same-group replacements:
+
+- Replace `skill509998406` with sk1 `skill509998139` (`menuskt19`): the original relationship and language text exist, but no exact `skill_arr` object exists in the fixed segment and `map.js` supplies no ID normalization or category fallback.
+- Replace sk4 `skillT0218`, `skillT0219`, `skillT0220`, and `skillT0221` with `skill400973`, `skill400974`, `skill100063`, and `skill100064` (`menuskt18`): the originals likewise lack exact fixed metadata; the replacements have exact relationship, name, description, and metadata evidence.
+- Replace officer `chasT090` with `chasab012`: this is the single minimal officer substitution that supplies the two required sk4 examples while preserving the eight-officer field and anomaly coverage.
+
+Record all five skill replacements and the officer replacement in `sample-selection.json`; normal capture must not retry or enlarge discovery ranges.
 
 - [ ] **Step 5: Run the mapping tests**
 
@@ -1147,20 +1174,20 @@ Create `data/audit/asset-sample-manifest.json` with these nine URLs:
   },
   {
     "ownerType": "skill",
-    "ownerSourceId": "skillT0218",
-    "url": "https://voyage.tw/img/skill/uwo_skillT0218.png",
-    "expectedStatus": 404
+    "ownerSourceId": "skill400973",
+    "url": "https://voyage.tw/img/skill/uwo_skill400973.png",
+    "expectedStatus": "observe"
   },
   {
     "ownerType": "skill",
-    "ownerSourceId": "skill509998406",
-    "url": "https://voyage.tw/img/skill/uwo_skill509998406.png",
-    "expectedStatus": 404
+    "ownerSourceId": "skill509998139",
+    "url": "https://voyage.tw/img/skill/uwo_skill509998139.png",
+    "expectedStatus": "observe"
   }
 ]
 ```
 
-The two known 404s are observations to explain through source asset indirection; they are not silently converted to placeholder images.
+The former `skillT0218` and `skill509998406` 404 examples are not part of the final selected set after the bounded metadata replacements. Asset collection must observe the replacement IDs without inventing expected success or placeholder images.
 
 - [ ] **Step 2: Write failing asset tests**
 
@@ -1269,7 +1296,7 @@ Expected:
 
 - Three portrait URLs remain bounded and return PNG observations.
 - `skill400591` returns a PNG observation.
-- `skillT0218` and `skill509998406` remain explicit 404 observations unless the audited indirection rule resolves them to a different exact source image ID.
+- `skill400973` and `skill509998139` record their actual bounded response status; non-200 responses remain explicit observations rather than placeholder assets.
 - Successful assets have byte size, SHA-256, width, height, and local fixture path.
 - No more than nine URLs are requested.
 

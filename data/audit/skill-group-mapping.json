@@ -1,0 +1,122 @@
+[
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt1",
+    "kind": "passive",
+    "categoryId": "skill_category_trade_expertise",
+    "evidenceSkillIds": ["skill203826"],
+    "evidence": [
+      "The fixed json_char.js relationship places skill203826 in chasT089.skill.sk0, and its exact skill_arr metadata records menuskt1.",
+      "lang_1.js labels menuskt1 as 交易用取引技, while 游戏内菜单图.png groups learned trade effects under 航海士效果 rather than combat actions; this establishes a passive trade-expertise relationship."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt13",
+    "kind": "passive",
+    "categoryId": "skill_category_naval_passive_other",
+    "evidenceSkillIds": ["skill500436"],
+    "evidence": [
+      "The fixed officer fixture places skill500436 in sk0 for chasT089, chasT096, and chasab001; its exact skill_arr metadata records menuskt13.",
+      "lang_1.js labels menuskt13 as 海戰／被動（其他）, directly establishing passive kind and the naval-passive-other category."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt16",
+    "kind": "passive",
+    "categoryId": "skill_category_adventure",
+    "evidenceSkillIds": ["skill200921"],
+    "evidence": [
+      "The fixed json_char.js relationship places skill200921 in chasT089.skill.sk0, and its exact skill_arr metadata records menuskt16.",
+      "lang_1.js labels menuskt16 as 冒險相關技能; 游戏内菜单图.png explains that adventure effects aggregate as 航海士效果, establishing a passive adventure-effect relationship."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt2",
+    "kind": "passive",
+    "categoryId": "skill_category_trade_price_adjustment",
+    "evidenceSkillIds": ["skill200681", "skill203306", "skill203426"],
+    "evidence": [
+      "The fixed officer fixture places the three cited skills in sk0, and every exact skill_arr object records menuskt2.",
+      "lang_1.js labels menuskt2 as 交易價格調整技能; 游戏内被动技能查询截图.png lists trade purchase and sale price adjustments under 航海士效果, establishing passive kind."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt3",
+    "kind": "passive",
+    "categoryId": "skill_category_barter",
+    "evidenceSkillIds": ["skill100043", "skill100051"],
+    "evidence": [
+      "The fixed officer fixture places skill100043 and skill100051 in sk0, and both exact skill_arr objects record menuskt3.",
+      "lang_1.js labels menuskt3 as 以物易物相關技能; 游戏内被动技能查询截图.png lists barter quantity, negotiation consumption, and negotiation chance as 航海士效果, establishing passive kind."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt19",
+    "kind": "passive",
+    "categoryId": "skill_category_innate_buff",
+    "evidenceSkillIds": ["skill509998139"],
+    "evidence": [
+      "The fixed json_char.js relationship places skill509998139 in chasab001.skill.sk1 with a null source level, and its exact skill_arr metadata records menuskt19.",
+      "lang_1.js labels menuskt19 as 天生效果／增益, and both screenshots display 天生效果 inside the effect view; an innate buff is therefore a passive relationship."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt11",
+    "kind": "active",
+    "categoryId": "skill_category_naval_active_enhancement",
+    "evidenceSkillIds": ["skill400581", "skill400591", "skill400861"],
+    "evidence": [
+      "The fixed officer relationships place all three cited skills in sk2, and their exact skill_arr objects record menuskt11.",
+      "lang_1.js labels menuskt11 as 海戰／主動（強化系）, directly establishing active kind and the naval-active-enhancement category."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt22",
+    "kind": "active",
+    "categoryId": "skill_category_combat_other",
+    "evidenceSkillIds": ["skill300001", "skill300004"],
+    "evidence": [
+      "Every captured officer has one sk3 combat-action relationship; the fixed skill_arr objects for skill300001 and skill300004 both record menuskt22, labelled 其他技能 by lang_1.js.",
+      "游戏内菜单图.png separates combat techniques from aggregated 航海士效果, and the cited sk3 records are the executable actions 必死攻擊 and 絕對反擊; this group/category pair is active combat-other."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt18",
+    "kind": "active",
+    "categoryId": "skill_category_admiral",
+    "evidenceSkillIds": ["skill100063", "skill100064", "skill400973", "skill400974"],
+    "evidence": [
+      "The fixed chasab012 and chasab001 relationships place the cited skills in sk4 at the observed 1/20/40/60 commander-skill slots; all four exact skill_arr objects record menuskt18.",
+      "lang_1.js labels menuskt18 as 提督技能; the cited descriptions apply explicit battle actions or timed combat effects, and 游戏内菜单图.png separates these combat techniques from passive 航海士效果, establishing active admiral kind."
+    ],
+    "status": "approved"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt2",
+    "kind": "passive",
+    "categoryId": "skill_category_trade_price_adjustment",
+    "evidenceSkillIds": ["skillT0053", "skillT0073"],
+    "evidence": [
+      "The fixed json_char.js relationships place skillT0053 and skillT0073 in chasT089.skill.sk5, and both exact skill_arr objects record menuskt2 with image overrides to the matching base trade effects.",
+      "lang_1.js labels menuskt2 as 交易價格調整技能; 游戏内菜单图.png places 專業知識 and trade adjustments in the effect view, and 游戏内被动技能查询截图.png shows purchase/sale price adjustment as 航海士效果, establishing passive kind."
+    ],
+    "status": "approved"
+  }
+]
