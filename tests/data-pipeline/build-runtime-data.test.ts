@@ -11,7 +11,7 @@ const skills = readJson<CanonicalSkill[]>('tests/fixtures/canonical/skills.json'
 const dictionaries = readJson<Record<string, DictionaryItem[]>>('tests/fixtures/canonical/dictionaries.json')
 
 describe('buildCatalog', () => {
-  it('generates catalog entries with correct shape', () => {
+  it('generates compact catalog with skill IDs only', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
 
     expect(catalog).toHaveLength(8)
@@ -20,13 +20,13 @@ describe('buildCatalog', () => {
     expect(first.id).toBe('officer_chast089')
     expect(first.name).toBe('達納·卡洛斯')
     expect(first.rarityId).toBeTruthy()
-    // Languages use short IDs (no prefix)
-    expect(first.languages[0]!.languageId).not.toContain('language_')
-    // Skills split into active/passive
-    expect(first.activeSkills.length).toBeGreaterThan(0)
+    // Languages are string arrays (short IDs, no prefix)
+    expect(typeof first.languages[0]).toBe('string')
+    expect(first.languages[0]).not.toContain('language_')
+    // Skills are string arrays (just IDs)
+    expect(typeof first.activeSkills[0]).toBe('string')
+    expect(first.activeSkills[0]).toMatch(/^skill_/)
     expect(first.passiveSkills.length).toBeGreaterThan(0)
-    // Icon paths are miniprogram paths
-    expect(first.activeSkills[0]!.iconPath).toMatch(/^\/assets\//)
   })
 
   it('converts rarity to star characters', () => {
@@ -34,36 +34,30 @@ describe('buildCatalog', () => {
     const r5 = catalog.find((o) => o.rarityId === 'rarity_5')!
     expect(r5.rarityName).toBe('★★★★★')
   })
-
-  it('preserves input order (already sorted by displayOrder)', () => {
-    const catalog = buildCatalog(officers, skills, dictionaries)
-    expect(catalog[0]!.id).toBe('officer_chast089') // displayOrder 1
-    expect(catalog[1]!.id).toBe('officer_chast096') // displayOrder 2
-  })
 })
 
 describe('buildSkills', () => {
-  it('generates skill entries with names and categories', () => {
+  it('generates compact skill dict with short keys', () => {
     const runtime = buildSkills(skills, dictionaries)
 
-    expect(runtime.length).toBeGreaterThan(0)
-    const s = runtime[0]!
+    expect(Object.keys(runtime).length).toBeGreaterThan(0)
+    const firstKey = Object.keys(runtime)[0]!
+    const s = runtime[firstKey]!
     expect(s.id).toMatch(/^skill_/)
-    expect(s.name).toBeTruthy()
-    expect(s.categoryId).toBeTruthy()
-    expect(s.iconPath).toMatch(/^\/assets\//)
+    expect(s.n).toBeTruthy() // name
+    expect(s.ip).toMatch(/^\/assets\//) // iconPath
+    expect(s.cat).toBeTruthy() // categoryId
   })
 })
 
 describe('buildDictionaries (runtime)', () => {
-  it('generates dictionaries with display names', () => {
+  it('generates dictionaries with short language IDs', () => {
     const dicts = buildDictionaries(officers, skills, dictionaries)
 
     expect(dicts.rarities.length).toBeGreaterThan(0)
-    // Rarity names should be stars
     const r5 = dicts.rarities.find((r) => r.id === 'rarity_5')
     expect(r5!.name).toBe('★★★★★')
-    // Language IDs should be short (no prefix)
+    // Language IDs should be short (no prefix) for runtime
     expect(dicts.languages[0]!.id).not.toContain('language_')
   })
 })

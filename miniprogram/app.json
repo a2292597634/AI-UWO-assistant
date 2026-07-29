@@ -1,5 +1,17 @@
 {
-  "pages": ["pages/home/index"],
+  "pages": [
+    "pages/home/index",
+    "pages/catalog/index"
+  ],
+  "subpackages": [
+    {
+      "root": "subpkg-detail",
+      "name": "detail",
+      "pages": [
+        "pages/detail/index"
+      ]
+    }
+  ],
   "window": {
     "navigationBarBackgroundColor": "#2f302b",
     "navigationBarTextStyle": "white",

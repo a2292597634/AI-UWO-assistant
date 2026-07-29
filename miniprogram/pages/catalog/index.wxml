@@ -71,11 +71,11 @@
         </view>
         <view class="row-skills">
           <view class="skill-icon-group" wx:if="{{item.activeSkills.length > 0}}">
-            <image wx:for="{{item.activeSkills}}" wx:key="id" wx:for-item="sk" src="{{sk.iconPath}}" mode="aspectFit" class="row-skill-icon" />
+            <image wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" src="{{skillsDict[sid].ip}}" mode="aspectFit" class="row-skill-icon" />
           </view>
           <view class="skill-icon-group" wx:if="{{item.passiveSkills.length > 0}}">
             <view class="skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
-            <image wx:for="{{item.passiveSkills}}" wx:key="id" wx:for-item="sk" src="{{sk.iconPath}}" mode="aspectFit" class="row-skill-icon" />
+            <image wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" src="{{skillsDict[sid].ip}}" mode="aspectFit" class="row-skill-icon" />
           </view>
         </view>
       </view>

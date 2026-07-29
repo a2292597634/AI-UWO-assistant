@@ -1,4 +1,4 @@
-const details: any = require("../../generated/details")
+const details: any = require('../../details')
 
 Page({
   data: {

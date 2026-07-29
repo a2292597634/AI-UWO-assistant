@@ -27,7 +27,7 @@ const portraitPath = (officerId: string): string =>
 const iconPath = (skillId: string): string =>
   `/assets/${skillId.replace(/^skill_/, 'skill_')}.png`
 
-// ── Catalog ──
+// ── Catalog (compact: skill IDs only, names/icons looked up from skills.js) ──
 
 export interface CatalogEntry {
   id: string
@@ -41,48 +41,35 @@ export interface CatalogEntry {
   jobId: string
   jobName: string
   portraitPath: string
-  languages: Array<{ languageId: string }>
-  activeSkills: Array<{ id: string; name: string; iconPath: string }>
-  passiveSkills: Array<{ id: string; name: string; iconPath: string }>
+  languages: string[]  // just language IDs (short form, no prefix)
+  activeSkills: string[]  // just skill IDs
+  passiveSkills: string[]  // just skill IDs
 }
 
 export const buildCatalog = (
   officers: CanonicalOfficer[],
-  skills: CanonicalSkill[],
+  _skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
 ): CatalogEntry[] => {
-  const skillMap = new Map(skills.map((s) => [s.id, s]))
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? unprefix(id)
 
-  return officers.map((o) => {
-    const activeSkills: CatalogEntry['activeSkills'] = []
-    const passiveSkills: CatalogEntry['passiveSkills'] = []
-
-    for (const rel of o.skills) {
-      const sk = skillMap.get(rel.skillId)
-      const entry = { id: rel.skillId, name: sk?.name ?? rel.skillId, iconPath: iconPath(rel.skillId) }
-      if (rel.kind === 'active') activeSkills.push(entry)
-      else passiveSkills.push(entry)
-    }
-
-    return {
-      id: o.id,
-      name: o.name,
-      rarityId: o.rarityId,
-      rarityName: rarityStar(o.rarityId),
-      typeId: o.typeId,
-      typeName: dictName('types', o.typeId),
-      genderId: o.genderId,
-      genderLabel: unprefix(o.genderId),
-      jobId: o.jobId,
-      jobName: dictName('jobs', o.jobId),
-      portraitPath: portraitPath(o.id),
-      languages: o.languages.map((l) => ({ languageId: unprefix(l.languageId) })),
-      activeSkills,
-      passiveSkills,
-    }
-  })
+  return officers.map((o) => ({
+    id: o.id,
+    name: o.name,
+    rarityId: o.rarityId,
+    rarityName: rarityStar(o.rarityId),
+    typeId: o.typeId,
+    typeName: dictName('types', o.typeId),
+    genderId: o.genderId,
+    genderLabel: unprefix(o.genderId),
+    jobId: o.jobId,
+    jobName: dictName('jobs', o.jobId),
+    portraitPath: portraitPath(o.id),
+    languages: o.languages.map((l) => unprefix(l.languageId)),
+    activeSkills: o.skills.filter((r) => r.kind === 'active').map((r) => r.skillId),
+    passiveSkills: o.skills.filter((r) => r.kind === 'passive').map((r) => r.skillId),
+  }))
 }
 
 // ── Details ──
@@ -155,6 +142,7 @@ export const buildDetails = (
       languages: o.languages.map((l) => ({
         languageId: unprefix(l.languageId),
         level: l.level,
+        name: dictName('languages', l.languageId),
       })),
       skills: o.skills.map((rel) => {
         const sk = skillMap.get(rel.skillId)
@@ -187,30 +175,29 @@ export const buildDetails = (
   return result
 }
 
-// ── Skills (runtime) ──
+// ── Skills (runtime, compact: dictionary format for fast lookup) ──
 
 export interface RuntimeSkill {
   id: string
-  name: string
-  catName: string
-  categoryId: string
-  iconPath: string
+  n: string    // name
+  cat: string  // categoryId
+  ip: string   // iconPath
 }
 
 export const buildSkills = (
   skills: CanonicalSkill[],
-  dictionaries: Record<string, DictionaryItem[]>,
-): RuntimeSkill[] => {
-  const dictName = (group: string, id: string): string =>
-    dictionaries[group]?.find((d) => d.id === id)?.name ?? id
-
-  return skills.map((s) => ({
-    id: s.id,
-    name: s.name,
-    catName: dictName('skillCategories', s.categoryId),
-    categoryId: s.categoryId,
-    iconPath: iconPath(s.id),
-  }))
+  _dictionaries: Record<string, DictionaryItem[]>,
+): Record<string, RuntimeSkill> => {
+  const result: Record<string, RuntimeSkill> = {}
+  for (const s of skills) {
+    result[s.id] = {
+      id: s.id,
+      n: s.name,
+      cat: s.categoryId,
+      ip: iconPath(s.id),
+    }
+  }
+  return result
 }
 
 // ── Dictionaries (runtime) ──
@@ -261,7 +248,6 @@ export const writeRuntimeData = (
   mkdirSync(outputDir, { recursive: true })
 
   const catalog = buildCatalog(officers, skills, dictionaries)
-  const details = buildDetails(officers, skills, dictionaries)
   const runtimeSkills = buildSkills(skills, dictionaries)
   const runtimeDicts = buildDictionaries(officers, skills, dictionaries)
 
@@ -269,13 +255,12 @@ export const writeRuntimeData = (
     writeFileSync(`${outputDir}/${name}.js`, `module.exports = ${JSON.stringify(data)}\n`)
 
   write('catalog', catalog)
-  write('details', details)
-  write('skills', runtimeSkills)
+  write('skills', runtimeSkills) // dict format: {skillId: {id,n,cat,ip}, ...}
   write('dictionaries', runtimeDicts)
+  // Note: details.js is written separately to the detail subpackage
 
   console.log(`Runtime data written to ${outputDir}/`)
   console.log(`  catalog.js: ${catalog.length} officers`)
-  console.log(`  details.js: ${Object.keys(details).length} entries`)
-  console.log(`  skills.js: ${runtimeSkills.length}`)
+  console.log(`  skills.js: ${Object.keys(runtimeSkills).length} entries (dict format)`)
   console.log(`  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, languages=${runtimeDicts.languages.length}, categories=${runtimeDicts.skillCategories.length}`)
 }
