@@ -233,8 +233,8 @@ export const sourceConfig = {
   languageScript: '/js/lang_1.js?v=1779690379',
   officerRanges: [[0, 32767]],
   languageRanges: [
-    [0, 16383],
-    [56000, 159999],
+    [47238, 88188],
+    [92126, 178363],
   ],
   limits: {
     bytesPerFile: 192 * 1024,
@@ -277,6 +277,8 @@ export const sourceConfig = {
   ],
 } as const
 ```
+
+The language ranges are fixed raw UTF-8 byte offsets: names use `47238-88188` (40951 bytes) and descriptions use `92126-178363` (86238 bytes), for 127189 bytes total. The obsolete ranges were derived from decoded-string character positions; multi-byte UTF-8 characters therefore shifted the requested byte positions and left selected names outside the capture. The sampler must accumulate each selected skill's name and description across the fixed range responses, verify each body length matches its requested range, and keep the actual byte total for each source file strictly below `bytesPerFile`.
 
 Create `data/audit/sample-selection.json` with the same IDs and these coverage reasons:
 

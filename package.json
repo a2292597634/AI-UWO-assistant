@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "data:audit:capture": "tsx tools/data-audit/capture-source-samples.ts",
     "check:runtime-network": "tsx tools/quality/check-runtime-network.ts",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network"
   },

@@ -1,0 +1,44 @@
+{
+  "officerIds": [
+    "chasT089",
+    "chasT090",
+    "chasT096",
+    "chasT098",
+    "chasT099",
+    "chasT100",
+    "chasT101",
+    "chasab001"
+  ],
+  "skillIds": [
+    "skill200681",
+    "skill203826",
+    "skill200921",
+    "skill203306",
+    "skill500436",
+    "skill100043",
+    "skill203426",
+    "skill100051",
+    "skill509998406",
+    "skill400591",
+    "skill400581",
+    "skill300001",
+    "skillT0218",
+    "skillT0219",
+    "skillT0220",
+    "skillT0221",
+    "skillT0053",
+    "skillT0073",
+    "skill400861",
+    "skill300004"
+  ],
+  "coverageReasons": {
+    "chasT089": "all `sk0`–`sk5`, `req_char`, `boss`, note, multiple languages.",
+    "chasT090": "missing `sk4`, relationship-level skill overrides.",
+    "chasT096": "`char_reqs`, `sk4`, male, combat type.",
+    "chasT098": "rank 3, single language, no `slv`.",
+    "chasT099": "rank 4, adventure type.",
+    "chasT100": "empty country and coded note.",
+    "chasT101": "missing note and anomalous non-town value inside `city`.",
+    "chasab001": "missing inline `cht`, null skill values, `char_reqs`."
+  }
+}

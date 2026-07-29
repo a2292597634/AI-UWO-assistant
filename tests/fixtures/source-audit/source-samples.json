@@ -1,0 +1,534 @@
+{
+  "metadata": [
+    {
+      "contentRange": "bytes 0-32767/567976",
+      "lastModified": "Mon, 25 May 2026 07:43:33 GMT",
+      "range": "bytes=0-32767",
+      "sha256": "75a2e395bccc3701890d0b68ef6b8988cfb15e42d56a19adf4eab4ba1980f54e",
+      "url": "https://voyage.tw/js/json_char.js?v=2026052501"
+    },
+    {
+      "contentRange": "bytes 47238-88188/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT",
+      "range": "bytes=47238-88188",
+      "sha256": "9159c473007ea6d000aa01b76f4e45ee645f00c1ba7c52ebd675a646526f335f",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379"
+    },
+    {
+      "contentRange": "bytes 92126-178363/337759",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT",
+      "range": "bytes=92126-178363",
+      "sha256": "751aea64b5560931e31d651f6a6966b614b0ade42604a485a34e008315f2ce22",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379"
+    }
+  ],
+  "officers": {
+    "chasab001": {
+      "boss": 1,
+      "char_reqs": ["chacbb008", "chasbb019", "chacbd025", "chacbt005", "chabbb014", "chaabt008"],
+      "city": [
+        "town3301",
+        "town15301",
+        "town4302",
+        "town2204",
+        "town3303",
+        "town10105",
+        "town2202",
+        "town1301",
+        "town13204",
+        "town17301"
+      ],
+      "country": "ctn_irl",
+      "gender": "f",
+      "job": "jobchasab001",
+      "lang": {
+        "lang40": "3",
+        "lang80": "3"
+      },
+      "need": null,
+      "rank": "5",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill500065": "30",
+          "skill500106": 70,
+          "skill500436": "30",
+          "skill500856": 50,
+          "skill500886": "10",
+          "skill500916": "10",
+          "skill501096": 50,
+          "skill501556": 70
+        },
+        "sk1": {
+          "skill509998139": null
+        },
+        "sk2": {
+          "skill400681": "1",
+          "skill400771": "50"
+        },
+        "sk3": {
+          "skill300004": null
+        },
+        "sk4": {
+          "skill100001": "60",
+          "skill100019": "40",
+          "skill400973": "1",
+          "skill400974": "20"
+        },
+        "sk5": {
+          "skillT0111": 1,
+          "skillT0145": 1
+        }
+      },
+      "type": "class_3"
+    },
+    "chasT089": {
+      "boss": 1,
+      "cht": "達納·卡洛斯",
+      "city": ["town4105", "town10105", "town5303", "town6301", "town14205"],
+      "country": "ctn_swe",
+      "gender": "f",
+      "job": "jobchasT089",
+      "lang": {
+        "lang70": "5",
+        "lang80": "3"
+      },
+      "need": null,
+      "new": 1,
+      "note": "5000紅鑽購買提督",
+      "rank": "5",
+      "req": "reqchasT089",
+      "req_char": "chasT096",
+      "skill": {
+        "sk0": {
+          "skill100043": "50",
+          "skill100051": "70",
+          "skill200681": "10",
+          "skill200921": "30",
+          "skill203306": "30",
+          "skill203426": "70",
+          "skill203826": "10",
+          "skill500436": "50"
+        },
+        "sk1": {
+          "skill509998406": 1
+        },
+        "sk2": {
+          "skill400581": "50",
+          "skill400591": "1"
+        },
+        "sk3": {
+          "skill300001": "1"
+        },
+        "sk4": {
+          "skillT0218": "1",
+          "skillT0219": "20",
+          "skillT0220": "40",
+          "skillT0221": "60"
+        },
+        "sk5": {
+          "skillT0053": 1,
+          "skillT0073": 1
+        }
+      },
+      "skill300001": "3",
+      "slv": {
+        "skill203426": "2",
+        "skill400581": "2"
+      },
+      "type": "class_2"
+    },
+    "chasT090": {
+      "cht": "芙莉達·斯滕斯多特爾",
+      "city": ["town10201"],
+      "country": "ctn_swe",
+      "gender": "f",
+      "job": "job21401001",
+      "lang": {
+        "lang20": "3",
+        "lang70": "5"
+      },
+      "need": null,
+      "new": 1,
+      "note": "完成達納·卡洛斯編年史后在旅館招募",
+      "rank": "5",
+      "req": "reqchasT090",
+      "req_char": "chasT096",
+      "skill": {
+        "sk0": {
+          "skill200021": "50",
+          "skill200401": "30",
+          "skill203166": "70",
+          "skill203546": "10",
+          "skill203566": "30",
+          "skill501356": "10",
+          "skillT0204": "70",
+          "skillT0208": "50"
+        },
+        "sk1": {
+          "skill509998407": 1
+        },
+        "sk2": {
+          "skill400591": "50",
+          "skill400711": "1"
+        },
+        "sk3": {
+          "skill300001": "1"
+        },
+        "sk5": {
+          "skillT0041": 1,
+          "skillT0061": 1
+        }
+      },
+      "skillT0221": "3",
+      "slv": {
+        "skill203166": "2",
+        "skill400591": "2"
+      },
+      "type": "class_2"
+    },
+    "chasT096": {
+      "boss": 1,
+      "char_reqs": ["chasT089", "chasT090", "chasT091"],
+      "cht": "維托里奧·薩托里 ",
+      "city": ["town5303", "town9104", "town14203", "town15201", "town11101"],
+      "country": "ctn_ita",
+      "gender": "m",
+      "job": "jobchasT096",
+      "lang": {
+        "lang60": "4",
+        "lang80": "4"
+      },
+      "need": null,
+      "new": 1,
+      "note": "5000紅鑽購買提督",
+      "rank": "5",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill100043": "70",
+          "skill100048": "50",
+          "skill500436": "70",
+          "skill500776": "30",
+          "skill5007962": "10",
+          "skill501136": "10",
+          "skill501156": "30",
+          "skillT0226": "50"
+        },
+        "sk1": {
+          "skill509998410": 1
+        },
+        "sk2": {
+          "skill400591": "1",
+          "skill400861": "50"
+        },
+        "sk3": {
+          "skill300001": "1"
+        },
+        "sk4": {
+          "skillT0222": 1,
+          "skillT0223": 1,
+          "skillT0224": 1,
+          "skillT0225": 1
+        },
+        "sk5": {
+          "skillT0107": 1,
+          "skillT0112": 1
+        }
+      },
+      "skill300004": "4",
+      "slv": {
+        "skill400861": "2",
+        "skill500436": "2"
+      },
+      "type": "class_3"
+    },
+    "chasT098": {
+      "cht": "穆拉特·雷斯",
+      "city": ["town14105", "town8301", "town6104", "town14201", "town8105"],
+      "country": "ctn_tur",
+      "gender": "m",
+      "job": "job21400006",
+      "lang": {
+        "lang60": "2"
+      },
+      "need": null,
+      "new": 1,
+      "note": "維托里奧·薩托里編年史獎勵",
+      "rank": "3",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill200541": "50",
+          "skill201221": "70",
+          "skill500256": "70",
+          "skill500856": "10",
+          "skill500886": "30",
+          "skill500916": "30",
+          "skill501066": "10",
+          "skill501126": "50"
+        },
+        "sk1": {
+          "skill210346": 1
+        },
+        "sk2": {
+          "skill400351": "1",
+          "skill400681": "50"
+        },
+        "sk3": {
+          "skill300007": "1"
+        },
+        "sk5": {
+          "skillT0048": 1,
+          "skillT0145": 1
+        }
+      },
+      "skill300001": "2",
+      "type": "class_3"
+    },
+    "chasT099": {
+      "cht": "賽莉梅",
+      "city": ["town1205", "town6301", "town8302", "town7101", "town14207"],
+      "country": "ctn_tur",
+      "gender": "f",
+      "job": "job21402014",
+      "lang": {
+        "lang140": "2",
+        "lang60": "3"
+      },
+      "need": null,
+      "new": 1,
+      "note": "維托里奧·薩托里編年史獎勵",
+      "rank": "4",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill200541": "50",
+          "skill200881": "70",
+          "skill201121": "10",
+          "skill201201": "30",
+          "skill201401": "50",
+          "skill202406": "30",
+          "skill500246": "70",
+          "skill500936": "10"
+        },
+        "sk1": {
+          "skill509998412": 1
+        },
+        "sk2": {
+          "skill400581": "1",
+          "skill400791": "50"
+        },
+        "sk3": {
+          "skill300004": "1"
+        },
+        "sk5": {
+          "skillT0096": 1,
+          "skillT0112": 1
+        }
+      },
+      "skill300007": "2",
+      "slv": {
+        "skill200881": "2"
+      },
+      "type": "class_1"
+    },
+    "chasT100": {
+      "cht": "碧安卡·卡佩羅",
+      "city": ["town6301", "town5202", "town5301", "town5302", "town5201", "town1205"],
+      "country": "",
+      "gender": "f",
+      "job": "job21401015",
+      "lang": {
+        "lang40": "3",
+        "lang80": "5"
+      },
+      "need": null,
+      "new": 1,
+      "note": "menu224",
+      "rank": "5",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill100044": "50",
+          "skill100052": "70",
+          "skill200581": "30",
+          "skill201201": "30",
+          "skill203406": "50",
+          "skill203726": "10",
+          "skill500926": "10",
+          "skillT0226": "70"
+        },
+        "sk1": {
+          "skill509998413": 1
+        },
+        "sk2": {
+          "skill400471": "1",
+          "skill400591": "50"
+        },
+        "sk3": {
+          "skill300001": "1"
+        },
+        "sk5": {
+          "skillT0068": 1,
+          "skillT0081": 1
+        }
+      },
+      "skill300004": "3",
+      "slv": {
+        "skill100052": "2",
+        "skill400591": "2"
+      },
+      "type": "class_2"
+    },
+    "chasT101": {
+      "cht": "斯佩蘭扎·摩里亞",
+      "city": ["town6301", "town6201", "town8301", "chasT051", "town7201", "town7202"],
+      "country": "",
+      "gender": "f",
+      "job": "job21400002",
+      "lang": {
+        "lang140": "3",
+        "lang80": "5"
+      },
+      "need": null,
+      "new": 1,
+      "rank": "5",
+      "req": "",
+      "skill": {
+        "sk0": {
+          "skill200661": "50",
+          "skill500086": "50",
+          "skill500866": "10",
+          "skill500896": "10",
+          "skill501046": "30",
+          "skill501076": "30",
+          "skill501536": "70",
+          "skillT0205": "70"
+        },
+        "sk1": {
+          "skill509998414": 1
+        },
+        "sk2": {
+          "skill400111": "50",
+          "skill400831": "1"
+        },
+        "sk3": {
+          "skill300004": "1"
+        },
+        "sk5": {
+          "skillT0156": 1,
+          "skillT0163": 1
+        }
+      },
+      "skill300001": "3",
+      "slv": {
+        "skill400111": "2",
+        "skill501536": "2"
+      },
+      "type": "class_3"
+    }
+  },
+  "skills": {
+    "skill100043": {
+      "description": "以物易物時﹐貿易品消耗量減少1％。",
+      "name": "神之手腕",
+      "sourceCategoryId": null
+    },
+    "skill100051": {
+      "description": "以物易物價格協商時﹐友好度消耗量減少1.1％。",
+      "name": "冷靜的協商",
+      "sourceCategoryId": null
+    },
+    "skill200681": {
+      "description": "購買工藝品時﹐可以用減少1％的價格購買。",
+      "name": "工藝品購買折扣",
+      "sourceCategoryId": null
+    },
+    "skill200921": {
+      "description": "探險中戰鬥力、採集力、觀察力增加1。",
+      "name": "探索基礎",
+      "sourceCategoryId": null
+    },
+    "skill203306": {
+      "description": "出售工業製品時﹐可以用增加1％的價格出售。",
+      "name": "工業製品出售溢價",
+      "sourceCategoryId": null
+    },
+    "skill203426": {
+      "description": "出售工藝品時﹐可以用增加1％的價格出售。",
+      "name": "工藝品出售溢價",
+      "sourceCategoryId": null
+    },
+    "skill203826": {
+      "description": "工藝品可購買数量增加5.6%。",
+      "name": "工藝品交易專業",
+      "sourceCategoryId": null
+    },
+    "skill300001": {
+      "description": "展示強大的攻擊。",
+      "name": "必死攻擊",
+      "sourceCategoryId": null
+    },
+    "skill300004": {
+      "description": "一定會反擊敵人的攻擊。",
+      "name": "絕對反擊",
+      "sourceCategoryId": null
+    },
+    "skill400581": {
+      "description": "使全體敵軍的額外機動力在3回合內減少8.8％﹐",
+      "name": "額外機動力減少",
+      "sourceCategoryId": null
+    },
+    "skill400591": {
+      "description": "以35％的機率封鎖目標的行動2回合。",
+      "name": "行動封鎖",
+      "sourceCategoryId": null
+    },
+    "skill400861": {
+      "description": "使指定範圍內目標的所有額外防禦力3回合內增加7％﹐解除1個狀態異常。",
+      "name": "淨化：戰鬥姿勢",
+      "sourceCategoryId": null
+    },
+    "skill500436": {
+      "description": "行動結束時以12.6％的機率再次行動一次﹐機動力恢復6.1％。  不發生其他行動效果﹐只可進行1次以抓住機會發生的額外行動。",
+      "name": "抓住機會",
+      "sourceCategoryId": null
+    },
+    "skill509998406": {
+      "description": "工藝品出售溢價增加0.2%",
+      "name": "工匠的手藝",
+      "sourceCategoryId": null
+    },
+    "skillT0053": {
+      "description": "購買工藝品時﹐可以用減少2.5%的價格購買",
+      "name": "工藝品購買達人",
+      "sourceCategoryId": null
+    },
+    "skillT0073": {
+      "description": "出售工藝品時﹐可以用增加2.5%的價格出售",
+      "name": "工藝品出售達人",
+      "sourceCategoryId": null
+    },
+    "skillT0218": {
+      "description": "10分鐘內貿易品出售收盒增加10%",
+      "name": "高段數",
+      "sourceCategoryId": null
+    },
+    "skillT0219": {
+      "description": "1小時內工藝品、工業製品、寶石出售收益增加8.5%",
+      "name": "眼光",
+      "sourceCategoryId": null
+    },
+    "skillT0220": {
+      "description": "1小時內艦隊的每日水消耗量及每日糧食消耗量減少30%",
+      "name": "運用",
+      "sourceCategoryId": null
+    },
+    "skillT0221": {
+      "description": "1小時內工藝等級增加1",
+      "name": "工匠精神",
+      "sourceCategoryId": null
+    }
+  }
+}
