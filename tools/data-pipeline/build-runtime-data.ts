@@ -72,44 +72,36 @@ export const buildCatalog = (
   }))
 }
 
-// ── Details ──
+// ── Details (compact: short field names to fit subpackage 2 MB limit) ──
+// Field map: i=id, n=name, ri=rarityId, rn=rarityName, ti=typeId, tn=typeName
+//   gi=genderId, gn=genderName, ji=jobId, jn=jobName, ni=nationalityId, nn=nationalityName
+//   pp=portraitPath, ls=languages, ss=skills, rc=recruitment
+//   li=languageId, lv=level, si=skillId, k=kind, sg=sourceGroup, sl=slot
+//   ul=unlockLevel, ci=cityIds/requirementId/categoryId, cn=cityNames/categoryName/requirementName
+//   ro=requiredOfficerIds, nt=note, ip=iconPath
 
-export interface DetailSkillEntry {
-  skillId: string
-  kind: string
-  sourceGroup: string
-  slot: number
-  unlockLevel: number
-  level: number
-  name: string
-  categoryName: string
-  categoryId: string
-  iconPath: string
-}
-
-export interface DetailEntry {
-  id: string
-  name: string
-  rarityId: string
-  rarityName: string
-  typeId: string
-  typeName: string
-  genderId: string
-  genderName: string
-  jobId: string
-  jobName: string
-  nationalityId: string
-  nationalityName: string
-  portraitPath: string
-  languages: Array<{ languageId: string; level: number }>
-  skills: DetailSkillEntry[]
-  recruitment: {
-    cityIds: string[]
-    cityNames: string[]
-    requirementId: string | null
-    requirementName: string | null
-    requiredOfficerIds: string[]
-    note: string | null
+export interface DetailEntryCompact {
+  i: string   // id
+  n: string   // name
+  ri: string  // rarityId
+  rn: string  // rarityName
+  ti: string  // typeId
+  tn: string  // typeName
+  gi: string  // genderId
+  gn: string  // genderName
+  ji: string  // jobId
+  jn: string  // jobName
+  ni: string  // nationalityId
+  nn: string  // nationalityName
+  pp: string  // portraitPath
+  ls: Array<{ li: string; lv: number; n: string }>
+  ss: Array<{
+    si: string; k: string; sg: string; sl: number
+    ul: number; lv: number; n: string; cn: string; ci: string; ip: string
+  }>
+  rc: {
+    ci: string[]; cn: string[]; ri: string | null; rn: string | null
+    ro: string[]; nt: string | null
   }
 }
 
@@ -117,57 +109,57 @@ export const buildDetails = (
   officers: CanonicalOfficer[],
   skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
-): Record<string, DetailEntry> => {
+): Record<string, DetailEntryCompact> => {
   const skillMap = new Map(skills.map((s) => [s.id, s]))
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? id
 
-  const result: Record<string, DetailEntry> = {}
+  const result: Record<string, DetailEntryCompact> = {}
 
   for (const o of officers) {
     result[o.id] = {
-      id: o.id,
-      name: o.name,
-      rarityId: o.rarityId,
-      rarityName: rarityStar(o.rarityId),
-      typeId: o.typeId,
-      typeName: dictName('types', o.typeId),
-      genderId: o.genderId,
-      genderName: dictName('genders', o.genderId),
-      jobId: o.jobId,
-      jobName: dictName('jobs', o.jobId),
-      nationalityId: o.nationalityId,
-      nationalityName: dictName('nationalities', o.nationalityId),
-      portraitPath: portraitPath(o.id),
-      languages: o.languages.map((l) => ({
-        languageId: unprefix(l.languageId),
-        level: l.level,
-        name: dictName('languages', l.languageId),
+      i: o.id,
+      n: o.name,
+      ri: o.rarityId,
+      rn: rarityStar(o.rarityId),
+      ti: o.typeId,
+      tn: dictName('types', o.typeId),
+      gi: o.genderId,
+      gn: dictName('genders', o.genderId),
+      ji: o.jobId,
+      jn: dictName('jobs', o.jobId),
+      ni: o.nationalityId,
+      nn: dictName('nationalities', o.nationalityId),
+      pp: portraitPath(o.id),
+      ls: o.languages.map((l) => ({
+        li: unprefix(l.languageId),
+        lv: l.level,
+        n: dictName('languages', l.languageId),
       })),
-      skills: o.skills.map((rel) => {
+      ss: o.skills.map((rel) => {
         const sk = skillMap.get(rel.skillId)
         return {
-          skillId: rel.skillId,
-          kind: rel.kind,
-          sourceGroup: rel.sourceGroup,
-          slot: rel.slot,
-          unlockLevel: rel.unlockLevel,
-          level: rel.level,
-          name: sk?.name ?? rel.skillId,
-          categoryName: dictName('skillCategories', sk?.categoryId ?? ''),
-          categoryId: sk?.categoryId ?? '',
-          iconPath: iconPath(rel.skillId),
+          si: rel.skillId,
+          k: rel.kind,
+          sg: rel.sourceGroup,
+          sl: rel.slot,
+          ul: rel.unlockLevel,
+          lv: rel.level,
+          n: sk?.name ?? rel.skillId,
+          cn: dictName('skillCategories', sk?.categoryId ?? ''),
+          ci: sk?.categoryId ?? '',
+          ip: iconPath(rel.skillId),
         }
       }),
-      recruitment: {
-        cityIds: o.recruitment.cityIds.map(unprefix),
-        cityNames: o.recruitment.cityIds.map((id) => dictName('cities', id)),
-        requirementId: o.recruitment.requirementId,
-        requirementName: o.recruitment.requirementId
+      rc: {
+        ci: o.recruitment.cityIds.map(unprefix),
+        cn: o.recruitment.cityIds.map((id) => dictName('cities', id)),
+        ri: o.recruitment.requirementId,
+        rn: o.recruitment.requirementId
           ? dictName('requirements', o.recruitment.requirementId)
           : null,
-        requiredOfficerIds: o.recruitment.requiredOfficerIds,
-        note: o.recruitment.note,
+        ro: o.recruitment.requiredOfficerIds,
+        nt: o.recruitment.note,
       },
     }
   }

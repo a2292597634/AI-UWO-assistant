@@ -63,17 +63,21 @@ describe('buildDictionaries (runtime)', () => {
 })
 
 describe('buildDetails', () => {
-  it('generates detail entries keyed by officer ID', () => {
+  it('generates compact detail entries with short field names', () => {
     const details = buildDetails(officers, skills, dictionaries)
 
     expect(Object.keys(details)).toHaveLength(8)
     const officer = details.officer_chast089!
-    expect(officer.name).toBe('達納·卡洛斯')
-    expect(officer.skills.length).toBeGreaterThan(0)
-    // Skills have full detail fields
-    const sk = officer.skills[0]!
-    expect(sk.skillId).toBeTruthy()
-    expect(sk.level).toBeGreaterThanOrEqual(0)
-    expect(sk.kind).toMatch(/^(active|passive)$/)
+    // Compact fields: n=name, ri=rarityId, ss=skills, rc=recruitment
+    expect(officer.n).toBe('達納·卡洛斯')
+    expect(officer.ss.length).toBeGreaterThan(0)
+    // Skills have compact fields: si=skillId, lv=level, k=kind
+    const sk = officer.ss[0]!
+    expect(sk.si).toBeTruthy()
+    expect(sk.lv).toBeGreaterThanOrEqual(0)
+    expect(sk.k).toMatch(/^(active|passive)$/)
+    // Recruitment: rc.ci=cityIds, rc.nt=note
+    expect(officer.rc).toBeDefined()
+    expect(Array.isArray(officer.rc.ci)).toBe(true)
   })
 })
