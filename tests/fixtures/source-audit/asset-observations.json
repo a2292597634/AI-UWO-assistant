@@ -114,7 +114,12 @@
     "height": 60,
     "sha256": "919a4d716da665443b4a4eafc1b62d8b428ac3f4d44bb32d12ad19409396d9f4",
     "duplicateOf": null,
-    "localFixturePath": "tests/fixtures/source-audit/assets/skill509998139.png"
+    "localFixturePath": "tests/fixtures/source-audit/assets/skill509998139.png",
+    "resolution": {
+      "imageOverrideId": null,
+      "metadataSourceRange": "bytes=520192-524287",
+      "rule": "Use skill_arr[skillId].i when present, then truncate image IDs longer than 11 characters."
+    }
   },
   {
     "ownerType": "skill",

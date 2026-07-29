@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import manifest from '../../data/audit/asset-sample-manifest.json'
+import boundedSkills from '../../tests/fixtures/source-audit/skills.json'
 import { sourceConfig } from './source-config'
 
 export interface AssetSampleEntry {
@@ -38,6 +39,13 @@ export interface SkillImageMetadata {
 
 const pngSignature = Buffer.from('89504e470d0a1a0a', 'hex')
 const assetsDirectory = 'tests/fixtures/source-audit/assets'
+
+const boundedSkillMetadata = Object.fromEntries(
+  Object.entries(boundedSkills).map(([skillId, skill]) => [
+    skillId,
+    { imageOverrideId: skill.imageOverrideId, metadataSourceRange: skill.metadataSourceRange },
+  ]),
+) as Record<string, SkillImageMetadata>
 
 const assertApprovedUrl = (value: string) => {
   const url = new URL(value)
@@ -165,7 +173,7 @@ const collect = async (
   const fallbackEntries = allowFallback
     ? observations
         .filter(({ ownerType, status }) => ownerType === 'skill' && status === 404)
-        .map(({ ownerType, ownerSourceId }) => {
+        .map(({ ownerType, ownerSourceId, url: directUrl }) => {
           const metadata = skillMetadata[ownerSourceId]
           const requestedImageId = metadata?.imageOverrideId ?? ownerSourceId
           const imageId =
@@ -173,6 +181,7 @@ const collect = async (
           return {
             ownerType,
             ownerSourceId,
+            directUrl,
             url: new URL(`/img/skill/uwo_${imageId}.png`, sourceConfig.origin).toString(),
             resolution: {
               imageOverrideId: metadata?.imageOverrideId ?? null,
@@ -181,6 +190,7 @@ const collect = async (
             },
           }
         })
+        .filter(({ directUrl, url }) => directUrl !== url)
     : []
   assertWithinLimit(entries.length + fallbackEntries.length, sourceConfig.limits.assets, 'assets')
   const fallbackObservations =
@@ -211,6 +221,7 @@ const writeSamples = async () => {
     async (path, body) => {
       await writeFile(resolve(path), body)
     },
+    boundedSkillMetadata,
   )
   await writeFile(
     resolve('tests/fixtures/source-audit/asset-observations.json'),
