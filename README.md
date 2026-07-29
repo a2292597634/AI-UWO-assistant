@@ -16,6 +16,10 @@ npm.cmd run verify
 
 此命令依序檢查格式、ESLint、TypeScript、Vitest，以及小程序執行碼是否包含遠端資料或網路 API。
 
+## 資料審計
+
+`npm run data:check` 執行完整的本機資料審計，包含欄位清單覆蓋率、技能對映驗證、JSON Schema 檢查與跨檔案關係驗證。範例擷取 (`npm run data:audit:capture`) 是明確的網路維護者操作，須手動執行並提交結果。
+
 ## 微信開發者工具
 
 使用微信開發者工具開啟專案根目錄。`project.config.json` 會將小程序來源指向

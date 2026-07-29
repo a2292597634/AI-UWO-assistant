@@ -11,8 +11,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "data:audit:capture": "tsx tools/data-audit/capture-source-samples.ts",
+    "data:audit:check": "tsx tools/data-audit/run-data-audit.ts --check",
+    "data:audit:write": "tsx tools/data-audit/run-data-audit.ts --write",
+    "data:schema:check": "vitest run tests/data-contract",
+    "data:check": "npm run data:audit:check && npm run data:schema:check",
     "check:runtime-network": "tsx tools/quality/check-runtime-network.ts",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network"
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run data:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

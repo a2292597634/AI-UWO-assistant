@@ -28,6 +28,7 @@
    - Exit: clean `miniprogram/` source root, TypeScript compilation enabled, lint/format/typecheck/test commands passing, no template login or remote avatar code.
 2. **Source audit and canonical schema**
    - Exit: a field inventory, audited `sk0`–`sk5` mapping, schemas for officers/skills/dictionaries/assets, and representative fixtures.
+   - Deliverables: [audit report](../../data-audit/phase-2-audit-report.md), [schemas](../../../data/schema/)
 3. **One-time voyage.tw importer**
    - Exit: reproducible source snapshot, provenance manifest, complete record-accounting report, and validated canonical candidate data.
 4. **Local asset pipeline and package experiment**
