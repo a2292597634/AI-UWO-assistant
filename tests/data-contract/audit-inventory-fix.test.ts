@@ -147,4 +147,15 @@ describe('source inventory review regressions', () => {
       validateAuditInventory({ ...first, fields: [...first.fields].reverse() }),
     )
   })
+
+  it('rejects an unaccounted skill field when no enums are supplied', () => {
+    const findings = validateAuditInventory({
+      officers: {},
+      skills: { skill_1: { name: 'x' } },
+      fields: [],
+      enums: [],
+    })
+
+    expect(findings.map((finding) => finding.code)).toContain('AUDIT_FIELD_UNACCOUNTED')
+  })
 })

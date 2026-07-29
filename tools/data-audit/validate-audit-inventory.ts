@@ -427,6 +427,23 @@ export const validateAuditInventory = (input: AuditInventoryInput): AuditFinding
       )
     }
   }
+  for (const field of observed) {
+    if (
+      !input.fields.some(
+        (record) => record.entity === field.entity && record.sourcePath === field.sourcePath,
+      )
+    ) {
+      findings.push(
+        finding(
+          'AUDIT_FIELD_UNACCOUNTED',
+          field.sourcePath,
+          field.entity,
+          'Observed source field has no disposition.',
+          'Add exactly one approved field inventory record.',
+        ),
+      )
+    }
+  }
   return findings.sort((a, b) =>
     [a.code, a.entityType, a.entityId, a.path, stableValue(a.observedValue)]
       .join('\0')
