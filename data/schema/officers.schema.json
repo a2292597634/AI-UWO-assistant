@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "rarityId",
+    "typeId",
+    "genderId",
+    "jobId",
+    "nationalityId",
+    "languages",
+    "skills",
+    "recruitment",
+    "portraitId",
+    "displayOrder",
+    "sourceRefs"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "rarityId": { "type": "string", "minLength": 1 },
+    "typeId": { "type": "string", "minLength": 1 },
+    "genderId": { "type": "string", "minLength": 1 },
+    "jobId": { "type": "string", "minLength": 1 },
+    "nationalityId": { "type": "string", "minLength": 1 },
+    "languages": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["languageId", "level"],
+        "properties": {
+          "languageId": { "type": "string", "minLength": 1 },
+          "level": { "type": "integer" }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skillId", "kind", "sourceGroup", "slot", "unlockLevel", "level"],
+        "properties": {
+          "skillId": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["active", "passive"] },
+          "sourceGroup": { "enum": ["sk0", "sk1", "sk2", "sk3", "sk4", "sk5"] },
+          "slot": { "type": "integer" },
+          "unlockLevel": { "type": "integer" },
+          "level": { "type": "integer" }
+        }
+      }
+    },
+    "recruitment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cityIds", "requirementId", "requiredOfficerIds", "note"],
+      "properties": {
+        "cityIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "requirementId": { "type": ["string", "null"] },
+        "requiredOfficerIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "portraitId": { "type": "string", "minLength": 1 },
+    "displayOrder": { "type": "integer" },
+    "sourceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voyageTw"],
+      "properties": {
+        "voyageTw": { "type": "string", "minLength": 1 }
+      }
+    },
+    "maintenanceNote": { "type": "string", "minLength": 1 }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "asset_test",
+  "kind": "portrait",
+  "ownerType": "officer",
+  "ownerId": "officer_test",
+  "source": {
+    "url": "https://example.test/portrait.png",
+    "originalFilename": "portrait.png",
+    "mimeType": "image/png",
+    "byteSize": 1,
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "width": 1,
+    "height": 1
+  }
+}

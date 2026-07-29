@@ -1,0 +1,6 @@
+{
+  "id": "dictionary_test",
+  "name": "Test Dictionary Item",
+  "displayOrder": 1,
+  "sourceRefs": { "voyageTw": "dictionaryT001" }
+}

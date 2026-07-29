@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "contentVersion": "1.0.0",
+  "updatedAt": "2026-07-29T00:00:00Z",
+  "sourceSnapshot": "fixture-snapshot",
+  "counts": {
+    "officers": 1,
+    "skills": 1,
+    "assets": 1,
+    "dictionaryItems": 1
+  }
+}

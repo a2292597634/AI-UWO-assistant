@@ -1,0 +1,29 @@
+{
+  "id": "officer_test",
+  "name": "Test Officer",
+  "rarityId": "rarity_1",
+  "typeId": "type_1",
+  "genderId": "gender_1",
+  "jobId": "job_1",
+  "nationalityId": "nationality_1",
+  "languages": [{ "languageId": "language_1", "level": 1 }],
+  "skills": [
+    {
+      "skillId": "skill_1",
+      "kind": "active",
+      "sourceGroup": "sk0",
+      "slot": 0,
+      "unlockLevel": 1,
+      "level": 1
+    }
+  ],
+  "recruitment": {
+    "cityIds": [],
+    "requirementId": null,
+    "requiredOfficerIds": [],
+    "note": null
+  },
+  "portraitId": "asset_portrait_test",
+  "displayOrder": 1,
+  "sourceRefs": { "voyageTw": "chasT001" }
+}

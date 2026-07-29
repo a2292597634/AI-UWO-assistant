@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contentVersion", "updatedAt", "sourceSnapshot", "counts"],
+  "properties": {
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "contentVersion": { "type": "string", "minLength": 1 },
+    "updatedAt": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "sourceSnapshot": { "type": "string", "minLength": 1 },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["officers", "skills", "assets", "dictionaryItems"],
+      "properties": {
+        "officers": { "type": "integer", "minimum": 0 },
+        "skills": { "type": "integer", "minimum": 0 },
+        "assets": { "type": "integer", "minimum": 0 },
+        "dictionaryItems": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "displayOrder", "sourceRefs"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "displayOrder": { "type": "integer" },
+    "sourceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voyageTw"],
+      "properties": {
+        "voyageTw": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

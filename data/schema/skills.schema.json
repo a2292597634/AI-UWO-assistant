@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "categoryId", "description", "iconId", "sourceRefs"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "categoryId": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "iconId": { "type": "string", "minLength": 1 },
+    "sourceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voyageTw"],
+      "properties": {
+        "voyageTw": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

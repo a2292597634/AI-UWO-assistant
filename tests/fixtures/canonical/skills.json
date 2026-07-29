@@ -1,0 +1,8 @@
+{
+  "id": "skill_test",
+  "name": "Test Skill",
+  "categoryId": "category_1",
+  "description": "Test description.",
+  "iconId": "asset_skill_test",
+  "sourceRefs": { "voyageTw": "skillT001" }
+}
