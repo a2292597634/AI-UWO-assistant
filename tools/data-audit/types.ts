@@ -4,7 +4,7 @@ export type FindingSeverity = 'error' | 'warning'
 export interface SourceFieldRecord {
   entity: 'officer' | 'skill' | 'asset' | 'dataset'
   sourcePath: string
-  observedTypes: Array<'array' | 'boolean' | 'null' | 'number' | 'object' | 'string'>
+  observedTypes: ReadonlyArray<'array' | 'boolean' | 'null' | 'number' | 'object' | 'string'>
   optional: boolean
   nullable: boolean
   disposition: FieldDisposition
@@ -19,6 +19,8 @@ export interface SourceEnumValue {
   sourceValue: string
   canonicalId: string
   evidenceOfficerIds: string[]
+  status?: 'approved' | 'anomaly'
+  reason?: string | null
 }
 
 export interface SkillMappingRecord {

@@ -274,5 +274,41 @@
     "transform": null,
     "reason": "Representative samples do not establish a V1 domain meaning.",
     "evidenceOfficerIds": ["chasab001"]
+  },
+  {
+    "entity": "skill",
+    "sourcePath": "name",
+    "observedTypes": ["string"],
+    "optional": false,
+    "nullable": false,
+    "disposition": "canonical",
+    "canonicalPath": "displayName",
+    "transform": null,
+    "reason": "Captured skill name is the canonical display name.",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "entity": "skill",
+    "sourcePath": "description",
+    "observedTypes": ["string"],
+    "optional": false,
+    "nullable": false,
+    "disposition": "canonical",
+    "canonicalPath": "description",
+    "transform": null,
+    "reason": "Captured skill description is canonical text.",
+    "evidenceOfficerIds": ["chasT089"]
+  },
+  {
+    "entity": "skill",
+    "sourcePath": "sourceCategoryId",
+    "observedTypes": ["null"],
+    "optional": false,
+    "nullable": true,
+    "disposition": "archive-only",
+    "canonicalPath": null,
+    "transform": null,
+    "reason": "All twenty captured source category IDs are explicitly null.",
+    "evidenceOfficerIds": ["chasT089"]
   }
 ]

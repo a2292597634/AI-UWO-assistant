@@ -100,10 +100,11 @@ const listObservedEnums = (officers: Record<string, unknown>): SourceEnumValue[]
 export interface AuditInventoryInput {
   officers: Record<string, unknown>
   fields: SourceFieldRecord[]
+  skills?: Record<string, unknown>
   enums: SourceEnumValue[]
 }
 
-export const validateAuditInventory = (input: AuditInventoryInput): AuditFinding[] => {
+const validateAuditInventoryLegacy = (input: AuditInventoryInput): AuditFinding[] => {
   const findings: AuditFinding[] = []
   const observedPaths = listObservedOfficerPaths(input.officers)
   const fieldsByPath = new Map<string, SourceFieldRecord[]>()
@@ -259,4 +260,178 @@ export const validateAuditInventory = (input: AuditInventoryInput): AuditFinding
   }
 
   return sortFindings(findings)
+}
+
+type ObservedField = {
+  entity: SourceFieldRecord['entity']
+  sourcePath: string
+  observedTypes: SourceFieldRecord['observedTypes']
+  optional: boolean
+  nullable: boolean
+}
+
+const stableValue = (value: unknown): string => JSON.stringify(value) ?? String(value)
+
+const listObservedFields = (
+  entity: SourceFieldRecord['entity'],
+  records: Record<string, unknown>,
+): ObservedField[] => {
+  const values = new Map<string, Set<SourceFieldRecord['observedTypes'][number]>>()
+  const present = new Map<string, number>()
+  const typeOf = (value: unknown): SourceFieldRecord['observedTypes'][number] => {
+    if (value === null) return 'null'
+    if (Array.isArray(value)) return 'array'
+    return typeof value as SourceFieldRecord['observedTypes'][number]
+  }
+  for (const record of Object.values(records)) {
+    const paths = new Set<string>()
+    const visit = (value: unknown, segments: string[]): void => {
+      if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+        const path = segments.join('.')
+        paths.add(path)
+        const types = values.get(path) ?? new Set()
+        types.add(typeOf(value))
+        values.set(path, types)
+        return
+      }
+      for (const [key, child] of Object.entries(value)) {
+        const normalized =
+          entity === 'officer' && segments.length === 0 && /^skill[A-Za-z0-9]+$/.test(key)
+            ? 'skill*'
+            : entity === 'officer' && dynamicSegments.test(key)
+              ? '*'
+              : key
+        visit(child, [...segments, normalized])
+      }
+    }
+    visit(record, [])
+    for (const path of paths) present.set(path, (present.get(path) ?? 0) + 1)
+  }
+  return [...values].map(([sourcePath, types]) => ({
+    entity,
+    sourcePath,
+    observedTypes: [...types].sort(),
+    optional: present.get(sourcePath) !== Object.keys(records).length,
+    nullable: types.has('null'),
+  }))
+}
+
+export const validateAuditInventory = (input: AuditInventoryInput): AuditFinding[] => {
+  const findings = validateAuditInventoryLegacy(input)
+  const observed = [
+    ...listObservedFields('officer', input.officers),
+    ...listObservedFields('skill', input.skills ?? {}),
+  ]
+  const byField = new Map(observed.map((field) => [`${field.entity}\0${field.sourcePath}`, field]))
+  const approved = new Set(['canonical', 'derived', 'archive-only', 'rejected'])
+  for (const field of input.fields) {
+    const expected = byField.get(`${field.entity}\0${field.sourcePath}`)
+    if (!approved.has(field.disposition)) {
+      findings.push(
+        finding(
+          'AUDIT_FIELD_DISPOSITION_INVALID',
+          field.sourcePath,
+          field.disposition,
+          'Field disposition is not approved.',
+          'Use an approved disposition.',
+        ),
+      )
+    }
+    if (expected === undefined && !(field.entity === 'skill' && input.skills === undefined)) {
+      findings.push(
+        finding(
+          'AUDIT_FIELD_UNOBSERVED',
+          field.sourcePath,
+          field.entity,
+          'Inventory field is not observed.',
+          'Remove it or capture evidence.',
+        ),
+      )
+    } else if (
+      expected !== undefined &&
+      (stableValue(expected.observedTypes) !== stableValue([...field.observedTypes].sort()) ||
+        expected.optional !== field.optional ||
+        expected.nullable !== field.nullable)
+    ) {
+      findings.push(
+        finding(
+          'AUDIT_FIELD_METADATA_MISMATCH',
+          field.sourcePath,
+          expected,
+          'Inventory metadata does not match observed fixture facts.',
+          'Record the observed types, optionality, and nullability.',
+        ),
+      )
+    }
+  }
+  const observedEnums = listObservedEnums(input.officers)
+  const enumSet = new Set(
+    observedEnums.map((value) => enumKey(value.sourcePath, value.sourceValue)),
+  )
+  for (const value of input.enums) {
+    if (!enumSet.has(enumKey(value.sourcePath, value.sourceValue))) {
+      findings.push(
+        finding(
+          'AUDIT_ENUM_UNOBSERVED',
+          value.sourcePath,
+          value.sourceValue,
+          'Inventory enum is not observed.',
+          'Remove it or capture evidence.',
+        ),
+      )
+      for (const field of observed) {
+        if (
+          !input.fields.some(
+            (record) => record.entity === field.entity && record.sourcePath === field.sourcePath,
+          )
+        ) {
+          findings.push(
+            finding(
+              'AUDIT_FIELD_UNACCOUNTED',
+              field.sourcePath,
+              field.entity,
+              'Observed source field has no disposition.',
+              'Add exactly one approved field inventory record.',
+            ),
+          )
+        }
+      }
+    }
+    if (
+      value.sourcePath === 'city' &&
+      value.sourceValue === 'chasT051' &&
+      value.status !== 'anomaly'
+    ) {
+      findings.push(
+        finding(
+          'AUDIT_CITY_ANOMALY_UNMARKED',
+          value.sourcePath,
+          value.sourceValue,
+          'Known city-to-officer anomaly is not marked.',
+          'Mark it as an anomaly with a reason.',
+        ),
+      )
+    }
+    if (
+      value.status === 'anomaly' &&
+      (value.reason === null || value.reason === undefined || value.reason.trim() === '')
+    ) {
+      findings.push(
+        finding(
+          'AUDIT_ENUM_ANOMALY_REASON_MISSING',
+          value.sourcePath,
+          value.sourceValue,
+          'Anomaly lacks a reason.',
+          'Record a concrete anomaly reason.',
+        ),
+      )
+    }
+  }
+  return findings.sort((a, b) =>
+    [a.code, a.entityType, a.entityId, a.path, stableValue(a.observedValue)]
+      .join('\0')
+      .localeCompare(
+        [b.code, b.entityType, b.entityId, b.path, stableValue(b.observedValue)].join('\0'),
+      ),
+  )
 }
