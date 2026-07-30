@@ -1,3 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const meta = require('../../generated/dataset-meta') as {
+  officerCount: number
+  skillCount: number
+  contentVersion: string
+}
+
 Page({
   data: {
     title: '航海助手',
@@ -6,7 +13,6 @@ Page({
   },
 
   onLoad() {
-    const meta = require('../../generated/dataset-meta')
     this.setData({ count: meta.officerCount })
   },
 

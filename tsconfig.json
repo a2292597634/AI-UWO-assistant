@@ -6,12 +6,21 @@
     "strict": true,
     "noEmit": true,
     "resolveJsonModule": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "types": ["miniprogram-api-typings", "node", "vitest/globals"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["miniprogram/**/*.ts", "miniprogram/**/*.js", "tools/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
-  "exclude": ["node_modules", "archive", "miniprogram/generated"]
+  "exclude": [
+    "node_modules",
+    "archive",
+    "miniprogram/generated",
+    "miniprogram/subpkg-detail/details-*",
+    "miniprogram/subpkg-detail/detail-index.js",
+    "miniprogram/subpkg-detail/detail-loaders.js",
+    "miniprogram/subpkg-a*/imgs",
+    "miniprogram/data"
+  ]
 }
