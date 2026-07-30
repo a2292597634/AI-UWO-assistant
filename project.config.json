@@ -7,7 +7,7 @@
     "postcss": true,
     "minified": true,
     "enhance": true,
-    "useCompilerPlugins": ["typescript"],
+    "useCompilerPlugins": [],
     "minifyWXSS": true,
     "minifyWXML": true,
     "uploadWithSourceMap": true,

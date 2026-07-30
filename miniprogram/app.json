@@ -1,7 +1,8 @@
 {
   "pages": [
     "pages/home/index",
-    "pages/catalog/index"
+    "pages/catalog/index",
+    "pages/test/index"
   ],
   "subpackages": [
     {
