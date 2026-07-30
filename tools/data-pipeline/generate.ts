@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
-import { writeRuntimeData, writeShardedDetails } from './build-runtime-data'
+import { writeRuntimeData, writeShardedDetails, writeDetailIndex, writeDetailLoaders } from './build-runtime-data'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
@@ -78,6 +78,10 @@ const generate = (): void => {
 
   // Write details sharded (lazy-loaded per officer on detail page)
   writeShardedDetails(officers, skills, dictionaries, SUBPKG_DIR, iconSet, categoryFallback, globalFallback)
+
+  // Write detail lookup index and static loaders
+  writeDetailIndex(officers, SUBPKG_DIR)
+  writeDetailLoaders(SUBPKG_DIR)
 
   console.log('\nDone. Mini program loads details from subpkg-detail/ on demand.')
 }

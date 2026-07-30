@@ -2,6 +2,9 @@ archive/
 coverage/
 docs/superpowers/
 miniprogram/generated/
+miniprogram/subpkg-detail/details-*.js
+miniprogram/subpkg-detail/detail-index.js
+miniprogram/subpkg-detail/detail-loaders.js
 node_modules/
 package-lock.json
 游戏内被动技能查询截图.png

@@ -240,6 +240,42 @@ export const writeShardedDetails = (
   }
 }
 
+/** Write detail-index.js: maps every officer ID → shard number. */
+export const writeDetailIndex = (
+  officers: CanonicalOfficer[],
+  outputDir: string,
+): void => {
+  const index: Record<string, number> = {}
+  for (const o of officers) {
+    index[o.id] = detailShard(o.id)
+  }
+  writeFileSync(
+    `${outputDir}/detail-index.js`,
+    `module.exports = ${JSON.stringify(index)}\n`,
+  )
+  console.log(`  subpkg-detail/detail-index.js: ${Object.keys(index).length} entries`)
+}
+
+/** Write detail-loaders.js: static loader functions keyed by shard number. */
+export const writeDetailLoaders = (outputDir: string): void => {
+  const lines = [
+    'var loaders = [',
+    ...Array.from({ length: 10 }, (_, s) =>
+      `  function () { return require('./details-${s}.js') },`,
+    ),
+    ']',
+    '',
+    'module.exports = function loadDetail(id, index) {',
+    '  var shard = index[id]',
+    '  if (typeof shard !== "number" || !loaders[shard]) return null',
+    '  return loaders[shard]()[id] || null',
+    '}',
+    '',
+  ]
+  writeFileSync(`${outputDir}/detail-loaders.js`, lines.join('\n'))
+  console.log('  subpkg-detail/detail-loaders.js: written')
+}
+
 // ── Skills (runtime, compact: dictionary format for fast lookup) ──
 
 export type { RuntimeSkill } from '../../miniprogram/contracts/runtime-data'

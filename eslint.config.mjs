@@ -3,7 +3,17 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['archive/**', 'coverage/**', 'miniprogram/generated/**', 'node_modules/**'] },
+  {
+    ignores: [
+      'archive/**',
+      'coverage/**',
+      'miniprogram/generated/**',
+      'miniprogram/subpkg-detail/details-*.js',
+      'miniprogram/subpkg-detail/detail-index.js',
+      'miniprogram/subpkg-detail/detail-loaders.js',
+      'node_modules/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
