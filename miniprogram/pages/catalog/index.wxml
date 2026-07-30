@@ -76,7 +76,7 @@
       <view class="row-info">
         <view class="row-top">
           <text class="row-name">{{item.name}}</text>
-          <text class="row-rarity">{{item.rarityName}}</text>
+          <view class="rarity-badge rarity-{{item.rarityClass}}"><text class="rarity-letter">{{item.rarityName}}</text></view>
         </view>
         <view class="row-meta">
           <text class="row-job">{{item.jobName}}</text>

@@ -29,10 +29,11 @@ describe('buildCatalog', () => {
     expect(first.passiveSkills.length).toBeGreaterThan(0)
   })
 
-  it('converts rarity to star characters', () => {
+  it('converts rarity to grade letters', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     const r5 = catalog.find((o) => o.rarityId === 'rarity_5')!
-    expect(r5.rarityName).toBe('★★★★★')
+    expect(r5.rarityName).toBe('S')
+    expect(r5.rarityClass).toBe('s')
   })
 })
 
@@ -56,7 +57,7 @@ describe('buildDictionaries (runtime)', () => {
 
     expect(dicts.rarities.length).toBeGreaterThan(0)
     const r5 = dicts.rarities.find((r) => r.id === 'rarity_5')
-    expect(r5!.name).toBe('★★★★★')
+    expect(r5!.name).toBe('S')
     // Language IDs should be short (no prefix) for runtime
     expect(dicts.languages[0]!.id).not.toContain('language_')
   })

@@ -5,6 +5,13 @@
 .hero-fb-text { font-size: 120rpx; color: #e8d5a3; font-weight: bold; opacity: 0.4; }
 .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 40rpx 32rpx 24rpx; background: linear-gradient(transparent, rgba(47,48,43,0.85)); }
 .hero-rarity { font-size: 22rpx; color: #e8d5a3; }
+/* Rarity grade badges */
+.rarity-badge { display: inline-flex; align-items: center; justify-content: center; width: 44rpx; height: 44rpx; border-radius: 8rpx; flex-shrink: 0; }
+.rarity-letter { font-size: 24rpx; font-weight: bold; color: #fff; line-height: 1; }
+.rarity-s { background: #c4a45a; }
+.rarity-a { background: #8a8a8a; }
+.rarity-b { background: #b87333; }
+.rarity-c { background: #5a5a4e; }
 .hero-name { font-size: 40rpx; font-weight: bold; color: #fff; display: block; margin: 8rpx 0; }
 .hero-meta { display: flex; }
 .hero-tag { font-size: 24rpx; color: #c4b99a; padding: 4rpx 16rpx; background: rgba(255,255,255,0.1); border-radius: 8rpx; margin-right: 16rpx; }

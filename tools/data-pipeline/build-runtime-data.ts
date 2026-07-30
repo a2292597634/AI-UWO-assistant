@@ -3,14 +3,20 @@ import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import
 
 // ── Helpers ──
 
-const RARITY_STARS: Record<string, string> = {
-  '1': '★', '2': '★★', '3': '★★★', '4': '★★★★',
-  '5': '★★★★★', '6': '★★★★★★', '7': '★★★★★★★',
+/** Rarity grade letters: S (best) → A → B → C (worst). */
+const RARITY_GRADE: Record<string, string> = {
+  '2': 'C', '3': 'B', '4': 'A', '5': 'S',
+  '6': 'S', '7': 'S',
 }
 
-const rarityStar = (rarityId: string): string => {
+const rarityGrade = (rarityId: string): string => {
   const num = rarityId.replace('rarity_', '')
-  return RARITY_STARS[num] ?? rarityId
+  return RARITY_GRADE[num] ?? 'C'
+}
+
+/** CSS class suffix for rarity-grade badge color. */
+const rarityClass = (rarityId: string): string => {
+  return rarityGrade(rarityId).toLowerCase()
 }
 
 /** Strip canonical prefix like `language_` → bare ID `lang70`. */
@@ -45,7 +51,8 @@ export interface CatalogEntry {
   id: string
   name: string
   rarityId: string
-  rarityName: string
+  rarityName: string    // grade letter: S/A/B/C
+  rarityClass: string   // CSS class suffix for badge color
   typeId: string
   typeName: string
   genderId: string
@@ -82,7 +89,8 @@ export const buildCatalog = (
       id: o.id,
       name: nameTrimmed,
       rarityId: o.rarityId,
-      rarityName: rarityStar(o.rarityId),
+      rarityName: rarityGrade(o.rarityId),
+      rarityClass: rarityClass(o.rarityId),
       typeId: o.typeId,
       typeName: dictName('types', o.typeId),
       genderId: o.genderId,
@@ -135,7 +143,7 @@ export const buildDetails = (
   for (const o of officers) {
     result[o.id] = {
       n: o.name,
-      rn: rarityStar(o.rarityId),
+      rn: rarityGrade(o.rarityId),
       tn: dictName('types', o.typeId),
       gn: dictName('genders', o.genderId),
       jn: dictName('jobs', o.jobId),
@@ -254,7 +262,7 @@ export const buildDictionaries = (
   const map = (group: string): RuntimeDictItem[] =>
     (dictionaries[group] ?? []).map((d) => ({
       id: d.id,
-      name: group === 'rarities' ? rarityStar(d.id) : d.name,
+      name: group === 'rarities' ? rarityGrade(d.id) : d.name,
     }))
 
   return {

@@ -4634,186 +4634,186 @@
   "skillCategories": [
     {
       "id": "skill_category_trade_price_adjustment",
-      "name": "skill_category_trade_price_adjustment",
+      "name": "價格調整",
       "displayOrder": 0,
       "sourceRefs": {
-        "voyageTw": "trade_price_adjustment"
+        "voyageTw": "menuskt2"
       }
     },
     {
       "id": "skill_category_trade_expertise",
-      "name": "skill_category_trade_expertise",
+      "name": "交易專精",
       "displayOrder": 1,
       "sourceRefs": {
-        "voyageTw": "trade_expertise"
+        "voyageTw": "menuskt1"
       }
     },
     {
       "id": "skill_category_adventure",
-      "name": "skill_category_adventure",
+      "name": "冒險",
       "displayOrder": 2,
       "sourceRefs": {
-        "voyageTw": "adventure"
+        "voyageTw": "menuskt16"
       }
     },
     {
       "id": "skill_category_naval_passive_other",
-      "name": "skill_category_naval_passive_other",
+      "name": "海戰被動-其他",
       "displayOrder": 3,
       "sourceRefs": {
-        "voyageTw": "naval_passive_other"
+        "voyageTw": "menuskt13"
       }
     },
     {
       "id": "skill_category_barter",
-      "name": "skill_category_barter",
+      "name": "以物易物",
       "displayOrder": 4,
       "sourceRefs": {
-        "voyageTw": "barter"
+        "voyageTw": "menuskt3"
       }
     },
     {
       "id": "skill_category_innate_buff",
-      "name": "skill_category_innate_buff",
+      "name": "天生增益",
       "displayOrder": 5,
       "sourceRefs": {
-        "voyageTw": "innate_buff"
+        "voyageTw": "menuskt19"
       }
     },
     {
       "id": "skill_category_naval_active_enhancement",
-      "name": "skill_category_naval_active_enhancement",
+      "name": "海戰主動-強化",
       "displayOrder": 6,
       "sourceRefs": {
-        "voyageTw": "naval_active_enhancement"
+        "voyageTw": "menuskt11"
       }
     },
     {
       "id": "skill_category_combat_other",
-      "name": "skill_category_combat_other",
+      "name": "戰鬥-其他",
       "displayOrder": 7,
       "sourceRefs": {
-        "voyageTw": "combat_other"
+        "voyageTw": "menuskt22"
       }
     },
     {
       "id": "skill_category_admiral",
-      "name": "skill_category_admiral",
+      "name": "提督技能",
       "displayOrder": 8,
       "sourceRefs": {
-        "voyageTw": "admiral"
+        "voyageTw": "menuskt18"
       }
     },
     {
       "id": "skill_category_medicine",
-      "name": "skill_category_medicine",
+      "name": "醫療",
       "displayOrder": 9,
       "sourceRefs": {
-        "voyageTw": "medicine"
+        "voyageTw": "menuskt15"
       }
     },
     {
       "id": "skill_category_naval_passive_defense",
-      "name": "skill_category_naval_passive_defense",
+      "name": "海戰被動-防禦",
       "displayOrder": 10,
       "sourceRefs": {
-        "voyageTw": "naval_passive_defense"
+        "voyageTw": "menuskt12"
       }
     },
     {
       "id": "skill_category_naval_passive_boarding",
-      "name": "skill_category_naval_passive_boarding",
+      "name": "海戰被動-衝破",
       "displayOrder": 11,
       "sourceRefs": {
-        "voyageTw": "naval_passive_boarding"
+        "voyageTw": "menuskt8"
       }
     },
     {
       "id": "skill_category_salvage",
-      "name": "skill_category_salvage",
+      "name": "打撈",
       "displayOrder": 12,
       "sourceRefs": {
-        "voyageTw": "salvage"
+        "voyageTw": "menuskt21"
       }
     },
     {
       "id": "skill_category_naval_active_boarding",
-      "name": "skill_category_naval_active_boarding",
+      "name": "海戰主動-衝破",
       "displayOrder": 13,
       "sourceRefs": {
-        "voyageTw": "naval_active_boarding"
+        "voyageTw": "menuskt7"
       }
     },
     {
       "id": "skill_category_negotiation",
-      "name": "skill_category_negotiation",
+      "name": "協商",
       "displayOrder": 14,
       "sourceRefs": {
-        "voyageTw": "negotiation"
+        "voyageTw": "menuskt4"
       }
     },
     {
       "id": "skill_category_repair",
-      "name": "skill_category_repair",
+      "name": "修復",
       "displayOrder": 15,
       "sourceRefs": {
-        "voyageTw": "repair"
+        "voyageTw": "menuskt14"
       }
     },
     {
       "id": "skill_category_navigation",
-      "name": "skill_category_navigation",
+      "name": "航海",
       "displayOrder": 16,
       "sourceRefs": {
-        "voyageTw": "navigation"
+        "voyageTw": "menuskt17"
       }
     },
     {
       "id": "skill_category_naval_passive_melee",
-      "name": "skill_category_naval_passive_melee",
+      "name": "海戰被動-肉搏",
       "displayOrder": 17,
       "sourceRefs": {
-        "voyageTw": "naval_passive_melee"
+        "voyageTw": "menuskt6"
       }
     },
     {
       "id": "skill_category_naval_active_melee",
-      "name": "skill_category_naval_active_melee",
+      "name": "海戰主動-肉搏",
       "displayOrder": 18,
       "sourceRefs": {
-        "voyageTw": "naval_active_melee"
+        "voyageTw": "menuskt5"
       }
     },
     {
       "id": "skill_category_certificate",
-      "name": "skill_category_certificate",
+      "name": "證書",
       "displayOrder": 19,
       "sourceRefs": {
-        "voyageTw": "certificate"
+        "voyageTw": "menuskt_cert"
       }
     },
     {
       "id": "skill_category_naval_passive_cannon",
-      "name": "skill_category_naval_passive_cannon",
+      "name": "海戰被動-砲擊",
       "displayOrder": 20,
       "sourceRefs": {
-        "voyageTw": "naval_passive_cannon"
+        "voyageTw": "menuskt10"
       }
     },
     {
       "id": "skill_category_naval_active_cannon",
-      "name": "skill_category_naval_active_cannon",
+      "name": "海戰主動-砲擊",
       "displayOrder": 21,
       "sourceRefs": {
-        "voyageTw": "naval_active_cannon"
+        "voyageTw": "menuskt9"
       }
     },
     {
       "id": "skill_category_innate_debuff",
-      "name": "skill_category_innate_debuff",
+      "name": "天生減益",
       "displayOrder": 22,
       "sourceRefs": {
-        "voyageTw": "innate_debuff"
+        "voyageTw": "menuskt20"
       }
     }
   ]

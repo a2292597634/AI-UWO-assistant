@@ -72,15 +72,14 @@ const DICT_GROUPS: DictGroup[] = [
 
 // ── Name resolution ──
 
-/** Hardcoded rarity star mapping. */
-const RARITY_STARS: Record<string, string> = {
-  '1': '★',
-  '2': '★★',
-  '3': '★★★',
-  '4': '★★★★',
-  '5': '★★★★★',
-  '6': '★★★★★★',
-  '7': '★★★★★★★',
+/** Rarity grade mapping: S (best) → A → B → C. */
+const RARITY_GRADE: Record<string, string> = {
+  '2': 'C',
+  '3': 'B',
+  '4': 'A',
+  '5': 'S',
+  '6': 'S',
+  '7': 'S',
 }
 
 /**
@@ -105,7 +104,7 @@ const resolveDictName = (
   if (languageMap[canonicalId]) return languageMap[canonicalId]
 
   // Hardcoded fallbacks
-  if (groupKey === 'rarities') return RARITY_STARS[sourceValue] ?? `★×${sourceValue}`
+  if (groupKey === 'rarities') return RARITY_GRADE[sourceValue] ?? 'C'
   if (groupKey === 'genders')
     return sourceValue === 'f' ? '女性' : sourceValue === 'm' ? '男性' : sourceValue
   if (groupKey === 'nationalities' && (sourceValue === 'unknown' || sourceValue === ''))

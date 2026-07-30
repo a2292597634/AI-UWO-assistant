@@ -5,7 +5,7 @@
       <text class="hero-fb-text">{{officer.name[0]}}</text>
     </view>
     <view class="hero-overlay">
-      <text class="hero-rarity">{{officer.rarityName}}</text>
+      <view class="rarity-badge rarity-{{officer.rarityName}}"><text class="rarity-letter">{{officer.rarityName}}</text></view>
       <text class="hero-name">{{officer.name}}</text>
       <view class="hero-meta">
         <text class="hero-tag">{{officer.jobName}}</text>

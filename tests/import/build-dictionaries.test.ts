@@ -52,7 +52,7 @@ const sampleSkills: CanonicalSkill[] = [
 // Mock lang_js[1] entries
 const languageMap: Record<string, string> = {
   rank_5: 'rarity_5', // fallback
-  '5': '★★★★★',
+  '5': 'S',
   class_2: '冒險',
   f: '女性',
   gender_f: '女性',
@@ -83,7 +83,7 @@ describe('buildDictionaries', () => {
     // Verify specific entries
     const rarity5 = dictionaries.rarities!.find((r) => r.id === 'rarity_5')
     expect(rarity5).toBeDefined()
-    expect(rarity5!.name).toBe('★★★★★')
+    expect(rarity5!.name).toBe('S')
     expect(rarity5!.sourceRefs.voyageTw).toBe('5')
 
     const city = dictionaries.cities!.find((c) => c.id === 'city_town4105')
@@ -98,7 +98,7 @@ describe('buildDictionaries', () => {
     expect(anomalies).toEqual([])
   })
 
-  it('falls back to star characters for rarity names', () => {
+  it('falls back to grade letters for rarity names', () => {
     const officers: CanonicalOfficer[] = [
       {
         ...sampleOfficers[0]!,
@@ -109,7 +109,7 @@ describe('buildDictionaries', () => {
     const { dictionaries } = buildDictionaries(officers, sampleSkills, {})
 
     const rarity3 = dictionaries.rarities!.find((r) => r.id === 'rarity_3')
-    expect(rarity3!.name).toBe('★★★')
+    expect(rarity3!.name).toBe('B')
   })
 
   it('falls back to canonical ID when no name is found', () => {

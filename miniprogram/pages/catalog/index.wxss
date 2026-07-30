@@ -26,7 +26,13 @@
 .row-top { display: flex; align-items: center; }
 .row-top .row-rarity { margin-left: 12rpx; }
 .row-name { font-size: 28rpx; font-weight: bold; color: #292a26; }
-.row-rarity { font-size: 22rpx; color: #8b6914; }
+/* Rarity grade badges */
+.rarity-badge { display: inline-flex; align-items: center; justify-content: center; width: 36rpx; height: 36rpx; border-radius: 6rpx; margin-left: 12rpx; flex-shrink: 0; }
+.rarity-letter { font-size: 22rpx; font-weight: bold; color: #fff; line-height: 1; }
+.rarity-s { background: #c4a45a; }
+.rarity-a { background: #8a8a8a; }
+.rarity-b { background: #b87333; }
+.rarity-c { background: #5a5a4e; }
 .row-meta { display: flex; margin-top: 4rpx; }
 .row-meta .row-gender { margin-left: 16rpx; }
 .row-job { font-size: 22rpx; color: #5a5a4e; }
