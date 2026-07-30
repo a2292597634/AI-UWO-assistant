@@ -71,12 +71,12 @@ declare module '../../generated/dictionaries' {
   export = dicts
 }
 
-declare module '../../detail-index' {
+declare module '../detail-index' {
   const index: Record<string, number>
   export = index
 }
 
-declare module '../../detail-loaders' {
+declare module '../detail-loaders' {
   function loadDetail(
     id: string,
     index: Record<string, number>,

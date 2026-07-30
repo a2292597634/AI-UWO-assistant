@@ -9,9 +9,9 @@
 import type { RuntimeDetailRecord } from '../../contracts/runtime-data'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const _index = require('../../detail-index') as Record<string, number>
+const _index = require('../detail-index') as Record<string, number>
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const _loadDetail = require('../../detail-loaders') as (
+const _loadDetail = require('../detail-loaders') as (
   id: string,
   index: Record<string, number>,
 ) => Record<string, unknown> | null
