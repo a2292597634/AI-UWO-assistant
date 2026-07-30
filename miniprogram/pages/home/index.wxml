@@ -3,8 +3,14 @@
     <text class="title">{{title}}</text>
     <text class="subtitle">UNCHARTED WATERS ORIGIN</text>
   </view>
-  <view class="module" aria-label="{{moduleName}}">
-    <text class="module__name">{{moduleName}}</text>
-    <text class="module__status">{{status}}</text>
+  <view class="module" bindtap="onEnterCatalog">
+    <view class="module__icon">
+      <text class="module__emoji">⚓</text>
+    </view>
+    <view class="module__body">
+      <text class="module__name">{{moduleName}}</text>
+      <text class="module__status">收錄 {{count}} 位航海士</text>
+    </view>
+    <text class="module__arrow">›</text>
   </view>
 </view>

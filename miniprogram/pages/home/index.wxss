@@ -26,11 +26,37 @@
 .module {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 20rpx;
   margin-top: 24rpx;
   padding: 24rpx;
   border: 2rpx solid #8f7848;
+  border-radius: 8rpx;
   background: #eee8da;
+}
+
+.module:active {
+  background: #ddd4bf;
+}
+
+.module__icon {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d9ceb5;
+  border-radius: 50%;
+}
+
+.module__emoji {
+  font-size: 36rpx;
+}
+
+.module__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 }
 
 .module__name {
@@ -41,4 +67,10 @@
 .module__status {
   color: #765f35;
   font-size: 24rpx;
+}
+
+.module__arrow {
+  font-size: 36rpx;
+  color: #8f7848;
+  font-weight: 300;
 }
