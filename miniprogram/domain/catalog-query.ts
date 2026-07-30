@@ -14,12 +14,12 @@ import type { CatalogFilterState } from '../contracts/filter-state'
  * Returns a new array — never mutates the input.
  * Results preserve input order.
  */
-export function queryCatalog(
-  catalog: readonly RuntimeCatalogEntry[],
+export function queryCatalog<T extends RuntimeCatalogEntry>(
+  catalog: readonly T[],
   skills: Readonly<Record<string, RuntimeSkill>>,
   state: Readonly<CatalogFilterState>,
-): RuntimeCatalogEntry[] {
-  let result = catalog
+): T[] {
+  let result: readonly T[] = catalog
 
   // Rarity (OR)
   if (state.selectedRarities.length > 0) {
@@ -90,7 +90,7 @@ export function queryCatalog(
     })
   }
 
-  return result as RuntimeCatalogEntry[]
+  return result as T[]
 }
 
 /** Resolve which skill IDs to check based on active/passive filter. */
