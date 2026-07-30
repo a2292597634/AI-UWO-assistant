@@ -1,9 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const meta = require('../../generated/dataset-meta') as {
-  officerCount: number
-  skillCount: number
-  contentVersion: string
-}
+import { getDatasetMeta } from '../../runtime/main-data-store'
 
 Page({
   data: {
@@ -13,6 +8,7 @@ Page({
   },
 
   onLoad() {
+    const meta = getDatasetMeta()
     this.setData({ count: meta.officerCount })
   },
 
