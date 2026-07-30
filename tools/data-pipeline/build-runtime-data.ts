@@ -1,5 +1,12 @@
 import { writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
+import type {
+  RuntimeCatalogEntry,
+  RuntimeSkill,
+  RuntimeDictionaryItem,
+  RuntimeDictionaries,
+  RuntimeDetailRecord,
+} from '../../miniprogram/contracts/runtime-data'
 
 // ── Helpers ──
 
@@ -96,30 +103,13 @@ const iconPath = (
 
 // ── Catalog (compact: skill IDs only, names/icons looked up from skills.js) ──
 
-export interface CatalogEntry {
-  id: string
-  name: string
-  rarityId: string
-  rarityName: string    // grade letter: S/A/B/C
-  rarityClass: string   // CSS class suffix for badge color
-  typeId: string
-  typeName: string
-  genderId: string
-  genderLabel: string
-  jobId: string
-  jobName: string
-  portraitPath: string
-  languages: string[]  // just language IDs (short form, no prefix)
-  activeSkills: string[]  // just skill IDs
-  passiveSkills: string[]  // just skill IDs
-  searchAliases: string[]  // name parts for search matching
-}
+export type { RuntimeCatalogEntry } from '../../miniprogram/contracts/runtime-data'
 
 export const buildCatalog = (
   officers: CanonicalOfficer[],
   _skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
-): CatalogEntry[] => {
+): RuntimeCatalogEntry[] => {
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? unprefix(id)
 
@@ -155,28 +145,8 @@ export const buildCatalog = (
   })
 }
 
-// ── Details (compact: short field names, only WXML-used fields) ──
-// Field map: n=name, rn=rarityName, tn=typeName, gn=genderName
-//   jn=jobName, nn=nationalityName, pp=portraitPath, ls=languages, ss=skills, rc=recruitment
-//   li=languageId, lv=level, si=skillId, k=kind
-//   ul=unlockLevel, ip=iconPath, cn=cityNames/requirementName, nt=note
-
-export interface DetailEntryCompact {
-  n: string   // name
-  rn: string  // rarityName (stars)
-  tn: string  // typeName
-  gn: string  // genderName
-  jn: string  // jobName
-  nn: string  // nationalityName
-  pp: string  // portraitPath
-  ls: Array<{ li: string; lv: number; n: string }>
-  ss: Array<{
-    si: string; k: string; ul: number; lv: number; n: string; ip: string
-  }>
-  rc: {
-    cn: string[]; rn: string | null; nt: string | null
-  }
-}
+// Re-export contract types used by downstream consumers and tests
+export type { RuntimeDetailRecord } from '../../miniprogram/contracts/runtime-data'
 
 export const buildDetails = (
   officers: CanonicalOfficer[],
@@ -185,14 +155,14 @@ export const buildDetails = (
   iconSet?: Set<string>,
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
-): Record<string, DetailEntryCompact> => {
+): Record<string, RuntimeDetailRecord> => {
   const skillMap = new Map(skills.map((s) => [s.id, s]))
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? id
   const _iconSet = iconSet ?? new Set<string>()
   const _catFB = categoryFallback ?? new Map<string, string>()
 
-  const result: Record<string, DetailEntryCompact> = {}
+  const result: Record<string, RuntimeDetailRecord> = {}
 
   for (const o of officers) {
     result[o.id] = {
@@ -254,7 +224,7 @@ export const writeShardedDetails = (
   const all = buildDetails(officers, skills, dictionaries, iconSet, categoryFallback, globalFallback)
 
   // Group by shard
-  const shards: Record<string, DetailEntryCompact>[] = Array.from({ length: 10 }, () => ({}))
+  const shards: Record<string, RuntimeDetailRecord>[] = Array.from({ length: 10 }, () => ({}))
   for (const [id, entry] of Object.entries(all)) {
     shards[detailShard(id)]![id] = entry
   }
@@ -272,12 +242,7 @@ export const writeShardedDetails = (
 
 // ── Skills (runtime, compact: dictionary format for fast lookup) ──
 
-export interface RuntimeSkill {
-  id: string
-  n: string    // name
-  cat: string  // categoryId
-  ip: string   // iconPath
-}
+export type { RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
 
 export const buildSkills = (
   skills: CanonicalSkill[],
@@ -302,26 +267,14 @@ export const buildSkills = (
 
 // ── Dictionaries (runtime) ──
 
-export interface RuntimeDictItem {
-  id: string
-  name: string
-}
-
-export interface RuntimeDictionaries {
-  rarities: RuntimeDictItem[]
-  types: RuntimeDictItem[]
-  genders: RuntimeDictItem[]
-  jobs: RuntimeDictItem[]
-  languages: RuntimeDictItem[]
-  skillCategories: RuntimeDictItem[]
-}
+export type { RuntimeDictionaryItem, RuntimeDictionaries } from '../../miniprogram/contracts/runtime-data'
 
 export const buildDictionaries = (
   _officers: CanonicalOfficer[],
   _skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
 ): RuntimeDictionaries => {
-  const map = (group: string): RuntimeDictItem[] =>
+  const map = (group: string): RuntimeDictionaryItem[] =>
     (dictionaries[group] ?? []).map((d) => ({
       id: d.id,
       name: group === 'rarities' ? rarityGrade(d.id) : d.name,
