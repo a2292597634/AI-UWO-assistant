@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
 
 // ── Helpers ──
@@ -39,9 +39,58 @@ const portraitPath = (officerId: string): string => {
   return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
 }
 
-/** Skill icon path from skill ID. */
-const iconPath = (skillId: string): string => {
-  const filename = `${skillId.replace(/^skill_/, 'skill_')}.png`
+/**
+ * Build a set of all existing skill icon filenames across subpackages.
+ * Used to detect when a skill variant lacks its own icon and needs a fallback.
+ */
+const buildIconSet = (assetDirs: string[]): Set<string> => {
+  const set = new Set<string>()
+  for (const dir of assetDirs) {
+    if (!existsSync(dir)) continue
+    for (const f of readdirSync(dir)) {
+      if (f.startsWith('skill_')) set.add(f)
+    }
+  }
+  return set
+}
+
+/**
+ * Build a fallback map: categoryId → valid skill icon path.
+ * When a variant skill has no icon of its own, we use any base skill icon
+ * from the same category.
+ */
+const buildCategoryFallback = (
+  skills: CanonicalSkill[],
+  iconSet: Set<string>,
+  makePath: (filename: string) => string,
+): Map<string, string> => {
+  const fallback = new Map<string, string>()
+  for (const s of skills) {
+    if (fallback.has(s.categoryId)) continue // already have one
+    const fname = `${s.id}.png`
+    if (iconSet.has(fname)) {
+      fallback.set(s.categoryId, makePath(fname))
+    }
+  }
+  return fallback
+}
+
+/** Skill icon path from skill ID, with fallback for variant skills. */
+const iconPath = (
+  skillId: string,
+  iconSet: Set<string>,
+  categoryFallback: Map<string, string>,
+  categoryId: string,
+  globalFallback?: string,
+): string => {
+  const filename = `${skillId}.png`
+  if (iconSet.has(filename)) {
+    return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
+  }
+  // Variant skill (e.g. skillT*) — use category fallback, then global fallback
+  const catFB = categoryFallback.get(categoryId)
+  if (catFB) return catFB
+  if (globalFallback) return globalFallback
   return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
 }
 
@@ -133,10 +182,15 @@ export const buildDetails = (
   officers: CanonicalOfficer[],
   skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
+  iconSet?: Set<string>,
+  categoryFallback?: Map<string, string>,
+  globalFallback?: string,
 ): Record<string, DetailEntryCompact> => {
   const skillMap = new Map(skills.map((s) => [s.id, s]))
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? id
+  const _iconSet = iconSet ?? new Set<string>()
+  const _catFB = categoryFallback ?? new Map<string, string>()
 
   const result: Record<string, DetailEntryCompact> = {}
 
@@ -162,7 +216,7 @@ export const buildDetails = (
           ul: rel.unlockLevel,
           lv: rel.level,
           n: sk?.name ?? rel.skillId,
-          ip: iconPath(rel.skillId),
+          ip: iconPath(rel.skillId, _iconSet, _catFB, sk?.categoryId ?? '', globalFallback),
         }
       }),
       rc: {
@@ -193,8 +247,11 @@ export const writeShardedDetails = (
   skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
   outputDir: string,
+  iconSet?: Set<string>,
+  categoryFallback?: Map<string, string>,
+  globalFallback?: string,
 ): void => {
-  const all = buildDetails(officers, skills, dictionaries)
+  const all = buildDetails(officers, skills, dictionaries, iconSet, categoryFallback, globalFallback)
 
   // Group by shard
   const shards: Record<string, DetailEntryCompact>[] = Array.from({ length: 10 }, () => ({}))
@@ -225,14 +282,19 @@ export interface RuntimeSkill {
 export const buildSkills = (
   skills: CanonicalSkill[],
   _dictionaries: Record<string, DictionaryItem[]>,
+  iconSet?: Set<string>,
+  categoryFallback?: Map<string, string>,
+  globalFallback?: string,
 ): Record<string, RuntimeSkill> => {
+  const _iconSet = iconSet ?? new Set<string>()
+  const _catFB = categoryFallback ?? new Map<string, string>()
   const result: Record<string, RuntimeSkill> = {}
   for (const s of skills) {
     result[s.id] = {
       id: s.id,
       n: s.name,
       cat: s.categoryId,
-      ip: iconPath(s.id),
+      ip: iconPath(s.id, _iconSet, _catFB, s.categoryId, globalFallback),
     }
   }
   return result
@@ -282,11 +344,14 @@ export const writeRuntimeData = (
   skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
   outputDir: string,
+  iconSet?: Set<string>,
+  categoryFallback?: Map<string, string>,
+  globalFallback?: string,
 ): void => {
   mkdirSync(outputDir, { recursive: true })
 
   const catalog = buildCatalog(officers, skills, dictionaries)
-  const runtimeSkills = buildSkills(skills, dictionaries)
+  const runtimeSkills = buildSkills(skills, dictionaries, iconSet, categoryFallback, globalFallback)
   const runtimeDicts = buildDictionaries(officers, skills, dictionaries)
 
   const write = (name: string, data: unknown) =>
