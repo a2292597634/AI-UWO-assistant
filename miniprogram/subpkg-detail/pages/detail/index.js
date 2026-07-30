@@ -1,21 +1,19 @@
-const details: any = require('../../details')
+var details = require('../../details')
 
 Page({
   data: {
-    officer: null as any,
+    officer: null,
     portraitFail: false,
-    activeSkills: [] as any[],
-    passiveSkills: [] as any[],
+    activeSkills: [],
+    passiveSkills: [],
   },
 
-  onLoad(options: Record<string, string | undefined>) {
-    const id = options.id
+  onLoad: function (options) {
+    var id = options.id
     if (!id) return
-    const raw: any = details[id]
+    var raw = details[id]
     if (raw) {
-      // Expand compact field names for the WXML template
-      const officer = {
-        // Short fields mapped to display fields
+      var officer = {
         name: raw.n,
         rarityId: raw.ri,
         rarityName: raw.rn,
@@ -28,26 +26,23 @@ Page({
         nationalityId: raw.ni,
         nationalityName: raw.nn,
         portraitPath: raw.pp,
-        // Expand languages
-        languages: (raw.ls || []).map((l: any) => ({
-          languageId: l.li,
-          level: l.lv,
-          name: l.n,
-        })),
-        // Expand skills
-        skills: (raw.ss || []).map((s: any) => ({
-          skillId: s.si,
-          kind: s.k,
-          sourceGroup: s.sg,
-          slot: s.sl,
-          unlockLevel: s.ul,
-          level: s.lv,
-          name: s.n,
-          categoryName: s.cn,
-          categoryId: s.ci,
-          iconPath: s.ip,
-        })),
-        // Expand recruitment
+        languages: (raw.ls || []).map(function (l) {
+          return { languageId: l.li, level: l.lv, name: l.n }
+        }),
+        skills: (raw.ss || []).map(function (s) {
+          return {
+            skillId: s.si,
+            kind: s.k,
+            sourceGroup: s.sg,
+            slot: s.sl,
+            unlockLevel: s.ul,
+            level: s.lv,
+            name: s.n,
+            categoryName: s.cn,
+            categoryId: s.ci,
+            iconPath: s.ip,
+          }
+        }),
         recruitment: {
           cityIds: raw.rc.ci,
           cityNames: raw.rc.cn,
@@ -59,15 +54,19 @@ Page({
       }
 
       this.setData({
-        officer,
-        activeSkills: (officer.skills as any[]).filter((s: any) => s.kind === 'active'),
-        passiveSkills: (officer.skills as any[]).filter((s: any) => s.kind === 'passive'),
+        officer: officer,
+        activeSkills: officer.skills.filter(function (s) {
+          return s.kind === 'active'
+        }),
+        passiveSkills: officer.skills.filter(function (s) {
+          return s.kind === 'passive'
+        }),
       })
       wx.setNavigationBarTitle({ title: officer.name })
     }
   },
 
-  onPortraitError() {
+  onPortraitError: function () {
     this.setData({ portraitFail: true })
   },
 })
