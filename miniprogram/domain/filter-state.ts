@@ -2,7 +2,7 @@
  * Filter State — Pure Functions
  *
  * Immutable state management for catalog filter state. No dependency on
- * wx, Page, setData, filesystem, or generated data.
+ * wx, Page, filesystem, or generated data.
  */
 
 import type { CatalogFilterState, SkillKindFilter } from '../contracts/filter-state'

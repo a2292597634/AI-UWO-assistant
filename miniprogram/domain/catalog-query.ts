@@ -3,7 +3,7 @@
  *
  * Pure TypeScript: takes catalog data + filter state, returns filtered
  * results. Does NOT modify input arrays. No dependency on wx, Page,
- * setData, filesystem, or generated data.
+ * filesystem, or generated data.
  */
 
 import type { RuntimeCatalogEntry, RuntimeSkill } from '../contracts/runtime-data'

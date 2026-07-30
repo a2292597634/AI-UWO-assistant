@@ -16,6 +16,8 @@
     "data:schema:check": "vitest run tests/data-contract",
     "data:check": "npm run data:audit:check && npm run data:schema:check",
     "check:runtime-network": "tsx tools/quality/check-runtime-network.ts",
+    "check:architecture": "vitest run tests/architecture",
+    "check:runtime-contract": "vitest run tests/runtime-contract",
     "import:download": "tsx tools/import/download-source.ts",
     "import:run": "tsx tools/import/run-import.ts",
     "data:generate": "tsx tools/data-pipeline/generate.ts",
