@@ -12,5 +12,27 @@ export default tseslint.config(
       'no-undef': 'off',
     },
   },
+  {
+    files: ['miniprogram/**/*.js'],
+    languageOptions: {
+      globals: {
+        App: 'readonly',
+        Page: 'readonly',
+        Component: 'readonly',
+        wx: 'readonly',
+        getApp: 'readonly',
+        getCurrentPages: 'readonly',
+        require: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^_' }],
+    },
+  },
   eslintConfigPrettier,
 )

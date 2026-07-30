@@ -30,7 +30,7 @@ export interface SkillMappingRecord {
   categoryId: string
   evidenceSkillIds: string[]
   evidence: string[]
-  status: 'approved'
+  status: 'approved' | 'auto'
 }
 
 export interface AuditFinding {

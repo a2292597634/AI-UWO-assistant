@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { parseSkills } from '../../tools/import/parse-skills'
 
 describe('parseSkills', () => {
-  it('extracts all skill metadata from skill_arr', () => {
+  it('extracts all skill metadata from skill_arr using real `t` field', () => {
+    // Real source uses `t` for category, `d` for descriptions
     const source = `var json_char={"chasT089":{"cht":"test","rank":"5","type":"class_2","job":"jobx","country":"ctn_swe","gender":"f","lang":{},"skill":{},"city":[],"req":""}}
 var skill_arr={
-      "skill100043":{"g":"menuskt3"},
-      "skill200681":{"g":"menuskt2","i":"skillT0053"},
-      "skill509998139":{"g":"menuskt19","i":"skill500436"}
+      "skill100043":{"d":[["2.3%"],["3.5%"]],"t":"menuskt3"},
+      "skill200681":{"d":[["1.5%"]],"t":"menuskt2","i":"skillT0053"},
+      "skill509998139":{"d":[["3.0%"],["4.1%"]],"t":"menuskt19","i":"skill500436"}
     }`
 
     const skills = parseSkills(source)
@@ -33,7 +34,7 @@ var skill_arr={
     })
   })
 
-  it('handles skills without the optional i field', () => {
+  it('falls back to legacy `g` field when `t` is absent', () => {
     const source = `var json_char={}
 var skill_arr={
       "skill300001":{"g":"menuskt22"},
@@ -42,8 +43,46 @@ var skill_arr={
 
     const skills = parseSkills(source)
 
+    expect(skills.skill300001!.sourceCategoryId).toBe('menuskt22')
     expect(skills.skill300001!.imageOverrideId).toBeNull()
+    expect(skills.skill400591!.sourceCategoryId).toBe('menuskt11')
     expect(skills.skill400591!.imageOverrideId).toBeNull()
+  })
+
+  it('prefers `t` over `g` when both are present', () => {
+    const source = `var json_char={}
+var skill_arr={
+      "skill500001":{"t":"menuskt_real","g":"menuskt_legacy"}
+    }`
+
+    const skills = parseSkills(source)
+    expect(skills.skill500001!.sourceCategoryId).toBe('menuskt_real')
+  })
+
+  it('throws when a skill is missing both `t` and `g` fields', () => {
+    const source = `var json_char={}
+var skill_arr={
+      "skill100001":{"i":"skillT0001"},
+      "skill200001":{"d":[["1%"]],"t":"menuskt5"}
+    }`
+
+    expect(() => parseSkills(source)).toThrow('SKILL_CATEGORY_MISSING')
+    expect(() => parseSkills(source)).toThrow('skill100001')
+  })
+
+  it('verifies all parsed skills have non-empty category', () => {
+    const source = `var json_char={}
+var skill_arr={
+      "skill100043":{"d":[["2.3%"]],"t":"menuskt3"},
+      "skill200681":{"d":[["1.5%"]],"t":"menuskt2","i":"skillT0053"},
+      "skill509998139":{"t":"menuskt19","i":"skill500436"}
+    }`
+
+    const skills = parseSkills(source)
+    for (const [, skill] of Object.entries(skills)) {
+      expect(skill.sourceCategoryId).toBeTruthy()
+      expect(skill.sourceCategoryId).not.toBe('')
+    }
   })
 
   it('throws for missing skill_arr variable', () => {

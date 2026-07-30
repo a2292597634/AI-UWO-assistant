@@ -21,7 +21,10 @@
     "data:generate": "tsx tools/data-pipeline/generate.ts",
     "assets:download": "tsx tools/asset-pipeline/download-assets.ts",
     "assets:setup": "tsx tools/asset-pipeline/setup-assets.ts",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run data:check"
+    "assets:full": "npm run assets:download -- 0 && npm run assets:setup",
+    "pipeline:full": "npm run import:run && npm run data:generate && npm run assets:full",
+    "generate:check": "npm run data:generate && git diff --exit-code -- miniprogram/generated miniprogram/subpkg-detail",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run data:check && npm run generate:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

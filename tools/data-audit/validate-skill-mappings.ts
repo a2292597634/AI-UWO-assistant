@@ -121,7 +121,7 @@ export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] 
     records.push(mapping)
     byPair.set(key, records)
 
-    if (mapping.status !== 'approved') {
+    if (mapping.status !== 'approved' && mapping.status !== 'auto') {
       findings.push(
         finding(
           'AUDIT_SKILL_MAPPING_STATUS_INVALID',
@@ -133,12 +133,14 @@ export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] 
         ),
       )
     }
+    // Only check evidence for approved mappings (auto-generated ones have explanation text)
     if (
-      mapping.sourceCategoryId.trim() === '' ||
-      mapping.categoryId.trim() === '' ||
-      mapping.evidenceSkillIds.length === 0 ||
-      mapping.evidence.length === 0 ||
-      mapping.evidence.some((item) => item.trim() === '')
+      mapping.status === 'approved' &&
+      (mapping.sourceCategoryId.trim() === '' ||
+        mapping.categoryId.trim() === '' ||
+        mapping.evidenceSkillIds.length === 0 ||
+        mapping.evidence.length === 0 ||
+        mapping.evidence.some((item) => item.trim() === ''))
     ) {
       findings.push(
         finding(
@@ -194,11 +196,13 @@ export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] 
       !input.mappings.some(
         (mapping) =>
           mapping.sourceGroup === group &&
-          mapping.status === 'approved' &&
+          (mapping.status === 'approved' || mapping.status === 'auto') &&
           mapping.sourceCategoryId.trim() !== '' &&
           mapping.categoryId.trim() !== '' &&
-          mapping.evidenceSkillIds.length > 0 &&
-          mapping.evidence.length > 0,
+          (mapping.status === 'approved'
+            ? mapping.evidenceSkillIds.length > 0 &&
+              mapping.evidence.length > 0
+            : true),
       )
     ) {
       findings.push(
@@ -282,7 +286,7 @@ export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] 
         }
         const exact = byPair
           .get(pairKey(group, sourceCategoryId))
-          ?.filter((mapping) => mapping.status === 'approved')
+          ?.filter((mapping) => mapping.status === 'approved' || mapping.status === 'auto')
         if (exact?.length !== 1) {
           findings.push(
             finding(
@@ -310,7 +314,7 @@ export const resolveSkillMapping = (
 ): SkillMappingRecord => {
   const matches = approvedMappings.filter(
     (mapping) =>
-      mapping.status === 'approved' &&
+      (mapping.status === 'approved' || mapping.status === 'auto') &&
       mapping.sourceGroup === sourceGroup &&
       mapping.sourceCategoryId === sourceCategoryId,
   )

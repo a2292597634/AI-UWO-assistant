@@ -37,3 +37,4 @@
 .row-skill-icon { width: 32rpx; height: 32rpx; }
 .skill-divider { width: 1rpx; height: 24rpx; background: #c4b99a; margin: 0 8rpx; }
 .empty { text-align: center; padding: 80rpx; color: #8a8a7e; font-size: 28rpx; }
+.load-more { text-align: center; padding: 24rpx; color: #8a8a7e; font-size: 22rpx; }

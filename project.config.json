@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
-  "libVersion": "trial",
+  "libVersion": "3.7.0",
   "setting": {
     "es6": true,
     "postcss": true,

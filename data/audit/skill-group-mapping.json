@@ -4,7 +4,9 @@
     "sourceCategoryId": "menuskt1",
     "kind": "passive",
     "categoryId": "skill_category_trade_expertise",
-    "evidenceSkillIds": ["skill203826"],
+    "evidenceSkillIds": [
+      "skill203826"
+    ],
     "evidence": [
       "The fixed json_char.js relationship places skill203826 in chasT089.skill.sk0, and its exact skill_arr metadata records menuskt1.",
       "lang_1.js labels menuskt1 as 交易用取引技, while 游戏内菜单图.png groups learned trade effects under 航海士效果 rather than combat actions; this establishes a passive trade-expertise relationship."
@@ -16,7 +18,9 @@
     "sourceCategoryId": "menuskt13",
     "kind": "passive",
     "categoryId": "skill_category_naval_passive_other",
-    "evidenceSkillIds": ["skill500436"],
+    "evidenceSkillIds": [
+      "skill500436"
+    ],
     "evidence": [
       "The fixed officer fixture places skill500436 in sk0 for chasT089, chasT096, and chasab001; its exact skill_arr metadata records menuskt13.",
       "lang_1.js labels menuskt13 as 海戰／被動（其他）, directly establishing passive kind and the naval-passive-other category."
@@ -28,7 +32,9 @@
     "sourceCategoryId": "menuskt16",
     "kind": "passive",
     "categoryId": "skill_category_adventure",
-    "evidenceSkillIds": ["skill200921"],
+    "evidenceSkillIds": [
+      "skill200921"
+    ],
     "evidence": [
       "The fixed json_char.js relationship places skill200921 in chasT089.skill.sk0, and its exact skill_arr metadata records menuskt16.",
       "lang_1.js labels menuskt16 as 冒險相關技能; 游戏内菜单图.png explains that adventure effects aggregate as 航海士效果, establishing a passive adventure-effect relationship."
@@ -40,7 +46,11 @@
     "sourceCategoryId": "menuskt2",
     "kind": "passive",
     "categoryId": "skill_category_trade_price_adjustment",
-    "evidenceSkillIds": ["skill200681", "skill203306", "skill203426"],
+    "evidenceSkillIds": [
+      "skill200681",
+      "skill203306",
+      "skill203426"
+    ],
     "evidence": [
       "The fixed officer fixture places the three cited skills in sk0, and every exact skill_arr object records menuskt2.",
       "lang_1.js labels menuskt2 as 交易價格調整技能; 游戏内被动技能查询截图.png lists trade purchase and sale price adjustments under 航海士效果, establishing passive kind."
@@ -52,7 +62,10 @@
     "sourceCategoryId": "menuskt3",
     "kind": "passive",
     "categoryId": "skill_category_barter",
-    "evidenceSkillIds": ["skill100043", "skill100051"],
+    "evidenceSkillIds": [
+      "skill100043",
+      "skill100051"
+    ],
     "evidence": [
       "The fixed officer fixture places skill100043 and skill100051 in sk0, and both exact skill_arr objects record menuskt3.",
       "lang_1.js labels menuskt3 as 以物易物相關技能; 游戏内被动技能查询截图.png lists barter quantity, negotiation consumption, and negotiation chance as 航海士效果, establishing passive kind."
@@ -64,7 +77,9 @@
     "sourceCategoryId": "menuskt19",
     "kind": "passive",
     "categoryId": "skill_category_innate_buff",
-    "evidenceSkillIds": ["skill509998139"],
+    "evidenceSkillIds": [
+      "skill509998139"
+    ],
     "evidence": [
       "The fixed json_char.js relationship places skill509998139 in chasab001.skill.sk1 with a null source level, and its exact skill_arr metadata records menuskt19.",
       "lang_1.js labels menuskt19 as 天生效果／增益, and both screenshots display 天生效果 inside the effect view; an innate buff is therefore a passive relationship."
@@ -76,7 +91,11 @@
     "sourceCategoryId": "menuskt11",
     "kind": "active",
     "categoryId": "skill_category_naval_active_enhancement",
-    "evidenceSkillIds": ["skill400581", "skill400591", "skill400861"],
+    "evidenceSkillIds": [
+      "skill400581",
+      "skill400591",
+      "skill400861"
+    ],
     "evidence": [
       "The fixed officer relationships place all three cited skills in sk2, and their exact skill_arr objects record menuskt11.",
       "lang_1.js labels menuskt11 as 海戰／主動（強化系）, directly establishing active kind and the naval-active-enhancement category."
@@ -88,7 +107,10 @@
     "sourceCategoryId": "menuskt22",
     "kind": "active",
     "categoryId": "skill_category_combat_other",
-    "evidenceSkillIds": ["skill300001", "skill300004"],
+    "evidenceSkillIds": [
+      "skill300001",
+      "skill300004"
+    ],
     "evidence": [
       "Every captured officer has one sk3 combat-action relationship; the fixed skill_arr objects for skill300001 and skill300004 both record menuskt22, labelled 其他技能 by lang_1.js.",
       "游戏内菜单图.png separates combat techniques from aggregated 航海士效果, and the cited sk3 records are the executable actions 必死攻擊 and 絕對反擊; this group/category pair is active combat-other."
@@ -100,7 +122,12 @@
     "sourceCategoryId": "menuskt18",
     "kind": "active",
     "categoryId": "skill_category_admiral",
-    "evidenceSkillIds": ["skill100063", "skill100064", "skill400973", "skill400974"],
+    "evidenceSkillIds": [
+      "skill100063",
+      "skill100064",
+      "skill400973",
+      "skill400974"
+    ],
     "evidence": [
       "The fixed chasab012 and chasab001 relationships place the cited skills in sk4 at the observed 1/20/40/60 commander-skill slots; all four exact skill_arr objects record menuskt18.",
       "lang_1.js labels menuskt18 as 提督技能; the cited descriptions apply explicit battle actions or timed combat effects, and 游戏内菜单图.png separates these combat techniques from passive 航海士效果, establishing active admiral kind."
@@ -112,11 +139,1488 @@
     "sourceCategoryId": "menuskt2",
     "kind": "passive",
     "categoryId": "skill_category_trade_price_adjustment",
-    "evidenceSkillIds": ["skillT0053", "skillT0073"],
+    "evidenceSkillIds": [
+      "skillT0053",
+      "skillT0073"
+    ],
     "evidence": [
       "The fixed json_char.js relationships place skillT0053 and skillT0073 in chasT089.skill.sk5, and both exact skill_arr objects record menuskt2 with image overrides to the matching base trade effects.",
       "lang_1.js labels menuskt2 as 交易價格調整技能; 游戏内菜单图.png places 專業知識 and trade adjustments in the effect view, and 游戏内被动技能查询截图.png shows purchase/sale price adjustment as 航海士效果, establishing passive kind."
     ],
     "status": "approved"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt1",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt1",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易用取引技\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt1",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt1",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易用取引技\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt10",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt10",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（砲擊系）\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt10",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt10",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（砲擊系）\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt10",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt10",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（砲擊系）\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt11",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt11",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（強化系）\" + group sk3 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt11",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt11",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（強化系）\" + group sk4 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt12",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt12",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（防禦系）\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt12",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt12",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（防禦系）\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt12",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt12",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（防禦系）\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt13",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt13",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（其他）\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt13",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt13",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（其他）\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt14",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt14",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"耐久度修復\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt14",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt14",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"耐久度修復\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt14",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt14",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"耐久度修復\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt15",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt15",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"生命值恢復（醫療）\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt15",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt15",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"生命值恢復（醫療）\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt15",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt15",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"生命值恢復（醫療）\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt16",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt16",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"冒險相關技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt16",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt16",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"冒險相關技能\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt17",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt17",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"航海相關技能\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt17",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt17",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"航海相關技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt17",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt17",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"航海相關技能\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt18",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt18",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"提督技能\" + group sk2 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt18",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt18",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"提督技能\" + group sk3 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt19",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt19",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／增益\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt19",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt19",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／增益\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt2",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt2",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易價格調整技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt20",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt20",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／減益\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt20",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt20",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／減益\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt20",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt20",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／減益\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt21",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt21",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"打撈技能\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt21",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt21",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"打撈技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt21",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt21",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"打撈技能\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt22",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt22",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"其他技能\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt22",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt22",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"其他技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt22",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt22",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"其他技能\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt23",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt23",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"未分類\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt23",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt23",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"未分類\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt23",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt23",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"未分類\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt3",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt3",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"以物易物相關技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt3",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt3",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"以物易物相關技能\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt4",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt4",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"協商相關技能\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt4",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt4",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"協商相關技能\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt4",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt4",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"協商相關技能\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt5",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt5",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（肉搏系）\" + group sk2 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt5",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt5",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（肉搏系）\" + group sk3 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt5",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt5",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（肉搏系）\" + group sk4 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt6",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt6",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（肉搏系）\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt6",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt6",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（肉搏系）\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt6",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt6",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（肉搏系）\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt7",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt7",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（衝破系）\" + group sk2 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt7",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt7",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（衝破系）\" + group sk3 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt7",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt7",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（衝破系）\" + group sk4 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt8",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt8",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（衝破系）\" + group sk0 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt8",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt8",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（衝破系）\" + group sk1 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt8",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt8",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（衝破系）\" + group sk5 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt9",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt9",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（砲擊系）\" + group sk2 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt9",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt9",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（砲擊系）\" + group sk3 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt9",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt9",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（砲擊系）\" + group sk4 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "證書相關技能",
+    "kind": "passive",
+    "categoryId": "skill_category_certificate",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: certificate-related skills, group sk0 → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "證書相關技能",
+    "kind": "passive",
+    "categoryId": "skill_category_certificate",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: certificate-related skills, group sk1 → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "證書相關技能",
+    "kind": "passive",
+    "categoryId": "skill_category_certificate",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: certificate-related skills, group sk5 → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt1",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt1",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易用取引技\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt1",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt1",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易用取引技\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt1",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt1",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易用取引技\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt10",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt10",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（砲擊系）\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt10",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt10",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（砲擊系）\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt10",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt10",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（砲擊系）\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt11",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt11",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（強化系）\" + group sk0 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt11",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt11",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（強化系）\" + group sk1 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt11",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt11",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（強化系）\" + group sk5 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt12",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt12",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（防禦系）\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt12",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt12",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（防禦系）\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt12",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt12",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（防禦系）\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt13",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt13",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（其他）\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt13",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt13",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（其他）\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt13",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt13",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（其他）\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt14",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt14",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"耐久度修復\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt14",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt14",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"耐久度修復\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt14",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt14",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"耐久度修復\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt15",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt15",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"生命值恢復（醫療）\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt15",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt15",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"生命值恢復（醫療）\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt15",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt15",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"生命值恢復（醫療）\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt16",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt16",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"冒險相關技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt16",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt16",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"冒險相關技能\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt16",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt16",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"冒險相關技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt17",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt17",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"航海相關技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt17",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt17",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"航海相關技能\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt17",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt17",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"航海相關技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt18",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt18",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"提督技能\" + group sk0 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt18",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt18",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"提督技能\" + group sk1 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt18",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt18",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"提督技能\" + group sk5 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt19",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt19",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／增益\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt19",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt19",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／增益\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt19",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt19",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／增益\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt2",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt2",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易價格調整技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt2",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt2",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易價格調整技能\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt2",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt2",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"交易價格調整技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt20",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt20",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／減益\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt20",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt20",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／減益\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt20",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt20",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"天生效果／減益\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt21",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt21",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"打撈技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt21",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt21",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"打撈技能\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt21",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt21",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"打撈技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt22",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt22",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"其他技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt22",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt22",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"其他技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt23",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt23",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"未分類\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt23",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt23",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"未分類\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt23",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt23",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"未分類\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt3",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt3",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"以物易物相關技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt3",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt3",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"以物易物相關技能\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt3",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt3",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"以物易物相關技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt4",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt4",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"協商相關技能\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt4",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt4",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"協商相關技能\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt4",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt4",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"協商相關技能\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt5",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt5",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（肉搏系）\" + group sk0 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt5",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt5",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（肉搏系）\" + group sk1 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt5",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt5",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（肉搏系）\" + group sk5 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt6",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt6",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（肉搏系）\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt6",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt6",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（肉搏系）\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt6",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt6",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（肉搏系）\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt7",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt7",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（衝破系）\" + group sk0 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt7",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt7",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（衝破系）\" + group sk1 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt7",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt7",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（衝破系）\" + group sk5 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt8",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt8",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（衝破系）\" + group sk2 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "menuskt8",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt8",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（衝破系）\" + group sk3 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "menuskt8",
+    "kind": "passive",
+    "categoryId": "skill_category_menuskt8",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／被動（衝破系）\" + group sk4 convention → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk0",
+    "sourceCategoryId": "menuskt9",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt9",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（砲擊系）\" + group sk0 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk1",
+    "sourceCategoryId": "menuskt9",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt9",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（砲擊系）\" + group sk1 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk5",
+    "sourceCategoryId": "menuskt9",
+    "kind": "active",
+    "categoryId": "skill_category_menuskt9",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: category \"海戰／主動（砲擊系）\" + group sk5 convention → active"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "證書相關技能",
+    "kind": "passive",
+    "categoryId": "skill_category_certificate",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: certificate-related skills, group sk2 → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk3",
+    "sourceCategoryId": "證書相關技能",
+    "kind": "passive",
+    "categoryId": "skill_category_certificate",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: certificate-related skills, group sk3 → passive"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk4",
+    "sourceCategoryId": "證書相關技能",
+    "kind": "passive",
+    "categoryId": "skill_category_certificate",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "Auto-generated: certificate-related skills, group sk4 → passive"
+    ],
+    "status": "auto"
   }
 ]

@@ -52,7 +52,7 @@
     <text class="section-title">招募資訊</text>
     <view class="recruit-row">
       <text class="recruit-label">城市</text>
-      <text class="recruit-value">{{officer.recruitment.cityNames.join('、') || '無'}}</text>
+      <text class="recruit-value">{{officer.recruitment.cityText}}</text>
     </view>
     <view class="recruit-row" wx:if="{{officer.recruitment.requirementName}}">
       <text class="recruit-label">條件</text>

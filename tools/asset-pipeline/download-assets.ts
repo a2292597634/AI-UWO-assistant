@@ -160,21 +160,21 @@ export const downloadAssets = async (
 // ── Build entry list from canonical data ──
 
 export const buildAssetEntries = (
-  officerIds: string[],
+  officers: Array<{ canonicalId: string; sourceId: string }>,
   skillData: Array<{ id: string; imageOverrideId?: string | null }>,
   limit?: number,
 ): AssetEntry[] => {
   const entries: AssetEntry[] = []
 
   // Officer portraits (up to limit)
-  const officerSlice = limit ? officerIds.slice(0, limit) : officerIds
-  for (const sourceId of officerSlice) {
+  const officerSlice = limit ? officers.slice(0, limit) : officers
+  for (const officer of officerSlice) {
     entries.push({
-      sourceId,
-      url: portraitUrl(sourceId),
-      localPath: `${ASSETS_DIR}/officer_${sourceId}.png`,
+      sourceId: officer.sourceId,
+      url: portraitUrl(officer.sourceId),
+      localPath: `${ASSETS_DIR}/${officer.canonicalId}.png`,
       kind: 'portrait',
-      ownerCanonicalId: `officer_${sourceId}`,
+      ownerCanonicalId: officer.canonicalId,
     })
   }
 
@@ -211,13 +211,16 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   console.log(`=== Asset Downloader (batch size: ${BATCH_SIZE}, limit: ${limit ?? 'all'}) ===\n`)
   console.log(`Building asset list...`)
 
-  const officerIds: string[] = officers.map((o: any) => o.sourceRefs.voyageTw)
+  const officerData: Array<{ canonicalId: string; sourceId: string }> = officers.map((o: any) => ({
+    canonicalId: o.id,
+    sourceId: o.sourceRefs.voyageTw,
+  }))
   const skillList: Array<{ id: string; imageOverrideId: string | null }> = skills.map((s: any) => ({
     id: s.sourceRefs.voyageTw,
     imageOverrideId: skillArr[s.sourceRefs.voyageTw]?.imageOverrideId ?? null,
   }))
 
-  const entries = buildAssetEntries(officerIds, skillList, limit ? limit * 2 : undefined)
+  const entries = buildAssetEntries(officerData, skillList, limit ? limit * 2 : undefined)
   console.log(`  ${entries.length} assets to check (${entries.filter(e => e.kind === 'portrait').length} portraits, ${entries.filter(e => e.kind === 'icon').length} icons)\n`)
 
   // Load existing manifest

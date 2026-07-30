@@ -35,7 +35,7 @@ export interface SourceOfficer {
 
 /** Metadata for one skill from `skill_arr`. */
 export interface SourceSkillMetadata {
-  /** Source category ID (from `.g`). */
+  /** Source category ID (from `.t`, fallback `.g` for legacy snapshots). */
   sourceCategoryId: string
   /** Image override ID (from `.i`), or null. */
   imageOverrideId: string | null

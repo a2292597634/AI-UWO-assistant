@@ -61,7 +61,7 @@ const buildMappingMap = (
 ): Map<string, { kind: 'active' | 'passive'; categoryId: string }> => {
   const map = new Map<string, { kind: 'active' | 'passive'; categoryId: string }>()
   for (const m of mappings) {
-    if (m.status !== 'approved') continue
+    if (m.status !== 'approved' && m.status !== 'auto') continue
     map.set(`${m.sourceGroup}\0${m.sourceCategoryId}`, { kind: m.kind, categoryId: m.categoryId })
   }
   return map
@@ -165,10 +165,10 @@ export const transformOfficers = (
             officerId: sourceId,
             field: 'city',
             value: cityValue,
-            disposition: 'rejected',
-            reason: `Rejected: source city value ${cityValue} is officer-shaped; not a city.`,
+            disposition: 'warning',
+            reason: `Source city value ${cityValue} is officer-shaped; may be a valid internal reference.`,
           })
-          return []
+          // Still include it — officer-shaped doesn't mean it's not a valid city reference
         }
         checkKnown(knownEnums, 'city', cityValue, sourceId, anomalies)
         return [canonicalId('city', cityValue)]
@@ -257,8 +257,21 @@ const buildSkillRelations = (
           officerId: sourceId,
           field: `skill.${group}.${skillSourceId}`,
           value: String(levelValue),
-          disposition: 'warning',
+          disposition: 'rejected',
           reason: `Skill "${skillSourceId}" has no metadata in skill_arr.`,
+        })
+        slot += 1
+        continue
+      }
+
+      // Empty category should already be caught by parseSkills, but double-check here.
+      if (!meta.sourceCategoryId) {
+        anomalies.push({
+          officerId: sourceId,
+          field: `skill.${group}.${skillSourceId}`,
+          value: `${group}/<empty category>`,
+          disposition: 'rejected',
+          reason: `Skill "${skillSourceId}" has an empty sourceCategoryId.`,
         })
         slot += 1
         continue
@@ -271,9 +284,12 @@ const buildSkillRelations = (
           officerId: sourceId,
           field: `skill.${group}.${skillSourceId}`,
           value: `${group}/${meta.sourceCategoryId}`,
-          disposition: 'warning',
+          disposition: 'rejected',
           reason: `Unmapped sourceGroup/sourceCategoryId pair: ${group}/${meta.sourceCategoryId}.`,
         })
+        // Skip this skill — cannot determine active/passive kind without mapping
+        slot += 1
+        continue
       }
 
       const baseLevel =
@@ -290,7 +306,7 @@ const buildSkillRelations = (
 
       relations.push({
         skillId: `skill_${skillSourceId}`,
-        kind: mapping?.kind ?? 'passive',
+        kind: mapping.kind,
         sourceGroup: group,
         slot,
         unlockLevel,

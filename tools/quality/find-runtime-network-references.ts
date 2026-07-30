@@ -7,7 +7,7 @@ export interface RuntimeNetworkReference {
   reason: 'remote URL' | 'wx.request' | 'wx.downloadFile' | 'wx.cloud'
 }
 
-const sourceExtensions = new Set(['.ts', '.json', '.wxml', '.wxss', '.wxs'])
+const sourceExtensions = new Set(['.ts', '.js', '.json', '.wxml', '.wxss', '.wxs'])
 const forbidden = [
   { pattern: /https?:\/\//, reason: 'remote URL' as const },
   { pattern: /\bwx\.request\s*\(/, reason: 'wx.request' as const },

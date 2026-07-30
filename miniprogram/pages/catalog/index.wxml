@@ -1,29 +1,38 @@
 <view class="catalog-page">
+  <!-- Search bar -->
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜尋航海士名稱..." value="{{searchText}}" bindinput="onSearchInput" />
+    <text class="search-clear" wx:if="{{searchText.length > 0}}" bindtap="onSearchClear">✕</text>
+  </view>
+
+  <!-- Tabs -->
   <view class="tabs">
     <view wx:for="{{tabs}}" wx:key="*this" class="tab {{activeTab === index ? 'tab--active' : ''}}" bindtap="onTabTap" data-index="{{index}}">{{item}}</view>
   </view>
 
+  <!-- Tab 0: Officer filters -->
   <view class="filter-panel" wx:if="{{activeTab === 0}}">
     <view class="filter-group">
       <text class="filter-label">稀有度</text>
       <view class="filter-chips">
-        <view wx:for="{{rarities}}" wx:key="id" class="chip {{selectedRarities.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedRarities" data-id="{{item.id}}">{{item.name}}</view>
+        <view wx:for="{{rarities}}" wx:key="id" class="chip {{selectedRarityMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedRarities" data-id="{{item.id}}">{{item.name}}</view>
       </view>
     </view>
     <view class="filter-group">
       <text class="filter-label">類型</text>
       <view class="filter-chips">
-        <view wx:for="{{types}}" wx:key="id" class="chip {{selectedTypes.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedTypes" data-id="{{item.id}}">{{item.name}}</view>
+        <view wx:for="{{types}}" wx:key="id" class="chip {{selectedTypeMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedTypes" data-id="{{item.id}}">{{item.name}}</view>
       </view>
     </view>
     <view class="filter-group">
       <text class="filter-label">性別</text>
       <view class="filter-chips">
-        <view wx:for="{{genders}}" wx:key="id" class="chip {{selectedGenders.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedGenders" data-id="{{item.id}}">{{item.name}}</view>
+        <view wx:for="{{genders}}" wx:key="id" class="chip {{selectedGenderMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedGenders" data-id="{{item.id}}">{{item.name}}</view>
       </view>
     </view>
   </view>
 
+  <!-- Tab 1: Skill filters -->
   <view class="filter-panel" wx:if="{{activeTab === 1}}">
     <view class="skill-kind-tabs">
       <view class="kind-tab {{activeFilter === 'all' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="all">全部</view>
@@ -31,29 +40,33 @@
       <view class="kind-tab {{activeFilter === 'passive' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="passive">被動</view>
     </view>
     <view class="filter-chips">
-      <view wx:for="{{skillCategories}}" wx:key="id" class="chip {{selectedSkillCategories.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
+      <view wx:for="{{skillCategories}}" wx:key="id" class="chip {{selectedSkillCategoryMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
     </view>
   </view>
 
+  <!-- Tab 2: Language filters -->
   <view class="filter-panel" wx:if="{{activeTab === 2}}">
     <view class="filter-chips">
-      <view wx:for="{{languages}}" wx:key="id" class="chip {{selectedLanguages.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
+      <view wx:for="{{languages}}" wx:key="id" class="chip {{selectedLanguageMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
     </view>
   </view>
 
+  <!-- Tab 3: Job filters -->
   <view class="filter-panel" wx:if="{{activeTab === 3}}">
     <view class="filter-chips">
-      <view wx:for="{{jobs}}" wx:key="id" class="chip {{selectedJobs.indexOf(item.id) >= 0 ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedJobs" data-id="{{item.id}}">{{item.name}}</view>
+      <view wx:for="{{jobs}}" wx:key="id" class="chip {{selectedJobMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedJobs" data-id="{{item.id}}">{{item.name}}</view>
     </view>
   </view>
 
+  <!-- Count bar with clear -->
   <view class="count-bar">
     <text>{{filterCount}} 位航海士</text>
-    <text class="count-clear" bindtap="clearFilters" wx:if="{{filterCount < 8}}">清除篩選</text>
+    <text class="count-clear" bindtap="clearFilters" wx:if="{{hasActiveFilters}}">清除篩選</text>
   </view>
 
-  <scroll-view class="list" scroll-y>
-    <view wx:for="{{filtered}}" wx:key="id" class="officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
+  <!-- Officer list -->
+  <scroll-view class="list" scroll-y bindscrolltolower="loadMore" lower-threshold="200">
+    <view wx:for="{{visibleRows}}" wx:key="id" class="officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
       <view class="row-portrait">
         <image src="{{item.portraitPath}}" mode="aspectFill" class="row-avatar" binderror="onPortraitError" data-index="{{index}}" />
         <view class="row-portrait-fb" wx:if="{{item.portraitFail}}">
@@ -71,15 +84,18 @@
         </view>
         <view class="row-skills">
           <view class="skill-icon-group" wx:if="{{item.activeSkills.length > 0}}">
-            <image wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" src="{{skillsDict[sid].ip}}" mode="aspectFit" class="row-skill-icon" />
+            <image wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" wx:if="{{si < 3}}" />
+            <text class="skill-more" wx:if="{{item.activeSkills.length > 3}}">+{{item.activeSkills.length - 3}}</text>
           </view>
           <view class="skill-icon-group" wx:if="{{item.passiveSkills.length > 0}}">
             <view class="skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
-            <image wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" src="{{skillsDict[sid].ip}}" mode="aspectFit" class="row-skill-icon" />
+            <image wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" wx:if="{{si < 3}}" />
+            <text class="skill-more" wx:if="{{item.passiveSkills.length > 3}}">+{{item.passiveSkills.length - 3}}</text>
           </view>
         </view>
       </view>
     </view>
-    <view wx:if="{{filtered.length === 0}}" class="empty">沒有符合條件的航海士</view>
+    <view wx:if="{{visibleRows.length === 0}}" class="empty">沒有符合條件的航海士</view>
+    <view wx:elif="{{hasMore}}" class="load-more">載入更多...</view>
   </scroll-view>
 </view>

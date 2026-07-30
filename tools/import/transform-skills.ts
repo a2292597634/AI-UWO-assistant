@@ -12,7 +12,7 @@ const unmappedCategorySet = new Set<string>()
 const buildCategoryMap = (mappings: SkillMappingRecord[]): Map<string, string> => {
   const map = new Map<string, string>()
   for (const m of mappings) {
-    if (m.status !== 'approved') continue
+    if (m.status !== 'approved' && m.status !== 'auto') continue
     if (!map.has(m.sourceCategoryId)) {
       map.set(m.sourceCategoryId, m.categoryId)
     }
@@ -70,7 +70,7 @@ export const transformSkills = (
     const displayName = name || sourceId
 
     // Resolve categoryId from sourceCategoryId via mapping table.
-    // For unmapped categories, auto-generate a category ID and warn once.
+    // For unmapped categories, record a blocking anomaly — category must be mapped.
     let categoryId: string
     if (categoryMap.has(meta.sourceCategoryId)) {
       categoryId = categoryMap.get(meta.sourceCategoryId)!
@@ -82,7 +82,7 @@ export const transformSkills = (
           officerId: '*',
           field: 'skill.category',
           value: meta.sourceCategoryId,
-          disposition: 'warning',
+          disposition: 'rejected',
           reason: `Unmapped sourceCategoryId "${meta.sourceCategoryId}" — auto-generated category "${categoryId}".`,
         })
       }

@@ -133,6 +133,20 @@ const runImport = async (): Promise<void> => {
   const errors = allFindings.filter((f) => f.severity === 'error')
   const warnings = allFindings.filter((f) => f.severity === 'warning')
 
+  // Combine officer + skill anomalies
+  const allAnomalies = [...officerAnomalies, ...skillAnomalies]
+
+  // Blocking anomalies: rejected disposition or critical data issues
+  const blockingAnomalies = allAnomalies.filter(
+    (a) =>
+      a.disposition === 'rejected' ||
+      a.field === 'skill.category' ||
+      a.reason.includes('Unmapped sourceGroup/sourceCategoryId') ||
+      a.reason.includes('has no metadata in skill_arr') ||
+      a.reason.includes('empty sourceCategoryId') ||
+      a.reason.includes('Unmapped sourceCategoryId'),
+  )
+
   if (errors.length > 0) {
     console.log(`  ERRORS: ${errors.length}`)
     for (const e of errors.slice(0, 20)) {
@@ -142,6 +156,14 @@ const runImport = async (): Promise<void> => {
   }
   if (warnings.length > 0) {
     console.log(`  Warnings: ${warnings.length}`)
+  }
+  if (blockingAnomalies.length > 0) {
+    console.log(`  BLOCKING ANOMALIES: ${blockingAnomalies.length}`)
+    for (const a of blockingAnomalies.slice(0, 20)) {
+      console.log(`    [${a.disposition}] ${a.officerId}/${a.field}: ${a.reason}`)
+    }
+    if (blockingAnomalies.length > 20)
+      console.log(`    ... and ${blockingAnomalies.length - 20} more`)
   }
   console.log('  Schema + cross-file validation complete')
 
@@ -185,7 +207,6 @@ const runImport = async (): Promise<void> => {
   writeJson('assets', output.assets)
 
   // Import report
-  const allAnomalies = [...officerAnomalies, ...skillAnomalies]
   const report: ImportReport = {
     sourceCounts: {
       officers: Object.keys(sourceOfficers).length,
@@ -212,11 +233,16 @@ const runImport = async (): Promise<void> => {
     `Dictionaries: ${dictItemCount} items across ${Object.keys(dictionaries).length} groups`,
   )
   console.log(`Validation: ${errors.length} errors, ${warnings.length} warnings`)
-  console.log(`Anomalies: ${allAnomalies.length}`)
+  console.log(`Anomalies: ${allAnomalies.length} (${blockingAnomalies.length} blocking)`)
   console.log(`Output: ${OUTPUT_DIR}/`)
 
   if (errors.length > 0) {
     console.log('\nIMPORT FAILED with validation errors.')
+    process.exit(1)
+  }
+
+  if (blockingAnomalies.length > 0) {
+    console.log('\nIMPORT BLOCKED by anomalies.')
     process.exit(1)
   }
 

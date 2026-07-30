@@ -1813,9 +1813,17 @@
       }
     },
     {
+      "id": "city_chasT051",
+      "name": "亞歷山大",
+      "displayOrder": 30,
+      "sourceRefs": {
+        "voyageTw": "chasT051"
+      }
+    },
+    {
       "id": "city_town7201",
       "name": "貝魯特",
-      "displayOrder": 30,
+      "displayOrder": 31,
       "sourceRefs": {
         "voyageTw": "town7201"
       }
@@ -1823,7 +1831,7 @@
     {
       "id": "city_town7202",
       "name": "開羅",
-      "displayOrder": 31,
+      "displayOrder": 32,
       "sourceRefs": {
         "voyageTw": "town7202"
       }
@@ -1831,7 +1839,7 @@
     {
       "id": "city_town3201",
       "name": "不來梅",
-      "displayOrder": 32,
+      "displayOrder": 33,
       "sourceRefs": {
         "voyageTw": "town3201"
       }
@@ -1839,7 +1847,7 @@
     {
       "id": "city_town1203",
       "name": "瓦倫西亞",
-      "displayOrder": 33,
+      "displayOrder": 34,
       "sourceRefs": {
         "voyageTw": "town1203"
       }
@@ -1847,7 +1855,7 @@
     {
       "id": "city_town3301",
       "name": "倫敦",
-      "displayOrder": 34,
+      "displayOrder": 35,
       "sourceRefs": {
         "voyageTw": "town3301"
       }
@@ -1855,7 +1863,7 @@
     {
       "id": "city_town15301",
       "name": "卡利卡特",
-      "displayOrder": 35,
+      "displayOrder": 36,
       "sourceRefs": {
         "voyageTw": "town15301"
       }
@@ -1863,7 +1871,7 @@
     {
       "id": "city_town4302",
       "name": "哥本哈根",
-      "displayOrder": 36,
+      "displayOrder": 37,
       "sourceRefs": {
         "voyageTw": "town4302"
       }
@@ -1871,7 +1879,7 @@
     {
       "id": "city_town2204",
       "name": "布里斯托爾",
-      "displayOrder": 37,
+      "displayOrder": 38,
       "sourceRefs": {
         "voyageTw": "town2204"
       }
@@ -1879,7 +1887,7 @@
     {
       "id": "city_town3303",
       "name": "漢堡",
-      "displayOrder": 38,
+      "displayOrder": 39,
       "sourceRefs": {
         "voyageTw": "town3303"
       }
@@ -1887,7 +1895,7 @@
     {
       "id": "city_town2202",
       "name": "都柏林",
-      "displayOrder": 39,
+      "displayOrder": 40,
       "sourceRefs": {
         "voyageTw": "town2202"
       }
@@ -1895,7 +1903,7 @@
     {
       "id": "city_town1301",
       "name": "里斯本",
-      "displayOrder": 40,
+      "displayOrder": 41,
       "sourceRefs": {
         "voyageTw": "town1301"
       }
@@ -1903,7 +1911,7 @@
     {
       "id": "city_town13204",
       "name": "開普敦",
-      "displayOrder": 41,
+      "displayOrder": 42,
       "sourceRefs": {
         "voyageTw": "town13204"
       }
@@ -1911,7 +1919,7 @@
     {
       "id": "city_town17301",
       "name": "馬六甲",
-      "displayOrder": 42,
+      "displayOrder": 43,
       "sourceRefs": {
         "voyageTw": "town17301"
       }
@@ -1919,7 +1927,7 @@
     {
       "id": "city_town1204",
       "name": "休達",
-      "displayOrder": 43,
+      "displayOrder": 44,
       "sourceRefs": {
         "voyageTw": "town1204"
       }
@@ -1927,7 +1935,7 @@
     {
       "id": "city_town3204",
       "name": "加萊",
-      "displayOrder": 44,
+      "displayOrder": 45,
       "sourceRefs": {
         "voyageTw": "town3204"
       }
@@ -1935,7 +1943,7 @@
     {
       "id": "city_town4103",
       "name": "卑爾根",
-      "displayOrder": 45,
+      "displayOrder": 46,
       "sourceRefs": {
         "voyageTw": "town4103"
       }
@@ -1943,7 +1951,7 @@
     {
       "id": "city_town5103",
       "name": "卡利亞里",
-      "displayOrder": 46,
+      "displayOrder": 47,
       "sourceRefs": {
         "voyageTw": "town5103"
       }
@@ -1951,7 +1959,7 @@
     {
       "id": "city_town3203",
       "name": "愛丁堡",
-      "displayOrder": 47,
+      "displayOrder": 48,
       "sourceRefs": {
         "voyageTw": "town3203"
       }
@@ -1959,7 +1967,7 @@
     {
       "id": "city_town4202",
       "name": "斯德哥爾摩",
-      "displayOrder": 48,
+      "displayOrder": 49,
       "sourceRefs": {
         "voyageTw": "town4202"
       }
@@ -1967,7 +1975,7 @@
     {
       "id": "city_town2206",
       "name": "普利茅斯",
-      "displayOrder": 49,
+      "displayOrder": 50,
       "sourceRefs": {
         "voyageTw": "town2206"
       }
@@ -1975,7 +1983,7 @@
     {
       "id": "city_town6101",
       "name": "班加西",
-      "displayOrder": 50,
+      "displayOrder": 51,
       "sourceRefs": {
         "voyageTw": "town6101"
       }
@@ -1983,7 +1991,7 @@
     {
       "id": "city_town1302",
       "name": "塞維爾",
-      "displayOrder": 51,
+      "displayOrder": 52,
       "sourceRefs": {
         "voyageTw": "town1302"
       }
@@ -1991,7 +1999,7 @@
     {
       "id": "city_town18108",
       "name": "安汶",
-      "displayOrder": 52,
+      "displayOrder": 53,
       "sourceRefs": {
         "voyageTw": "town18108"
       }
@@ -1999,7 +2007,7 @@
     {
       "id": "city_town18106",
       "name": "馬辰",
-      "displayOrder": 53,
+      "displayOrder": 54,
       "sourceRefs": {
         "voyageTw": "town18106"
       }
@@ -2007,7 +2015,7 @@
     {
       "id": "city_town7301",
       "name": "亞歷山大",
-      "displayOrder": 54,
+      "displayOrder": 55,
       "sourceRefs": {
         "voyageTw": "town7301"
       }
@@ -2015,7 +2023,7 @@
     {
       "id": "city_town9102",
       "name": "拿索",
-      "displayOrder": 55,
+      "displayOrder": 56,
       "sourceRefs": {
         "voyageTw": "town9102"
       }
@@ -2023,7 +2031,7 @@
     {
       "id": "city_town10202",
       "name": "皇家港",
-      "displayOrder": 56,
+      "displayOrder": 57,
       "sourceRefs": {
         "voyageTw": "town10202"
       }
@@ -2031,7 +2039,7 @@
     {
       "id": "city_town12106",
       "name": "聖多美",
-      "displayOrder": 57,
+      "displayOrder": 58,
       "sourceRefs": {
         "voyageTw": "town12106"
       }
@@ -2039,7 +2047,7 @@
     {
       "id": "city_town16106",
       "name": "阿爾漢格爾斯克",
-      "displayOrder": 58,
+      "displayOrder": 59,
       "sourceRefs": {
         "voyageTw": "town16106"
       }
@@ -2047,7 +2055,7 @@
     {
       "id": "city_town17201",
       "name": "雅加達",
-      "displayOrder": 59,
+      "displayOrder": 60,
       "sourceRefs": {
         "voyageTw": "town17201"
       }
@@ -2055,7 +2063,7 @@
     {
       "id": "city_town20102",
       "name": "馬希納",
-      "displayOrder": 60,
+      "displayOrder": 61,
       "sourceRefs": {
         "voyageTw": "town20102"
       }
@@ -2063,7 +2071,7 @@
     {
       "id": "city_town2201",
       "name": "南特",
-      "displayOrder": 61,
+      "displayOrder": 62,
       "sourceRefs": {
         "voyageTw": "town2201"
       }
@@ -2071,7 +2079,7 @@
     {
       "id": "city_town10109",
       "name": "卡宴",
-      "displayOrder": 62,
+      "displayOrder": 63,
       "sourceRefs": {
         "voyageTw": "town10109"
       }
@@ -2079,7 +2087,7 @@
     {
       "id": "city_town3202",
       "name": "安特衛普",
-      "displayOrder": 63,
+      "displayOrder": 64,
       "sourceRefs": {
         "voyageTw": "town3202"
       }
@@ -2087,7 +2095,7 @@
     {
       "id": "city_town2101",
       "name": "希洪",
-      "displayOrder": 64,
+      "displayOrder": 65,
       "sourceRefs": {
         "voyageTw": "town2101"
       }
@@ -2095,7 +2103,7 @@
     {
       "id": "city_town2203",
       "name": "波爾多",
-      "displayOrder": 65,
+      "displayOrder": 66,
       "sourceRefs": {
         "voyageTw": "town2203"
       }
@@ -2103,7 +2111,7 @@
     {
       "id": "city_town21201",
       "name": "東萊",
-      "displayOrder": 66,
+      "displayOrder": 67,
       "sourceRefs": {
         "voyageTw": "town21201"
       }
@@ -2111,7 +2119,7 @@
     {
       "id": "city_town21301",
       "name": "漢陽",
-      "displayOrder": 67,
+      "displayOrder": 68,
       "sourceRefs": {
         "voyageTw": "town21301"
       }
@@ -2119,7 +2127,7 @@
     {
       "id": "city_town19301",
       "name": "北京",
-      "displayOrder": 68,
+      "displayOrder": 69,
       "sourceRefs": {
         "voyageTw": "town19301"
       }
@@ -2127,7 +2135,7 @@
     {
       "id": "city_town19304",
       "name": "杭州",
-      "displayOrder": 69,
+      "displayOrder": 70,
       "sourceRefs": {
         "voyageTw": "town19304"
       }
@@ -2135,7 +2143,7 @@
     {
       "id": "city_town19202",
       "name": "泉州",
-      "displayOrder": 70,
+      "displayOrder": 71,
       "sourceRefs": {
         "voyageTw": "town19202"
       }
@@ -2143,7 +2151,7 @@
     {
       "id": "city_town19303",
       "name": "重慶",
-      "displayOrder": 71,
+      "displayOrder": 72,
       "sourceRefs": {
         "voyageTw": "town19303"
       }
@@ -2151,7 +2159,7 @@
     {
       "id": "city_town19302",
       "name": "長安",
-      "displayOrder": 72,
+      "displayOrder": 73,
       "sourceRefs": {
         "voyageTw": "town19302"
       }
@@ -2159,7 +2167,7 @@
     {
       "id": "city_town18301",
       "name": "淡水",
-      "displayOrder": 73,
+      "displayOrder": 74,
       "sourceRefs": {
         "voyageTw": "town18301"
       }
@@ -2167,7 +2175,7 @@
     {
       "id": "city_town22201",
       "name": "長崎",
-      "displayOrder": 74,
+      "displayOrder": 75,
       "sourceRefs": {
         "voyageTw": "town22201"
       }
@@ -2175,7 +2183,7 @@
     {
       "id": "city_town17104",
       "name": "帕賽",
-      "displayOrder": 75,
+      "displayOrder": 76,
       "sourceRefs": {
         "voyageTw": "town17104"
       }
@@ -2183,7 +2191,7 @@
     {
       "id": "city_town17108",
       "name": "河內",
-      "displayOrder": 76,
+      "displayOrder": 77,
       "sourceRefs": {
         "voyageTw": "town17108"
       }
@@ -2191,7 +2199,7 @@
     {
       "id": "city_town19201",
       "name": "澳門",
-      "displayOrder": 77,
+      "displayOrder": 78,
       "sourceRefs": {
         "voyageTw": "town19201"
       }
@@ -2199,7 +2207,7 @@
     {
       "id": "city_town19101",
       "name": "燕雲",
-      "displayOrder": 78,
+      "displayOrder": 79,
       "sourceRefs": {
         "voyageTw": "town19101"
       }
@@ -2207,7 +2215,7 @@
     {
       "id": "city_town1202",
       "name": "巴塞隆納",
-      "displayOrder": 79,
+      "displayOrder": 80,
       "sourceRefs": {
         "voyageTw": "town1202"
       }
@@ -2215,7 +2223,7 @@
     {
       "id": "city_town14102",
       "name": "馬薩瓦",
-      "displayOrder": 80,
+      "displayOrder": 81,
       "sourceRefs": {
         "voyageTw": "town14102"
       }
@@ -2223,7 +2231,7 @@
     {
       "id": "city_town1303",
       "name": "聖誕島",
-      "displayOrder": 81,
+      "displayOrder": 82,
       "sourceRefs": {
         "voyageTw": "town1303"
       }
@@ -2231,7 +2239,7 @@
     {
       "id": "city_town2205",
       "name": "奧波多",
-      "displayOrder": 82,
+      "displayOrder": 83,
       "sourceRefs": {
         "voyageTw": "town2205"
       }
@@ -2239,7 +2247,7 @@
     {
       "id": "city_town12103",
       "name": "巴瑟斯特",
-      "displayOrder": 83,
+      "displayOrder": 84,
       "sourceRefs": {
         "voyageTw": "town12103"
       }
@@ -2247,7 +2255,7 @@
     {
       "id": "city_town4203",
       "name": "奧斯陸",
-      "displayOrder": 84,
+      "displayOrder": 85,
       "sourceRefs": {
         "voyageTw": "town4203"
       }
@@ -2255,7 +2263,7 @@
     {
       "id": "city_town4104",
       "name": "維斯比",
-      "displayOrder": 85,
+      "displayOrder": 86,
       "sourceRefs": {
         "voyageTw": "town4104"
       }
@@ -2263,7 +2271,7 @@
     {
       "id": "city_town22101",
       "name": "堺",
-      "displayOrder": 86,
+      "displayOrder": 87,
       "sourceRefs": {
         "voyageTw": "town22101"
       }
@@ -2271,7 +2279,7 @@
     {
       "id": "city_town11108",
       "name": "伯南布哥",
-      "displayOrder": 87,
+      "displayOrder": 88,
       "sourceRefs": {
         "voyageTw": "town11108"
       }
@@ -2279,7 +2287,7 @@
     {
       "id": "city_town14204",
       "name": "巴士拉",
-      "displayOrder": 88,
+      "displayOrder": 89,
       "sourceRefs": {
         "voyageTw": "town14204"
       }
@@ -2287,7 +2295,7 @@
     {
       "id": "city_town11105",
       "name": "烏斯懷亞",
-      "displayOrder": 89,
+      "displayOrder": 90,
       "sourceRefs": {
         "voyageTw": "town11105"
       }
@@ -2295,7 +2303,7 @@
     {
       "id": "city_town11106",
       "name": "科皮亞波",
-      "displayOrder": 90,
+      "displayOrder": 91,
       "sourceRefs": {
         "voyageTw": "town11106"
       }
@@ -2303,7 +2311,7 @@
     {
       "id": "city_town15102",
       "name": "第烏",
-      "displayOrder": 91,
+      "displayOrder": 92,
       "sourceRefs": {
         "voyageTw": "town15102"
       }
@@ -2311,7 +2319,7 @@
     {
       "id": "city_town1102",
       "name": "法羅",
-      "displayOrder": 92,
+      "displayOrder": 93,
       "sourceRefs": {
         "voyageTw": "town1102"
       }
@@ -2319,7 +2327,7 @@
     {
       "id": "city_town17102",
       "name": "泗水",
-      "displayOrder": 93,
+      "displayOrder": 94,
       "sourceRefs": {
         "voyageTw": "town17102"
       }
@@ -2327,7 +2335,7 @@
     {
       "id": "city_town11301",
       "name": "利馬",
-      "displayOrder": 94,
+      "displayOrder": 95,
       "sourceRefs": {
         "voyageTw": "town11301"
       }
@@ -2335,7 +2343,7 @@
     {
       "id": "city_town20111",
       "name": "平哈拉",
-      "displayOrder": 95,
+      "displayOrder": 96,
       "sourceRefs": {
         "voyageTw": "town20111"
       }
@@ -2343,7 +2351,7 @@
     {
       "id": "city_town9201",
       "name": "維拉克斯",
-      "displayOrder": 96,
+      "displayOrder": 97,
       "sourceRefs": {
         "voyageTw": "town9201"
       }
@@ -2351,7 +2359,7 @@
     {
       "id": "city_town10108",
       "name": "迦太基",
-      "displayOrder": 97,
+      "displayOrder": 98,
       "sourceRefs": {
         "voyageTw": "town10108"
       }
@@ -2359,7 +2367,7 @@
     {
       "id": "city_town14202",
       "name": "巴格達",
-      "displayOrder": 98,
+      "displayOrder": 99,
       "sourceRefs": {
         "voyageTw": "town14202"
       }
@@ -2367,7 +2375,7 @@
     {
       "id": "city_town12301",
       "name": "廷巴克圖",
-      "displayOrder": 99,
+      "displayOrder": 100,
       "sourceRefs": {
         "voyageTw": "town12301"
       }
@@ -2375,7 +2383,7 @@
     {
       "id": "city_town15106",
       "name": "本地治里",
-      "displayOrder": 100,
+      "displayOrder": 101,
       "sourceRefs": {
         "voyageTw": "town15106"
       }
@@ -2383,7 +2391,7 @@
     {
       "id": "city_town18107",
       "name": "汶萊",
-      "displayOrder": 101,
+      "displayOrder": 102,
       "sourceRefs": {
         "voyageTw": "town18107"
       }
@@ -2391,7 +2399,7 @@
     {
       "id": "city_town13103",
       "name": "麻林地",
-      "displayOrder": 102,
+      "displayOrder": 103,
       "sourceRefs": {
         "voyageTw": "town13103"
       }
@@ -2399,7 +2407,7 @@
     {
       "id": "city_town20109",
       "name": "卡卡圖瓦",
-      "displayOrder": 103,
+      "displayOrder": 104,
       "sourceRefs": {
         "voyageTw": "town20109"
       }
@@ -2407,7 +2415,7 @@
     {
       "id": "city_town20108",
       "name": "栗島",
-      "displayOrder": 104,
+      "displayOrder": 105,
       "sourceRefs": {
         "voyageTw": "town20108"
       }
@@ -2415,7 +2423,7 @@
     {
       "id": "city_town22301",
       "name": "江戶",
-      "displayOrder": 105,
+      "displayOrder": 106,
       "sourceRefs": {
         "voyageTw": "town22301"
       }
@@ -2423,7 +2431,7 @@
     {
       "id": "city_town21103",
       "name": "濟州",
-      "displayOrder": 106,
+      "displayOrder": 107,
       "sourceRefs": {
         "voyageTw": "town21103"
       }
@@ -2431,7 +2439,7 @@
     {
       "id": "city_town20103",
       "name": "薩馬賴",
-      "displayOrder": 107,
+      "displayOrder": 108,
       "sourceRefs": {
         "voyageTw": "town20103"
       }
@@ -2439,7 +2447,7 @@
     {
       "id": "city_town22103",
       "name": "蝦夷",
-      "displayOrder": 108,
+      "displayOrder": 109,
       "sourceRefs": {
         "voyageTw": "town22103"
       }
@@ -2447,7 +2455,7 @@
     {
       "id": "city_town10102",
       "name": "威廉斯塔德",
-      "displayOrder": 109,
+      "displayOrder": 110,
       "sourceRefs": {
         "voyageTw": "town10102"
       }
@@ -2455,7 +2463,7 @@
     {
       "id": "city_town4301",
       "name": "聖彼得堡",
-      "displayOrder": 110,
+      "displayOrder": 111,
       "sourceRefs": {
         "voyageTw": "town4301"
       }
@@ -2463,7 +2471,7 @@
     {
       "id": "city_town18103",
       "name": "馬尼拉",
-      "displayOrder": 111,
+      "displayOrder": 112,
       "sourceRefs": {
         "voyageTw": "town18103"
       }
@@ -2471,7 +2479,7 @@
     {
       "id": "city_town10106",
       "name": "哈瓦那",
-      "displayOrder": 112,
+      "displayOrder": 113,
       "sourceRefs": {
         "voyageTw": "town10106"
       }
@@ -2479,7 +2487,7 @@
     {
       "id": "city_town9106",
       "name": "阿卡普高",
-      "displayOrder": 113,
+      "displayOrder": 114,
       "sourceRefs": {
         "voyageTw": "town9106"
       }
@@ -2487,7 +2495,7 @@
     {
       "id": "city_town9109",
       "name": "巴拿馬",
-      "displayOrder": 114,
+      "displayOrder": 115,
       "sourceRefs": {
         "voyageTw": "town9109"
       }
@@ -2495,7 +2503,7 @@
     {
       "id": "city_town10110",
       "name": "波拉馬爾",
-      "displayOrder": 115,
+      "displayOrder": 116,
       "sourceRefs": {
         "voyageTw": "town10110"
       }
@@ -2503,7 +2511,7 @@
     {
       "id": "city_town20106",
       "name": "烏納拉斯卡",
-      "displayOrder": 116,
+      "displayOrder": 117,
       "sourceRefs": {
         "voyageTw": "town20106"
       }
@@ -2511,7 +2519,7 @@
     {
       "id": "city_town13202",
       "name": "莫三比克",
-      "displayOrder": 117,
+      "displayOrder": 118,
       "sourceRefs": {
         "voyageTw": "town13202"
       }
@@ -2519,7 +2527,7 @@
     {
       "id": "city_town15104",
       "name": "錫蘭",
-      "displayOrder": 118,
+      "displayOrder": 119,
       "sourceRefs": {
         "voyageTw": "town15104"
       }
@@ -2527,7 +2535,7 @@
     {
       "id": "city_town16112",
       "name": "科孚島（柯爾夫）",
-      "displayOrder": 119,
+      "displayOrder": 120,
       "sourceRefs": {
         "voyageTw": "town16112"
       }
@@ -2535,7 +2543,7 @@
     {
       "id": "city_town8104",
       "name": "塔甘羅格",
-      "displayOrder": 120,
+      "displayOrder": 121,
       "sourceRefs": {
         "voyageTw": "town8104"
       }
@@ -2543,7 +2551,7 @@
     {
       "id": "city_town10103",
       "name": "紹斯賽德",
-      "displayOrder": 121,
+      "displayOrder": 122,
       "sourceRefs": {
         "voyageTw": "town10103"
       }
@@ -2551,7 +2559,7 @@
     {
       "id": "city_town18110",
       "name": "安平",
-      "displayOrder": 122,
+      "displayOrder": 123,
       "sourceRefs": {
         "voyageTw": "town18110"
       }
@@ -2559,7 +2567,7 @@
     {
       "id": "city_town17105",
       "name": "巨港",
-      "displayOrder": 123,
+      "displayOrder": 124,
       "sourceRefs": {
         "voyageTw": "town17105"
       }
@@ -2567,7 +2575,7 @@
     {
       "id": "city_town1103",
       "name": "帕爾瑪",
-      "displayOrder": 124,
+      "displayOrder": 125,
       "sourceRefs": {
         "voyageTw": "town1103"
       }
@@ -2575,7 +2583,7 @@
     {
       "id": "city_town12101",
       "name": "杜阿拉",
-      "displayOrder": 125,
+      "displayOrder": 126,
       "sourceRefs": {
         "voyageTw": "town12101"
       }
@@ -2583,7 +2591,7 @@
     {
       "id": "city_town12104",
       "name": "貝南",
-      "displayOrder": 126,
+      "displayOrder": 127,
       "sourceRefs": {
         "voyageTw": "town12104"
       }
@@ -2591,7 +2599,7 @@
     {
       "id": "city_town12202",
       "name": "埃爾米納",
-      "displayOrder": 127,
+      "displayOrder": 128,
       "sourceRefs": {
         "voyageTw": "town12202"
       }
@@ -2599,7 +2607,7 @@
     {
       "id": "city_town12107",
       "name": "獅子山",
-      "displayOrder": 128,
+      "displayOrder": 129,
       "sourceRefs": {
         "voyageTw": "town12107"
       }
@@ -2607,7 +2615,7 @@
     {
       "id": "city_town12201",
       "name": "阿比讓",
-      "displayOrder": 129,
+      "displayOrder": 130,
       "sourceRefs": {
         "voyageTw": "town12201"
       }
@@ -2615,7 +2623,7 @@
     {
       "id": "city_town11102",
       "name": "巴伊亞",
-      "displayOrder": 130,
+      "displayOrder": 131,
       "sourceRefs": {
         "voyageTw": "town11102"
       }
@@ -2623,7 +2631,7 @@
     {
       "id": "city_town11104",
       "name": "布宜諾斯艾利斯",
-      "displayOrder": 131,
+      "displayOrder": 132,
       "sourceRefs": {
         "voyageTw": "town11104"
       }
@@ -2631,7 +2639,7 @@
     {
       "id": "city_town10104",
       "name": "聖地牙哥",
-      "displayOrder": 132,
+      "displayOrder": 133,
       "sourceRefs": {
         "voyageTw": "town10104"
       }
@@ -2639,7 +2647,7 @@
     {
       "id": "city_town10107",
       "name": "加拉卡斯",
-      "displayOrder": 133,
+      "displayOrder": 134,
       "sourceRefs": {
         "voyageTw": "town10107"
       }
@@ -2647,7 +2655,7 @@
     {
       "id": "city_town21101",
       "name": "德源",
-      "displayOrder": 134,
+      "displayOrder": 135,
       "sourceRefs": {
         "voyageTw": "town21101"
       }
@@ -2655,7 +2663,7 @@
     {
       "id": "city_town21102",
       "name": "迎日",
-      "displayOrder": 135,
+      "displayOrder": 136,
       "sourceRefs": {
         "voyageTw": "town21102"
       }
@@ -2663,7 +2671,7 @@
     {
       "id": "city_town12102",
       "name": "拉斯帕爾馬斯",
-      "displayOrder": 136,
+      "displayOrder": 137,
       "sourceRefs": {
         "voyageTw": "town12102"
       }
@@ -2671,7 +2679,7 @@
     {
       "id": "city_town9108",
       "name": "科哈塞特",
-      "displayOrder": 137,
+      "displayOrder": 138,
       "sourceRefs": {
         "voyageTw": "town9108"
       }
@@ -2679,7 +2687,7 @@
     {
       "id": "city_town8106",
       "name": "特拉布宗",
-      "displayOrder": 138,
+      "displayOrder": 139,
       "sourceRefs": {
         "voyageTw": "town8106"
       }
@@ -2687,7 +2695,7 @@
     {
       "id": "city_town5101",
       "name": "蒙彼利埃",
-      "displayOrder": 139,
+      "displayOrder": 140,
       "sourceRefs": {
         "voyageTw": "town5101"
       }
@@ -2695,7 +2703,7 @@
     {
       "id": "city_town12105",
       "name": "比紹",
-      "displayOrder": 140,
+      "displayOrder": 141,
       "sourceRefs": {
         "voyageTw": "town12105"
       }
@@ -2703,7 +2711,7 @@
     {
       "id": "city_town13109",
       "name": "塔瑪塔夫",
-      "displayOrder": 141,
+      "displayOrder": 142,
       "sourceRefs": {
         "voyageTw": "town13109"
       }
@@ -2711,7 +2719,7 @@
     {
       "id": "city_town5104",
       "name": "卡爾維",
-      "displayOrder": 142,
+      "displayOrder": 143,
       "sourceRefs": {
         "voyageTw": "town5104"
       }
@@ -2719,7 +2727,7 @@
     {
       "id": "city_town22102",
       "name": "那霸",
-      "displayOrder": 143,
+      "displayOrder": 144,
       "sourceRefs": {
         "voyageTw": "town22102"
       }
@@ -2727,7 +2735,7 @@
     {
       "id": "city_town18101",
       "name": "達沃",
-      "displayOrder": 144,
+      "displayOrder": 145,
       "sourceRefs": {
         "voyageTw": "town18101"
       }
@@ -2735,7 +2743,7 @@
     {
       "id": "city_town18112",
       "name": "和魯",
-      "displayOrder": 145,
+      "displayOrder": 146,
       "sourceRefs": {
         "voyageTw": "town18112"
       }
@@ -2743,7 +2751,7 @@
     {
       "id": "city_town6102",
       "name": "安科納",
-      "displayOrder": 146,
+      "displayOrder": 147,
       "sourceRefs": {
         "voyageTw": "town6102"
       }
@@ -2751,7 +2759,7 @@
     {
       "id": "city_town3103",
       "name": "格羅寧根",
-      "displayOrder": 147,
+      "displayOrder": 148,
       "sourceRefs": {
         "voyageTw": "town3103"
       }
@@ -2759,7 +2767,7 @@
     {
       "id": "city_town4101",
       "name": "但澤",
-      "displayOrder": 148,
+      "displayOrder": 149,
       "sourceRefs": {
         "voyageTw": "town4101"
       }
@@ -2767,7 +2775,7 @@
     {
       "id": "city_town14101",
       "name": "杜法爾",
-      "displayOrder": 149,
+      "displayOrder": 150,
       "sourceRefs": {
         "voyageTw": "town14101"
       }
@@ -2775,7 +2783,7 @@
     {
       "id": "city_town1105",
       "name": "馬德拉",
-      "displayOrder": 150,
+      "displayOrder": 151,
       "sourceRefs": {
         "voyageTw": "town1105"
       }
@@ -2783,7 +2791,7 @@
     {
       "id": "city_town1104",
       "name": "亞速爾",
-      "displayOrder": 151,
+      "displayOrder": 152,
       "sourceRefs": {
         "voyageTw": "town1104"
       }
@@ -2791,7 +2799,7 @@
     {
       "id": "city_town12109",
       "name": "維德角",
-      "displayOrder": 152,
+      "displayOrder": 153,
       "sourceRefs": {
         "voyageTw": "town12109"
       }
@@ -2799,7 +2807,7 @@
     {
       "id": "city_town9202",
       "name": "特魯希略",
-      "displayOrder": 153,
+      "displayOrder": 154,
       "sourceRefs": {
         "voyageTw": "town9202"
       }
@@ -2807,7 +2815,7 @@
     {
       "id": "city_town9203",
       "name": "波多貝羅",
-      "displayOrder": 154,
+      "displayOrder": 155,
       "sourceRefs": {
         "voyageTw": "town9203"
       }
@@ -2815,7 +2823,7 @@
     {
       "id": "city_town20112",
       "name": "關島",
-      "displayOrder": 155,
+      "displayOrder": 156,
       "sourceRefs": {
         "voyageTw": "town20112"
       }
@@ -2823,7 +2831,7 @@
     {
       "id": "city_town1101",
       "name": "卡薩布蘭加",
-      "displayOrder": 156,
+      "displayOrder": 157,
       "sourceRefs": {
         "voyageTw": "town1101"
       }
@@ -2831,7 +2839,7 @@
     {
       "id": "city_town18111",
       "name": "特爾納特",
-      "displayOrder": 157,
+      "displayOrder": 158,
       "sourceRefs": {
         "voyageTw": "town18111"
       }
@@ -2839,7 +2847,7 @@
     {
       "id": "city_town3102",
       "name": "多佛",
-      "displayOrder": 158,
+      "displayOrder": 159,
       "sourceRefs": {
         "voyageTw": "town3102"
       }
@@ -2847,7 +2855,7 @@
     {
       "id": "city_town3101",
       "name": "海爾德",
-      "displayOrder": 159,
+      "displayOrder": 160,
       "sourceRefs": {
         "voyageTw": "town3101"
       }
@@ -2855,7 +2863,7 @@
     {
       "id": "city_town6202",
       "name": "錫拉庫薩",
-      "displayOrder": 160,
+      "displayOrder": 161,
       "sourceRefs": {
         "voyageTw": "town6202"
       }
@@ -2863,7 +2871,7 @@
     {
       "id": "city_town14103",
       "name": "夕拉茲",
-      "displayOrder": 161,
+      "displayOrder": 162,
       "sourceRefs": {
         "voyageTw": "town14103"
       }
@@ -2871,7 +2879,7 @@
     {
       "id": "city_town7104",
       "name": "雅法",
-      "displayOrder": 162,
+      "displayOrder": 163,
       "sourceRefs": {
         "voyageTw": "town7104"
       }
@@ -2879,7 +2887,7 @@
     {
       "id": "city_town7103",
       "name": "安塔利亞",
-      "displayOrder": 163,
+      "displayOrder": 164,
       "sourceRefs": {
         "voyageTw": "town7103"
       }
@@ -2887,7 +2895,7 @@
     {
       "id": "city_town18104",
       "name": "望加錫",
-      "displayOrder": 164,
+      "displayOrder": 165,
       "sourceRefs": {
         "voyageTw": "town18104"
       }
@@ -2895,7 +2903,7 @@
     {
       "id": "city_town4102",
       "name": "里加",
-      "displayOrder": 165,
+      "displayOrder": 166,
       "sourceRefs": {
         "voyageTw": "town4102"
       }
@@ -2903,7 +2911,7 @@
     {
       "id": "city_town7102",
       "name": "賽德港",
-      "displayOrder": 166,
+      "displayOrder": 167,
       "sourceRefs": {
         "voyageTw": "town7102"
       }
@@ -2911,7 +2919,7 @@
     {
       "id": "city_town20101",
       "name": "芬瑟島",
-      "displayOrder": 167,
+      "displayOrder": 168,
       "sourceRefs": {
         "voyageTw": "town20101"
       }
@@ -2919,7 +2927,7 @@
     {
       "id": "city_town9107",
       "name": "歐隆",
-      "displayOrder": 168,
+      "displayOrder": 169,
       "sourceRefs": {
         "voyageTw": "town9107"
       }
@@ -2927,7 +2935,7 @@
     {
       "id": "city_town15105",
       "name": "加爾各答",
-      "displayOrder": 169,
+      "displayOrder": 170,
       "sourceRefs": {
         "voyageTw": "town15105"
       }
@@ -2935,7 +2943,7 @@
     {
       "id": "city_town20107",
       "name": "旺加努伊",
-      "displayOrder": 170,
+      "displayOrder": 171,
       "sourceRefs": {
         "voyageTw": "town20107"
       }
@@ -2943,7 +2951,7 @@
     {
       "id": "city_town8103",
       "name": "刻赤",
-      "displayOrder": 171,
+      "displayOrder": 172,
       "sourceRefs": {
         "voyageTw": "town8103"
       }
@@ -2951,7 +2959,7 @@
     {
       "id": "city_town8101",
       "name": "瓦爾納",
-      "displayOrder": 172,
+      "displayOrder": 173,
       "sourceRefs": {
         "voyageTw": "town8101"
       }
@@ -2959,7 +2967,7 @@
     {
       "id": "city_town13105",
       "name": "本格拉",
-      "displayOrder": 173,
+      "displayOrder": 174,
       "sourceRefs": {
         "voyageTw": "town13105"
       }
@@ -2967,7 +2975,7 @@
     {
       "id": "city_town13201",
       "name": "羅安達",
-      "displayOrder": 174,
+      "displayOrder": 175,
       "sourceRefs": {
         "voyageTw": "town13201"
       }
@@ -2975,7 +2983,7 @@
     {
       "id": "city_town17103",
       "name": "亞齊",
-      "displayOrder": 175,
+      "displayOrder": 176,
       "sourceRefs": {
         "voyageTw": "town17103"
       }
@@ -2983,7 +2991,7 @@
     {
       "id": "city_town17107",
       "name": "嘉定",
-      "displayOrder": 176,
+      "displayOrder": 177,
       "sourceRefs": {
         "voyageTw": "town17107"
       }
@@ -2991,7 +2999,7 @@
     {
       "id": "city_town13205",
       "name": "桑給巴爾",
-      "displayOrder": 177,
+      "displayOrder": 178,
       "sourceRefs": {
         "voyageTw": "town13205"
       }
@@ -2999,7 +3007,7 @@
     {
       "id": "city_town18109",
       "name": "古晉",
-      "displayOrder": 178,
+      "displayOrder": 179,
       "sourceRefs": {
         "voyageTw": "town18109"
       }
@@ -3007,7 +3015,7 @@
     {
       "id": "city_town17101",
       "name": "洛布里",
-      "displayOrder": 179,
+      "displayOrder": 180,
       "sourceRefs": {
         "voyageTw": "town17101"
       }
@@ -3015,7 +3023,7 @@
     {
       "id": "city_town13102",
       "name": "蒙巴薩",
-      "displayOrder": 180,
+      "displayOrder": 181,
       "sourceRefs": {
         "voyageTw": "town13102"
       }
@@ -3023,7 +3031,7 @@
     {
       "id": "city_town15103",
       "name": "默蘇利珀德姆",
-      "displayOrder": 181,
+      "displayOrder": 182,
       "sourceRefs": {
         "voyageTw": "town15103"
       }
@@ -3031,7 +3039,7 @@
     {
       "id": "city_town13203",
       "name": "索法拉",
-      "displayOrder": 182,
+      "displayOrder": 183,
       "sourceRefs": {
         "voyageTw": "town13203"
       }
@@ -3039,7 +3047,7 @@
     {
       "id": "city_town15101",
       "name": "科欽",
-      "displayOrder": 183,
+      "displayOrder": 184,
       "sourceRefs": {
         "voyageTw": "town15101"
       }
@@ -3047,7 +3055,7 @@
     {
       "id": "city_town5102",
       "name": "薩沙里",
-      "displayOrder": 184,
+      "displayOrder": 185,
       "sourceRefs": {
         "voyageTw": "town5102"
       }
@@ -3055,7 +3063,7 @@
     {
       "id": "city_town6103",
       "name": "札達爾",
-      "displayOrder": 185,
+      "displayOrder": 186,
       "sourceRefs": {
         "voyageTw": "town6103"
       }
@@ -3063,7 +3071,7 @@
     {
       "id": "city_town6105",
       "name": "第里雅斯特",
-      "displayOrder": 186,
+      "displayOrder": 187,
       "sourceRefs": {
         "voyageTw": "town6105"
       }
@@ -3071,7 +3079,7 @@
     {
       "id": "city_town13108",
       "name": "基爾瓦",
-      "displayOrder": 187,
+      "displayOrder": 188,
       "sourceRefs": {
         "voyageTw": "town13108"
       }
@@ -3079,7 +3087,7 @@
     {
       "id": "city_town16109",
       "name": "切爾斯基",
-      "displayOrder": 188,
+      "displayOrder": 189,
       "sourceRefs": {
         "voyageTw": "town16109"
       }
@@ -3087,7 +3095,7 @@
     {
       "id": "city_town8102",
       "name": "奧德薩",
-      "displayOrder": 189,
+      "displayOrder": 190,
       "sourceRefs": {
         "voyageTw": "town8102"
       }
@@ -3095,7 +3103,7 @@
     {
       "id": "city_town11103",
       "name": "瓦爾帕萊索",
-      "displayOrder": 190,
+      "displayOrder": 191,
       "sourceRefs": {
         "voyageTw": "town11103"
       }
@@ -3103,7 +3111,7 @@
     {
       "id": "city_town9101",
       "name": "瓜地馬拉",
-      "displayOrder": 191,
+      "displayOrder": 192,
       "sourceRefs": {
         "voyageTw": "town9101"
       }
@@ -3111,7 +3119,7 @@
     {
       "id": "city_town16104",
       "name": "瓦爾德",
-      "displayOrder": 192,
+      "displayOrder": 193,
       "sourceRefs": {
         "voyageTw": "town16104"
       }
@@ -3119,7 +3127,7 @@
     {
       "id": "city_town13104",
       "name": "摩加迪休",
-      "displayOrder": 193,
+      "displayOrder": 194,
       "sourceRefs": {
         "voyageTw": "town13104"
       }
@@ -3127,7 +3135,7 @@
     {
       "id": "city_town14206",
       "name": "吉達",
-      "displayOrder": 194,
+      "displayOrder": 195,
       "sourceRefs": {
         "voyageTw": "town14206"
       }
@@ -3135,7 +3143,7 @@
     {
       "id": "city_town11107",
       "name": "通貝斯",
-      "displayOrder": 195,
+      "displayOrder": 196,
       "sourceRefs": {
         "voyageTw": "town11107"
       }
@@ -3143,7 +3151,7 @@
     {
       "id": "city_town15107",
       "name": "勃固",
-      "displayOrder": 196,
+      "displayOrder": 197,
       "sourceRefs": {
         "voyageTw": "town15107"
       }
@@ -3151,7 +3159,7 @@
     {
       "id": "city_town20114",
       "name": "荷巴特",
-      "displayOrder": 197,
+      "displayOrder": 198,
       "sourceRefs": {
         "voyageTw": "town20114"
       }
@@ -3159,7 +3167,7 @@
     {
       "id": "city_town16105",
       "name": "巴羅",
-      "displayOrder": 198,
+      "displayOrder": 199,
       "sourceRefs": {
         "voyageTw": "town16105"
       }
@@ -3167,7 +3175,7 @@
     {
       "id": "city_town9105",
       "name": "亞懷亞特",
-      "displayOrder": 199,
+      "displayOrder": 200,
       "sourceRefs": {
         "voyageTw": "town9105"
       }
@@ -3175,7 +3183,7 @@
     {
       "id": "city_town10111",
       "name": "塔科馬",
-      "displayOrder": 200,
+      "displayOrder": 201,
       "sourceRefs": {
         "voyageTw": "town10111"
       }
@@ -3183,7 +3191,7 @@
     {
       "id": "city_town13101",
       "name": "納塔爾",
-      "displayOrder": 201,
+      "displayOrder": 202,
       "sourceRefs": {
         "voyageTw": "town13101"
       }
@@ -3191,7 +3199,7 @@
     {
       "id": "city_town13106",
       "name": "卡里比布",
-      "displayOrder": 202,
+      "displayOrder": 203,
       "sourceRefs": {
         "voyageTw": "town13106"
       }
@@ -3199,7 +3207,7 @@
     {
       "id": "city_town13107",
       "name": "克利馬內",
-      "displayOrder": 203,
+      "displayOrder": 204,
       "sourceRefs": {
         "voyageTw": "town13107"
       }
@@ -3207,7 +3215,7 @@
     {
       "id": "city_town20110",
       "name": "皮里港",
-      "displayOrder": 204,
+      "displayOrder": 205,
       "sourceRefs": {
         "voyageTw": "town20110"
       }
@@ -3215,7 +3223,7 @@
     {
       "id": "city_town12108",
       "name": "阿爾金",
-      "displayOrder": 205,
+      "displayOrder": 206,
       "sourceRefs": {
         "voyageTw": "town12108"
       }
@@ -3223,7 +3231,7 @@
     {
       "id": "city_town14104",
       "name": "多哈",
-      "displayOrder": 206,
+      "displayOrder": 207,
       "sourceRefs": {
         "voyageTw": "town14104"
       }
@@ -3231,7 +3239,7 @@
     {
       "id": "city_town9103",
       "name": "努塔克",
-      "displayOrder": 207,
+      "displayOrder": 208,
       "sourceRefs": {
         "voyageTw": "town9103"
       }
@@ -3239,7 +3247,7 @@
     {
       "id": "city_town16103",
       "name": "雷克雅維克",
-      "displayOrder": 208,
+      "displayOrder": 209,
       "sourceRefs": {
         "voyageTw": "town16103"
       }
@@ -3247,7 +3255,7 @@
     {
       "id": "city_town16107",
       "name": "鄂霍次克",
-      "displayOrder": 209,
+      "displayOrder": 210,
       "sourceRefs": {
         "voyageTw": "town16107"
       }
@@ -3255,7 +3263,7 @@
     {
       "id": "city_town16101",
       "name": "那維克",
-      "displayOrder": 210,
+      "displayOrder": 211,
       "sourceRefs": {
         "voyageTw": "town16101"
       }
@@ -3263,7 +3271,7 @@
     {
       "id": "city_town20113",
       "name": "夏威夷",
-      "displayOrder": 211,
+      "displayOrder": 212,
       "sourceRefs": {
         "voyageTw": "town20113"
       }
@@ -3271,7 +3279,7 @@
     {
       "id": "city_town18102",
       "name": "帝利",
-      "displayOrder": 212,
+      "displayOrder": 213,
       "sourceRefs": {
         "voyageTw": "town18102"
       }
@@ -3279,7 +3287,7 @@
     {
       "id": "city_town18105",
       "name": "班達",
-      "displayOrder": 213,
+      "displayOrder": 214,
       "sourceRefs": {
         "voyageTw": "town18105"
       }
@@ -3287,7 +3295,7 @@
     {
       "id": "city_town20105",
       "name": "希瓦瓦",
-      "displayOrder": 214,
+      "displayOrder": 215,
       "sourceRefs": {
         "voyageTw": "town20105"
       }
@@ -3295,7 +3303,7 @@
     {
       "id": "city_town20104",
       "name": "蘇瓦",
-      "displayOrder": 215,
+      "displayOrder": 216,
       "sourceRefs": {
         "voyageTw": "town20104"
       }
@@ -3303,7 +3311,7 @@
     {
       "id": "city_town17106",
       "name": "檳港",
-      "displayOrder": 216,
+      "displayOrder": 217,
       "sourceRefs": {
         "voyageTw": "town17106"
       }
@@ -4625,11 +4633,187 @@
   ],
   "skillCategories": [
     {
-      "id": "skill_category_",
-      "name": "skill_category_",
+      "id": "skill_category_trade_price_adjustment",
+      "name": "skill_category_trade_price_adjustment",
       "displayOrder": 0,
       "sourceRefs": {
-        "voyageTw": "_unknown"
+        "voyageTw": "trade_price_adjustment"
+      }
+    },
+    {
+      "id": "skill_category_trade_expertise",
+      "name": "skill_category_trade_expertise",
+      "displayOrder": 1,
+      "sourceRefs": {
+        "voyageTw": "trade_expertise"
+      }
+    },
+    {
+      "id": "skill_category_adventure",
+      "name": "skill_category_adventure",
+      "displayOrder": 2,
+      "sourceRefs": {
+        "voyageTw": "adventure"
+      }
+    },
+    {
+      "id": "skill_category_naval_passive_other",
+      "name": "skill_category_naval_passive_other",
+      "displayOrder": 3,
+      "sourceRefs": {
+        "voyageTw": "naval_passive_other"
+      }
+    },
+    {
+      "id": "skill_category_barter",
+      "name": "skill_category_barter",
+      "displayOrder": 4,
+      "sourceRefs": {
+        "voyageTw": "barter"
+      }
+    },
+    {
+      "id": "skill_category_innate_buff",
+      "name": "skill_category_innate_buff",
+      "displayOrder": 5,
+      "sourceRefs": {
+        "voyageTw": "innate_buff"
+      }
+    },
+    {
+      "id": "skill_category_naval_active_enhancement",
+      "name": "skill_category_naval_active_enhancement",
+      "displayOrder": 6,
+      "sourceRefs": {
+        "voyageTw": "naval_active_enhancement"
+      }
+    },
+    {
+      "id": "skill_category_combat_other",
+      "name": "skill_category_combat_other",
+      "displayOrder": 7,
+      "sourceRefs": {
+        "voyageTw": "combat_other"
+      }
+    },
+    {
+      "id": "skill_category_admiral",
+      "name": "skill_category_admiral",
+      "displayOrder": 8,
+      "sourceRefs": {
+        "voyageTw": "admiral"
+      }
+    },
+    {
+      "id": "skill_category_menuskt15",
+      "name": "生命值恢復（醫療）",
+      "displayOrder": 9,
+      "sourceRefs": {
+        "voyageTw": "menuskt15"
+      }
+    },
+    {
+      "id": "skill_category_menuskt12",
+      "name": "海戰／被動（防禦系）",
+      "displayOrder": 10,
+      "sourceRefs": {
+        "voyageTw": "menuskt12"
+      }
+    },
+    {
+      "id": "skill_category_menuskt8",
+      "name": "海戰／被動（衝破系）",
+      "displayOrder": 11,
+      "sourceRefs": {
+        "voyageTw": "menuskt8"
+      }
+    },
+    {
+      "id": "skill_category_menuskt21",
+      "name": "打撈技能",
+      "displayOrder": 12,
+      "sourceRefs": {
+        "voyageTw": "menuskt21"
+      }
+    },
+    {
+      "id": "skill_category_menuskt7",
+      "name": "海戰／主動（衝破系）",
+      "displayOrder": 13,
+      "sourceRefs": {
+        "voyageTw": "menuskt7"
+      }
+    },
+    {
+      "id": "skill_category_menuskt4",
+      "name": "協商相關技能",
+      "displayOrder": 14,
+      "sourceRefs": {
+        "voyageTw": "menuskt4"
+      }
+    },
+    {
+      "id": "skill_category_menuskt14",
+      "name": "耐久度修復",
+      "displayOrder": 15,
+      "sourceRefs": {
+        "voyageTw": "menuskt14"
+      }
+    },
+    {
+      "id": "skill_category_menuskt17",
+      "name": "航海相關技能",
+      "displayOrder": 16,
+      "sourceRefs": {
+        "voyageTw": "menuskt17"
+      }
+    },
+    {
+      "id": "skill_category_menuskt6",
+      "name": "海戰／被動（肉搏系）",
+      "displayOrder": 17,
+      "sourceRefs": {
+        "voyageTw": "menuskt6"
+      }
+    },
+    {
+      "id": "skill_category_menuskt5",
+      "name": "海戰／主動（肉搏系）",
+      "displayOrder": 18,
+      "sourceRefs": {
+        "voyageTw": "menuskt5"
+      }
+    },
+    {
+      "id": "skill_category_certificate",
+      "name": "skill_category_certificate",
+      "displayOrder": 19,
+      "sourceRefs": {
+        "voyageTw": "certificate"
+      }
+    },
+    {
+      "id": "skill_category_menuskt10",
+      "name": "海戰／被動（砲擊系）",
+      "displayOrder": 20,
+      "sourceRefs": {
+        "voyageTw": "menuskt10"
+      }
+    },
+    {
+      "id": "skill_category_menuskt9",
+      "name": "海戰／主動（砲擊系）",
+      "displayOrder": 21,
+      "sourceRefs": {
+        "voyageTw": "menuskt9"
+      }
+    },
+    {
+      "id": "skill_category_menuskt20",
+      "name": "天生效果／減益",
+      "displayOrder": 22,
+      "sourceRefs": {
+        "voyageTw": "menuskt20"
       }
     }
   ]

@@ -287,10 +287,17 @@ export const writeRuntimeData = (
   write('catalog', catalog)
   write('skills', runtimeSkills) // dict format: {skillId: {id,n,cat,ip}, ...}
   write('dictionaries', runtimeDicts)
+  // Lightweight metadata for home page (avoids loading full catalog)
+  write('dataset-meta', {
+    officerCount: catalog.length,
+    skillCount: Object.keys(runtimeSkills).length,
+    contentVersion: '1.0.0',
+  })
   // Note: sharded details-*.js files are written separately to the detail subpackage
 
   console.log(`Runtime data written to ${outputDir}/`)
   console.log(`  catalog.js: ${catalog.length} officers`)
   console.log(`  skills.js: ${Object.keys(runtimeSkills).length} entries (dict format)`)
   console.log(`  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, languages=${runtimeDicts.languages.length}, categories=${runtimeDicts.skillCategories.length}`)
+  console.log(`  dataset-meta.js: officerCount=${catalog.length}, skillCount=${Object.keys(runtimeSkills).length}`)
 }

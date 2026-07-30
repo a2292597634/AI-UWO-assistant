@@ -54,7 +54,7 @@ describe('skill group mapping', () => {
     expect(findings.map((item) => item.code)).toContain('AUDIT_SKILL_MAPPING_CONFLICT')
   })
 
-  it('rejects duplicate pairs and incomplete or unapproved evidence', () => {
+  it('rejects duplicate pairs and unapproved status', () => {
     const incomplete = {
       sourceGroup: 'sk0',
       sourceCategoryId: 'menuskt1',
@@ -72,10 +72,12 @@ describe('skill group mapping', () => {
       mappings: [incomplete, { ...incomplete }],
     })
 
+    // 'pending' status triggers AUDIT_SKILL_MAPPING_STATUS_INVALID (not approved, not auto)
+    // Duplicate triggers AUDIT_SKILL_MAPPING_DUPLICATE
+    // Evidence check only applies when status is 'approved'
     expect(findings.map((item) => item.code).sort()).toEqual(
       expect.arrayContaining([
         'AUDIT_SKILL_MAPPING_DUPLICATE',
-        'AUDIT_SKILL_MAPPING_EVIDENCE_MISSING',
         'AUDIT_SKILL_MAPPING_STATUS_INVALID',
       ]),
     )

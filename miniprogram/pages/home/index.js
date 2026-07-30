@@ -6,8 +6,8 @@ Page({
   },
 
   onLoad() {
-    const catalog = require('../../generated/catalog')
-    this.setData({ count: catalog.length })
+    const meta = require('../../generated/dataset-meta')
+    this.setData({ count: meta.officerCount })
   },
 
   onEnterCatalog() {
