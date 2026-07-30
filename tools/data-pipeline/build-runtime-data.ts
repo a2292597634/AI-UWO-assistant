@@ -56,6 +56,7 @@ export interface CatalogEntry {
   languages: string[]  // just language IDs (short form, no prefix)
   activeSkills: string[]  // just skill IDs
   passiveSkills: string[]  // just skill IDs
+  searchAliases: string[]  // name parts for search matching
 }
 
 export const buildCatalog = (
@@ -66,54 +67,57 @@ export const buildCatalog = (
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? unprefix(id)
 
-  return officers.map((o) => ({
-    id: o.id,
-    name: o.name,
-    rarityId: o.rarityId,
-    rarityName: rarityStar(o.rarityId),
-    typeId: o.typeId,
-    typeName: dictName('types', o.typeId),
-    genderId: o.genderId,
-    genderLabel: unprefix(o.genderId),
-    jobId: o.jobId,
-    jobName: dictName('jobs', o.jobId),
-    portraitPath: portraitPath(o.id),
-    languages: o.languages.map((l) => unprefix(l.languageId)),
-    activeSkills: o.skills.filter((r) => r.kind === 'active').map((r) => r.skillId),
-    passiveSkills: o.skills.filter((r) => r.kind === 'passive').map((r) => r.skillId),
-  }))
+  return officers.map((o) => {
+    // Generate search aliases from name parts
+    const nameTrimmed = o.name.trim()
+    const aliases = [nameTrimmed]
+    const parts = nameTrimmed.split(/[·\s]+/)
+    for (const part of parts) {
+      if (part.length > 1 && aliases.indexOf(part) < 0) {
+        aliases.push(part)
+      }
+    }
+
+    return {
+      id: o.id,
+      name: nameTrimmed,
+      rarityId: o.rarityId,
+      rarityName: rarityStar(o.rarityId),
+      typeId: o.typeId,
+      typeName: dictName('types', o.typeId),
+      genderId: o.genderId,
+      genderLabel: dictName('genders', o.genderId),
+      jobId: o.jobId,
+      jobName: dictName('jobs', o.jobId),
+      portraitPath: portraitPath(o.id),
+      languages: o.languages.map((l) => unprefix(l.languageId)),
+      activeSkills: o.skills.filter((r) => r.kind === 'active').map((r) => r.skillId),
+      passiveSkills: o.skills.filter((r) => r.kind === 'passive').map((r) => r.skillId),
+      searchAliases: aliases,
+    }
+  })
 }
 
-// ── Details (compact: short field names to fit subpackage 2 MB limit) ──
-// Field map: i=id, n=name, ri=rarityId, rn=rarityName, ti=typeId, tn=typeName
-//   gi=genderId, gn=genderName, ji=jobId, jn=jobName, ni=nationalityId, nn=nationalityName
-//   pp=portraitPath, ls=languages, ss=skills, rc=recruitment
-//   li=languageId, lv=level, si=skillId, k=kind, sg=sourceGroup, sl=slot
-//   ul=unlockLevel, ci=cityIds/requirementId/categoryId, cn=cityNames/categoryName/requirementName
-//   ro=requiredOfficerIds, nt=note, ip=iconPath
+// ── Details (compact: short field names, only WXML-used fields) ──
+// Field map: n=name, rn=rarityName, tn=typeName, gn=genderName
+//   jn=jobName, nn=nationalityName, pp=portraitPath, ls=languages, ss=skills, rc=recruitment
+//   li=languageId, lv=level, si=skillId, k=kind
+//   ul=unlockLevel, ip=iconPath, cn=cityNames/requirementName, nt=note
 
 export interface DetailEntryCompact {
-  i: string   // id
   n: string   // name
-  ri: string  // rarityId
-  rn: string  // rarityName
-  ti: string  // typeId
+  rn: string  // rarityName (stars)
   tn: string  // typeName
-  gi: string  // genderId
   gn: string  // genderName
-  ji: string  // jobId
   jn: string  // jobName
-  ni: string  // nationalityId
   nn: string  // nationalityName
   pp: string  // portraitPath
   ls: Array<{ li: string; lv: number; n: string }>
   ss: Array<{
-    si: string; k: string; sg: string; sl: number
-    ul: number; lv: number; n: string; cn: string; ci: string; ip: string
+    si: string; k: string; ul: number; lv: number; n: string; ip: string
   }>
   rc: {
-    ci: string[]; cn: string[]; ri: string | null; rn: string | null
-    ro: string[]; nt: string | null
+    cn: string[]; rn: string | null; nt: string | null
   }
 }
 
@@ -130,17 +134,11 @@ export const buildDetails = (
 
   for (const o of officers) {
     result[o.id] = {
-      i: o.id,
       n: o.name,
-      ri: o.rarityId,
       rn: rarityStar(o.rarityId),
-      ti: o.typeId,
       tn: dictName('types', o.typeId),
-      gi: o.genderId,
       gn: dictName('genders', o.genderId),
-      ji: o.jobId,
       jn: dictName('jobs', o.jobId),
-      ni: o.nationalityId,
       nn: dictName('nationalities', o.nationalityId),
       pp: portraitPath(o.id),
       ls: o.languages.map((l) => ({
@@ -153,30 +151,58 @@ export const buildDetails = (
         return {
           si: rel.skillId,
           k: rel.kind,
-          sg: rel.sourceGroup,
-          sl: rel.slot,
           ul: rel.unlockLevel,
           lv: rel.level,
           n: sk?.name ?? rel.skillId,
-          cn: dictName('skillCategories', sk?.categoryId ?? ''),
-          ci: sk?.categoryId ?? '',
           ip: iconPath(rel.skillId),
         }
       }),
       rc: {
-        ci: o.recruitment.cityIds.map(unprefix),
         cn: o.recruitment.cityIds.map((id) => dictName('cities', id)),
-        ri: o.recruitment.requirementId,
         rn: o.recruitment.requirementId
           ? dictName('requirements', o.recruitment.requirementId)
           : null,
-        ro: o.recruitment.requiredOfficerIds,
         nt: o.recruitment.note,
       },
     }
   }
 
   return result
+}
+
+/** Shard an officer ID for chunked detail files. Must match shardFor. */
+const detailShard = (officerId: string): number => {
+  const filename = `${officerId}.png`
+  const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
+  let hash = 0
+  for (let i = 0; i < id.length; i++) hash = ((hash * 31 + id.charCodeAt(i)) >>> 0)
+  return hash % 10
+}
+
+/** Write sharded detail files (one chunk per shard) for lazy loading. */
+export const writeShardedDetails = (
+  officers: CanonicalOfficer[],
+  skills: CanonicalSkill[],
+  dictionaries: Record<string, DictionaryItem[]>,
+  outputDir: string,
+): void => {
+  const all = buildDetails(officers, skills, dictionaries)
+
+  // Group by shard
+  const shards: Record<string, DetailEntryCompact>[] = Array.from({ length: 10 }, () => ({}))
+  for (const [id, entry] of Object.entries(all)) {
+    shards[detailShard(id)]![id] = entry
+  }
+
+  // Write each shard
+  for (let s = 0; s < 10; s++) {
+    const count = Object.keys(shards[s]!).length
+    writeFileSync(
+      `${outputDir}/details-${s}.js`,
+      `module.exports = ${JSON.stringify(shards[s])}\n`,
+    )
+    console.log(`  subpkg-detail/details-${s}.js: ${count} entries`)
+  }
 }
 
 // ── Skills (runtime, compact: dictionary format for fast lookup) ──
@@ -261,7 +287,7 @@ export const writeRuntimeData = (
   write('catalog', catalog)
   write('skills', runtimeSkills) // dict format: {skillId: {id,n,cat,ip}, ...}
   write('dictionaries', runtimeDicts)
-  // Note: details.js is written separately to the detail subpackage
+  // Note: sharded details-*.js files are written separately to the detail subpackage
 
   console.log(`Runtime data written to ${outputDir}/`)
   console.log(`  catalog.js: ${catalog.length} officers`)

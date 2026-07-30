@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
-import { writeRuntimeData, buildDetails } from './build-runtime-data'
+import { writeRuntimeData, writeShardedDetails } from './build-runtime-data'
 
 const CANONICAL_DIR = 'archive/voyage-tw-2026052501/canonical-candidates'
 const OUTPUT_DIR = 'miniprogram/generated'
@@ -28,13 +28,8 @@ const generate = (): void => {
   // Generate main package data (catalog, skills, dictionaries)
   writeRuntimeData(officers, skills, dictionaries, OUTPUT_DIR)
 
-  // Write details separately to subpackage (lazy loaded on detail page)
-  const details = buildDetails(officers, skills, dictionaries)
-  writeFileSync(
-    `${SUBPKG_DIR}/details.js`,
-    `module.exports = ${JSON.stringify(details)}\n`,
-  )
-  console.log(`  subpkg-detail/details.js: ${Object.keys(details).length} entries`)
+  // Write details sharded (lazy-loaded per officer on detail page)
+  writeShardedDetails(officers, skills, dictionaries, SUBPKG_DIR)
 
   console.log('\nDone. Mini program loads details from subpkg-detail/ on demand.')
 }

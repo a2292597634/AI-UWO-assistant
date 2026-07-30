@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { buildCatalog, buildDictionaries, buildSkills, buildDetails } from '../../tools/data-pipeline/build-runtime-data'
+import { buildCatalog, buildDictionaries, buildSkills, buildDetails, writeShardedDetails } from '../../tools/data-pipeline/build-runtime-data'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../tools/import/types'
 
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T
@@ -63,21 +63,70 @@ describe('buildDictionaries (runtime)', () => {
 })
 
 describe('buildDetails', () => {
-  it('generates compact detail entries with short field names', () => {
+  it('generates compact detail entries with only WXML-used fields', () => {
     const details = buildDetails(officers, skills, dictionaries)
 
     expect(Object.keys(details)).toHaveLength(8)
     const officer = details.officer_chast089!
-    // Compact fields: n=name, ri=rarityId, ss=skills, rc=recruitment
+    // Compact fields: n=name, rn=rarityName, tn=typeName, etc.
     expect(officer.n).toBe('達納·卡洛斯')
+    expect(officer.rn).toBeTruthy()
+    expect(officer.tn).toBeTruthy()
+    expect(officer.gn).toBeTruthy()
+    expect(officer.jn).toBeTruthy()
+    expect(officer.nn).toBeTruthy()
+    expect(officer.pp).toMatch(/^\/subpkg-a\d\/imgs\//)
     expect(officer.ss.length).toBeGreaterThan(0)
-    // Skills have compact fields: si=skillId, lv=level, k=kind
+    // Skills have only display-used fields: si, k, ul, lv, n, ip
     const sk = officer.ss[0]!
     expect(sk.si).toBeTruthy()
     expect(sk.lv).toBeGreaterThanOrEqual(0)
     expect(sk.k).toMatch(/^(active|passive)$/)
-    // Recruitment: rc.ci=cityIds, rc.nt=note
+    expect(sk.n).toBeTruthy()
+    expect(sk.ip).toMatch(/^\/subpkg-a\d\/imgs\//)
+    // Unused fields must NOT be present
+    expect((sk as any).sg).toBeUndefined()
+    expect((sk as any).sl).toBeUndefined()
+    expect((sk as any).cn).toBeUndefined()
+    expect((sk as any).ci).toBeUndefined()
+    // Recruitment: cn=cityNames, rn=requirementName, nt=note
     expect(officer.rc).toBeDefined()
-    expect(Array.isArray(officer.rc.ci)).toBe(true)
+    expect(Array.isArray(officer.rc.cn)).toBe(true)
+    // Unused rc fields must NOT be present
+    expect((officer.rc as any).ci).toBeUndefined()
+    expect((officer.rc as any).ri).toBeUndefined()
+    expect((officer.rc as any).ro).toBeUndefined()
+  })
+})
+
+describe('writeShardedDetails', () => {
+  it('splits officers across 10 shard files', () => {
+    const fs = require('node:fs')
+    const path = require('node:path')
+    const os = require('node:os')
+
+    const tmpDir = path.join(os.tmpdir(), 'detail-shard-test-' + Date.now())
+    fs.mkdirSync(tmpDir, { recursive: true })
+
+    try {
+      writeShardedDetails(officers, skills, dictionaries, tmpDir)
+
+      // All 10 shard files should exist
+      const allIds = new Set<string>()
+      for (let s = 0; s < 10; s++) {
+        const filePath = path.join(tmpDir, `details-${s}.js`)
+        expect(fs.existsSync(filePath)).toBe(true)
+
+        const chunk = require(filePath)
+        for (const id of Object.keys(chunk)) {
+          expect(allIds.has(id)).toBe(false) // no duplicates across shards
+          allIds.add(id)
+        }
+      }
+
+      expect(allIds.size).toBe(8) // all 8 officers distributed
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
   })
 })
