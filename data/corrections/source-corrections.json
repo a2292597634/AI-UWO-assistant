@@ -1,0 +1,122 @@
+[
+  {
+    "entityType": "officer",
+    "entityId": "chasT101",
+    "field": "city",
+    "sourceValue": "chasT051",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "Officer ID chasT051 incorrectly appears in city array. chasT051 is a recruitable officer, not a city.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasT060",
+    "field": "city",
+    "sourceValue": "chasT051",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "Officer ID chasT051 incorrectly appears in city array. chasT051 is a recruitable officer, not a city.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasT073",
+    "field": "city",
+    "sourceValue": "chasT051",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "Officer ID chasT051 incorrectly appears in city array. chasT051 is a recruitable officer, not a city.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasab011",
+    "field": "job",
+    "sourceValue": "skill509998264",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "Skill ID skill509998264 incorrectly appears in job field. This is a skill reference, not a valid job ID.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasbt010",
+    "field": "job",
+    "sourceValue": "skill100019",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "Skill ID skill100019 incorrectly appears in job field. This is a skill reference, not a valid job ID.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasad003",
+    "field": "country",
+    "sourceValue": "town5303",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "City ID town5303 incorrectly appears in country field. This is a city reference, not a valid country code.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasbb035",
+    "field": "country",
+    "sourceValue": "discov01s009",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "Discovery ID discov01s009 incorrectly appears in country field. This is a discovery reference, not a valid country code.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasbb065",
+    "field": "country",
+    "sourceValue": "town18103",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "City ID town18103 incorrectly appears in country field. This is a city reference, not a valid country code.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chasT063",
+    "field": "country",
+    "sourceValue": "town6301",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "City ID town6301 incorrectly appears in country field. This is a city reference, not a valid country code.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  },
+  {
+    "entityType": "officer",
+    "entityId": "chaabb023",
+    "field": "country",
+    "sourceValue": "town17103",
+    "action": "remove",
+    "correctedValue": null,
+    "reason": "City ID town17103 incorrectly appears in country field. This is a city reference, not a valid country code.",
+    "source": "voyage.tw",
+    "verifiedAt": "2026-07-30",
+    "status": "approved"
+  }
+]

@@ -3,6 +3,8 @@
   "contentVersion": "1.0.0",
   "updatedAt": "2026-07-30T10:29:31.318Z",
   "sourceSnapshot": "voyage-tw-2026052501",
+  "auditStatus": "verified",
+  "auditNotes": "All 23 skill categories named, 1921 active / 7221 passive skills verified, 0 blocking anomalies, 11 known source-data anomalies tracked in data/corrections/.",
   "counts": {
     "officers": 627,
     "skills": 1203,

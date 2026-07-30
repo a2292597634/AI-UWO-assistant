@@ -200,8 +200,8 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   const limit = parseInt(process.argv[2] ?? '20', 10)
 
   // Read canonical data to build asset list
-  const officers = JSON.parse(readFileSync('archive/voyage-tw-2026052501/canonical-candidates/officers.json', 'utf8'))
-  const skills = JSON.parse(readFileSync('archive/voyage-tw-2026052501/canonical-candidates/skills.json', 'utf8'))
+  const officers = JSON.parse(readFileSync('data/master/officers.json', 'utf8'))
+  const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8'))
   const rawJsonChar = readFileSync('archive/voyage-tw-2026052501/raw-data/json_char.js', 'utf8')
 
   // Extract skill metadata (image overrides from skill_arr)

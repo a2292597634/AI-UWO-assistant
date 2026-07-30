@@ -6,9 +6,9 @@ import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../too
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T
 
 // Use full canonical data for integration tests
-const officers = readJson<CanonicalOfficer[]>('archive/voyage-tw-2026052501/canonical-candidates/officers.json')
-const skills = readJson<CanonicalSkill[]>('archive/voyage-tw-2026052501/canonical-candidates/skills.json')
-const dictionaries = readJson<Record<string, DictionaryItem[]>>('archive/voyage-tw-2026052501/canonical-candidates/dictionaries.json')
+const officers = readJson<CanonicalOfficer[]>('data/master/officers.json')
+const skills = readJson<CanonicalSkill[]>('data/master/skills.json')
+const dictionaries = readJson<Record<string, DictionaryItem[]>>('data/master/dictionaries.json')
 
 describe('Full data integrity (627 officers)', () => {
   it('generates catalog for all 627 officers', () => {

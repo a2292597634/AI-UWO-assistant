@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
 import { writeRuntimeData, writeShardedDetails } from './build-runtime-data'
 
-const CANONICAL_DIR = 'archive/voyage-tw-2026052501/canonical-candidates'
+const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
 const SUBPKG_DIR = 'miniprogram/subpkg-detail'
 
@@ -10,6 +10,11 @@ const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) 
 
 const generate = (): void => {
   console.log('=== Runtime Data Generator ===\n')
+
+  // Safety: block generation from candidate data
+  if (CANONICAL_DIR.includes('canonical-candidates')) {
+    throw new Error('Runtime data must not be generated from canonical-candidates. Use data/master instead.')
+  }
 
   console.log(`Reading canonical data from ${CANONICAL_DIR}/...`)
   const officers = readJson<CanonicalOfficer[]>(`${CANONICAL_DIR}/officers.json`)

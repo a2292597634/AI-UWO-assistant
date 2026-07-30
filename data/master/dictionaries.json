@@ -797,6 +797,14 @@
       "sourceRefs": {
         "voyageTw": "jobchasT088"
       }
+    },
+    {
+      "id": "job_unknown",
+      "name": "未知職業",
+      "displayOrder": 90,
+      "sourceRefs": {
+        "voyageTw": "_unknown"
+      }
     }
   ],
   "nationalities": [
@@ -1810,14 +1818,6 @@
       "displayOrder": 29,
       "sourceRefs": {
         "voyageTw": "town6201"
-      }
-    },
-    {
-      "id": "city_chasT051",
-      "name": "亞歷山大",
-      "displayOrder": 30,
-      "sourceRefs": {
-        "voyageTw": "chasT051"
       }
     },
     {
