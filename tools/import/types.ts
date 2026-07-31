@@ -39,6 +39,8 @@ export interface SourceSkillMetadata {
   sourceCategoryId: string
   /** Image override ID (from `.i`), or null. */
   imageOverrideId: string | null
+  /** Per-level effect values (from `.d`). Each element is one level's values. */
+  levelValues: string[][]
 }
 
 // ── Canonical output types (match data/schema/*.schema.json) ──
@@ -86,6 +88,8 @@ export interface CanonicalSkill {
   name: string
   categoryId: string
   description: string
+  /** Compact per-level effect summary (e.g. "Lv1: 2.3% | Lv2: 3.5% | ..."). */
+  levelInfo: string
   iconId: string | null
   sourceRefs: { voyageTw: string }
 }

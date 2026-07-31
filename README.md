@@ -18,17 +18,17 @@ npm.cmd run verify
 
 ### 單獨驗證命令
 
-| 命令 | 說明 |
-|------|------|
-| `npm run format:check` | Prettier 格式檢查 |
-| `npm run lint` | ESLint 檢查 |
-| `npm run typecheck` | TypeScript 型別檢查 |
-| `npm test` | 全部單元/契約測試 |
-| `npm run check:runtime-network` | 檢查運行碼不含遠端請求 |
-| `npm run data:check` | 資料審計 + Schema 檢查 |
-| `npm run generate:check` | 驗證生成產物確定性 |
-| `npm run check:architecture` | 架構邊界與依賴方向 |
-| `npm run check:runtime-contract` | 生成資料契約驗證 |
+| 命令                             | 說明                   |
+| -------------------------------- | ---------------------- |
+| `npm run format:check`           | Prettier 格式檢查      |
+| `npm run lint`                   | ESLint 檢查            |
+| `npm run typecheck`              | TypeScript 型別檢查    |
+| `npm test`                       | 全部單元/契約測試      |
+| `npm run check:runtime-network`  | 檢查運行碼不含遠端請求 |
+| `npm run data:check`             | 資料審計 + Schema 檢查 |
+| `npm run generate:check`         | 驗證生成產物確定性     |
+| `npm run check:architecture`     | 架構邊界與依賴方向     |
+| `npm run check:runtime-contract` | 生成資料契約驗證       |
 
 ## 專案架構
 
@@ -66,6 +66,7 @@ pages → presenters → domain + runtime stores → contracts → generated
 ```
 
 禁止依賴：
+
 - `pages → generated`（必須透過 Store）
 - `pages → data/master`、`archive`、`tools`
 - `domain → wx`、`Page`、`Component`、`setData`
@@ -86,6 +87,7 @@ npm run data:generate     # 從 data/master/ 生成所有運行資料
 ```
 
 生成產物：
+
 - `miniprogram/generated/catalog.js` — 航海士名冊
 - `miniprogram/generated/skills.js` — 技能字典
 - `miniprogram/generated/dictionaries.js` — 列舉字典

@@ -22,6 +22,8 @@ interface DetailSkill {
   level: number
   name: string
   iconPath: string
+  description: string
+  levelInfo: string
 }
 
 interface OfficerView {
@@ -47,6 +49,7 @@ interface DetailState {
   portraitFail: boolean
   activeSkills: DetailSkill[]
   passiveSkills: DetailSkill[]
+  tooltipSkill: DetailSkill | null
 }
 
 function presentDetail(raw: Record<string, unknown>): DetailState {
@@ -65,6 +68,8 @@ function presentDetail(raw: Record<string, unknown>): DetailState {
       level: s.lv as number,
       name: s.n as string,
       iconPath: s.ip as string,
+      description: (s.d as string) || '',
+      levelInfo: (s.li as string) || '',
     }
     if (skill.kind === 'active') {
       activeSkills.push(skill)
@@ -103,6 +108,7 @@ function presentDetail(raw: Record<string, unknown>): DetailState {
     portraitFail: false,
     activeSkills: activeSkills,
     passiveSkills: passiveSkills,
+    tooltipSkill: null,
   }
 }
 
@@ -114,16 +120,17 @@ Page({
     portraitFail: false,
     activeSkills: [],
     passiveSkills: [],
+    tooltipSkill: null,
   } as DetailState,
 
   onLoad: function (options: Record<string, string | undefined>) {
-    var id = options.id
+    const id = options.id
     if (!id) return
 
-    var raw = loadDetail(id, detailIndex)
+    const raw = loadDetail(id, detailIndex)
     if (!raw) return
 
-    var state = presentDetail(raw)
+    const state = presentDetail(raw)
 
     this.setData(state)
     wx.setNavigationBarTitle({ title: state.officer ? state.officer.name : '' })
@@ -131,5 +138,26 @@ Page({
 
   onPortraitError: function () {
     this.setData({ portraitFail: true })
+  },
+
+  onSkillTap: function (e: { currentTarget: { dataset: Record<string, string> } }) {
+    const ds = e.currentTarget.dataset
+    const skillId = ds.skillId
+    const allSkills = this.data.activeSkills.concat(this.data.passiveSkills)
+    for (const skill of allSkills) {
+      if (skill.skillId === skillId) {
+        // tap same skill → dismiss
+        if (this.data.tooltipSkill && this.data.tooltipSkill.skillId === skillId) {
+          this.setData({ tooltipSkill: null })
+        } else {
+          this.setData({ tooltipSkill: skill })
+        }
+        return
+      }
+    }
+  },
+
+  onTooltipDismiss: function () {
+    this.setData({ tooltipSkill: null })
   },
 })

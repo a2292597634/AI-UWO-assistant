@@ -1,1 +1,51 @@
-{"rarities":[{"id":"rarity_3","name":"rarity_3","sortWeight":0},{"id":"rarity_4","name":"rarity_4","sortWeight":0},{"id":"rarity_5","name":"rarity_5","sortWeight":0}],"types":[{"id":"type_class_1","name":"type_class_1"},{"id":"type_class_2","name":"type_class_2"},{"id":"type_class_3","name":"type_class_3"}],"genders":[{"id":"gender_f","name":"gender_f"},{"id":"gender_m","name":"gender_m"}],"jobs":[{"id":"job_job21400002","name":"job_job21400002"},{"id":"job_job21400006","name":"job_job21400006"},{"id":"job_job21401015","name":"job_job21401015"},{"id":"job_job21402014","name":"job_job21402014"},{"id":"job_jobchasT089","name":"job_jobchasT089"},{"id":"job_jobchasT096","name":"job_jobchasT096"},{"id":"job_jobchasab001","name":"job_jobchasab001"},{"id":"job_jobchasab012","name":"job_jobchasab012"}],"languages":[{"id":"language_lang140","name":"language_lang140"},{"id":"language_lang20","name":"language_lang20"},{"id":"language_lang40","name":"language_lang40"},{"id":"language_lang60","name":"language_lang60"},{"id":"language_lang70","name":"language_lang70"},{"id":"language_lang80","name":"language_lang80"}],"skillCategories":[{"id":"skill_category_admiral","name":"skill_category_admiral"},{"id":"skill_category_adventure","name":"skill_category_adventure"},{"id":"skill_category_barter","name":"skill_category_barter"},{"id":"skill_category_combat_other","name":"skill_category_combat_other"},{"id":"skill_category_innate_buff","name":"skill_category_innate_buff"},{"id":"skill_category_naval_active_enhancement","name":"skill_category_naval_active_enhancement"},{"id":"skill_category_naval_passive_other","name":"skill_category_naval_passive_other"},{"id":"skill_category_trade_expertise","name":"skill_category_trade_expertise"},{"id":"skill_category_trade_price_adjustment","name":"skill_category_trade_price_adjustment"}]}
+{
+  "rarities": [
+    { "id": "rarity_3", "name": "rarity_3", "sortWeight": 0 },
+    { "id": "rarity_4", "name": "rarity_4", "sortWeight": 0 },
+    { "id": "rarity_5", "name": "rarity_5", "sortWeight": 0 }
+  ],
+  "types": [
+    { "id": "type_class_1", "name": "type_class_1" },
+    { "id": "type_class_2", "name": "type_class_2" },
+    { "id": "type_class_3", "name": "type_class_3" }
+  ],
+  "genders": [
+    { "id": "gender_f", "name": "gender_f" },
+    { "id": "gender_m", "name": "gender_m" }
+  ],
+  "jobs": [
+    { "id": "job_job21400002", "name": "job_job21400002" },
+    { "id": "job_job21400006", "name": "job_job21400006" },
+    { "id": "job_job21401015", "name": "job_job21401015" },
+    { "id": "job_job21402014", "name": "job_job21402014" },
+    { "id": "job_jobchasT089", "name": "job_jobchasT089" },
+    { "id": "job_jobchasT096", "name": "job_jobchasT096" },
+    { "id": "job_jobchasab001", "name": "job_jobchasab001" },
+    { "id": "job_jobchasab012", "name": "job_jobchasab012" }
+  ],
+  "languages": [
+    { "id": "language_lang140", "name": "language_lang140" },
+    { "id": "language_lang20", "name": "language_lang20" },
+    { "id": "language_lang40", "name": "language_lang40" },
+    { "id": "language_lang60", "name": "language_lang60" },
+    { "id": "language_lang70", "name": "language_lang70" },
+    { "id": "language_lang80", "name": "language_lang80" }
+  ],
+  "skillCategories": [
+    { "id": "skill_category_admiral", "name": "skill_category_admiral" },
+    { "id": "skill_category_adventure", "name": "skill_category_adventure" },
+    { "id": "skill_category_barter", "name": "skill_category_barter" },
+    { "id": "skill_category_combat_other", "name": "skill_category_combat_other" },
+    { "id": "skill_category_innate_buff", "name": "skill_category_innate_buff" },
+    {
+      "id": "skill_category_naval_active_enhancement",
+      "name": "skill_category_naval_active_enhancement"
+    },
+    { "id": "skill_category_naval_passive_other", "name": "skill_category_naval_passive_other" },
+    { "id": "skill_category_trade_expertise", "name": "skill_category_trade_expertise" },
+    {
+      "id": "skill_category_trade_price_adjustment",
+      "name": "skill_category_trade_price_adjustment"
+    }
+  ]
+}

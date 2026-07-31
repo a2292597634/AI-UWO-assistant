@@ -22,6 +22,8 @@ export interface DetailSkillView {
   level: number
   name: string
   iconPath: string
+  description: string
+  levelInfo: string
 }
 
 export interface DetailRecruitmentView {
@@ -73,6 +75,8 @@ export function presentDetail(record: RuntimeDetailRecord): DetailPageState {
       level: s.lv,
       name: s.n,
       iconPath: s.ip,
+      description: s.d,
+      levelInfo: s.li,
     }
     if (s.k === 'active') {
       activeSkills.push(skill)
@@ -81,8 +85,7 @@ export function presentDetail(record: RuntimeDetailRecord): DetailPageState {
     }
   }
 
-  const cityText =
-    record.rc.cn && record.rc.cn.length > 0 ? record.rc.cn.join('、') : '無'
+  const cityText = record.rc.cn && record.rc.cn.length > 0 ? record.rc.cn.join('、') : '無'
 
   const officer: DetailViewModel = {
     name: record.n,

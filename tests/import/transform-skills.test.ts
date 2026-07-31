@@ -19,10 +19,10 @@ const languageMap: Record<string, string> = {
 }
 
 const skillMetadata: Record<string, SourceSkillMetadata> = {
-  skill100043: { sourceCategoryId: 'menuskt3', imageOverrideId: null },
-  skill200681: { sourceCategoryId: 'menuskt2', imageOverrideId: null },
-  skill400591: { sourceCategoryId: 'menuskt11', imageOverrideId: null },
-  skillT0053: { sourceCategoryId: 'menuskt2', imageOverrideId: 'skill200681' },
+  skill100043: { sourceCategoryId: 'menuskt3', imageOverrideId: null, levelValues: [] },
+  skill200681: { sourceCategoryId: 'menuskt2', imageOverrideId: null, levelValues: [] },
+  skill400591: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
+  skillT0053: { sourceCategoryId: 'menuskt2', imageOverrideId: 'skill200681', levelValues: [] },
 }
 
 // Skills used by our 8 sample officers
@@ -62,9 +62,9 @@ describe('transformSkills', () => {
   })
 
   it('falls back to skill ID when name is missing from lang_js', () => {
-    const { skills, anomalies } = transformSkills(
+    const { skills, anomalies: _anomalies } = transformSkills(
       ['skill999999'],
-      { skill999999: { sourceCategoryId: 'menuskt3', imageOverrideId: null } },
+      { skill999999: { sourceCategoryId: 'menuskt3', imageOverrideId: null, levelValues: [] } },
       {}, // empty languageMap
       mappings,
     )

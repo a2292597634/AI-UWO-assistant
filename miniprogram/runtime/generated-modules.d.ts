@@ -77,9 +77,6 @@ declare module '../detail-index' {
 }
 
 declare module '../detail-loaders' {
-  function loadDetail(
-    id: string,
-    index: Record<string, number>,
-  ): Record<string, unknown> | null
+  function loadDetail(id: string, index: Record<string, number>): Record<string, unknown> | null
   export = loadDetail
 }

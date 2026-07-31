@@ -59,10 +59,22 @@ describe('Runtime Contract: catalog.js', () => {
 
   it('each entry has all required fields', () => {
     const requiredFields = [
-      'id', 'name', 'rarityId', 'rarityName', 'rarityClass',
-      'typeId', 'typeName', 'genderId', 'genderLabel',
-      'jobId', 'jobName', 'portraitPath',
-      'languages', 'activeSkills', 'passiveSkills', 'searchAliases',
+      'id',
+      'name',
+      'rarityId',
+      'rarityName',
+      'rarityClass',
+      'typeId',
+      'typeName',
+      'genderId',
+      'genderLabel',
+      'jobId',
+      'jobName',
+      'portraitPath',
+      'languages',
+      'activeSkills',
+      'passiveSkills',
+      'searchAliases',
     ]
     for (const entry of catalog) {
       for (const field of requiredFields) {
@@ -73,10 +85,22 @@ describe('Runtime Contract: catalog.js', () => {
 
   it('each entry has no unexpected fields', () => {
     const knownFields = new Set([
-      'id', 'name', 'rarityId', 'rarityName', 'rarityClass',
-      'typeId', 'typeName', 'genderId', 'genderLabel',
-      'jobId', 'jobName', 'portraitPath',
-      'languages', 'activeSkills', 'passiveSkills', 'searchAliases',
+      'id',
+      'name',
+      'rarityId',
+      'rarityName',
+      'rarityClass',
+      'typeId',
+      'typeName',
+      'genderId',
+      'genderLabel',
+      'jobId',
+      'jobName',
+      'portraitPath',
+      'languages',
+      'activeSkills',
+      'passiveSkills',
+      'searchAliases',
     ])
     for (const entry of catalog) {
       for (const key of Object.keys(entry)) {
@@ -133,17 +157,19 @@ describe('Runtime Contract: skills.js', () => {
     expect(Object.keys(skills).length).toBeGreaterThan(0)
   })
 
-  it('each skill entry has required fields: id, n, cat, ip', () => {
+  it('each skill entry has required fields: id, n, cat, ip, d, li', () => {
     for (const [skillId, skill] of Object.entries(skills)) {
       expect(skill.id).toBe(skillId)
       expect(typeof skill.n).toBe('string')
       expect(typeof skill.cat).toBe('string')
       expect(typeof skill.ip).toBe('string')
+      expect(typeof skill.d).toBe('string')
+      expect(typeof skill.li).toBe('string')
     }
   })
 
   it('each skill has no unexpected fields', () => {
-    const knownFields = new Set(['id', 'n', 'cat', 'ip'])
+    const knownFields = new Set(['id', 'n', 'cat', 'ip', 'd', 'li'])
     for (const [, skill] of Object.entries(skills)) {
       for (const key of Object.keys(skill)) {
         expect(knownFields.has(key)).toBe(true)

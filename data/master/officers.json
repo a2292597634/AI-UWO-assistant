@@ -172,9 +172,7 @@
         "city_town14205"
       ],
       "requirementId": "requirement_reqchasT089",
-      "requiredOfficerIds": [
-        "officer_chast096"
-      ],
+      "requiredOfficerIds": ["officer_chast096"],
       "note": "5000紅鑽購買提督"
     },
     "portraitId": null,
@@ -316,13 +314,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10201"
-      ],
+      "cityIds": ["city_town10201"],
       "requirementId": "requirement_reqchasT090",
-      "requiredOfficerIds": [
-        "officer_chast096"
-      ],
+      "requiredOfficerIds": ["officer_chast096"],
       "note": "完成達納·卡洛斯編年史后在旅館招募"
     },
     "portraitId": null,
@@ -472,9 +466,7 @@
         "city_town1201"
       ],
       "requirementId": "requirement_reqchasT091",
-      "requiredOfficerIds": [
-        "officer_chast096"
-      ],
+      "requiredOfficerIds": ["officer_chast096"],
       "note": "達納·卡洛斯編年史獎勵"
     },
     "portraitId": null,
@@ -616,11 +608,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town0301",
-        "city_town7203",
-        "city_town10101"
-      ],
+      "cityIds": ["city_town0301", "city_town7203", "city_town10101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "通過聯動活動購買"
@@ -764,11 +752,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town0301",
-        "city_town7203",
-        "city_town10101"
-      ],
+      "cityIds": ["city_town0301", "city_town7203", "city_town10101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "通過聯動活動購買"
@@ -912,11 +896,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town0301",
-        "city_town7203",
-        "city_town10101"
-      ],
+      "cityIds": ["city_town0301", "city_town7203", "city_town10101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "通過聯動活動購買"
@@ -1100,11 +1080,7 @@
         "city_town11101"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chast089",
-        "officer_chast090",
-        "officer_chast091"
-      ],
+      "requiredOfficerIds": ["officer_chast089", "officer_chast090", "officer_chast091"],
       "note": "5000紅鑽購買提督"
     },
     "portraitId": null,
@@ -1246,9 +1222,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town6301"
-      ],
+      "cityIds": ["city_town6301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "完成維托里奧·薩托里編年史后在旅館招募"
@@ -1989,9 +1963,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3201"
-      ],
+      "cityIds": ["city_town3201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -2135,9 +2107,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1203"
-      ],
+      "cityIds": ["city_town1203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -2711,11 +2681,7 @@
         "city_town1205"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chaabb029",
-        "officer_chabbb018",
-        "officer_chasbb018"
-      ],
+      "requiredOfficerIds": ["officer_chaabb029", "officer_chabbb018", "officer_chasbb018"],
       "note": null
     },
     "portraitId": null,
@@ -3281,10 +3247,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -4412,11 +4375,7 @@
         "city_town4104"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chasbb067",
-        "officer_chaabb043",
-        "officer_chaabb040"
-      ],
+      "requiredOfficerIds": ["officer_chasbb067", "officer_chaabb043", "officer_chaabb040"],
       "note": null
     },
     "portraitId": null,
@@ -4977,11 +4936,7 @@
         "city_town10108"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chabbd049",
-        "officer_chabbd051",
-        "officer_chasbd013"
-      ],
+      "requiredOfficerIds": ["officer_chabbd049", "officer_chabbd051", "officer_chasbd013"],
       "note": null
     },
     "portraitId": null,
@@ -5741,10 +5696,7 @@
         "city_town14102"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chabbt045",
-        "officer_chasbd005"
-      ],
+      "requiredOfficerIds": ["officer_chabbt045", "officer_chasbd005"],
       "note": null
     },
     "portraitId": null,
@@ -6510,11 +6462,7 @@
         "city_town9106"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chaabb030",
-        "officer_chabbt054",
-        "officer_chasbb010"
-      ],
+      "requiredOfficerIds": ["officer_chaabb030", "officer_chabbt054", "officer_chasbb010"],
       "note": null
     },
     "portraitId": null,
@@ -7275,11 +7223,7 @@
         "city_town16112"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chast027",
-        "officer_chaat025",
-        "officer_chabt026"
-      ],
+      "requiredOfficerIds": ["officer_chast027", "officer_chaat025", "officer_chabt026"],
       "note": null
     },
     "portraitId": null,
@@ -8198,11 +8142,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1103",
-        "city_town1203",
-        "city_town1202"
-      ],
+      "cityIds": ["city_town1103", "city_town1203", "city_town1202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -8382,10 +8322,7 @@
         "city_town3302"
       ],
       "requirementId": null,
-      "requiredOfficerIds": [
-        "officer_chast084",
-        "officer_chast085"
-      ],
+      "requiredOfficerIds": ["officer_chast084", "officer_chast085"],
       "note": null
     },
     "portraitId": null,
@@ -8559,11 +8496,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town0301",
-        "city_town7203",
-        "city_town10101"
-      ],
+      "cityIds": ["city_town0301", "city_town7203", "city_town10101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "通過聯動活動購買"
@@ -9010,12 +8943,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21101",
-        "city_town21201",
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21101", "city_town21201", "city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -9466,13 +9394,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1302"
-      ],
+      "cityIds": ["city_town1302"],
       "requirementId": "requirement_reqchasbb002",
-      "requiredOfficerIds": [
-        "officer_chasab010"
-      ],
+      "requiredOfficerIds": ["officer_chasab010"],
       "note": null
     },
     "portraitId": null,
@@ -9633,9 +9557,7 @@
         "city_town14204"
       ],
       "requirementId": "requirement_reqchasbb003",
-      "requiredOfficerIds": [
-        "officer_chasad006"
-      ],
+      "requiredOfficerIds": ["officer_chasad006"],
       "note": null
     },
     "portraitId": null,
@@ -9785,12 +9707,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town6201",
-        "city_town8105",
-        "city_town8302",
-        "city_town8106"
-      ],
+      "cityIds": ["city_town6201", "city_town8105", "city_town8302", "city_town8106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -9934,9 +9851,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town7101"
-      ],
+      "cityIds": ["city_town7101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -10088,13 +10003,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town8302"
-      ],
+      "cityIds": ["city_town8302"],
       "requirementId": "requirement_reqchasbb007",
-      "requiredOfficerIds": [
-        "officer_chasad009"
-      ],
+      "requiredOfficerIds": ["officer_chasad009"],
       "note": null
     },
     "portraitId": null,
@@ -10236,13 +10147,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1205"
-      ],
+      "cityIds": ["city_town1205"],
       "requirementId": "requirement_reqchasbb008",
-      "requiredOfficerIds": [
-        "officer_chasab002"
-      ],
+      "requiredOfficerIds": ["officer_chasab002"],
       "note": null
     },
     "portraitId": null,
@@ -10534,13 +10441,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10201"
-      ],
+      "cityIds": ["city_town10201"],
       "requirementId": "requirement_reqchasbb010",
-      "requiredOfficerIds": [
-        "officer_chasat002"
-      ],
+      "requiredOfficerIds": ["officer_chasat002"],
       "note": null
     },
     "portraitId": null,
@@ -10678,13 +10581,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22101"
-      ],
+      "cityIds": ["city_town22101"],
       "requirementId": "requirement_reqchasbb011",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -10826,13 +10725,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1205"
-      ],
+      "cityIds": ["city_town1205"],
       "requirementId": "requirement_reqchasbb012",
-      "requiredOfficerIds": [
-        "officer_chasat003"
-      ],
+      "requiredOfficerIds": ["officer_chasat003"],
       "note": null
     },
     "portraitId": null,
@@ -10982,12 +10877,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1204",
-        "city_town1205",
-        "city_town5201",
-        "city_town6104"
-      ],
+      "cityIds": ["city_town1204", "city_town1205", "city_town5201", "city_town6104"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -11127,10 +11017,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -11274,12 +11161,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town5302",
-        "city_town5101",
-        "city_town2203"
-      ],
+      "cityIds": ["city_town2201", "city_town5302", "city_town5101", "city_town2203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -11423,13 +11305,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town14202"
-      ],
+      "cityIds": ["city_town14202"],
       "requirementId": "requirement_reqchasbb016",
-      "requiredOfficerIds": [
-        "officer_chasad004"
-      ],
+      "requiredOfficerIds": ["officer_chasad004"],
       "note": null
     },
     "portraitId": null,
@@ -11571,12 +11449,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21101",
-        "city_town21201",
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21101", "city_town21201", "city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -11716,13 +11589,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1205"
-      ],
+      "cityIds": ["city_town1205"],
       "requirementId": "requirement_reqchasbb018",
-      "requiredOfficerIds": [
-        "officer_chasab003"
-      ],
+      "requiredOfficerIds": ["officer_chasab003"],
       "note": null
     },
     "portraitId": null,
@@ -11860,13 +11729,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2202"
-      ],
+      "cityIds": ["city_town2202"],
       "requirementId": "requirement_reqchasbb019",
-      "requiredOfficerIds": [
-        "officer_chasab001"
-      ],
+      "requiredOfficerIds": ["officer_chasab001"],
       "note": null
     },
     "portraitId": null,
@@ -12008,12 +11873,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town5302",
-        "city_town5101",
-        "city_town2203"
-      ],
+      "cityIds": ["city_town2201", "city_town5302", "city_town5101", "city_town2203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -12153,13 +12013,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17108"
-      ],
+      "cityIds": ["city_town17108"],
       "requirementId": "requirement_reqchasbb021",
-      "requiredOfficerIds": [
-        "officer_chasab009"
-      ],
+      "requiredOfficerIds": ["officer_chasab009"],
       "note": null
     },
     "portraitId": null,
@@ -12301,13 +12157,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1301"
-      ],
+      "cityIds": ["city_town1301"],
       "requirementId": "requirement_reqchasbb022",
-      "requiredOfficerIds": [
-        "officer_chasad002"
-      ],
+      "requiredOfficerIds": ["officer_chasad002"],
       "note": null
     },
     "portraitId": null,
@@ -12617,13 +12469,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9102"
-      ],
+      "cityIds": ["city_town9102"],
       "requirementId": "requirement_reqchasbb024",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -13059,12 +12907,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22102",
-        "city_town18110",
-        "city_town18301",
-        "city_town19202"
-      ],
+      "cityIds": ["city_town22102", "city_town18110", "city_town18301", "city_town19202"],
       "requirementId": "requirement_reqchasbb029",
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -13504,9 +13347,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town0301"
-      ],
+      "cityIds": ["city_town0301"],
       "requirementId": "requirement_reqchasbb033",
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -13938,11 +13779,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18101",
-        "city_town18103",
-        "city_town18112"
-      ],
+      "cityIds": ["city_town18101", "city_town18103", "city_town18112"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -14082,13 +13919,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4202"
-      ],
+      "cityIds": ["city_town4202"],
       "requirementId": "requirement_reqchasbb067",
-      "requiredOfficerIds": [
-        "officer_chasab013"
-      ],
+      "requiredOfficerIds": ["officer_chasab013"],
       "note": null
     },
     "portraitId": null,
@@ -14230,12 +14063,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town6301",
-        "city_town6102",
-        "city_town5303",
-        "city_town5202"
-      ],
+      "cityIds": ["city_town6301", "city_town6102", "city_town5303", "city_town5202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -14379,12 +14207,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town5301",
-        "city_town5302",
-        "city_town5303",
-        "city_town5202"
-      ],
+      "cityIds": ["city_town5301", "city_town5302", "city_town5303", "city_town5202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -14678,13 +14501,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town14101"
-      ],
+      "cityIds": ["city_town14101"],
       "requirementId": "requirement_reqchasbd004",
-      "requiredOfficerIds": [
-        "officer_chasad005"
-      ],
+      "requiredOfficerIds": ["officer_chasad005"],
       "note": null
     },
     "portraitId": null,
@@ -14834,13 +14653,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1301"
-      ],
+      "cityIds": ["city_town1301"],
       "requirementId": "requirement_reqchasbd005",
-      "requiredOfficerIds": [
-        "officer_chasad008"
-      ],
+      "requiredOfficerIds": ["officer_chasad008"],
       "note": null
     },
     "portraitId": null,
@@ -14978,13 +14793,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10104"
-      ],
+      "cityIds": ["city_town10104"],
       "requirementId": "requirement_reqchasbd007",
-      "requiredOfficerIds": [
-        "officer_chasab008"
-      ],
+      "requiredOfficerIds": ["officer_chasab008"],
       "note": null
     },
     "portraitId": null,
@@ -15126,13 +14937,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18103"
-      ],
+      "cityIds": ["city_town18103"],
       "requirementId": "requirement_reqchasbd009",
-      "requiredOfficerIds": [
-        "officer_chasad001"
-      ],
+      "requiredOfficerIds": ["officer_chasad001"],
       "note": null
     },
     "portraitId": null,
@@ -15274,13 +15081,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18108"
-      ],
+      "cityIds": ["city_town18108"],
       "requirementId": "requirement_reqchasbd010",
-      "requiredOfficerIds": [
-        "officer_chasad004"
-      ],
+      "requiredOfficerIds": ["officer_chasad004"],
       "note": null
     },
     "portraitId": null,
@@ -15582,13 +15385,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9201"
-      ],
+      "cityIds": ["city_town9201"],
       "requirementId": "requirement_reqchasbd013",
-      "requiredOfficerIds": [
-        "officer_chasad003"
-      ],
+      "requiredOfficerIds": ["officer_chasad003"],
       "note": null
     },
     "portraitId": null,
@@ -15892,13 +15691,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301"
-      ],
+      "cityIds": ["city_town3301"],
       "requirementId": "requirement_reqchasbd015",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -16040,9 +15835,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -16186,12 +15979,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18110",
-        "city_town19304",
-        "city_town18301",
-        "city_town18103"
-      ],
+      "cityIds": ["city_town18110", "city_town19304", "city_town18301", "city_town18103"],
       "requirementId": "requirement_reqchasbd018",
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -16335,13 +16123,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9203"
-      ],
+      "cityIds": ["city_town9203"],
       "requirementId": "requirement_reqchasbd019",
-      "requiredOfficerIds": [
-        "officer_chasab011"
-      ],
+      "requiredOfficerIds": ["officer_chasab011"],
       "note": null
     },
     "portraitId": null,
@@ -16907,12 +16691,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22201",
-        "city_town22101",
-        "city_town22301",
-        "city_town22103"
-      ],
+      "cityIds": ["city_town22201", "city_town22101", "city_town22301", "city_town22103"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -17056,13 +16835,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9108"
-      ],
+      "cityIds": ["city_town9108"],
       "requirementId": "requirement_reqchasbt003",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -17204,13 +16979,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18111"
-      ],
+      "cityIds": ["city_town18111"],
       "requirementId": "requirement_reqchasbt004",
-      "requiredOfficerIds": [
-        "officer_chasat005"
-      ],
+      "requiredOfficerIds": ["officer_chasat005"],
       "note": null
     },
     "portraitId": null,
@@ -17352,12 +17123,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town6201",
-        "city_town8105",
-        "city_town8302",
-        "city_town7202"
-      ],
+      "cityIds": ["city_town6201", "city_town8105", "city_town8302", "city_town7202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -17501,13 +17267,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1301"
-      ],
+      "cityIds": ["city_town1301"],
       "requirementId": "requirement_reqchasbt007",
-      "requiredOfficerIds": [
-        "officer_chasad006"
-      ],
+      "requiredOfficerIds": ["officer_chasad006"],
       "note": null
     },
     "portraitId": null,
@@ -17795,13 +17557,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town20108"
-      ],
+      "cityIds": ["city_town20108"],
       "requirementId": "requirement_reqchasbt009",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -18244,12 +18002,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18110",
-        "city_town18301",
-        "city_town19201",
-        "city_town19101"
-      ],
+      "cityIds": ["city_town18110", "city_town18301", "city_town19201", "city_town19101"],
       "requirementId": "requirement_reqchasbt014",
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -18393,9 +18146,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1303"
-      ],
+      "cityIds": ["city_town1303"],
       "requirementId": "requirement_reqchasbt016",
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -18683,12 +18434,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22301",
-        "city_town22103",
-        "city_town21201",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town22301", "city_town22103", "city_town21201", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -18832,9 +18578,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town5303"
-      ],
+      "cityIds": ["city_town5303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -19266,9 +19010,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4201"
-      ],
+      "cityIds": ["city_town4201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -19412,9 +19154,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4301"
-      ],
+      "cityIds": ["city_town4301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -19566,9 +19306,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18110"
-      ],
+      "cityIds": ["city_town18110"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -19712,9 +19450,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19202"
-      ],
+      "cityIds": ["city_town19202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -19858,9 +19594,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18108"
-      ],
+      "cityIds": ["city_town18108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -20004,9 +19738,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town7203"
-      ],
+      "cityIds": ["city_town7203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -20150,11 +19882,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18104",
-        "city_town17102",
-        "city_town18106"
-      ],
+      "cityIds": ["city_town18104", "city_town17102", "city_town18106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -20298,13 +20026,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22301"
-      ],
+      "cityIds": ["city_town22301"],
       "requirementId": "requirement_reqchasT027",
-      "requiredOfficerIds": [
-        "officer_chast024"
-      ],
+      "requiredOfficerIds": ["officer_chast024"],
       "note": null
     },
     "portraitId": null,
@@ -20598,9 +20322,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9102"
-      ],
+      "cityIds": ["city_town9102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -20744,9 +20466,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3103"
-      ],
+      "cityIds": ["city_town3103"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -20890,10 +20610,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4301",
-        "city_town4102"
-      ],
+      "cityIds": ["city_town4301", "city_town4102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu224"
@@ -21037,10 +20754,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4301",
-        "city_town16106"
-      ],
+      "cityIds": ["city_town4301", "city_town16106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -21184,9 +20898,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town14204"
-      ],
+      "cityIds": ["city_town14204"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -21321,9 +21033,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town8104"
-      ],
+      "cityIds": ["city_town8104"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -21471,13 +21181,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9203"
-      ],
+      "cityIds": ["city_town9203"],
       "requirementId": "requirement_reqchasT036",
-      "requiredOfficerIds": [
-        "officer_chast035"
-      ],
+      "requiredOfficerIds": ["officer_chast035"],
       "note": null
     },
     "portraitId": null,
@@ -21921,9 +21627,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -22067,9 +21771,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22301"
-      ],
+      "cityIds": ["city_town22301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -22666,9 +22368,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town20101"
-      ],
+      "cityIds": ["city_town20101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -22820,9 +22520,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9107"
-      ],
+      "cityIds": ["city_town9107"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -23268,9 +22966,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9109"
-      ],
+      "cityIds": ["city_town9109"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -23414,9 +23110,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9108"
-      ],
+      "cityIds": ["city_town9108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -23862,9 +23556,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT050",
-      "requiredOfficerIds": [
-        "officer_chast049"
-      ],
+      "requiredOfficerIds": ["officer_chast049"],
       "note": null
     },
     "portraitId": null,
@@ -24316,9 +24008,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19201"
-      ],
+      "cityIds": ["city_town19201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -24470,9 +24160,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18301"
-      ],
+      "cityIds": ["city_town18301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -24912,9 +24600,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15301"
-      ],
+      "cityIds": ["city_town15301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -25058,9 +24744,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15105"
-      ],
+      "cityIds": ["city_town15105"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -25506,9 +25190,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9201"
-      ],
+      "cityIds": ["city_town9201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -25652,9 +25334,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town20107"
-      ],
+      "cityIds": ["city_town20107"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -26394,13 +26074,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19202"
-      ],
+      "cityIds": ["city_town19202"],
       "requirementId": "requirement_reqchasT065",
-      "requiredOfficerIds": [
-        "officer_chast062"
-      ],
+      "requiredOfficerIds": ["officer_chast062"],
       "note": null
     },
     "portraitId": null,
@@ -26701,9 +26377,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21103"
-      ],
+      "cityIds": ["city_town21103"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -26847,9 +26521,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1104"
-      ],
+      "cityIds": ["city_town1104"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -27295,9 +26967,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town13205"
-      ],
+      "cityIds": ["city_town13205"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -27441,9 +27111,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2202"
-      ],
+      "cityIds": ["city_town2202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -27896,9 +27564,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town11301"
-      ],
+      "cityIds": ["city_town11301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -28042,9 +27708,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3203"
-      ],
+      "cityIds": ["city_town3203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -28490,9 +28154,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19304"
-      ],
+      "cityIds": ["city_town19304"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -28636,9 +28298,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town14201"
-      ],
+      "cityIds": ["city_town14201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -29092,9 +28752,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19303"
-      ],
+      "cityIds": ["city_town19303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -29246,9 +28904,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town8106"
-      ],
+      "cityIds": ["city_town8106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -29400,11 +29056,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301",
-        "city_town2205",
-        "city_town10109"
-      ],
+      "cityIds": ["city_town3301", "city_town2205", "city_town10109"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -29556,11 +29208,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town3204",
-        "city_town3102"
-      ],
+      "cityIds": ["city_town2201", "city_town3204", "city_town3102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -29998,9 +29646,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town13204"
-      ],
+      "cityIds": ["city_town13204"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -30144,9 +29790,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town5201"
-      ],
+      "cityIds": ["city_town5201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -30290,9 +29934,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17201"
-      ],
+      "cityIds": ["city_town17201"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -30444,9 +30086,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17301"
-      ],
+      "cityIds": ["city_town17301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -30590,9 +30230,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2205"
-      ],
+      "cityIds": ["city_town2205"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -30736,9 +30374,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1302"
-      ],
+      "cityIds": ["city_town1302"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -30882,9 +30518,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3204"
-      ],
+      "cityIds": ["city_town3204"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu223"
@@ -31028,9 +30662,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4302"
-      ],
+      "cityIds": ["city_town4302"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": "menu212"
@@ -31174,13 +30806,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4301"
-      ],
+      "cityIds": ["city_town4301"],
       "requirementId": "requirement_reqchasT084",
-      "requiredOfficerIds": [
-        "officer_chast083"
-      ],
+      "requiredOfficerIds": ["officer_chast083"],
       "note": null
     },
     "portraitId": null,
@@ -31750,9 +31378,7 @@
         "city_town1301"
       ],
       "requirementId": "requirement_reqchaabb001",
-      "requiredOfficerIds": [
-        "officer_chasat005"
-      ],
+      "requiredOfficerIds": ["officer_chasat005"],
       "note": null
     },
     "portraitId": null,
@@ -32049,10 +31675,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4101",
-        "city_town4202"
-      ],
+      "cityIds": ["city_town4101", "city_town4202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -32344,10 +31967,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -32491,13 +32111,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9102"
-      ],
+      "cityIds": ["city_town9102"],
       "requirementId": "requirement_reqchaabb006",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -33281,13 +32897,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10202"
-      ],
+      "cityIds": ["city_town10202"],
       "requirementId": "requirement_reqchaabb012",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -34222,9 +33834,7 @@
         "city_town20103"
       ],
       "requirementId": "requirement_reqchaabb018",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -34675,10 +34285,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17103",
-        "city_town17104"
-      ],
+      "cityIds": ["city_town17103", "city_town17104"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -34822,12 +34429,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22201",
-        "city_town22101",
-        "city_town22301",
-        "city_town22103"
-      ],
+      "cityIds": ["city_town22201", "city_town22101", "city_town22301", "city_town22103"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -35444,9 +35046,7 @@
         "city_town1205"
       ],
       "requirementId": "requirement_reqchaabb029",
-      "requiredOfficerIds": [
-        "officer_chasab003"
-      ],
+      "requiredOfficerIds": ["officer_chasab003"],
       "note": null
     },
     "portraitId": null,
@@ -35593,9 +35193,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchaabb030",
-      "requiredOfficerIds": [
-        "officer_chasat002"
-      ],
+      "requiredOfficerIds": ["officer_chasat002"],
       "note": null
     },
     "portraitId": null,
@@ -35891,9 +35489,7 @@
         "city_town5302"
       ],
       "requirementId": "requirement_reqchaabb035",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -36045,9 +35641,7 @@
         "city_town9203"
       ],
       "requirementId": "requirement_reqchaabb039",
-      "requiredOfficerIds": [
-        "officer_chasab011"
-      ],
+      "requiredOfficerIds": ["officer_chasab011"],
       "note": null
     },
     "portraitId": null,
@@ -36197,9 +35791,7 @@
         "city_town4104"
       ],
       "requirementId": "requirement_reqchaabb040",
-      "requiredOfficerIds": [
-        "officer_chasab013"
-      ],
+      "requiredOfficerIds": ["officer_chasab013"],
       "note": null
     },
     "portraitId": null,
@@ -36345,11 +35937,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17101",
-        "city_town17107",
-        "city_town17108"
-      ],
+      "cityIds": ["city_town17101", "city_town17107", "city_town17108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -36509,9 +36097,7 @@
         "city_town4104"
       ],
       "requirementId": "requirement_reqchaabb043",
-      "requiredOfficerIds": [
-        "officer_chasab013"
-      ],
+      "requiredOfficerIds": ["officer_chasab013"],
       "note": null
     },
     "portraitId": null,
@@ -36661,13 +36247,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19201"
-      ],
+      "cityIds": ["city_town19201"],
       "requirementId": "requirement_reqchaabd001",
-      "requiredOfficerIds": [
-        "officer_chasat005"
-      ],
+      "requiredOfficerIds": ["officer_chasat005"],
       "note": null
     },
     "portraitId": null,
@@ -36823,9 +36405,7 @@
         "city_town5302"
       ],
       "requirementId": "requirement_reqchaabd002",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -36967,13 +36547,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9108"
-      ],
+      "cityIds": ["city_town9108"],
       "requirementId": "requirement_reqchaabd003",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -37119,11 +36695,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15201",
-        "city_town15102",
-        "city_town15301"
-      ],
+      "cityIds": ["city_town15201", "city_town15102", "city_town15301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -37267,12 +36839,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3103",
-        "city_town3201",
-        "city_town3302",
-        "city_town10109"
-      ],
+      "cityIds": ["city_town3103", "city_town3201", "city_town3302", "city_town10109"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -37599,9 +37166,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchaabd007",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -38067,13 +37632,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10202"
-      ],
+      "cityIds": ["city_town10202"],
       "requirementId": "requirement_reqchaabd011",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -38537,9 +38098,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchaabd014",
-      "requiredOfficerIds": [
-        "officer_chasab009"
-      ],
+      "requiredOfficerIds": ["officer_chasab009"],
       "note": null
     },
     "portraitId": null,
@@ -38831,12 +38390,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9102",
-        "city_town9104",
-        "city_town9201",
-        "city_town10106"
-      ],
+      "cityIds": ["city_town9102", "city_town9104", "city_town9201", "city_town10106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -38988,12 +38542,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301",
-        "city_town16106",
-        "city_town3203",
-        "city_town16104"
-      ],
+      "cityIds": ["city_town3301", "city_town16106", "city_town3203", "city_town16104"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -39133,10 +38682,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -39591,12 +39137,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1302",
-        "city_town5301",
-        "city_town5302",
-        "city_town5202"
-      ],
+      "cityIds": ["city_town1302", "city_town5301", "city_town5302", "city_town5202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -39748,12 +39289,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10201",
-        "city_town10104",
-        "city_town10202",
-        "city_town2101"
-      ],
+      "cityIds": ["city_town10201", "city_town10104", "city_town10202", "city_town2101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -39909,9 +39445,7 @@
         "city_town1301"
       ],
       "requirementId": "requirement_reqchaabt005",
-      "requiredOfficerIds": [
-        "officer_chasad002"
-      ],
+      "requiredOfficerIds": ["officer_chasad002"],
       "note": null
     },
     "portraitId": null,
@@ -40221,11 +39755,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town5302",
-        "city_town5303"
-      ],
+      "cityIds": ["city_town2201", "city_town5302", "city_town5303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -40390,9 +39920,7 @@
         "city_town3303"
       ],
       "requirementId": "requirement_reqchaabt008",
-      "requiredOfficerIds": [
-        "officer_chasab001"
-      ],
+      "requiredOfficerIds": ["officer_chasab001"],
       "note": null
     },
     "portraitId": null,
@@ -40542,10 +40070,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town3203"
-      ],
+      "cityIds": ["city_town2201", "city_town3203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -40697,10 +40222,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301",
-        "city_town3202"
-      ],
+      "cityIds": ["city_town3301", "city_town3202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -40844,11 +40366,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town5303",
-        "city_town5104",
-        "city_town5202"
-      ],
+      "cityIds": ["city_town5303", "city_town5104", "city_town5202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -41316,9 +40834,7 @@
         "city_town19302"
       ],
       "requirementId": "requirement_reqchaabt015",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -41943,9 +41459,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchaabt019",
-      "requiredOfficerIds": [
-        "officer_chasad001"
-      ],
+      "requiredOfficerIds": ["officer_chasad001"],
       "note": null
     },
     "portraitId": null,
@@ -42106,9 +41620,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchaabt020",
-      "requiredOfficerIds": [
-        "officer_chasab011"
-      ],
+      "requiredOfficerIds": ["officer_chasab011"],
       "note": null
     },
     "portraitId": null,
@@ -42258,12 +41770,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town11301",
-        "city_town11103",
-        "city_town11106",
-        "city_town11107"
-      ],
+      "cityIds": ["city_town11301", "city_town11103", "city_town11106", "city_town11107"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -42416,9 +41923,7 @@
         "city_town1205"
       ],
       "requirementId": "requirement_reqchabbb031",
-      "requiredOfficerIds": [
-        "officer_chasad009"
-      ],
+      "requiredOfficerIds": ["officer_chasad009"],
       "note": null
     },
     "portraitId": null,
@@ -42868,10 +42373,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19301",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town19301", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -43026,9 +42528,7 @@
         "city_town19101"
       ],
       "requirementId": "requirement_reqchabbd041",
-      "requiredOfficerIds": [
-        "officer_chasad005"
-      ],
+      "requiredOfficerIds": ["officer_chasad005"],
       "note": null
     },
     "portraitId": null,
@@ -43181,9 +42681,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchacbb007",
-      "requiredOfficerIds": [
-        "officer_chasab008"
-      ],
+      "requiredOfficerIds": ["officer_chasab008"],
       "note": null
     },
     "portraitId": null,
@@ -43499,9 +42997,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchacbb035",
-      "requiredOfficerIds": [
-        "officer_chasab008"
-      ],
+      "requiredOfficerIds": ["officer_chasab008"],
       "note": null
     },
     "portraitId": null,
@@ -43802,11 +43298,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1105",
-        "city_town1104",
-        "city_town1102"
-      ],
+      "cityIds": ["city_town1105", "city_town1104", "city_town1102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -43959,9 +43451,7 @@
         "city_town16112"
       ],
       "requirementId": "requirement_reqchaaT025",
-      "requiredOfficerIds": [
-        "officer_chast024"
-      ],
+      "requiredOfficerIds": ["officer_chast024"],
       "note": null
     },
     "portraitId": null,
@@ -44103,11 +43593,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18109",
-        "city_town18107",
-        "city_town17301"
-      ],
+      "cityIds": ["city_town18109", "city_town18107", "city_town17301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -44259,9 +43745,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchasT037",
-      "requiredOfficerIds": [
-        "officer_chast035"
-      ],
+      "requiredOfficerIds": ["officer_chast035"],
       "note": null
     },
     "portraitId": null,
@@ -44411,9 +43895,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchasT038",
-      "requiredOfficerIds": [
-        "officer_chast035"
-      ],
+      "requiredOfficerIds": ["officer_chast035"],
       "note": null
     },
     "portraitId": null,
@@ -44563,9 +44045,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchasT039",
-      "requiredOfficerIds": [
-        "officer_chast035"
-      ],
+      "requiredOfficerIds": ["officer_chast035"],
       "note": null
     },
     "portraitId": null,
@@ -44717,9 +44197,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT051",
-      "requiredOfficerIds": [
-        "officer_chast049"
-      ],
+      "requiredOfficerIds": ["officer_chast049"],
       "note": null
     },
     "portraitId": null,
@@ -44859,9 +44337,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT052",
-      "requiredOfficerIds": [
-        "officer_chast049"
-      ],
+      "requiredOfficerIds": ["officer_chast049"],
       "note": null
     },
     "portraitId": null,
@@ -45011,9 +44487,7 @@
         "city_town3302"
       ],
       "requirementId": "requirement_reqchasT085",
-      "requiredOfficerIds": [
-        "officer_chast083"
-      ],
+      "requiredOfficerIds": ["officer_chast083"],
       "note": null
     },
     "portraitId": null,
@@ -45334,9 +44808,7 @@
         "city_town13103"
       ],
       "requirementId": "requirement_reqchabbb004",
-      "requiredOfficerIds": [
-        "officer_chasad005"
-      ],
+      "requiredOfficerIds": ["officer_chasad005"],
       "note": null
     },
     "portraitId": null,
@@ -45478,10 +44950,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -45800,9 +45269,7 @@
         "city_town11108"
       ],
       "requirementId": "requirement_reqchabbb008",
-      "requiredOfficerIds": [
-        "officer_chasad009"
-      ],
+      "requiredOfficerIds": ["officer_chasad009"],
       "note": null
     },
     "portraitId": null,
@@ -46433,9 +45900,7 @@
         "city_town3303"
       ],
       "requirementId": "requirement_reqchabbb014",
-      "requiredOfficerIds": [
-        "officer_chasab001"
-      ],
+      "requiredOfficerIds": ["officer_chasab001"],
       "note": null
     },
     "portraitId": null,
@@ -47060,9 +46525,7 @@
         "city_town1205"
       ],
       "requirementId": "requirement_reqchabbb018",
-      "requiredOfficerIds": [
-        "officer_chasab003"
-      ],
+      "requiredOfficerIds": ["officer_chasab003"],
       "note": null
     },
     "portraitId": null,
@@ -47678,13 +47141,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17102"
-      ],
+      "cityIds": ["city_town17102"],
       "requirementId": "requirement_reqchabbb022",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -47982,11 +47441,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town3204",
-        "city_town0301"
-      ],
+      "cityIds": ["city_town2201", "city_town3204", "city_town0301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -48142,9 +47597,7 @@
         "city_town22103"
       ],
       "requirementId": "requirement_reqchabbb025",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -48299,9 +47752,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchabbb026",
-      "requiredOfficerIds": [
-        "officer_chasab002"
-      ],
+      "requiredOfficerIds": ["officer_chasab002"],
       "note": null
     },
     "portraitId": null,
@@ -48775,11 +48226,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19202",
-        "city_town19304",
-        "city_town0301"
-      ],
+      "cityIds": ["city_town19202", "city_town19304", "city_town0301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -48939,9 +48386,7 @@
         "city_town18301"
       ],
       "requirementId": "requirement_reqchabbb030",
-      "requiredOfficerIds": [
-        "officer_chasab008"
-      ],
+      "requiredOfficerIds": ["officer_chasab008"],
       "note": null
     },
     "portraitId": null,
@@ -49100,9 +48545,7 @@
         "city_town14102"
       ],
       "requirementId": "requirement_reqchabbb032",
-      "requiredOfficerIds": [
-        "officer_chasab010"
-      ],
+      "requiredOfficerIds": ["officer_chasab010"],
       "note": null
     },
     "portraitId": null,
@@ -49727,9 +49170,7 @@
         "city_town19304"
       ],
       "requirementId": "requirement_reqchabbb037",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -50679,9 +50120,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchabbb045",
-      "requiredOfficerIds": [
-        "officer_chasab009"
-      ],
+      "requiredOfficerIds": ["officer_chasab009"],
       "note": null
     },
     "portraitId": null,
@@ -50827,12 +50266,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21101",
-        "city_town21201",
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21101", "city_town21201", "city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -50972,11 +50406,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -51126,9 +50556,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchabbb049",
-      "requiredOfficerIds": [
-        "officer_chasab009"
-      ],
+      "requiredOfficerIds": ["officer_chasab009"],
       "note": null
     },
     "portraitId": null,
@@ -51286,9 +50714,7 @@
         "city_town14204"
       ],
       "requirementId": "requirement_reqchabbb050",
-      "requiredOfficerIds": [
-        "officer_chasat003"
-      ],
+      "requiredOfficerIds": ["officer_chasat003"],
       "note": null
     },
     "portraitId": null,
@@ -53676,9 +53102,7 @@
         "city_town14102"
       ],
       "requirementId": "requirement_reqchabbb065",
-      "requiredOfficerIds": [
-        "officer_chasab010"
-      ],
+      "requiredOfficerIds": ["officer_chasab010"],
       "note": null
     },
     "portraitId": null,
@@ -54156,9 +53580,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchabbb068",
-      "requiredOfficerIds": [
-        "officer_chasab009"
-      ],
+      "requiredOfficerIds": ["officer_chasab009"],
       "note": null
     },
     "portraitId": null,
@@ -54454,10 +53876,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21101",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21101", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -54617,9 +54036,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchabbb097",
-      "requiredOfficerIds": [
-        "officer_chasad001"
-      ],
+      "requiredOfficerIds": ["officer_chasad001"],
       "note": null
     },
     "portraitId": null,
@@ -54773,9 +54190,7 @@
         "city_town8301"
       ],
       "requirementId": "requirement_reqchabbb098",
-      "requiredOfficerIds": [
-        "officer_chasab011"
-      ],
+      "requiredOfficerIds": ["officer_chasab011"],
       "note": null
     },
     "portraitId": null,
@@ -55251,9 +54666,7 @@
         "city_town20102"
       ],
       "requirementId": "requirement_reqchabbd003",
-      "requiredOfficerIds": [
-        "officer_chasad001"
-      ],
+      "requiredOfficerIds": ["officer_chasad001"],
       "note": null
     },
     "portraitId": null,
@@ -56216,9 +55629,7 @@
         "city_town19304"
       ],
       "requirementId": "requirement_reqchabbd011",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -56372,9 +55783,7 @@
         "city_town3302"
       ],
       "requirementId": "requirement_reqchabbd012",
-      "requiredOfficerIds": [
-        "officer_chasad004"
-      ],
+      "requiredOfficerIds": ["officer_chasad004"],
       "note": null
     },
     "portraitId": null,
@@ -56682,12 +56091,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3103",
-        "city_town4201",
-        "city_town3201",
-        "city_town3303"
-      ],
+      "cityIds": ["city_town3103", "city_town4201", "city_town3201", "city_town3303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -57002,9 +56406,7 @@
         "city_town7203"
       ],
       "requirementId": "requirement_reqchabbd017",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -57296,12 +56698,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15201",
-        "city_town15102",
-        "city_town15105",
-        "city_town0301"
-      ],
+      "cityIds": ["city_town15201", "city_town15102", "city_town15105", "city_town0301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -57780,10 +57177,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9101",
-        "city_town9202"
-      ],
+      "cityIds": ["city_town9101", "city_town9202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -58255,9 +57649,7 @@
         "city_town3101"
       ],
       "requirementId": "requirement_reqchabbd027",
-      "requiredOfficerIds": [
-        "officer_chasab011"
-      ],
+      "requiredOfficerIds": ["officer_chasab011"],
       "note": null
     },
     "portraitId": null,
@@ -58399,14 +57791,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town8302",
-        "city_town14204"
-      ],
+      "cityIds": ["city_town8302", "city_town14204"],
       "requirementId": "requirement_reqchabbd028",
-      "requiredOfficerIds": [
-        "officer_chasat003"
-      ],
+      "requiredOfficerIds": ["officer_chasat003"],
       "note": null
     },
     "portraitId": null,
@@ -58703,9 +58090,7 @@
         "city_town19304"
       ],
       "requirementId": "requirement_reqchabbd030",
-      "requiredOfficerIds": [
-        "officer_chasab008"
-      ],
+      "requiredOfficerIds": ["officer_chasab008"],
       "note": null
     },
     "portraitId": null,
@@ -59020,9 +58405,7 @@
         "city_town22103"
       ],
       "requirementId": "requirement_reqchabbd032",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -59508,9 +58891,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchabbd035",
-      "requiredOfficerIds": [
-        "officer_chasab002"
-      ],
+      "requiredOfficerIds": ["officer_chasab002"],
       "note": null
     },
     "portraitId": null,
@@ -60286,10 +59667,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301",
-        "city_town2204"
-      ],
+      "cityIds": ["city_town3301", "city_town2204"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -60453,9 +59831,7 @@
         "city_town20103"
       ],
       "requirementId": "requirement_reqchabbd043",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -60601,13 +59977,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22101"
-      ],
+      "cityIds": ["city_town22101"],
       "requirementId": "requirement_reqchabbd044",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -61410,9 +60782,7 @@
         "city_town10108"
       ],
       "requirementId": "requirement_reqchabbd049",
-      "requiredOfficerIds": [
-        "officer_chasad003"
-      ],
+      "requiredOfficerIds": ["officer_chasad003"],
       "note": null
     },
     "portraitId": null,
@@ -61562,12 +60932,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4104",
-        "city_town4202",
-        "city_town4105",
-        "city_town0301"
-      ],
+      "cityIds": ["city_town4104", "city_town4202", "city_town4105", "city_town0301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -61718,9 +61083,7 @@
         "city_town10108"
       ],
       "requirementId": "requirement_reqchabbd051",
-      "requiredOfficerIds": [
-        "officer_chasad003"
-      ],
+      "requiredOfficerIds": ["officer_chasad003"],
       "note": null
     },
     "portraitId": null,
@@ -61870,13 +61233,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21103"
-      ],
+      "cityIds": ["city_town21103"],
       "requirementId": "requirement_reqchabbd052",
-      "requiredOfficerIds": [
-        "officer_chasat005"
-      ],
+      "requiredOfficerIds": ["officer_chasat005"],
       "note": null
     },
     "portraitId": null,
@@ -62026,12 +61385,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2205",
-        "city_town6201",
-        "city_town6105",
-        "city_town1102"
-      ],
+      "cityIds": ["city_town2205", "city_town6201", "city_town6105", "city_town1102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -62341,12 +61695,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1302",
-        "city_town10201",
-        "city_town10108",
-        "city_town2101"
-      ],
+      "cityIds": ["city_town1302", "city_town10201", "city_town10108", "city_town2101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -62965,12 +62314,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17301",
-        "city_town18105",
-        "city_town18108",
-        "city_town1303"
-      ],
+      "cityIds": ["city_town17301", "city_town18105", "city_town18108", "city_town1303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -63114,11 +62458,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town5101",
-        "city_town13109",
-        "city_town20102"
-      ],
+      "cityIds": ["city_town5101", "city_town13109", "city_town20102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -63279,9 +62619,7 @@
         "city_town11108"
       ],
       "requirementId": "requirement_reqchabbd061",
-      "requiredOfficerIds": [
-        "officer_chasad009"
-      ],
+      "requiredOfficerIds": ["officer_chasad009"],
       "note": null
     },
     "portraitId": null,
@@ -64390,9 +63728,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchabbt004",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -64543,9 +63879,7 @@
         "city_town19304"
       ],
       "requirementId": "requirement_reqchabbt005",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -64695,11 +64029,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15201",
-        "city_town14102",
-        "city_town17301"
-      ],
+      "cityIds": ["city_town15201", "city_town14102", "city_town17301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -64856,9 +64186,7 @@
         "city_town20102"
       ],
       "requirementId": "requirement_reqchabbt008",
-      "requiredOfficerIds": [
-        "officer_chasad001"
-      ],
+      "requiredOfficerIds": ["officer_chasad001"],
       "note": null
     },
     "portraitId": null,
@@ -65008,13 +64336,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town7301"
-      ],
+      "cityIds": ["city_town7301"],
       "requirementId": "requirement_reqchabbt009",
-      "requiredOfficerIds": [
-        "officer_chasab002"
-      ],
+      "requiredOfficerIds": ["officer_chasab002"],
       "note": null
     },
     "portraitId": null,
@@ -65806,13 +65130,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17103"
-      ],
+      "cityIds": ["city_town17103"],
       "requirementId": "requirement_reqchabbt014",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -65962,12 +65282,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town19301",
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town19301", "city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -66115,12 +65430,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town5301",
-        "city_town6102",
-        "city_town5303",
-        "city_town5202"
-      ],
+      "cityIds": ["city_town5301", "city_town6102", "city_town5303", "city_town5202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -66920,13 +66230,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9102"
-      ],
+      "cityIds": ["city_town9102"],
       "requirementId": "requirement_reqchabbt021",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -67081,9 +66387,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchabbt022",
-      "requiredOfficerIds": [
-        "officer_chasab002"
-      ],
+      "requiredOfficerIds": ["officer_chasab002"],
       "note": null
     },
     "portraitId": null,
@@ -67225,11 +66529,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4201",
-        "city_town4202",
-        "city_town4302"
-      ],
+      "cityIds": ["city_town4201", "city_town4202", "city_town4302"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -68356,9 +67656,7 @@
         "city_town3303"
       ],
       "requirementId": "requirement_reqchabbt030",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -68675,9 +67973,7 @@
         "city_town20113"
       ],
       "requirementId": "requirement_reqchabbt032",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -68987,9 +68283,7 @@
         "city_town14204"
       ],
       "requirementId": "requirement_reqchabbt034",
-      "requiredOfficerIds": [
-        "officer_chasad006"
-      ],
+      "requiredOfficerIds": ["officer_chasad006"],
       "note": null
     },
     "portraitId": null,
@@ -70066,9 +69360,7 @@
         "city_town18106"
       ],
       "requirementId": "requirement_reqchabbt042",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -70360,12 +69652,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18101",
-        "city_town18103",
-        "city_town17301",
-        "city_town1303"
-      ],
+      "cityIds": ["city_town18101", "city_town18103", "city_town17301", "city_town1303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -70517,9 +69804,7 @@
         "city_town14102"
       ],
       "requirementId": "requirement_reqchabbt045",
-      "requiredOfficerIds": [
-        "officer_chasad008"
-      ],
+      "requiredOfficerIds": ["officer_chasad008"],
       "note": null
     },
     "portraitId": null,
@@ -71173,9 +70458,7 @@
         "city_town3302"
       ],
       "requirementId": "requirement_reqchabbt049",
-      "requiredOfficerIds": [
-        "officer_chasad004"
-      ],
+      "requiredOfficerIds": ["officer_chasad004"],
       "note": null
     },
     "portraitId": null,
@@ -71810,9 +71093,7 @@
         "city_town22201"
       ],
       "requirementId": "requirement_reqchabbt054",
-      "requiredOfficerIds": [
-        "officer_chasat002"
-      ],
+      "requiredOfficerIds": ["officer_chasat002"],
       "note": null
     },
     "portraitId": null,
@@ -71974,9 +71255,7 @@
         "city_town20103"
       ],
       "requirementId": "requirement_reqchabbt055",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -72126,12 +71405,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town11301",
-        "city_town11103",
-        "city_town11106",
-        "city_town11107"
-      ],
+      "cityIds": ["city_town11301", "city_town11103", "city_town11106", "city_town11107"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -72279,11 +71553,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19301",
-        "city_town19101",
-        "city_town19302"
-      ],
+      "cityIds": ["city_town19301", "city_town19101", "city_town19302"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -72444,9 +71714,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchacbb008",
-      "requiredOfficerIds": [
-        "officer_chasab001"
-      ],
+      "requiredOfficerIds": ["officer_chasab001"],
       "note": null
     },
     "portraitId": null,
@@ -72588,12 +71856,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1302",
-        "city_town10104",
-        "city_town10105",
-        "city_town10202"
-      ],
+      "cityIds": ["city_town1302", "city_town10104", "city_town10105", "city_town10202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -72897,9 +72160,7 @@
         "city_town22103"
       ],
       "requirementId": "requirement_reqchacbb022",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -73037,10 +72298,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town8302",
-        "city_town8106"
-      ],
+      "cityIds": ["city_town8302", "city_town8106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -73494,11 +72752,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9102",
-        "city_town9103",
-        "city_town9108"
-      ],
+      "cityIds": ["city_town9102", "city_town9103", "city_town9108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -74098,11 +73352,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town21201",
-        "city_town21102",
-        "city_town21301"
-      ],
+      "cityIds": ["city_town21201", "city_town21102", "city_town21301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -74242,12 +73492,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2201",
-        "city_town5302",
-        "city_town5101",
-        "city_town2203"
-      ],
+      "cityIds": ["city_town2201", "city_town5302", "city_town5101", "city_town2203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -74395,11 +73640,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1105",
-        "city_town1104",
-        "city_town1102"
-      ],
+      "cityIds": ["city_town1105", "city_town1104", "city_town1102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -74697,11 +73938,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town11101",
-        "city_town11102",
-        "city_town11108"
-      ],
+      "cityIds": ["city_town11101", "city_town11102", "city_town11108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -75158,9 +74395,7 @@
         "city_town11108"
       ],
       "requirementId": "requirement_reqchacbb059",
-      "requiredOfficerIds": [
-        "officer_chasad009"
-      ],
+      "requiredOfficerIds": ["officer_chasad009"],
       "note": null
     },
     "portraitId": null,
@@ -75452,13 +74687,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15301"
-      ],
+      "cityIds": ["city_town15301"],
       "requirementId": "requirement_reqchacbd001",
-      "requiredOfficerIds": [
-        "officer_chasat005"
-      ],
+      "requiredOfficerIds": ["officer_chasat005"],
       "note": null
     },
     "portraitId": null,
@@ -75608,12 +74839,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1302",
-        "city_town10201",
-        "city_town10104",
-        "city_town10105"
-      ],
+      "cityIds": ["city_town1302", "city_town10201", "city_town10104", "city_town10105"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -75776,9 +75002,7 @@
         "city_town13103"
       ],
       "requirementId": "requirement_reqchacbd014",
-      "requiredOfficerIds": [
-        "officer_chasad005"
-      ],
+      "requiredOfficerIds": ["officer_chasad005"],
       "note": null
     },
     "portraitId": null,
@@ -75928,13 +75152,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1301"
-      ],
+      "cityIds": ["city_town1301"],
       "requirementId": "requirement_reqchacbd025",
-      "requiredOfficerIds": [
-        "officer_chasab001"
-      ],
+      "requiredOfficerIds": ["officer_chasab001"],
       "note": null
     },
     "portraitId": null,
@@ -76080,9 +75300,7 @@
         "city_town1105"
       ],
       "requirementId": "requirement_reqchacbd038",
-      "requiredOfficerIds": [
-        "officer_chasad002"
-      ],
+      "requiredOfficerIds": ["officer_chasad002"],
       "note": null
     },
     "portraitId": null,
@@ -76241,9 +75459,7 @@
         "city_town1205"
       ],
       "requirementId": "requirement_reqchacbd045",
-      "requiredOfficerIds": [
-        "officer_chasad009"
-      ],
+      "requiredOfficerIds": ["officer_chasad009"],
       "note": null
     },
     "portraitId": null,
@@ -76552,9 +75768,7 @@
         "city_town19101"
       ],
       "requirementId": "requirement_reqchacbd052",
-      "requiredOfficerIds": [
-        "officer_chasad005"
-      ],
+      "requiredOfficerIds": ["officer_chasad005"],
       "note": null
     },
     "portraitId": null,
@@ -76714,9 +75928,7 @@
         "city_town5302"
       ],
       "requirementId": "requirement_reqchacbt002",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -76875,9 +76087,7 @@
         "city_town3303"
       ],
       "requirementId": "requirement_reqchacbt005",
-      "requiredOfficerIds": [
-        "officer_chasab001"
-      ],
+      "requiredOfficerIds": ["officer_chasab001"],
       "note": null
     },
     "portraitId": null,
@@ -77335,9 +76545,7 @@
         "city_town22103"
       ],
       "requirementId": "requirement_reqchacbt022",
-      "requiredOfficerIds": [
-        "officer_chasad010"
-      ],
+      "requiredOfficerIds": ["officer_chasad010"],
       "note": null
     },
     "portraitId": null,
@@ -77641,9 +76849,7 @@
         "city_town15102"
       ],
       "requirementId": "requirement_reqchacbt028",
-      "requiredOfficerIds": [
-        "officer_chasat005"
-      ],
+      "requiredOfficerIds": ["officer_chasat005"],
       "note": null
     },
     "portraitId": null,
@@ -77960,9 +77166,7 @@
         "city_town5302"
       ],
       "requirementId": "requirement_reqchacbt036",
-      "requiredOfficerIds": [
-        "officer_chasat001"
-      ],
+      "requiredOfficerIds": ["officer_chasat001"],
       "note": null
     },
     "portraitId": null,
@@ -78272,13 +77476,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22101"
-      ],
+      "cityIds": ["city_town22101"],
       "requirementId": "requirement_reqchacbt040",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -78429,9 +77629,7 @@
         "city_town18103"
       ],
       "requirementId": "requirement_reqchacbt041",
-      "requiredOfficerIds": [
-        "officer_chasat004"
-      ],
+      "requiredOfficerIds": ["officer_chasat004"],
       "note": null
     },
     "portraitId": null,
@@ -78579,9 +77777,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchacbt046",
-      "requiredOfficerIds": [
-        "officer_chasad005"
-      ],
+      "requiredOfficerIds": ["officer_chasad005"],
       "note": null
     },
     "portraitId": null,
@@ -79044,9 +78240,7 @@
         "city_town16112"
       ],
       "requirementId": "requirement_reqchabT026",
-      "requiredOfficerIds": [
-        "officer_chast024"
-      ],
+      "requiredOfficerIds": ["officer_chast024"],
       "note": null
     },
     "portraitId": null,
@@ -79192,11 +78386,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town9105",
-        "city_town9103",
-        "city_town9108"
-      ],
+      "cityIds": ["city_town9105", "city_town9103", "city_town9108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -79340,11 +78530,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town10104",
-        "city_town10201",
-        "city_town10105"
-      ],
+      "cityIds": ["city_town10104", "city_town10201", "city_town10105"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -79486,9 +78672,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT053",
-      "requiredOfficerIds": [
-        "officer_chast049"
-      ],
+      "requiredOfficerIds": ["officer_chast049"],
       "note": null
     },
     "portraitId": null,
@@ -79632,9 +78816,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT067",
-      "requiredOfficerIds": [
-        "officer_chast062"
-      ],
+      "requiredOfficerIds": ["officer_chast062"],
       "note": null
     },
     "portraitId": null,
@@ -79778,9 +78960,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT068",
-      "requiredOfficerIds": [
-        "officer_chast062"
-      ],
+      "requiredOfficerIds": ["officer_chast062"],
       "note": null
     },
     "portraitId": null,
@@ -79924,9 +79104,7 @@
     "recruitment": {
       "cityIds": [],
       "requirementId": "requirement_reqchasT069",
-      "requiredOfficerIds": [
-        "officer_chast062"
-      ],
+      "requiredOfficerIds": ["officer_chast062"],
       "note": null
     },
     "portraitId": null,
@@ -80240,12 +79418,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1301",
-        "city_town17107",
-        "city_town1102",
-        "city_town17108"
-      ],
+      "cityIds": ["city_town1301", "city_town17107", "city_town1102", "city_town17108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -81650,11 +80823,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3102",
-        "city_town2204",
-        "city_town3203"
-      ],
+      "cityIds": ["city_town3102", "city_town2204", "city_town3203"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -81961,13 +81130,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town17103"
-      ],
+      "cityIds": ["city_town17103"],
       "requirementId": "requirement_reqchacbb028",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -83507,11 +82672,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15201",
-        "city_town15102",
-        "city_town15101"
-      ],
+      "cityIds": ["city_town15201", "city_town15102", "city_town15101"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -84439,13 +83600,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town1301"
-      ],
+      "cityIds": ["city_town1301"],
       "requirementId": "requirement_reqchacbb061",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -85065,12 +84222,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15201",
-        "city_town21201",
-        "city_town22101",
-        "city_town22102"
-      ],
+      "cityIds": ["city_town15201", "city_town21201", "city_town22101", "city_town22102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -86322,13 +85474,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3303"
-      ],
+      "cityIds": ["city_town3303"],
       "requirementId": "requirement_reqchacbd015",
-      "requiredOfficerIds": [
-        "officer_chasad004"
-      ],
+      "requiredOfficerIds": ["officer_chasad004"],
       "note": null
     },
     "portraitId": null,
@@ -86772,12 +85920,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4301",
-        "city_town16112",
-        "city_town16107",
-        "city_town16109"
-      ],
+      "cityIds": ["city_town4301", "city_town16112", "city_town16107", "city_town16109"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -86921,11 +86064,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town2204",
-        "city_town4301",
-        "city_town16106"
-      ],
+      "cityIds": ["city_town2204", "city_town4301", "city_town16106"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -87069,12 +86208,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22201",
-        "city_town11301",
-        "city_town22101",
-        "city_town22102"
-      ],
+      "cityIds": ["city_town22201", "city_town11301", "city_town22101", "city_town22102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -87214,13 +86348,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town14105"
-      ],
+      "cityIds": ["city_town14105"],
       "requirementId": "requirement_reqchacbd021",
-      "requiredOfficerIds": [
-        "officer_chasab004"
-      ],
+      "requiredOfficerIds": ["officer_chasab004"],
       "note": null
     },
     "portraitId": null,
@@ -87665,16 +86795,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town15102",
-        "city_town15301",
-        "city_town15105",
-        "city_town17301"
-      ],
+      "cityIds": ["city_town15102", "city_town15301", "city_town15105", "city_town17301"],
       "requirementId": "requirement_reqchacbd024",
-      "requiredOfficerIds": [
-        "officer_chasad002"
-      ],
+      "requiredOfficerIds": ["officer_chasad002"],
       "note": null
     },
     "portraitId": null,
@@ -87980,12 +87103,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town11301",
-        "city_town11103",
-        "city_town11106",
-        "city_town11107"
-      ],
+      "cityIds": ["city_town11301", "city_town11103", "city_town11106", "city_town11107"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -88283,11 +87401,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3102",
-        "city_town3301",
-        "city_town0301"
-      ],
+      "cityIds": ["city_town3102", "city_town3301", "city_town0301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -89541,9 +88655,7 @@
         "city_town13109"
       ],
       "requirementId": "requirement_reqchacbd039",
-      "requiredOfficerIds": [
-        "officer_chasat003"
-      ],
+      "requiredOfficerIds": ["officer_chasat003"],
       "note": null
     },
     "portraitId": null,
@@ -89844,12 +88956,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town6201",
-        "city_town6202",
-        "city_town6105",
-        "city_town5202"
-      ],
+      "cityIds": ["city_town6201", "city_town6202", "city_town6105", "city_town5202"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -90006,9 +89113,7 @@
         "city_town14102"
       ],
       "requirementId": "requirement_reqchacbd042",
-      "requiredOfficerIds": [
-        "officer_chasab010"
-      ],
+      "requiredOfficerIds": ["officer_chasab010"],
       "note": null
     },
     "portraitId": null,
@@ -90311,11 +89416,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town18101",
-        "city_town18103",
-        "city_town18112"
-      ],
+      "cityIds": ["city_town18101", "city_town18103", "city_town18112"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -92318,11 +91419,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301",
-        "city_town4203",
-        "city_town3303"
-      ],
+      "cityIds": ["city_town3301", "city_town4203", "city_town3303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -92485,9 +91582,7 @@
         "city_town14204"
       ],
       "requirementId": "requirement_reqchacbt010",
-      "requiredOfficerIds": [
-        "officer_chasad006"
-      ],
+      "requiredOfficerIds": ["officer_chasad006"],
       "note": null
     },
     "portraitId": null,
@@ -92775,10 +91870,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22101",
-        "city_town22102"
-      ],
+      "cityIds": ["city_town22101", "city_town22102"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -93083,9 +92175,7 @@
         "city_town2101"
       ],
       "requirementId": "requirement_reqchacbt016",
-      "requiredOfficerIds": [
-        "officer_chasab010"
-      ],
+      "requiredOfficerIds": ["officer_chasab010"],
       "note": null
     },
     "portraitId": null,
@@ -93523,12 +92613,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town22201",
-        "city_town17101",
-        "city_town17107",
-        "city_town17108"
-      ],
+      "cityIds": ["city_town22201", "city_town17101", "city_town17107", "city_town17108"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -95216,13 +94301,9 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301"
-      ],
+      "cityIds": ["city_town3301"],
       "requirementId": "requirement_reqchacbt035",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -95364,12 +94445,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town4101",
-        "city_town4201",
-        "city_town4102",
-        "city_town3303"
-      ],
+      "cityIds": ["city_town4101", "city_town4201", "city_town4102", "city_town3303"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -95525,9 +94601,7 @@
         "city_town14204"
       ],
       "requirementId": "requirement_reqchacbt038",
-      "requiredOfficerIds": [
-        "officer_chasat003"
-      ],
+      "requiredOfficerIds": ["officer_chasat003"],
       "note": null
     },
     "portraitId": null,
@@ -95677,11 +94751,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town3301",
-        "city_town4103",
-        "city_town0301"
-      ],
+      "cityIds": ["city_town3301", "city_town4103", "city_town0301"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -95990,11 +95060,7 @@
       }
     ],
     "recruitment": {
-      "cityIds": [
-        "city_town19201",
-        "city_town17301",
-        "city_town15107"
-      ],
+      "cityIds": ["city_town19201", "city_town17301", "city_town15107"],
       "requirementId": null,
       "requiredOfficerIds": [],
       "note": null
@@ -96465,9 +95531,7 @@
         "city_town0301"
       ],
       "requirementId": "requirement_reqchacbt050",
-      "requiredOfficerIds": [
-        "officer_chasab006"
-      ],
+      "requiredOfficerIds": ["officer_chasab006"],
       "note": null
     },
     "portraitId": null,
@@ -96782,9 +95846,7 @@
         "city_town17301"
       ],
       "requirementId": "requirement_reqchacbt052",
-      "requiredOfficerIds": [
-        "officer_chasab002"
-      ],
+      "requiredOfficerIds": ["officer_chasab002"],
       "note": null
     },
     "portraitId": null,

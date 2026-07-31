@@ -110,9 +110,7 @@ export function preservePortraitFails(
   for (const o of oldRows) {
     if (o.portraitFail) failMap[o.id] = true
   }
-  return newRows.map((o) =>
-    failMap[o.id] ? { ...o, portraitFail: true } : o,
-  )
+  return newRows.map((o) => (failMap[o.id] ? { ...o, portraitFail: true } : o))
 }
 
 /** Create empty CatalogPageData for initial data state. */

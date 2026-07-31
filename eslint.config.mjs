@@ -20,6 +20,10 @@ export default tseslint.config(
     files: ['**/*.ts'],
     rules: {
       'no-undef': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
   {
@@ -32,6 +36,7 @@ export default tseslint.config(
         wx: 'readonly',
         getApp: 'readonly',
         getCurrentPages: 'readonly',
+        module: 'readonly',
         require: 'readonly',
         console: 'readonly',
         setTimeout: 'readonly',

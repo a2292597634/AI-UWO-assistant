@@ -1,1 +1,689 @@
-{"officer_chast089":{"id":"officer_chast089","name":"達納·卡洛斯","rarityId":"rarity_5","typeId":"type_class_2","genderId":"gender_f","jobId":"job_jobchasT089","nationalityId":"nationality_ctn_swe","languages":[{"languageId":"language_lang70","level":5,"name":"language_lang70"},{"languageId":"language_lang80","level":3,"name":"language_lang80"}],"skills":[{"skillId":"skill_skill100043","kind":"passive","sourceGroup":"sk0","slot":0,"unlockLevel":50,"level":1,"name":"skill_category_barter","categoryId":"skill_category_barter","iconPath":"/assets/skill_skill100043.png"},{"skillId":"skill_skill100051","kind":"passive","sourceGroup":"sk0","slot":1,"unlockLevel":70,"level":1,"name":"skill_category_barter","categoryId":"skill_category_barter","iconPath":"/assets/skill_skill100051.png"},{"skillId":"skill_skill200681","kind":"passive","sourceGroup":"sk0","slot":2,"unlockLevel":10,"level":1,"name":"skill_category_trade_price_adjustment","categoryId":"skill_category_trade_price_adjustment","iconPath":"/assets/skill_skill200681.png"},{"skillId":"skill_skill200921","kind":"passive","sourceGroup":"sk0","slot":3,"unlockLevel":30,"level":1,"name":"skill_category_adventure","categoryId":"skill_category_adventure","iconPath":"/assets/skill_skill200921.png"},{"skillId":"skill_skill203306","kind":"passive","sourceGroup":"sk0","slot":4,"unlockLevel":30,"level":1,"name":"skill_category_trade_price_adjustment","categoryId":"skill_category_trade_price_adjustment","iconPath":"/assets/skill_skill203306.png"},{"skillId":"skill_skill203426","kind":"passive","sourceGroup":"sk0","slot":5,"unlockLevel":70,"level":2,"name":"skill_category_trade_price_adjustment","categoryId":"skill_category_trade_price_adjustment","iconPath":"/assets/skill_skill203426.png"},{"skillId":"skill_skill203826","kind":"passive","sourceGroup":"sk0","slot":6,"unlockLevel":10,"level":1,"name":"skill_category_trade_expertise","categoryId":"skill_category_trade_expertise","iconPath":"/assets/skill_skill203826.png"},{"skillId":"skill_skill500436","kind":"passive","sourceGroup":"sk0","slot":7,"unlockLevel":50,"level":1,"name":"skill_category_naval_passive_other","categoryId":"skill_category_naval_passive_other","iconPath":"/assets/skill_skill500436.png"},{"skillId":"skill_skill400581","kind":"active","sourceGroup":"sk2","slot":0,"unlockLevel":50,"level":2,"name":"skill_category_naval_active_enhancement","categoryId":"skill_category_naval_active_enhancement","iconPath":"/assets/skill_skill400581.png"},{"skillId":"skill_skill400591","kind":"active","sourceGroup":"sk2","slot":1,"unlockLevel":1,"level":1,"name":"skill_category_naval_active_enhancement","categoryId":"skill_category_naval_active_enhancement","iconPath":"/assets/skill_skill400591.png"},{"skillId":"skill_skill300001","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":1,"level":3,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300001.png"},{"skillId":"skill_skillT0053","kind":"passive","sourceGroup":"sk5","slot":0,"unlockLevel":1,"level":1,"name":"skill_category_trade_price_adjustment","categoryId":"skill_category_trade_price_adjustment","iconPath":"/assets/skill_skillT0053.png"},{"skillId":"skill_skillT0073","kind":"passive","sourceGroup":"sk5","slot":1,"unlockLevel":1,"level":1,"name":"skill_category_trade_price_adjustment","categoryId":"skill_category_trade_price_adjustment","iconPath":"/assets/skill_skillT0073.png"}],"recruitment":{"cityIds":["city_town4105","city_town10105","city_town5303","city_town6301","city_town14205"],"requirementId":"requirement_reqchasT089","requiredOfficerIds":["officer_chast096"],"note":"5000紅鑽購買提督","cityNames":["city_town4105","city_town10105","city_town5303","city_town6301","city_town14205"],"requirementName":"requirement_reqchasT089"},"portraitId":"asset_portrait_chast089","displayOrder":1,"sourceRefs":{"voyageTw":"chasT089"},"rarityName":"rarity_5","typeName":"type_class_2","genderName":"gender_f","jobName":"job_jobchasT089","nationalityName":"nationality_ctn_swe","portraitPath":"/assets/officer_chast089.png"},"officer_chast096":{"id":"officer_chast096","name":"維托里奧·薩托里","rarityId":"rarity_5","typeId":"type_class_3","genderId":"gender_m","jobId":"job_jobchasT096","nationalityId":"nationality_ctn_ita","languages":[{"languageId":"language_lang60","level":4,"name":"language_lang60"},{"languageId":"language_lang80","level":4,"name":"language_lang80"}],"skills":[{"skillId":"skill_skill100043","kind":"passive","sourceGroup":"sk0","slot":0,"unlockLevel":70,"level":1,"name":"skill_category_barter","categoryId":"skill_category_barter","iconPath":"/assets/skill_skill100043.png"},{"skillId":"skill_skill500436","kind":"passive","sourceGroup":"sk0","slot":1,"unlockLevel":70,"level":2,"name":"skill_category_naval_passive_other","categoryId":"skill_category_naval_passive_other","iconPath":"/assets/skill_skill500436.png"},{"skillId":"skill_skill400591","kind":"active","sourceGroup":"sk2","slot":0,"unlockLevel":1,"level":1,"name":"skill_category_naval_active_enhancement","categoryId":"skill_category_naval_active_enhancement","iconPath":"/assets/skill_skill400591.png"},{"skillId":"skill_skill400861","kind":"active","sourceGroup":"sk2","slot":1,"unlockLevel":50,"level":2,"name":"skill_category_naval_active_enhancement","categoryId":"skill_category_naval_active_enhancement","iconPath":"/assets/skill_skill400861.png"},{"skillId":"skill_skill300001","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":1,"level":4,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300001.png"}],"recruitment":{"cityIds":["city_town5303","city_town9104","city_town14203","city_town15201","city_town11101"],"requirementId":null,"requiredOfficerIds":["officer_chast089"],"note":"5000紅鑽購買提督","cityNames":["city_town5303","city_town9104","city_town14203","city_town15201","city_town11101"],"requirementName":null},"portraitId":"asset_portrait_chast096","displayOrder":2,"sourceRefs":{"voyageTw":"chasT096"},"rarityName":"rarity_5","typeName":"type_class_3","genderName":"gender_m","jobName":"job_jobchasT096","nationalityName":"nationality_ctn_ita","portraitPath":"/assets/officer_chast096.png"},"officer_chast098":{"id":"officer_chast098","name":"穆拉特·雷斯","rarityId":"rarity_3","typeId":"type_class_3","genderId":"gender_m","jobId":"job_job21400006","nationalityId":"nationality_ctn_tur","languages":[{"languageId":"language_lang60","level":2,"name":"language_lang60"}],"skills":[],"recruitment":{"cityIds":["city_town14105","city_town8301","city_town6104","city_town14201","city_town8105"],"requirementId":null,"requiredOfficerIds":[],"note":"維托里奧·薩托里編年史獎勵","cityNames":["city_town14105","city_town8301","city_town6104","city_town14201","city_town8105"],"requirementName":null},"portraitId":null,"displayOrder":3,"sourceRefs":{"voyageTw":"chasT098"},"rarityName":"rarity_3","typeName":"type_class_3","genderName":"gender_m","jobName":"job_job21400006","nationalityName":"nationality_ctn_tur","portraitPath":"/assets/officer_chast098.png"},"officer_chast099":{"id":"officer_chast099","name":"賽莉梅","rarityId":"rarity_4","typeId":"type_class_1","genderId":"gender_f","jobId":"job_job21402014","nationalityId":"nationality_ctn_tur","languages":[{"languageId":"language_lang140","level":2,"name":"language_lang140"},{"languageId":"language_lang60","level":3,"name":"language_lang60"}],"skills":[{"skillId":"skill_skill400581","kind":"active","sourceGroup":"sk2","slot":0,"unlockLevel":1,"level":1,"name":"skill_category_naval_active_enhancement","categoryId":"skill_category_naval_active_enhancement","iconPath":"/assets/skill_skill400581.png"},{"skillId":"skill_skill300004","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":1,"level":2,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300004.png"}],"recruitment":{"cityIds":["city_town1205","city_town6301","city_town8302","city_town7101","city_town14207"],"requirementId":null,"requiredOfficerIds":[],"note":"維托里奧·薩托里編年史獎勵","cityNames":["city_town1205","city_town6301","city_town8302","city_town7101","city_town14207"],"requirementName":null},"portraitId":null,"displayOrder":4,"sourceRefs":{"voyageTw":"chasT099"},"rarityName":"rarity_4","typeName":"type_class_1","genderName":"gender_f","jobName":"job_job21402014","nationalityName":"nationality_ctn_tur","portraitPath":"/assets/officer_chast099.png"},"officer_chast100":{"id":"officer_chast100","name":"碧安卡·卡佩羅","rarityId":"rarity_5","typeId":"type_class_2","genderId":"gender_f","jobId":"job_job21401015","nationalityId":"nationality_unknown","languages":[{"languageId":"language_lang40","level":3,"name":"language_lang40"},{"languageId":"language_lang80","level":5,"name":"language_lang80"}],"skills":[{"skillId":"skill_skill400591","kind":"active","sourceGroup":"sk2","slot":0,"unlockLevel":50,"level":2,"name":"skill_category_naval_active_enhancement","categoryId":"skill_category_naval_active_enhancement","iconPath":"/assets/skill_skill400591.png"},{"skillId":"skill_skill300001","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":1,"level":3,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300001.png"}],"recruitment":{"cityIds":["city_town6301","city_town5202","city_town5301","city_town5302","city_town5201","city_town1205"],"requirementId":null,"requiredOfficerIds":[],"note":"menu224","cityNames":["city_town6301","city_town5202","city_town5301","city_town5302","city_town5201","city_town1205"],"requirementName":null},"portraitId":null,"displayOrder":5,"sourceRefs":{"voyageTw":"chasT100"},"rarityName":"rarity_5","typeName":"type_class_2","genderName":"gender_f","jobName":"job_job21401015","nationalityName":"nationality_unknown","portraitPath":"/assets/officer_chast100.png"},"officer_chast101":{"id":"officer_chast101","name":"斯佩蘭扎·摩里亞","rarityId":"rarity_5","typeId":"type_class_3","genderId":"gender_f","jobId":"job_job21400002","nationalityId":"nationality_unknown","languages":[{"languageId":"language_lang140","level":3,"name":"language_lang140"},{"languageId":"language_lang80","level":5,"name":"language_lang80"}],"skills":[{"skillId":"skill_skill300004","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":1,"level":3,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300004.png"}],"recruitment":{"cityIds":["city_town6301","city_town6201","city_town8301","city_town7201","city_town7202"],"requirementId":null,"requiredOfficerIds":[],"note":null,"cityNames":["city_town6301","city_town6201","city_town8301","city_town7201","city_town7202"],"requirementName":null},"portraitId":null,"displayOrder":6,"sourceRefs":{"voyageTw":"chasT101"},"maintenanceNote":"Rejected source city value chasT051 because it is an officer-shaped ID; it is neither a city nor an inferred prerequisite.","rarityName":"rarity_5","typeName":"type_class_3","genderName":"gender_f","jobName":"job_job21400002","nationalityName":"nationality_unknown","portraitPath":"/assets/officer_chast101.png"},"officer_chasab001":{"id":"officer_chasab001","name":"格蕾絲·奧馬利","rarityId":"rarity_5","typeId":"type_class_3","genderId":"gender_f","jobId":"job_jobchasab001","nationalityId":"nationality_ctn_irl","languages":[{"languageId":"language_lang40","level":3,"name":"language_lang40"},{"languageId":"language_lang80","level":3,"name":"language_lang80"}],"skills":[{"skillId":"skill_skill500436","kind":"passive","sourceGroup":"sk0","slot":0,"unlockLevel":30,"level":1,"name":"skill_category_naval_passive_other","categoryId":"skill_category_naval_passive_other","iconPath":"/assets/skill_skill500436.png"},{"skillId":"skill_skill509998139","kind":"passive","sourceGroup":"sk1","slot":0,"unlockLevel":0,"level":1,"name":"skill_category_innate_buff","categoryId":"skill_category_innate_buff","iconPath":"/assets/skill_skill509998139.png"},{"skillId":"skill_skill300004","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":0,"level":1,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300004.png"},{"skillId":"skill_skill400973","kind":"active","sourceGroup":"sk4","slot":1,"unlockLevel":1,"level":1,"name":"skill_category_admiral","categoryId":"skill_category_admiral","iconPath":"/assets/skill_skill400973.png"},{"skillId":"skill_skill400974","kind":"active","sourceGroup":"sk4","slot":20,"unlockLevel":20,"level":1,"name":"skill_category_admiral","categoryId":"skill_category_admiral","iconPath":"/assets/skill_skill400974.png"}],"recruitment":{"cityIds":["city_town3301","city_town15301","city_town4302","city_town2204","city_town3303","city_town10105","city_town2202","city_town1301","city_town13204","city_town17301"],"requirementId":null,"requiredOfficerIds":[],"note":null,"cityNames":["city_town3301","city_town15301","city_town4302","city_town2204","city_town3303","city_town10105","city_town2202","city_town1301","city_town13204","city_town17301"],"requirementName":null},"portraitId":"asset_portrait_chasab001","displayOrder":7,"sourceRefs":{"voyageTw":"chasab001"},"rarityName":"rarity_5","typeName":"type_class_3","genderName":"gender_f","jobName":"job_jobchasab001","nationalityName":"nationality_ctn_irl","portraitPath":"/assets/officer_chasab001.png"},"officer_chasab012":{"id":"officer_chasab012","name":"伊歐琳·潘德萊肯","rarityId":"rarity_5","typeId":"type_class_3","genderId":"gender_f","jobId":"job_jobchasab012","nationalityId":"nationality_ctn_pdg","languages":[{"languageId":"language_lang20","level":3,"name":"language_lang20"}],"skills":[{"skillId":"skill_skill300001","kind":"active","sourceGroup":"sk3","slot":0,"unlockLevel":0,"level":1,"name":"skill_category_combat_other","categoryId":"skill_category_combat_other","iconPath":"/assets/skill_skill300001.png"},{"skillId":"skill_skill100063","kind":"active","sourceGroup":"sk4","slot":1,"unlockLevel":1,"level":1,"name":"skill_category_admiral","categoryId":"skill_category_admiral","iconPath":"/assets/skill_skill100063.png"},{"skillId":"skill_skill100064","kind":"active","sourceGroup":"sk4","slot":60,"unlockLevel":60,"level":1,"name":"skill_category_admiral","categoryId":"skill_category_admiral","iconPath":"/assets/skill_skill100064.png"}],"recruitment":{"cityIds":[],"requirementId":null,"requiredOfficerIds":[],"note":null,"cityNames":[],"requirementName":null},"portraitId":null,"displayOrder":8,"sourceRefs":{"voyageTw":"chasab012"},"rarityName":"rarity_5","typeName":"type_class_3","genderName":"gender_f","jobName":"job_jobchasab012","nationalityName":"nationality_ctn_pdg","portraitPath":"/assets/officer_chasab012.png"}}
+{
+  "officer_chast089": {
+    "id": "officer_chast089",
+    "name": "達納·卡洛斯",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_f",
+    "jobId": "job_jobchasT089",
+    "nationalityId": "nationality_ctn_swe",
+    "languages": [
+      { "languageId": "language_lang70", "level": 5, "name": "language_lang70" },
+      { "languageId": "language_lang80", "level": 3, "name": "language_lang80" }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill100043",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 50,
+        "level": 1,
+        "name": "skill_category_barter",
+        "categoryId": "skill_category_barter",
+        "iconPath": "/assets/skill_skill100043.png"
+      },
+      {
+        "skillId": "skill_skill100051",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 70,
+        "level": 1,
+        "name": "skill_category_barter",
+        "categoryId": "skill_category_barter",
+        "iconPath": "/assets/skill_skill100051.png"
+      },
+      {
+        "skillId": "skill_skill200681",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 10,
+        "level": 1,
+        "name": "skill_category_trade_price_adjustment",
+        "categoryId": "skill_category_trade_price_adjustment",
+        "iconPath": "/assets/skill_skill200681.png"
+      },
+      {
+        "skillId": "skill_skill200921",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 30,
+        "level": 1,
+        "name": "skill_category_adventure",
+        "categoryId": "skill_category_adventure",
+        "iconPath": "/assets/skill_skill200921.png"
+      },
+      {
+        "skillId": "skill_skill203306",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1,
+        "name": "skill_category_trade_price_adjustment",
+        "categoryId": "skill_category_trade_price_adjustment",
+        "iconPath": "/assets/skill_skill203306.png"
+      },
+      {
+        "skillId": "skill_skill203426",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 70,
+        "level": 2,
+        "name": "skill_category_trade_price_adjustment",
+        "categoryId": "skill_category_trade_price_adjustment",
+        "iconPath": "/assets/skill_skill203426.png"
+      },
+      {
+        "skillId": "skill_skill203826",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 10,
+        "level": 1,
+        "name": "skill_category_trade_expertise",
+        "categoryId": "skill_category_trade_expertise",
+        "iconPath": "/assets/skill_skill203826.png"
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 50,
+        "level": 1,
+        "name": "skill_category_naval_passive_other",
+        "categoryId": "skill_category_naval_passive_other",
+        "iconPath": "/assets/skill_skill500436.png"
+      },
+      {
+        "skillId": "skill_skill400581",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 50,
+        "level": 2,
+        "name": "skill_category_naval_active_enhancement",
+        "categoryId": "skill_category_naval_active_enhancement",
+        "iconPath": "/assets/skill_skill400581.png"
+      },
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_naval_active_enhancement",
+        "categoryId": "skill_category_naval_active_enhancement",
+        "iconPath": "/assets/skill_skill400591.png"
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 3,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300001.png"
+      },
+      {
+        "skillId": "skill_skillT0053",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_trade_price_adjustment",
+        "categoryId": "skill_category_trade_price_adjustment",
+        "iconPath": "/assets/skill_skillT0053.png"
+      },
+      {
+        "skillId": "skill_skillT0073",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_trade_price_adjustment",
+        "categoryId": "skill_category_trade_price_adjustment",
+        "iconPath": "/assets/skill_skillT0073.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town4105",
+        "city_town10105",
+        "city_town5303",
+        "city_town6301",
+        "city_town14205"
+      ],
+      "requirementId": "requirement_reqchasT089",
+      "requiredOfficerIds": ["officer_chast096"],
+      "note": "5000紅鑽購買提督",
+      "cityNames": [
+        "city_town4105",
+        "city_town10105",
+        "city_town5303",
+        "city_town6301",
+        "city_town14205"
+      ],
+      "requirementName": "requirement_reqchasT089"
+    },
+    "portraitId": "asset_portrait_chast089",
+    "displayOrder": 1,
+    "sourceRefs": { "voyageTw": "chasT089" },
+    "rarityName": "rarity_5",
+    "typeName": "type_class_2",
+    "genderName": "gender_f",
+    "jobName": "job_jobchasT089",
+    "nationalityName": "nationality_ctn_swe",
+    "portraitPath": "/assets/officer_chast089.png"
+  },
+  "officer_chast096": {
+    "id": "officer_chast096",
+    "name": "維托里奧·薩托里",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_m",
+    "jobId": "job_jobchasT096",
+    "nationalityId": "nationality_ctn_ita",
+    "languages": [
+      { "languageId": "language_lang60", "level": 4, "name": "language_lang60" },
+      { "languageId": "language_lang80", "level": 4, "name": "language_lang80" }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill100043",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 70,
+        "level": 1,
+        "name": "skill_category_barter",
+        "categoryId": "skill_category_barter",
+        "iconPath": "/assets/skill_skill100043.png"
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 70,
+        "level": 2,
+        "name": "skill_category_naval_passive_other",
+        "categoryId": "skill_category_naval_passive_other",
+        "iconPath": "/assets/skill_skill500436.png"
+      },
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_naval_active_enhancement",
+        "categoryId": "skill_category_naval_active_enhancement",
+        "iconPath": "/assets/skill_skill400591.png"
+      },
+      {
+        "skillId": "skill_skill400861",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2,
+        "name": "skill_category_naval_active_enhancement",
+        "categoryId": "skill_category_naval_active_enhancement",
+        "iconPath": "/assets/skill_skill400861.png"
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 4,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300001.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town5303",
+        "city_town9104",
+        "city_town14203",
+        "city_town15201",
+        "city_town11101"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": ["officer_chast089"],
+      "note": "5000紅鑽購買提督",
+      "cityNames": [
+        "city_town5303",
+        "city_town9104",
+        "city_town14203",
+        "city_town15201",
+        "city_town11101"
+      ],
+      "requirementName": null
+    },
+    "portraitId": "asset_portrait_chast096",
+    "displayOrder": 2,
+    "sourceRefs": { "voyageTw": "chasT096" },
+    "rarityName": "rarity_5",
+    "typeName": "type_class_3",
+    "genderName": "gender_m",
+    "jobName": "job_jobchasT096",
+    "nationalityName": "nationality_ctn_ita",
+    "portraitPath": "/assets/officer_chast096.png"
+  },
+  "officer_chast098": {
+    "id": "officer_chast098",
+    "name": "穆拉特·雷斯",
+    "rarityId": "rarity_3",
+    "typeId": "type_class_3",
+    "genderId": "gender_m",
+    "jobId": "job_job21400006",
+    "nationalityId": "nationality_ctn_tur",
+    "languages": [{ "languageId": "language_lang60", "level": 2, "name": "language_lang60" }],
+    "skills": [],
+    "recruitment": {
+      "cityIds": [
+        "city_town14105",
+        "city_town8301",
+        "city_town6104",
+        "city_town14201",
+        "city_town8105"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "維托里奧·薩托里編年史獎勵",
+      "cityNames": [
+        "city_town14105",
+        "city_town8301",
+        "city_town6104",
+        "city_town14201",
+        "city_town8105"
+      ],
+      "requirementName": null
+    },
+    "portraitId": null,
+    "displayOrder": 3,
+    "sourceRefs": { "voyageTw": "chasT098" },
+    "rarityName": "rarity_3",
+    "typeName": "type_class_3",
+    "genderName": "gender_m",
+    "jobName": "job_job21400006",
+    "nationalityName": "nationality_ctn_tur",
+    "portraitPath": "/assets/officer_chast098.png"
+  },
+  "officer_chast099": {
+    "id": "officer_chast099",
+    "name": "賽莉梅",
+    "rarityId": "rarity_4",
+    "typeId": "type_class_1",
+    "genderId": "gender_f",
+    "jobId": "job_job21402014",
+    "nationalityId": "nationality_ctn_tur",
+    "languages": [
+      { "languageId": "language_lang140", "level": 2, "name": "language_lang140" },
+      { "languageId": "language_lang60", "level": 3, "name": "language_lang60" }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400581",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_naval_active_enhancement",
+        "categoryId": "skill_category_naval_active_enhancement",
+        "iconPath": "/assets/skill_skill400581.png"
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 2,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300004.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town1205",
+        "city_town6301",
+        "city_town8302",
+        "city_town7101",
+        "city_town14207"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "維托里奧·薩托里編年史獎勵",
+      "cityNames": [
+        "city_town1205",
+        "city_town6301",
+        "city_town8302",
+        "city_town7101",
+        "city_town14207"
+      ],
+      "requirementName": null
+    },
+    "portraitId": null,
+    "displayOrder": 4,
+    "sourceRefs": { "voyageTw": "chasT099" },
+    "rarityName": "rarity_4",
+    "typeName": "type_class_1",
+    "genderName": "gender_f",
+    "jobName": "job_job21402014",
+    "nationalityName": "nationality_ctn_tur",
+    "portraitPath": "/assets/officer_chast099.png"
+  },
+  "officer_chast100": {
+    "id": "officer_chast100",
+    "name": "碧安卡·卡佩羅",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_f",
+    "jobId": "job_job21401015",
+    "nationalityId": "nationality_unknown",
+    "languages": [
+      { "languageId": "language_lang40", "level": 3, "name": "language_lang40" },
+      { "languageId": "language_lang80", "level": 5, "name": "language_lang80" }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 50,
+        "level": 2,
+        "name": "skill_category_naval_active_enhancement",
+        "categoryId": "skill_category_naval_active_enhancement",
+        "iconPath": "/assets/skill_skill400591.png"
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 3,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300001.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town6301",
+        "city_town5202",
+        "city_town5301",
+        "city_town5302",
+        "city_town5201",
+        "city_town1205"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "menu224",
+      "cityNames": [
+        "city_town6301",
+        "city_town5202",
+        "city_town5301",
+        "city_town5302",
+        "city_town5201",
+        "city_town1205"
+      ],
+      "requirementName": null
+    },
+    "portraitId": null,
+    "displayOrder": 5,
+    "sourceRefs": { "voyageTw": "chasT100" },
+    "rarityName": "rarity_5",
+    "typeName": "type_class_2",
+    "genderName": "gender_f",
+    "jobName": "job_job21401015",
+    "nationalityName": "nationality_unknown",
+    "portraitPath": "/assets/officer_chast100.png"
+  },
+  "officer_chast101": {
+    "id": "officer_chast101",
+    "name": "斯佩蘭扎·摩里亞",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_f",
+    "jobId": "job_job21400002",
+    "nationalityId": "nationality_unknown",
+    "languages": [
+      { "languageId": "language_lang140", "level": 3, "name": "language_lang140" },
+      { "languageId": "language_lang80", "level": 5, "name": "language_lang80" }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 3,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300004.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town6301",
+        "city_town6201",
+        "city_town8301",
+        "city_town7201",
+        "city_town7202"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null,
+      "cityNames": [
+        "city_town6301",
+        "city_town6201",
+        "city_town8301",
+        "city_town7201",
+        "city_town7202"
+      ],
+      "requirementName": null
+    },
+    "portraitId": null,
+    "displayOrder": 6,
+    "sourceRefs": { "voyageTw": "chasT101" },
+    "maintenanceNote": "Rejected source city value chasT051 because it is an officer-shaped ID; it is neither a city nor an inferred prerequisite.",
+    "rarityName": "rarity_5",
+    "typeName": "type_class_3",
+    "genderName": "gender_f",
+    "jobName": "job_job21400002",
+    "nationalityName": "nationality_unknown",
+    "portraitPath": "/assets/officer_chast101.png"
+  },
+  "officer_chasab001": {
+    "id": "officer_chasab001",
+    "name": "格蕾絲·奧馬利",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_f",
+    "jobId": "job_jobchasab001",
+    "nationalityId": "nationality_ctn_irl",
+    "languages": [
+      { "languageId": "language_lang40", "level": 3, "name": "language_lang40" },
+      { "languageId": "language_lang80", "level": 3, "name": "language_lang80" }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 30,
+        "level": 1,
+        "name": "skill_category_naval_passive_other",
+        "categoryId": "skill_category_naval_passive_other",
+        "iconPath": "/assets/skill_skill500436.png"
+      },
+      {
+        "skillId": "skill_skill509998139",
+        "kind": "passive",
+        "sourceGroup": "sk1",
+        "slot": 0,
+        "unlockLevel": 0,
+        "level": 1,
+        "name": "skill_category_innate_buff",
+        "categoryId": "skill_category_innate_buff",
+        "iconPath": "/assets/skill_skill509998139.png"
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 0,
+        "level": 1,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300004.png"
+      },
+      {
+        "skillId": "skill_skill400973",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_admiral",
+        "categoryId": "skill_category_admiral",
+        "iconPath": "/assets/skill_skill400973.png"
+      },
+      {
+        "skillId": "skill_skill400974",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 20,
+        "unlockLevel": 20,
+        "level": 1,
+        "name": "skill_category_admiral",
+        "categoryId": "skill_category_admiral",
+        "iconPath": "/assets/skill_skill400974.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [
+        "city_town3301",
+        "city_town15301",
+        "city_town4302",
+        "city_town2204",
+        "city_town3303",
+        "city_town10105",
+        "city_town2202",
+        "city_town1301",
+        "city_town13204",
+        "city_town17301"
+      ],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null,
+      "cityNames": [
+        "city_town3301",
+        "city_town15301",
+        "city_town4302",
+        "city_town2204",
+        "city_town3303",
+        "city_town10105",
+        "city_town2202",
+        "city_town1301",
+        "city_town13204",
+        "city_town17301"
+      ],
+      "requirementName": null
+    },
+    "portraitId": "asset_portrait_chasab001",
+    "displayOrder": 7,
+    "sourceRefs": { "voyageTw": "chasab001" },
+    "rarityName": "rarity_5",
+    "typeName": "type_class_3",
+    "genderName": "gender_f",
+    "jobName": "job_jobchasab001",
+    "nationalityName": "nationality_ctn_irl",
+    "portraitPath": "/assets/officer_chasab001.png"
+  },
+  "officer_chasab012": {
+    "id": "officer_chasab012",
+    "name": "伊歐琳·潘德萊肯",
+    "rarityId": "rarity_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_f",
+    "jobId": "job_jobchasab012",
+    "nationalityId": "nationality_ctn_pdg",
+    "languages": [{ "languageId": "language_lang20", "level": 3, "name": "language_lang20" }],
+    "skills": [
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 0,
+        "level": 1,
+        "name": "skill_category_combat_other",
+        "categoryId": "skill_category_combat_other",
+        "iconPath": "/assets/skill_skill300001.png"
+      },
+      {
+        "skillId": "skill_skill100063",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1,
+        "name": "skill_category_admiral",
+        "categoryId": "skill_category_admiral",
+        "iconPath": "/assets/skill_skill100063.png"
+      },
+      {
+        "skillId": "skill_skill100064",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 60,
+        "unlockLevel": 60,
+        "level": 1,
+        "name": "skill_category_admiral",
+        "categoryId": "skill_category_admiral",
+        "iconPath": "/assets/skill_skill100064.png"
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null,
+      "cityNames": [],
+      "requirementName": null
+    },
+    "portraitId": null,
+    "displayOrder": 8,
+    "sourceRefs": { "voyageTw": "chasab012" },
+    "rarityName": "rarity_5",
+    "typeName": "type_class_3",
+    "genderName": "gender_f",
+    "jobName": "job_jobchasab012",
+    "nationalityName": "nationality_ctn_pdg",
+    "portraitPath": "/assets/officer_chasab012.png"
+  }
+}

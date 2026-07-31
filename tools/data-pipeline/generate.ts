@@ -1,6 +1,11 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
+import { readFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
-import { writeRuntimeData, writeShardedDetails, writeDetailIndex, writeDetailLoaders } from './build-runtime-data'
+import {
+  writeRuntimeData,
+  writeShardedDetails,
+  writeDetailIndex,
+  writeDetailLoaders,
+} from './build-runtime-data'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
@@ -34,7 +39,7 @@ const buildCategoryFallback = (
       // Compute the same path that iconPath() would generate
       const id = fname.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
       let hash = 0
-      for (let i = 0; i < id.length; i++) hash = ((hash * 31 + id.charCodeAt(i)) >>> 0)
+      for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
       const shard = hash % 10
       fallback.set(s.categoryId, `/subpkg-a${shard}/imgs/${fname}`)
     }
@@ -47,7 +52,9 @@ const generate = (): void => {
 
   // Safety: block generation from candidate data
   if (CANONICAL_DIR.includes('canonical-candidates')) {
-    throw new Error('Runtime data must not be generated from canonical-candidates. Use data/master instead.')
+    throw new Error(
+      'Runtime data must not be generated from canonical-candidates. Use data/master instead.',
+    )
   }
 
   console.log(`Reading canonical data from ${CANONICAL_DIR}/...`)
@@ -74,10 +81,26 @@ const generate = (): void => {
   mkdirSync(SUBPKG_DIR, { recursive: true })
 
   // Generate main package data (catalog, skills, dictionaries)
-  writeRuntimeData(officers, skills, dictionaries, OUTPUT_DIR, iconSet, categoryFallback, globalFallback)
+  writeRuntimeData(
+    officers,
+    skills,
+    dictionaries,
+    OUTPUT_DIR,
+    iconSet,
+    categoryFallback,
+    globalFallback,
+  )
 
   // Write details sharded (lazy-loaded per officer on detail page)
-  writeShardedDetails(officers, skills, dictionaries, SUBPKG_DIR, iconSet, categoryFallback, globalFallback)
+  writeShardedDetails(
+    officers,
+    skills,
+    dictionaries,
+    SUBPKG_DIR,
+    iconSet,
+    categoryFallback,
+    globalFallback,
+  )
 
   // Write detail lookup index and static loaders
   writeDetailIndex(officers, SUBPKG_DIR)

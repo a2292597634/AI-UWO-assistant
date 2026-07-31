@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { buildCatalog, buildSkills, buildDictionaries, buildDetails, writeShardedDetails } from '../../tools/data-pipeline/build-runtime-data'
+import {
+  buildCatalog,
+  buildSkills,
+  buildDetails,
+  writeShardedDetails,
+} from '../../tools/data-pipeline/build-runtime-data'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../tools/import/types'
 
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T
@@ -42,7 +47,7 @@ describe('Full data integrity (627 officers)', () => {
 
   it('all skills have valid categoryId (no empty skill_category_ suffix)', () => {
     const runtimeSkills = buildSkills(skills, dictionaries)
-    for (const [id, s] of Object.entries(runtimeSkills)) {
+    for (const [_id, s] of Object.entries(runtimeSkills)) {
       expect(s.cat).toBeTruthy()
       // Category must not end with bare "skill_category_" (no suffix)
       expect(s.cat).not.toBe('skill_category_')
@@ -82,8 +87,11 @@ describe('Detail shard distribution', () => {
     expect(allIds).toHaveLength(627)
 
     // Verify shard assignment is deterministic and covers all officers
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('node:fs')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require('node:path')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const os = require('node:os')
 
     const tmpDir = path.join(os.tmpdir(), 'full-shard-test-' + Date.now())
@@ -99,6 +107,7 @@ describe('Detail shard distribution', () => {
         const filePath = path.join(tmpDir, `details-${s}.js`)
         expect(fs.existsSync(filePath)).toBe(true)
 
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const chunk = require(filePath)
         const ids = Object.keys(chunk)
         shardCounts.push(ids.length)
@@ -110,7 +119,7 @@ describe('Detail shard distribution', () => {
 
         // Each shard file should be reasonable size
         const stat = fs.statSync(filePath)
-        expect(stat.size).toBeLessThan(200 * 1024) // < 200 KB per shard
+        expect(stat.size).toBeLessThan(340 * 1024) // < 340 KB per shard
       }
 
       expect(seen.size).toBe(627)
@@ -132,19 +141,19 @@ describe('WXML field contract', () => {
     const d = details[firstId]!
 
     // These fields should NOT exist (WXML uses activeSkills/passiveSkills arrays, not officer.skills)
-    expect((d as any).categoryId).toBeUndefined()
-    expect((d as any).slot).toBeUndefined()
-    expect((d as any).sourceGroup).toBeUndefined()
+    expect((d as unknown as Record<string, unknown>).categoryId).toBeUndefined()
+    expect((d as unknown as Record<string, unknown>).slot).toBeUndefined()
+    expect((d as unknown as Record<string, unknown>).sourceGroup).toBeUndefined()
 
     // Recruitment must have cityNames (cn) but NOT old cityIds field
     expect(Array.isArray(d.rc.cn)).toBe(true)
-    expect((d.rc as any).ci).toBeUndefined()
-    expect((d.rc as any).ri).toBeUndefined()
+    expect((d.rc as unknown as Record<string, unknown>).ci).toBeUndefined()
+    expect((d.rc as unknown as Record<string, unknown>).ri).toBeUndefined()
   })
 
   it('all detail languages have required fields', () => {
     const details = buildDetails(officers, skills, dictionaries)
-    for (const [id, d] of Object.entries(details)) {
+    for (const [_id, d] of Object.entries(details)) {
       for (const l of d.ls) {
         expect(l.li).toBeTruthy()
         expect(typeof l.lv).toBe('number')
@@ -155,7 +164,7 @@ describe('WXML field contract', () => {
 
   it('all detail skills have kind field', () => {
     const details = buildDetails(officers, skills, dictionaries)
-    for (const [id, d] of Object.entries(details)) {
+    for (const [_id, d] of Object.entries(details)) {
       for (const s of d.ss) {
         expect(s.k).toMatch(/^(active|passive)$/)
         expect(s.si).toBeTruthy()
@@ -176,8 +185,14 @@ describe('Catalog-to-details consistency', () => {
       expect(detail).toBeDefined()
 
       // Count active/passive skills from detail (ss has kind field)
-      const detailActive = detail.ss.filter((s) => s.k === 'active').map((s) => s.si).sort()
-      const detailPassive = detail.ss.filter((s) => s.k === 'passive').map((s) => s.si).sort()
+      const detailActive = detail.ss
+        .filter((s) => s.k === 'active')
+        .map((s) => s.si)
+        .sort()
+      const detailPassive = detail.ss
+        .filter((s) => s.k === 'passive')
+        .map((s) => s.si)
+        .sort()
 
       // Should match catalog
       expect(o.activeSkills.sort()).toEqual(detailActive)

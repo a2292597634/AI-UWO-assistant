@@ -19,18 +19,21 @@ var skill_arr={
     expect(skills.skill100043).toEqual({
       sourceCategoryId: 'menuskt3',
       imageOverrideId: null,
+      levelValues: [['2.3%'], ['3.5%']],
     })
 
     // Skill with icon override
     expect(skills.skill200681).toEqual({
       sourceCategoryId: 'menuskt2',
       imageOverrideId: 'skillT0053',
+      levelValues: [['1.5%']],
     })
 
     // Another with icon override
     expect(skills.skill509998139).toEqual({
       sourceCategoryId: 'menuskt19',
       imageOverrideId: 'skill500436',
+      levelValues: [['3.0%'], ['4.1%']],
     })
   })
 

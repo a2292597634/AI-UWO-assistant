@@ -26,10 +26,7 @@ const findTsSourceFiles = (dir: string): string[] => {
       )
         continue
       results.push(...findTsSourceFiles(full))
-    } else if (
-      entry.name.endsWith('.ts') &&
-      !entry.name.endsWith('.d.ts')
-    ) {
+    } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
       results.push(full)
     }
   }
@@ -57,11 +54,7 @@ describe('No duplicate shard hash algorithm in runtime', () => {
   for (const file of sourceFiles) {
     const rel = path.relative(MINIPROGRAM, file)
     // Skip the generated files in subpkg-detail (detail-loaders.js etc)
-    if (
-      rel.includes('detail-index') ||
-      rel.includes('detail-loaders') ||
-      rel.includes('details-')
-    )
+    if (rel.includes('detail-index') || rel.includes('detail-loaders') || rel.includes('details-'))
       continue
 
     const content = fs.readFileSync(file, 'utf8')

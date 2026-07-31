@@ -25,13 +25,12 @@ interface DownloadResult {
 const VOYAGE_BASE = 'https://voyage.tw'
 const ASSETS_DIR = 'miniprogram/assets'
 const BATCH_SIZE = 8 // concurrent downloads
-const BATCH_DELAY_MS = 100 // delay between batches
+const _BATCH_DELAY_MS = 100 // delay between batches
 
 // ── URL construction ──
 
 /** Construct a portrait URL from a source officer ID. */
-const portraitUrl = (sourceId: string): string =>
-  `${VOYAGE_BASE}/img/char/uwo_${sourceId}.png`
+const portraitUrl = (sourceId: string): string => `${VOYAGE_BASE}/img/char/uwo_${sourceId}.png`
 
 /** Construct a skill icon URL. Handles the 11-char truncation rule. */
 const skillIconUrl = (sourceSkillId: string): string => {
@@ -41,7 +40,7 @@ const skillIconUrl = (sourceSkillId: string): string => {
 }
 
 /** Resolve the image source ID for a skill, considering icon overrides. */
-const resolveSkillImageId = (
+const _resolveSkillImageId = (
   skillId: string,
   skillMetadata: Record<string, { imageOverrideId: string | null }>,
 ): string => {
@@ -65,16 +64,19 @@ interface AssetManifestEntry {
 
 // ── Download logic ──
 
-const sha256Hex = (buffer: Buffer): string =>
-  createHash('sha256').update(buffer).digest('hex')
+const sha256Hex = (buffer: Buffer): string => createHash('sha256').update(buffer).digest('hex')
 
-const downloadOne = async (
-  entry: AssetEntry,
-): Promise<DownloadResult> => {
+const downloadOne = async (entry: AssetEntry): Promise<DownloadResult> => {
   try {
     const response = await fetch(entry.url)
     if (response.status !== 200) {
-      return { sourceId: entry.sourceId, status: response.status, byteSize: null, sha256: null, path: null }
+      return {
+        sourceId: entry.sourceId,
+        status: response.status,
+        byteSize: null,
+        sha256: null,
+        path: null,
+      }
     }
 
     const buffer = Buffer.from(await response.arrayBuffer())
@@ -122,7 +124,7 @@ export const downloadAssets = async (
   }
 
   let downloaded = 0
-  let skipped = manifest.length
+  const skipped = manifest.length
 
   // Download in batches
   for (let i = 0; i < toDownload.length; i += BATCH_SIZE) {
@@ -146,14 +148,17 @@ export const downloadAssets = async (
       manifest.push(manifestEntry)
 
       if (result.status === 200) downloaded += 1
-      else console.log(`  [${result.status}] ${entry.url}${result.error ? ' — ' + result.error : ''}`)
+      else
+        console.log(`  [${result.status}] ${entry.url}${result.error ? ' — ' + result.error : ''}`)
     }
 
     const pct = Math.round(((i + batch.length) / toDownload.length) * 100)
     process.stdout.write(`\r  Downloading... ${pct}% (${downloaded} ok, ${skipped} cached)`)
   }
 
-  console.log(`\n  Done: ${downloaded} downloaded, ${skipped} cached, ${manifest.length - downloaded - skipped} failed`)
+  console.log(
+    `\n  Done: ${downloaded} downloaded, ${skipped} cached, ${manifest.length - downloaded - skipped} failed`,
+  )
   return manifest
 }
 
@@ -205,30 +210,42 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   const rawJsonChar = readFileSync('archive/voyage-tw-2026052501/raw-data/json_char.js', 'utf8')
 
   // Extract skill metadata (image overrides from skill_arr)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { parseSkills } = require('../import/parse-skills')
-  const skillArr = parseSkills(rawJsonChar) as Record<string, { sourceCategoryId: string; imageOverrideId: string | null }>
+  const skillArr = parseSkills(rawJsonChar) as Record<
+    string,
+    { sourceCategoryId: string; imageOverrideId: string | null }
+  >
 
   console.log(`=== Asset Downloader (batch size: ${BATCH_SIZE}, limit: ${limit ?? 'all'}) ===\n`)
   console.log(`Building asset list...`)
 
-  const officerData: Array<{ canonicalId: string; sourceId: string }> = officers.map((o: any) => ({
-    canonicalId: o.id,
-    sourceId: o.sourceRefs.voyageTw,
-  }))
-  const skillList: Array<{ id: string; imageOverrideId: string | null }> = skills.map((s: any) => ({
-    id: s.sourceRefs.voyageTw,
-    imageOverrideId: skillArr[s.sourceRefs.voyageTw]?.imageOverrideId ?? null,
-  }))
+  const officerData: Array<{ canonicalId: string; sourceId: string }> = officers.map(
+    (o: { id: string; sourceRefs: { voyageTw: string } }) => ({
+      canonicalId: o.id,
+      sourceId: o.sourceRefs.voyageTw,
+    }),
+  )
+  const skillList: Array<{ id: string; imageOverrideId: string | null }> = skills.map(
+    (s: { sourceRefs: { voyageTw: string }; iconId: string | null }) => ({
+      id: s.sourceRefs.voyageTw,
+      imageOverrideId: skillArr[s.sourceRefs.voyageTw]?.imageOverrideId ?? null,
+    }),
+  )
 
   const entries = buildAssetEntries(officerData, skillList, limit ? limit * 2 : undefined)
-  console.log(`  ${entries.length} assets to check (${entries.filter(e => e.kind === 'portrait').length} portraits, ${entries.filter(e => e.kind === 'icon').length} icons)\n`)
+  console.log(
+    `  ${entries.length} assets to check (${entries.filter((e) => e.kind === 'portrait').length} portraits, ${entries.filter((e) => e.kind === 'icon').length} icons)\n`,
+  )
 
   // Load existing manifest
   let existingManifest: AssetManifestEntry[] = []
   try {
     existingManifest = JSON.parse(readFileSync(`${ASSETS_DIR}/asset-manifest.json`, 'utf8'))
     console.log(`Loaded existing manifest: ${existingManifest.length} entries\n`)
-  } catch { /* no existing manifest */ }
+  } catch {
+    /* no existing manifest */
+  }
 
   downloadAssets(entries, existingManifest).then((manifest) => {
     writeFileSync(`${ASSETS_DIR}/asset-manifest.json`, JSON.stringify(manifest, null, 2) + '\n')

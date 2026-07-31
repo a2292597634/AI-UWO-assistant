@@ -10,7 +10,7 @@ import type { SourceSkillMetadata } from './types'
  * Fields:
  * - `t`: source category ID (e.g., "menuskt15") — primary field in real source
  * - `g`: legacy category ID — retained for backward compatibility with older snapshots
- * - `d`: description arrays (not used; present in source)
+ * - `d`: per-level effect value arrays (e.g. [["2.3%"],["3.5%"],...])
  * - `i`: image override ID (optional, e.g., "skillT0053")
  */
 export const parseSkills = (source: string): Record<string, SourceSkillMetadata> => {
@@ -24,20 +24,27 @@ export const parseSkills = (source: string): Record<string, SourceSkillMetadata>
 
     // Primary field: `t` (real source). Fallback: `g` (legacy snapshots).
     const sourceCategoryId =
-      typeof data.t === 'string'
-        ? data.t
-        : typeof data.g === 'string'
-          ? data.g
-          : ''
+      typeof data.t === 'string' ? data.t : typeof data.g === 'string' ? data.g : ''
 
     if (!sourceCategoryId) {
       errors.push(id)
       continue
     }
 
+    // Extract per-level effect values from `d` field
+    const levelValues: string[][] = []
+    if (Array.isArray(data.d)) {
+      for (const lv of data.d) {
+        if (Array.isArray(lv)) {
+          levelValues.push(lv.map((v) => String(v)))
+        }
+      }
+    }
+
     skills[id] = {
       sourceCategoryId,
       imageOverrideId: typeof data.i === 'string' ? data.i : null,
+      levelValues,
     }
   }
 

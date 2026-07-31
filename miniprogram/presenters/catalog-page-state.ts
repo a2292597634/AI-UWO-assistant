@@ -31,10 +31,7 @@ export function getFirstPage(state: CatalogPageStateInstance): CatalogRowView[] 
 }
 
 /** Check if more rows are available beyond what's displayed. */
-export function hasMore(
-  state: CatalogPageStateInstance,
-  visibleCount: number,
-): boolean {
+export function hasMore(state: CatalogPageStateInstance, visibleCount: number): boolean {
   return visibleCount < state._filteredAll.length
 }
 

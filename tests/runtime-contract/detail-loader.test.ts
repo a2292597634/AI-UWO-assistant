@@ -32,11 +32,15 @@ const readIndex = (): Record<string, number> | null => {
 }
 
 /** Read generated detail-loaders.js if it exists. */
-const readLoaders = (): null | ((id: string, index: Record<string, number>) => Record<string, unknown> | null) => {
+const readLoaders = ():
+  null | ((id: string, index: Record<string, number>) => Record<string, unknown> | null) => {
   const filePath = path.join(DETAIL_DIR, 'detail-loaders.js')
   if (!fs.existsSync(filePath)) return null
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return require(filePath) as (id: string, index: Record<string, number>) => Record<string, unknown> | null
+  return require(filePath) as (
+    id: string,
+    index: Record<string, number>,
+  ) => Record<string, unknown> | null
 }
 
 /** List all officer IDs across all detail shards. */
@@ -114,7 +118,7 @@ describe('detail-loaders.js (generated)', () => {
       if (byShard.size >= 3) break
     }
 
-    for (const [shard, id] of byShard) {
+    for (const [_shard, id] of byShard) {
       const record = loadFn(id, index)
       expect(record).not.toBeNull()
       expect(typeof record).toBe('object')

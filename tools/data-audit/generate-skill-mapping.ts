@@ -17,7 +17,6 @@ while ((match = re.exec(combined)) !== null) {
   catNames[`menuskt${match[1]}`] = match[2]
 }
 // Also handle the Chinese-named category "證書相關技能"
-const chineseRe = /"證書相關技能"\s*:\s*"([^"]+)"/g
 // (just check if it exists as a category ID in skill_arr)
 
 console.log('Category names from lang data:')
@@ -39,7 +38,7 @@ function genCategoryId(menusktId: string): string {
 
 // 3. ALL groups — any category can appear in any group.
 // Kind is determined by category name (主動/被動), not by group convention.
-const allGroups = ['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5']
+const allGroups = ['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'] as const
 
 // 4. Read existing approved mapping
 const existing = JSON.parse(
@@ -61,9 +60,7 @@ for (const [catId, catName] of Object.entries(catNames).sort()) {
         kind,
         categoryId: genCategoryId(catId),
         evidenceSkillIds: [],
-        evidence: [
-          `Auto-generated: category "${catName}" + group ${group} convention → ${kind}`,
-        ],
+        evidence: [`Auto-generated: category "${catName}" + group ${group} convention → ${kind}`],
         status: 'auto',
       })
     }
@@ -85,9 +82,7 @@ for (const extra of extraCategories) {
         kind: extra.kind,
         categoryId: `skill_category_certificate`,
         evidenceSkillIds: [],
-        evidence: [
-          `Auto-generated: certificate-related skills, group ${group} → ${extra.kind}`,
-        ],
+        evidence: [`Auto-generated: certificate-related skills, group ${group} → ${extra.kind}`],
         status: 'auto',
       })
     }
@@ -104,4 +99,6 @@ if (newMappings.length > 30) console.log(`  ... and ${newMappings.length - 30} m
 const merged = [...existing, ...newMappings]
 writeFileSync('data/audit/skill-group-mapping.json', JSON.stringify(merged, null, 2) + '\n')
 
-console.log(`\nWritten: ${merged.length} total (${existing.length} approved, ${newMappings.length} auto)`)
+console.log(
+  `\nWritten: ${merged.length} total (${existing.length} approved, ${newMappings.length} auto)`,
+)

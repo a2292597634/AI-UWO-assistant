@@ -36,8 +36,8 @@ const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): Runtim
 })
 
 const makeSkills = (): Record<string, RuntimeSkill> => ({
-  skill_a: { id: 'skill_a', n: '攻擊', cat: 'cat_combat', ip: '/icons/a.png' },
-  skill_p: { id: 'skill_p', n: '防禦', cat: 'cat_def', ip: '/icons/p.png' },
+  skill_a: { id: 'skill_a', n: '攻擊', cat: 'cat_combat', ip: '/icons/a.png', d: '', li: '' },
+  skill_p: { id: 'skill_p', n: '防禦', cat: 'cat_def', ip: '/icons/p.png', d: '', li: '' },
 })
 
 // ── Tests ──
@@ -129,9 +129,7 @@ describe('preservePortraitFails', () => {
   })
 
   it('handles empty old rows', () => {
-    const newRows = [
-      { ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} },
-    ]
+    const newRows = [{ ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} }]
     const result = preservePortraitFails(newRows, [])
     expect(result[0]!.portraitFail).toBeUndefined()
   })
@@ -139,9 +137,7 @@ describe('preservePortraitFails', () => {
 
 describe('createCatalogPageData', () => {
   it('creates page data with correct structure', () => {
-    const rows = [
-      { ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} },
-    ]
+    const rows = [{ ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} }]
     const state = createEmptyFilterState()
     const data = createCatalogPageData(rows, 1, state, false)
 

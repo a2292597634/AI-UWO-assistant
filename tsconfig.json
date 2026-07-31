@@ -12,7 +12,13 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["miniprogram/**/*.ts", "miniprogram/**/*.js", "tools/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
+  "include": [
+    "miniprogram/**/*.ts",
+    "miniprogram/**/*.js",
+    "tools/**/*.ts",
+    "tests/**/*.ts",
+    "vitest.config.ts"
+  ],
   "exclude": [
     "node_modules",
     "archive",

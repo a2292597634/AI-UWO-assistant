@@ -14,14 +14,14 @@ const MINIPROGRAM = path.resolve(__dirname, '../../miniprogram')
 // ── Whitelist: directories/files where JS is allowed ──
 
 const JS_ALLOWED_PATTERNS = [
-  /[\\/]miniprogram[\\/]generated[\\/]/,  // generated data files
-  /[\\/]miniprogram[\\/]subpkg-detail[\\/]details-\d+\.js$/,  // detail shards
-  /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-index\.js$/,  // generated index
-  /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-loaders\.js$/,  // generated loader
-  /[\\/]miniprogram[\\/]subpkg-a\d[\\/]/,  // asset subpackages
-  /[\\/]miniprogram[\\/]data[\\/]/,  // legacy data directory
-  /[\\/]miniprogram[\\/]typings[\\/]/,  // type declarations
-  /[\\/]miniprogram[\\/]pages[\\/]test[\\/]/,  // dev-only test page (pending removal)
+  /[\\/]miniprogram[\\/]generated[\\/]/, // generated data files
+  /[\\/]miniprogram[\\/]subpkg-detail[\\/]details-\d+\.js$/, // detail shards
+  /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-index\.js$/, // generated index
+  /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-loaders\.js$/, // generated loader
+  /[\\/]miniprogram[\\/]subpkg-a\d[\\/]/, // asset subpackages
+  /[\\/]miniprogram[\\/]data[\\/]/, // legacy data directory
+  /[\\/]miniprogram[\\/]typings[\\/]/, // type declarations
+  /[\\/]miniprogram[\\/]pages[\\/]test[\\/]/, // dev-only test page (pending removal)
 ]
 
 const isJsAllowed = (filePath: string): boolean =>

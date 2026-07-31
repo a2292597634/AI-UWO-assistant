@@ -41,10 +41,7 @@ export function hasActiveFilters(state: Readonly<CatalogFilterState>): boolean {
 // ── Immutable Updates ──
 
 /** Toggle a value in a multi-select field. Returns new array. */
-export function toggleArrayFilter(
-  arr: readonly string[],
-  id: string,
-): string[] {
+export function toggleArrayFilter(arr: readonly string[], id: string): string[] {
   const idx = arr.indexOf(id)
   if (idx >= 0) {
     return arr.filter((_, i) => i !== idx)
@@ -53,10 +50,7 @@ export function toggleArrayFilter(
 }
 
 /** Replace a multi-select field. Returns same array if unchanged. */
-export function setArrayFilter(
-  current: readonly string[],
-  next: readonly string[],
-): string[] {
+export function setArrayFilter(current: readonly string[], next: readonly string[]): string[] {
   if (arraysEqual(current, next)) return current as string[]
   return [...next]
 }

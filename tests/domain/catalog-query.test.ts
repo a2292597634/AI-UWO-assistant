@@ -6,18 +6,12 @@
 
 import { describe, it, expect } from 'vitest'
 import { queryCatalog } from '../../miniprogram/domain/catalog-query'
-import type {
-  RuntimeCatalogEntry,
-  RuntimeSkill,
-} from '../../miniprogram/contracts/runtime-data'
+import type { RuntimeCatalogEntry, RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
 import type { CatalogFilterState } from '../../miniprogram/contracts/filter-state'
 
 // ── Fixtures ──
 
-const makeEntry = (
-  id: string,
-  overrides?: Partial<RuntimeCatalogEntry>,
-): RuntimeCatalogEntry => ({
+const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): RuntimeCatalogEntry => ({
   id,
   name: `航海士${id}`,
   rarityId: 'rarity_4',
@@ -38,10 +32,10 @@ const makeEntry = (
 })
 
 const makeSkills = (): Record<string, RuntimeSkill> => ({
-  skill_a1: { id: 'skill_a1', n: '攻擊', cat: 'cat_combat', ip: '/a.png' },
-  skill_a2: { id: 'skill_a2', n: '治療', cat: 'cat_heal', ip: '/b.png' },
-  skill_p1: { id: 'skill_p1', n: '防禦', cat: 'cat_def', ip: '/c.png' },
-  skill_p2: { id: 'skill_p2', n: '航海', cat: 'cat_nav', ip: '/d.png' },
+  skill_a1: { id: 'skill_a1', n: '攻擊', cat: 'cat_combat', ip: '/a.png', d: '', li: '' },
+  skill_a2: { id: 'skill_a2', n: '治療', cat: 'cat_heal', ip: '/b.png', d: '', li: '' },
+  skill_p1: { id: 'skill_p1', n: '防禦', cat: 'cat_def', ip: '/c.png', d: '', li: '' },
+  skill_p2: { id: 'skill_p2', n: '航海', cat: 'cat_nav', ip: '/d.png', d: '', li: '' },
 })
 
 const emptyState: CatalogFilterState = {

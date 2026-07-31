@@ -1,6 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { buildCatalog, buildDictionaries, buildSkills, buildDetails, writeShardedDetails } from '../../tools/data-pipeline/build-runtime-data'
+import {
+  buildCatalog,
+  buildDictionaries,
+  buildSkills,
+  buildDetails,
+  writeShardedDetails,
+} from '../../tools/data-pipeline/build-runtime-data'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../tools/import/types'
 
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T
@@ -8,7 +14,9 @@ const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T
 // Use Phase 2 canonical fixtures for testing
 const officers = readJson<CanonicalOfficer[]>('tests/fixtures/canonical/officers.json')
 const skills = readJson<CanonicalSkill[]>('tests/fixtures/canonical/skills.json')
-const dictionaries = readJson<Record<string, DictionaryItem[]>>('tests/fixtures/canonical/dictionaries.json')
+const dictionaries = readJson<Record<string, DictionaryItem[]>>(
+  'tests/fixtures/canonical/dictionaries.json',
+)
 
 describe('buildCatalog', () => {
   it('generates compact catalog with skill IDs only', () => {
@@ -86,24 +94,27 @@ describe('buildDetails', () => {
     expect(sk.n).toBeTruthy()
     expect(sk.ip).toMatch(/^\/subpkg-a\d\/imgs\//)
     // Unused fields must NOT be present
-    expect((sk as any).sg).toBeUndefined()
-    expect((sk as any).sl).toBeUndefined()
-    expect((sk as any).cn).toBeUndefined()
-    expect((sk as any).ci).toBeUndefined()
+    expect((sk as unknown as Record<string, unknown>).sg).toBeUndefined()
+    expect((sk as unknown as Record<string, unknown>).sl).toBeUndefined()
+    expect((sk as unknown as Record<string, unknown>).cn).toBeUndefined()
+    expect((sk as unknown as Record<string, unknown>).ci).toBeUndefined()
     // Recruitment: cn=cityNames, rn=requirementName, nt=note
     expect(officer.rc).toBeDefined()
     expect(Array.isArray(officer.rc.cn)).toBe(true)
     // Unused rc fields must NOT be present
-    expect((officer.rc as any).ci).toBeUndefined()
-    expect((officer.rc as any).ri).toBeUndefined()
-    expect((officer.rc as any).ro).toBeUndefined()
+    expect((officer.rc as unknown as Record<string, unknown>).ci).toBeUndefined()
+    expect((officer.rc as unknown as Record<string, unknown>).ri).toBeUndefined()
+    expect((officer.rc as unknown as Record<string, unknown>).ro).toBeUndefined()
   })
 })
 
 describe('writeShardedDetails', () => {
   it('splits officers across 10 shard files', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('node:fs')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require('node:path')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const os = require('node:os')
 
     const tmpDir = path.join(os.tmpdir(), 'detail-shard-test-' + Date.now())
@@ -118,6 +129,7 @@ describe('writeShardedDetails', () => {
         const filePath = path.join(tmpDir, `details-${s}.js`)
         expect(fs.existsSync(filePath)).toBe(true)
 
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const chunk = require(filePath)
         for (const id of Object.keys(chunk)) {
           expect(allIds.has(id)).toBe(false) // no duplicates across shards

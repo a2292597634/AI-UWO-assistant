@@ -13,9 +13,7 @@ import type { RuntimeDetailRecord } from '../../miniprogram/contracts/runtime-da
 
 // ── Fixtures ──
 
-const makeRecord = (
-  overrides?: Partial<RuntimeDetailRecord>,
-): RuntimeDetailRecord => ({
+const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailRecord => ({
   n: '測試航海士',
   rn: 'S',
   tn: '冒險',
@@ -35,6 +33,8 @@ const makeRecord = (
       lv: 10,
       n: '攻擊強化',
       ip: '/subpkg-a0/imgs/skill_active_1.png',
+      d: '',
+      li: '',
     },
     {
       si: 'skill_passive_1',
@@ -43,6 +43,8 @@ const makeRecord = (
       lv: 20,
       n: '防禦強化',
       ip: '/subpkg-a1/imgs/skill_passive_1.png',
+      d: '',
+      li: '',
     },
     {
       si: 'skill_active_2',
@@ -51,6 +53,8 @@ const makeRecord = (
       lv: 50,
       n: '必殺攻擊',
       ip: '/subpkg-a2/imgs/skill_active_2.png',
+      d: '',
+      li: '',
     },
   ],
   rc: {

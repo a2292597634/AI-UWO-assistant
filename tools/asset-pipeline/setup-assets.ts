@@ -1,17 +1,14 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 
-const SRC_DIRS = [
-  'archive/voyage-tw-2026052501/raw-assets',
-  'miniprogram/assets',
-]
+const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', 'miniprogram/assets']
 const SUBPKG_BASE = 'miniprogram'
 
 /** Deterministic shard index — must match build-runtime-data.ts shardFor exactly. */
 const shardFor = (filename: string): number => {
   const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
   let hash = 0
-  for (let i = 0; i < id.length; i++) hash = ((hash * 31 + id.charCodeAt(i)) >>> 0)
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
   return hash % 10
 }
 

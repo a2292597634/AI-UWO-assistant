@@ -29,8 +29,7 @@ const readTsFiles = (dir: string): string[] => {
   return results
 }
 
-const readFileContent = (filePath: string): string =>
-  fs.readFileSync(filePath, 'utf8')
+const readFileContent = (filePath: string): string => fs.readFileSync(filePath, 'utf8')
 
 // ── Tests ──
 

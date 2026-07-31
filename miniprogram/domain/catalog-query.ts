@@ -94,10 +94,7 @@ export function queryCatalog<T extends RuntimeCatalogEntry>(
 }
 
 /** Resolve which skill IDs to check based on active/passive filter. */
-function resolveSkillCandidates(
-  o: RuntimeCatalogEntry,
-  activeFilter: string,
-): readonly string[] {
+function resolveSkillCandidates(o: RuntimeCatalogEntry, activeFilter: string): readonly string[] {
   if (activeFilter === 'active') {
     return o.activeSkills ?? []
   }

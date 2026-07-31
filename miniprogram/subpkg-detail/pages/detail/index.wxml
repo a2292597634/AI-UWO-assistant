@@ -26,7 +26,8 @@
     <text class="section-title">主動技能</text>
     <view class="skill-list">
       <view wx:for="{{activeSkills}}" wx:key="skillId" class="skill-card">
-        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon" />
+        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon"
+               bindtap="onSkillTap" data-skill-id="{{item.skillId}}" />
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>
           <text class="skill-detail">Lv.{{item.level}} / 解鎖 Lv.{{item.unlockLevel}}</text>
@@ -39,7 +40,8 @@
     <text class="section-title">被動技能</text>
     <view class="skill-list">
       <view wx:for="{{passiveSkills}}" wx:key="skillId" class="skill-card">
-        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon" />
+        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon"
+               bindtap="onSkillTap" data-skill-id="{{item.skillId}}" />
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>
           <text class="skill-detail">Lv.{{item.level}} / 解鎖 Lv.{{item.unlockLevel}}</text>
@@ -64,3 +66,19 @@
     </view>
   </view>
 </scroll-view>
+
+<!-- 技能描述浮層 -->
+<view class="tooltip-mask" wx:if="{{tooltipSkill}}" bindtap="onTooltipDismiss">
+  <view class="tooltip-popup" catchtap="">
+    <image src="{{tooltipSkill.iconPath}}" mode="aspectFit" class="tooltip-icon" />
+    <text class="tooltip-name">{{tooltipSkill.name}}</text>
+    <text class="tooltip-level">Lv.{{tooltipSkill.level}} / 解鎖 Lv.{{tooltipSkill.unlockLevel}}</text>
+    <view class="tooltip-divider"></view>
+    <text class="tooltip-desc">{{tooltipSkill.description}}</text>
+    <view class="tooltip-divider" wx:if="{{tooltipSkill.levelInfo}}"></view>
+    <text class="tooltip-level-info" wx:if="{{tooltipSkill.levelInfo}}">{{tooltipSkill.levelInfo}}</text>
+    <view class="tooltip-close" bindtap="onTooltipDismiss">
+      <text class="tooltip-close-text">關閉</text>
+    </view>
+  </view>
+</view>

@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
 import type {
   RuntimeCatalogEntry,
@@ -12,8 +12,12 @@ import type {
 
 /** Rarity grade letters: S (best) → A → B → C (worst). */
 const RARITY_GRADE: Record<string, string> = {
-  '2': 'C', '3': 'B', '4': 'A', '5': 'S',
-  '6': 'S', '7': 'S',
+  '2': 'C',
+  '3': 'B',
+  '4': 'A',
+  '5': 'S',
+  '6': 'S',
+  '7': 'S',
 }
 
 const rarityGrade = (rarityId: string): string => {
@@ -36,7 +40,7 @@ const unprefix = (id: string): string => {
 const shardFor = (filename: string): number => {
   const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
   let hash = 0
-  for (let i = 0; i < id.length; i++) hash = ((hash * 31 + id.charCodeAt(i)) >>> 0)
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
   return hash % 10
 }
 
@@ -44,42 +48,6 @@ const shardFor = (filename: string): number => {
 const portraitPath = (officerId: string): string => {
   const filename = `${officerId}.png`
   return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
-}
-
-/**
- * Build a set of all existing skill icon filenames across subpackages.
- * Used to detect when a skill variant lacks its own icon and needs a fallback.
- */
-const buildIconSet = (assetDirs: string[]): Set<string> => {
-  const set = new Set<string>()
-  for (const dir of assetDirs) {
-    if (!existsSync(dir)) continue
-    for (const f of readdirSync(dir)) {
-      if (f.startsWith('skill_')) set.add(f)
-    }
-  }
-  return set
-}
-
-/**
- * Build a fallback map: categoryId → valid skill icon path.
- * When a variant skill has no icon of its own, we use any base skill icon
- * from the same category.
- */
-const buildCategoryFallback = (
-  skills: CanonicalSkill[],
-  iconSet: Set<string>,
-  makePath: (filename: string) => string,
-): Map<string, string> => {
-  const fallback = new Map<string, string>()
-  for (const s of skills) {
-    if (fallback.has(s.categoryId)) continue // already have one
-    const fname = `${s.id}.png`
-    if (iconSet.has(fname)) {
-      fallback.set(s.categoryId, makePath(fname))
-    }
-  }
-  return fallback
 }
 
 /** Skill icon path from skill ID, with fallback for variant skills. */
@@ -187,6 +155,8 @@ export const buildDetails = (
           lv: rel.level,
           n: sk?.name ?? rel.skillId,
           ip: iconPath(rel.skillId, _iconSet, _catFB, sk?.categoryId ?? '', globalFallback),
+          d: sk?.description ?? '',
+          li: sk?.levelInfo ?? '',
         }
       }),
       rc: {
@@ -207,7 +177,7 @@ const detailShard = (officerId: string): number => {
   const filename = `${officerId}.png`
   const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
   let hash = 0
-  for (let i = 0; i < id.length; i++) hash = ((hash * 31 + id.charCodeAt(i)) >>> 0)
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
   return hash % 10
 }
 
@@ -221,7 +191,14 @@ export const writeShardedDetails = (
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
 ): void => {
-  const all = buildDetails(officers, skills, dictionaries, iconSet, categoryFallback, globalFallback)
+  const all = buildDetails(
+    officers,
+    skills,
+    dictionaries,
+    iconSet,
+    categoryFallback,
+    globalFallback,
+  )
 
   // Group by shard
   const shards: Record<string, RuntimeDetailRecord>[] = Array.from({ length: 10 }, () => ({}))
@@ -232,27 +209,18 @@ export const writeShardedDetails = (
   // Write each shard
   for (let s = 0; s < 10; s++) {
     const count = Object.keys(shards[s]!).length
-    writeFileSync(
-      `${outputDir}/details-${s}.js`,
-      `module.exports = ${JSON.stringify(shards[s])}\n`,
-    )
+    writeFileSync(`${outputDir}/details-${s}.js`, `module.exports = ${JSON.stringify(shards[s])}\n`)
     console.log(`  subpkg-detail/details-${s}.js: ${count} entries`)
   }
 }
 
 /** Write detail-index.js: maps every officer ID → shard number. */
-export const writeDetailIndex = (
-  officers: CanonicalOfficer[],
-  outputDir: string,
-): void => {
+export const writeDetailIndex = (officers: CanonicalOfficer[], outputDir: string): void => {
   const index: Record<string, number> = {}
   for (const o of officers) {
     index[o.id] = detailShard(o.id)
   }
-  writeFileSync(
-    `${outputDir}/detail-index.js`,
-    `module.exports = ${JSON.stringify(index)}\n`,
-  )
+  writeFileSync(`${outputDir}/detail-index.js`, `module.exports = ${JSON.stringify(index)}\n`)
   console.log(`  subpkg-detail/detail-index.js: ${Object.keys(index).length} entries`)
 }
 
@@ -260,8 +228,9 @@ export const writeDetailIndex = (
 export const writeDetailLoaders = (outputDir: string): void => {
   const lines = [
     'var loaders = [',
-    ...Array.from({ length: 10 }, (_, s) =>
-      `  function () { return require('./details-${s}.js') },`,
+    ...Array.from(
+      { length: 10 },
+      (_, s) => `  function () { return require('./details-${s}.js') },`,
     ),
     ']',
     '',
@@ -296,6 +265,8 @@ export const buildSkills = (
       n: s.name,
       cat: s.categoryId,
       ip: iconPath(s.id, _iconSet, _catFB, s.categoryId, globalFallback),
+      d: s.description,
+      li: s.levelInfo,
     }
   }
   return result
@@ -303,7 +274,10 @@ export const buildSkills = (
 
 // ── Dictionaries (runtime) ──
 
-export type { RuntimeDictionaryItem, RuntimeDictionaries } from '../../miniprogram/contracts/runtime-data'
+export type {
+  RuntimeDictionaryItem,
+  RuntimeDictionaries,
+} from '../../miniprogram/contracts/runtime-data'
 
 export const buildDictionaries = (
   _officers: CanonicalOfficer[],
@@ -360,6 +334,10 @@ export const writeRuntimeData = (
   console.log(`Runtime data written to ${outputDir}/`)
   console.log(`  catalog.js: ${catalog.length} officers`)
   console.log(`  skills.js: ${Object.keys(runtimeSkills).length} entries (dict format)`)
-  console.log(`  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, languages=${runtimeDicts.languages.length}, categories=${runtimeDicts.skillCategories.length}`)
-  console.log(`  dataset-meta.js: officerCount=${catalog.length}, skillCount=${Object.keys(runtimeSkills).length}`)
+  console.log(
+    `  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, languages=${runtimeDicts.languages.length}, categories=${runtimeDicts.skillCategories.length}`,
+  )
+  console.log(
+    `  dataset-meta.js: officerCount=${catalog.length}, skillCount=${Object.keys(runtimeSkills).length}`,
+  )
 }

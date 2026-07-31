@@ -1,6 +1,10 @@
 import { getCatalog, getSkills, getDictionaries } from '../../runtime/main-data-store'
 import { queryCatalog } from '../../domain/catalog-query'
-import { hasActiveFilters, toggleArrayFilter, createEmptyFilterState } from '../../domain/filter-state'
+import {
+  hasActiveFilters,
+  toggleArrayFilter,
+  createEmptyFilterState,
+} from '../../domain/filter-state'
 import {
   enrichCatalogWithIcons,
   preservePortraitFails,
@@ -16,9 +20,7 @@ import type { RuntimeSkill } from '../../contracts/runtime-data'
 // ── Helpers ──
 
 /** Extract dataset from event target, typed safely. */
-const eventDataset = (
-  e: WechatMiniprogram.BaseEvent,
-): Record<string, unknown> =>
+const eventDataset = (e: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
   (e.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
 
 // ── Page instance state (not reactive) ──
@@ -178,7 +180,8 @@ Page({
       selectedGenders: key === 'selectedGenders' ? (value as string[]) : ps.selectedGenders,
       selectedLanguages: key === 'selectedLanguages' ? (value as string[]) : ps.selectedLanguages,
       selectedJobs: key === 'selectedJobs' ? (value as string[]) : ps.selectedJobs,
-      selectedSkillCategories: key === 'selectedSkillCategories' ? (value as string[]) : ps.selectedSkillCategories,
+      selectedSkillCategories:
+        key === 'selectedSkillCategories' ? (value as string[]) : ps.selectedSkillCategories,
       activeFilter: key === 'activeFilter' ? (value as SkillKindFilter) : ps.activeFilter,
     }
     _state._filterState = nextState

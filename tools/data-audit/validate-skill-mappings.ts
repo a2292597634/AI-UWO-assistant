@@ -200,8 +200,7 @@ export const validateSkillMappings = (input: SkillMappingInput): AuditFinding[] 
           mapping.sourceCategoryId.trim() !== '' &&
           mapping.categoryId.trim() !== '' &&
           (mapping.status === 'approved'
-            ? mapping.evidenceSkillIds.length > 0 &&
-              mapping.evidence.length > 0
+            ? mapping.evidenceSkillIds.length > 0 && mapping.evidence.length > 0
             : true),
       )
     ) {

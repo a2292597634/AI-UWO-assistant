@@ -50,31 +50,31 @@ const languageMap: Record<string, string> = {
 // Minimal skill metadata for the 20 Phase 2 skills
 const skillMetadata: Record<string, SourceSkillMetadata> = {
   // sk0 skills
-  skill203826: { sourceCategoryId: 'menuskt1', imageOverrideId: null },
-  skill500436: { sourceCategoryId: 'menuskt13', imageOverrideId: null },
-  skill200921: { sourceCategoryId: 'menuskt16', imageOverrideId: null },
-  skill200681: { sourceCategoryId: 'menuskt2', imageOverrideId: null },
-  skill203306: { sourceCategoryId: 'menuskt2', imageOverrideId: null },
-  skill203426: { sourceCategoryId: 'menuskt2', imageOverrideId: null },
-  skill100043: { sourceCategoryId: 'menuskt3', imageOverrideId: null },
-  skill100051: { sourceCategoryId: 'menuskt3', imageOverrideId: null },
+  skill203826: { sourceCategoryId: 'menuskt1', imageOverrideId: null, levelValues: [] },
+  skill500436: { sourceCategoryId: 'menuskt13', imageOverrideId: null, levelValues: [] },
+  skill200921: { sourceCategoryId: 'menuskt16', imageOverrideId: null, levelValues: [] },
+  skill200681: { sourceCategoryId: 'menuskt2', imageOverrideId: null, levelValues: [] },
+  skill203306: { sourceCategoryId: 'menuskt2', imageOverrideId: null, levelValues: [] },
+  skill203426: { sourceCategoryId: 'menuskt2', imageOverrideId: null, levelValues: [] },
+  skill100043: { sourceCategoryId: 'menuskt3', imageOverrideId: null, levelValues: [] },
+  skill100051: { sourceCategoryId: 'menuskt3', imageOverrideId: null, levelValues: [] },
   // sk1
-  skill509998139: { sourceCategoryId: 'menuskt19', imageOverrideId: null },
+  skill509998139: { sourceCategoryId: 'menuskt19', imageOverrideId: null, levelValues: [] },
   // sk2
-  skill400581: { sourceCategoryId: 'menuskt11', imageOverrideId: null },
-  skill400591: { sourceCategoryId: 'menuskt11', imageOverrideId: null },
-  skill400861: { sourceCategoryId: 'menuskt11', imageOverrideId: null },
+  skill400581: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
+  skill400591: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
+  skill400861: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
   // sk3
-  skill300001: { sourceCategoryId: 'menuskt22', imageOverrideId: null },
-  skill300004: { sourceCategoryId: 'menuskt22', imageOverrideId: null },
+  skill300001: { sourceCategoryId: 'menuskt22', imageOverrideId: null, levelValues: [] },
+  skill300004: { sourceCategoryId: 'menuskt22', imageOverrideId: null, levelValues: [] },
   // sk4
-  skill400973: { sourceCategoryId: 'menuskt18', imageOverrideId: null },
-  skill400974: { sourceCategoryId: 'menuskt18', imageOverrideId: null },
-  skill100063: { sourceCategoryId: 'menuskt18', imageOverrideId: null },
-  skill100064: { sourceCategoryId: 'menuskt18', imageOverrideId: null },
+  skill400973: { sourceCategoryId: 'menuskt18', imageOverrideId: null, levelValues: [] },
+  skill400974: { sourceCategoryId: 'menuskt18', imageOverrideId: null, levelValues: [] },
+  skill100063: { sourceCategoryId: 'menuskt18', imageOverrideId: null, levelValues: [] },
+  skill100064: { sourceCategoryId: 'menuskt18', imageOverrideId: null, levelValues: [] },
   // sk5
-  skillT0053: { sourceCategoryId: 'menuskt2', imageOverrideId: 'skill200681' },
-  skillT0073: { sourceCategoryId: 'menuskt2', imageOverrideId: 'skill200681' },
+  skillT0053: { sourceCategoryId: 'menuskt2', imageOverrideId: 'skill200681', levelValues: [] },
+  skillT0073: { sourceCategoryId: 'menuskt2', imageOverrideId: 'skill200681', levelValues: [] },
 }
 
 describe('transformOfficers', () => {

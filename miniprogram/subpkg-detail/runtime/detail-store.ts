@@ -16,9 +16,7 @@ const _loadDetail = require('../detail-loaders') as (
   index: Record<string, number>,
 ) => Record<string, unknown> | null
 
-export function getOfficerDetail(
-  officerId: string,
-): RuntimeDetailRecord | null {
+export function getOfficerDetail(officerId: string): RuntimeDetailRecord | null {
   const raw = _loadDetail(officerId, _index)
   if (!raw) return null
   // Cast through unknown — the generated module types don't know the

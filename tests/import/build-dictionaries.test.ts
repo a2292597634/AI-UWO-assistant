@@ -44,6 +44,7 @@ const sampleSkills: CanonicalSkill[] = [
     name: '神之手腕',
     categoryId: 'skill_category_barter',
     description: '以物易物時，可進行更有利的協商。',
+    levelInfo: '',
     iconId: null,
     sourceRefs: { voyageTw: 'skill100043' },
   },

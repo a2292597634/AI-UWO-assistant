@@ -39,6 +39,8 @@ export interface RuntimeSkill {
   n: string // name
   cat: string // categoryId
   ip: string // iconPath
+  d: string // description
+  li: string // levelInfo — compact per-level effect summary
 }
 
 // ── Dictionaries (miniprogram/generated/dictionaries.js) ──
@@ -88,6 +90,8 @@ export interface RuntimeDetailSkill {
   lv: number // level
   n: string // name
   ip: string // iconPath
+  d: string // description
+  li: string // levelInfo — compact per-level effect summary
 }
 
 export interface RuntimeDetailRecruitment {

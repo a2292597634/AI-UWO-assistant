@@ -62,12 +62,20 @@ export const transformSkills = (
     // Some skill descriptions may be outside the 4 authorized lang_1.js ranges.
     // Fall back to the skill name when no description is found.
     const rawDescription = languageMap[`${sourceId}des`]
-    const description = rawDescription && rawDescription.trim() !== ''
-      ? rawDescription
-      : name || `技能 ${sourceId} 的說明暫未收錄`
+    const description =
+      rawDescription && rawDescription.trim() !== ''
+        ? rawDescription
+        : name || `技能 ${sourceId} 的說明暫未收錄`
 
     // Fall back to ID as display name when lang_js[1] key is not in authorized ranges
     const displayName = name || sourceId
+
+    // Build compact per-level effect summary
+    let levelInfo = ''
+    if (meta.levelValues.length > 0) {
+      const parts = meta.levelValues.map((vals, i) => `Lv${i + 1}: ${vals.join(' / ')}`)
+      levelInfo = parts.join(' | ')
+    }
 
     // Resolve categoryId from sourceCategoryId via mapping table.
     // For unmapped categories, record a blocking anomaly — category must be mapped.
@@ -93,6 +101,7 @@ export const transformSkills = (
       name: displayName,
       categoryId,
       description,
+      levelInfo,
       iconId: null, // deferred to Phase 4
       sourceRefs: { voyageTw: sourceId },
     })
