@@ -52,6 +52,18 @@
   background: #2f302b;
   color: #e8d5a3;
 }
+/* Icon chip styling */
+.chip-icon {
+  margin-right: 4rpx;
+  font-size: 26rpx;
+}
+/* Rarity icon colours — match existing rarity-badge palette */
+.chip--rarity-rarity_5 .chip-icon { color: #c4a45a; }  /* S — gold */
+.chip--rarity-rarity_4 .chip-icon { color: #8a8a8a; }  /* A — silver */
+.chip--rarity-rarity_3 .chip-icon { color: #b87333; }  /* B — bronze */
+.chip--rarity-rarity_2 .chip-icon { color: #5a5a4e; }  /* C — dark */
+/* Dim icon when chip is on (dark bg) so it stays visible */
+.chip--rarity.chip--on .chip-icon { opacity: 0.85; }
 .skill-kind-tabs {
   display: flex;
   margin-bottom: 16rpx;

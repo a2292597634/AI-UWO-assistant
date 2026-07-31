@@ -15,7 +15,38 @@ import { getDatasetString, isCatalogFilterField } from '../../contracts/page-eve
 
 import type { CatalogRowView, CatalogViewMaps } from '../../presenters/catalog-presenter'
 import type { CatalogFilterState, SkillKindFilter } from '../../contracts/filter-state'
-import type { RuntimeSkill } from '../../contracts/runtime-data'
+import type { RuntimeSkill, RuntimeDictionaryItem } from '../../contracts/runtime-data'
+
+// ── Icon mappings for filter chips ──
+
+interface FilterOption {
+  id: string
+  name: string
+  icon: string
+}
+
+const RARITY_ICONS: Record<string, string> = {
+  rarity_5: '◆', // S — gold
+  rarity_4: '◆', // A — silver
+  rarity_3: '◆', // B — bronze
+  rarity_2: '◆', // C — dark
+}
+
+const TYPE_ICONS: Record<string, string> = {
+  type_class_1: '🧭', // 冒險
+  type_class_2: '💰', // 交易
+  type_class_3: '⚔️', // 戰鬥
+}
+
+const GENDER_ICONS: Record<string, string> = {
+  gender_f: '♀',
+  gender_m: '♂',
+}
+
+/** Attach icon glyphs to raw dictionary items for WXML rendering. */
+function withIcons(items: RuntimeDictionaryItem[], map: Record<string, string>): FilterOption[] {
+  return items.map((it) => ({ ...it, icon: map[it.id] ?? '' }))
+}
 
 // ── Helpers ──
 
@@ -42,9 +73,9 @@ interface PageData extends CatalogViewMaps {
   hasActiveFilters: boolean
   hasMore: boolean
   // Filter options
-  rarities: { id: string; name: string }[]
-  types: { id: string; name: string }[]
-  genders: { id: string; name: string }[]
+  rarities: FilterOption[]
+  types: FilterOption[]
+  genders: FilterOption[]
   skillCategories: { id: string; name: string }[]
   languages: { id: string; name: string }[]
   jobs: { id: string; name: string }[]
@@ -112,9 +143,9 @@ Page({
       visibleRows: enriched.slice(0, PAGE_SIZE),
       filterCount: enriched.length,
       hasMore: enriched.length > PAGE_SIZE,
-      rarities: dicts.rarities,
-      types: dicts.types,
-      genders: dicts.genders,
+      rarities: withIcons(dicts.rarities, RARITY_ICONS),
+      types: withIcons(dicts.types, TYPE_ICONS),
+      genders: withIcons(dicts.genders, GENDER_ICONS),
       skillCategories: dicts.skillCategories,
       languages: dicts.languages,
       jobs: dicts.jobs,

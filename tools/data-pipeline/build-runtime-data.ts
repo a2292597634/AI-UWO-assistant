@@ -290,13 +290,80 @@ export const buildDictionaries = (
       name: group === 'rarities' ? rarityGrade(d.id) : d.name,
     }))
 
+  // ── Job ordering by type group (matches voyage.tw: 交易 → 战斗 → 冒险 → 未知) ──
+
+  // Build job→type mapping from officer data
+  const jobTypeMap = new Map<string, string>()
+  for (const o of _officers) {
+    if (!jobTypeMap.has(o.jobId)) jobTypeMap.set(o.jobId, o.typeId)
+  }
+
+  const JOB_TYPE_ORDER: Record<string, number> = {
+    type_class_2: 0, // 交易
+    type_class_3: 1, // 战斗
+    type_class_1: 2, // 冒险
+  }
+
+  const sortByTypeGroup = (items: RuntimeDictionaryItem[]): RuntimeDictionaryItem[] => {
+    return [...items].sort((a, b) => {
+      const typeA = jobTypeMap.get(a.id) ?? ''
+      const typeB = jobTypeMap.get(b.id) ?? ''
+      const orderA = JOB_TYPE_ORDER[typeA] ?? 99
+      const orderB = JOB_TYPE_ORDER[typeB] ?? 99
+      if (orderA !== orderB) return orderA - orderB
+      // Within same type group, sort by ID for stable ordering
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+    })
+  }
+
+  // ── Skill category ordering by type affiliation ──
+
+  const SKILL_CAT_ORDER: Record<string, number> = {
+    // 冒险 (Adventure)
+    skill_category_adventure: 0,
+    skill_category_navigation: 1,
+    skill_category_salvage: 2,
+    skill_category_certificate: 3,
+    // 交易 (Trade)
+    skill_category_trade_expertise: 10,
+    skill_category_trade_price_adjustment: 11,
+    skill_category_barter: 12,
+    skill_category_negotiation: 13,
+    // 战斗 (Battle) — active
+    skill_category_naval_active_cannon: 20,
+    skill_category_naval_active_melee: 21,
+    skill_category_naval_active_boarding: 22,
+    skill_category_naval_active_enhancement: 23,
+    // 战斗 (Battle) — passive
+    skill_category_naval_passive_cannon: 30,
+    skill_category_naval_passive_melee: 31,
+    skill_category_naval_passive_boarding: 32,
+    skill_category_naval_passive_defense: 33,
+    skill_category_naval_passive_other: 34,
+    skill_category_combat_other: 35,
+    // 通用 / 其他 (General)
+    skill_category_admiral: 40,
+    skill_category_medicine: 41,
+    skill_category_repair: 42,
+    skill_category_innate_buff: 43,
+    skill_category_innate_debuff: 44,
+  }
+
+  const sortSkillCategories = (items: RuntimeDictionaryItem[]): RuntimeDictionaryItem[] => {
+    return [...items].sort((a, b) => {
+      const orderA = SKILL_CAT_ORDER[a.id] ?? 99
+      const orderB = SKILL_CAT_ORDER[b.id] ?? 99
+      return orderA - orderB
+    })
+  }
+
   return {
     rarities: map('rarities'),
     types: map('types'),
     genders: map('genders'),
-    jobs: map('jobs'),
+    jobs: sortByTypeGroup(map('jobs')),
     languages: map('languages').map((l) => ({ ...l, id: unprefix(l.id) })),
-    skillCategories: map('skillCategories'),
+    skillCategories: sortSkillCategories(map('skillCategories')),
   }
 }
 

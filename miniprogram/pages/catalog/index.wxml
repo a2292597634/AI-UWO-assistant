@@ -15,19 +15,25 @@
     <view class="filter-group">
       <text class="filter-label">稀有度</text>
       <view class="filter-chips">
-        <view wx:for="{{rarities}}" wx:key="id" class="chip {{selectedRarityMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedRarities" data-id="{{item.id}}">{{item.name}}</view>
+        <view wx:for="{{rarities}}" wx:key="id" class="chip chip--rarity chip--rarity-{{item.id}} {{selectedRarityMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedRarities" data-id="{{item.id}}">
+          <text class="chip-icon">{{item.icon}}</text><text>{{item.name}}</text>
+        </view>
       </view>
     </view>
     <view class="filter-group">
       <text class="filter-label">類型</text>
       <view class="filter-chips">
-        <view wx:for="{{types}}" wx:key="id" class="chip {{selectedTypeMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedTypes" data-id="{{item.id}}">{{item.name}}</view>
+        <view wx:for="{{types}}" wx:key="id" class="chip chip--type {{selectedTypeMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedTypes" data-id="{{item.id}}">
+          <text class="chip-icon">{{item.icon}}</text><text>{{item.name}}</text>
+        </view>
       </view>
     </view>
     <view class="filter-group">
       <text class="filter-label">性別</text>
       <view class="filter-chips">
-        <view wx:for="{{genders}}" wx:key="id" class="chip {{selectedGenderMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedGenders" data-id="{{item.id}}">{{item.name}}</view>
+        <view wx:for="{{genders}}" wx:key="id" class="chip chip--gender {{selectedGenderMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedGenders" data-id="{{item.id}}">
+          <text class="chip-icon">{{item.icon}}</text><text>{{item.name}}</text>
+        </view>
       </view>
     </view>
   </view>
