@@ -232,6 +232,19 @@
   border-radius: 8rpx;
 }
 
+.tooltip-lookup {
+  margin-top: 20rpx;
+  padding: 12rpx 48rpx;
+  background: transparent;
+  border: 2rpx solid #c4b99a;
+  border-radius: 8rpx;
+}
+
+.tooltip-lookup text {
+  font-size: 24rpx;
+  color: #5a5a4e;
+}
+
 .tooltip-close-text {
   font-size: 24rpx;
   color: #e8d5a3;

@@ -47,6 +47,7 @@ const emptyState: CatalogFilterState = {
   selectedJobs: [],
   selectedSkillCategories: [],
   activeFilter: 'all',
+  selectedSkillId: null,
 }
 
 // ── Tests ──

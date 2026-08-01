@@ -173,4 +173,11 @@ Page({
   onTooltipDismiss: function () {
     this.setData({ tooltipSkill: null })
   },
+
+  onReverseLookup: function () {
+    const skillId = (this.data.tooltipSkill as DetailSkill | null)?.skillId
+    if (!skillId) return
+    this.setData({ tooltipSkill: null })
+    wx.redirectTo({ url: '/pages/catalog/index?skillId=' + skillId })
+  },
 })

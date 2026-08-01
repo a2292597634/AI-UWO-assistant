@@ -15,4 +15,6 @@ export interface CatalogFilterState {
   selectedJobs: string[]
   selectedSkillCategories: string[]
   activeFilter: SkillKindFilter
+  /** Single skill ID for reverse lookup — overrides category/kind filters. */
+  selectedSkillId: string | null
 }

@@ -77,6 +77,9 @@
     <text class="tooltip-desc">{{tooltipSkill.description}}</text>
     <view class="tooltip-divider" wx:if="{{tooltipSkill.levelInfo}}"></view>
     <text class="tooltip-level-info" wx:if="{{tooltipSkill.levelInfo}}">{{tooltipSkill.levelInfo}}</text>
+    <view class="tooltip-lookup" bindtap="onReverseLookup">
+      <text>查看擁有此技能的航海士</text>
+    </view>
     <view class="tooltip-close" bindtap="onTooltipDismiss">
       <text class="tooltip-close-text">關閉</text>
     </view>

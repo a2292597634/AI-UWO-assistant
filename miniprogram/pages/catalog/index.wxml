@@ -90,12 +90,12 @@
         </view>
         <view class="row-skills">
           <view class="skill-icon-group" wx:if="{{item.activeSkills.length > 0}}">
-            <image wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" wx:if="{{si < 3}}" />
+            <image wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="active" />
             <text class="skill-more" wx:if="{{item.activeSkills.length > 3}}">+{{item.activeSkills.length - 3}}</text>
           </view>
           <view class="skill-icon-group" wx:if="{{item.passiveSkills.length > 0}}">
             <view class="skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
-            <image wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" wx:if="{{si < 3}}" />
+            <image wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="passive" />
             <text class="skill-more" wx:if="{{item.passiveSkills.length > 3}}">+{{item.passiveSkills.length - 3}}</text>
           </view>
         </view>
@@ -104,4 +104,25 @@
     <view wx:if="{{visibleRows.length === 0}}" class="empty">沒有符合條件的航海士</view>
     <view wx:elif="{{hasMore}}" class="load-more">載入更多...</view>
   </scroll-view>
+
+  <!-- Skill tooltip -->
+  <view class="tooltip-mask" wx:if="{{tooltipSkill}}" bindtap="onTooltipDismiss">
+    <view class="tooltip-popup" catchtap="">
+      <image src="{{tooltipSkill.iconPath}}" mode="aspectFit" class="tooltip-icon" />
+      <text class="tooltip-name">{{tooltipSkill.name}}</text>
+      <text class="tooltip-kind">{{tooltipSkill.kind === 'active' ? '主動技能' : '被動技能'}}</text>
+      <view class="tooltip-divider"></view>
+      <text class="tooltip-desc">{{tooltipSkill.description}}</text>
+      <view class="tooltip-divider" wx:if="{{tooltipSkill.levelInfo}}"></view>
+      <text class="tooltip-level-info" wx:if="{{tooltipSkill.levelInfo}}">{{tooltipSkill.levelInfo}}</text>
+      <view class="tooltip-actions">
+        <view class="tooltip-lookup" bindtap="onReverseLookup">
+          <text>查看擁有此技能的航海士</text>
+        </view>
+        <view class="tooltip-close" bindtap="onTooltipDismiss">
+          <text class="tooltip-close-text">關閉</text>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

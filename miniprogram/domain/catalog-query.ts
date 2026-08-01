@@ -53,6 +53,14 @@ export function queryCatalog<T extends RuntimeCatalogEntry>(
     result = result.filter((o) => sel.has(o.jobId))
   }
 
+  // Single skill reverse lookup (overrides category/kind filters)
+  if (state.selectedSkillId) {
+    const sid = state.selectedSkillId
+    result = result.filter(
+      (o) => (o.activeSkills ?? []).indexOf(sid) >= 0 || (o.passiveSkills ?? []).indexOf(sid) >= 0,
+    )
+  }
+
   // Skill category (AND) + active/passive combo
   if (state.selectedSkillCategories.length > 0) {
     const selCat = state.selectedSkillCategories

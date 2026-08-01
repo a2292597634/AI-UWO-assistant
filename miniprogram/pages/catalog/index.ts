@@ -63,6 +63,17 @@ const _state = {
   _filterState: createEmptyFilterState(),
 }
 
+// ── Skill tooltip view ──
+
+interface SkillTooltip {
+  skillId: string
+  name: string
+  iconPath: string
+  description: string
+  levelInfo: string
+  kind: 'active' | 'passive'
+}
+
 // ── Page data type (explicit, so setData sees the right shape) ──
 
 interface PageData extends CatalogViewMaps {
@@ -72,6 +83,8 @@ interface PageData extends CatalogViewMaps {
   filterCount: number
   hasActiveFilters: boolean
   hasMore: boolean
+  // Skill tooltip
+  tooltipSkill: SkillTooltip | null
   // Filter options
   rarities: FilterOption[]
   types: FilterOption[]
@@ -107,6 +120,8 @@ Page({
     skillCategories: [],
     languages: [],
     jobs: [],
+    // Skill tooltip
+    tooltipSkill: null,
     // Filter state
     activeFilter: 'all',
     selectedRarities: [],
@@ -125,7 +140,7 @@ Page({
     selectedSkillCategoryMap: {},
   } as PageData,
 
-  onLoad() {
+  onLoad(options: Record<string, string | undefined>) {
     const catalog = getCatalog()
     const skills = getSkills()
     const dicts = getDictionaries()
@@ -135,20 +150,40 @@ Page({
     // Enrich catalog with precomputed skill icons
     const enriched = enrichCatalogWithIcons(catalog, skills)
     _state._enrichedCatalog = enriched
-    _state._filteredAll = enriched
 
-    // Build initial data
+    // Reverse lookup: navigate from detail page with ?skillId=xxx
+    const skillId = options.skillId
+    if (skillId) {
+      const sk = skills[skillId]
+      _state._filterState = {
+        ...createEmptyFilterState(),
+        selectedSkillId: skillId,
+        // Set active/passive tab based on skill context
+        activeFilter: 'all' as SkillKindFilter,
+      }
+      _state._filteredAll = queryCatalog(enriched, skills, _state._filterState)
+      // Load skill name into nav title
+      if (sk) {
+        wx.setNavigationBarTitle({ title: sk.n })
+      }
+    } else {
+      _state._filteredAll = enriched
+    }
+
+    const filtered = _state._filteredAll
     const maps = buildViewMaps(_state._filterState)
     this.setData({
-      visibleRows: enriched.slice(0, PAGE_SIZE),
-      filterCount: enriched.length,
-      hasMore: enriched.length > PAGE_SIZE,
+      visibleRows: filtered.slice(0, PAGE_SIZE),
+      filterCount: filtered.length,
+      hasActiveFilters: hasActiveFilters(_state._filterState),
+      hasMore: filtered.length > PAGE_SIZE,
       rarities: withIcons(dicts.rarities, RARITY_ICONS),
       types: withIcons(dicts.types, TYPE_ICONS),
       genders: withIcons(dicts.genders, GENDER_ICONS),
       skillCategories: dicts.skillCategories,
       languages: dicts.languages,
       jobs: dicts.jobs,
+      activeFilter: _state._filterState.activeFilter,
       ...maps,
     })
   },
@@ -214,6 +249,7 @@ Page({
       selectedSkillCategories:
         key === 'selectedSkillCategories' ? (value as string[]) : ps.selectedSkillCategories,
       activeFilter: key === 'activeFilter' ? (value as SkillKindFilter) : ps.activeFilter,
+      selectedSkillId: key === 'selectedSkillId' ? (value as string | null) : ps.selectedSkillId,
     }
     _state._filterState = nextState
 
@@ -264,12 +300,57 @@ Page({
       selectedSkillCategories: [],
       activeFilter: 'all' as SkillKindFilter,
       searchText: '',
+      selectedSkillId: null,
       hasActiveFilters: false,
       visibleRows: _state._enrichedCatalog.slice(0, PAGE_SIZE),
       filterCount: _state._enrichedCatalog.length,
       hasMore: _state._enrichedCatalog.length > PAGE_SIZE,
       ...maps,
     })
+    wx.setNavigationBarTitle({ title: '航海士名鑑' })
+  },
+
+  // ── Skill tooltip (catalog row) ──
+
+  onSkillIconTap(e: WechatMiniprogram.BaseEvent) {
+    const dataset = eventDataset(e)
+    const skillId = getDatasetString(dataset, 'skillId')
+    const kind = getDatasetString(dataset, 'kind') as 'active' | 'passive' | undefined
+    if (!skillId || !kind) return
+
+    const sk = _state._skills[skillId]
+    if (!sk) return
+
+    // Dismiss if tapping the same skill
+    if (this.data.tooltipSkill && this.data.tooltipSkill.skillId === skillId) {
+      this.setData({ tooltipSkill: null })
+      return
+    }
+
+    const tooltip: SkillTooltip = {
+      skillId: sk.id,
+      name: sk.n,
+      iconPath: sk.ip,
+      description: sk.d,
+      levelInfo: sk.li,
+      kind: kind,
+    }
+    this.setData({ tooltipSkill: tooltip })
+  },
+
+  onTooltipDismiss() {
+    this.setData({ tooltipSkill: null })
+  },
+
+  /** Reverse lookup: filter catalog to officers having the tooltip's skill. */
+  onReverseLookup() {
+    const skill = this.data.tooltipSkill
+    if (!skill) return
+    // Clear all and set just this skill
+    this.applyFilterUpdate('selectedSkillId', skill.skillId)
+    this.setData({ tooltipSkill: null })
+    // Update nav title to show skill name
+    wx.setNavigationBarTitle({ title: skill.name })
   },
 
   // ── Pagination ──

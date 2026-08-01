@@ -242,3 +242,107 @@
   color: #8a8a7e;
   font-size: 22rpx;
 }
+
+/* Tooltip — bottom sheet */
+.tooltip-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.tooltip-popup {
+  background: #f5efe0;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 40rpx 32rpx 48rpx;
+  width: 100%;
+  max-width: 750rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tooltip-icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 12rpx;
+}
+.tooltip-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #292a26;
+  margin-bottom: 8rpx;
+}
+.tooltip-kind {
+  font-size: 22rpx;
+  color: #8a8a7e;
+  margin-bottom: 4rpx;
+}
+.tooltip-divider {
+  width: 80rpx;
+  height: 2rpx;
+  background: #c4b99a;
+  margin: 16rpx 0;
+}
+.tooltip-desc {
+  font-size: 26rpx;
+  color: #3d3d35;
+  text-align: center;
+  line-height: 1.6;
+}
+.tooltip-level-info {
+  font-size: 22rpx;
+  color: #5a5a4e;
+  text-align: center;
+  line-height: 1.5;
+}
+.tooltip-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 24rpx;
+}
+.tooltip-lookup {
+  background: #2f302b;
+  border-radius: 12rpx;
+  padding: 16rpx 48rpx;
+  margin-bottom: 12rpx;
+}
+.tooltip-lookup text {
+  font-size: 26rpx;
+  color: #e8d5a3;
+}
+.tooltip-close {
+  padding: 12rpx;
+}
+.tooltip-close-text {
+  font-size: 24rpx;
+  color: #8a8a7e;
+}
+/* Search bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: #e8dfce;
+  border-bottom: 1rpx solid #c4b99a;
+}
+.search-input {
+  flex: 1;
+  background: #f5efe0;
+  border-radius: 12rpx;
+  padding: 12rpx 16rpx;
+  font-size: 26rpx;
+  color: #292a26;
+}
+.search-clear {
+  margin-left: 16rpx;
+  font-size: 28rpx;
+  color: #8a8a7e;
+  padding: 8rpx;
+}
