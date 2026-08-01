@@ -34,10 +34,10 @@ describe('tsconfig.json', () => {
     expect(opts.allowJs).toBe(false)
   })
 
-  it('has noEmit set to false (IDE needs emitted JS files)', () => {
+  it('has noEmit set to true', () => {
     const tsconfig = readJson(path.join(ROOT, 'tsconfig.json'))
     const opts = tsconfig.compilerOptions as Record<string, unknown>
-    expect(opts.noEmit).toBe(false)
+    expect(opts.noEmit).toBe(true)
   })
 
   it('has strict set to true', () => {
@@ -63,9 +63,9 @@ describe('App entry', () => {
     expect(fs.existsSync(tsPath)).toBe(true)
   })
 
-  it('app.js exists (compiled from app.ts by tsc)', () => {
+  it('app.js does NOT exist (TS plugin handles compilation)', () => {
     const jsPath = path.join(MINIPROGRAM_DIR, 'app.js')
-    expect(fs.existsSync(jsPath)).toBe(true)
+    expect(fs.existsSync(jsPath)).toBe(false)
   })
 })
 
@@ -75,8 +75,8 @@ describe('Home page', () => {
     expect(fs.existsSync(tsPath)).toBe(true)
   })
 
-  it('pages/home/index.js exists (compiled from index.ts by tsc)', () => {
+  it('pages/home/index.js does NOT exist (TS plugin handles compilation)', () => {
     const jsPath = path.join(MINIPROGRAM_DIR, 'pages', 'home', 'index.js')
-    expect(fs.existsSync(jsPath)).toBe(true)
+    expect(fs.existsSync(jsPath)).toBe(false)
   })
 })

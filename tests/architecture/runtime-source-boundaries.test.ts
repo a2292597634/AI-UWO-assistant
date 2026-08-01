@@ -22,16 +22,6 @@ const JS_ALLOWED_PATTERNS = [
   /[\\/]miniprogram[\\/]data[\\/]/, // legacy data directory
   /[\\/]miniprogram[\\/]typings[\\/]/, // type declarations
   /[\\/]miniprogram[\\/]pages[\\/]test[\\/]/, // dev-only test page (pending removal)
-  // Compiled JS from TS source (tsc pre-compilation)
-  /[\\/]miniprogram[\\/]pages[\\/]home[\\/]index\.js$/,
-  /[\\/]miniprogram[\\/]pages[\\/]catalog[\\/]index\.js$/,
-  /[\\/]miniprogram[\\/]domain[\\/]/,
-  /[\\/]miniprogram[\\/]contracts[\\/]/,
-  /[\\/]miniprogram[\\/]presenters[\\/]/,
-  /[\\/]miniprogram[\\/]runtime[\\/]/,
-  /[\\/]miniprogram[\\/]app\.js$/,
-  /[\\/]miniprogram[\\/]subpkg-detail[\\/]pages[\\/]detail[\\/]index\.js$/,
-  /[\\/]miniprogram[\\/]subpkg-detail[\\/]runtime[\\/]/,
 ]
 
 const isJsAllowed = (filePath: string): boolean =>
@@ -75,16 +65,16 @@ describe('Hand-written pages must be TypeScript', () => {
     expect(fs.existsSync(path.join(pagesDir, 'home', 'index.ts'))).toBe(true)
   })
 
-  it('pages/home/index.js exists (compiled from TS)', () => {
-    expect(fs.existsSync(path.join(pagesDir, 'home', 'index.js'))).toBe(true)
+  it('pages/home/index.js does NOT exist', () => {
+    expect(fs.existsSync(path.join(pagesDir, 'home', 'index.js'))).toBe(false)
   })
 
   it('pages/catalog/index.ts exists', () => {
     expect(fs.existsSync(path.join(pagesDir, 'catalog', 'index.ts'))).toBe(true)
   })
 
-  it('pages/catalog/index.js exists (compiled from TS)', () => {
-    expect(fs.existsSync(path.join(pagesDir, 'catalog', 'index.js'))).toBe(true)
+  it('pages/catalog/index.js does NOT exist', () => {
+    expect(fs.existsSync(path.join(pagesDir, 'catalog', 'index.js'))).toBe(false)
   })
 })
 
@@ -95,8 +85,8 @@ describe('Detail page must be TypeScript', () => {
     expect(fs.existsSync(path.join(detailPage, 'index.ts'))).toBe(true)
   })
 
-  it('detail/index.js exists (compiled from TS)', () => {
-    expect(fs.existsSync(path.join(detailPage, 'index.js'))).toBe(true)
+  it('detail/index.js does NOT exist', () => {
+    expect(fs.existsSync(path.join(detailPage, 'index.js'))).toBe(false)
   })
 })
 
@@ -105,7 +95,7 @@ describe('App entry must be TypeScript', () => {
     expect(fs.existsSync(path.join(MINIPROGRAM, 'app.ts'))).toBe(true)
   })
 
-  it('app.js exists (compiled from TS)', () => {
-    expect(fs.existsSync(path.join(MINIPROGRAM, 'app.js'))).toBe(true)
+  it('app.js does NOT exist', () => {
+    expect(fs.existsSync(path.join(MINIPROGRAM, 'app.js'))).toBe(false)
   })
 })
