@@ -12,6 +12,10 @@ export default tseslint.config(
       'miniprogram/subpkg-detail/detail-index.js',
       'miniprogram/subpkg-detail/detail-loaders.js',
       'node_modules/**',
+      // Compiled JS from tools/ and tests/ (IDE TS plugin output)
+      'tools/**/*.js',
+      'tests/**/*.js',
+      'vitest.config.js',
     ],
   },
   js.configs.recommended,

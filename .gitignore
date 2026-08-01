@@ -20,6 +20,12 @@ miniprogram/domain/**/*.js
 miniprogram/contracts/**/*.js
 miniprogram/presenters/**/*.js
 miniprogram/runtime/**/*.js
+miniprogram/data/**/*.js
 miniprogram/app.js
 miniprogram/subpkg-detail/pages/**/*.js
 miniprogram/subpkg-detail/runtime/**/*.js
+
+# Compiled JS from tools/ and tests/
+tools/**/*.js
+tests/**/*.js
+vitest.config.js
