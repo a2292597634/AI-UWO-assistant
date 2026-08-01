@@ -16,3 +16,6 @@ module.exports = function loadDetail(id, index) {
   if (typeof shard !== "number" || !loaders[shard]) return null
   return loaders[shard]()[id] || null
 }
+
+// Bridge: skills data from main package for detail page lookups
+module.exports.skills = require('../generated/skills')

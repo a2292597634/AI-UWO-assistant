@@ -6,6 +6,11 @@ const loadDetail = require('../../detail-loaders') as (
 ) => Record<string, unknown> | null
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const detailIndex = require('../../detail-index') as Record<string, number>
+// Skills data bridged through detail-loaders (avoids direct page→generated/ require)
+const skillsData = (loadDetail as unknown as Record<string, unknown>).skills as Record<
+  string,
+  { li?: string; d?: string; n?: string }
+>
 
 // ── View model types (inline — no cross-file imports needed) ──
 
@@ -71,6 +76,14 @@ function presentDetail(raw: Record<string, unknown>): DetailState {
       description: (s.d as string) || '',
       levelInfo: (s.li as string) || '',
     }
+    // Patch name, description, levelInfo from shared skills data (not stored in detail shards)
+    const skExtra = skillsData[skill.skillId]
+    if (skExtra) {
+      if (!skill.name) skill.name = skExtra.n || skill.skillId
+      if (!skill.description) skill.description = skExtra.d || ''
+      if (!skill.levelInfo) skill.levelInfo = skExtra.li || ''
+    }
+
     if (skill.kind === 'active') {
       activeSkills.push(skill)
     } else {

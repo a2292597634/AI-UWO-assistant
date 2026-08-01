@@ -73,10 +73,10 @@ export function presentDetail(record: RuntimeDetailRecord): DetailPageState {
       kind: s.k,
       unlockLevel: s.ul,
       level: s.lv,
-      name: s.n,
+      name: s.n ?? s.si,
       iconPath: s.ip,
-      description: s.d,
-      levelInfo: s.li,
+      description: s.d ?? '',
+      levelInfo: s.li ?? '',
     }
     if (s.k === 'active') {
       activeSkills.push(skill)

@@ -60,7 +60,7 @@
   "preloadRule": {
     "pages/catalog/index": {
       "network": "all",
-      "packages": ["detail", "assets0", "assets1", "assets2"]
+      "packages": ["detail"]
     }
   },
   "window": {

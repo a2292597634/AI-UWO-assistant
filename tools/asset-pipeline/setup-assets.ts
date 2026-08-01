@@ -1,5 +1,13 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs'
 import { join } from 'node:path'
+import sharp from 'sharp'
 
 const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', 'miniprogram/assets']
 const SUBPKG_BASE = 'miniprogram'
@@ -10,6 +18,20 @@ const shardFor = (filename: string): number => {
   let hash = 0
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
   return hash % 10
+}
+
+// ── PNG compression ──
+
+/** Compress a PNG buffer to 8-bit palette with max compression. */
+async function compressPNG(input: Buffer): Promise<Buffer> {
+  return sharp(input)
+    .png({
+      palette: true,
+      compressionLevel: 9,
+      quality: 100,
+      effort: 10,
+    })
+    .toBuffer()
 }
 
 // 1. Remove mixed-case stale files (canonical IDs are always lowercase)
@@ -47,30 +69,35 @@ for (let s = 0; s <= 9; s++) {
 }
 console.log(`  Removed ${cleaned} mis-sharded files`)
 
-// 3. Copy all assets from source dirs to correct shard dirs
-console.log('Linking assets to subpackages...')
-let copied = 0
-let skipped = 0
-for (const srcDir of SRC_DIRS) {
-  if (!existsSync(srcDir)) {
-    console.log(`  Source dir not found: ${srcDir} (skipping)`)
-    continue
-  }
-  for (const f of readdirSync(srcDir)) {
-    if (!f.endsWith('.png')) continue
-    // Normalize filename to lowercase (belt & suspenders for case-sensitive filesystems)
-    const normalizedName = f.toLowerCase()
-    const shard = shardFor(normalizedName)
-    const destDir = join(SUBPKG_BASE, `subpkg-a${shard}`, 'imgs')
-    mkdirSync(destDir, { recursive: true })
-    const dest = join(destDir, normalizedName)
-    if (existsSync(dest)) {
-      skipped++
-    } else {
-      copyFileSync(join(srcDir, f), dest)
+// 3. Copy & compress all assets from source dirs to correct shard dirs
+async function main() {
+  console.log('Copying & compressing assets to subpackages...')
+  let copied = 0
+  let compressed = 0
+  for (const srcDir of SRC_DIRS) {
+    if (!existsSync(srcDir)) {
+      console.log(`  Source dir not found: ${srcDir} (skipping)`)
+      continue
+    }
+    for (const f of readdirSync(srcDir)) {
+      if (!f.endsWith('.png')) continue
+      const normalizedName = f.toLowerCase()
+      const shard = shardFor(normalizedName)
+      const destDir = join(SUBPKG_BASE, `subpkg-a${shard}`, 'imgs')
+      mkdirSync(destDir, { recursive: true })
+      const dest = join(destDir, normalizedName)
+      const raw = readFileSync(join(srcDir, f))
+      const compressedBuf = await compressPNG(raw)
+      writeFileSync(dest, compressedBuf)
+      if (compressedBuf.length < raw.length) compressed++
       copied++
     }
   }
+  console.log(`  ${copied} copied, ${compressed} compressed`)
+  console.log('Done.')
 }
-console.log(`  ${copied} copied, ${skipped} already in place`)
-console.log('Done.')
+
+main().catch((err) => {
+  console.error('Asset setup failed:', err)
+  process.exit(1)
+})

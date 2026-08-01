@@ -153,10 +153,7 @@ export const buildDetails = (
           k: rel.kind,
           ul: rel.unlockLevel,
           lv: rel.level,
-          n: sk?.name ?? rel.skillId,
           ip: iconPath(rel.skillId, _iconSet, _catFB, sk?.categoryId ?? '', globalFallback),
-          d: sk?.description ?? '',
-          li: sk?.levelInfo ?? '',
         }
       }),
       rc: {
@@ -224,7 +221,7 @@ export const writeDetailIndex = (officers: CanonicalOfficer[], outputDir: string
   console.log(`  subpkg-detail/detail-index.js: ${Object.keys(index).length} entries`)
 }
 
-/** Write detail-loaders.js: static loader functions keyed by shard number. */
+/** Write detail-loaders.js: static loader functions + skills data bridge. */
 export const writeDetailLoaders = (outputDir: string): void => {
   const lines = [
     'var loaders = [',
@@ -239,6 +236,9 @@ export const writeDetailLoaders = (outputDir: string): void => {
     '  if (typeof shard !== "number" || !loaders[shard]) return null',
     '  return loaders[shard]()[id] || null',
     '}',
+    '',
+    '// Bridge: skills data from main package for detail page lookups',
+    "module.exports.skills = require('../generated/skills')",
     '',
   ]
   writeFileSync(`${outputDir}/detail-loaders.js`, lines.join('\n'))

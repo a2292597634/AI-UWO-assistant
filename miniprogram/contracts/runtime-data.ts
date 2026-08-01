@@ -88,10 +88,12 @@ export interface RuntimeDetailSkill {
   k: 'active' | 'passive' // kind
   ul: number // unlockLevel
   lv: number // level
-  n: string // name
   ip: string // iconPath
-  d: string // description
-  li: string // levelInfo — compact per-level effect summary
+  // The following fields are optional in generated detail shards;
+  // they are patched at runtime from the shared skills.js dictionary.
+  n?: string // name
+  d?: string // description
+  li?: string // levelInfo — compact per-level effect summary
 }
 
 export interface RuntimeDetailRecruitment {
