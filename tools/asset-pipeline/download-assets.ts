@@ -254,5 +254,10 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
     const ok = manifest.filter((e) => e.status === 200).length
     const fail = manifest.filter((e) => e.status !== 200).length
     console.log(`\nSummary: ${ok} ok, ${fail} failed, ${manifest.length} total`)
+
+    if (fail > 0) {
+      console.error(`\nAsset download incomplete: ${fail} asset(s) failed.`)
+      process.exitCode = 1
+    }
   })
 }

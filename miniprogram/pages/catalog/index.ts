@@ -315,12 +315,38 @@ Page({
     this.setData({ sheetSkill: null })
   },
 
-  /** Reverse lookup while preserving every other live filter and list context. */
+  /** Reverse lookup: clear all filters first, then show every officer who has this skill. */
   onReverseLookup() {
     const skill = this.data.sheetSkill
     if (!skill) return
-    this.applyFilterUpdate('selectedSkillId', skill.id)
-    this.setData({ sheetSkill: null })
+
+    const state = getPageState(this)
+    // Clear all filters, keep only the target skill ID
+    state._filterState = {
+      ...createEmptyFilterState(),
+      selectedSkillId: skill.id,
+    }
+    state._filteredAll = queryCatalog(state._enrichedCatalog, state._skills, state._filterState)
+
+    const filtered = state._filteredAll
+    const maps = buildViewMaps(state._filterState)
+    this.setData({
+      selectedRarities: [],
+      selectedTypes: [],
+      selectedGenders: [],
+      selectedLanguages: [],
+      selectedJobs: [],
+      selectedSkillCategories: [],
+      activeFilter: 'all' as SkillKindFilter,
+      searchText: '',
+      selectedSkillId: skill.id,
+      visibleRows: filtered.slice(0, PAGE_SIZE),
+      filterCount: filtered.length,
+      hasActiveFilters: hasActiveFilters(state._filterState),
+      hasMore: filtered.length > PAGE_SIZE,
+      sheetSkill: null,
+      ...maps,
+    })
     // Update nav title to show skill name
     wx.setNavigationBarTitle({ title: skill.name })
   },

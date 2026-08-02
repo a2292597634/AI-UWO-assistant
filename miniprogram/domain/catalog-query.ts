@@ -53,7 +53,8 @@ export function queryCatalog<T extends RuntimeCatalogEntry>(
     result = result.filter((o) => sel.has(o.jobId))
   }
 
-  // Single skill reverse lookup (overrides category/kind filters)
+  // Single skill reverse lookup — caller should clear category/kind filters first
+  // (the page controller handles this by resetting filter state before calling)
   if (state.selectedSkillId) {
     const sid = state.selectedSkillId
     result = result.filter(

@@ -64,6 +64,7 @@
     "backgroundColor": "#ded7c7",
     "backgroundTextStyle": "dark"
   },
+  "lazyCodeLoading": "requiredComponents",
   "style": "v2",
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json"
