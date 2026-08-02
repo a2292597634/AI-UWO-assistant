@@ -57,12 +57,6 @@
       "pages": ["pages/placeholder/index"]
     }
   ],
-  "preloadRule": {
-    "pages/catalog/index": {
-      "network": "all",
-      "packages": ["detail"]
-    }
-  },
   "window": {
     "navigationBarBackgroundColor": "#2f302b",
     "navigationBarTextStyle": "white",
@@ -72,6 +66,5 @@
   },
   "style": "v2",
   "componentFramework": "glass-easel",
-  "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "sitemapLocation": "sitemap.json"
 }

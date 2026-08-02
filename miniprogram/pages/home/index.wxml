@@ -1,16 +1,46 @@
-<view class="page">
-  <view class="masthead">
-    <text class="title">{{title}}</text>
-    <text class="subtitle">UNCHARTED WATERS ORIGIN</text>
+<view class="home-page">
+  <view class="harbor-hero {{bannerFailed ? 'harbor-hero--fallback' : ''}}">
+    <image
+      wx:if="{{!bannerFailed}}"
+      class="harbor-hero__image"
+      src="/assets/ui/home-harbor.jpg"
+      mode="aspectFill"
+      binderror="onBannerError"
+    />
+    <view class="harbor-hero__scrim"></view>
+    <view class="harbor-hero__copy">
+      <text class="harbor-hero__eyebrow">航海資料館</text>
+      <text class="harbor-hero__title">{{title}}</text>
+      <text class="harbor-hero__meta">收錄 {{count}} 位航海士</text>
+    </view>
   </view>
-  <view class="module" bindtap="onEnterCatalog">
-    <view class="module__icon">
-      <text class="module__emoji">⚓</text>
+
+  <view class="feature-hub">
+    <view class="feature-hub__heading">
+      <text class="feature-hub__title">啟航港口</text>
+      <view class="feature-hub__rule"></view>
     </view>
-    <view class="module__body">
-      <text class="module__name">{{moduleName}}</text>
-      <text class="module__status">收錄 {{count}} 位航海士</text>
+    <view class="module-grid">
+      <view
+        wx:for="{{modules}}"
+        wx:key="id"
+        class="module-grid__item"
+        bindtap="onModuleTap"
+        data-route="{{item.route}}"
+      >
+        <view class="module-grid__badge">
+          <image
+            wx:if="{{!item.iconFailed}}"
+            class="module-grid__icon"
+            src="{{item.iconPath}}"
+            mode="aspectFit"
+            binderror="onModuleIconError"
+            data-index="{{index}}"
+          />
+          <view wx:else class="module-grid__icon-fallback"></view>
+        </view>
+        <text class="module-grid__name">{{item.name}}</text>
+      </view>
     </view>
-    <text class="module__arrow">›</text>
   </view>
 </view>

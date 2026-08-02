@@ -1,4 +1,5 @@
 import type { AuditFinding, SkillMappingRecord } from '../data-audit/types'
+import type { VisualGradeId } from './visual-grade'
 
 // ── Source types (raw from json_char.js) ──
 
@@ -70,6 +71,7 @@ export interface CanonicalOfficer {
   id: string
   name: string
   rarityId: string
+  visualGradeId: VisualGradeId
   typeId: string
   genderId: string
   jobId: string
@@ -94,21 +96,46 @@ export interface CanonicalSkill {
   sourceRefs: { voyageTw: string }
 }
 
-export interface CanonicalAsset {
-  id: string
-  kind: 'portrait' | 'icon'
-  ownerType: 'officer' | 'skill'
-  ownerId: string
-  source: {
-    url: string
-    originalFilename: string
-    mimeType: string
-    byteSize: number
-    sha256: string
-    width: number
-    height: number
-  }
+export interface CanonicalTransparentBounds {
+  left: number
+  top: number
+  width: number
+  height: number
 }
+
+export interface CanonicalAssetSource {
+  url: string
+  originalFilename: string
+  mimeType: string
+  byteSize: number
+  sha256: string
+  width: number
+  height: number
+  downloadedAt?: string
+  transparentBounds?: CanonicalTransparentBounds
+}
+
+interface CanonicalAssetBase {
+  id: string
+  kind: 'portrait' | 'icon' | 'ui-image'
+  ownerId: string
+}
+
+export type CanonicalAsset = CanonicalAssetBase &
+  (
+    | {
+        kind: 'ui-image'
+        ownerType: 'ui'
+        source: CanonicalAssetSource & {
+          downloadedAt: string
+          transparentBounds: CanonicalTransparentBounds
+        }
+      }
+    | {
+        ownerType: 'officer' | 'skill'
+        source: CanonicalAssetSource
+      }
+  )
 
 export interface DictionaryItem {
   id: string

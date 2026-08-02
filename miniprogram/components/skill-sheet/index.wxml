@@ -1,0 +1,35 @@
+<view wx:if="{{skill}}" class="skill-sheet-mask" bindtap="onDismiss">
+  <scroll-view class="skill-sheet" scroll-y catchtap="stopPropagation">
+    <view class="skill-sheet__handle"></view>
+    <view class="skill-sheet__header">
+      <image class="skill-sheet__icon" src="{{skill.iconPath}}" mode="aspectFit" />
+      <view class="skill-sheet__identity">
+        <text class="skill-sheet__name">{{skill.name}}</text>
+        <view class="skill-sheet__meta">
+          <text class="skill-sheet__kind">{{skill.kindLabel}}</text>
+          <text class="skill-sheet__category">{{skill.category}}</text>
+        </view>
+      </view>
+      <view class="skill-sheet__close" bindtap="onDismiss" aria-label="關閉">
+        <text>關閉</text>
+      </view>
+    </view>
+
+    <text class="skill-sheet__description">{{skill.description}}</text>
+
+    <view class="skill-sheet__levels">
+      <view
+        wx:for="{{skill.levels}}"
+        wx:key="level"
+        class="level-row {{item.missing ? 'level-row--missing' : ''}}"
+      >
+        <text class="level-row__label">{{item.label}}</text>
+        <text class="level-row__description">{{item.description}}</text>
+      </view>
+    </view>
+
+    <view class="skill-sheet__lookup" bindtap="onReverseLookup">
+      <text>查看擁有此技能的航海士</text>
+    </view>
+  </scroll-view>
+</view>

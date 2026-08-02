@@ -129,6 +129,7 @@ describe('transformOfficers', () => {
 
     // Dictionary references
     expect(officer.rarityId).toBe('rarity_5')
+    expect(officer.visualGradeId).toBe('grade_5')
     expect(officer.typeId).toBe('type_class_2')
     expect(officer.genderId).toBe('gender_f')
     expect(officer.jobId).toBe('job_jobchasT089')
@@ -269,7 +270,7 @@ describe('transformOfficers', () => {
     const source: Record<string, SourceOfficer> = {
       chasX001: {
         cht: '測試',
-        rank: '99',
+        rank: '5',
         type: 'class_99',
         job: 'unknown_job',
         country: 'unknown',

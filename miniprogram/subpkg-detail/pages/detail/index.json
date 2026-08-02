@@ -1,4 +1,9 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "航海士詳情"
+  "usingComponents": {
+    "skill-sheet": "/components/skill-sheet/index"
+  },
+  "navigationBarTitleText": "航海士詳情",
+  "navigationBarBackgroundColor": "#26332f",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#e7deca"
 }

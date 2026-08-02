@@ -48,7 +48,10 @@ declare module '../../generated/skills' {
     id: string
     n: string
     cat: string
+    cn: string
     ip: string
+    d: string
+    li: string
   }
   const skills: Record<string, RuntimeSkill>
   export = skills

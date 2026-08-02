@@ -5,8 +5,8 @@
   "required": ["id", "kind", "ownerType", "ownerId", "source"],
   "properties": {
     "id": { "type": "string", "minLength": 1 },
-    "kind": { "type": "string", "minLength": 1 },
-    "ownerType": { "type": "string", "minLength": 1 },
+    "kind": { "enum": ["portrait", "icon", "ui-image"] },
+    "ownerType": { "enum": ["officer", "skill", "ui"] },
     "ownerId": { "type": "string", "minLength": 1 },
     "source": {
       "type": "object",
@@ -19,7 +19,19 @@
         "byteSize": { "type": "integer", "minimum": 0 },
         "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "width": { "type": "integer", "minimum": 1 },
-        "height": { "type": "integer", "minimum": 1 }
+        "height": { "type": "integer", "minimum": 1 },
+        "downloadedAt": { "type": "string", "format": "date" },
+        "transparentBounds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["left", "top", "width", "height"],
+          "properties": {
+            "left": { "type": "integer", "minimum": 0 },
+            "top": { "type": "integer", "minimum": 0 },
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        }
       }
     },
     "output": {
@@ -46,5 +58,26 @@
         "shardId": { "type": "string", "minLength": 1 }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "ownerType": { "const": "ui" } },
+        "required": ["ownerType"]
+      },
+      "then": {
+        "properties": {
+          "kind": { "const": "ui-image" },
+          "source": {
+            "type": "object",
+            "properties": {
+              "downloadedAt": { "type": "string", "format": "date" },
+              "transparentBounds": { "type": "object" }
+            },
+            "required": ["downloadedAt", "transparentBounds"]
+          }
+        }
+      }
+    }
+  ]
 }

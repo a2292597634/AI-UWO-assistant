@@ -17,6 +17,7 @@ const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): Runtim
   rarityId: 'rarity_4',
   rarityName: 'A',
   rarityClass: 'a',
+  visualGradeId: 'grade_4',
   typeId: 'type_class_1',
   typeName: '冒險',
   genderId: 'gender_m',
@@ -32,10 +33,42 @@ const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): Runtim
 })
 
 const makeSkills = (): Record<string, RuntimeSkill> => ({
-  skill_a1: { id: 'skill_a1', n: '攻擊', cat: 'cat_combat', ip: '/a.png', d: '', li: '' },
-  skill_a2: { id: 'skill_a2', n: '治療', cat: 'cat_heal', ip: '/b.png', d: '', li: '' },
-  skill_p1: { id: 'skill_p1', n: '防禦', cat: 'cat_def', ip: '/c.png', d: '', li: '' },
-  skill_p2: { id: 'skill_p2', n: '航海', cat: 'cat_nav', ip: '/d.png', d: '', li: '' },
+  skill_a1: {
+    id: 'skill_a1',
+    n: '攻擊',
+    cat: 'cat_combat',
+    cn: '戰鬥',
+    ip: '/a.png',
+    d: '',
+    li: '',
+  },
+  skill_a2: {
+    id: 'skill_a2',
+    n: '治療',
+    cat: 'cat_heal',
+    cn: '治療',
+    ip: '/b.png',
+    d: '',
+    li: '',
+  },
+  skill_p1: {
+    id: 'skill_p1',
+    n: '防禦',
+    cat: 'cat_def',
+    cn: '防禦',
+    ip: '/c.png',
+    d: '',
+    li: '',
+  },
+  skill_p2: {
+    id: 'skill_p2',
+    n: '航海',
+    cat: 'cat_nav',
+    cn: '航海',
+    ip: '/d.png',
+    d: '',
+    li: '',
+  },
 })
 
 const emptyState: CatalogFilterState = {

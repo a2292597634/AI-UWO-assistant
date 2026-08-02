@@ -8,8 +8,10 @@ import {
   buildViewMaps,
   preservePortraitFails,
   createCatalogPageData,
+  buildCatalogFilterOptions,
   PAGE_SIZE,
 } from '../../miniprogram/presenters/catalog-presenter'
+import { buildOfficerVisuals } from '../../miniprogram/presenters/officer-visuals'
 import type { RuntimeCatalogEntry, RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
 import { createEmptyFilterState } from '../../miniprogram/domain/filter-state'
 
@@ -21,6 +23,7 @@ const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): Runtim
   rarityId: 'rarity_5',
   rarityName: 'S',
   rarityClass: 's',
+  visualGradeId: 'grade_6',
   typeId: 'type_class_1',
   typeName: '冒險',
   genderId: 'gender_m',
@@ -36,13 +39,55 @@ const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): Runtim
 })
 
 const makeSkills = (): Record<string, RuntimeSkill> => ({
-  skill_a: { id: 'skill_a', n: '攻擊', cat: 'cat_combat', ip: '/icons/a.png', d: '', li: '' },
-  skill_p: { id: 'skill_p', n: '防禦', cat: 'cat_def', ip: '/icons/p.png', d: '', li: '' },
+  skill_a: {
+    id: 'skill_a',
+    n: '攻擊',
+    cat: 'cat_combat',
+    cn: '戰鬥',
+    ip: '/icons/a.png',
+    d: '',
+    li: '',
+  },
+  skill_p: {
+    id: 'skill_p',
+    n: '防禦',
+    cat: 'cat_def',
+    cn: '防禦',
+    ip: '/icons/p.png',
+    d: '',
+    li: '',
+  },
+})
+
+const makeRow = (id: string) => ({
+  ...makeEntry(id),
+  visuals: {
+    framePath: '/assets/ui/uwo-bg-grade-6.png',
+    rarityIconPath: '/assets/ui/uwo-icon-grade-6.png',
+    typeIconPath: '/assets/ui/uwo-icon-class-1.png',
+    genderIconPath: '/assets/ui/gender-m.png',
+  },
+  activeSkillIcons: {},
+  passiveSkillIcons: {},
 })
 
 // ── Tests ──
 
 describe('enrichCatalogWithIcons', () => {
+  it('projects local officer visual paths onto each row', () => {
+    const result = enrichCatalogWithIcons(
+      [makeEntry('001', { typeId: 'type_class_2', genderId: 'gender_f' })],
+      makeSkills(),
+    )
+
+    expect(result[0]!.visuals).toEqual({
+      framePath: '/assets/ui/uwo-bg-grade-6.png',
+      rarityIconPath: '/assets/ui/uwo-icon-grade-6.png',
+      typeIconPath: '/assets/ui/uwo-icon-class-2.png',
+      genderIconPath: '/assets/ui/gender-f.png',
+    })
+  })
+
   it('adds activeSkillIcons and passiveSkillIcons to each entry', () => {
     const catalog = [makeEntry('001')]
     const result = enrichCatalogWithIcons(catalog, makeSkills())
@@ -77,6 +122,80 @@ describe('enrichCatalogWithIcons', () => {
     const catalog = [makeEntry('001'), makeEntry('002'), makeEntry('003')]
     const result = enrichCatalogWithIcons(catalog, makeSkills())
     expect(result).toHaveLength(3)
+  })
+})
+
+describe('buildOfficerVisuals', () => {
+  it('builds known officer visual paths from compact IDs', () => {
+    expect(
+      buildOfficerVisuals({
+        visualGradeId: 'grade_6',
+        typeId: 'type_class_2',
+        genderId: 'gender_f',
+      }),
+    ).toEqual({
+      framePath: '/assets/ui/uwo-bg-grade-6.png',
+      rarityIconPath: '/assets/ui/uwo-icon-grade-6.png',
+      typeIconPath: '/assets/ui/uwo-icon-class-2.png',
+      genderIconPath: '/assets/ui/gender-f.png',
+    })
+  })
+
+  it('returns blank icon paths for unknown type and gender IDs', () => {
+    const visuals = buildOfficerVisuals({
+      visualGradeId: 'grade_5',
+      typeId: 'type_unknown',
+      genderId: 'gender_unknown',
+    })
+
+    expect(visuals.typeIconPath).toBe('')
+    expect(visuals.genderIconPath).toBe('')
+  })
+})
+
+describe('buildCatalogFilterOptions', () => {
+  it('projects rarity dictionaries to cropped local filter icons and accessible labels', () => {
+    const options = buildCatalogFilterOptions(
+      [
+        { id: 'rarity_5', name: 'S' },
+        { id: 'rarity_2', name: 'C' },
+      ],
+      'rarity',
+    )
+
+    expect(options).toEqual([
+      {
+        id: 'rarity_5',
+        name: 'S',
+        iconPath: '/assets/ui/uwo-icon-grade-5-filter.png',
+        accessibilityLabel: '稀有度 S',
+      },
+      {
+        id: 'rarity_2',
+        name: 'C',
+        iconPath: '/assets/ui/uwo-icon-grade-2-filter.png',
+        accessibilityLabel: '稀有度 C',
+      },
+    ])
+  })
+
+  it('projects type and gender dictionaries to local icons without losing accessible names', () => {
+    expect(buildCatalogFilterOptions([{ id: 'type_class_2', name: '交易' }], 'type')).toEqual([
+      {
+        id: 'type_class_2',
+        name: '交易',
+        iconPath: '/assets/ui/uwo-icon-class-2.png',
+        accessibilityLabel: '類型 交易',
+      },
+    ])
+    expect(buildCatalogFilterOptions([{ id: 'gender_f', name: '女性' }], 'gender')).toEqual([
+      {
+        id: 'gender_f',
+        name: '女性',
+        iconPath: '/assets/ui/gender-f.png',
+        accessibilityLabel: '性別 女性',
+      },
+    ])
   })
 })
 
@@ -115,13 +234,8 @@ describe('buildViewMaps', () => {
 
 describe('preservePortraitFails', () => {
   it('preserves portraitFail flags from old rows', () => {
-    const newRows = [
-      { ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} },
-      { ...makeEntry('002'), activeSkillIcons: {}, passiveSkillIcons: {} },
-    ]
-    const oldRows = [
-      { ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {}, portraitFail: true },
-    ]
+    const newRows = [makeRow('001'), makeRow('002')]
+    const oldRows = [{ ...makeRow('001'), portraitFail: true }]
 
     const result = preservePortraitFails(newRows, oldRows)
     expect(result[0]!.portraitFail).toBe(true)
@@ -129,15 +243,33 @@ describe('preservePortraitFails', () => {
   })
 
   it('handles empty old rows', () => {
-    const newRows = [{ ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} }]
+    const newRows = [makeRow('001')]
     const result = preservePortraitFails(newRows, [])
     expect(result[0]!.portraitFail).toBeUndefined()
+  })
+
+  it('preserves independent decoration failure flags', () => {
+    const newRows = [makeRow('001')]
+    const oldRows = [
+      {
+        ...makeRow('001'),
+        frameFail: true,
+        rarityIconFail: true,
+        typeIconFail: true,
+      },
+    ]
+
+    expect(preservePortraitFails(newRows, oldRows)[0]).toMatchObject({
+      frameFail: true,
+      rarityIconFail: true,
+      typeIconFail: true,
+    })
   })
 })
 
 describe('createCatalogPageData', () => {
   it('creates page data with correct structure', () => {
-    const rows = [{ ...makeEntry('001'), activeSkillIcons: {}, passiveSkillIcons: {} }]
+    const rows = [makeRow('001')]
     const state = createEmptyFilterState()
     const data = createCatalogPageData(rows, 1, state, false)
 

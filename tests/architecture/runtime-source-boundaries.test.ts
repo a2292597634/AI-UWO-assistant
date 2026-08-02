@@ -8,8 +8,39 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { UI_ASSET_RECIPES } from '../../tools/ui-assets/config'
 
 const MINIPROGRAM = path.resolve(__dirname, '../../miniprogram')
+
+const uiAssetOutputDifferences = (declared: string[], actual: string[]): string[] => {
+  const declaredSet = new Set(declared)
+  const actualSet = new Set(actual)
+
+  return [
+    ...declared
+      .filter((name) => !actualSet.has(name))
+      .map((name) => `missing config output: ${name}`),
+    ...actual
+      .filter((name) => !declaredSet.has(name))
+      .map((name) => `unexpected runtime entry: ${name}`),
+  ].sort()
+}
+
+describe('UI asset output boundary helper', () => {
+  it('reports missing outputs and entries not declared by the config', () => {
+    expect(
+      uiAssetOutputDifferences(['known.png', 'missing.png'], ['known.png', 'rogue.png', 'source']),
+    ).toEqual([
+      'missing config output: missing.png',
+      'unexpected runtime entry: rogue.png',
+      'unexpected runtime entry: source',
+    ])
+  })
+
+  it('accepts the exact declared output set regardless of directory order', () => {
+    expect(uiAssetOutputDifferences(['b.png', 'a.png'], ['a.png', 'b.png'])).toEqual([])
+  })
+})
 
 // ── Whitelist: directories/files where JS is allowed ──
 
@@ -55,6 +86,16 @@ describe('JS source file whitelist', () => {
     // Convert to relative paths for readable output
     const rel = violations.map((f) => path.relative(MINIPROGRAM, f))
     expect(rel).toEqual([])
+  })
+})
+
+describe('Generated UI asset whitelist', () => {
+  it('contains exactly the outputs declared by the UI asset config', () => {
+    const assetsDir = path.join(MINIPROGRAM, 'assets', 'ui')
+    const declared = UI_ASSET_RECIPES.map(({ output }) => output)
+    const actual = fs.readdirSync(assetsDir)
+
+    expect(uiAssetOutputDifferences(declared, actual)).toEqual([])
   })
 })
 

@@ -1,1 +1,257 @@
-[]
+[
+  {
+    "id": "ui_gender_f",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/gender_f.png",
+      "originalFilename": "gender_f.png",
+      "mimeType": "image/png",
+      "byteSize": 646,
+      "sha256": "81cb419497f4317e597146d89cd41a3b65212957747611244bc1d04f523b3138",
+      "width": 30,
+      "height": 30,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 4, "top": 1, "width": 23, "height": 28 }
+    }
+  },
+  {
+    "id": "ui_gender_m",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/gender_m.png",
+      "originalFilename": "gender_m.png",
+      "mimeType": "image/png",
+      "byteSize": 669,
+      "sha256": "368e38b2d3a488d89d6ece2fa8e45fa656629aadf6cdada7047b3696899a7f5b",
+      "width": 30,
+      "height": 30,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 3, "top": 1, "width": 24, "height": 28 }
+    }
+  },
+  {
+    "id": "ui_officer_class_1",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_class_1.png",
+      "originalFilename": "uwo_icon_class_1.png",
+      "mimeType": "image/png",
+      "byteSize": 2643,
+      "sha256": "d39067329d4942ddd8b65a395a61d3ad90b99d33b30148ad861880159d4235a9",
+      "width": 32,
+      "height": 32,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 32, "height": 32 }
+    }
+  },
+  {
+    "id": "ui_officer_class_2",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_class_2.png",
+      "originalFilename": "uwo_icon_class_2.png",
+      "mimeType": "image/png",
+      "byteSize": 2654,
+      "sha256": "4861220e1613edb57b8cca9f1d967d63f79e8531e062159c46fd464932457eae",
+      "width": 32,
+      "height": 32,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 32, "height": 32 }
+    }
+  },
+  {
+    "id": "ui_officer_class_3",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_class_3.png",
+      "originalFilename": "uwo_icon_class_3.png",
+      "mimeType": "image/png",
+      "byteSize": 2742,
+      "sha256": "69fd5cef50d1f3ad5d153ac72c44828acb7de3f6a6b0292023e531cef9b3d400",
+      "width": 32,
+      "height": 32,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 32, "height": 32 }
+    }
+  },
+  {
+    "id": "ui_rarity_badge_2",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_grade_2.png",
+      "originalFilename": "uwo_icon_grade_2.png",
+      "mimeType": "image/png",
+      "byteSize": 5658,
+      "sha256": "c8b7b2f1492b6ada6ad456274d9430047deb54fe6402eb17ba646b6252e34a57",
+      "width": 60,
+      "height": 60,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 2, "top": 0, "width": 20, "height": 23 }
+    }
+  },
+  {
+    "id": "ui_rarity_badge_3",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_grade_3.png",
+      "originalFilename": "uwo_icon_grade_3.png",
+      "mimeType": "image/png",
+      "byteSize": 5669,
+      "sha256": "2684e172cfd6d9eb068c38eceb597514d66a5f64765fb98d80d1ef619273b471",
+      "width": 60,
+      "height": 60,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 2, "top": 0, "width": 20, "height": 23 }
+    }
+  },
+  {
+    "id": "ui_rarity_badge_4",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_grade_4.png",
+      "originalFilename": "uwo_icon_grade_4.png",
+      "mimeType": "image/png",
+      "byteSize": 5529,
+      "sha256": "2c57c537c40bd42bc17a9da3264c25647d22fbf22deb922bb2065a48b8830251",
+      "width": 60,
+      "height": 60,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 2, "top": 0, "width": 20, "height": 23 }
+    }
+  },
+  {
+    "id": "ui_rarity_badge_5",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_grade_5.png",
+      "originalFilename": "uwo_icon_grade_5.png",
+      "mimeType": "image/png",
+      "byteSize": 5607,
+      "sha256": "e749dea15ce7896db2cfc74326c94058548f3079372f555168b2cccab249f7fe",
+      "width": 60,
+      "height": 60,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 2, "top": 0, "width": 20, "height": 23 }
+    }
+  },
+  {
+    "id": "ui_rarity_badge_6",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_icon_grade_6.png",
+      "originalFilename": "uwo_icon_grade_6.png",
+      "mimeType": "image/png",
+      "byteSize": 1551,
+      "sha256": "5f6024dc708e35c975cd669029ad32d1816095d2f49afdcddeba0a709c1a6c13",
+      "width": 60,
+      "height": 60,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 24, "height": 24 }
+    }
+  },
+  {
+    "id": "ui_rarity_frame_2",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_bg_grade_2.png",
+      "originalFilename": "uwo_bg_grade_2.png",
+      "mimeType": "image/png",
+      "byteSize": 8300,
+      "sha256": "834119bdc14ccb19d7f7855fe7edf8a4de4ccb1e2e6b16e63c672214845113bf",
+      "width": 64,
+      "height": 64,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 64, "height": 64 }
+    }
+  },
+  {
+    "id": "ui_rarity_frame_3",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_bg_grade_3.png",
+      "originalFilename": "uwo_bg_grade_3.png",
+      "mimeType": "image/png",
+      "byteSize": 8382,
+      "sha256": "46653beb9377d8cc0c758f97811e50f36d9327024a7a1db3b344ee7b4e21caeb",
+      "width": 64,
+      "height": 64,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 64, "height": 64 }
+    }
+  },
+  {
+    "id": "ui_rarity_frame_4",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_bg_grade_4.png",
+      "originalFilename": "uwo_bg_grade_4.png",
+      "mimeType": "image/png",
+      "byteSize": 8899,
+      "sha256": "a16e94ecfe0ab6c872405818bb79426390ce7a3fb101bd72b192580c8f4df4f1",
+      "width": 64,
+      "height": 64,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 64, "height": 64 }
+    }
+  },
+  {
+    "id": "ui_rarity_frame_5",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_bg_grade_5.png",
+      "originalFilename": "uwo_bg_grade_5.png",
+      "mimeType": "image/png",
+      "byteSize": 9004,
+      "sha256": "29990d49213ab2cba3a6cac06dcf58e00b84b22f171a7791c9037b4294a81df6",
+      "width": 64,
+      "height": 64,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 64, "height": 64 }
+    }
+  },
+  {
+    "id": "ui_rarity_frame_6",
+    "kind": "ui-image",
+    "ownerType": "ui",
+    "ownerId": "ui_common",
+    "source": {
+      "url": "https://voyage.tw/img/common/uwo_bg_grade_6.png",
+      "originalFilename": "uwo_bg_grade_6.png",
+      "mimeType": "image/png",
+      "byteSize": 9004,
+      "sha256": "29990d49213ab2cba3a6cac06dcf58e00b84b22f171a7791c9037b4294a81df6",
+      "width": 64,
+      "height": 64,
+      "downloadedAt": "2026-08-01",
+      "transparentBounds": { "left": 0, "top": 0, "width": 64, "height": 64 }
+    }
+  }
+]

@@ -2,347 +2,388 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: hidden;
   background: #ded7c7;
 }
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  background: #e8dfce;
+  border-bottom: 1rpx solid #c4b99a;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10rpx 16rpx;
+  color: #292a26;
+  background: #f5efe0;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+}
+
+.search-clear {
+  margin-left: 12rpx;
+  padding: 8rpx;
+  color: #756b59;
+  font-size: 28rpx;
+}
+
 .tabs {
   display: flex;
   background: #2f302b;
 }
+
 .tab {
   flex: 1;
-  text-align: center;
-  padding: 16rpx 0;
+  padding: 14rpx 0 12rpx;
   color: #8a8a7e;
   font-size: 26rpx;
+  text-align: center;
 }
+
 .tab--active {
   color: #e8d5a3;
   border-bottom: 4rpx solid #c4a45a;
 }
-.filter-panel {
-  padding: 16rpx 24rpx;
+
+/* Officer tab: one compact, image-only toolbar. */
+.officer-filter-toolbar {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100rpx;
   background: #e8dfce;
   border-bottom: 1rpx solid #c4b99a;
 }
-.filter-group {
-  margin-bottom: 12rpx;
+
+.officer-filter-toolbar__content {
+  display: flex;
+  align-items: center;
+  width: 834rpx;
+  min-width: 834rpx;
+  height: 100rpx;
 }
-.filter-label {
-  font-size: 22rpx;
-  color: #6b6b5e;
-  margin-bottom: 8rpx;
-  display: block;
+
+.image-filter-group {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
 }
+
+.image-filter-options {
+  display: flex;
+  align-items: center;
+}
+
+.image-filter-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 88rpx;
+  width: 88rpx;
+  height: 88rpx;
+  padding: 0;
+  opacity: 0.35;
+  transition:
+    opacity 120ms ease-out,
+    filter 120ms ease-out;
+}
+
+.image-filter-option--on {
+  opacity: 1;
+  filter: drop-shadow(0 3rpx 4rpx rgba(61, 45, 17, 0.32));
+}
+
+.filter-separator {
+  flex: 0 0 1rpx;
+  width: 1rpx;
+  height: 48rpx;
+  margin: 0 10rpx;
+  background: rgba(111, 98, 70, 0.32);
+}
+
+.image-filter-icon--rarity {
+  width: 58rpx;
+  height: 58rpx;
+}
+
+.image-filter-icon--type {
+  width: 46rpx;
+  height: 46rpx;
+}
+
+.image-filter-icon--gender {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+/* Text filter tabs retain the existing immediate-toggle interaction. */
+.filter-panel {
+  padding: 14rpx 20rpx 8rpx;
+  background: #e8dfce;
+  border-bottom: 1rpx solid #c4b99a;
+}
+
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
 }
+
 .filter-chips .chip {
-  margin-right: 12rpx;
+  margin-right: 10rpx;
   margin-bottom: 8rpx;
 }
+
 .chip {
-  padding: 8rpx 20rpx;
+  padding: 8rpx 18rpx;
+  color: #3d3d35;
   background: #d4cbb4;
   border-radius: 24rpx;
   font-size: 24rpx;
-  color: #3d3d35;
 }
+
 .chip--on {
-  background: #2f302b;
   color: #e8d5a3;
+  background: #2f302b;
 }
-/* Icon chip styling */
-.chip-icon {
-  margin-right: 4rpx;
-  font-size: 26rpx;
-}
-/* Rarity icon colours — match existing rarity-badge palette */
-.chip--rarity-rarity_5 .chip-icon {
-  color: #c4a45a;
-} /* S — gold */
-.chip--rarity-rarity_4 .chip-icon {
-  color: #8a8a8a;
-} /* A — silver */
-.chip--rarity-rarity_3 .chip-icon {
-  color: #b87333;
-} /* B — bronze */
-.chip--rarity-rarity_2 .chip-icon {
-  color: #5a5a4e;
-} /* C — dark */
-/* Dim icon when chip is on (dark bg) so it stays visible */
-.chip--rarity.chip--on .chip-icon {
-  opacity: 0.85;
-}
+
 .skill-kind-tabs {
   display: flex;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
+
 .kind-tab {
   flex: 1;
-  text-align: center;
-  padding: 12rpx;
+  margin-right: 8rpx;
+  padding: 10rpx;
+  color: #3d3d35;
   background: #d4cbb4;
   font-size: 24rpx;
-  color: #3d3d35;
-  margin-right: 8rpx;
+  text-align: center;
 }
+
 .kind-tab:last-child {
   margin-right: 0;
 }
+
 .kind-tab--on {
-  background: #2f302b;
   color: #e8d5a3;
+  background: #2f302b;
 }
+
 .count-bar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12rpx 24rpx;
+  justify-content: space-between;
+  padding: 10rpx 20rpx;
+  color: #3d3d35;
   background: #d4cbb4;
   font-size: 24rpx;
-  color: #3d3d35;
 }
+
 .count-clear {
+  padding: 4rpx 0 4rpx 16rpx;
   color: #8b3a3a;
 }
+
 .list {
+  min-height: 0;
   flex: 1;
   overflow-y: auto;
 }
+
 .officer-row {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  padding: 12rpx 24rpx;
+  min-height: 116rpx;
+  padding: 10rpx 20rpx;
   border-bottom: 1rpx solid #c4b99a;
-  min-height: 94rpx;
 }
+
 .officer-row:active {
   background: #d4cbb4;
 }
+
 .row-portrait {
-  width: 64rpx;
-  height: 64rpx;
-  margin-right: 16rpx;
   position: relative;
-}
-.row-avatar {
-  width: 64rpx;
-  height: 64rpx;
+  width: 92rpx;
+  height: 92rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+  overflow: hidden;
   border-radius: 8rpx;
 }
-.row-portrait-fb {
+
+.row-portrait-layer {
   position: absolute;
   top: 0;
   left: 0;
-  width: 64rpx;
-  height: 64rpx;
-  background: #2f302b;
-  border-radius: 8rpx;
+  width: 92rpx;
+  height: 92rpx;
+}
+
+.row-portrait-frame {
+  z-index: 1;
+}
+
+.row-avatar,
+.row-portrait-fb {
+  z-index: 2;
+}
+
+.row-portrait-fb {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #2f302b;
 }
+
 .row-portrait-initial {
-  font-size: 32rpx;
   color: #e8d5a3;
-  font-weight: bold;
+  font-size: 36rpx;
+  font-weight: 700;
 }
+
+.row-rarity-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.row-type-icon {
+  position: absolute;
+  bottom: 4rpx;
+  left: 4rpx;
+  z-index: 4;
+  width: 24rpx;
+  height: 24rpx;
+}
+
 .row-info {
-  flex: 1;
+  position: relative;
+  box-sizing: border-box;
   min-width: 0;
+  height: 92rpx;
+  padding-right: 176rpx;
+  flex: 1;
 }
+
 .row-top {
   display: flex;
   align-items: center;
 }
-.row-top .row-rarity {
-  margin-left: 12rpx;
-}
+
 .row-name {
-  font-size: 28rpx;
-  font-weight: bold;
+  overflow: hidden;
   color: #292a26;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-/* Rarity grade badges */
-.rarity-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36rpx;
-  height: 36rpx;
-  border-radius: 6rpx;
-  margin-left: 12rpx;
-  flex-shrink: 0;
-}
-.rarity-letter {
-  font-size: 22rpx;
-  font-weight: bold;
-  color: #fff;
-  line-height: 1;
-}
-.rarity-s {
-  background: #c4a45a;
-}
-.rarity-a {
-  background: #8a8a8a;
-}
-.rarity-b {
-  background: #b87333;
-}
-.rarity-c {
-  background: #5a5a4e;
-}
+
 .row-meta {
   display: flex;
-  margin-top: 4rpx;
+  margin-top: 2rpx;
 }
+
 .row-meta .row-gender {
-  margin-left: 16rpx;
+  margin-left: 14rpx;
 }
-.row-job {
-  font-size: 22rpx;
-  color: #5a5a4e;
-}
+
+.row-job,
 .row-gender {
-  font-size: 22rpx;
   color: #5a5a4e;
+  font-size: 21rpx;
+  line-height: 1.25;
 }
+
 .row-skills {
-  display: flex;
-  align-items: center;
-  margin-top: 6rpx;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 176rpx;
+  height: 92rpx;
+  margin: 0;
+  flex-shrink: 0;
 }
+
+.row-skills__content {
+  display: inline-flex;
+  align-items: center;
+  min-width: 176rpx;
+  height: 92rpx;
+}
+
 .skill-icon-group {
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
 }
-.skill-icon-group .row-skill-icon {
-  margin-right: 4rpx;
+
+.row-skill-hit-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 88rpx;
+  width: 88rpx;
+  height: 88rpx;
 }
+
 .row-skill-icon {
   width: 32rpx;
   height: 32rpx;
 }
+
 .skill-divider {
   width: 1rpx;
   height: 24rpx;
-  background: #c4b99a;
   margin: 0 8rpx;
+  background: #c4b99a;
 }
+
+.skill-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40rpx;
+  height: 88rpx;
+  color: #756b59;
+  font-size: 20rpx;
+}
+
 .empty {
-  text-align: center;
-  padding: 80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 24rpx;
   color: #8a8a7e;
   font-size: 28rpx;
-}
-.load-more {
   text-align: center;
+}
+
+.empty-title {
+  display: block;
+}
+
+.empty-clear {
+  margin-top: 20rpx;
+  padding: 12rpx 28rpx;
+  color: #f2e4bd;
+  background: #34352f;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
+.load-more {
   padding: 24rpx;
   color: #8a8a7e;
   font-size: 22rpx;
-}
-
-/* Tooltip — bottom sheet */
-.tooltip-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 100;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-.tooltip-popup {
-  background: #f5efe0;
-  border-radius: 24rpx 24rpx 0 0;
-  padding: 40rpx 32rpx 48rpx;
-  width: 100%;
-  max-width: 750rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.tooltip-icon {
-  width: 80rpx;
-  height: 80rpx;
-  margin-bottom: 12rpx;
-}
-.tooltip-name {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #292a26;
-  margin-bottom: 8rpx;
-}
-.tooltip-kind {
-  font-size: 22rpx;
-  color: #8a8a7e;
-  margin-bottom: 4rpx;
-}
-.tooltip-divider {
-  width: 80rpx;
-  height: 2rpx;
-  background: #c4b99a;
-  margin: 16rpx 0;
-}
-.tooltip-desc {
-  font-size: 26rpx;
-  color: #3d3d35;
   text-align: center;
-  line-height: 1.6;
-}
-.tooltip-level-info {
-  font-size: 22rpx;
-  color: #5a5a4e;
-  text-align: center;
-  line-height: 1.5;
-}
-.tooltip-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-top: 24rpx;
-}
-.tooltip-lookup {
-  background: #2f302b;
-  border-radius: 12rpx;
-  padding: 16rpx 48rpx;
-  margin-bottom: 12rpx;
-}
-.tooltip-lookup text {
-  font-size: 26rpx;
-  color: #e8d5a3;
-}
-.tooltip-close {
-  padding: 12rpx;
-}
-.tooltip-close-text {
-  font-size: 24rpx;
-  color: #8a8a7e;
-}
-/* Search bar */
-.search-bar {
-  display: flex;
-  align-items: center;
-  padding: 16rpx 24rpx;
-  background: #e8dfce;
-  border-bottom: 1rpx solid #c4b99a;
-}
-.search-input {
-  flex: 1;
-  background: #f5efe0;
-  border-radius: 12rpx;
-  padding: 12rpx 16rpx;
-  font-size: 26rpx;
-  color: #292a26;
-}
-.search-clear {
-  margin-left: 16rpx;
-  font-size: 28rpx;
-  color: #8a8a7e;
-  padding: 8rpx;
 }

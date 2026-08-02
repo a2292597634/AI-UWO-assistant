@@ -64,6 +64,7 @@ describe('Runtime Contract: catalog.js', () => {
       'rarityId',
       'rarityName',
       'rarityClass',
+      'visualGradeId',
       'typeId',
       'typeName',
       'genderId',
@@ -90,6 +91,7 @@ describe('Runtime Contract: catalog.js', () => {
       'rarityId',
       'rarityName',
       'rarityClass',
+      'visualGradeId',
       'typeId',
       'typeName',
       'genderId',
@@ -157,11 +159,12 @@ describe('Runtime Contract: skills.js', () => {
     expect(Object.keys(skills).length).toBeGreaterThan(0)
   })
 
-  it('each skill entry has required fields: id, n, cat, ip, d, li', () => {
+  it('each skill entry has required fields: id, n, cat, cn, ip, d, li', () => {
     for (const [skillId, skill] of Object.entries(skills)) {
       expect(skill.id).toBe(skillId)
       expect(typeof skill.n).toBe('string')
       expect(typeof skill.cat).toBe('string')
+      expect(typeof skill.cn).toBe('string')
       expect(typeof skill.ip).toBe('string')
       expect(typeof skill.d).toBe('string')
       expect(typeof skill.li).toBe('string')
@@ -169,7 +172,7 @@ describe('Runtime Contract: skills.js', () => {
   })
 
   it('each skill has no unexpected fields', () => {
-    const knownFields = new Set(['id', 'n', 'cat', 'ip', 'd', 'li'])
+    const knownFields = new Set(['id', 'n', 'cat', 'cn', 'ip', 'd', 'li'])
     for (const [, skill] of Object.entries(skills)) {
       for (const key of Object.keys(skill)) {
         expect(knownFields.has(key)).toBe(true)
@@ -256,7 +259,21 @@ describe('Runtime Contract: dataset-meta.js', () => {
 // ── Detail shard tests ──
 
 describe('Runtime Contract: details-N.js', () => {
-  const requiredFields = ['n', 'rn', 'tn', 'gn', 'jn', 'nn', 'pp', 'ls', 'ss', 'rc']
+  const requiredFields = [
+    'n',
+    'rn',
+    'vg',
+    'ti',
+    'gi',
+    'tn',
+    'gn',
+    'jn',
+    'nn',
+    'pp',
+    'ls',
+    'ss',
+    'rc',
+  ]
 
   it('has exactly 10 shard files', () => {
     for (let s = 0; s < DETAIL_SHARD_COUNT; s++) {

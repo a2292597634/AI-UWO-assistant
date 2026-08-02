@@ -1,4 +1,5 @@
 import type { SourceEnumValue, SkillMappingRecord } from '../data-audit/types'
+import { deriveVisualGradeId } from './visual-grade'
 import type {
   CanonicalOfficer,
   CanonicalSkillRelation,
@@ -128,6 +129,7 @@ export const transformOfficers = (
     // Enum-backed fields
     const rarityId = canonicalId('rank', src.rank)
     checkKnown(knownEnums, 'rank', src.rank, sourceId, anomalies)
+    const visualGradeId = deriveVisualGradeId(src)
 
     const typeId = canonicalId('type', src.type)
     checkKnown(knownEnums, 'type', src.type, sourceId, anomalies)
@@ -190,6 +192,7 @@ export const transformOfficers = (
       id: officerId,
       name,
       rarityId,
+      visualGradeId,
       typeId,
       genderId,
       jobId,

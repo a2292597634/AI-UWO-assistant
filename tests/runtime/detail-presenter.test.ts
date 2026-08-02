@@ -10,14 +10,18 @@ import {
   emptyDetailState,
 } from '../../miniprogram/subpkg-detail/runtime/detail-presenter'
 import type { RuntimeDetailRecord } from '../../miniprogram/contracts/runtime-data'
+import type { RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
 
 // ── Fixtures ──
 
 const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailRecord => ({
   n: '測試航海士',
   rn: 'S',
+  vg: 'grade_6',
+  ti: 'type_class_2',
+  gi: 'gender_f',
   tn: '冒險',
-  gn: '男性',
+  gn: '女性',
   jn: '探險家',
   nn: '葡萄牙',
   pp: '/subpkg-a0/imgs/officer_test.png',
@@ -65,6 +69,27 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
   ...overrides,
 })
 
+const makeSkillsBridge = (): Record<string, RuntimeSkill> => ({
+  skill_active_1: {
+    id: 'skill_active_1',
+    n: '攻擊強化',
+    cat: 'skill_category_naval_active_enhancement',
+    cn: '海戰主動-強化',
+    ip: '/subpkg-a0/imgs/skill_active_1.png',
+    d: '使砲擊攻擊力增加1％。',
+    li: 'Lv1: 1% | Lv2: 2% | Lv3: 3% | Lv4: 4% | Lv5: 5% | Lv6: 6% | Lv7: 7% | Lv8: 8% | Lv9: 9% | Lv10: 10%',
+  },
+  skill_passive_1: {
+    id: 'skill_passive_1',
+    n: '防禦強化',
+    cat: 'skill_category_naval_passive_defense',
+    cn: '海戰被動-防禦',
+    ip: '/subpkg-a1/imgs/skill_passive_1.png',
+    d: '受到攻擊時，使防禦力增加1％。',
+    li: 'Lv1: 1% | Lv2: 2% | Lv3: 3% | Lv4: 4% | Lv5: 5% | Lv6: 6% | Lv7: 7% | Lv8: 8% | Lv9: 9% | Lv10: 10%',
+  },
+})
+
 // ── Tests ──
 
 describe('presentDetail', () => {
@@ -75,10 +100,17 @@ describe('presentDetail', () => {
     expect(state.officer!.name).toBe('測試航海士')
     expect(state.officer!.rarityName).toBe('S')
     expect(state.officer!.typeName).toBe('冒險')
-    expect(state.officer!.genderName).toBe('男性')
+    expect(state.officer!.genderName).toBe('女性')
     expect(state.officer!.jobName).toBe('探險家')
     expect(state.officer!.nationalityName).toBe('葡萄牙')
     expect(state.officer!.portraitPath).toBe('/subpkg-a0/imgs/officer_test.png')
+    expect(state.officer!.languageSummary).toBe('葡萄牙語 Lv.5、英語 Lv.3')
+    expect(state.officer!.visuals).toEqual({
+      framePath: '/assets/ui/uwo-bg-grade-6.png',
+      rarityIconPath: '/assets/ui/uwo-icon-grade-6.png',
+      typeIconPath: '/assets/ui/uwo-icon-class-2.png',
+      genderIconPath: '/assets/ui/gender-f.png',
+    })
   })
 
   it('groups active and passive skills correctly', () => {
@@ -92,6 +124,23 @@ describe('presentDetail', () => {
     expect(state.passiveSkills).toHaveLength(1)
     expect(state.passiveSkills[0]!.skillId).toBe('skill_passive_1')
     expect(state.passiveSkills[0]!.kind).toBe('passive')
+  })
+
+  it('builds the shared ten-level skill sheet from the skills bridge', () => {
+    const state = presentDetail(makeRecord(), makeSkillsBridge())
+
+    expect(state.activeSkills[0]!.sheet.category).toBe('海戰主動-強化')
+    expect(state.activeSkills[0]!.sheet.description).toBe('使砲擊攻擊力增加1％。')
+    expect(state.activeSkills[0]!.sheet.levels).toHaveLength(10)
+    expect(state.activeSkills[0]!.sheet.levels[9]).toEqual({
+      level: 10,
+      label: 'Lv.10',
+      description: '使砲擊攻擊力增加10％。',
+      missing: false,
+    })
+    expect(state.passiveSkills[0]!.sheet.kindLabel).toBe('被動技能')
+    expect(state.passiveSkills[0]!.sheet.category).toBe('海戰被動-防禦')
+    expect(state.passiveSkills[0]!.sheet.levels).toHaveLength(10)
   })
 
   it('handles empty skills array', () => {

@@ -26,6 +26,7 @@ const makeRow = (id: string): CatalogRowView => {
     rarityId: 'rarity_5',
     rarityName: 'S',
     rarityClass: 's',
+    visualGradeId: 'grade_5',
     typeId: 'type_class_1',
     typeName: '冒險',
     genderId: 'gender_m',
@@ -38,7 +39,17 @@ const makeRow = (id: string): CatalogRowView => {
     passiveSkills: [],
     searchAliases: [],
   }
-  return { ...entry, activeSkillIcons: {}, passiveSkillIcons: {} }
+  return {
+    ...entry,
+    visuals: {
+      framePath: '/assets/ui/uwo-bg-grade-5.png',
+      rarityIconPath: '/assets/ui/uwo-icon-grade-5.png',
+      typeIconPath: '/assets/ui/uwo-icon-class-1.png',
+      genderIconPath: '/assets/ui/gender-m.png',
+    },
+    activeSkillIcons: {},
+    passiveSkillIcons: {},
+  }
 }
 
 const makeState = (rows?: CatalogRowView[]): CatalogPageStateInstance => ({

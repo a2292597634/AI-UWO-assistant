@@ -98,6 +98,7 @@ export const buildCatalog = (
       rarityId: o.rarityId,
       rarityName: rarityGrade(o.rarityId),
       rarityClass: rarityClass(o.rarityId),
+      visualGradeId: o.visualGradeId,
       typeId: o.typeId,
       typeName: dictName('types', o.typeId),
       genderId: o.genderId,
@@ -136,6 +137,9 @@ export const buildDetails = (
     result[o.id] = {
       n: o.name,
       rn: rarityGrade(o.rarityId),
+      vg: o.visualGradeId,
+      ti: o.typeId,
+      gi: o.genderId,
       tn: dictName('types', o.typeId),
       gn: dictName('genders', o.genderId),
       jn: dictName('jobs', o.jobId),
@@ -251,19 +255,23 @@ export type { RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
 
 export const buildSkills = (
   skills: CanonicalSkill[],
-  _dictionaries: Record<string, DictionaryItem[]>,
+  dictionaries: Record<string, DictionaryItem[]>,
   iconSet?: Set<string>,
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
 ): Record<string, RuntimeSkill> => {
   const _iconSet = iconSet ?? new Set<string>()
   const _catFB = categoryFallback ?? new Map<string, string>()
+  const categoryNames = new Map(
+    (dictionaries.skillCategories ?? []).map((category) => [category.id, category.name]),
+  )
   const result: Record<string, RuntimeSkill> = {}
   for (const s of skills) {
     result[s.id] = {
       id: s.id,
       n: s.name,
       cat: s.categoryId,
+      cn: categoryNames.get(s.categoryId) ?? '未分類',
       ip: iconPath(s.id, _iconSet, _catFB, s.categoryId, globalFallback),
       d: s.description,
       li: s.levelInfo,

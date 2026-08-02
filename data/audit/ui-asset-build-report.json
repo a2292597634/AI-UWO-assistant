@@ -1,0 +1,491 @@
+{
+  "processingRuleVersion": "1",
+  "files": [
+    {
+      "id": "feature-officer-catalog",
+      "output": "feature-officer-catalog.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 4887,
+      "sha256": "8e0d3fd2e1ddacdce52a1bd4b8f34467f4aa7da1c071b726070cd42ee0a1b314",
+      "sourceTransparentBounds": {
+        "left": 191,
+        "top": 170,
+        "width": 868,
+        "height": 872
+      },
+      "outputTransparentBounds": {
+        "left": 12,
+        "top": 10,
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "id": "gender-f",
+      "output": "gender-f.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 30,
+      "height": 30,
+      "byteSize": 764,
+      "sha256": "b8010138fd1f78bd3e51b0933087c5d9cdfb36884164f973ae8b8221bf4c275f",
+      "sourceTransparentBounds": {
+        "left": 4,
+        "top": 1,
+        "width": 23,
+        "height": 28
+      },
+      "outputTransparentBounds": {
+        "left": 4,
+        "top": 1,
+        "width": 23,
+        "height": 28
+      }
+    },
+    {
+      "id": "gender-m",
+      "output": "gender-m.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 30,
+      "height": 30,
+      "byteSize": 958,
+      "sha256": "f0868a22706275bbcdce1ec25b3186bb0c2c4986ac1939b0870d929550f9ebb3",
+      "sourceTransparentBounds": {
+        "left": 3,
+        "top": 1,
+        "width": 24,
+        "height": 28
+      },
+      "outputTransparentBounds": {
+        "left": 3,
+        "top": 1,
+        "width": 24,
+        "height": 28
+      }
+    },
+    {
+      "id": "home-harbor",
+      "output": "home-harbor.jpg",
+      "group": "banner",
+      "mimeType": "image/jpeg",
+      "width": 750,
+      "height": 320,
+      "byteSize": 32507,
+      "sha256": "bd7e14ffd207d152106755a130a4e1208044ef9a97b68511ad3112621cf8bbdf",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 1920,
+        "height": 819
+      }
+    },
+    {
+      "id": "officer-class-1",
+      "output": "uwo-icon-class-1.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 1663,
+      "sha256": "5f721a10445b9bfe2ac24087269e6f148744ae6b8083ff35a808960e013b041e",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 32,
+        "height": 32
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "officer-class-2",
+      "output": "uwo-icon-class-2.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 1704,
+      "sha256": "8cb030b91b9d14dedc3c091964e43b60d4b480919a1a4bec0adf01beddf678d3",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 32,
+        "height": 32
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "officer-class-3",
+      "output": "uwo-icon-class-3.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 1706,
+      "sha256": "6a3f8294e4758232781b01207841f5f7d07506bb2efeb134efa01381218bba8d",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 32,
+        "height": 32
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "rarity-badge-grade-2",
+      "output": "uwo-icon-grade-2.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 60,
+      "height": 60,
+      "byteSize": 1372,
+      "sha256": "dfbe91e1247778b05d9576ede77411a7961865aa20c5677ab07fa271a834eb06",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-badge-grade-3",
+      "output": "uwo-icon-grade-3.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 60,
+      "height": 60,
+      "byteSize": 1365,
+      "sha256": "3c81445dba77c7a16bf1da68ff304cd717cfd25c3af08f263d14ef9ab6a64e26",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-badge-grade-4",
+      "output": "uwo-icon-grade-4.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 60,
+      "height": 60,
+      "byteSize": 1370,
+      "sha256": "e5a90b057fe7c6f9ef3eb8b2f1ea1d1fcc5eb8fbf18e597f1f8a6113ede1e480",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-badge-grade-5",
+      "output": "uwo-icon-grade-5.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 60,
+      "height": 60,
+      "byteSize": 1354,
+      "sha256": "6311edfdf75f8a12a3e0ece03d6909a97c0d954cd82f94434d6c23ce06f4cfe2",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-badge-grade-6",
+      "output": "uwo-icon-grade-6.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 60,
+      "height": 60,
+      "byteSize": 1453,
+      "sha256": "534737007123ca7799e920e7a330f170ea8a10911efa9e38c24d4a497ce49dab",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 24,
+        "height": 24
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 24,
+        "height": 24
+      }
+    },
+    {
+      "id": "rarity-filter-grade-2",
+      "output": "uwo-icon-grade-2-filter.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 29,
+      "height": 29,
+      "byteSize": 1707,
+      "sha256": "47212023add389c1796bf4c93a0390513e23435f4ee693df8b41c1c6b5628f1d",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 25,
+        "height": 29
+      },
+      "trimBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-filter-grade-3",
+      "output": "uwo-icon-grade-3-filter.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 29,
+      "height": 29,
+      "byteSize": 1684,
+      "sha256": "365adb7889b2dd5413666894e8dd1fc03435d964bd0a4031e686aa4f465b101a",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 25,
+        "height": 29
+      },
+      "trimBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-filter-grade-4",
+      "output": "uwo-icon-grade-4-filter.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 29,
+      "height": 29,
+      "byteSize": 1670,
+      "sha256": "48f7abc8be1b68236f1b7612e3367f62304f848ea62e67d4f77ed37b48c30bae",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 25,
+        "height": 29
+      },
+      "trimBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-filter-grade-5",
+      "output": "uwo-icon-grade-5-filter.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 29,
+      "height": 29,
+      "byteSize": 1596,
+      "sha256": "1c5643b426168b9bef19ea1505f1db3e0bd1ace996e587f323fa26c585f05963",
+      "sourceTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      },
+      "outputTransparentBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 25,
+        "height": 29
+      },
+      "trimBounds": {
+        "left": 2,
+        "top": 0,
+        "width": 20,
+        "height": 23
+      }
+    },
+    {
+      "id": "rarity-frame-grade-2",
+      "output": "uwo-bg-grade-2.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 3880,
+      "sha256": "8a4c561fdb53f576cfa800af7a7dd493e62f115893f6d30657b1b8264ac67686",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "rarity-frame-grade-3",
+      "output": "uwo-bg-grade-3.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 3802,
+      "sha256": "0a54bbfa2bf039aafd6c23f989979f4a5cff94648cef5879529dd35c10cc7ae2",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "rarity-frame-grade-4",
+      "output": "uwo-bg-grade-4.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 4284,
+      "sha256": "cb47bace7e5971b778f9a8472f27e06b9951308fd6f6ddf004b51b7db7bded81",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "rarity-frame-grade-5",
+      "output": "uwo-bg-grade-5.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 3939,
+      "sha256": "4d58d2d4f3b8ab0b53a137d19728d47c589b80988c1db0fba31d95358f0dbad3",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "rarity-frame-grade-6",
+      "output": "uwo-bg-grade-6.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 3939,
+      "sha256": "4d58d2d4f3b8ab0b53a137d19728d47c589b80988c1db0fba31d95358f0dbad3",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 64,
+        "height": 64
+      }
+    }
+  ],
+  "groupBytes": {
+    "banner": 32507,
+    "feature": 4887,
+    "original-ui": 40210
+  },
+  "totalBytes": 77604
+}

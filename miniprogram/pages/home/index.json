@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "航海助手"
+  "navigationBarTitleText": "航海助手",
+  "navigationBarBackgroundColor": "#26332f",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#e7deca"
 }

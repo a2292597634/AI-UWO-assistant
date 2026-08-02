@@ -179,7 +179,8 @@
     "displayOrder": 1,
     "sourceRefs": {
       "voyageTw": "chasT089"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast090",
@@ -323,7 +324,8 @@
     "displayOrder": 2,
     "sourceRefs": {
       "voyageTw": "chasT090"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast091",
@@ -473,7 +475,8 @@
     "displayOrder": 3,
     "sourceRefs": {
       "voyageTw": "chasT091"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast093",
@@ -617,7 +620,8 @@
     "displayOrder": 4,
     "sourceRefs": {
       "voyageTw": "chasT093"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast094",
@@ -761,7 +765,8 @@
     "displayOrder": 5,
     "sourceRefs": {
       "voyageTw": "chasT094"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast095",
@@ -905,7 +910,8 @@
     "displayOrder": 6,
     "sourceRefs": {
       "voyageTw": "chasT095"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast096",
@@ -1087,7 +1093,8 @@
     "displayOrder": 7,
     "sourceRefs": {
       "voyageTw": "chasT096"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast097",
@@ -1231,7 +1238,8 @@
     "displayOrder": 8,
     "sourceRefs": {
       "voyageTw": "chasT097"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast098",
@@ -1377,7 +1385,8 @@
     "displayOrder": 9,
     "sourceRefs": {
       "voyageTw": "chasT098"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chast099",
@@ -1527,7 +1536,8 @@
     "displayOrder": 10,
     "sourceRefs": {
       "voyageTw": "chasT099"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast100",
@@ -1678,7 +1688,8 @@
     "displayOrder": 11,
     "sourceRefs": {
       "voyageTw": "chasT100"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast101",
@@ -1828,7 +1839,8 @@
     "displayOrder": 12,
     "sourceRefs": {
       "voyageTw": "chasT101"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb005",
@@ -1972,7 +1984,8 @@
     "displayOrder": 13,
     "sourceRefs": {
       "voyageTw": "chascb005"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb014",
@@ -2116,7 +2129,8 @@
     "displayOrder": 14,
     "sourceRefs": {
       "voyageTw": "chascb014"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasab001",
@@ -2310,7 +2324,8 @@
     "displayOrder": 15,
     "sourceRefs": {
       "voyageTw": "chasab001"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab002",
@@ -2504,7 +2519,8 @@
     "displayOrder": 16,
     "sourceRefs": {
       "voyageTw": "chasab002"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab003",
@@ -2688,7 +2704,8 @@
     "displayOrder": 17,
     "sourceRefs": {
       "voyageTw": "chasab003"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab004",
@@ -2885,7 +2902,8 @@
     "displayOrder": 18,
     "sourceRefs": {
       "voyageTw": "chasab004"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab006",
@@ -3080,7 +3098,8 @@
     "displayOrder": 19,
     "sourceRefs": {
       "voyageTw": "chasab006"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab007",
@@ -3256,7 +3275,8 @@
     "displayOrder": 20,
     "sourceRefs": {
       "voyageTw": "chasab007"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab008",
@@ -3446,7 +3466,8 @@
     "displayOrder": 21,
     "sourceRefs": {
       "voyageTw": "chasab008"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab009",
@@ -3637,7 +3658,8 @@
     "displayOrder": 22,
     "sourceRefs": {
       "voyageTw": "chasab009"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab010",
@@ -3830,7 +3852,8 @@
     "displayOrder": 23,
     "sourceRefs": {
       "voyageTw": "chasab010"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab011",
@@ -4020,7 +4043,8 @@
     "displayOrder": 24,
     "sourceRefs": {
       "voyageTw": "chasab011"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab012",
@@ -4192,7 +4216,8 @@
     "displayOrder": 25,
     "sourceRefs": {
       "voyageTw": "chasab012"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasab013",
@@ -4382,7 +4407,8 @@
     "displayOrder": 26,
     "sourceRefs": {
       "voyageTw": "chasab013"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad001",
@@ -4571,7 +4597,8 @@
     "displayOrder": 27,
     "sourceRefs": {
       "voyageTw": "chasad001"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad002",
@@ -4758,7 +4785,8 @@
     "displayOrder": 28,
     "sourceRefs": {
       "voyageTw": "chasad002"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad003",
@@ -4943,7 +4971,8 @@
     "displayOrder": 29,
     "sourceRefs": {
       "voyageTw": "chasad003"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad004",
@@ -5135,7 +5164,8 @@
     "displayOrder": 30,
     "sourceRefs": {
       "voyageTw": "chasad004"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad005",
@@ -5327,7 +5357,8 @@
     "displayOrder": 31,
     "sourceRefs": {
       "voyageTw": "chasad005"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad006",
@@ -5517,7 +5548,8 @@
     "displayOrder": 32,
     "sourceRefs": {
       "voyageTw": "chasad006"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad008",
@@ -5703,7 +5735,8 @@
     "displayOrder": 33,
     "sourceRefs": {
       "voyageTw": "chasad008"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad009",
@@ -5893,7 +5926,8 @@
     "displayOrder": 34,
     "sourceRefs": {
       "voyageTw": "chasad009"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasad010",
@@ -6088,7 +6122,8 @@
     "displayOrder": 35,
     "sourceRefs": {
       "voyageTw": "chasad010"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasat001",
@@ -6284,7 +6319,8 @@
     "displayOrder": 36,
     "sourceRefs": {
       "voyageTw": "chasat001"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasat002",
@@ -6469,7 +6505,8 @@
     "displayOrder": 37,
     "sourceRefs": {
       "voyageTw": "chasat002"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasat003",
@@ -6661,7 +6698,8 @@
     "displayOrder": 38,
     "sourceRefs": {
       "voyageTw": "chasat003"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasat004",
@@ -6858,7 +6896,8 @@
     "displayOrder": 39,
     "sourceRefs": {
       "voyageTw": "chasat004"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chasat005",
@@ -7047,7 +7086,8 @@
     "displayOrder": 40,
     "sourceRefs": {
       "voyageTw": "chasat005"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast024",
@@ -7230,7 +7270,8 @@
     "displayOrder": 41,
     "sourceRefs": {
       "voyageTw": "chasT024"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast032",
@@ -7414,7 +7455,8 @@
     "displayOrder": 42,
     "sourceRefs": {
       "voyageTw": "chasT032"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast035",
@@ -7601,7 +7643,8 @@
     "displayOrder": 43,
     "sourceRefs": {
       "voyageTw": "chasT035"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast049",
@@ -7788,7 +7831,8 @@
     "displayOrder": 44,
     "sourceRefs": {
       "voyageTw": "chasT049"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast062",
@@ -7975,7 +8019,8 @@
     "displayOrder": 45,
     "sourceRefs": {
       "voyageTw": "chasT062"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast078",
@@ -8151,7 +8196,8 @@
     "displayOrder": 46,
     "sourceRefs": {
       "voyageTw": "chasT078"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast083",
@@ -8329,7 +8375,8 @@
     "displayOrder": 47,
     "sourceRefs": {
       "voyageTw": "chasT083"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chast092",
@@ -8505,7 +8552,8 @@
     "displayOrder": 48,
     "sourceRefs": {
       "voyageTw": "chasT092"
-    }
+    },
+    "visualGradeId": "grade_6"
   },
   {
     "id": "officer_chaabb009",
@@ -8656,7 +8704,8 @@
     "displayOrder": 49,
     "sourceRefs": {
       "voyageTw": "chaabb009"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chaabb020",
@@ -8808,7 +8857,8 @@
     "displayOrder": 50,
     "sourceRefs": {
       "voyageTw": "chaabb020"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chaabb021",
@@ -8952,7 +9002,8 @@
     "displayOrder": 51,
     "sourceRefs": {
       "voyageTw": "chaabb021"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chaabb028",
@@ -9109,7 +9160,8 @@
     "displayOrder": 52,
     "sourceRefs": {
       "voyageTw": "chaabb028"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chaabt011",
@@ -9259,7 +9311,8 @@
     "displayOrder": 53,
     "sourceRefs": {
       "voyageTw": "chaabt011"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb002",
@@ -9403,7 +9456,8 @@
     "displayOrder": 54,
     "sourceRefs": {
       "voyageTw": "chasbb002"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb003",
@@ -9564,7 +9618,8 @@
     "displayOrder": 55,
     "sourceRefs": {
       "voyageTw": "chasbb003"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb005",
@@ -9716,7 +9771,8 @@
     "displayOrder": 56,
     "sourceRefs": {
       "voyageTw": "chasbb005"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb006",
@@ -9860,7 +9916,8 @@
     "displayOrder": 57,
     "sourceRefs": {
       "voyageTw": "chasbb006"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb007",
@@ -10012,7 +10069,8 @@
     "displayOrder": 58,
     "sourceRefs": {
       "voyageTw": "chasbb007"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb008",
@@ -10156,7 +10214,8 @@
     "displayOrder": 59,
     "sourceRefs": {
       "voyageTw": "chasbb008"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb009",
@@ -10306,7 +10365,8 @@
     "displayOrder": 60,
     "sourceRefs": {
       "voyageTw": "chasbb009"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb010",
@@ -10450,7 +10510,8 @@
     "displayOrder": 61,
     "sourceRefs": {
       "voyageTw": "chasbb010"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb011",
@@ -10590,7 +10651,8 @@
     "displayOrder": 62,
     "sourceRefs": {
       "voyageTw": "chasbb011"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb012",
@@ -10734,7 +10796,8 @@
     "displayOrder": 63,
     "sourceRefs": {
       "voyageTw": "chasbb012"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb013",
@@ -10886,7 +10949,8 @@
     "displayOrder": 64,
     "sourceRefs": {
       "voyageTw": "chasbb013"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb014",
@@ -11026,7 +11090,8 @@
     "displayOrder": 65,
     "sourceRefs": {
       "voyageTw": "chasbb014"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb015",
@@ -11170,7 +11235,8 @@
     "displayOrder": 66,
     "sourceRefs": {
       "voyageTw": "chasbb015"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb016",
@@ -11314,7 +11380,8 @@
     "displayOrder": 67,
     "sourceRefs": {
       "voyageTw": "chasbb016"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb017",
@@ -11458,7 +11525,8 @@
     "displayOrder": 68,
     "sourceRefs": {
       "voyageTw": "chasbb017"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb018",
@@ -11598,7 +11666,8 @@
     "displayOrder": 69,
     "sourceRefs": {
       "voyageTw": "chasbb018"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb019",
@@ -11738,7 +11807,8 @@
     "displayOrder": 70,
     "sourceRefs": {
       "voyageTw": "chasbb019"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb020",
@@ -11882,7 +11952,8 @@
     "displayOrder": 71,
     "sourceRefs": {
       "voyageTw": "chasbb020"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb021",
@@ -12022,7 +12093,8 @@
     "displayOrder": 72,
     "sourceRefs": {
       "voyageTw": "chasbb021"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb022",
@@ -12166,7 +12238,8 @@
     "displayOrder": 73,
     "sourceRefs": {
       "voyageTw": "chasbb022"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb023",
@@ -12326,7 +12399,8 @@
     "displayOrder": 74,
     "sourceRefs": {
       "voyageTw": "chasbb023"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb024",
@@ -12478,7 +12552,8 @@
     "displayOrder": 75,
     "sourceRefs": {
       "voyageTw": "chasbb024"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb026",
@@ -12632,7 +12707,8 @@
     "displayOrder": 76,
     "sourceRefs": {
       "voyageTw": "chasbb026"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb027",
@@ -12772,7 +12848,8 @@
     "displayOrder": 77,
     "sourceRefs": {
       "voyageTw": "chasbb027"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb029",
@@ -12916,7 +12993,8 @@
     "displayOrder": 78,
     "sourceRefs": {
       "voyageTw": "chasbb029"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb031",
@@ -13066,7 +13144,8 @@
     "displayOrder": 79,
     "sourceRefs": {
       "voyageTw": "chasbb031"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb032",
@@ -13212,7 +13291,8 @@
     "displayOrder": 80,
     "sourceRefs": {
       "voyageTw": "chasbb032"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb033",
@@ -13356,7 +13436,8 @@
     "displayOrder": 81,
     "sourceRefs": {
       "voyageTw": "chasbb033"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb035",
@@ -13496,7 +13577,8 @@
     "displayOrder": 82,
     "sourceRefs": {
       "voyageTw": "chasbb035"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb036",
@@ -13640,7 +13722,8 @@
     "displayOrder": 83,
     "sourceRefs": {
       "voyageTw": "chasbb036"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb065",
@@ -13788,7 +13871,8 @@
     "displayOrder": 84,
     "sourceRefs": {
       "voyageTw": "chasbb065"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbb067",
@@ -13928,7 +14012,8 @@
     "displayOrder": 85,
     "sourceRefs": {
       "voyageTw": "chasbb067"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd001",
@@ -14072,7 +14157,8 @@
     "displayOrder": 86,
     "sourceRefs": {
       "voyageTw": "chasbd001"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd002",
@@ -14216,7 +14302,8 @@
     "displayOrder": 87,
     "sourceRefs": {
       "voyageTw": "chasbd002"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd003",
@@ -14366,7 +14453,8 @@
     "displayOrder": 88,
     "sourceRefs": {
       "voyageTw": "chasbd003"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd004",
@@ -14510,7 +14598,8 @@
     "displayOrder": 89,
     "sourceRefs": {
       "voyageTw": "chasbd004"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd005",
@@ -14662,7 +14751,8 @@
     "displayOrder": 90,
     "sourceRefs": {
       "voyageTw": "chasbd005"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd007",
@@ -14802,7 +14892,8 @@
     "displayOrder": 91,
     "sourceRefs": {
       "voyageTw": "chasbd007"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd009",
@@ -14946,7 +15037,8 @@
     "displayOrder": 92,
     "sourceRefs": {
       "voyageTw": "chasbd009"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd010",
@@ -15090,7 +15182,8 @@
     "displayOrder": 93,
     "sourceRefs": {
       "voyageTw": "chasbd010"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd012",
@@ -15254,7 +15347,8 @@
     "displayOrder": 94,
     "sourceRefs": {
       "voyageTw": "chasbd012"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd013",
@@ -15394,7 +15488,8 @@
     "displayOrder": 95,
     "sourceRefs": {
       "voyageTw": "chasbd013"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd014",
@@ -15556,7 +15651,8 @@
     "displayOrder": 96,
     "sourceRefs": {
       "voyageTw": "chasbd014"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd015",
@@ -15700,7 +15796,8 @@
     "displayOrder": 97,
     "sourceRefs": {
       "voyageTw": "chasbd015"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd016",
@@ -15844,7 +15941,8 @@
     "displayOrder": 98,
     "sourceRefs": {
       "voyageTw": "chasbd016"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd018",
@@ -15988,7 +16086,8 @@
     "displayOrder": 99,
     "sourceRefs": {
       "voyageTw": "chasbd018"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd019",
@@ -16132,7 +16231,8 @@
     "displayOrder": 100,
     "sourceRefs": {
       "voyageTw": "chasbd019"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd020",
@@ -16272,7 +16372,8 @@
     "displayOrder": 101,
     "sourceRefs": {
       "voyageTw": "chasbd020"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd021",
@@ -16412,7 +16513,8 @@
     "displayOrder": 102,
     "sourceRefs": {
       "voyageTw": "chasbd021"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbd024",
@@ -16556,7 +16658,8 @@
     "displayOrder": 103,
     "sourceRefs": {
       "voyageTw": "chasbd024"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt002",
@@ -16700,7 +16803,8 @@
     "displayOrder": 104,
     "sourceRefs": {
       "voyageTw": "chasbt002"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt003",
@@ -16844,7 +16948,8 @@
     "displayOrder": 105,
     "sourceRefs": {
       "voyageTw": "chasbt003"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt004",
@@ -16988,7 +17093,8 @@
     "displayOrder": 106,
     "sourceRefs": {
       "voyageTw": "chasbt004"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt005",
@@ -17132,7 +17238,8 @@
     "displayOrder": 107,
     "sourceRefs": {
       "voyageTw": "chasbt005"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt007",
@@ -17276,7 +17383,8 @@
     "displayOrder": 108,
     "sourceRefs": {
       "voyageTw": "chasbt007"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt008",
@@ -17426,7 +17534,8 @@
     "displayOrder": 109,
     "sourceRefs": {
       "voyageTw": "chasbt008"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt009",
@@ -17566,7 +17675,8 @@
     "displayOrder": 110,
     "sourceRefs": {
       "voyageTw": "chasbt009"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt010",
@@ -17716,7 +17826,8 @@
     "displayOrder": 111,
     "sourceRefs": {
       "voyageTw": "chasbt010"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt011",
@@ -17871,7 +17982,8 @@
     "displayOrder": 112,
     "sourceRefs": {
       "voyageTw": "chasbt011"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt014",
@@ -18011,7 +18123,8 @@
     "displayOrder": 113,
     "sourceRefs": {
       "voyageTw": "chasbt014"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt016",
@@ -18155,7 +18268,8 @@
     "displayOrder": 114,
     "sourceRefs": {
       "voyageTw": "chasbt016"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt017",
@@ -18299,7 +18413,8 @@
     "displayOrder": 115,
     "sourceRefs": {
       "voyageTw": "chasbt017"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt018",
@@ -18443,7 +18558,8 @@
     "displayOrder": 116,
     "sourceRefs": {
       "voyageTw": "chasbt018"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt020",
@@ -18587,7 +18703,8 @@
     "displayOrder": 117,
     "sourceRefs": {
       "voyageTw": "chasbt020"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt021",
@@ -18731,7 +18848,8 @@
     "displayOrder": 118,
     "sourceRefs": {
       "voyageTw": "chasbt021"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasbt022",
@@ -18875,7 +18993,8 @@
     "displayOrder": 119,
     "sourceRefs": {
       "voyageTw": "chasbt022"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd028",
@@ -19019,7 +19138,8 @@
     "displayOrder": 120,
     "sourceRefs": {
       "voyageTw": "chascd028"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasct015",
@@ -19163,7 +19283,8 @@
     "displayOrder": 121,
     "sourceRefs": {
       "voyageTw": "chasct015"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasct022",
@@ -19315,7 +19436,8 @@
     "displayOrder": 122,
     "sourceRefs": {
       "voyageTw": "chasct022"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb010",
@@ -19459,7 +19581,8 @@
     "displayOrder": 123,
     "sourceRefs": {
       "voyageTw": "chascb010"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb007",
@@ -19603,7 +19726,8 @@
     "displayOrder": 124,
     "sourceRefs": {
       "voyageTw": "chascb007"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb023",
@@ -19747,7 +19871,8 @@
     "displayOrder": 125,
     "sourceRefs": {
       "voyageTw": "chascb023"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast023",
@@ -19891,7 +20016,8 @@
     "displayOrder": 126,
     "sourceRefs": {
       "voyageTw": "chasT023"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast027",
@@ -20035,7 +20161,8 @@
     "displayOrder": 127,
     "sourceRefs": {
       "voyageTw": "chasT027"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast031",
@@ -20179,7 +20306,8 @@
     "displayOrder": 128,
     "sourceRefs": {
       "voyageTw": "chasT031"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb004",
@@ -20331,7 +20459,8 @@
     "displayOrder": 129,
     "sourceRefs": {
       "voyageTw": "chascb004"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb024",
@@ -20475,7 +20604,8 @@
     "displayOrder": 130,
     "sourceRefs": {
       "voyageTw": "chascb024"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast033",
@@ -20619,7 +20749,8 @@
     "displayOrder": 131,
     "sourceRefs": {
       "voyageTw": "chasT033"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast034",
@@ -20763,7 +20894,8 @@
     "displayOrder": 132,
     "sourceRefs": {
       "voyageTw": "chasT034"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd020",
@@ -20907,7 +21039,8 @@
     "displayOrder": 133,
     "sourceRefs": {
       "voyageTw": "chascd020"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd023",
@@ -21042,7 +21175,8 @@
     "displayOrder": 134,
     "sourceRefs": {
       "voyageTw": "chascd023"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast036",
@@ -21190,7 +21324,8 @@
     "displayOrder": 135,
     "sourceRefs": {
       "voyageTw": "chasT036"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast040",
@@ -21341,7 +21476,8 @@
     "displayOrder": 136,
     "sourceRefs": {
       "voyageTw": "chasT040"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast041",
@@ -21492,7 +21628,8 @@
     "displayOrder": 137,
     "sourceRefs": {
       "voyageTw": "chasT041"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd002",
@@ -21636,7 +21773,8 @@
     "displayOrder": 138,
     "sourceRefs": {
       "voyageTw": "chascd002"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd033",
@@ -21780,7 +21918,8 @@
     "displayOrder": 139,
     "sourceRefs": {
       "voyageTw": "chascd033"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast042",
@@ -21931,7 +22070,8 @@
     "displayOrder": 140,
     "sourceRefs": {
       "voyageTw": "chasT042"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast043",
@@ -22089,7 +22229,8 @@
     "displayOrder": 141,
     "sourceRefs": {
       "voyageTw": "chasT043"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast044",
@@ -22233,7 +22374,8 @@
     "displayOrder": 142,
     "sourceRefs": {
       "voyageTw": "chasT044"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb009",
@@ -22377,7 +22519,8 @@
     "displayOrder": 143,
     "sourceRefs": {
       "voyageTw": "chascb009"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb003",
@@ -22529,7 +22672,8 @@
     "displayOrder": 144,
     "sourceRefs": {
       "voyageTw": "chascb003"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast045",
@@ -22680,7 +22824,8 @@
     "displayOrder": 145,
     "sourceRefs": {
       "voyageTw": "chasT045"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast046",
@@ -22831,7 +22976,8 @@
     "displayOrder": 146,
     "sourceRefs": {
       "voyageTw": "chasT046"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb008",
@@ -22975,7 +23121,8 @@
     "displayOrder": 147,
     "sourceRefs": {
       "voyageTw": "chascb008"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasct019",
@@ -23119,7 +23266,8 @@
     "displayOrder": 148,
     "sourceRefs": {
       "voyageTw": "chasct019"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast047",
@@ -23269,7 +23417,8 @@
     "displayOrder": 149,
     "sourceRefs": {
       "voyageTw": "chasT047"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast048",
@@ -23419,7 +23568,8 @@
     "displayOrder": 150,
     "sourceRefs": {
       "voyageTw": "chasT048"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast050",
@@ -23563,7 +23713,8 @@
     "displayOrder": 151,
     "sourceRefs": {
       "voyageTw": "chasT050"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast054",
@@ -23714,7 +23865,8 @@
     "displayOrder": 152,
     "sourceRefs": {
       "voyageTw": "chasT054"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast055",
@@ -23873,7 +24025,8 @@
     "displayOrder": 153,
     "sourceRefs": {
       "voyageTw": "chasT055"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb006",
@@ -24017,7 +24170,8 @@
     "displayOrder": 154,
     "sourceRefs": {
       "voyageTw": "chascb006"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd009",
@@ -24169,7 +24323,8 @@
     "displayOrder": 155,
     "sourceRefs": {
       "voyageTw": "chascd009"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast056",
@@ -24313,7 +24468,8 @@
     "displayOrder": 156,
     "sourceRefs": {
       "voyageTw": "chasT056"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast057",
@@ -24457,7 +24613,8 @@
     "displayOrder": 157,
     "sourceRefs": {
       "voyageTw": "chasT057"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd027",
@@ -24609,7 +24766,8 @@
     "displayOrder": 158,
     "sourceRefs": {
       "voyageTw": "chascd027"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb015",
@@ -24753,7 +24911,8 @@
     "displayOrder": 159,
     "sourceRefs": {
       "voyageTw": "chascb015"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast058",
@@ -24904,7 +25063,8 @@
     "displayOrder": 160,
     "sourceRefs": {
       "voyageTw": "chasT058"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast059",
@@ -25055,7 +25215,8 @@
     "displayOrder": 161,
     "sourceRefs": {
       "voyageTw": "chasT059"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb022",
@@ -25199,7 +25360,8 @@
     "displayOrder": 162,
     "sourceRefs": {
       "voyageTw": "chascb022"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb025",
@@ -25343,7 +25505,8 @@
     "displayOrder": 163,
     "sourceRefs": {
       "voyageTw": "chascb025"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast060",
@@ -25493,7 +25656,8 @@
     "displayOrder": 164,
     "sourceRefs": {
       "voyageTw": "chasT060"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast061",
@@ -25644,7 +25808,8 @@
     "displayOrder": 165,
     "sourceRefs": {
       "voyageTw": "chasT061"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast063",
@@ -25788,7 +25953,8 @@
     "displayOrder": 166,
     "sourceRefs": {
       "voyageTw": "chasT063"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast064",
@@ -25939,7 +26105,8 @@
     "displayOrder": 167,
     "sourceRefs": {
       "voyageTw": "chasT064"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast065",
@@ -26083,7 +26250,8 @@
     "displayOrder": 168,
     "sourceRefs": {
       "voyageTw": "chasT065"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast066",
@@ -26234,7 +26402,8 @@
     "displayOrder": 169,
     "sourceRefs": {
       "voyageTw": "chasT066"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd005",
@@ -26386,7 +26555,8 @@
     "displayOrder": 170,
     "sourceRefs": {
       "voyageTw": "chascd005"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd013",
@@ -26530,7 +26700,8 @@
     "displayOrder": 171,
     "sourceRefs": {
       "voyageTw": "chascd013"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast070",
@@ -26681,7 +26852,8 @@
     "displayOrder": 172,
     "sourceRefs": {
       "voyageTw": "chasT070"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast071",
@@ -26832,7 +27004,8 @@
     "displayOrder": 173,
     "sourceRefs": {
       "voyageTw": "chasT071"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd001",
@@ -26976,7 +27149,8 @@
     "displayOrder": 174,
     "sourceRefs": {
       "voyageTw": "chascd001"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd007",
@@ -27120,7 +27294,8 @@
     "displayOrder": 175,
     "sourceRefs": {
       "voyageTw": "chascd007"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast072",
@@ -27271,7 +27446,8 @@
     "displayOrder": 176,
     "sourceRefs": {
       "voyageTw": "chasT072"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast073",
@@ -27429,7 +27605,8 @@
     "displayOrder": 177,
     "sourceRefs": {
       "voyageTw": "chasT073"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb026",
@@ -27573,7 +27750,8 @@
     "displayOrder": 178,
     "sourceRefs": {
       "voyageTw": "chascb026"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd003",
@@ -27717,7 +27895,8 @@
     "displayOrder": 179,
     "sourceRefs": {
       "voyageTw": "chascd003"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast074",
@@ -27868,7 +28047,8 @@
     "displayOrder": 180,
     "sourceRefs": {
       "voyageTw": "chasT074"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast075",
@@ -28019,7 +28199,8 @@
     "displayOrder": 181,
     "sourceRefs": {
       "voyageTw": "chasT075"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd031",
@@ -28163,7 +28344,8 @@
     "displayOrder": 182,
     "sourceRefs": {
       "voyageTw": "chascd031"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd025",
@@ -28307,7 +28489,8 @@
     "displayOrder": 183,
     "sourceRefs": {
       "voyageTw": "chascd025"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast076",
@@ -28466,7 +28649,8 @@
     "displayOrder": 184,
     "sourceRefs": {
       "voyageTw": "chasT076"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast077",
@@ -28617,7 +28801,8 @@
     "displayOrder": 185,
     "sourceRefs": {
       "voyageTw": "chasT077"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd018",
@@ -28761,7 +28946,8 @@
     "displayOrder": 186,
     "sourceRefs": {
       "voyageTw": "chascd018"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd029",
@@ -28913,7 +29099,8 @@
     "displayOrder": 187,
     "sourceRefs": {
       "voyageTw": "chascd029"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast079",
@@ -29065,7 +29252,8 @@
     "displayOrder": 188,
     "sourceRefs": {
       "voyageTw": "chasT079"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast080",
@@ -29217,7 +29405,8 @@
     "displayOrder": 189,
     "sourceRefs": {
       "voyageTw": "chasT080"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast081",
@@ -29368,7 +29557,8 @@
     "displayOrder": 190,
     "sourceRefs": {
       "voyageTw": "chasT081"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast082",
@@ -29511,7 +29701,8 @@
     "displayOrder": 191,
     "sourceRefs": {
       "voyageTw": "chasT082"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd008",
@@ -29655,7 +29846,8 @@
     "displayOrder": 192,
     "sourceRefs": {
       "voyageTw": "chascd008"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd030",
@@ -29799,7 +29991,8 @@
     "displayOrder": 193,
     "sourceRefs": {
       "voyageTw": "chascd030"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb028",
@@ -29943,7 +30136,8 @@
     "displayOrder": 194,
     "sourceRefs": {
       "voyageTw": "chascb028"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascd017",
@@ -30095,7 +30289,8 @@
     "displayOrder": 195,
     "sourceRefs": {
       "voyageTw": "chascd017"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasct010",
@@ -30239,7 +30434,8 @@
     "displayOrder": 196,
     "sourceRefs": {
       "voyageTw": "chasct010"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb018",
@@ -30383,7 +30579,8 @@
     "displayOrder": 197,
     "sourceRefs": {
       "voyageTw": "chascb018"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chasct027",
@@ -30527,7 +30724,8 @@
     "displayOrder": 198,
     "sourceRefs": {
       "voyageTw": "chasct027"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chascb012",
@@ -30671,7 +30869,8 @@
     "displayOrder": 199,
     "sourceRefs": {
       "voyageTw": "chascb012"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast084",
@@ -30815,7 +31014,8 @@
     "displayOrder": 200,
     "sourceRefs": {
       "voyageTw": "chasT084"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast086",
@@ -30959,7 +31159,8 @@
     "displayOrder": 201,
     "sourceRefs": {
       "voyageTw": "chasT086"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast087",
@@ -31095,7 +31296,8 @@
     "displayOrder": 202,
     "sourceRefs": {
       "voyageTw": "chasT087"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chast088",
@@ -31239,7 +31441,8 @@
     "displayOrder": 203,
     "sourceRefs": {
       "voyageTw": "chasT088"
-    }
+    },
+    "visualGradeId": "grade_5"
   },
   {
     "id": "officer_chaabb001",
@@ -31385,7 +31588,8 @@
     "displayOrder": 204,
     "sourceRefs": {
       "voyageTw": "chaabb001"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb002",
@@ -31544,7 +31748,8 @@
     "displayOrder": 205,
     "sourceRefs": {
       "voyageTw": "chaabb002"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb003",
@@ -31684,7 +31889,8 @@
     "displayOrder": 206,
     "sourceRefs": {
       "voyageTw": "chaabb003"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb004",
@@ -31832,7 +32038,8 @@
     "displayOrder": 207,
     "sourceRefs": {
       "voyageTw": "chaabb004"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb005",
@@ -31976,7 +32183,8 @@
     "displayOrder": 208,
     "sourceRefs": {
       "voyageTw": "chaabb005"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb006",
@@ -32120,7 +32328,8 @@
     "displayOrder": 209,
     "sourceRefs": {
       "voyageTw": "chaabb006"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb007",
@@ -32270,7 +32479,8 @@
     "displayOrder": 210,
     "sourceRefs": {
       "voyageTw": "chaabb007"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb008",
@@ -32433,7 +32643,8 @@
     "displayOrder": 211,
     "sourceRefs": {
       "voyageTw": "chaabb008"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb010",
@@ -32597,7 +32808,8 @@
     "displayOrder": 212,
     "sourceRefs": {
       "voyageTw": "chaabb010"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb011",
@@ -32762,7 +32974,8 @@
     "displayOrder": 213,
     "sourceRefs": {
       "voyageTw": "chaabb011"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb012",
@@ -32906,7 +33119,8 @@
     "displayOrder": 214,
     "sourceRefs": {
       "voyageTw": "chaabb012"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb013",
@@ -33058,7 +33272,8 @@
     "displayOrder": 215,
     "sourceRefs": {
       "voyageTw": "chaabb013"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb014",
@@ -33222,7 +33437,8 @@
     "displayOrder": 216,
     "sourceRefs": {
       "voyageTw": "chaabb014"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb015",
@@ -33380,7 +33596,8 @@
     "displayOrder": 217,
     "sourceRefs": {
       "voyageTw": "chaabb015"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb016",
@@ -33533,7 +33750,8 @@
     "displayOrder": 218,
     "sourceRefs": {
       "voyageTw": "chaabb016"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb017",
@@ -33691,7 +33909,8 @@
     "displayOrder": 219,
     "sourceRefs": {
       "voyageTw": "chaabb017"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb018",
@@ -33841,7 +34060,8 @@
     "displayOrder": 220,
     "sourceRefs": {
       "voyageTw": "chaabb018"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb019",
@@ -33992,7 +34212,8 @@
     "displayOrder": 221,
     "sourceRefs": {
       "voyageTw": "chaabb019"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb022",
@@ -34150,7 +34371,8 @@
     "displayOrder": 222,
     "sourceRefs": {
       "voyageTw": "chaabb022"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb023",
@@ -34294,7 +34516,8 @@
     "displayOrder": 223,
     "sourceRefs": {
       "voyageTw": "chaabb023"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb024",
@@ -34438,7 +34661,8 @@
     "displayOrder": 224,
     "sourceRefs": {
       "voyageTw": "chaabb024"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb025",
@@ -34584,7 +34808,8 @@
     "displayOrder": 225,
     "sourceRefs": {
       "voyageTw": "chaabb025"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb026",
@@ -34744,7 +34969,8 @@
     "displayOrder": 226,
     "sourceRefs": {
       "voyageTw": "chaabb026"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb027",
@@ -34905,7 +35131,8 @@
     "displayOrder": 227,
     "sourceRefs": {
       "voyageTw": "chaabb027"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb029",
@@ -35053,7 +35280,8 @@
     "displayOrder": 228,
     "sourceRefs": {
       "voyageTw": "chaabb029"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb030",
@@ -35200,7 +35428,8 @@
     "displayOrder": 229,
     "sourceRefs": {
       "voyageTw": "chaabb030"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb034",
@@ -35344,7 +35573,8 @@
     "displayOrder": 230,
     "sourceRefs": {
       "voyageTw": "chaabb034"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb035",
@@ -35496,7 +35726,8 @@
     "displayOrder": 231,
     "sourceRefs": {
       "voyageTw": "chaabb035"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb039",
@@ -35648,7 +35879,8 @@
     "displayOrder": 232,
     "sourceRefs": {
       "voyageTw": "chaabb039"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb040",
@@ -35798,7 +36030,8 @@
     "displayOrder": 233,
     "sourceRefs": {
       "voyageTw": "chaabb040"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb041",
@@ -35946,7 +36179,8 @@
     "displayOrder": 234,
     "sourceRefs": {
       "voyageTw": "chaabb041"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabb043",
@@ -36104,7 +36338,8 @@
     "displayOrder": 235,
     "sourceRefs": {
       "voyageTw": "chaabb043"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd001",
@@ -36256,7 +36491,8 @@
     "displayOrder": 236,
     "sourceRefs": {
       "voyageTw": "chaabd001"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd002",
@@ -36412,7 +36648,8 @@
     "displayOrder": 237,
     "sourceRefs": {
       "voyageTw": "chaabd002"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd003",
@@ -36556,7 +36793,8 @@
     "displayOrder": 238,
     "sourceRefs": {
       "voyageTw": "chaabd003"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd004",
@@ -36704,7 +36942,8 @@
     "displayOrder": 239,
     "sourceRefs": {
       "voyageTw": "chaabd004"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd005",
@@ -36848,7 +37087,8 @@
     "displayOrder": 240,
     "sourceRefs": {
       "voyageTw": "chaabd005"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd006",
@@ -37010,7 +37250,8 @@
     "displayOrder": 241,
     "sourceRefs": {
       "voyageTw": "chaabd006"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd007",
@@ -37173,7 +37414,8 @@
     "displayOrder": 242,
     "sourceRefs": {
       "voyageTw": "chaabd007"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd009",
@@ -37331,7 +37573,8 @@
     "displayOrder": 243,
     "sourceRefs": {
       "voyageTw": "chaabd009"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd010",
@@ -37497,7 +37740,8 @@
     "displayOrder": 244,
     "sourceRefs": {
       "voyageTw": "chaabd010"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd011",
@@ -37641,7 +37885,8 @@
     "displayOrder": 245,
     "sourceRefs": {
       "voyageTw": "chaabd011"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd012",
@@ -37799,7 +38044,8 @@
     "displayOrder": 246,
     "sourceRefs": {
       "voyageTw": "chaabd012"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd013",
@@ -37954,7 +38200,8 @@
     "displayOrder": 247,
     "sourceRefs": {
       "voyageTw": "chaabd013"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd014",
@@ -38105,7 +38352,8 @@
     "displayOrder": 248,
     "sourceRefs": {
       "voyageTw": "chaabd014"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd016",
@@ -38255,7 +38503,8 @@
     "displayOrder": 249,
     "sourceRefs": {
       "voyageTw": "chaabd016"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd017",
@@ -38399,7 +38648,8 @@
     "displayOrder": 250,
     "sourceRefs": {
       "voyageTw": "chaabd017"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd018",
@@ -38551,7 +38801,8 @@
     "displayOrder": 251,
     "sourceRefs": {
       "voyageTw": "chaabd018"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabd019",
@@ -38691,7 +38942,8 @@
     "displayOrder": 252,
     "sourceRefs": {
       "voyageTw": "chaabd019"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt001",
@@ -38847,7 +39099,8 @@
     "displayOrder": 253,
     "sourceRefs": {
       "voyageTw": "chaabt001"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt002",
@@ -39002,7 +39255,8 @@
     "displayOrder": 254,
     "sourceRefs": {
       "voyageTw": "chaabt002"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt003",
@@ -39146,7 +39400,8 @@
     "displayOrder": 255,
     "sourceRefs": {
       "voyageTw": "chaabt003"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt004",
@@ -39298,7 +39553,8 @@
     "displayOrder": 256,
     "sourceRefs": {
       "voyageTw": "chaabt004"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt005",
@@ -39452,7 +39708,8 @@
     "displayOrder": 257,
     "sourceRefs": {
       "voyageTw": "chaabt005"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt006",
@@ -39612,7 +39869,8 @@
     "displayOrder": 258,
     "sourceRefs": {
       "voyageTw": "chaabt006"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt007",
@@ -39764,7 +40022,8 @@
     "displayOrder": 259,
     "sourceRefs": {
       "voyageTw": "chaabt007"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt008",
@@ -39927,7 +40186,8 @@
     "displayOrder": 260,
     "sourceRefs": {
       "voyageTw": "chaabt008"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt009",
@@ -40079,7 +40339,8 @@
     "displayOrder": 261,
     "sourceRefs": {
       "voyageTw": "chaabt009"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt010",
@@ -40231,7 +40492,8 @@
     "displayOrder": 262,
     "sourceRefs": {
       "voyageTw": "chaabt010"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt012",
@@ -40375,7 +40637,8 @@
     "displayOrder": 263,
     "sourceRefs": {
       "voyageTw": "chaabt012"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt013",
@@ -40528,7 +40791,8 @@
     "displayOrder": 264,
     "sourceRefs": {
       "voyageTw": "chaabt013"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt014",
@@ -40686,7 +40950,8 @@
     "displayOrder": 265,
     "sourceRefs": {
       "voyageTw": "chaabt014"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt015",
@@ -40841,7 +41106,8 @@
     "displayOrder": 266,
     "sourceRefs": {
       "voyageTw": "chaabt015"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt016",
@@ -40991,7 +41257,8 @@
     "displayOrder": 267,
     "sourceRefs": {
       "voyageTw": "chaabt016"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt017",
@@ -41150,7 +41417,8 @@
     "displayOrder": 268,
     "sourceRefs": {
       "voyageTw": "chaabt017"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt018",
@@ -41308,7 +41576,8 @@
     "displayOrder": 269,
     "sourceRefs": {
       "voyageTw": "chaabt018"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt019",
@@ -41466,7 +41735,8 @@
     "displayOrder": 270,
     "sourceRefs": {
       "voyageTw": "chaabt019"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaabt020",
@@ -41627,7 +41897,8 @@
     "displayOrder": 271,
     "sourceRefs": {
       "voyageTw": "chaabt020"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbb002",
@@ -41779,7 +42050,8 @@
     "displayOrder": 272,
     "sourceRefs": {
       "voyageTw": "chabbb002"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbb031",
@@ -41930,7 +42202,8 @@
     "displayOrder": 273,
     "sourceRefs": {
       "voyageTw": "chabbb031"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbb033",
@@ -42086,7 +42359,8 @@
     "displayOrder": 274,
     "sourceRefs": {
       "voyageTw": "chabbb033"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbb038",
@@ -42238,7 +42512,8 @@
     "displayOrder": 275,
     "sourceRefs": {
       "voyageTw": "chabbb038"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbd004",
@@ -42382,7 +42657,8 @@
     "displayOrder": 276,
     "sourceRefs": {
       "voyageTw": "chabbd004"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbd041",
@@ -42535,7 +42811,8 @@
     "displayOrder": 277,
     "sourceRefs": {
       "voyageTw": "chabbd041"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chacbb007",
@@ -42688,7 +42965,8 @@
     "displayOrder": 278,
     "sourceRefs": {
       "voyageTw": "chacbb007"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chacbb018",
@@ -42852,7 +43130,8 @@
     "displayOrder": 279,
     "sourceRefs": {
       "voyageTw": "chacbb018"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chacbb035",
@@ -43004,7 +43283,8 @@
     "displayOrder": 280,
     "sourceRefs": {
       "voyageTw": "chacbb035"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chasbb001",
@@ -43155,7 +43435,8 @@
     "displayOrder": 281,
     "sourceRefs": {
       "voyageTw": "chasbb001"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaat018",
@@ -43307,7 +43588,8 @@
     "displayOrder": 282,
     "sourceRefs": {
       "voyageTw": "chaaT018"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaat025",
@@ -43458,7 +43740,8 @@
     "displayOrder": 283,
     "sourceRefs": {
       "voyageTw": "chaaT025"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chaat028",
@@ -43602,7 +43885,8 @@
     "displayOrder": 284,
     "sourceRefs": {
       "voyageTw": "chaaT028"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast037",
@@ -43752,7 +44036,8 @@
     "displayOrder": 285,
     "sourceRefs": {
       "voyageTw": "chasT037"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast038",
@@ -43902,7 +44187,8 @@
     "displayOrder": 286,
     "sourceRefs": {
       "voyageTw": "chasT038"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast039",
@@ -44052,7 +44338,8 @@
     "displayOrder": 287,
     "sourceRefs": {
       "voyageTw": "chasT039"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast051",
@@ -44204,7 +44491,8 @@
     "displayOrder": 288,
     "sourceRefs": {
       "voyageTw": "chasT051"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast052",
@@ -44344,7 +44632,8 @@
     "displayOrder": 289,
     "sourceRefs": {
       "voyageTw": "chasT052"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chast085",
@@ -44494,7 +44783,8 @@
     "displayOrder": 290,
     "sourceRefs": {
       "voyageTw": "chasT085"
-    }
+    },
+    "visualGradeId": "grade_4"
   },
   {
     "id": "officer_chabbb001",
@@ -44658,7 +44948,8 @@
     "displayOrder": 291,
     "sourceRefs": {
       "voyageTw": "chabbb001"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb004",
@@ -44815,7 +45106,8 @@
     "displayOrder": 292,
     "sourceRefs": {
       "voyageTw": "chabbb004"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb006",
@@ -44959,7 +45251,8 @@
     "displayOrder": 293,
     "sourceRefs": {
       "voyageTw": "chabbb006"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb007",
@@ -45117,7 +45410,8 @@
     "displayOrder": 294,
     "sourceRefs": {
       "voyageTw": "chabbb007"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb008",
@@ -45276,7 +45570,8 @@
     "displayOrder": 295,
     "sourceRefs": {
       "voyageTw": "chabbb008"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb010",
@@ -45432,7 +45727,8 @@
     "displayOrder": 296,
     "sourceRefs": {
       "voyageTw": "chabbb010"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb011",
@@ -45597,7 +45893,8 @@
     "displayOrder": 297,
     "sourceRefs": {
       "voyageTw": "chabbb011"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb012",
@@ -45756,7 +46053,8 @@
     "displayOrder": 298,
     "sourceRefs": {
       "voyageTw": "chabbb012"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb014",
@@ -45907,7 +46205,8 @@
     "displayOrder": 299,
     "sourceRefs": {
       "voyageTw": "chabbb014"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb015",
@@ -46071,7 +46370,8 @@
     "displayOrder": 300,
     "sourceRefs": {
       "voyageTw": "chabbb015"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb016",
@@ -46229,7 +46529,8 @@
     "displayOrder": 301,
     "sourceRefs": {
       "voyageTw": "chabbb016"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb017",
@@ -46384,7 +46685,8 @@
     "displayOrder": 302,
     "sourceRefs": {
       "voyageTw": "chabbb017"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb018",
@@ -46532,7 +46834,8 @@
     "displayOrder": 303,
     "sourceRefs": {
       "voyageTw": "chabbb018"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb019",
@@ -46687,7 +46990,8 @@
     "displayOrder": 304,
     "sourceRefs": {
       "voyageTw": "chabbb019"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb020",
@@ -46846,7 +47150,8 @@
     "displayOrder": 305,
     "sourceRefs": {
       "voyageTw": "chabbb020"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb021",
@@ -46998,7 +47303,8 @@
     "displayOrder": 306,
     "sourceRefs": {
       "voyageTw": "chabbb021"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb022",
@@ -47150,7 +47456,8 @@
     "displayOrder": 307,
     "sourceRefs": {
       "voyageTw": "chabbb022"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb023",
@@ -47306,7 +47613,8 @@
     "displayOrder": 308,
     "sourceRefs": {
       "voyageTw": "chabbb023"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb024",
@@ -47450,7 +47758,8 @@
     "displayOrder": 309,
     "sourceRefs": {
       "voyageTw": "chabbb024"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb025",
@@ -47604,7 +47913,8 @@
     "displayOrder": 310,
     "sourceRefs": {
       "voyageTw": "chabbb025"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb026",
@@ -47759,7 +48069,8 @@
     "displayOrder": 311,
     "sourceRefs": {
       "voyageTw": "chabbb026"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb027",
@@ -47921,7 +48232,8 @@
     "displayOrder": 312,
     "sourceRefs": {
       "voyageTw": "chabbb027"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb028",
@@ -48087,7 +48399,8 @@
     "displayOrder": 313,
     "sourceRefs": {
       "voyageTw": "chabbb028"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb029",
@@ -48235,7 +48548,8 @@
     "displayOrder": 314,
     "sourceRefs": {
       "voyageTw": "chabbb029"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb030",
@@ -48393,7 +48707,8 @@
     "displayOrder": 315,
     "sourceRefs": {
       "voyageTw": "chabbb030"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb032",
@@ -48552,7 +48867,8 @@
     "displayOrder": 316,
     "sourceRefs": {
       "voyageTw": "chabbb032"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb034",
@@ -48702,7 +49018,8 @@
     "displayOrder": 317,
     "sourceRefs": {
       "voyageTw": "chabbb034"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb035",
@@ -48856,7 +49173,8 @@
     "displayOrder": 318,
     "sourceRefs": {
       "voyageTw": "chabbb035"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb036",
@@ -49014,7 +49332,8 @@
     "displayOrder": 319,
     "sourceRefs": {
       "voyageTw": "chabbb036"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb037",
@@ -49177,7 +49496,8 @@
     "displayOrder": 320,
     "sourceRefs": {
       "voyageTw": "chabbb037"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb039",
@@ -49326,7 +49646,8 @@
     "displayOrder": 321,
     "sourceRefs": {
       "voyageTw": "chabbb039"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb041",
@@ -49491,7 +49812,8 @@
     "displayOrder": 322,
     "sourceRefs": {
       "voyageTw": "chabbb041"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb042",
@@ -49656,7 +49978,8 @@
     "displayOrder": 323,
     "sourceRefs": {
       "voyageTw": "chabbb042"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb043",
@@ -49818,7 +50141,8 @@
     "displayOrder": 324,
     "sourceRefs": {
       "voyageTw": "chabbb043"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb044",
@@ -49967,7 +50291,8 @@
     "displayOrder": 325,
     "sourceRefs": {
       "voyageTw": "chabbb044"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb045",
@@ -50127,7 +50452,8 @@
     "displayOrder": 326,
     "sourceRefs": {
       "voyageTw": "chabbb045"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb047",
@@ -50275,7 +50601,8 @@
     "displayOrder": 327,
     "sourceRefs": {
       "voyageTw": "chabbb047"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb048",
@@ -50415,7 +50742,8 @@
     "displayOrder": 328,
     "sourceRefs": {
       "voyageTw": "chabbb048"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb049",
@@ -50563,7 +50891,8 @@
     "displayOrder": 329,
     "sourceRefs": {
       "voyageTw": "chabbb049"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb050",
@@ -50721,7 +51050,8 @@
     "displayOrder": 330,
     "sourceRefs": {
       "voyageTw": "chabbb050"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb051",
@@ -50881,7 +51211,8 @@
     "displayOrder": 331,
     "sourceRefs": {
       "voyageTw": "chabbb051"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb052",
@@ -51035,7 +51366,8 @@
     "displayOrder": 332,
     "sourceRefs": {
       "voyageTw": "chabbb052"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb053",
@@ -51193,7 +51525,8 @@
     "displayOrder": 333,
     "sourceRefs": {
       "voyageTw": "chabbb053"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb054",
@@ -51352,7 +51685,8 @@
     "displayOrder": 334,
     "sourceRefs": {
       "voyageTw": "chabbb054"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb055",
@@ -51518,7 +51852,8 @@
     "displayOrder": 335,
     "sourceRefs": {
       "voyageTw": "chabbb055"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb056",
@@ -51681,7 +52016,8 @@
     "displayOrder": 336,
     "sourceRefs": {
       "voyageTw": "chabbb056"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb057",
@@ -51849,7 +52185,8 @@
     "displayOrder": 337,
     "sourceRefs": {
       "voyageTw": "chabbb057"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb058",
@@ -52001,7 +52338,8 @@
     "displayOrder": 338,
     "sourceRefs": {
       "voyageTw": "chabbb058"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb059",
@@ -52165,7 +52503,8 @@
     "displayOrder": 339,
     "sourceRefs": {
       "voyageTw": "chabbb059"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb060",
@@ -52318,7 +52657,8 @@
     "displayOrder": 340,
     "sourceRefs": {
       "voyageTw": "chabbb060"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb061",
@@ -52474,7 +52814,8 @@
     "displayOrder": 341,
     "sourceRefs": {
       "voyageTw": "chabbb061"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb062",
@@ -52637,7 +52978,8 @@
     "displayOrder": 342,
     "sourceRefs": {
       "voyageTw": "chabbb062"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb063",
@@ -52792,7 +53134,8 @@
     "displayOrder": 343,
     "sourceRefs": {
       "voyageTw": "chabbb063"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb064",
@@ -52958,7 +53301,8 @@
     "displayOrder": 344,
     "sourceRefs": {
       "voyageTw": "chabbb064"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb065",
@@ -53109,7 +53453,8 @@
     "displayOrder": 345,
     "sourceRefs": {
       "voyageTw": "chabbb065"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb066",
@@ -53275,7 +53620,8 @@
     "displayOrder": 346,
     "sourceRefs": {
       "voyageTw": "chabbb066"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb067",
@@ -53431,7 +53777,8 @@
     "displayOrder": 347,
     "sourceRefs": {
       "voyageTw": "chabbb067"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb068",
@@ -53587,7 +53934,8 @@
     "displayOrder": 348,
     "sourceRefs": {
       "voyageTw": "chabbb068"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb069",
@@ -53737,7 +54085,8 @@
     "displayOrder": 349,
     "sourceRefs": {
       "voyageTw": "chabbb069"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb070",
@@ -53885,7 +54234,8 @@
     "displayOrder": 350,
     "sourceRefs": {
       "voyageTw": "chabbb070"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb097",
@@ -54043,7 +54393,8 @@
     "displayOrder": 351,
     "sourceRefs": {
       "voyageTw": "chabbb097"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbb098",
@@ -54197,7 +54548,8 @@
     "displayOrder": 352,
     "sourceRefs": {
       "voyageTw": "chabbb098"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd001",
@@ -54351,7 +54703,8 @@
     "displayOrder": 353,
     "sourceRefs": {
       "voyageTw": "chabbd001"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd002",
@@ -54510,7 +54863,8 @@
     "displayOrder": 354,
     "sourceRefs": {
       "voyageTw": "chabbd002"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd003",
@@ -54673,7 +55027,8 @@
     "displayOrder": 355,
     "sourceRefs": {
       "voyageTw": "chabbd003"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd005",
@@ -54824,7 +55179,8 @@
     "displayOrder": 356,
     "sourceRefs": {
       "voyageTw": "chabbd005"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd006",
@@ -54984,7 +55340,8 @@
     "displayOrder": 357,
     "sourceRefs": {
       "voyageTw": "chabbd006"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd007",
@@ -55150,7 +55507,8 @@
     "displayOrder": 358,
     "sourceRefs": {
       "voyageTw": "chabbd007"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd008",
@@ -55315,7 +55673,8 @@
     "displayOrder": 359,
     "sourceRefs": {
       "voyageTw": "chabbd008"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd010",
@@ -55473,7 +55832,8 @@
     "displayOrder": 360,
     "sourceRefs": {
       "voyageTw": "chabbd010"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd011",
@@ -55636,7 +55996,8 @@
     "displayOrder": 361,
     "sourceRefs": {
       "voyageTw": "chabbd011"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd012",
@@ -55790,7 +56151,8 @@
     "displayOrder": 362,
     "sourceRefs": {
       "voyageTw": "chabbd012"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd013",
@@ -55956,7 +56318,8 @@
     "displayOrder": 363,
     "sourceRefs": {
       "voyageTw": "chabbd013"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd015",
@@ -56100,7 +56463,8 @@
     "displayOrder": 364,
     "sourceRefs": {
       "voyageTw": "chabbd015"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd016",
@@ -56250,7 +56614,8 @@
     "displayOrder": 365,
     "sourceRefs": {
       "voyageTw": "chabbd016"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd017",
@@ -56413,7 +56778,8 @@
     "displayOrder": 366,
     "sourceRefs": {
       "voyageTw": "chabbd017"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd018",
@@ -56563,7 +56929,8 @@
     "displayOrder": 367,
     "sourceRefs": {
       "voyageTw": "chabbd018"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd020",
@@ -56707,7 +57074,8 @@
     "displayOrder": 368,
     "sourceRefs": {
       "voyageTw": "chabbd020"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd021",
@@ -56873,7 +57241,8 @@
     "displayOrder": 369,
     "sourceRefs": {
       "voyageTw": "chabbd021"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd022",
@@ -57034,7 +57403,8 @@
     "displayOrder": 370,
     "sourceRefs": {
       "voyageTw": "chabbd022"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd023",
@@ -57186,7 +57556,8 @@
     "displayOrder": 371,
     "sourceRefs": {
       "voyageTw": "chabbd023"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd024",
@@ -57344,7 +57715,8 @@
     "displayOrder": 372,
     "sourceRefs": {
       "voyageTw": "chabbd024"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd026",
@@ -57503,7 +57875,8 @@
     "displayOrder": 373,
     "sourceRefs": {
       "voyageTw": "chabbd026"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd027",
@@ -57656,7 +58029,8 @@
     "displayOrder": 374,
     "sourceRefs": {
       "voyageTw": "chabbd027"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd028",
@@ -57800,7 +58174,8 @@
     "displayOrder": 375,
     "sourceRefs": {
       "voyageTw": "chabbd028"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd029",
@@ -57951,7 +58326,8 @@
     "displayOrder": 376,
     "sourceRefs": {
       "voyageTw": "chabbd029"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd030",
@@ -58097,7 +58473,8 @@
     "displayOrder": 377,
     "sourceRefs": {
       "voyageTw": "chabbd030"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd031",
@@ -58250,7 +58627,8 @@
     "displayOrder": 378,
     "sourceRefs": {
       "voyageTw": "chabbd031"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd032",
@@ -58412,7 +58790,8 @@
     "displayOrder": 379,
     "sourceRefs": {
       "voyageTw": "chabbd032"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd033",
@@ -58580,7 +58959,8 @@
     "displayOrder": 380,
     "sourceRefs": {
       "voyageTw": "chabbd033"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd034",
@@ -58743,7 +59123,8 @@
     "displayOrder": 381,
     "sourceRefs": {
       "voyageTw": "chabbd034"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd035",
@@ -58898,7 +59279,8 @@
     "displayOrder": 382,
     "sourceRefs": {
       "voyageTw": "chabbd035"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd036",
@@ -59061,7 +59443,8 @@
     "displayOrder": 383,
     "sourceRefs": {
       "voyageTw": "chabbd036"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd038",
@@ -59220,7 +59603,8 @@
     "displayOrder": 384,
     "sourceRefs": {
       "voyageTw": "chabbd038"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd039",
@@ -59378,7 +59762,8 @@
     "displayOrder": 385,
     "sourceRefs": {
       "voyageTw": "chabbd039"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd040",
@@ -59536,7 +59921,8 @@
     "displayOrder": 386,
     "sourceRefs": {
       "voyageTw": "chabbd040"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd042",
@@ -59676,7 +60062,8 @@
     "displayOrder": 387,
     "sourceRefs": {
       "voyageTw": "chabbd042"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd043",
@@ -59838,7 +60225,8 @@
     "displayOrder": 388,
     "sourceRefs": {
       "voyageTw": "chabbd043"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd044",
@@ -59986,7 +60374,8 @@
     "displayOrder": 389,
     "sourceRefs": {
       "voyageTw": "chabbd044"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd045",
@@ -60141,7 +60530,8 @@
     "displayOrder": 390,
     "sourceRefs": {
       "voyageTw": "chabbd045"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd046",
@@ -60300,7 +60690,8 @@
     "displayOrder": 391,
     "sourceRefs": {
       "voyageTw": "chabbd046"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd047",
@@ -60466,7 +60857,8 @@
     "displayOrder": 392,
     "sourceRefs": {
       "voyageTw": "chabbd047"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd048",
@@ -60628,7 +61020,8 @@
     "displayOrder": 393,
     "sourceRefs": {
       "voyageTw": "chabbd048"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd049",
@@ -60789,7 +61182,8 @@
     "displayOrder": 394,
     "sourceRefs": {
       "voyageTw": "chabbd049"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd050",
@@ -60941,7 +61335,8 @@
     "displayOrder": 395,
     "sourceRefs": {
       "voyageTw": "chabbd050"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd051",
@@ -61090,7 +61485,8 @@
     "displayOrder": 396,
     "sourceRefs": {
       "voyageTw": "chabbd051"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd052",
@@ -61242,7 +61638,8 @@
     "displayOrder": 397,
     "sourceRefs": {
       "voyageTw": "chabbd052"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd053",
@@ -61394,7 +61791,8 @@
     "displayOrder": 398,
     "sourceRefs": {
       "voyageTw": "chabbd053"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd054",
@@ -61560,7 +61958,8 @@
     "displayOrder": 399,
     "sourceRefs": {
       "voyageTw": "chabbd054"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd055",
@@ -61704,7 +62103,8 @@
     "displayOrder": 400,
     "sourceRefs": {
       "voyageTw": "chabbd055"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd056",
@@ -61855,7 +62255,8 @@
     "displayOrder": 401,
     "sourceRefs": {
       "voyageTw": "chabbd056"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd057",
@@ -62006,7 +62407,8 @@
     "displayOrder": 402,
     "sourceRefs": {
       "voyageTw": "chabbd057"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd058",
@@ -62171,7 +62573,8 @@
     "displayOrder": 403,
     "sourceRefs": {
       "voyageTw": "chabbd058"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd059",
@@ -62323,7 +62726,8 @@
     "displayOrder": 404,
     "sourceRefs": {
       "voyageTw": "chabbd059"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd060",
@@ -62467,7 +62871,8 @@
     "displayOrder": 405,
     "sourceRefs": {
       "voyageTw": "chabbd060"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd061",
@@ -62626,7 +63031,8 @@
     "displayOrder": 406,
     "sourceRefs": {
       "voyageTw": "chabbd061"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd062",
@@ -62777,7 +63183,8 @@
     "displayOrder": 407,
     "sourceRefs": {
       "voyageTw": "chabbd062"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd063",
@@ -62941,7 +63348,8 @@
     "displayOrder": 408,
     "sourceRefs": {
       "voyageTw": "chabbd063"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbd071",
@@ -63091,7 +63499,8 @@
     "displayOrder": 409,
     "sourceRefs": {
       "voyageTw": "chabbd071"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt001",
@@ -63254,7 +63663,8 @@
     "displayOrder": 410,
     "sourceRefs": {
       "voyageTw": "chabbt001"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt002",
@@ -63413,7 +63823,8 @@
     "displayOrder": 411,
     "sourceRefs": {
       "voyageTw": "chabbt002"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt003",
@@ -63580,7 +63991,8 @@
     "displayOrder": 412,
     "sourceRefs": {
       "voyageTw": "chabbt003"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt004",
@@ -63735,7 +64147,8 @@
     "displayOrder": 413,
     "sourceRefs": {
       "voyageTw": "chabbt004"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt005",
@@ -63886,7 +64299,8 @@
     "displayOrder": 414,
     "sourceRefs": {
       "voyageTw": "chabbt005"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt007",
@@ -64038,7 +64452,8 @@
     "displayOrder": 415,
     "sourceRefs": {
       "voyageTw": "chabbt007"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt008",
@@ -64193,7 +64608,8 @@
     "displayOrder": 416,
     "sourceRefs": {
       "voyageTw": "chabbt008"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt009",
@@ -64345,7 +64761,8 @@
     "displayOrder": 417,
     "sourceRefs": {
       "voyageTw": "chabbt009"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt010",
@@ -64503,7 +64920,8 @@
     "displayOrder": 418,
     "sourceRefs": {
       "voyageTw": "chabbt010"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt011",
@@ -64654,7 +65072,8 @@
     "displayOrder": 419,
     "sourceRefs": {
       "voyageTw": "chabbt011"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt012",
@@ -64818,7 +65237,8 @@
     "displayOrder": 420,
     "sourceRefs": {
       "voyageTw": "chabbt012"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt013",
@@ -64987,7 +65407,8 @@
     "displayOrder": 421,
     "sourceRefs": {
       "voyageTw": "chabbt013"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt014",
@@ -65139,7 +65560,8 @@
     "displayOrder": 422,
     "sourceRefs": {
       "voyageTw": "chabbt014"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt015",
@@ -65291,7 +65713,8 @@
     "displayOrder": 423,
     "sourceRefs": {
       "voyageTw": "chabbt015"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt016",
@@ -65439,7 +65862,8 @@
     "displayOrder": 424,
     "sourceRefs": {
       "voyageTw": "chabbt016"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt017",
@@ -65604,7 +66028,8 @@
     "displayOrder": 425,
     "sourceRefs": {
       "voyageTw": "chabbt017"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt018",
@@ -65767,7 +66192,8 @@
     "displayOrder": 426,
     "sourceRefs": {
       "voyageTw": "chabbt018"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt019",
@@ -65923,7 +66349,8 @@
     "displayOrder": 427,
     "sourceRefs": {
       "voyageTw": "chabbt019"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt020",
@@ -66087,7 +66514,8 @@
     "displayOrder": 428,
     "sourceRefs": {
       "voyageTw": "chabbt020"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt021",
@@ -66239,7 +66667,8 @@
     "displayOrder": 429,
     "sourceRefs": {
       "voyageTw": "chabbt021"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt022",
@@ -66394,7 +66823,8 @@
     "displayOrder": 430,
     "sourceRefs": {
       "voyageTw": "chabbt022"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt023",
@@ -66538,7 +66968,8 @@
     "displayOrder": 431,
     "sourceRefs": {
       "voyageTw": "chabbt023"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt024",
@@ -66705,7 +67136,8 @@
     "displayOrder": 432,
     "sourceRefs": {
       "voyageTw": "chabbt024"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt025",
@@ -66865,7 +67297,8 @@
     "displayOrder": 433,
     "sourceRefs": {
       "voyageTw": "chabbt025"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt026",
@@ -67028,7 +67461,8 @@
     "displayOrder": 434,
     "sourceRefs": {
       "voyageTw": "chabbt026"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt027",
@@ -67194,7 +67628,8 @@
     "displayOrder": 435,
     "sourceRefs": {
       "voyageTw": "chabbt027"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt028",
@@ -67346,7 +67781,8 @@
     "displayOrder": 436,
     "sourceRefs": {
       "voyageTw": "chabbt028"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt029",
@@ -67504,7 +67940,8 @@
     "displayOrder": 437,
     "sourceRefs": {
       "voyageTw": "chabbt029"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt030",
@@ -67663,7 +68100,8 @@
     "displayOrder": 438,
     "sourceRefs": {
       "voyageTw": "chabbt030"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt031",
@@ -67819,7 +68257,8 @@
     "displayOrder": 439,
     "sourceRefs": {
       "voyageTw": "chabbt031"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt032",
@@ -67980,7 +68419,8 @@
     "displayOrder": 440,
     "sourceRefs": {
       "voyageTw": "chabbt032"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt033",
@@ -68141,7 +68581,8 @@
     "displayOrder": 441,
     "sourceRefs": {
       "voyageTw": "chabbt033"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt034",
@@ -68290,7 +68731,8 @@
     "displayOrder": 442,
     "sourceRefs": {
       "voyageTw": "chabbt034"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt035",
@@ -68440,7 +68882,8 @@
     "displayOrder": 443,
     "sourceRefs": {
       "voyageTw": "chabbt035"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt036",
@@ -68586,7 +69029,8 @@
     "displayOrder": 444,
     "sourceRefs": {
       "voyageTw": "chabbt036"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt038",
@@ -68737,7 +69181,8 @@
     "displayOrder": 445,
     "sourceRefs": {
       "voyageTw": "chabbt038"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt039",
@@ -68892,7 +69337,8 @@
     "displayOrder": 446,
     "sourceRefs": {
       "voyageTw": "chabbt039"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt040",
@@ -69038,7 +69484,8 @@
     "displayOrder": 447,
     "sourceRefs": {
       "voyageTw": "chabbt040"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt041",
@@ -69204,7 +69651,8 @@
     "displayOrder": 448,
     "sourceRefs": {
       "voyageTw": "chabbt041"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt042",
@@ -69367,7 +69815,8 @@
     "displayOrder": 449,
     "sourceRefs": {
       "voyageTw": "chabbt042"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt043",
@@ -69517,7 +69966,8 @@
     "displayOrder": 450,
     "sourceRefs": {
       "voyageTw": "chabbt043"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt044",
@@ -69661,7 +70111,8 @@
     "displayOrder": 451,
     "sourceRefs": {
       "voyageTw": "chabbt044"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt045",
@@ -69811,7 +70262,8 @@
     "displayOrder": 452,
     "sourceRefs": {
       "voyageTw": "chabbt045"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt046",
@@ -69974,7 +70426,8 @@
     "displayOrder": 453,
     "sourceRefs": {
       "voyageTw": "chabbt046"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt047",
@@ -70139,7 +70592,8 @@
     "displayOrder": 454,
     "sourceRefs": {
       "voyageTw": "chabbt047"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt048",
@@ -70303,7 +70757,8 @@
     "displayOrder": 455,
     "sourceRefs": {
       "voyageTw": "chabbt048"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt049",
@@ -70465,7 +70920,8 @@
     "displayOrder": 456,
     "sourceRefs": {
       "voyageTw": "chabbt049"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt050",
@@ -70621,7 +71077,8 @@
     "displayOrder": 457,
     "sourceRefs": {
       "voyageTw": "chabbt050"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt052",
@@ -70785,7 +71242,8 @@
     "displayOrder": 458,
     "sourceRefs": {
       "voyageTw": "chabbt052"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt053",
@@ -70941,7 +71399,8 @@
     "displayOrder": 459,
     "sourceRefs": {
       "voyageTw": "chabbt053"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt054",
@@ -71100,7 +71559,8 @@
     "displayOrder": 460,
     "sourceRefs": {
       "voyageTw": "chabbt054"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt055",
@@ -71262,7 +71722,8 @@
     "displayOrder": 461,
     "sourceRefs": {
       "voyageTw": "chabbt055"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabbt077",
@@ -71414,7 +71875,8 @@
     "displayOrder": 462,
     "sourceRefs": {
       "voyageTw": "chabbt077"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb003",
@@ -71562,7 +72024,8 @@
     "displayOrder": 463,
     "sourceRefs": {
       "voyageTw": "chacbb003"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb008",
@@ -71721,7 +72184,8 @@
     "displayOrder": 464,
     "sourceRefs": {
       "voyageTw": "chacbb008"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb010",
@@ -71865,7 +72329,8 @@
     "displayOrder": 465,
     "sourceRefs": {
       "voyageTw": "chacbb010"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb021",
@@ -72013,7 +72478,8 @@
     "displayOrder": 466,
     "sourceRefs": {
       "voyageTw": "chacbb021"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb022",
@@ -72167,7 +72633,8 @@
     "displayOrder": 467,
     "sourceRefs": {
       "voyageTw": "chacbb022"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb023",
@@ -72307,7 +72774,8 @@
     "displayOrder": 468,
     "sourceRefs": {
       "voyageTw": "chacbb023"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb024",
@@ -72457,7 +72925,8 @@
     "displayOrder": 469,
     "sourceRefs": {
       "voyageTw": "chacbb024"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb025",
@@ -72617,7 +73086,8 @@
     "displayOrder": 470,
     "sourceRefs": {
       "voyageTw": "chacbb025"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb027",
@@ -72761,7 +73231,8 @@
     "displayOrder": 471,
     "sourceRefs": {
       "voyageTw": "chacbb027"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb033",
@@ -72907,7 +73378,8 @@
     "displayOrder": 472,
     "sourceRefs": {
       "voyageTw": "chacbb033"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb034",
@@ -73064,7 +73536,8 @@
     "displayOrder": 473,
     "sourceRefs": {
       "voyageTw": "chacbb034"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb037",
@@ -73221,7 +73694,8 @@
     "displayOrder": 474,
     "sourceRefs": {
       "voyageTw": "chacbb037"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb041",
@@ -73361,7 +73835,8 @@
     "displayOrder": 475,
     "sourceRefs": {
       "voyageTw": "chacbb041"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb043",
@@ -73501,7 +73976,8 @@
     "displayOrder": 476,
     "sourceRefs": {
       "voyageTw": "chacbb043"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb047",
@@ -73649,7 +74125,8 @@
     "displayOrder": 477,
     "sourceRefs": {
       "voyageTw": "chacbb047"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb048",
@@ -73799,7 +74276,8 @@
     "displayOrder": 478,
     "sourceRefs": {
       "voyageTw": "chacbb048"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb050",
@@ -73947,7 +74425,8 @@
     "displayOrder": 479,
     "sourceRefs": {
       "voyageTw": "chacbb050"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb052",
@@ -74095,7 +74574,8 @@
     "displayOrder": 480,
     "sourceRefs": {
       "voyageTw": "chacbb052"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb056",
@@ -74255,7 +74735,8 @@
     "displayOrder": 481,
     "sourceRefs": {
       "voyageTw": "chacbb056"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb059",
@@ -74402,7 +74883,8 @@
     "displayOrder": 482,
     "sourceRefs": {
       "voyageTw": "chacbb059"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb060",
@@ -74552,7 +75034,8 @@
     "displayOrder": 483,
     "sourceRefs": {
       "voyageTw": "chacbb060"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd001",
@@ -74696,7 +75179,8 @@
     "displayOrder": 484,
     "sourceRefs": {
       "voyageTw": "chacbd001"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd009",
@@ -74848,7 +75332,8 @@
     "displayOrder": 485,
     "sourceRefs": {
       "voyageTw": "chacbd009"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd014",
@@ -75009,7 +75494,8 @@
     "displayOrder": 486,
     "sourceRefs": {
       "voyageTw": "chacbd014"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd025",
@@ -75161,7 +75647,8 @@
     "displayOrder": 487,
     "sourceRefs": {
       "voyageTw": "chacbd025"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd038",
@@ -75307,7 +75794,8 @@
     "displayOrder": 488,
     "sourceRefs": {
       "voyageTw": "chacbd038"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd045",
@@ -75466,7 +75954,8 @@
     "displayOrder": 489,
     "sourceRefs": {
       "voyageTw": "chacbd045"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd051",
@@ -75614,7 +76103,8 @@
     "displayOrder": 490,
     "sourceRefs": {
       "voyageTw": "chacbd051"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbd052",
@@ -75775,7 +76265,8 @@
     "displayOrder": 491,
     "sourceRefs": {
       "voyageTw": "chacbd052"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt002",
@@ -75935,7 +76426,8 @@
     "displayOrder": 492,
     "sourceRefs": {
       "voyageTw": "chacbt002"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt005",
@@ -76094,7 +76586,8 @@
     "displayOrder": 493,
     "sourceRefs": {
       "voyageTw": "chacbt005"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt007",
@@ -76252,7 +76745,8 @@
     "displayOrder": 494,
     "sourceRefs": {
       "voyageTw": "chacbt007"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt018",
@@ -76402,7 +76896,8 @@
     "displayOrder": 495,
     "sourceRefs": {
       "voyageTw": "chacbt018"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt022",
@@ -76552,7 +77047,8 @@
     "displayOrder": 496,
     "sourceRefs": {
       "voyageTw": "chacbt022"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt024",
@@ -76702,7 +77198,8 @@
     "displayOrder": 497,
     "sourceRefs": {
       "voyageTw": "chacbt024"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt028",
@@ -76856,7 +77353,8 @@
     "displayOrder": 498,
     "sourceRefs": {
       "voyageTw": "chacbt028"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt031",
@@ -77018,7 +77516,8 @@
     "displayOrder": 499,
     "sourceRefs": {
       "voyageTw": "chacbt031"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt036",
@@ -77173,7 +77672,8 @@
     "displayOrder": 500,
     "sourceRefs": {
       "voyageTw": "chacbt036"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt039",
@@ -77337,7 +77837,8 @@
     "displayOrder": 501,
     "sourceRefs": {
       "voyageTw": "chacbt039"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt040",
@@ -77485,7 +77986,8 @@
     "displayOrder": 502,
     "sourceRefs": {
       "voyageTw": "chacbt040"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt041",
@@ -77636,7 +78138,8 @@
     "displayOrder": 503,
     "sourceRefs": {
       "voyageTw": "chacbt041"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbt046",
@@ -77784,7 +78287,8 @@
     "displayOrder": 504,
     "sourceRefs": {
       "voyageTw": "chacbt046"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabt019",
@@ -77936,7 +78440,8 @@
     "displayOrder": 505,
     "sourceRefs": {
       "voyageTw": "chabT019"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabt020",
@@ -78088,7 +78593,8 @@
     "displayOrder": 506,
     "sourceRefs": {
       "voyageTw": "chabT020"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabt026",
@@ -78247,7 +78753,8 @@
     "displayOrder": 507,
     "sourceRefs": {
       "voyageTw": "chabT026"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabt029",
@@ -78395,7 +78902,8 @@
     "displayOrder": 508,
     "sourceRefs": {
       "voyageTw": "chabT029"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chabt030",
@@ -78539,7 +79047,8 @@
     "displayOrder": 509,
     "sourceRefs": {
       "voyageTw": "chabT030"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chast053",
@@ -78679,7 +79188,8 @@
     "displayOrder": 510,
     "sourceRefs": {
       "voyageTw": "chasT053"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chast067",
@@ -78823,7 +79333,8 @@
     "displayOrder": 511,
     "sourceRefs": {
       "voyageTw": "chasT067"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chast068",
@@ -78967,7 +79478,8 @@
     "displayOrder": 512,
     "sourceRefs": {
       "voyageTw": "chasT068"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chast069",
@@ -79111,7 +79623,8 @@
     "displayOrder": 513,
     "sourceRefs": {
       "voyageTw": "chasT069"
-    }
+    },
+    "visualGradeId": "grade_3"
   },
   {
     "id": "officer_chacbb002",
@@ -79275,7 +79788,8 @@
     "displayOrder": 514,
     "sourceRefs": {
       "voyageTw": "chacbb002"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb004",
@@ -79427,7 +79941,8 @@
     "displayOrder": 515,
     "sourceRefs": {
       "voyageTw": "chacbb004"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb005",
@@ -79584,7 +80099,8 @@
     "displayOrder": 516,
     "sourceRefs": {
       "voyageTw": "chacbb005"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb006",
@@ -79742,7 +80258,8 @@
     "displayOrder": 517,
     "sourceRefs": {
       "voyageTw": "chacbb006"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb009",
@@ -79906,7 +80423,8 @@
     "displayOrder": 518,
     "sourceRefs": {
       "voyageTw": "chacbb009"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb011",
@@ -80061,7 +80579,8 @@
     "displayOrder": 519,
     "sourceRefs": {
       "voyageTw": "chacbb011"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb012",
@@ -80222,7 +80741,8 @@
     "displayOrder": 520,
     "sourceRefs": {
       "voyageTw": "chacbb012"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb013",
@@ -80382,7 +80902,8 @@
     "displayOrder": 521,
     "sourceRefs": {
       "voyageTw": "chacbb013"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb014",
@@ -80533,7 +81054,8 @@
     "displayOrder": 522,
     "sourceRefs": {
       "voyageTw": "chacbb014"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb017",
@@ -80692,7 +81214,8 @@
     "displayOrder": 523,
     "sourceRefs": {
       "voyageTw": "chacbb017"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb020",
@@ -80832,7 +81355,8 @@
     "displayOrder": 524,
     "sourceRefs": {
       "voyageTw": "chacbb020"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb026",
@@ -80987,7 +81511,8 @@
     "displayOrder": 525,
     "sourceRefs": {
       "voyageTw": "chacbb026"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb028",
@@ -81139,7 +81664,8 @@
     "displayOrder": 526,
     "sourceRefs": {
       "voyageTw": "chacbb028"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb029",
@@ -81289,7 +81815,8 @@
     "displayOrder": 527,
     "sourceRefs": {
       "voyageTw": "chacbb029"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb030",
@@ -81454,7 +81981,8 @@
     "displayOrder": 528,
     "sourceRefs": {
       "voyageTw": "chacbb030"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb031",
@@ -81604,7 +82132,8 @@
     "displayOrder": 529,
     "sourceRefs": {
       "voyageTw": "chacbb031"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb038",
@@ -81755,7 +82284,8 @@
     "displayOrder": 530,
     "sourceRefs": {
       "voyageTw": "chacbb038"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb039",
@@ -81914,7 +82444,8 @@
     "displayOrder": 531,
     "sourceRefs": {
       "voyageTw": "chacbb039"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb040",
@@ -82066,7 +82597,8 @@
     "displayOrder": 532,
     "sourceRefs": {
       "voyageTw": "chacbb040"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb042",
@@ -82226,7 +82758,8 @@
     "displayOrder": 533,
     "sourceRefs": {
       "voyageTw": "chacbb042"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb044",
@@ -82387,7 +82920,8 @@
     "displayOrder": 534,
     "sourceRefs": {
       "voyageTw": "chacbb044"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb045",
@@ -82541,7 +83075,8 @@
     "displayOrder": 535,
     "sourceRefs": {
       "voyageTw": "chacbb045"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb049",
@@ -82681,7 +83216,8 @@
     "displayOrder": 536,
     "sourceRefs": {
       "voyageTw": "chacbb049"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb051",
@@ -82833,7 +83369,8 @@
     "displayOrder": 537,
     "sourceRefs": {
       "voyageTw": "chacbb051"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb053",
@@ -82983,7 +83520,8 @@
     "displayOrder": 538,
     "sourceRefs": {
       "voyageTw": "chacbb053"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb054",
@@ -83153,7 +83691,8 @@
     "displayOrder": 539,
     "sourceRefs": {
       "voyageTw": "chacbb054"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb057",
@@ -83309,7 +83848,8 @@
     "displayOrder": 540,
     "sourceRefs": {
       "voyageTw": "chacbb057"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb058",
@@ -83465,7 +84005,8 @@
     "displayOrder": 541,
     "sourceRefs": {
       "voyageTw": "chacbb058"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb061",
@@ -83609,7 +84150,8 @@
     "displayOrder": 542,
     "sourceRefs": {
       "voyageTw": "chacbb061"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbb062",
@@ -83768,7 +84310,8 @@
     "displayOrder": 543,
     "sourceRefs": {
       "voyageTw": "chacbb062"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd002",
@@ -83931,7 +84474,8 @@
     "displayOrder": 544,
     "sourceRefs": {
       "voyageTw": "chacbd002"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd003",
@@ -84087,7 +84631,8 @@
     "displayOrder": 545,
     "sourceRefs": {
       "voyageTw": "chacbd003"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd004",
@@ -84231,7 +84776,8 @@
     "displayOrder": 546,
     "sourceRefs": {
       "voyageTw": "chacbd004"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd005",
@@ -84394,7 +84940,8 @@
     "displayOrder": 547,
     "sourceRefs": {
       "voyageTw": "chacbd005"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd007",
@@ -84549,7 +85096,8 @@
     "displayOrder": 548,
     "sourceRefs": {
       "voyageTw": "chacbd007"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd008",
@@ -84712,7 +85260,8 @@
     "displayOrder": 549,
     "sourceRefs": {
       "voyageTw": "chacbd008"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd010",
@@ -84863,7 +85412,8 @@
     "displayOrder": 550,
     "sourceRefs": {
       "voyageTw": "chacbd010"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd011",
@@ -85026,7 +85576,8 @@
     "displayOrder": 551,
     "sourceRefs": {
       "voyageTw": "chacbd011"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd012",
@@ -85176,7 +85727,8 @@
     "displayOrder": 552,
     "sourceRefs": {
       "voyageTw": "chacbd012"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd013",
@@ -85339,7 +85891,8 @@
     "displayOrder": 553,
     "sourceRefs": {
       "voyageTw": "chacbd013"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd015",
@@ -85483,7 +86036,8 @@
     "displayOrder": 554,
     "sourceRefs": {
       "voyageTw": "chacbd015"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd016",
@@ -85639,7 +86193,8 @@
     "displayOrder": 555,
     "sourceRefs": {
       "voyageTw": "chacbd016"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd017",
@@ -85789,7 +86344,8 @@
     "displayOrder": 556,
     "sourceRefs": {
       "voyageTw": "chacbd017"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd018",
@@ -85929,7 +86485,8 @@
     "displayOrder": 557,
     "sourceRefs": {
       "voyageTw": "chacbd018"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd019",
@@ -86073,7 +86630,8 @@
     "displayOrder": 558,
     "sourceRefs": {
       "voyageTw": "chacbd019"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd020",
@@ -86217,7 +86775,8 @@
     "displayOrder": 559,
     "sourceRefs": {
       "voyageTw": "chacbd020"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd021",
@@ -86357,7 +86916,8 @@
     "displayOrder": 560,
     "sourceRefs": {
       "voyageTw": "chacbd021"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd022",
@@ -86508,7 +87068,8 @@
     "displayOrder": 561,
     "sourceRefs": {
       "voyageTw": "chacbd022"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd023",
@@ -86664,7 +87225,8 @@
     "displayOrder": 562,
     "sourceRefs": {
       "voyageTw": "chacbd023"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd024",
@@ -86804,7 +87366,8 @@
     "displayOrder": 563,
     "sourceRefs": {
       "voyageTw": "chacbd024"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd026",
@@ -86968,7 +87531,8 @@
     "displayOrder": 564,
     "sourceRefs": {
       "voyageTw": "chacbd026"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd027",
@@ -87112,7 +87676,8 @@
     "displayOrder": 565,
     "sourceRefs": {
       "voyageTw": "chacbd027"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd028",
@@ -87266,7 +87831,8 @@
     "displayOrder": 566,
     "sourceRefs": {
       "voyageTw": "chacbd028"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd029",
@@ -87410,7 +87976,8 @@
     "displayOrder": 567,
     "sourceRefs": {
       "voyageTw": "chacbd029"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd030",
@@ -87565,7 +88132,8 @@
     "displayOrder": 568,
     "sourceRefs": {
       "voyageTw": "chacbd030"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd032",
@@ -87722,7 +88290,8 @@
     "displayOrder": 569,
     "sourceRefs": {
       "voyageTw": "chacbd032"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd033",
@@ -87874,7 +88443,8 @@
     "displayOrder": 570,
     "sourceRefs": {
       "voyageTw": "chacbd033"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd034",
@@ -88029,7 +88599,8 @@
     "displayOrder": 571,
     "sourceRefs": {
       "voyageTw": "chacbd034"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd035",
@@ -88194,7 +88765,8 @@
     "displayOrder": 572,
     "sourceRefs": {
       "voyageTw": "chacbd035"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd036",
@@ -88355,7 +88927,8 @@
     "displayOrder": 573,
     "sourceRefs": {
       "voyageTw": "chacbd036"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd037",
@@ -88511,7 +89084,8 @@
     "displayOrder": 574,
     "sourceRefs": {
       "voyageTw": "chacbd037"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd039",
@@ -88662,7 +89236,8 @@
     "displayOrder": 575,
     "sourceRefs": {
       "voyageTw": "chacbd039"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd040",
@@ -88817,7 +89392,8 @@
     "displayOrder": 576,
     "sourceRefs": {
       "voyageTw": "chacbd040"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd041",
@@ -88965,7 +89541,8 @@
     "displayOrder": 577,
     "sourceRefs": {
       "voyageTw": "chacbd041"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd042",
@@ -89120,7 +89697,8 @@
     "displayOrder": 578,
     "sourceRefs": {
       "voyageTw": "chacbd042"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd043",
@@ -89281,7 +89859,8 @@
     "displayOrder": 579,
     "sourceRefs": {
       "voyageTw": "chacbd043"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd044",
@@ -89425,7 +90004,8 @@
     "displayOrder": 580,
     "sourceRefs": {
       "voyageTw": "chacbd044"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd046",
@@ -89581,7 +90161,8 @@
     "displayOrder": 581,
     "sourceRefs": {
       "voyageTw": "chacbd046"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd047",
@@ -89738,7 +90319,8 @@
     "displayOrder": 582,
     "sourceRefs": {
       "voyageTw": "chacbd047"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd048",
@@ -89888,7 +90470,8 @@
     "displayOrder": 583,
     "sourceRefs": {
       "voyageTw": "chacbd048"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd049",
@@ -90042,7 +90625,8 @@
     "displayOrder": 584,
     "sourceRefs": {
       "voyageTw": "chacbd049"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd050",
@@ -90194,7 +90778,8 @@
     "displayOrder": 585,
     "sourceRefs": {
       "voyageTw": "chacbd050"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd053",
@@ -90345,7 +90930,8 @@
     "displayOrder": 586,
     "sourceRefs": {
       "voyageTw": "chacbd053"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd054",
@@ -90503,7 +91089,8 @@
     "displayOrder": 587,
     "sourceRefs": {
       "voyageTw": "chacbd054"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbd055",
@@ -90657,7 +91244,8 @@
     "displayOrder": 588,
     "sourceRefs": {
       "voyageTw": "chacbd055"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt003",
@@ -90825,7 +91413,8 @@
     "displayOrder": 589,
     "sourceRefs": {
       "voyageTw": "chacbt003"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt004",
@@ -90975,7 +91564,8 @@
     "displayOrder": 590,
     "sourceRefs": {
       "voyageTw": "chacbt004"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt006",
@@ -91131,7 +91721,8 @@
     "displayOrder": 591,
     "sourceRefs": {
       "voyageTw": "chacbt006"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt008",
@@ -91284,7 +91875,8 @@
     "displayOrder": 592,
     "sourceRefs": {
       "voyageTw": "chacbt008"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt009",
@@ -91428,7 +92020,8 @@
     "displayOrder": 593,
     "sourceRefs": {
       "voyageTw": "chacbt009"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt010",
@@ -91589,7 +92182,8 @@
     "displayOrder": 594,
     "sourceRefs": {
       "voyageTw": "chacbt010"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt011",
@@ -91739,7 +92333,8 @@
     "displayOrder": 595,
     "sourceRefs": {
       "voyageTw": "chacbt011"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt013",
@@ -91879,7 +92474,8 @@
     "displayOrder": 596,
     "sourceRefs": {
       "voyageTw": "chacbt013"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt014",
@@ -92030,7 +92626,8 @@
     "displayOrder": 597,
     "sourceRefs": {
       "voyageTw": "chacbt014"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt016",
@@ -92182,7 +92779,8 @@
     "displayOrder": 598,
     "sourceRefs": {
       "voyageTw": "chacbt016"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt017",
@@ -92328,7 +92926,8 @@
     "displayOrder": 599,
     "sourceRefs": {
       "voyageTw": "chacbt017"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt019",
@@ -92478,7 +93077,8 @@
     "displayOrder": 600,
     "sourceRefs": {
       "voyageTw": "chacbt019"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt020",
@@ -92622,7 +93222,8 @@
     "displayOrder": 601,
     "sourceRefs": {
       "voyageTw": "chacbt020"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt021",
@@ -92774,7 +93375,8 @@
     "displayOrder": 602,
     "sourceRefs": {
       "voyageTw": "chacbt021"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt023",
@@ -92923,7 +93525,8 @@
     "displayOrder": 603,
     "sourceRefs": {
       "voyageTw": "chacbt023"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt025",
@@ -93070,7 +93673,8 @@
     "displayOrder": 604,
     "sourceRefs": {
       "voyageTw": "chacbt025"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt026",
@@ -93230,7 +93834,8 @@
     "displayOrder": 605,
     "sourceRefs": {
       "voyageTw": "chacbt026"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt027",
@@ -93381,7 +93986,8 @@
     "displayOrder": 606,
     "sourceRefs": {
       "voyageTw": "chacbt027"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt029",
@@ -93536,7 +94142,8 @@
     "displayOrder": 607,
     "sourceRefs": {
       "voyageTw": "chacbt029"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt030",
@@ -93691,7 +94298,8 @@
     "displayOrder": 608,
     "sourceRefs": {
       "voyageTw": "chacbt030"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt032",
@@ -93849,7 +94457,8 @@
     "displayOrder": 609,
     "sourceRefs": {
       "voyageTw": "chacbt032"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt033",
@@ -94000,7 +94609,8 @@
     "displayOrder": 610,
     "sourceRefs": {
       "voyageTw": "chacbt033"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt034",
@@ -94158,7 +94768,8 @@
     "displayOrder": 611,
     "sourceRefs": {
       "voyageTw": "chacbt034"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt035",
@@ -94310,7 +94921,8 @@
     "displayOrder": 612,
     "sourceRefs": {
       "voyageTw": "chacbt035"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt037",
@@ -94454,7 +95066,8 @@
     "displayOrder": 613,
     "sourceRefs": {
       "voyageTw": "chacbt037"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt038",
@@ -94608,7 +95221,8 @@
     "displayOrder": 614,
     "sourceRefs": {
       "voyageTw": "chacbt038"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt042",
@@ -94760,7 +95374,8 @@
     "displayOrder": 615,
     "sourceRefs": {
       "voyageTw": "chacbt042"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt043",
@@ -94925,7 +95540,8 @@
     "displayOrder": 616,
     "sourceRefs": {
       "voyageTw": "chacbt043"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt044",
@@ -95069,7 +95685,8 @@
     "displayOrder": 617,
     "sourceRefs": {
       "voyageTw": "chacbt044"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt048",
@@ -95218,7 +95835,8 @@
     "displayOrder": 618,
     "sourceRefs": {
       "voyageTw": "chacbt048"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt049",
@@ -95377,7 +95995,8 @@
     "displayOrder": 619,
     "sourceRefs": {
       "voyageTw": "chacbt049"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt050",
@@ -95538,7 +96157,8 @@
     "displayOrder": 620,
     "sourceRefs": {
       "voyageTw": "chacbt050"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt051",
@@ -95690,7 +96310,8 @@
     "displayOrder": 621,
     "sourceRefs": {
       "voyageTw": "chacbt051"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt052",
@@ -95853,7 +96474,8 @@
     "displayOrder": 622,
     "sourceRefs": {
       "voyageTw": "chacbt052"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt053",
@@ -96012,7 +96634,8 @@
     "displayOrder": 623,
     "sourceRefs": {
       "voyageTw": "chacbt053"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt054",
@@ -96162,7 +96785,8 @@
     "displayOrder": 624,
     "sourceRefs": {
       "voyageTw": "chacbt054"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt055",
@@ -96323,7 +96947,8 @@
     "displayOrder": 625,
     "sourceRefs": {
       "voyageTw": "chacbt055"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt056",
@@ -96482,7 +97107,8 @@
     "displayOrder": 626,
     "sourceRefs": {
       "voyageTw": "chacbt056"
-    }
+    },
+    "visualGradeId": "grade_2"
   },
   {
     "id": "officer_chacbt057",
@@ -96644,6 +97270,7 @@
     "displayOrder": 627,
     "sourceRefs": {
       "voyageTw": "chacbt057"
-    }
+    },
+    "visualGradeId": "grade_2"
   }
 ]

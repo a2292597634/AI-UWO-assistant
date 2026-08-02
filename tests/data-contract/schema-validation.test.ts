@@ -50,4 +50,45 @@ describe('canonical JSON Schemas', () => {
         .map((finding) => finding.code),
     ).toContain('SCHEMA_ADDITIONAL_PROPERTY')
   })
+
+  it('requires valid transparent bounds for UI sources without breaking legacy assets', () => {
+    const assets = readJson('tests/fixtures/canonical/assets.json') as Array<
+      Record<string, unknown>
+    >
+    const legacyAsset = assets[0]
+    if (legacyAsset === undefined) throw new Error('fixture requires an asset')
+    const source = legacyAsset.source as Record<string, unknown>
+    const uiAsset = {
+      ...legacyAsset,
+      id: 'ui_fixture',
+      kind: 'ui-image',
+      ownerType: 'ui',
+      ownerId: 'ui_fixture',
+      source: { ...source, downloadedAt: '2026-08-01' },
+    }
+
+    expect(validator.validate('assets', uiAsset).map((finding) => finding.code)).toContain(
+      'SCHEMA_REQUIRED',
+    )
+    expect(
+      validator.validate('assets', {
+        ...uiAsset,
+        source: {
+          ...uiAsset.source,
+          transparentBounds: { left: 0, top: 0, width: source.width, height: source.height },
+        },
+      }),
+    ).toEqual([])
+    expect(
+      validator
+        .validate('assets', {
+          ...uiAsset,
+          source: {
+            ...uiAsset.source,
+            transparentBounds: { left: -1, top: 0, width: 1, height: 1 },
+          },
+        })
+        .map((finding) => finding.code),
+    ).toContain('SCHEMA_MINIMUM')
+  })
 })

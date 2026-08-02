@@ -1,87 +1,164 @@
 <scroll-view class="detail-page" scroll-y wx:if="{{officer}}">
-  <view class="hero">
-    <image src="{{officer.portraitPath}}" mode="aspectFill" class="hero-portrait" binderror="onPortraitError" />
-    <view class="hero-fb" wx:if="{{portraitFail}}">
-      <text class="hero-fb-text">{{officer.name[0]}}</text>
-    </view>
-    <view class="hero-overlay">
-      <view class="rarity-badge rarity-{{officer.rarityName}}"><text class="rarity-letter">{{officer.rarityName}}</text></view>
-      <text class="hero-name">{{officer.name}}</text>
-      <view class="hero-meta">
-        <text class="hero-tag">{{officer.jobName}}</text>
-        <text class="hero-tag">{{officer.genderName}}</text>
-        <text class="hero-tag">{{officer.nationalityName}}</text>
+  <view class="dossier-card">
+    <view class="dossier-portrait" aria-label="{{officer.name}}頭像">
+      <image
+        wx:if="{{officer.visuals.framePath && !frameFail}}"
+        class="portrait-layer portrait-frame"
+        src="{{officer.visuals.framePath}}"
+        mode="aspectFill"
+        binderror="onPortraitLayerError"
+        data-layer="frameFail"
+      />
+      <image
+        wx:if="{{!portraitFail}}"
+        class="portrait-layer portrait-photo"
+        src="{{officer.portraitPath}}"
+        mode="aspectFill"
+        binderror="onPortraitError"
+      />
+      <view wx:else class="portrait-layer portrait-fallback">
+        <text>{{officer.name[0]}}</text>
       </view>
+      <image
+        wx:if="{{officer.visuals.rarityIconPath && !rarityIconFail}}"
+        class="portrait-rarity"
+        src="{{officer.visuals.rarityIconPath}}"
+        mode="aspectFit"
+        binderror="onPortraitLayerError"
+        data-layer="rarityIconFail"
+      />
+      <image
+        wx:if="{{officer.visuals.typeIconPath && !typeIconFail}}"
+        class="portrait-type"
+        src="{{officer.visuals.typeIconPath}}"
+        mode="aspectFit"
+        binderror="onPortraitLayerError"
+        data-layer="typeIconFail"
+      />
     </view>
-  </view>
 
-  <view class="section">
-    <text class="section-title">語言</text>
-    <view class="tag-row">
-      <text wx:for="{{officer.languages}}" wx:key="languageId" class="tag">{{item.name}} Lv.{{item.level}}</text>
-    </view>
-  </view>
-
-  <view class="section" wx:if="{{activeSkills.length > 0}}">
-    <text class="section-title">主動技能</text>
-    <view class="skill-list">
-      <view wx:for="{{activeSkills}}" wx:key="skillId" class="skill-card">
-        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon"
-               bindtap="onSkillTap" data-skill-id="{{item.skillId}}" />
-        <view class="skill-body">
-          <text class="skill-name">{{item.name}}</text>
-          <text class="skill-detail">Lv.{{item.level}} / 解鎖 Lv.{{item.unlockLevel}}</text>
+    <view class="dossier-identity">
+      <text class="dossier-name">{{officer.name}}</text>
+      <text class="dossier-job">{{officer.jobName}}</text>
+      <view class="identity-grid">
+        <view class="identity-fact">
+          <text class="identity-label">稀有度</text>
+          <text class="identity-value">{{officer.rarityName}}</text>
+        </view>
+        <view class="identity-fact">
+          <text class="identity-label">類型</text>
+          <text class="identity-value">{{officer.typeName}}</text>
+        </view>
+        <view class="identity-fact">
+          <text class="identity-label">性別</text>
+          <text class="identity-value">{{officer.genderName}}</text>
+        </view>
+        <view class="identity-fact">
+          <text class="identity-label">國籍</text>
+          <text class="identity-value">{{officer.nationalityName}}</text>
         </view>
       </view>
+      <text class="identity-languages">語言：{{officer.languageSummary}}</text>
     </view>
   </view>
 
-  <view class="section" wx:if="{{passiveSkills.length > 0}}">
-    <text class="section-title">被動技能</text>
+  <view class="content-section" wx:if="{{activeSkills.length > 0}}">
+    <view class="section-heading">
+      <text class="section-title">主動技能</text>
+      <text class="section-count">{{activeSkills.length}} 項</text>
+    </view>
     <view class="skill-list">
-      <view wx:for="{{passiveSkills}}" wx:key="skillId" class="skill-card">
-        <image src="{{item.iconPath}}" mode="aspectFit" class="skill-icon"
-               bindtap="onSkillTap" data-skill-id="{{item.skillId}}" />
+      <view
+        wx:for="{{activeSkills}}"
+        wx:key="skillId"
+        class="skill-card"
+        role="button"
+        aria-label="查看{{item.name}}完整說明"
+        bindtap="onSkillTap"
+        data-skill-id="{{item.skillId}}"
+      >
+        <image class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" />
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>
-          <text class="skill-detail">Lv.{{item.level}} / 解鎖 Lv.{{item.unlockLevel}}</text>
+          <view class="skill-levels">
+            <text class="skill-current">目前 Lv.{{item.level}}</text>
+            <text class="skill-unlock">Lv.{{item.unlockLevel}} 解鎖</text>
+          </view>
         </view>
+        <text class="skill-action">查看詳情</text>
       </view>
     </view>
   </view>
 
-  <view class="section">
+  <view class="content-section" wx:if="{{passiveSkills.length > 0}}">
+    <view class="section-heading">
+      <text class="section-title">被動技能</text>
+      <text class="section-count">{{passiveSkills.length}} 項</text>
+    </view>
+    <view class="skill-list">
+      <view
+        wx:for="{{passiveSkills}}"
+        wx:key="skillId"
+        class="skill-card"
+        role="button"
+        aria-label="查看{{item.name}}完整說明"
+        bindtap="onSkillTap"
+        data-skill-id="{{item.skillId}}"
+      >
+        <image class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" />
+        <view class="skill-body">
+          <text class="skill-name">{{item.name}}</text>
+          <view class="skill-levels">
+            <text class="skill-current">目前 Lv.{{item.level}}</text>
+            <text class="skill-unlock">Lv.{{item.unlockLevel}} 解鎖</text>
+          </view>
+        </view>
+        <text class="skill-action">查看詳情</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content-section language-section">
+    <view class="section-heading">
+      <text class="section-title">語言</text>
+      <text class="section-count">{{officer.languages.length}} 種</text>
+    </view>
+    <view class="language-list" wx:if="{{officer.languages.length > 0}}">
+      <view wx:for="{{officer.languages}}" wx:key="languageId" class="language-item">
+        <text class="language-name">{{item.name}}</text>
+        <text class="language-level">Lv.{{item.level}}</text>
+      </view>
+    </view>
+    <text wx:else class="empty-copy">無語言資料</text>
+  </view>
+
+  <view class="content-section recruitment-section">
     <text class="section-title">招募資訊</text>
-    <view class="recruit-row">
-      <text class="recruit-label">城市</text>
-      <text class="recruit-value">{{officer.recruitment.cityText}}</text>
-    </view>
-    <view class="recruit-row" wx:if="{{officer.recruitment.requirementName}}">
-      <text class="recruit-label">條件</text>
-      <text class="recruit-value">{{officer.recruitment.requirementName}}</text>
-    </view>
-    <view class="recruit-row" wx:if="{{officer.recruitment.note}}">
-      <text class="recruit-label">備註</text>
-      <text class="recruit-value">{{officer.recruitment.note}}</text>
+    <view class="recruitment-list">
+      <view class="recruitment-row">
+        <text class="recruitment-label">城市</text>
+        <text class="recruitment-value">{{officer.recruitment.cityText}}</text>
+      </view>
+      <view class="recruitment-row" wx:if="{{officer.recruitment.requirementName}}">
+        <text class="recruitment-label">條件</text>
+        <text class="recruitment-value">{{officer.recruitment.requirementName}}</text>
+      </view>
+      <view class="recruitment-row" wx:if="{{officer.recruitment.note}}">
+        <text class="recruitment-label">備註</text>
+        <text class="recruitment-value">{{officer.recruitment.note}}</text>
+      </view>
     </view>
   </view>
+
+  <view class="page-spacer"></view>
 </scroll-view>
 
-<!-- 技能描述浮層 -->
-<view class="tooltip-mask" wx:if="{{tooltipSkill}}" bindtap="onTooltipDismiss">
-  <view class="tooltip-popup" catchtap="">
-    <image src="{{tooltipSkill.iconPath}}" mode="aspectFit" class="tooltip-icon" />
-    <text class="tooltip-name">{{tooltipSkill.name}}</text>
-    <text class="tooltip-level">Lv.{{tooltipSkill.level}} / 解鎖 Lv.{{tooltipSkill.unlockLevel}}</text>
-    <view class="tooltip-divider"></view>
-    <text class="tooltip-desc">{{tooltipSkill.description}}</text>
-    <view class="tooltip-divider" wx:if="{{tooltipSkill.levelInfo}}"></view>
-    <text class="tooltip-level-info" wx:if="{{tooltipSkill.levelInfo}}">{{tooltipSkill.levelInfo}}</text>
-    <view class="tooltip-lookup" bindtap="onReverseLookup">
-      <text>查看擁有此技能的航海士</text>
-    </view>
-    <view class="tooltip-close" bindtap="onTooltipDismiss">
-      <text class="tooltip-close-text">關閉</text>
-    </view>
-  </view>
+<view wx:else class="detail-empty">
+  <text>找不到航海士資料</text>
 </view>
+
+<skill-sheet
+  skill="{{sheetSkill}}"
+  bind:dismiss="onSheetDismiss"
+  bind:reverselookup="onReverseLookup"
+/>

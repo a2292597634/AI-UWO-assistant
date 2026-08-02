@@ -9,44 +9,20 @@ import {
   enrichCatalogWithIcons,
   preservePortraitFails,
   buildViewMaps,
+  buildCatalogFilterOptions,
   PAGE_SIZE,
 } from '../../presenters/catalog-presenter'
+import { buildSkillSheet } from '../../presenters/skill-sheet'
 import { getDatasetString, isCatalogFilterField } from '../../contracts/page-events'
 
-import type { CatalogRowView, CatalogViewMaps } from '../../presenters/catalog-presenter'
+import type {
+  CatalogRowView,
+  CatalogViewMaps,
+  FilterOption,
+} from '../../presenters/catalog-presenter'
+import type { SkillSheetView } from '../../presenters/skill-sheet'
 import type { CatalogFilterState, SkillKindFilter } from '../../contracts/filter-state'
-import type { RuntimeSkill, RuntimeDictionaryItem } from '../../contracts/runtime-data'
-
-// ── Icon mappings for filter chips ──
-
-interface FilterOption {
-  id: string
-  name: string
-  icon: string
-}
-
-const RARITY_ICONS: Record<string, string> = {
-  rarity_5: '◆', // S — gold
-  rarity_4: '◆', // A — silver
-  rarity_3: '◆', // B — bronze
-  rarity_2: '◆', // C — dark
-}
-
-const TYPE_ICONS: Record<string, string> = {
-  type_class_1: '🧭', // 冒險
-  type_class_2: '💰', // 交易
-  type_class_3: '⚔️', // 戰鬥
-}
-
-const GENDER_ICONS: Record<string, string> = {
-  gender_f: '♀',
-  gender_m: '♂',
-}
-
-/** Attach icon glyphs to raw dictionary items for WXML rendering. */
-function withIcons(items: RuntimeDictionaryItem[], map: Record<string, string>): FilterOption[] {
-  return items.map((it) => ({ ...it, icon: map[it.id] ?? '' }))
-}
+import type { RuntimeSkill } from '../../contracts/runtime-data'
 
 // ── Helpers ──
 
@@ -56,22 +32,27 @@ const eventDataset = (e: WechatMiniprogram.BaseEvent): Record<string, unknown> =
 
 // ── Page instance state (not reactive) ──
 
-const _state = {
-  _enrichedCatalog: [] as CatalogRowView[],
-  _filteredAll: [] as CatalogRowView[],
-  _skills: {} as Record<string, RuntimeSkill>,
-  _filterState: createEmptyFilterState(),
+interface CatalogPageState {
+  _enrichedCatalog: CatalogRowView[]
+  _filteredAll: CatalogRowView[]
+  _skills: Record<string, RuntimeSkill>
+  _filterState: CatalogFilterState
 }
 
-// ── Skill tooltip view ──
+const pageStateByInstance = new WeakMap<object, CatalogPageState>()
 
-interface SkillTooltip {
-  skillId: string
-  name: string
-  iconPath: string
-  description: string
-  levelInfo: string
-  kind: 'active' | 'passive'
+const getPageState = (page: object): CatalogPageState => {
+  let state = pageStateByInstance.get(page)
+  if (!state) {
+    state = {
+      _enrichedCatalog: [],
+      _filteredAll: [],
+      _skills: {},
+      _filterState: createEmptyFilterState(),
+    }
+    pageStateByInstance.set(page, state)
+  }
+  return state
 }
 
 // ── Page data type (explicit, so setData sees the right shape) ──
@@ -83,8 +64,7 @@ interface PageData extends CatalogViewMaps {
   filterCount: number
   hasActiveFilters: boolean
   hasMore: boolean
-  // Skill tooltip
-  tooltipSkill: SkillTooltip | null
+  sheetSkill: SkillSheetView | null
   // Filter options
   rarities: FilterOption[]
   types: FilterOption[]
@@ -100,6 +80,7 @@ interface PageData extends CatalogViewMaps {
   selectedSkillCategories: string[]
   selectedLanguages: string[]
   selectedJobs: string[]
+  selectedSkillId: string | null
   searchText: string
 }
 
@@ -120,8 +101,7 @@ Page({
     skillCategories: [],
     languages: [],
     jobs: [],
-    // Skill tooltip
-    tooltipSkill: null,
+    sheetSkill: null,
     // Filter state
     activeFilter: 'all',
     selectedRarities: [],
@@ -130,6 +110,7 @@ Page({
     selectedSkillCategories: [],
     selectedLanguages: [],
     selectedJobs: [],
+    selectedSkillId: null,
     searchText: '',
     // Precomputed maps for WXML
     selectedRarityMap: {},
@@ -140,50 +121,53 @@ Page({
     selectedSkillCategoryMap: {},
   } as PageData,
 
-  onLoad(options: Record<string, string | undefined>) {
+  onLoad(options: Record<string, string | undefined> = {}) {
     const catalog = getCatalog()
     const skills = getSkills()
     const dicts = getDictionaries()
+    const state = getPageState(this)
 
-    _state._skills = skills
+    state._skills = skills
 
     // Enrich catalog with precomputed skill icons
     const enriched = enrichCatalogWithIcons(catalog, skills)
-    _state._enrichedCatalog = enriched
+    state._enrichedCatalog = enriched
 
     // Reverse lookup: navigate from detail page with ?skillId=xxx
     const skillId = options.skillId
     if (skillId) {
       const sk = skills[skillId]
-      _state._filterState = {
+      state._filterState = {
         ...createEmptyFilterState(),
         selectedSkillId: skillId,
         // Set active/passive tab based on skill context
         activeFilter: 'all' as SkillKindFilter,
       }
-      _state._filteredAll = queryCatalog(enriched, skills, _state._filterState)
+      state._filteredAll = queryCatalog(enriched, skills, state._filterState)
       // Load skill name into nav title
       if (sk) {
         wx.setNavigationBarTitle({ title: sk.n })
       }
     } else {
-      _state._filteredAll = enriched
+      state._filterState = createEmptyFilterState()
+      state._filteredAll = enriched
     }
 
-    const filtered = _state._filteredAll
-    const maps = buildViewMaps(_state._filterState)
+    const filtered = state._filteredAll
+    const maps = buildViewMaps(state._filterState)
     this.setData({
       visibleRows: filtered.slice(0, PAGE_SIZE),
       filterCount: filtered.length,
-      hasActiveFilters: hasActiveFilters(_state._filterState),
+      hasActiveFilters: hasActiveFilters(state._filterState),
       hasMore: filtered.length > PAGE_SIZE,
-      rarities: withIcons(dicts.rarities, RARITY_ICONS),
-      types: withIcons(dicts.types, TYPE_ICONS),
-      genders: withIcons(dicts.genders, GENDER_ICONS),
+      rarities: buildCatalogFilterOptions(dicts.rarities, 'rarity'),
+      types: buildCatalogFilterOptions(dicts.types, 'type'),
+      genders: buildCatalogFilterOptions(dicts.genders, 'gender'),
       skillCategories: dicts.skillCategories,
       languages: dicts.languages,
       jobs: dicts.jobs,
-      activeFilter: _state._filterState.activeFilter,
+      activeFilter: state._filterState.activeFilter,
+      selectedSkillId: state._filterState.selectedSkillId,
       ...maps,
     })
   },
@@ -237,8 +221,9 @@ Page({
   // ── Core: apply one filter change and recompute ──
 
   applyFilterUpdate(key: string, value: unknown) {
+    const state = getPageState(this)
     // Build next filter state
-    const ps = _state._filterState
+    const ps = state._filterState
     const nextState: CatalogFilterState = {
       searchText: key === 'searchText' ? (value as string) : ps.searchText,
       selectedRarities: key === 'selectedRarities' ? (value as string[]) : ps.selectedRarities,
@@ -251,16 +236,16 @@ Page({
       activeFilter: key === 'activeFilter' ? (value as SkillKindFilter) : ps.activeFilter,
       selectedSkillId: key === 'selectedSkillId' ? (value as string | null) : ps.selectedSkillId,
     }
-    _state._filterState = nextState
+    state._filterState = nextState
 
     // Query against enriched catalog (which extends RuntimeCatalogEntry)
-    const filtered = queryCatalog(_state._enrichedCatalog, _state._skills, nextState)
+    const filtered = queryCatalog(state._enrichedCatalog, state._skills, nextState)
 
     // Preserve portrait fail flags
     const preserved = preservePortraitFails(filtered, this.data.visibleRows)
 
     // Store full result for pagination
-    _state._filteredAll = preserved
+    state._filteredAll = preserved
 
     // Only send first page to view layer
     const visible = preserved.slice(0, PAGE_SIZE)
@@ -278,6 +263,7 @@ Page({
       selectedLanguages: nextState.selectedLanguages,
       selectedJobs: nextState.selectedJobs,
       selectedSkillCategories: nextState.selectedSkillCategories,
+      selectedSkillId: nextState.selectedSkillId,
       searchText: nextState.searchText,
       ...maps,
     })
@@ -286,9 +272,10 @@ Page({
   // ── Clear all filters ──
 
   clearFilters() {
+    const state = getPageState(this)
     const empty = createEmptyFilterState()
-    _state._filterState = empty
-    _state._filteredAll = _state._enrichedCatalog
+    state._filterState = empty
+    state._filteredAll = state._enrichedCatalog
 
     const maps = buildViewMaps(empty)
     this.setData({
@@ -302,15 +289,15 @@ Page({
       searchText: '',
       selectedSkillId: null,
       hasActiveFilters: false,
-      visibleRows: _state._enrichedCatalog.slice(0, PAGE_SIZE),
-      filterCount: _state._enrichedCatalog.length,
-      hasMore: _state._enrichedCatalog.length > PAGE_SIZE,
+      visibleRows: state._enrichedCatalog.slice(0, PAGE_SIZE),
+      filterCount: state._enrichedCatalog.length,
+      hasMore: state._enrichedCatalog.length > PAGE_SIZE,
       ...maps,
     })
     wx.setNavigationBarTitle({ title: '航海士名鑑' })
   },
 
-  // ── Skill tooltip (catalog row) ──
+  // ── Skill sheet (catalog row) ──
 
   onSkillIconTap(e: WechatMiniprogram.BaseEvent) {
     const dataset = eventDataset(e)
@@ -318,37 +305,22 @@ Page({
     const kind = getDatasetString(dataset, 'kind') as 'active' | 'passive' | undefined
     if (!skillId || !kind) return
 
-    const sk = _state._skills[skillId]
+    const sk = getPageState(this)._skills[skillId]
     if (!sk) return
 
-    // Dismiss if tapping the same skill
-    if (this.data.tooltipSkill && this.data.tooltipSkill.skillId === skillId) {
-      this.setData({ tooltipSkill: null })
-      return
-    }
-
-    const tooltip: SkillTooltip = {
-      skillId: sk.id,
-      name: sk.n,
-      iconPath: sk.ip,
-      description: sk.d,
-      levelInfo: sk.li,
-      kind: kind,
-    }
-    this.setData({ tooltipSkill: tooltip })
+    this.setData({ sheetSkill: buildSkillSheet(sk, kind) })
   },
 
-  onTooltipDismiss() {
-    this.setData({ tooltipSkill: null })
+  onSheetDismiss() {
+    this.setData({ sheetSkill: null })
   },
 
-  /** Reverse lookup: filter catalog to officers having the tooltip's skill. */
+  /** Reverse lookup while preserving every other live filter and list context. */
   onReverseLookup() {
-    const skill = this.data.tooltipSkill
+    const skill = this.data.sheetSkill
     if (!skill) return
-    // Clear all and set just this skill
-    this.applyFilterUpdate('selectedSkillId', skill.skillId)
-    this.setData({ tooltipSkill: null })
+    this.applyFilterUpdate('selectedSkillId', skill.id)
+    this.setData({ sheetSkill: null })
     // Update nav title to show skill name
     wx.setNavigationBarTitle({ title: skill.name })
   },
@@ -356,13 +328,14 @@ Page({
   // ── Pagination ──
 
   loadMore() {
+    const state = getPageState(this)
     const currentLen = this.data.visibleRows.length
-    if (currentLen >= _state._filteredAll.length) return
+    if (currentLen >= state._filteredAll.length) return
 
-    const nextBatch = _state._filteredAll.slice(currentLen, currentLen + PAGE_SIZE)
+    const nextBatch = state._filteredAll.slice(currentLen, currentLen + PAGE_SIZE)
     this.setData({
       visibleRows: this.data.visibleRows.concat(nextBatch),
-      hasMore: currentLen + PAGE_SIZE < _state._filteredAll.length,
+      hasMore: currentLen + PAGE_SIZE < state._filteredAll.length,
     })
   },
 
@@ -377,6 +350,21 @@ Page({
 
     const update: Record<string, boolean> = {}
     update[`visibleRows[${idx}].portraitFail`] = true
+    this.setData(update)
+  },
+
+  onPortraitLayerError(e: WechatMiniprogram.BaseEvent) {
+    const dataset = eventDataset(e)
+    const idx = Number(dataset['index'])
+    const layer = getDatasetString(dataset, 'layer')
+    if (isNaN(idx) || !layer) return
+    if (layer !== 'frameFail' && layer !== 'rarityIconFail' && layer !== 'typeIconFail') return
+
+    const item = this.data.visibleRows[idx] as CatalogRowView | undefined
+    if (!item || item[layer]) return
+
+    const update: Record<string, boolean> = {}
+    update[`visibleRows[${idx}].${layer}`] = true
     this.setData(update)
   },
 

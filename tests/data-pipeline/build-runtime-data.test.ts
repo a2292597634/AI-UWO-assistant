@@ -28,6 +28,7 @@ describe('buildCatalog', () => {
     expect(first.id).toBe('officer_chast089')
     expect(first.name).toBe('達納·卡洛斯')
     expect(first.rarityId).toBeTruthy()
+    expect(first.visualGradeId).toBe('grade_6')
     // Languages are string arrays (short IDs, no prefix)
     expect(typeof first.languages[0]).toBe('string')
     expect(first.languages[0]).not.toContain('language_')
@@ -57,6 +58,20 @@ describe('buildSkills', () => {
     expect(s.ip).toMatch(/^\/subpkg-a\d\/imgs\//) // iconPath in shard
     expect(s.cat).toBeTruthy() // categoryId
   })
+
+  it('projects the skill category display name into each runtime skill', () => {
+    const namedDictionaries = {
+      ...dictionaries,
+      skillCategories: dictionaries.skillCategories!.map((category) =>
+        category.id === 'skill_category_trade_price_adjustment'
+          ? { ...category, name: '價格調整' }
+          : category,
+      ),
+    }
+    const runtime = buildSkills(skills, namedDictionaries)
+
+    expect(runtime.skill_skill200681!.cn).toBe('價格調整')
+  })
 })
 
 describe('buildDictionaries (runtime)', () => {
@@ -80,6 +95,9 @@ describe('buildDetails', () => {
     // Compact fields: n=name, rn=rarityName, tn=typeName, etc.
     expect(officer.n).toBe('達納·卡洛斯')
     expect(officer.rn).toBeTruthy()
+    expect(officer.vg).toBe('grade_6')
+    expect(officer.ti).toBe('type_class_2')
+    expect(officer.gi).toBe('gender_f')
     expect(officer.tn).toBeTruthy()
     expect(officer.gn).toBeTruthy()
     expect(officer.jn).toBeTruthy()

@@ -8,6 +8,7 @@ const sampleOfficers: CanonicalOfficer[] = [
     id: 'officer_chast089',
     name: '達納·卡洛斯',
     rarityId: 'rarity_5',
+    visualGradeId: 'grade_6',
     typeId: 'type_class_2',
     genderId: 'gender_f',
     jobId: 'job_jobchasT089',

@@ -19,6 +19,7 @@ export interface RuntimeCatalogEntry {
   rarityId: string
   rarityName: string // grade letter: S/A/B/C
   rarityClass: string // CSS class suffix for badge color
+  visualGradeId: string
   typeId: string
   typeName: string
   genderId: string
@@ -38,6 +39,7 @@ export interface RuntimeSkill {
   id: string
   n: string // name
   cat: string // categoryId
+  cn: string // categoryName
   ip: string // iconPath
   d: string // description
   li: string // levelInfo — compact per-level effect summary
@@ -105,6 +107,9 @@ export interface RuntimeDetailRecruitment {
 export interface RuntimeDetailRecord {
   n: string // name
   rn: string // rarityName
+  vg: string // visualGradeId
+  ti: string // typeId
+  gi: string // genderId
   tn: string // typeName
   gn: string // genderName
   jn: string // jobName
