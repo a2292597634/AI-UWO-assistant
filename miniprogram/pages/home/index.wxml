@@ -37,7 +37,7 @@
             binderror="onModuleIconError"
             data-index="{{index}}"
           />
-          <view wx:else class="module-grid__icon-fallback"></view>
+          <view wx:else class="module-grid__icon-fallback">{{item.iconFallback}}</view>
         </view>
         <text class="module-grid__name">{{item.name}}</text>
       </view>

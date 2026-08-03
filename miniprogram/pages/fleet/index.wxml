@@ -1,0 +1,191 @@
+<view class="fleet-page">
+  <view class="fleet-header">
+    <view>
+      <text class="fleet-header__eyebrow">戰鬥配置工作台</text>
+      <text class="fleet-header__title">戰鬥模擬艦隊</text>
+    </view>
+    <text class="fleet-header__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
+  </view>
+
+  <scroll-view class="fleet-scroll" scroll-y>
+    <scroll-view class="ship-tabs" scroll-x="true" enable-flex>
+      <view class="ship-tabs__content">
+        <view
+          wx:for="{{shipTabs}}"
+          wx:key="id"
+          class="ship-tab {{item.isCurrent ? 'ship-tab--active' : ''}}"
+          bindtap="onShipTabTap"
+          data-id="{{item.id}}"
+        >
+          <text class="ship-tab__label">{{item.label}}</text>
+          <text class="ship-tab__meta">{{item.count}} / 11 · {{item.statusLabel}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="ship-editor">
+      <view class="section-heading">
+        <view>
+          <text class="section-heading__title">{{currentShip.label}}</text>
+          <text class="section-heading__meta">{{currentShip.count}} / 11 位航海士 · {{currentShip.statusLabel}}</text>
+        </view>
+        <text class="section-heading__status">{{currentShip.statusLabel}}</text>
+      </view>
+
+      <view class="slot-grid">
+        <view wx:for="{{currentShip.slots}}" wx:key="position" class="officer-slot {{item.officer ? 'officer-slot--filled' : ''}}">
+          <text class="officer-slot__number">{{item.position}}</text>
+          <block wx:if="{{item.officer}}">
+            <image class="officer-slot__portrait" src="{{item.officer.portraitPath}}" mode="aspectFill" />
+            <text class="officer-slot__name">{{item.officer.name}}</text>
+            <view class="officer-slot__actions">
+              <view
+                class="slot-action slot-action--lock"
+                bindtap="onOfficerLock"
+                data-id="{{item.officer.id}}"
+                aria-label="{{item.officer.status === 'locked' ? '解鎖' : '鎖定'}}"
+              >
+                <text class="slot-action__glyph">{{item.officer.status === 'locked' ? '🔓' : '🔒'}}</text>
+                <text class="slot-action__label">{{item.officer.status === 'locked' ? '解鎖' : '鎖定'}}</text>
+              </view>
+              <view class="slot-action" bindtap="onOfficerRemove" data-id="{{item.officer.id}}" aria-label="移除">
+                <text class="slot-action__glyph">×</text>
+                <text class="slot-action__label">移除</text>
+              </view>
+              <view
+                wx:if="{{mode === 'auto'}}"
+                class="slot-action slot-action--danger"
+                bindtap="onBanOfficer"
+                data-id="{{item.officer.id}}"
+                aria-label="排除"
+              >
+                <text class="slot-action__glyph">⊘</text>
+                <text class="slot-action__label">排除</text>
+              </view>
+            </view>
+          </block>
+          <text wx:else class="officer-slot__empty">空位</text>
+        </view>
+      </view>
+
+      <view class="mode-tabs">
+        <view class="mode-tab {{mode === 'manual' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="manual">手動配隊</view>
+        <view class="mode-tab {{mode === 'auto' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="auto">自動配隊</view>
+      </view>
+
+      <view wx:if="{{mode === 'auto'}}" class="target-panel">
+        <view class="panel-heading">
+          <text class="panel-heading__title">自動配隊目標</text>
+          <text class="panel-heading__hint">只計算目前船</text>
+        </view>
+        <view wx:for="{{targets}}" wx:key="id" class="target-row">
+          <view class="target-row__skill">
+            <image wx:if="{{item.skillIconPath}}" class="target-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" />
+            <text class="target-row__name">{{item.configured ? item.skillName : '選擇戰鬥技能'}}</text>
+          </view>
+          <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" data-id="{{item.id}}" />
+          <text class="target-row__remove" bindtap="onRemoveTarget" data-id="{{item.id}}">刪除目標</text>
+        </view>
+        <view class="target-actions">
+          <button class="subtle-button" bindtap="onAddTarget">新增目標</button>
+          <button class="primary-button" bindtap="onRecalculate">重新計算</button>
+        </view>
+      </view>
+
+      <view class="skill-selector">
+        <view class="panel-heading">
+          <text class="panel-heading__title">選擇戰鬥技能</text>
+          <text class="panel-heading__hint">{{mode === 'auto' ? '雙擊技能直接加入上方目標' : '先選類型，再選分類'}}</text>
+        </view>
+        <scroll-view class="skill-kind-tabs" scroll-x="true" enable-flex>
+          <view class="skill-kind-tabs__content">
+            <view wx:for="{{skillKinds}}" wx:key="id" class="skill-kind {{manualKind === item.id ? 'skill-kind--active' : ''}}" bindtap="onSkillKindTap" data-kind="{{item.id}}">{{item.name}}</view>
+          </view>
+        </scroll-view>
+        <scroll-view class="skill-categories" scroll-x="true" enable-flex>
+          <view class="skill-categories__content">
+            <view class="skill-category {{manualCategoryId === item.id ? 'skill-category--active' : ''}}" wx:for="{{skillCategories}}" wx:key="id" bindtap="onSkillCategoryTap" data-id="{{item.id}}">{{item.name}}</view>
+          </view>
+        </scroll-view>
+        <input class="skill-search" placeholder="在目前分類搜尋技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
+        <scroll-view class="skill-options" scroll-y="true">
+          <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option {{manualSkillId === item.id ? 'skill-option--active' : ''}}" bindtap="onSkillTap" data-id="{{item.id}}">
+            <image class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" />
+            <view class="skill-option__copy">
+              <text class="skill-option__name">{{item.name}}</text>
+              <text class="skill-option__meta">{{item.kindLabel}} · {{item.categoryName}}</text>
+            </view>
+          </view>
+          <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的戰鬥技能</view>
+        </scroll-view>
+      </view>
+
+      <view wx:if="{{mode === 'manual'}}" class="candidate-panel">
+        <view class="panel-heading">
+          <text class="panel-heading__title">可用航海士</text>
+          <text class="panel-heading__hint">選擇技能後顯示候選</text>
+        </view>
+        <view wx:for="{{manualCandidates}}" wx:key="id" class="candidate-row {{item.canSelect ? '' : 'candidate-row--disabled'}}" bindtap="onOfficerSelect" data-id="{{item.id}}">
+          <image class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" />
+          <view class="candidate-row__copy">
+            <text class="candidate-row__name">{{item.name}}</text>
+            <text class="candidate-row__meta">{{item.jobName}} · {{item.rarityName}}</text>
+          </view>
+          <text class="candidate-row__status">{{item.statusLabel}}{{item.ownerShipLabel ? ' · ' + item.ownerShipLabel : ''}}</text>
+        </view>
+        <view wx:if="{{manualSkillId && manualCandidates.length === 0}}" class="inline-empty">沒有可用航海士</view>
+      </view>
+
+      <view wx:if="{{mode === 'auto'}}" class="ban-panel">
+        <view class="panel-heading">
+          <text class="panel-heading__title">全艦隊排除名單（{{bannedOfficers.length}}）</text>
+          <text class="panel-heading__hint">解除後下次重算才會出現</text>
+        </view>
+        <scroll-view class="ban-list" scroll-x="true" enable-flex>
+          <view class="ban-list__content">
+            <view wx:for="{{bannedOfficers}}" wx:key="id" class="ban-chip">
+              <image class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" />
+              <text class="ban-chip__name">{{item.name}}</text>
+              <text class="ban-chip__remove" bindtap="onUnbanOfficer" data-id="{{item.id}}">解除</text>
+            </view>
+          </view>
+        </scroll-view>
+        <view wx:if="{{bannedOfficers.length === 0}}" class="inline-empty">目前沒有排除航海士</view>
+      </view>
+
+      <view class="summary-panel">
+        <view class="panel-heading">
+          <text class="panel-heading__title">{{currentShip.label}} 技能累計</text>
+          <text class="panel-heading__hint">使用真實累計值 · 不封頂</text>
+        </view>
+        <view wx:for="{{skillSummary}}" wx:key="skillId" class="summary-row">
+          <image class="summary-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" />
+          <view class="summary-row__copy">
+            <text class="summary-row__name">{{item.skillName}}</text>
+            <text class="summary-row__level">Lv.{{item.totalLevel}}{{item.targetLevel !== null ? ' / 目標 Lv.' + item.targetLevel : ''}}</text>
+          </view>
+          <text class="summary-row__state {{item.isReached === true ? 'summary-row__state--ok' : ''}}">{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}</text>
+          <scroll-view class="summary-row__contributors" scroll-x="true" enable-flex>
+            <view class="summary-row__contributors-content">
+              <image wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" />
+              <text wx:if="{{item.contributors.length === 0}}" class="contributors-empty">尚無貢獻者</text>
+            </view>
+          </scroll-view>
+        </view>
+        <view wx:if="{{skillSummary.length === 0}}" class="inline-empty">目前船尚未配置戰鬥技能</view>
+      </view>
+
+      <view class="overview-panel">
+        <view class="panel-heading">
+          <text class="panel-heading__title">全艦隊摘要</text>
+          <text class="panel-heading__hint">只展開目前船的工作區</text>
+        </view>
+        <view wx:for="{{fleetOverview}}" wx:key="id" class="overview-row">
+          <text class="overview-row__name">{{item.label}}</text>
+          <text class="overview-row__count">{{item.count}} / 11</text>
+          <text class="overview-row__status">{{item.statusLabel}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

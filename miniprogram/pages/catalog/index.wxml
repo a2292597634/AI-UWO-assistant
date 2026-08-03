@@ -1,4 +1,12 @@
 <view class="catalog-page">
+  <view class="asset-loading-state" wx:if="{{assetLoading}}">
+    <text>正在載入本地圖片素材…</text>
+  </view>
+  <view class="asset-load-error" wx:elif="{{assetLoadError}}">
+    <text class="asset-load-error__message">{{assetLoadError}}</text>
+    <button class="asset-load-error__retry" bindtap="retryAssetLoading">重新載入</button>
+  </view>
+  <block wx:else>
   <!-- Search bar -->
   <view class="search-bar">
     <input class="search-input" placeholder="搜尋航海士名稱..." value="{{searchText}}" bindinput="onSearchInput" />
@@ -118,4 +126,5 @@
   </scroll-view>
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
+  </block>
 </view>

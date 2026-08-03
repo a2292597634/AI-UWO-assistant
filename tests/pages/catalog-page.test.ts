@@ -6,20 +6,25 @@
  * newer Page instance.
  */
 
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+
+import { resetAssetPackageLoaderForTests } from '../../miniprogram/runtime/asset-package-loader'
 
 interface CatalogPageData {
   visibleRows: Array<{ rarityId: string; name: string }>
   selectedRarities: string[]
   searchText: string
+  assetLoading: boolean
+  assetLoadError: string | null
   [key: string]: unknown
 }
 
 interface CatalogPageConfig {
   data: CatalogPageData
-  onLoad(options?: Record<string, string | undefined>): void
+  onLoad(options?: Record<string, string | undefined>): Promise<void>
+  retryAssetLoading(): Promise<void>
   toggleFilter(event: WechatMiniprogram.BaseEvent): void
   onSearchInput(event: WechatMiniprogram.Input): void
   loadMore(): void
@@ -31,6 +36,23 @@ interface CatalogPageInstance extends CatalogPageConfig {
 }
 
 let catalogPage: CatalogPageConfig
+let assetRootToFail: string | undefined
+
+const wxStub = {
+  setNavigationBarTitle: vi.fn(),
+  navigateTo: vi.fn(
+    (options: { url: string; success?: () => void; fail?: (error: unknown) => void }) => {
+      if (assetRootToFail && options.url.includes(assetRootToFail)) {
+        options.fail?.({ errMsg: `navigateTo failed for ${assetRootToFail}` })
+        return
+      }
+      options.success?.()
+    },
+  ),
+  navigateBack: vi.fn((options: { success?: () => void }) => {
+    options.success?.()
+  }),
+}
 
 const createPageInstance = (): CatalogPageInstance => {
   const instance = Object.create(catalogPage) as CatalogPageInstance
@@ -51,32 +73,58 @@ beforeAll(async () => {
     catalogPage = config
   })
   vi.stubGlobal('wx', {
-    setNavigationBarTitle: vi.fn(),
-    navigateTo: vi.fn(),
+    ...wxStub,
   })
 
   await import('../../miniprogram/pages/catalog/index')
 })
 
+beforeEach(() => {
+  assetRootToFail = undefined
+  resetAssetPackageLoaderForTests()
+  vi.clearAllMocks()
+})
+
 describe('catalog Page instance isolation', () => {
-  it('loads normally when the lifecycle provides no query options', () => {
+  it('loads normally when the lifecycle provides no query options', async () => {
     const page = createPageInstance()
 
-    page.onLoad()
+    await page.onLoad()
 
     expect(page.data.visibleRows.length).toBeGreaterThan(0)
+    expect(page.data.assetLoading).toBe(false)
+    expect(page.data.assetLoadError).toBeNull()
+    expect(wxStub.navigateTo).toHaveBeenCalledTimes(10)
   })
 
-  it('keeps an older rarity_2 page paginating and searching its own results after a newer rarity_5 page loads', () => {
+  it('shows an asset loading error and can retry after the failed package is available', async () => {
+    assetRootToFail = 'subpkg-a2'
+    const page = createPageInstance()
+
+    await page.onLoad()
+
+    expect(page.data.visibleRows).toEqual([])
+    expect(page.data.assetLoading).toBe(false)
+    expect(page.data.assetLoadError).toContain('subpkg-a2')
+
+    assetRootToFail = undefined
+    await page.retryAssetLoading()
+
+    expect(page.data.visibleRows.length).toBeGreaterThan(0)
+    expect(page.data.assetLoading).toBe(false)
+    expect(page.data.assetLoadError).toBeNull()
+  })
+
+  it('keeps an older rarity_2 page paginating and searching its own results after a newer rarity_5 page loads', async () => {
     const olderPage = createPageInstance()
-    olderPage.onLoad({})
+    await olderPage.onLoad({})
     olderPage.toggleFilter(filterEvent('rarity_2'))
 
     expect(olderPage.data.visibleRows).toHaveLength(30)
     expect(olderPage.data.visibleRows.every((row) => row.rarityId === 'rarity_2')).toBe(true)
 
     const newerPage = createPageInstance()
-    newerPage.onLoad({})
+    await newerPage.onLoad({})
     newerPage.toggleFilter(filterEvent('rarity_5'))
     expect(newerPage.data.visibleRows.every((row) => row.rarityId === 'rarity_5')).toBe(true)
 
@@ -108,6 +156,19 @@ const cssRule = (selector: string): string => {
 }
 
 describe('catalog touch target markup contracts', () => {
+  it('gates catalog content behind the local asset loader with a retry action', () => {
+    expect(catalogWxml).toMatch(
+      /class="asset-loading-state"[^>]*wx:if="\{\{assetLoading\}\}"[\s\S]*正在載入本地圖片素材/,
+    )
+    expect(catalogWxml).toMatch(
+      /class="asset-load-error"[^>]*wx:elif="\{\{assetLoadError\}\}"[\s\S]*\{\{assetLoadError\}\}[\s\S]*bindtap="retryAssetLoading"/,
+    )
+    expect(catalogWxml).toMatch(/<block wx:else>/)
+    expect(catalogWxss).toMatch(
+      /\.asset-loading-state,\s*\.asset-load-error\s*\{[\s\S]*display:\s*flex;/,
+    )
+  })
+
   it('uses bounded horizontal image-only filter controls with 88rpx hit targets and 58rpx rarity marks', () => {
     expect(catalogWxml).toMatch(
       /<scroll-view class="officer-filter-toolbar"[^>]*scroll-x="true"[^>]*>[\s\S]*class="officer-filter-toolbar__content"/,

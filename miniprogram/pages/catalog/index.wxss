@@ -6,6 +6,31 @@
   background: #ded7c7;
 }
 
+.asset-loading-state,
+.asset-load-error {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  color: #5a5a4e;
+  text-align: center;
+}
+
+.asset-load-error__message {
+  max-width: 640rpx;
+  line-height: 1.6;
+}
+
+.asset-load-error__retry {
+  margin-top: 28rpx;
+  color: #f2e4bd;
+  background: #34352f;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
 .search-bar {
   display: flex;
   align-items: center;

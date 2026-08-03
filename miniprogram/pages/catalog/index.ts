@@ -14,6 +14,7 @@ import {
 } from '../../presenters/catalog-presenter'
 import { buildSkillSheet } from '../../presenters/skill-sheet'
 import { getDatasetString, isCatalogFilterField } from '../../contracts/page-events'
+import { assetPackageLoader } from '../../runtime/asset-package-loader'
 
 import type {
   CatalogRowView,
@@ -37,6 +38,8 @@ interface CatalogPageState {
   _filteredAll: CatalogRowView[]
   _skills: Record<string, RuntimeSkill>
   _filterState: CatalogFilterState
+  _loadOptions: Record<string, string | undefined>
+  _initializationPromise?: Promise<void>
 }
 
 const pageStateByInstance = new WeakMap<object, CatalogPageState>()
@@ -49,6 +52,7 @@ const getPageState = (page: object): CatalogPageState => {
       _filteredAll: [],
       _skills: {},
       _filterState: createEmptyFilterState(),
+      _loadOptions: {},
     }
     pageStateByInstance.set(page, state)
   }
@@ -60,6 +64,8 @@ const getPageState = (page: object): CatalogPageState => {
 interface PageData extends CatalogViewMaps {
   tabs: string[]
   activeTab: number
+  assetLoading: boolean
+  assetLoadError: string | null
   visibleRows: CatalogRowView[]
   filterCount: number
   hasActiveFilters: boolean
@@ -84,12 +90,108 @@ interface PageData extends CatalogViewMaps {
   searchText: string
 }
 
+interface CatalogPageUpdater {
+  setData(update: Record<string, unknown>): void
+}
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error && error.message) return error.message
+  return String(error)
+}
+
+const initializeCatalogPage = (
+  page: CatalogPageUpdater,
+  options: Record<string, string | undefined>,
+): Promise<void> => {
+  const state = getPageState(page)
+  state._loadOptions = options
+  if (state._initializationPromise) return state._initializationPromise
+
+  page.setData({
+    assetLoading: true,
+    assetLoadError: null,
+    visibleRows: [],
+  })
+
+  const initialization = (async () => {
+    try {
+      await assetPackageLoader.loadAll()
+
+      const catalog = getCatalog()
+      const skills = getSkills()
+      const dicts = getDictionaries()
+      state._skills = skills
+
+      // Enrich catalog with precomputed skill icons
+      const enriched = enrichCatalogWithIcons(catalog, skills)
+      state._enrichedCatalog = enriched
+
+      // Reverse lookup: navigate from detail page with ?skillId=xxx
+      const skillId = options.skillId
+      if (skillId) {
+        const sk = skills[skillId]
+        state._filterState = {
+          ...createEmptyFilterState(),
+          selectedSkillId: skillId,
+          // Set active/passive tab based on skill context
+          activeFilter: 'all' as SkillKindFilter,
+        }
+        state._filteredAll = queryCatalog(enriched, skills, state._filterState)
+        // Load skill name into nav title
+        if (sk) {
+          wx.setNavigationBarTitle({ title: sk.n })
+        }
+      } else {
+        state._filterState = createEmptyFilterState()
+        state._filteredAll = enriched
+      }
+
+      const filtered = state._filteredAll
+      const maps = buildViewMaps(state._filterState)
+      page.setData({
+        assetLoading: false,
+        assetLoadError: null,
+        visibleRows: filtered.slice(0, PAGE_SIZE),
+        filterCount: filtered.length,
+        hasActiveFilters: hasActiveFilters(state._filterState),
+        hasMore: filtered.length > PAGE_SIZE,
+        rarities: buildCatalogFilterOptions(dicts.rarities, 'rarity'),
+        types: buildCatalogFilterOptions(dicts.types, 'type'),
+        genders: buildCatalogFilterOptions(dicts.genders, 'gender'),
+        skillCategories: dicts.skillCategories,
+        languages: dicts.languages,
+        jobs: dicts.jobs,
+        activeFilter: state._filterState.activeFilter,
+        selectedSkillId: state._filterState.selectedSkillId,
+        ...maps,
+      })
+    } catch (error) {
+      state._filteredAll = []
+      page.setData({
+        assetLoading: false,
+        assetLoadError: `本地圖片素材載入失敗：${getErrorMessage(error)}`,
+        visibleRows: [],
+        filterCount: 0,
+        hasActiveFilters: false,
+        hasMore: false,
+      })
+    } finally {
+      state._initializationPromise = undefined
+    }
+  })()
+
+  state._initializationPromise = initialization
+  return initialization
+}
+
 // ── Page ──
 
 Page({
   data: {
     tabs: ['航海士', '技能', '語言', '職業'],
     activeTab: 0,
+    assetLoading: true,
+    assetLoadError: null,
     visibleRows: [],
     filterCount: 0,
     hasActiveFilters: false,
@@ -122,54 +224,11 @@ Page({
   } as PageData,
 
   onLoad(options: Record<string, string | undefined> = {}) {
-    const catalog = getCatalog()
-    const skills = getSkills()
-    const dicts = getDictionaries()
-    const state = getPageState(this)
+    return initializeCatalogPage(this, options)
+  },
 
-    state._skills = skills
-
-    // Enrich catalog with precomputed skill icons
-    const enriched = enrichCatalogWithIcons(catalog, skills)
-    state._enrichedCatalog = enriched
-
-    // Reverse lookup: navigate from detail page with ?skillId=xxx
-    const skillId = options.skillId
-    if (skillId) {
-      const sk = skills[skillId]
-      state._filterState = {
-        ...createEmptyFilterState(),
-        selectedSkillId: skillId,
-        // Set active/passive tab based on skill context
-        activeFilter: 'all' as SkillKindFilter,
-      }
-      state._filteredAll = queryCatalog(enriched, skills, state._filterState)
-      // Load skill name into nav title
-      if (sk) {
-        wx.setNavigationBarTitle({ title: sk.n })
-      }
-    } else {
-      state._filterState = createEmptyFilterState()
-      state._filteredAll = enriched
-    }
-
-    const filtered = state._filteredAll
-    const maps = buildViewMaps(state._filterState)
-    this.setData({
-      visibleRows: filtered.slice(0, PAGE_SIZE),
-      filterCount: filtered.length,
-      hasActiveFilters: hasActiveFilters(state._filterState),
-      hasMore: filtered.length > PAGE_SIZE,
-      rarities: buildCatalogFilterOptions(dicts.rarities, 'rarity'),
-      types: buildCatalogFilterOptions(dicts.types, 'type'),
-      genders: buildCatalogFilterOptions(dicts.genders, 'gender'),
-      skillCategories: dicts.skillCategories,
-      languages: dicts.languages,
-      jobs: dicts.jobs,
-      activeFilter: state._filterState.activeFilter,
-      selectedSkillId: state._filterState.selectedSkillId,
-      ...maps,
-    })
+  retryAssetLoading() {
+    return initializeCatalogPage(this, getPageState(this)._loadOptions)
   },
 
   // ── Tab ──

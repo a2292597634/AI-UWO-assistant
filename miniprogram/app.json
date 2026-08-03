@@ -1,5 +1,5 @@
 {
-  "pages": ["pages/home/index", "pages/catalog/index"],
+  "pages": ["pages/home/index", "pages/catalog/index", "pages/fleet/index"],
   "subpackages": [
     {
       "root": "subpkg-detail",

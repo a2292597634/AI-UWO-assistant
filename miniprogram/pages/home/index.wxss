@@ -130,9 +130,15 @@
 }
 
 .module-grid__icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   border: 3rpx solid #b99552;
   border-radius: 50%;
+  color: #b99552;
+  font-size: 34rpx;
+  font-weight: 700;
 }
 
 .module-grid__icon-fallback::before,

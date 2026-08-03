@@ -57,6 +57,25 @@ declare module '../../generated/skills' {
   export = skills
 }
 
+declare module '../../generated/fleet-officers' {
+  interface FleetSkillRelation {
+    skillId: string
+    kind: 'active' | 'passive'
+    categoryId: string
+    unlockLevel: number
+  }
+  interface FleetOfficer {
+    id: string
+    name: string
+    jobName: string
+    rarityName: string
+    portraitPath: string
+    skills: FleetSkillRelation[]
+  }
+  const officers: FleetOfficer[]
+  export = officers
+}
+
 declare module '../../generated/dictionaries' {
   interface DictItem {
     id: string

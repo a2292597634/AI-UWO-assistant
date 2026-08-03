@@ -4,6 +4,7 @@ import {
   buildCatalog,
   buildSkills,
   buildDetails,
+  buildFleetOfficers,
   writeShardedDetails,
 } from '../../tools/data-pipeline/build-runtime-data'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../tools/import/types'
@@ -16,6 +17,25 @@ const skills = readJson<CanonicalSkill[]>('data/master/skills.json')
 const dictionaries = readJson<Record<string, DictionaryItem[]>>('data/master/dictionaries.json')
 
 describe('Full data integrity (627 officers)', () => {
+  it('generates a complete fleet officer index with battle-only relations', () => {
+    const fleet = buildFleetOfficers(officers, skills, dictionaries)
+
+    expect(fleet).toHaveLength(627)
+    expect(new Set(fleet.map((item) => item.id)).size).toBe(627)
+    expect(
+      fleet.flatMap((item) => item.skills).every((skill) => typeof skill.unlockLevel === 'number'),
+    ).toBe(true)
+    expect(
+      fleet
+        .flatMap((item) => item.skills)
+        .every(
+          (skill) =>
+            skill.categoryId.startsWith('skill_category_naval_') ||
+            skill.categoryId === 'skill_category_combat_other',
+        ),
+    ).toBe(true)
+  })
+
   it('generates catalog for all 627 officers', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     expect(catalog).toHaveLength(627)

@@ -198,6 +198,40 @@ describe('Runtime Contract: skills.js', () => {
   })
 })
 
+// ── Fleet officer index tests ──
+
+describe('Runtime Contract: fleet-officers.js', () => {
+  const fleet = readGenerated('fleet-officers') as unknown as Array<Record<string, unknown>>
+
+  it('is a complete officer array', () => {
+    expect(Array.isArray(fleet)).toBe(true)
+    expect(fleet).toHaveLength(627)
+    expect(new Set(fleet.map((entry) => entry.id)).size).toBe(627)
+  })
+
+  it('contains only battle relations with unlockLevel contributions', () => {
+    for (const entry of fleet) {
+      expect(entry).toMatchObject({
+        id: expect.any(String),
+        name: expect.any(String),
+        jobName: expect.any(String),
+        rarityName: expect.any(String),
+        portraitPath: expect.stringMatching(/^\/subpkg-a\d\/imgs\/officer_.+\.png$/),
+        skills: expect.any(Array),
+      })
+      for (const relation of entry.skills as Array<Record<string, unknown>>) {
+        expect(relation.skillId).toEqual(expect.any(String))
+        expect(['active', 'passive']).toContain(relation.kind)
+        expect(
+          (relation.categoryId as string).startsWith('skill_category_naval_') ||
+            relation.categoryId === 'skill_category_combat_other',
+        ).toBe(true)
+        expect(relation.unlockLevel).toEqual(expect.any(Number))
+      }
+    }
+  })
+})
+
 // ── Dictionaries tests ──
 
 describe('Runtime Contract: dictionaries.js', () => {

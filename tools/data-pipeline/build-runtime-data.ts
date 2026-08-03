@@ -3,6 +3,7 @@ import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import
 import type {
   RuntimeCatalogEntry,
   RuntimeSkill,
+  RuntimeFleetOfficer,
   RuntimeDictionaryItem,
   RuntimeDictionaries,
   RuntimeDetailRecord,
@@ -112,6 +113,45 @@ export const buildCatalog = (
       searchAliases: aliases,
     }
   })
+}
+
+const isBattleFleetRelation = (kind: 'active' | 'passive', categoryId: string): boolean => {
+  if (kind === 'active') return categoryId.startsWith('skill_category_naval_active_')
+  return (
+    categoryId.startsWith('skill_category_naval_passive_') ||
+    categoryId === 'skill_category_combat_other'
+  )
+}
+
+export const buildFleetOfficers = (
+  officers: CanonicalOfficer[],
+  skills: CanonicalSkill[],
+  dictionaries: Record<string, DictionaryItem[]>,
+): RuntimeFleetOfficer[] => {
+  const skillMap = new Map(skills.map((skill) => [skill.id, skill]))
+  const dictName = (group: string, id: string): string =>
+    dictionaries[group]?.find((item) => item.id === id)?.name ?? unprefix(id)
+
+  return officers.map((officer) => ({
+    id: officer.id,
+    name: officer.name.trim(),
+    jobName: dictName('jobs', officer.jobId),
+    rarityName: rarityGrade(officer.rarityId),
+    portraitPath: portraitPath(officer.id),
+    skills: officer.skills
+      .map((relation) => ({ ...relation, categoryId: skillMap.get(relation.skillId)?.categoryId }))
+      .filter(
+        (relation): relation is typeof relation & { categoryId: string } =>
+          typeof relation.categoryId === 'string' &&
+          isBattleFleetRelation(relation.kind, relation.categoryId),
+      )
+      .map((relation) => ({
+        skillId: relation.skillId,
+        kind: relation.kind,
+        categoryId: relation.categoryId,
+        unlockLevel: relation.unlockLevel,
+      })),
+  }))
 }
 
 // Re-export contract types used by downstream consumers and tests
@@ -389,6 +429,7 @@ export const writeRuntimeData = (
   mkdirSync(outputDir, { recursive: true })
 
   const catalog = buildCatalog(officers, skills, dictionaries)
+  const fleetOfficers = buildFleetOfficers(officers, skills, dictionaries)
   const runtimeSkills = buildSkills(skills, dictionaries, iconSet, categoryFallback, globalFallback)
   const runtimeDicts = buildDictionaries(officers, skills, dictionaries)
 
@@ -396,6 +437,7 @@ export const writeRuntimeData = (
     writeFileSync(`${outputDir}/${name}.js`, `module.exports = ${JSON.stringify(data)}\n`)
 
   write('catalog', catalog)
+  write('fleet-officers', fleetOfficers)
   write('skills', runtimeSkills) // dict format: {skillId: {id,n,cat,ip}, ...}
   write('dictionaries', runtimeDicts)
   // Lightweight metadata for home page (avoids loading full catalog)
@@ -408,6 +450,7 @@ export const writeRuntimeData = (
 
   console.log(`Runtime data written to ${outputDir}/`)
   console.log(`  catalog.js: ${catalog.length} officers`)
+  console.log(`  fleet-officers.js: ${fleetOfficers.length} officers`)
   console.log(`  skills.js: ${Object.keys(runtimeSkills).length} entries (dict format)`)
   console.log(
     `  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, languages=${runtimeDicts.languages.length}, categories=${runtimeDicts.skillCategories.length}`,

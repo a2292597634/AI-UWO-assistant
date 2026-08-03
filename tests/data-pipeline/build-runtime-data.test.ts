@@ -5,6 +5,7 @@ import {
   buildDictionaries,
   buildSkills,
   buildDetails,
+  buildFleetOfficers,
   writeShardedDetails,
 } from '../../tools/data-pipeline/build-runtime-data'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../tools/import/types'
@@ -43,6 +44,36 @@ describe('buildCatalog', () => {
     const r5 = catalog.find((o) => o.rarityId === 'rarity_5')!
     expect(r5.rarityName).toBe('S')
     expect(r5.rarityClass).toBe('s')
+  })
+})
+
+describe('buildFleetOfficers', () => {
+  it('builds a compact fleet index with battle relations and unlockLevel', () => {
+    const index = buildFleetOfficers(officers, skills, dictionaries)
+    const officer = index.find((item) => item.id === 'officer_chast089')!
+    const relation = officer.skills.find((item) => item.skillId === 'skill_skill400581')!
+
+    expect(officer.portraitPath).toMatch(/^\/subpkg-a\d\/imgs\/officer_/)
+    expect(relation).toMatchObject({
+      skillId: 'skill_skill400581',
+      kind: 'active',
+      unlockLevel: 50,
+    })
+    expect(
+      officer.skills.every(
+        (item) =>
+          item.categoryId.startsWith('skill_category_naval_') ||
+          item.categoryId === 'skill_category_combat_other',
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps fleet index deterministic and complete for fixture data', () => {
+    const first = buildFleetOfficers(officers, skills, dictionaries)
+    const second = buildFleetOfficers(officers, skills, dictionaries)
+
+    expect(second).toEqual(first)
+    expect(new Set(first.map((item) => item.id)).size).toBe(officers.length)
   })
 })
 

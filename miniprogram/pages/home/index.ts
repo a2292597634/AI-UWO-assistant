@@ -13,6 +13,14 @@ Page({
         route: '/pages/catalog/index',
         iconFailed: false,
       },
+      {
+        id: 'battle-fleet',
+        name: '戰鬥模擬艦隊',
+        iconPath: '',
+        iconFallback: '戰',
+        route: '/pages/fleet/index',
+        iconFailed: true,
+      },
     ],
   },
 

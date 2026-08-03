@@ -45,6 +45,24 @@ export interface RuntimeSkill {
   li: string // levelInfo — compact per-level effect summary
 }
 
+// ── Fleet officer index (miniprogram/generated/fleet-officers.js) ──
+
+export interface RuntimeFleetSkillRelation {
+  skillId: string
+  kind: 'active' | 'passive'
+  categoryId: string
+  unlockLevel: number
+}
+
+export interface RuntimeFleetOfficer {
+  id: string
+  name: string
+  jobName: string
+  rarityName: string
+  portraitPath: string
+  skills: RuntimeFleetSkillRelation[]
+}
+
 // ── Dictionaries (miniprogram/generated/dictionaries.js) ──
 
 export interface RuntimeDictionaryItem {
