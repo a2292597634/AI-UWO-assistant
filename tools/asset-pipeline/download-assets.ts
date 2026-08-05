@@ -24,6 +24,7 @@ interface DownloadResult {
 
 const VOYAGE_BASE = 'https://voyage.tw'
 const ASSETS_DIR = 'miniprogram/assets'
+const SOURCE_MANIFEST_PATH = 'data/assets/source-asset-manifest.json'
 const BATCH_SIZE = 8 // concurrent downloads
 const _BATCH_DELAY_MS = 100 // delay between batches
 
@@ -241,15 +242,16 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   // Load existing manifest
   let existingManifest: AssetManifestEntry[] = []
   try {
-    existingManifest = JSON.parse(readFileSync(`${ASSETS_DIR}/asset-manifest.json`, 'utf8'))
+    existingManifest = JSON.parse(readFileSync(SOURCE_MANIFEST_PATH, 'utf8'))
     console.log(`Loaded existing manifest: ${existingManifest.length} entries\n`)
   } catch {
     /* no existing manifest */
   }
 
   downloadAssets(entries, existingManifest).then((manifest) => {
-    writeFileSync(`${ASSETS_DIR}/asset-manifest.json`, JSON.stringify(manifest, null, 2) + '\n')
-    console.log(`Manifest saved to ${ASSETS_DIR}/asset-manifest.json`)
+    mkdirSync('data/assets', { recursive: true })
+    writeFileSync(SOURCE_MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n')
+    console.log(`Manifest saved to ${SOURCE_MANIFEST_PATH}`)
 
     const ok = manifest.filter((e) => e.status === 200).length
     const fail = manifest.filter((e) => e.status !== 200).length

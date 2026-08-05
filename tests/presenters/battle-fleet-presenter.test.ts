@@ -14,7 +14,7 @@ const officers: RuntimeFleetOfficer[] = [
     name: '甲',
     jobName: '炮術家',
     rarityName: 'S',
-    portraitPath: '/subpkg-a0/imgs/officer-a.png',
+    portraitPath: '/subpkg-assets-0/imgs/officer-a.png',
     skills: [
       {
         skillId: 'skill-main',
@@ -29,7 +29,7 @@ const officers: RuntimeFleetOfficer[] = [
     name: '丙',
     jobName: '炮術家',
     rarityName: 'A',
-    portraitPath: '/subpkg-a0/imgs/officer-c.png',
+    portraitPath: '/subpkg-assets-0/imgs/officer-c.png',
     skills: [
       {
         skillId: 'skill-main',
@@ -44,7 +44,7 @@ const officers: RuntimeFleetOfficer[] = [
     name: '乙',
     jobName: '肉搏家',
     rarityName: 'A',
-    portraitPath: '/subpkg-a0/imgs/officer-p.png',
+    portraitPath: '/subpkg-assets-0/imgs/officer-p.png',
     skills: [
       {
         skillId: 'skill-target-only',
@@ -115,7 +115,7 @@ describe('battle fleet presenter', () => {
     const row = view.skillSummary.find((item) => item.skillId === 'skill-main')!
 
     expect(row.contributors.map((item) => item.officerId)).toEqual(['officer-a', 'officer-c'])
-    expect(row.contributors[0]!.portraitPath).toMatch(/^\/subpkg-a\d\/imgs\/officer-/)
+    expect(row.contributors[0]!.portraitPath).toMatch(/^\/subpkg-assets-\d\/imgs\/officer-/)
     expect(view.skillSummary.find((item) => item.skillId === 'skill-target-only')).toMatchObject({
       totalLevel: 0,
     })

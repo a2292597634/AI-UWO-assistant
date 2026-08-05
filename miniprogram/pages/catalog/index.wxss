@@ -9,11 +9,11 @@
 .asset-loading-state,
 .asset-load-error {
   display: flex;
-  flex: 1;
+  flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48rpx;
+  padding: 16rpx 32rpx;
   color: #5a5a4e;
   text-align: center;
 }

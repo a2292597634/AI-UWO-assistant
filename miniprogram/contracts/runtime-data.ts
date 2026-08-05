@@ -87,6 +87,29 @@ export interface RuntimeDatasetMeta {
   contentVersion: string
 }
 
+// ── Asset dependencies (miniprogram/generated/asset-dependencies.js) ──
+
+export interface RuntimeAssetRootDependency {
+  root: string
+  name: string
+  officerIds: string[]
+  files: string[]
+}
+
+export interface RuntimeAssetReference {
+  path: string
+  root: string
+}
+
+export interface RuntimeAssetDependencyIndex {
+  roots: RuntimeAssetRootDependency[]
+  pathToRoot: Record<string, string>
+  skillIcons: Record<string, RuntimeAssetReference>
+  officerPortraits: Record<string, RuntimeAssetReference>
+  officerCatalogRoots: Record<string, string[]>
+  officerDetailRoots: Record<string, string[]>
+}
+
 // ── Detail records (miniprogram/subpkg-detail/details-N.js) ──
 //
 // Compact field names:

@@ -58,7 +58,7 @@ describe('Full data integrity (627 officers)', () => {
   it('portrait paths use lowercase canonical IDs', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     for (const o of catalog) {
-      expect(o.portraitPath).toMatch(/^\/subpkg-a\d\/imgs\/officer_[a-z0-9]+\.png$/)
+      expect(o.portraitPath).toMatch(/^\/subpkg-assets-\d\/imgs\/officer_[a-z0-9]+\.png$/)
       // No uppercase in filename portion
       const filename = o.portraitPath.split('/').pop()!
       expect(filename).toBe(filename.toLowerCase())
@@ -189,7 +189,7 @@ describe('WXML field contract', () => {
         expect(s.k).toMatch(/^(active|passive)$/)
         expect(s.si).toBeTruthy()
         expect(typeof s.lv).toBe('number')
-        expect(s.ip).toMatch(/^\/subpkg-a\d\/imgs\//)
+        expect(s.ip).toMatch(/^\/subpkg-assets-\d\/imgs\//)
       }
     }
   })

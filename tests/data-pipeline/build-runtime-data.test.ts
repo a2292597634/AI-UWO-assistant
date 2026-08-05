@@ -53,7 +53,7 @@ describe('buildFleetOfficers', () => {
     const officer = index.find((item) => item.id === 'officer_chast089')!
     const relation = officer.skills.find((item) => item.skillId === 'skill_skill400581')!
 
-    expect(officer.portraitPath).toMatch(/^\/subpkg-a\d\/imgs\/officer_/)
+    expect(officer.portraitPath).toMatch(/^\/subpkg-assets-\d\/imgs\/officer_/)
     expect(relation).toMatchObject({
       skillId: 'skill_skill400581',
       kind: 'active',
@@ -86,7 +86,7 @@ describe('buildSkills', () => {
     const s = runtime[firstKey]!
     expect(s.id).toMatch(/^skill_/)
     expect(s.n).toBeTruthy() // name
-    expect(s.ip).toMatch(/^\/subpkg-a\d\/imgs\//) // iconPath in shard
+    expect(s.ip).toMatch(/^\/subpkg-assets-\d\/imgs\//) // iconPath in shard
     expect(s.cat).toBeTruthy() // categoryId
   })
 
@@ -133,7 +133,7 @@ describe('buildDetails', () => {
     expect(officer.gn).toBeTruthy()
     expect(officer.jn).toBeTruthy()
     expect(officer.nn).toBeTruthy()
-    expect(officer.pp).toMatch(/^\/subpkg-a\d\/imgs\//)
+    expect(officer.pp).toMatch(/^\/subpkg-assets-\d\/imgs\//)
     expect(officer.ss.length).toBeGreaterThan(0)
     // Skills have only essential fields: si, k, ul, lv, ip
     // n/d/li are optional — patched at runtime from shared skills.js
@@ -141,7 +141,7 @@ describe('buildDetails', () => {
     expect(sk.si).toBeTruthy()
     expect(sk.lv).toBeGreaterThanOrEqual(0)
     expect(sk.k).toMatch(/^(active|passive)$/)
-    expect(sk.ip).toMatch(/^\/subpkg-a\d\/imgs\//)
+    expect(sk.ip).toMatch(/^\/subpkg-assets-\d\/imgs\//)
     // Unused fields must NOT be present
     expect((sk as unknown as Record<string, unknown>).sg).toBeUndefined()
     expect((sk as unknown as Record<string, unknown>).sl).toBeUndefined()

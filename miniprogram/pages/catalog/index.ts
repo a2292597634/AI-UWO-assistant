@@ -14,7 +14,6 @@ import {
 } from '../../presenters/catalog-presenter'
 import { buildSkillSheet } from '../../presenters/skill-sheet'
 import { getDatasetString, isCatalogFilterField } from '../../contracts/page-events'
-import { assetPackageLoader } from '../../runtime/asset-package-loader'
 
 import type {
   CatalogRowView,
@@ -39,7 +38,7 @@ interface CatalogPageState {
   _skills: Record<string, RuntimeSkill>
   _filterState: CatalogFilterState
   _loadOptions: Record<string, string | undefined>
-  _initializationPromise?: Promise<void>
+  _assetRetryCount: number
 }
 
 const pageStateByInstance = new WeakMap<object, CatalogPageState>()
@@ -53,6 +52,7 @@ const getPageState = (page: object): CatalogPageState => {
       _skills: {},
       _filterState: createEmptyFilterState(),
       _loadOptions: {},
+      _assetRetryCount: 0,
     }
     pageStateByInstance.set(page, state)
   }
@@ -91,13 +91,12 @@ interface PageData extends CatalogViewMaps {
 }
 
 interface CatalogPageUpdater {
+  data: PageData
   setData(update: Record<string, unknown>): void
 }
 
-const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error && error.message) return error.message
-  return String(error)
-}
+const rowsWithAssetState = (rows: readonly CatalogRowView[]): CatalogRowView[] =>
+  rows.map((row) => ({ ...row, assetReady: true }))
 
 const initializeCatalogPage = (
   page: CatalogPageUpdater,
@@ -105,18 +104,14 @@ const initializeCatalogPage = (
 ): Promise<void> => {
   const state = getPageState(page)
   state._loadOptions = options
-  if (state._initializationPromise) return state._initializationPromise
 
   page.setData({
     assetLoading: true,
     assetLoadError: null,
-    visibleRows: [],
   })
 
   const initialization = (async () => {
     try {
-      await assetPackageLoader.loadAll()
-
       const catalog = getCatalog()
       const skills = getSkills()
       const dicts = getDictionaries()
@@ -148,10 +143,11 @@ const initializeCatalogPage = (
 
       const filtered = state._filteredAll
       const maps = buildViewMaps(state._filterState)
+      const visibleRows = filtered.slice(0, PAGE_SIZE)
       page.setData({
         assetLoading: false,
         assetLoadError: null,
-        visibleRows: filtered.slice(0, PAGE_SIZE),
+        visibleRows: rowsWithAssetState(visibleRows),
         filterCount: filtered.length,
         hasActiveFilters: hasActiveFilters(state._filterState),
         hasMore: filtered.length > PAGE_SIZE,
@@ -166,21 +162,13 @@ const initializeCatalogPage = (
         ...maps,
       })
     } catch (error) {
-      state._filteredAll = []
       page.setData({
         assetLoading: false,
-        assetLoadError: `本地圖片素材載入失敗：${getErrorMessage(error)}`,
-        visibleRows: [],
-        filterCount: 0,
-        hasActiveFilters: false,
-        hasMore: false,
+        assetLoadError: `圖片資料初始化失敗：${String(error)}`,
       })
-    } finally {
-      state._initializationPromise = undefined
     }
   })()
 
-  state._initializationPromise = initialization
   return initialization
 }
 
@@ -227,8 +215,15 @@ Page({
     return initializeCatalogPage(this, options)
   },
 
+  onReady() {
+    return Promise.resolve()
+  },
+
   retryAssetLoading() {
-    return initializeCatalogPage(this, getPageState(this)._loadOptions)
+    const state = getPageState(this)
+    if (state._assetRetryCount >= 1) return Promise.resolve()
+    state._assetRetryCount += 1
+    return initializeCatalogPage(this, state._loadOptions)
   },
 
   // ── Tab ──
@@ -311,7 +306,7 @@ Page({
     const maps = buildViewMaps(nextState)
 
     this.setData({
-      visibleRows: visible,
+      visibleRows: rowsWithAssetState(visible),
       filterCount: preserved.length,
       hasActiveFilters: hasActiveFilters(nextState),
       hasMore: preserved.length > PAGE_SIZE,
@@ -326,6 +321,7 @@ Page({
       searchText: nextState.searchText,
       ...maps,
     })
+    return Promise.resolve()
   },
 
   // ── Clear all filters ──
@@ -335,6 +331,7 @@ Page({
     const empty = createEmptyFilterState()
     state._filterState = empty
     state._filteredAll = state._enrichedCatalog
+    const visible = state._enrichedCatalog.slice(0, PAGE_SIZE)
 
     const maps = buildViewMaps(empty)
     this.setData({
@@ -348,7 +345,7 @@ Page({
       searchText: '',
       selectedSkillId: null,
       hasActiveFilters: false,
-      visibleRows: state._enrichedCatalog.slice(0, PAGE_SIZE),
+      visibleRows: rowsWithAssetState(visible),
       filterCount: state._enrichedCatalog.length,
       hasMore: state._enrichedCatalog.length > PAGE_SIZE,
       ...maps,
@@ -388,6 +385,7 @@ Page({
     state._filteredAll = queryCatalog(state._enrichedCatalog, state._skills, state._filterState)
 
     const filtered = state._filteredAll
+    const visible = filtered.slice(0, PAGE_SIZE)
     const maps = buildViewMaps(state._filterState)
     this.setData({
       selectedRarities: [],
@@ -399,7 +397,7 @@ Page({
       activeFilter: 'all' as SkillKindFilter,
       searchText: '',
       selectedSkillId: skill.id,
-      visibleRows: filtered.slice(0, PAGE_SIZE),
+      visibleRows: rowsWithAssetState(visible),
       filterCount: filtered.length,
       hasActiveFilters: hasActiveFilters(state._filterState),
       hasMore: filtered.length > PAGE_SIZE,
@@ -412,16 +410,20 @@ Page({
 
   // ── Pagination ──
 
-  loadMore() {
+  loadMore(): Promise<void> {
     const state = getPageState(this)
     const currentLen = this.data.visibleRows.length
-    if (currentLen >= state._filteredAll.length) return
+    if (currentLen >= state._filteredAll.length) return Promise.resolve()
 
     const nextBatch = state._filteredAll.slice(currentLen, currentLen + PAGE_SIZE)
+    const nextVisibleRows = this.data.visibleRows.concat(rowsWithAssetState(nextBatch))
     this.setData({
-      visibleRows: this.data.visibleRows.concat(nextBatch),
+      assetLoading: false,
+      assetLoadError: null,
+      visibleRows: nextVisibleRows,
       hasMore: currentLen + PAGE_SIZE < state._filteredAll.length,
     })
+    return Promise.resolve()
   },
 
   // ── Image error ──
@@ -433,9 +435,32 @@ Page({
     const item = this.data.visibleRows[idx] as CatalogRowView | undefined
     if (!item || item.portraitFail) return
 
-    const update: Record<string, boolean> = {}
-    update[`visibleRows[${idx}].portraitFail`] = true
-    this.setData(update)
+    this.setData({
+      visibleRows: this.data.visibleRows.map((row, rowIndex) =>
+        rowIndex === idx ? { ...row, portraitFail: true } : row,
+      ),
+    })
+  },
+
+  onSkillIconError(e: WechatMiniprogram.BaseEvent) {
+    const dataset = eventDataset(e)
+    const idx = Number(dataset['index'])
+    const skillId = getDatasetString(dataset, 'skillId')
+    if (isNaN(idx) || !skillId) return
+
+    const item = this.data.visibleRows[idx] as CatalogRowView | undefined
+    if (!item) return
+    if (!item.activeSkillIcons[skillId] && !item.passiveSkillIcons[skillId]) return
+    this.setData({
+      visibleRows: this.data.visibleRows.map((row, rowIndex) => {
+        if (rowIndex !== idx) return row
+        return {
+          ...row,
+          activeSkillIcons: { ...row.activeSkillIcons, [skillId]: '' },
+          passiveSkillIcons: { ...row.passiveSkillIcons, [skillId]: '' },
+        }
+      }),
+    })
   },
 
   onPortraitLayerError(e: WechatMiniprogram.BaseEvent) {
@@ -448,9 +473,11 @@ Page({
     const item = this.data.visibleRows[idx] as CatalogRowView | undefined
     if (!item || item[layer]) return
 
-    const update: Record<string, boolean> = {}
-    update[`visibleRows[${idx}].${layer}`] = true
-    this.setData(update)
+    this.setData({
+      visibleRows: this.data.visibleRows.map((row, rowIndex) =>
+        rowIndex === idx ? { ...row, [layer]: true } : row,
+      ),
+    })
   },
 
   // ── Navigate ──

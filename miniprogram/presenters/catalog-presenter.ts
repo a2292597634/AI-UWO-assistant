@@ -20,6 +20,7 @@ export interface CatalogRowView extends RuntimeCatalogEntry {
   visuals: OfficerVisualPaths
   activeSkillIcons: Record<string, string>
   passiveSkillIcons: Record<string, string>
+  assetReady?: boolean
   portraitFail?: boolean
   frameFail?: boolean
   rarityIconFail?: boolean
@@ -119,6 +120,7 @@ export function enrichCatalogWithIcons(
       visuals: buildOfficerVisuals(o),
       activeSkillIcons: activeIcons,
       passiveSkillIcons: passiveIcons,
+      assetReady: true,
     }
   })
 }

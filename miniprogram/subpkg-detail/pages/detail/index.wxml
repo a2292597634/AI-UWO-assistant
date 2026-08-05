@@ -10,7 +10,7 @@
         data-layer="frameFail"
       />
       <image
-        wx:if="{{!portraitFail}}"
+        wx:if="{{assetReady && !portraitFail}}"
         class="portrait-layer portrait-photo"
         src="{{officer.portraitPath}}"
         mode="aspectFill"
@@ -77,7 +77,8 @@
         bindtap="onSkillTap"
         data-skill-id="{{item.skillId}}"
       >
-        <image class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" />
+        <image wx:if="{{assetReady && item.iconPath && !failedSkillImages[item.skillId]}}" class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onSkillImageError" data-skill-id="{{item.skillId}}" />
+        <view wx:else class="skill-icon skill-icon--placeholder">圖</view>
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>
           <view class="skill-levels">
@@ -105,7 +106,8 @@
         bindtap="onSkillTap"
         data-skill-id="{{item.skillId}}"
       >
-        <image class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" />
+        <image wx:if="{{assetReady && item.iconPath && !failedSkillImages[item.skillId]}}" class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onSkillImageError" data-skill-id="{{item.skillId}}" />
+        <view wx:else class="skill-icon skill-icon--placeholder">圖</view>
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>
           <view class="skill-levels">

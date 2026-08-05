@@ -49,7 +49,6 @@ const JS_ALLOWED_PATTERNS = [
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]details-\d+\.js$/, // detail shards
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-index\.js$/, // generated index
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-loaders\.js$/, // generated loader
-  /[\\/]miniprogram[\\/]subpkg-a\d[\\/]/, // asset subpackages
   /[\\/]miniprogram[\\/]data[\\/]/, // legacy data directory
   /[\\/]miniprogram[\\/]typings[\\/]/, // type declarations
   /[\\/]miniprogram[\\/]pages[\\/]test[\\/]/, // dev-only test page (pending removal)
@@ -138,5 +137,21 @@ describe('App entry must be TypeScript', () => {
 
   it('app.js does NOT exist', () => {
     expect(fs.existsSync(path.join(MINIPROGRAM, 'app.js'))).toBe(false)
+  })
+})
+
+describe('Business image delivery must not depend on local subpackages', () => {
+  it('does not keep the asset package loader or dependency store in runtime code', () => {
+    expect(fs.existsSync(path.join(MINIPROGRAM, 'runtime', 'asset-package-loader.ts'))).toBe(false)
+    expect(fs.existsSync(path.join(MINIPROGRAM, 'runtime', 'asset-dependency-store.ts'))).toBe(
+      false,
+    )
+  })
+
+  it('does not declare business asset subpackages', () => {
+    const app = JSON.parse(fs.readFileSync(path.join(MINIPROGRAM, 'app.json'), 'utf8')) as {
+      subpackages?: Array<{ root: string }>
+    }
+    expect(app.subpackages?.some(({ root }) => root.startsWith('subpkg-assets-'))).toBe(false)
   })
 })

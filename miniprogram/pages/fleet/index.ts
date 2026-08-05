@@ -24,6 +24,12 @@ import type {
 } from '../../contracts/runtime-data'
 
 interface FleetPageData extends BattleFleetPageData {
+  assetLoading: boolean
+  assetLoadError: string | null
+  assetReady: boolean
+  failedPortraitImages: Record<string, boolean>
+  failedSkillImages: Record<string, boolean>
+  manualSkillHasMore: boolean
   manualKind: BattleSkillFilter['kind']
   manualCategoryId: string | null
   skillSearchText: string
@@ -38,6 +44,8 @@ interface FleetPageState {
   manualSkillId: string | null
   manualFilters: BattleSkillFilter
   lastSkillTap: { skillId: string; timestamp: number } | null
+  assetRetryCount: number
+  manualSkillLimit: number
 }
 
 interface FleetPageLike {
@@ -46,6 +54,7 @@ interface FleetPageLike {
 }
 
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
+const MANUAL_SKILL_WINDOW_SIZE = 40
 
 const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
   (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
@@ -89,6 +98,12 @@ const emptyPageData: FleetPageData = {
   manualKind: 'all',
   manualCategoryId: null,
   skillSearchText: '',
+  assetLoading: false,
+  assetLoadError: null,
+  assetReady: false,
+  failedPortraitImages: {},
+  failedSkillImages: {},
+  manualSkillHasMore: false,
 }
 
 const showError = (message: string): void => {
@@ -114,7 +129,7 @@ const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: str
   state.fleet = next.state
 }
 
-const render = (page: FleetPageLike): void => {
+const render = (page: FleetPageLike, startAssetLoading = true): Promise<void> => {
   const state = getState(page)
   const view = buildBattleFleetPageData(
     state.fleet,
@@ -127,10 +142,20 @@ const render = (page: FleetPageLike): void => {
   )
   page.setData({
     ...view,
+    manualSkills: view.manualSkills.slice(0, state.manualSkillLimit),
+    manualSkillHasMore: view.manualSkills.length > state.manualSkillLimit,
     manualKind: state.manualFilters.kind,
     manualCategoryId: state.manualFilters.categoryId,
     skillSearchText: state.manualFilters.searchText,
+    assetLoading: false,
+    assetLoadError: null,
+    assetReady: true,
+    failedPortraitImages: page.data.failedPortraitImages ?? {},
+    failedSkillImages: page.data.failedSkillImages ?? {},
   })
+
+  void startAssetLoading
+  return Promise.resolve()
 }
 
 const getEventTimestamp = (event: WechatMiniprogram.BaseEvent): number => {
@@ -166,10 +191,46 @@ Page({
       manualSkillId: null,
       manualFilters: { kind: 'all', categoryId: null, searchText: '' },
       lastSkillTap: null,
+      assetRetryCount: 0,
+      manualSkillLimit: MANUAL_SKILL_WINDOW_SIZE,
     }
     pageStateByInstance.set(this, state)
     wx.setNavigationBarTitle({ title: '戰鬥模擬艦隊' })
-    render(this)
+    return render(this, false)
+  },
+
+  onReady() {
+    return render(this)
+  },
+
+  retryAssetLoading() {
+    const state = getState(this)
+    if (state.assetRetryCount >= 1) return Promise.resolve()
+    state.assetRetryCount += 1
+    this.setData({ failedPortraitImages: {}, failedSkillImages: {} })
+    return render(this)
+  },
+
+  onImageError(event: WechatMiniprogram.BaseEvent) {
+    const dataset = eventDataset(event)
+    const kind = dataset.kind
+    const id = dataset.id
+    if ((kind !== 'portrait' && kind !== 'skill') || typeof id !== 'string' || !id) return
+
+    if (kind === 'portrait') {
+      this.setData({
+        assetReady: true,
+        assetLoadError: null,
+        failedPortraitImages: { ...this.data.failedPortraitImages, [id]: true },
+      })
+      return
+    }
+
+    this.setData({
+      assetReady: true,
+      assetLoadError: null,
+      failedSkillImages: { ...this.data.failedSkillImages, [id]: true },
+    })
   },
 
   onShipTabTap(event: WechatMiniprogram.BaseEvent) {
@@ -197,6 +258,7 @@ Page({
     if (kind !== 'all' && kind !== 'active' && kind !== 'passive') return
     const state = getState(this)
     state.manualFilters = { ...state.manualFilters, kind, categoryId: null }
+    state.manualSkillLimit = MANUAL_SKILL_WINDOW_SIZE
     render(this)
   },
 
@@ -205,12 +267,21 @@ Page({
     if (typeof categoryId !== 'string') return
     const state = getState(this)
     state.manualFilters = { ...state.manualFilters, categoryId }
+    state.manualSkillLimit = MANUAL_SKILL_WINDOW_SIZE
     render(this)
   },
 
   onSkillSearchInput(event: WechatMiniprogram.Input) {
     const state = getState(this)
     state.manualFilters = { ...state.manualFilters, searchText: event.detail.value ?? '' }
+    state.manualSkillLimit = MANUAL_SKILL_WINDOW_SIZE
+    render(this)
+  },
+
+  onSkillListReachEnd() {
+    const state = getState(this)
+    if (!this.data.manualSkillHasMore) return
+    state.manualSkillLimit += MANUAL_SKILL_WINDOW_SIZE
     render(this)
   },
 

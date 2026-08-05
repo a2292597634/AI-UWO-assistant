@@ -24,7 +24,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
   gn: '女性',
   jn: '探險家',
   nn: '葡萄牙',
-  pp: '/subpkg-a0/imgs/officer_test.png',
+  pp: '/subpkg-assets-0/imgs/officer_test.png',
   ls: [
     { li: 'lang10', lv: 5, n: '葡萄牙語' },
     { li: 'lang30', lv: 3, n: '英語' },
@@ -36,7 +36,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
       ul: 1,
       lv: 10,
       n: '攻擊強化',
-      ip: '/subpkg-a0/imgs/skill_active_1.png',
+      ip: '/subpkg-assets-0/imgs/skill_active_1.png',
       d: '',
       li: '',
     },
@@ -46,7 +46,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
       ul: 1,
       lv: 20,
       n: '防禦強化',
-      ip: '/subpkg-a1/imgs/skill_passive_1.png',
+      ip: '/subpkg-assets-1/imgs/skill_passive_1.png',
       d: '',
       li: '',
     },
@@ -56,7 +56,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
       ul: 2,
       lv: 50,
       n: '必殺攻擊',
-      ip: '/subpkg-a2/imgs/skill_active_2.png',
+      ip: '/subpkg-assets-2/imgs/skill_active_2.png',
       d: '',
       li: '',
     },
@@ -75,7 +75,7 @@ const makeSkillsBridge = (): Record<string, RuntimeSkill> => ({
     n: '攻擊強化',
     cat: 'skill_category_naval_active_enhancement',
     cn: '海戰主動-強化',
-    ip: '/subpkg-a0/imgs/skill_active_1.png',
+    ip: '/subpkg-assets-0/imgs/skill_active_1.png',
     d: '使砲擊攻擊力增加1％。',
     li: 'Lv1: 1% | Lv2: 2% | Lv3: 3% | Lv4: 4% | Lv5: 5% | Lv6: 6% | Lv7: 7% | Lv8: 8% | Lv9: 9% | Lv10: 10%',
   },
@@ -84,7 +84,7 @@ const makeSkillsBridge = (): Record<string, RuntimeSkill> => ({
     n: '防禦強化',
     cat: 'skill_category_naval_passive_defense',
     cn: '海戰被動-防禦',
-    ip: '/subpkg-a1/imgs/skill_passive_1.png',
+    ip: '/subpkg-assets-1/imgs/skill_passive_1.png',
     d: '受到攻擊時，使防禦力增加1％。',
     li: 'Lv1: 1% | Lv2: 2% | Lv3: 3% | Lv4: 4% | Lv5: 5% | Lv6: 6% | Lv7: 7% | Lv8: 8% | Lv9: 9% | Lv10: 10%',
   },
@@ -103,7 +103,7 @@ describe('presentDetail', () => {
     expect(state.officer!.genderName).toBe('女性')
     expect(state.officer!.jobName).toBe('探險家')
     expect(state.officer!.nationalityName).toBe('葡萄牙')
-    expect(state.officer!.portraitPath).toBe('/subpkg-a0/imgs/officer_test.png')
+    expect(state.officer!.portraitPath).toBe('/subpkg-assets-0/imgs/officer_test.png')
     expect(state.officer!.languageSummary).toBe('葡萄牙語 Lv.5、英語 Lv.3')
     expect(state.officer!.visuals).toEqual({
       framePath: '/assets/ui/uwo-bg-grade-6.png',
@@ -202,7 +202,7 @@ describe('presentDetail', () => {
     expect(active1).toBeDefined()
     expect(active1!.unlockLevel).toBe(1)
     expect(active1!.level).toBe(10)
-    expect(active1!.iconPath).toBe('/subpkg-a0/imgs/skill_active_1.png')
+    expect(active1!.iconPath).toBe('/subpkg-assets-0/imgs/skill_active_1.png')
   })
 
   it('handles record with empty portrait path', () => {

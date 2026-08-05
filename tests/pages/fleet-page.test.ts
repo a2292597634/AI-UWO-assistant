@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
@@ -8,12 +8,19 @@ interface FleetTestData {
   currentShip: { slots: unknown[] }
   targets: unknown[]
   fleetOverview: unknown[]
+  assetLoading: boolean
+  assetLoadError: string | null
+  assetReady: boolean
   [key: string]: unknown
 }
 
 interface FleetPageConfig {
   data: FleetTestData
-  onLoad(): void
+  onLoad(): Promise<void>
+  onReady(): Promise<void>
+  retryAssetLoading(): Promise<void>
+  onImageError(event: WechatMiniprogram.BaseEvent): void
+  onSkillListReachEnd(): void
   onModeTap(event: WechatMiniprogram.BaseEvent): void
   onSkillTap(event: WechatMiniprogram.BaseEvent): void
   onAddTarget(): void
@@ -28,6 +35,13 @@ interface FleetPageInstance extends FleetPageConfig {
 }
 
 let fleetPage: FleetPageConfig
+const wxStub = {
+  showToast: vi.fn(),
+  showModal: vi.fn(),
+  setNavigationBarTitle: vi.fn(),
+  navigateTo: vi.fn(),
+  navigateBack: vi.fn((options: { success?: () => void }) => options.success?.()),
+}
 
 const createPageInstance = (): FleetPageInstance => {
   const instance = Object.create(fleetPage) as FleetPageInstance
@@ -40,16 +54,30 @@ beforeAll(async () => {
   vi.stubGlobal('Page', (config: FleetPageConfig) => {
     fleetPage = config
   })
-  vi.stubGlobal('wx', {
-    showToast: vi.fn(),
-    showModal: vi.fn(),
-    setNavigationBarTitle: vi.fn(),
-  })
+  vi.stubGlobal('wx', wxStub)
 
   await import('../../miniprogram/pages/fleet/index')
 })
 
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 describe('battle fleet page', () => {
+  it('renders direct assets during the initial lifecycle without package navigation', async () => {
+    const page = createPageInstance()
+    const loading = page.onLoad()
+
+    await Promise.resolve()
+    expect(wxStub.navigateTo).not.toHaveBeenCalled()
+
+    await page.onReady()
+    await loading
+
+    expect(page.data.assetReady).toBe(true)
+    expect(wxStub.navigateTo).not.toHaveBeenCalled()
+  })
+
   it('registers with seven ship tabs, eleven slots, and manual mode', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -57,6 +85,47 @@ describe('battle fleet page', () => {
     expect(page.data.shipTabs).toHaveLength(7)
     expect(page.data.mode).toBe('manual')
     expect(page.data.currentShip.slots).toHaveLength(11)
+  })
+
+  it('loads skill data when entering the fleet page directly', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onReady()
+
+    expect(page.data.assetLoading).toBe(false)
+    expect(page.data.assetLoadError).toBeNull()
+    expect(page.data.assetReady).toBe(true)
+    expect(wxStub.navigateTo).not.toHaveBeenCalled()
+  })
+
+  it('renders fleet skill icons in bounded scroll windows', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+
+    const firstWindow = page.data.manualSkills as unknown[]
+    expect(firstWindow.length).toBeGreaterThan(0)
+    expect(firstWindow.length).toBeLessThanOrEqual(40)
+
+    page.onSkillListReachEnd()
+    expect((page.data.manualSkills as unknown[]).length).toBeGreaterThan(firstWindow.length)
+  })
+
+  it('keeps the fleet text view after a direct image failure and supports retry', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onReady()
+
+    expect(page.data.currentShip).toBeDefined()
+    page.onImageError({
+      currentTarget: { dataset: { kind: 'portrait', id: 'officer_chast089' } },
+    } as never)
+    expect(page.data.assetReady).toBe(true)
+    expect(page.data.assetLoadError).toBeNull()
+    expect(page.data.failedPortraitImages).toEqual({ officer_chast089: true })
+
+    await page.retryAssetLoading()
+    expect(page.data.assetReady).toBe(true)
+    expect(page.data.assetLoadError).toBeNull()
   })
 
   it('adds an auto target without changing another ship and recalculates explicitly', () => {
@@ -130,5 +199,12 @@ describe('fleet slot action touch targets', () => {
       /\.officer-slot__actions\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*1fr\)/,
     )
     expect(fleetWxss).toMatch(/\.slot-action\s*\{[\s\S]*min-height:\s*64rpx/)
+  })
+
+  it('uses direct image loading without a local asset loading route', () => {
+    expect(fleetWxml).not.toContain('asset-loading-state')
+    expect(fleetWxml).not.toContain('lazy-load="true"')
+    expect(fleetWxml).toContain('binderror="onImageError"')
+    expect(fleetWxml).toContain('bindscrolltolower="onSkillListReachEnd"')
   })
 })

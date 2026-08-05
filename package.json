@@ -23,12 +23,14 @@
     "data:generate": "tsx tools/data-pipeline/generate.ts",
     "assets:download": "tsx tools/asset-pipeline/download-assets.ts",
     "assets:setup": "tsx tools/asset-pipeline/setup-assets.ts",
+    "assets:manifest:check": "tsx tools/asset-pipeline/publish-assets.ts --check",
+    "assets:publish": "tsx tools/asset-pipeline/publish-assets.ts --publish",
     "assets:full": "npm run assets:download -- 0 && npm run assets:setup",
     "assets:ui": "tsx tools/ui-assets/build-ui-assets.ts --write",
     "assets:ui:check": "tsx tools/ui-assets/build-ui-assets.ts --check",
     "pipeline:full": "npm run import:run && npm run assets:full && npm run data:generate",
     "generate:check": "npm run data:generate && git diff --exit-code -- miniprogram/generated miniprogram/subpkg-detail",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run assets:ui:check && npm run data:check && npm run generate:check"
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run assets:ui:check && npm run assets:manifest:check && npm run data:check && npm run generate:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

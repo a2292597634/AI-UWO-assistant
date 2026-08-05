@@ -10,6 +10,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'node:fs'
 import { builtinModules } from 'node:module'
 import * as path from 'node:path'
+import { findRuntimeNetworkReferences } from '../../tools/quality/find-runtime-network-references'
 
 const MINIPROGRAM = path.resolve(__dirname, '../../miniprogram')
 const RUNTIME_SOURCE_EXTENSIONS = new Set(['.ts', '.js', '.json', '.wxml', '.wxss', '.wxs'])
@@ -213,13 +214,17 @@ describe('Page files must not bypass runtime modules', () => {
 })
 
 describe('Runtime files must remain offline and mini program compatible', () => {
-  it('contains no network APIs, remote URLs, or Node built-ins', () => {
-    const violations = readRuntimeFiles(MINIPROGRAM).flatMap((file) => {
-      const rel = path.relative(MINIPROGRAM, file)
-      return analyzeRuntimeSource(readFileContent(file)).map((reason) => `${rel}: ${reason}`)
-    })
+  it('contains no network APIs, non-asset URLs, or Node built-ins', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
+    ) as { cdnOrigin: string; cloudPathPrefix: string }
 
-    expect(violations).toEqual([])
+    expect(
+      findRuntimeNetworkReferences(MINIPROGRAM, {
+        generatedCdnOrigin: manifest.cdnOrigin,
+        generatedAssetPathPrefix: `/${manifest.cloudPathPrefix}/`,
+      }),
+    ).toEqual([])
   })
 })
 

@@ -1,5 +1,6 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
+import type { AssetDependencyIndex } from './asset-dependencies'
 import type {
   RuntimeCatalogEntry,
   RuntimeSkill,
@@ -8,6 +9,14 @@ import type {
   RuntimeDictionaries,
   RuntimeDetailRecord,
 } from '../../miniprogram/contracts/runtime-data'
+
+export interface RuntimeAssetUrlManifest {
+  releaseId: string
+  contentVersion?: string
+  cdnOrigin: string
+  cloudPathPrefix?: string
+  assets: Array<{ filename: string; publicUrl: string }>
+}
 
 // ── Helpers ──
 
@@ -37,18 +46,59 @@ const unprefix = (id: string): string => {
   return idx >= 0 ? id.slice(idx + 1) : id
 }
 
-/** Deterministic shard index for an image filename. */
-const shardFor = (filename: string): number => {
-  const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
-  let hash = 0
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
-  return hash % 10
+/** Portrait asset path from officer ID. */
+const legacyPortraitPath = (officerId: string): string => {
+  const filename = `${officerId}.png`
+  return `/subpkg-assets-0/imgs/${filename}`
 }
 
-/** Portrait asset path from officer ID. */
-const portraitPath = (officerId: string): string => {
-  const filename = `${officerId}.png`
-  return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
+const filenameFromPath = (path: string): string => path.split('/').pop() ?? path
+
+const publicAssetUrl = (
+  filename: string,
+  manifest?: RuntimeAssetUrlManifest,
+): string | undefined => {
+  if (!manifest) return undefined
+  const asset = manifest.assets.find((entry) => entry.filename === filename)
+  if (!asset) throw new Error(`published asset manifest is missing ${filename}`)
+  let origin: URL
+  let publicUrl: URL
+  try {
+    origin = new URL(manifest.cdnOrigin)
+    publicUrl = new URL(asset.publicUrl)
+  } catch {
+    throw new Error(`CloudBase CDN origin is invalid: ${manifest.cdnOrigin}`)
+  }
+  const cloudPathPrefix = manifest.cloudPathPrefix ?? 'assets'
+  const expectedPathPrefix = `/${cloudPathPrefix}/${manifest.releaseId}/`
+  if (
+    origin.protocol !== 'https:' ||
+    !/^[A-Za-z0-9][A-Za-z0-9-]*\.tcb\.qcloud\.la$/i.test(origin.hostname) ||
+    origin.pathname !== '/' ||
+    origin.search ||
+    origin.hash
+  ) {
+    throw new Error(`CloudBase CDN origin is invalid: ${manifest.cdnOrigin}`)
+  }
+  if (
+    publicUrl.protocol !== 'https:' ||
+    publicUrl.origin !== origin.origin ||
+    publicUrl.search ||
+    publicUrl.hash ||
+    !publicUrl.pathname.startsWith(expectedPathPrefix)
+  ) {
+    throw new Error(`asset publicUrl is outside the configured CloudBase CDN release: ${filename}`)
+  }
+  return asset.publicUrl
+}
+
+const resolvedPortraitPath = (
+  officerId: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
+): string => {
+  const path = dependencies?.officerPortraits[officerId]?.path ?? legacyPortraitPath(officerId)
+  return publicAssetUrl(filenameFromPath(path), manifest) ?? path
 }
 
 /** Skill icon path from skill ID, with fallback for variant skills. */
@@ -58,16 +108,27 @@ const iconPath = (
   categoryFallback: Map<string, string>,
   categoryId: string,
   globalFallback?: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): string => {
+  const mapped = dependencies?.skillIcons[skillId]?.path
+  if (mapped) return publicAssetUrl(filenameFromPath(mapped), manifest) ?? mapped
   const filename = `${skillId}.png`
   if (iconSet.has(filename)) {
-    return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
+    return publicAssetUrl(filename, manifest) ?? `/subpkg-assets-0/imgs/${filename}`
   }
   // Variant skill (e.g. skillT*) — use category fallback, then global fallback
   const catFB = categoryFallback.get(categoryId)
-  if (catFB) return catFB
-  if (globalFallback) return globalFallback
-  return `/subpkg-a${shardFor(filename)}/imgs/${filename}`
+  if (catFB) {
+    const localPath = catFB.replace(/^\/subpkg-a\d\//, '/subpkg-assets-0/')
+    return publicAssetUrl(filenameFromPath(localPath), manifest) ?? localPath
+  }
+  if (globalFallback) {
+    const localPath = globalFallback.replace(/^\/subpkg-a\d\//, '/subpkg-assets-0/')
+    return publicAssetUrl(filenameFromPath(localPath), manifest) ?? localPath
+  }
+  if (manifest) return ''
+  return publicAssetUrl(filename, manifest) ?? `/subpkg-assets-0/imgs/${filename}`
 }
 
 // ── Catalog (compact: skill IDs only, names/icons looked up from skills.js) ──
@@ -78,6 +139,8 @@ export const buildCatalog = (
   officers: CanonicalOfficer[],
   _skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): RuntimeCatalogEntry[] => {
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? unprefix(id)
@@ -106,7 +169,7 @@ export const buildCatalog = (
       genderLabel: dictName('genders', o.genderId),
       jobId: o.jobId,
       jobName: dictName('jobs', o.jobId),
-      portraitPath: portraitPath(o.id),
+      portraitPath: resolvedPortraitPath(o.id, dependencies, manifest),
       languages: o.languages.map((l) => unprefix(l.languageId)),
       activeSkills: o.skills.filter((r) => r.kind === 'active').map((r) => r.skillId),
       passiveSkills: o.skills.filter((r) => r.kind === 'passive').map((r) => r.skillId),
@@ -127,6 +190,8 @@ export const buildFleetOfficers = (
   officers: CanonicalOfficer[],
   skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): RuntimeFleetOfficer[] => {
   const skillMap = new Map(skills.map((skill) => [skill.id, skill]))
   const dictName = (group: string, id: string): string =>
@@ -137,7 +202,7 @@ export const buildFleetOfficers = (
     name: officer.name.trim(),
     jobName: dictName('jobs', officer.jobId),
     rarityName: rarityGrade(officer.rarityId),
-    portraitPath: portraitPath(officer.id),
+    portraitPath: resolvedPortraitPath(officer.id, dependencies, manifest),
     skills: officer.skills
       .map((relation) => ({ ...relation, categoryId: skillMap.get(relation.skillId)?.categoryId }))
       .filter(
@@ -164,6 +229,8 @@ export const buildDetails = (
   iconSet?: Set<string>,
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): Record<string, RuntimeDetailRecord> => {
   const skillMap = new Map(skills.map((s) => [s.id, s]))
   const dictName = (group: string, id: string): string =>
@@ -184,7 +251,7 @@ export const buildDetails = (
       gn: dictName('genders', o.genderId),
       jn: dictName('jobs', o.jobId),
       nn: dictName('nationalities', o.nationalityId),
-      pp: portraitPath(o.id),
+      pp: resolvedPortraitPath(o.id, dependencies, manifest),
       ls: o.languages.map((l) => ({
         li: unprefix(l.languageId),
         lv: l.level,
@@ -197,7 +264,15 @@ export const buildDetails = (
           k: rel.kind,
           ul: rel.unlockLevel,
           lv: rel.level,
-          ip: iconPath(rel.skillId, _iconSet, _catFB, sk?.categoryId ?? '', globalFallback),
+          ip: iconPath(
+            rel.skillId,
+            _iconSet,
+            _catFB,
+            sk?.categoryId ?? '',
+            globalFallback,
+            dependencies,
+            manifest,
+          ),
         }
       }),
       rc: {
@@ -213,7 +288,7 @@ export const buildDetails = (
   return result
 }
 
-/** Shard an officer ID for chunked detail files. Must match shardFor. */
+/** Shard an officer ID for chunked detail files. */
 const detailShard = (officerId: string): number => {
   const filename = `${officerId}.png`
   const id = filename.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
@@ -231,6 +306,8 @@ export const writeShardedDetails = (
   iconSet?: Set<string>,
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): void => {
   const all = buildDetails(
     officers,
@@ -239,6 +316,8 @@ export const writeShardedDetails = (
     iconSet,
     categoryFallback,
     globalFallback,
+    dependencies,
+    manifest,
   )
 
   // Group by shard
@@ -299,6 +378,8 @@ export const buildSkills = (
   iconSet?: Set<string>,
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): Record<string, RuntimeSkill> => {
   const _iconSet = iconSet ?? new Set<string>()
   const _catFB = categoryFallback ?? new Map<string, string>()
@@ -312,7 +393,7 @@ export const buildSkills = (
       n: s.name,
       cat: s.categoryId,
       cn: categoryNames.get(s.categoryId) ?? '未分類',
-      ip: iconPath(s.id, _iconSet, _catFB, s.categoryId, globalFallback),
+      ip: iconPath(s.id, _iconSet, _catFB, s.categoryId, globalFallback, dependencies, manifest),
       d: s.description,
       li: s.levelInfo,
     }
@@ -425,12 +506,22 @@ export const writeRuntimeData = (
   iconSet?: Set<string>,
   categoryFallback?: Map<string, string>,
   globalFallback?: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): void => {
   mkdirSync(outputDir, { recursive: true })
 
-  const catalog = buildCatalog(officers, skills, dictionaries)
-  const fleetOfficers = buildFleetOfficers(officers, skills, dictionaries)
-  const runtimeSkills = buildSkills(skills, dictionaries, iconSet, categoryFallback, globalFallback)
+  const catalog = buildCatalog(officers, skills, dictionaries, dependencies, manifest)
+  const fleetOfficers = buildFleetOfficers(officers, skills, dictionaries, dependencies, manifest)
+  const runtimeSkills = buildSkills(
+    skills,
+    dictionaries,
+    iconSet,
+    categoryFallback,
+    globalFallback,
+    dependencies,
+    manifest,
+  )
   const runtimeDicts = buildDictionaries(officers, skills, dictionaries)
 
   const write = (name: string, data: unknown) =>
@@ -444,7 +535,7 @@ export const writeRuntimeData = (
   write('dataset-meta', {
     officerCount: catalog.length,
     skillCount: Object.keys(runtimeSkills).length,
-    contentVersion: '1.0.0',
+    contentVersion: manifest?.contentVersion ?? '1.0.0',
   })
   // Note: sharded details-*.js files are written separately to the detail subpackage
 

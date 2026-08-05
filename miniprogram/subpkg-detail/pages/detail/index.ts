@@ -15,11 +15,17 @@ const skillsData = (require('../../detail-loaders') as DetailSkillsBridge).skill
 
 interface DetailPageData extends DetailPageState {
   sheetSkill: SkillSheetView | null
+  assetLoading: boolean
+  assetLoadError: string | null
+  assetReady: boolean
+  failedSkillImages: Record<string, boolean>
   frameFail: boolean
   rarityIconFail: boolean
   typeIconFail: boolean
 }
 
+const officerIdByPage = new WeakMap<object, string>()
+const retryCountByPage = new WeakMap<object, number>()
 const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
   (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
 
@@ -27,6 +33,10 @@ Page({
   data: {
     ...emptyDetailState(),
     sheetSkill: null,
+    assetLoading: false,
+    assetLoadError: null,
+    assetReady: false,
+    failedSkillImages: {},
     frameFail: false,
     rarityIconFail: false,
     typeIconFail: false,
@@ -35,17 +45,50 @@ Page({
   onLoad(options: Record<string, string | undefined>) {
     const officerId = options.id
     if (!officerId) return
+    officerIdByPage.set(this, officerId)
+    if (!retryCountByPage.has(this)) retryCountByPage.set(this, 0)
 
     const record = getOfficerDetail(officerId)
     if (!record) return
 
     const state = presentDetail(record, skillsData)
-    this.setData(state)
+    this.setData({
+      ...state,
+      assetLoading: false,
+      assetLoadError: null,
+      assetReady: true,
+      failedSkillImages: {},
+    })
     wx.setNavigationBarTitle({ title: state.officer?.name ?? '航海士詳情' })
+
+    return Promise.resolve()
+  },
+
+  onReady() {
+    return Promise.resolve()
+  },
+
+  retryAssetLoading() {
+    const officerId = officerIdByPage.get(this)
+    const retryCount = retryCountByPage.get(this) ?? 0
+    if (!officerId || retryCount >= 1) return Promise.resolve()
+    retryCountByPage.set(this, retryCount + 1)
+    return this.onLoad({ id: officerId })
   },
 
   onPortraitError() {
     this.setData({ portraitFail: true })
+  },
+
+  onSkillImageError(event: WechatMiniprogram.BaseEvent) {
+    const skillId = eventDataset(event)['skillId']
+    if (typeof skillId !== 'string' || !skillId) return
+
+    this.setData({
+      assetReady: true,
+      assetLoadError: null,
+      failedSkillImages: { ...this.data.failedSkillImages, [skillId]: true },
+    })
   },
 
   onPortraitLayerError(event: WechatMiniprogram.BaseEvent) {

@@ -36,7 +36,7 @@
         <view wx:for="{{currentShip.slots}}" wx:key="position" class="officer-slot {{item.officer ? 'officer-slot--filled' : ''}}">
           <text class="officer-slot__number">{{item.position}}</text>
           <block wx:if="{{item.officer}}">
-            <image class="officer-slot__portrait" src="{{item.officer.portraitPath}}" mode="aspectFill" />
+            <image wx:if="{{assetReady && !failedPortraitImages[item.officer.id]}}" class="officer-slot__portrait" src="{{item.officer.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.officer.id}}" />
             <text class="officer-slot__name">{{item.officer.name}}</text>
             <view class="officer-slot__actions">
               <view
@@ -80,7 +80,7 @@
         </view>
         <view wx:for="{{targets}}" wx:key="id" class="target-row">
           <view class="target-row__skill">
-            <image wx:if="{{item.skillIconPath}}" class="target-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" />
+            <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="target-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />
             <text class="target-row__name">{{item.configured ? item.skillName : '選擇戰鬥技能'}}</text>
           </view>
           <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" data-id="{{item.id}}" />
@@ -108,15 +108,16 @@
           </view>
         </scroll-view>
         <input class="skill-search" placeholder="在目前分類搜尋技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
-        <scroll-view class="skill-options" scroll-y="true">
+        <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
           <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option {{manualSkillId === item.id ? 'skill-option--active' : ''}}" bindtap="onSkillTap" data-id="{{item.id}}">
-            <image class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" />
+            <image wx:if="{{assetReady && !failedSkillImages[item.id]}}" class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.id}}" />
             <view class="skill-option__copy">
               <text class="skill-option__name">{{item.name}}</text>
               <text class="skill-option__meta">{{item.kindLabel}} · {{item.categoryName}}</text>
             </view>
           </view>
           <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的戰鬥技能</view>
+          <view wx:if="{{manualSkillHasMore}}" class="inline-empty">繼續上滑載入更多技能</view>
         </scroll-view>
       </view>
 
@@ -126,7 +127,7 @@
           <text class="panel-heading__hint">選擇技能後顯示候選</text>
         </view>
         <view wx:for="{{manualCandidates}}" wx:key="id" class="candidate-row {{item.canSelect ? '' : 'candidate-row--disabled'}}" bindtap="onOfficerSelect" data-id="{{item.id}}">
-          <image class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" />
+          <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
           <view class="candidate-row__copy">
             <text class="candidate-row__name">{{item.name}}</text>
             <text class="candidate-row__meta">{{item.jobName}} · {{item.rarityName}}</text>
@@ -144,7 +145,7 @@
         <scroll-view class="ban-list" scroll-x="true" enable-flex>
           <view class="ban-list__content">
             <view wx:for="{{bannedOfficers}}" wx:key="id" class="ban-chip">
-              <image class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" />
+              <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
               <text class="ban-chip__name">{{item.name}}</text>
               <text class="ban-chip__remove" bindtap="onUnbanOfficer" data-id="{{item.id}}">解除</text>
             </view>
@@ -159,7 +160,7 @@
           <text class="panel-heading__hint">使用真實累計值 · 不封頂</text>
         </view>
         <view wx:for="{{skillSummary}}" wx:key="skillId" class="summary-row">
-          <image class="summary-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" />
+          <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="summary-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />
           <view class="summary-row__copy">
             <text class="summary-row__name">{{item.skillName}}</text>
             <text class="summary-row__level">Lv.{{item.totalLevel}}{{item.targetLevel !== null ? ' / 目標 Lv.' + item.targetLevel : ''}}</text>
@@ -167,7 +168,7 @@
           <text class="summary-row__state {{item.isReached === true ? 'summary-row__state--ok' : ''}}">{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}</text>
           <scroll-view class="summary-row__contributors" scroll-x="true" enable-flex>
             <view class="summary-row__contributors-content">
-              <image wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" />
+              <image wx:if="{{assetReady && !failedPortraitImages[item.officerId]}}" wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.officerId}}" />
               <text wx:if="{{item.contributors.length === 0}}" class="contributors-empty">尚無貢獻者</text>
             </view>
           </scroll-view>

@@ -24,7 +24,7 @@ const makeEntry = (id: string, overrides?: Partial<RuntimeCatalogEntry>): Runtim
   genderLabel: '男性',
   jobId: 'job_test',
   jobName: '測試職業',
-  portraitPath: `/subpkg-a0/imgs/${id}.png`,
+  portraitPath: `/subpkg-assets-0/imgs/${id}.png`,
   languages: ['lang10'],
   activeSkills: ['skill_a1'],
   passiveSkills: ['skill_p1'],

@@ -1,3 +1,18 @@
+.asset-loading-state,
+.asset-load-error {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx 32rpx;
+  color: #5a5a4e;
+  text-align: center;
+}
+
+.asset-load-error {
+  flex-direction: column;
+}
+
 .fleet-page {
   display: flex;
   flex-direction: column;

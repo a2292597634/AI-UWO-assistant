@@ -18,6 +18,10 @@ import * as path from 'node:path'
 
 const GENERATED_DIR = path.resolve(__dirname, '../../miniprogram/generated')
 const DETAIL_DIR = path.resolve(__dirname, '../../miniprogram/subpkg-detail')
+const ASSET_MANIFEST = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
+) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
+const ASSET_URL_PREFIX = `${ASSET_MANIFEST.cdnOrigin}/${ASSET_MANIFEST.cloudPathPrefix}/${ASSET_MANIFEST.releaseId}/`
 
 // ── Helpers ──
 
@@ -46,6 +50,32 @@ const allDetailIds = (): Set<string> => {
 }
 
 const DETAIL_SHARD_COUNT = 10
+
+const isPublishedAssetUrl = (value: string, filenamePrefix: string): boolean => {
+  try {
+    const url = new URL(value)
+    return (
+      url.protocol === 'https:' &&
+      url.origin === ASSET_MANIFEST.cdnOrigin &&
+      !url.search &&
+      !url.hash &&
+      url.href.startsWith(ASSET_URL_PREFIX) &&
+      url.pathname.endsWith('.png') &&
+      url.pathname.split('/').pop()!.startsWith(filenamePrefix)
+    )
+  } catch {
+    return false
+  }
+}
+
+const expectPublishedAssetUrl = (
+  value: string,
+  filenamePrefix: string,
+  allowMissing = false,
+): void => {
+  if (allowMissing && value === '') return
+  expect(isPublishedAssetUrl(value, filenamePrefix)).toBe(true)
+}
 
 // ── Catalog tests ──
 
@@ -114,7 +144,7 @@ describe('Runtime Contract: catalog.js', () => {
   it('portraitPath has expected format', () => {
     for (const entry of catalog) {
       const pp = entry.portraitPath as string
-      expect(pp).toMatch(/^\/subpkg-a\d\/imgs\/officer_.+\.png$/)
+      expectPublishedAssetUrl(pp, 'officer_')
     }
   })
 
@@ -183,7 +213,7 @@ describe('Runtime Contract: skills.js', () => {
   it('icon paths have expected format', () => {
     for (const [, skill] of Object.entries(skills)) {
       const ip = skill.ip as string
-      expect(ip).toMatch(/^\/subpkg-a\d\/imgs\/skill_.+\.png$/)
+      expectPublishedAssetUrl(ip, 'skill_', true)
     }
   })
 
@@ -216,9 +246,10 @@ describe('Runtime Contract: fleet-officers.js', () => {
         name: expect.any(String),
         jobName: expect.any(String),
         rarityName: expect.any(String),
-        portraitPath: expect.stringMatching(/^\/subpkg-a\d\/imgs\/officer_.+\.png$/),
+        portraitPath: expect.any(String),
         skills: expect.any(Array),
       })
+      expectPublishedAssetUrl(entry.portraitPath as string, 'officer_')
       for (const relation of entry.skills as Array<Record<string, unknown>>) {
         expect(relation.skillId).toEqual(expect.any(String))
         expect(['active', 'passive']).toContain(relation.kind)
@@ -394,7 +425,7 @@ describe('Runtime Contract: details-N.js', () => {
       const shard = readDetailShard(s)
       for (const [, rec] of Object.entries(shard)) {
         const pp = (rec as Record<string, unknown>).pp as string
-        expect(pp).toMatch(/^\/subpkg-a\d\/imgs\/officer_.+\.png$/)
+        expectPublishedAssetUrl(pp, 'officer_')
       }
     }
   })
@@ -406,7 +437,7 @@ describe('Runtime Contract: details-N.js', () => {
         const ss = (rec as Record<string, unknown>).ss as Array<Record<string, unknown>>
         for (const skill of ss) {
           const ip = skill.ip as string
-          expect(ip).toMatch(/^\/subpkg-a\d\/imgs\/skill_.+\.png$/)
+          expectPublishedAssetUrl(ip, 'skill_', true)
         }
       }
     }

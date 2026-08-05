@@ -63,7 +63,7 @@ describe('buildSkillSheet', () => {
       n: '工藝品購買折扣',
       cat: 'skill_category_trade_price_adjustment',
       cn: '價格調整',
-      ip: '/subpkg-a0/imgs/skill_skill200681.png',
+      ip: '/subpkg-assets-0/imgs/skill_skill200681.png',
       d: '購買工藝品時，可以用減少1％的價格購買。',
       li: 'Lv1: 1% | Lv10: 10%',
     }
@@ -73,7 +73,7 @@ describe('buildSkillSheet', () => {
     expect(view).toMatchObject({
       id: 'skill_skill200681',
       name: '工藝品購買折扣',
-      iconPath: '/subpkg-a0/imgs/skill_skill200681.png',
+      iconPath: '/subpkg-assets-0/imgs/skill_skill200681.png',
       kind: 'active',
       kindLabel: '主動技能',
       category: '價格調整',

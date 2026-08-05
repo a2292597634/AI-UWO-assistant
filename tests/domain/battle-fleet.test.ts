@@ -30,7 +30,7 @@ const officer = (id: string, skills: RuntimeFleetOfficer['skills']): RuntimeFlee
   name: id,
   jobName: '戰鬥職業',
   rarityName: 'S',
-  portraitPath: `/subpkg-a0/imgs/${id}.png`,
+  portraitPath: `/subpkg-assets-0/imgs/${id}.png`,
   skills,
 })
 

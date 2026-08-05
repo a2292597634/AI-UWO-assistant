@@ -1,12 +1,4 @@
 <view class="catalog-page">
-  <view class="asset-loading-state" wx:if="{{assetLoading}}">
-    <text>正在載入本地圖片素材…</text>
-  </view>
-  <view class="asset-load-error" wx:elif="{{assetLoadError}}">
-    <text class="asset-load-error__message">{{assetLoadError}}</text>
-    <button class="asset-load-error__retry" bindtap="retryAssetLoading">重新載入</button>
-  </view>
-  <block wx:else>
   <!-- Search bar -->
   <view class="search-bar">
     <input class="search-input" placeholder="搜尋航海士名稱..." value="{{searchText}}" bindinput="onSearchInput" />
@@ -84,7 +76,7 @@
     <view wx:for="{{visibleRows}}" wx:key="id" class="officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
       <view class="row-portrait">
         <image wx:if="{{item.visuals.framePath && !item.frameFail}}" src="{{item.visuals.framePath}}" mode="aspectFill" class="row-portrait-layer row-portrait-frame" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="frameFail" />
-        <image wx:if="{{!item.portraitFail}}" src="{{item.portraitPath}}" mode="aspectFill" class="row-portrait-layer row-avatar" binderror="onPortraitError" data-index="{{index}}" />
+        <image wx:if="{{item.assetReady && !item.portraitFail}}" src="{{item.portraitPath}}" mode="aspectFill" class="row-portrait-layer row-avatar" binderror="onPortraitError" data-index="{{index}}" />
         <view class="row-portrait-layer row-portrait-fb" wx:else>
           <text class="row-portrait-initial">{{item.name[0]}}</text>
         </view>
@@ -103,14 +95,16 @@
           <view class="row-skills__content">
             <view class="skill-icon-group" wx:if="{{item.activeSkills.length > 0}}">
               <view wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="row-skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="active">
-                <image src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" />
+                <image wx:if="{{item.assetReady && item.activeSkillIcons[sid]}}" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
+                <text wx:else class="row-skill-fallback">技</text>
               </view>
               <text class="skill-more" wx:if="{{item.activeSkills.length > 3}}">+{{item.activeSkills.length - 3}}</text>
             </view>
             <view class="skill-icon-group" wx:if="{{item.passiveSkills.length > 0}}">
               <view class="skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
               <view wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="row-skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="passive">
-                <image src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" />
+                <image wx:if="{{item.assetReady && item.passiveSkillIcons[sid]}}" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
+                <text wx:else class="row-skill-fallback">技</text>
               </view>
               <text class="skill-more" wx:if="{{item.passiveSkills.length > 3}}">+{{item.passiveSkills.length - 3}}</text>
             </view>
@@ -126,5 +120,4 @@
   </scroll-view>
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
-  </block>
 </view>

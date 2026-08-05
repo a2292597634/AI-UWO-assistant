@@ -22,6 +22,7 @@ const findTsSourceFiles = (dir: string): string[] => {
       if (
         entry.name === 'node_modules' ||
         entry.name === 'generated' ||
+        entry.name.startsWith('subpkg-assets-') ||
         entry.name.startsWith('subpkg-a')
       )
         continue

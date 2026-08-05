@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
+import { readFileSync, mkdirSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
 import {
   writeRuntimeData,
@@ -6,46 +6,20 @@ import {
   writeDetailIndex,
   writeDetailLoaders,
 } from './build-runtime-data'
+import {
+  assertAssetDependencyIndex,
+  buildAssetDependencyIndex,
+  writeAssetDependencyIndex,
+} from './asset-dependencies'
+import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
 const SUBPKG_DIR = 'miniprogram/subpkg-detail'
-const ASSET_DIRS = Array.from({ length: 10 }, (_, i) => `miniprogram/subpkg-a${i}/imgs`)
+const PUBLISHED_MANIFEST_PATH =
+  process.env.CLOUDBASE_ASSET_MANIFEST_PATH ?? 'data/assets/cloudbase-manifest.json'
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
-
-/** Build set of all existing skill icon filenames from asset subpackages. */
-const buildIconSet = (dirs: string[]): Set<string> => {
-  const set = new Set<string>()
-  for (const dir of dirs) {
-    if (!existsSync(dir)) continue
-    for (const f of readdirSync(dir)) {
-      if (f.startsWith('skill_')) set.add(f)
-    }
-  }
-  return set
-}
-
-/** Build category → icon path fallback for variant skills without own icons. */
-const buildCategoryFallback = (
-  skills: CanonicalSkill[],
-  iconSet: Set<string>,
-): Map<string, string> => {
-  const fallback = new Map<string, string>()
-  for (const s of skills) {
-    if (fallback.has(s.categoryId)) continue
-    const fname = `${s.id}.png`
-    if (iconSet.has(fname)) {
-      // Compute the same path that iconPath() would generate
-      const id = fname.replace(/\.png$/, '').replace(/^(officer|skill)_/, '')
-      let hash = 0
-      for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
-      const shard = hash % 10
-      fallback.set(s.categoryId, `/subpkg-a${shard}/imgs/${fname}`)
-    }
-  }
-  return fallback
-}
 
 const generate = (): void => {
   console.log('=== Runtime Data Generator ===\n')
@@ -63,19 +37,19 @@ const generate = (): void => {
   const dictionaries = readJson<Record<string, DictionaryItem[]>>(
     `${CANONICAL_DIR}/dictionaries.json`,
   )
+  const publishedManifest = loadPublishedAssetManifest(PUBLISHED_MANIFEST_PATH)
 
   console.log(`  Officers: ${officers.length}`)
   console.log(`  Skills: ${skills.length}`)
   console.log(`  Dictionary groups: ${Object.keys(dictionaries).length}`)
 
-  // Build icon set and category fallback for variant skills
-  const iconSet = buildIconSet(ASSET_DIRS)
-  const categoryFallback = buildCategoryFallback(skills, iconSet)
-  // Global fallback: the first available skill icon (used when a category has no base icons)
-  const globalFallback = categoryFallback.values().next().value as string | undefined
+  const iconSet = new Set(publishedManifest.assets.map((asset) => asset.filename))
   console.log(`  Icon files found: ${iconSet.size}`)
-  console.log(`  Category fallbacks: ${categoryFallback.size}`)
-  console.log(`  Global fallback: ${globalFallback ?? 'none'}`)
+  const assetDependencies = buildAssetDependencyIndex(officers, skills, {
+    assetFilenames: iconSet,
+  })
+  assertAssetDependencyIndex(assetDependencies)
+  console.log(`  Asset roots: ${assetDependencies.roots.length}`)
 
   mkdirSync(OUTPUT_DIR, { recursive: true })
   mkdirSync(SUBPKG_DIR, { recursive: true })
@@ -87,9 +61,12 @@ const generate = (): void => {
     dictionaries,
     OUTPUT_DIR,
     iconSet,
-    categoryFallback,
-    globalFallback,
+    undefined,
+    undefined,
+    assetDependencies,
+    publishedManifest,
   )
+  writeAssetDependencyIndex(assetDependencies, OUTPUT_DIR)
 
   // Write details sharded (lazy-loaded per officer on detail page)
   writeShardedDetails(
@@ -98,15 +75,17 @@ const generate = (): void => {
     dictionaries,
     SUBPKG_DIR,
     iconSet,
-    categoryFallback,
-    globalFallback,
+    undefined,
+    undefined,
+    assetDependencies,
+    publishedManifest,
   )
 
   // Write detail lookup index and static loaders
   writeDetailIndex(officers, SUBPKG_DIR)
   writeDetailLoaders(SUBPKG_DIR)
 
-  console.log('\nDone. Mini program loads details from subpkg-detail/ on demand.')
+  console.log(`\nDone. Generated CDN release ${publishedManifest.releaseId}.`)
 }
 
 if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/data-pipeline/generate.ts')) {
