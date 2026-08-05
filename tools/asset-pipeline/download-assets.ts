@@ -23,7 +23,8 @@ interface DownloadResult {
 // ── Configuration ──
 
 const VOYAGE_BASE = 'https://voyage.tw'
-const ASSETS_DIR = 'miniprogram/assets'
+export const ASSET_STAGING_DIR = 'data/assets/staging'
+const ASSETS_DIR = ASSET_STAGING_DIR
 const SOURCE_MANIFEST_PATH = 'data/assets/source-asset-manifest.json'
 const BATCH_SIZE = 8 // concurrent downloads
 const _BATCH_DELAY_MS = 100 // delay between batches

@@ -14,3 +14,4 @@ archive/voyage-tw-2026052501/raw-assets/
 miniprogram/assets/*.png
 miniprogram/subpkg-a*/imgs/*.png
 data/assets/source-asset-manifest.json
+data/assets/staging/

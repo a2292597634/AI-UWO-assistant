@@ -189,8 +189,8 @@ const runCloudBaseCommand = async (
 }
 
 const readGeneratedDependencies = (): AssetDependencyIndex => {
-  const source = readFileSync('miniprogram/generated/asset-dependencies.js', 'utf8')
-  return JSON.parse(source.replace(/^module\.exports\s*=\s*/, '')) as AssetDependencyIndex
+  const source = readFileSync('data/assets/asset-dependencies.json', 'utf8')
+  return JSON.parse(source) as AssetDependencyIndex
 }
 
 const parsePublishLimit = (value: string | undefined): number | undefined => {
@@ -227,7 +227,7 @@ const run = async (): Promise<void> => {
   })
   const plan = buildAssetReleasePlan({
     dependencies: readGeneratedDependencies(),
-    assetRoot: process.env.CLOUDBASE_ASSET_ROOT ?? 'miniprogram',
+    assetRoot: process.env.CLOUDBASE_ASSET_ROOT ?? 'data/assets/staging',
     config,
     limit: parsePublishLimit(process.env.CLOUDBASE_ASSET_LIMIT),
   })

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -7,18 +7,34 @@ import {
   type AssetDependencyIndex,
 } from '../../tools/data-pipeline/asset-dependencies'
 
-const generatedDependencies = readFileSync(
-  resolve(__dirname, '../../miniprogram/generated/asset-dependencies.js'),
-  'utf8',
-)
-const dependencies = JSON.parse(
-  generatedDependencies.replace(/^module\.exports\s*=\s*/, ''),
-) as AssetDependencyIndex
+const dependencyPath = resolve(__dirname, '../../data/assets/asset-dependencies.json')
+const generatedPath = resolve(__dirname, '../../miniprogram/generated/asset-dependencies.js')
 const appConfig = JSON.parse(
   readFileSync(resolve(__dirname, '../../miniprogram/app.json'), 'utf8'),
 ) as { subpackages: Array<{ root: string; name: string }> }
 
 describe('generated asset dependency output', () => {
+  const dependencies = ((): AssetDependencyIndex => {
+    if (!existsSync(dependencyPath)) {
+      throw new Error(
+        `Asset dependency index not found at ${dependencyPath}. Run npm run data:generate first.`,
+      )
+    }
+    return JSON.parse(readFileSync(dependencyPath, 'utf8')) as AssetDependencyIndex
+  })()
+
+  it('writes to data/assets/asset-dependencies.json as plain JSON', () => {
+    expect(existsSync(dependencyPath)).toBe(true)
+    // Plain JSON: the first non-whitespace character must be { not m (module.exports)
+    const raw = readFileSync(dependencyPath, 'utf8').trimStart()
+    expect(raw.startsWith('{')).toBe(true)
+  })
+
+  it('does not output into miniprogram/generated/', () => {
+    // The legacy JS module must not exist after the migration
+    expect(existsSync(generatedPath)).toBe(false)
+  })
+
   it('keeps seven deterministic catalog roots in canonical directory order', () => {
     expect(dependencies.roots.map((root) => root.root)).toEqual([
       'subpkg-assets-0',

@@ -16,20 +16,20 @@ pages → presenters → domain/runtime → contracts → generated
 
 以下文档不需要每次读取，只在相关任务时按需查阅：
 
-| 场景 | 文档 |
-|---|---|
-| 修改素材分包、图片加载、preloadRule | `docs/architecture/wechat-subpackage-asset-strategy.md` |
-| 修改数据流水线、生成逻辑 | `tools/data-pipeline/` 源码 + `tools/asset-pipeline/` 源码 |
-| 修改筛选/查询逻辑 | `miniprogram/domain/catalog-query.ts` |
-| 数据审计与 Schema | `docs/data-audit/` |
+| 场景                                | 文档                                                       |
+| ----------------------------------- | ---------------------------------------------------------- |
+| 修改素材分包、图片加载、preloadRule | `docs/architecture/wechat-subpackage-asset-strategy.md`    |
+| 修改数据流水线、生成逻辑            | `tools/data-pipeline/` 源码 + `tools/asset-pipeline/` 源码 |
+| 修改筛选/查询逻辑                   | `miniprogram/domain/catalog-query.ts`                      |
+| 数据审计与 Schema                   | `docs/data-audit/`                                         |
 
 ## 常用命令
 
-| 命令 | 用途 |
-|---|---|
-| `npm run verify` | 全量门禁（format + lint + typecheck + test + 网络边界 + 数据审计 + 生成检查） |
-| `npm run pipeline:full` | import → assets:full → data:generate |
-| `npm test` | Vitest |
+| 命令                    | 用途                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `npm run verify`        | 全量门禁（format + lint + typecheck + test + 网络边界 + 数据审计 + 生成检查） |
+| `npm run pipeline:full` | import → assets:full → data:generate                                          |
+| `npm test`              | Vitest                                                                        |
 
 ## 一坑一注
 

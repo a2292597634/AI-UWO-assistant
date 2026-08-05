@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, mkdirSync, existsSync, unlinkSync } from 'node:fs'
 import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
 import {
   writeRuntimeData,
@@ -16,6 +16,9 @@ import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
 const SUBPKG_DIR = 'miniprogram/subpkg-detail'
+const DATA_ASSETS_DIR = 'data/assets'
+const ASSET_DEPENDENCY_PATH = `${DATA_ASSETS_DIR}/asset-dependencies.json`
+const LEGACY_DEPENDENCY_PATH = 'miniprogram/generated/asset-dependencies.js'
 const PUBLISHED_MANIFEST_PATH =
   process.env.CLOUDBASE_ASSET_MANIFEST_PATH ?? 'data/assets/cloudbase-manifest.json'
 
@@ -53,6 +56,7 @@ const generate = (): void => {
 
   mkdirSync(OUTPUT_DIR, { recursive: true })
   mkdirSync(SUBPKG_DIR, { recursive: true })
+  mkdirSync(DATA_ASSETS_DIR, { recursive: true })
 
   // Generate main package data (catalog, skills, dictionaries)
   writeRuntimeData(
@@ -66,7 +70,13 @@ const generate = (): void => {
     assetDependencies,
     publishedManifest,
   )
-  writeAssetDependencyIndex(assetDependencies, OUTPUT_DIR)
+  writeAssetDependencyIndex(assetDependencies, ASSET_DEPENDENCY_PATH)
+
+  // Remove legacy JS module so it never ends up in the miniprogram package
+  if (existsSync(LEGACY_DEPENDENCY_PATH)) {
+    unlinkSync(LEGACY_DEPENDENCY_PATH)
+    console.log(`  Removed legacy ${LEGACY_DEPENDENCY_PATH}`)
+  }
 
   // Write details sharded (lazy-loaded per officer on detail page)
   writeShardedDetails(

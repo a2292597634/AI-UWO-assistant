@@ -87,7 +87,7 @@ Worker 分包，不支持普通业务分包。
 ```ts
 // miniprogram-api-typings v5.x 的定义
 interface PreDownloadSubpackageOption {
-  packageType: string  // 目前仅支持填 "workers"
+  packageType: string // 目前仅支持填 "workers"
 }
 ```
 
@@ -98,11 +98,11 @@ interface PreDownloadSubpackageOption {
 经过实际验证，微信小程序**没有提供**在运行时主动加载普通业务分包的公共 API。
 可用的分包加载机制只有：
 
-| 机制 | 限制 |
-|---|---|
-| `preloadRule` | 单页面预加载总分包 ≤ 2 MB |
-| 用户导航到分包页面 | 自动触发下载（唯一的常规方式） |
-| `wx.preDownloadSubpackage` | 仅 workers 分包 |
+| 机制                       | 限制                           |
+| -------------------------- | ------------------------------ |
+| `preloadRule`              | 单页面预加载总分包 ≤ 2 MB      |
+| 用户导航到分包页面         | 自动触发下载（唯一的常规方式） |
+| `wx.preDownloadSubpackage` | 仅 workers 分包                |
 
 ---
 
@@ -114,6 +114,7 @@ interface PreDownloadSubpackageOption {
 也无手动加载）**上传和编译均正常**。
 
 推测微信在以下场景中会自动处理分包资源的解析：
+
 - 编译器/上传时对分包内的静态资源做了全局索引
 - 运行时 `<image>` 组件在遇到分包路径时可能触发隐式下载
 
@@ -125,7 +126,7 @@ interface PreDownloadSubpackageOption {
 
 1. **不要试图用 preloadRule 预加载素材分包** —— 有 2MB 总大小硬限制，不适合大量图片。
 
-2. **不要试图用任何 wx.* API 手动加载普通分包** —— 微信没有提供这样的 API。
+2. _*不要试图用任何 wx.* API 手动加载普通分包_* —— 微信没有提供这样的 API。
 
 3. **如果未来发现真机图片加载有问题**，才需要考虑以下替代方案：
    - 微信云开发存储（免费额度 5 GB / 5 GB CDN 流量 / 月）
@@ -138,6 +139,6 @@ interface PreDownloadSubpackageOption {
 
 ## 变更记录
 
-| 日期 | 变更 |
-|---|---|
+| 日期       | 变更                                             |
+| ---------- | ------------------------------------------------ |
 | 2026-08-02 | 初稿：记录三种方案的尝试与失败，确认当前方案可行 |

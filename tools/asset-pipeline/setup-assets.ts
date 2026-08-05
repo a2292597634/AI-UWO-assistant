@@ -5,8 +5,9 @@ import type { CanonicalOfficer, CanonicalSkill } from '../import/types'
 import { buildAssetDependencyIndex } from '../data-pipeline/asset-dependencies'
 import { planAssetPackageLayout } from './asset-package-builder'
 
-const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', 'miniprogram/assets']
-const PUBLISH_DIR = 'miniprogram/assets'
+export const ASSET_STAGING_DIR = 'data/assets/staging'
+const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', ASSET_STAGING_DIR]
+const PUBLISH_DIR = ASSET_STAGING_DIR
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
 

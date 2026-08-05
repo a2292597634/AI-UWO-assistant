@@ -178,8 +178,11 @@ export const buildAssetDependencyIndex = (
   }
 }
 
-export const writeAssetDependencyIndex = (index: AssetDependencyIndex, outputDir: string): void => {
-  writeFileSync(`${outputDir}/asset-dependencies.js`, `module.exports = ${JSON.stringify(index)}\n`)
+export const writeAssetDependencyIndex = (
+  index: AssetDependencyIndex,
+  outputPath: string,
+): void => {
+  writeFileSync(outputPath, `${JSON.stringify(index)}\n`)
 }
 
 export const assertAssetDependencyIndex = (index: AssetDependencyIndex): void => {

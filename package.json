@@ -16,6 +16,7 @@
     "data:schema:check": "vitest run tests/data-contract",
     "data:check": "npm run data:audit:check && npm run data:schema:check",
     "check:runtime-network": "tsx tools/quality/check-runtime-network.ts",
+    "check:miniprogram-size": "tsx tools/quality/check-miniprogram-package-size.ts",
     "check:architecture": "vitest run tests/architecture",
     "check:runtime-contract": "vitest run tests/runtime-contract",
     "import:download": "tsx tools/import/download-source.ts",
@@ -29,8 +30,8 @@
     "assets:ui": "tsx tools/ui-assets/build-ui-assets.ts --write",
     "assets:ui:check": "tsx tools/ui-assets/build-ui-assets.ts --check",
     "pipeline:full": "npm run import:run && npm run assets:full && npm run data:generate",
-    "generate:check": "npm run data:generate && git diff --exit-code -- miniprogram/generated miniprogram/subpkg-detail",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run assets:ui:check && npm run assets:manifest:check && npm run data:check && npm run generate:check"
+    "generate:check": "npm run data:generate && git diff --exit-code -- miniprogram/generated miniprogram/subpkg-detail data/assets/asset-dependencies.json",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run check:miniprogram-size && npm run assets:ui:check && npm run assets:manifest:check && npm run data:check && npm run generate:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
