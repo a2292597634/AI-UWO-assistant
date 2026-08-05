@@ -34,6 +34,7 @@ declare module '../../generated/catalog' {
     languages: string[]
     activeSkills: string[]
     passiveSkills: string[]
+    skillLevels?: Record<string, number>
     searchAliases: string[]
     activeSkillIcons?: Record<string, string>
     passiveSkillIcons?: Record<string, string>
@@ -70,6 +71,9 @@ declare module '../../generated/fleet-officers' {
     jobName: string
     rarityName: string
     portraitPath: string
+    visualGradeId: string
+    typeId: string
+    genderId: string
     skills: FleetSkillRelation[]
   }
   const officers: FleetOfficer[]

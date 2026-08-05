@@ -14,6 +14,9 @@ import type {
   RuntimeFleetOfficer,
   RuntimeSkill,
 } from '../contracts/runtime-data'
+import type { SkillSheetView } from './skill-sheet'
+import { buildOfficerVisuals } from './officer-visuals'
+import type { OfficerVisualPaths } from './officer-visuals'
 import {
   filterBattleSkills,
   getOfficerStatus,
@@ -41,6 +44,7 @@ export interface BattleFleetOfficerView {
   statusLabel: string
   ownerShipLabel: string
   canSelect: boolean
+  visuals: OfficerVisualPaths
 }
 
 export interface BattleFleetSlotView {
@@ -97,6 +101,7 @@ export interface BattleFleetPageData {
   targets: BattleFleetTargetView[]
   bannedOfficers: BattleFleetOfficerView[]
   skillSummary: BattleFleetSkillSummaryView[]
+  sheetSkill: SkillSheetView | null
 }
 
 const STATUS_LABELS: Record<FleetShipStatus, string> = {
@@ -161,6 +166,11 @@ const buildOfficerView = (
     statusLabel: OFFICER_STATUS_LABELS[status],
     ownerShipLabel: ownerLabel(state, currentShipId, officer.id),
     canSelect: status === 'available',
+    visuals: buildOfficerVisuals({
+      visualGradeId: officer.visualGradeId,
+      typeId: officer.typeId,
+      genderId: officer.genderId,
+    }),
   }
 }
 
@@ -272,5 +282,6 @@ export const buildBattleFleetPageData = (
     targets: targetViews,
     bannedOfficers,
     skillSummary: buildSummaryViews(currentSummary, officers),
+    sheetSkill: null,
   }
 }

@@ -30,6 +30,7 @@ export interface RuntimeCatalogEntry {
   languages: string[] // language IDs (short form, no prefix)
   activeSkills: string[] // skill IDs
   passiveSkills: string[] // skill IDs
+  skillLevels?: Record<string, number> // skill ID → canonical level; absent means level 1
   searchAliases: string[] // name parts for search matching
 }
 
@@ -60,6 +61,9 @@ export interface RuntimeFleetOfficer {
   jobName: string
   rarityName: string
   portraitPath: string
+  visualGradeId: string
+  typeId: string
+  genderId: string
   skills: RuntimeFleetSkillRelation[]
 }
 

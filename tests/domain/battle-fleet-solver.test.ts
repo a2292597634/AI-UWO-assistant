@@ -8,6 +8,9 @@ const officer = (id: string, skills: RuntimeFleetOfficer['skills']): RuntimeFlee
   jobName: '戰鬥職業',
   rarityName: 'S',
   portraitPath: `/subpkg-assets-0/imgs/${id}.png`,
+  visualGradeId: 'grade_6',
+  typeId: 'type_class_1',
+  genderId: 'gender_f',
   skills,
 })
 

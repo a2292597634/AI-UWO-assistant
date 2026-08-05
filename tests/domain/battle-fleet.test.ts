@@ -5,6 +5,7 @@ import {
   assignSkillToFirstOpenTarget,
   banOfficer,
   createFleetState,
+  excludeOfficerFromShip,
   filterBattleSkills,
   getOfficerStatus,
   lockOfficer,
@@ -31,6 +32,9 @@ const officer = (id: string, skills: RuntimeFleetOfficer['skills']): RuntimeFlee
   jobName: '戰鬥職業',
   rarityName: 'S',
   portraitPath: `/subpkg-assets-0/imgs/${id}.png`,
+  visualGradeId: 'grade_6',
+  typeId: 'type_class_1',
+  genderId: 'gender_f',
   skills,
 })
 
@@ -218,6 +222,32 @@ describe('battle fleet state', () => {
     ])
     expect(next.ships.find((ship) => ship.id === 'ship-1')!.lockedOfficerIds).toEqual(['officer-1'])
     expect(next.ships.find((ship) => ship.id === 'ship-2')!.officerIds).toEqual(['officer-2'])
+  })
+
+  it('excludes an unlocked officer from the current ship and bans them globally', () => {
+    const state = addOfficerToShip(createFleetState(), 'ship-1', 'officer-1').state
+    const result = excludeOfficerFromShip(state, 'ship-1', 'officer-1')
+
+    expect(result.error).toBeUndefined()
+    expect(result.state.ships[0]!.officerIds).toEqual([])
+    expect(result.state.ships[0]!.removedOfficerIds).toEqual(['officer-1'])
+    expect(result.state.bannedOfficerIds).toEqual(['officer-1'])
+  })
+
+  it('rejects excluding a locked officer without mutation', () => {
+    let state = addOfficerToShip(createFleetState(), 'ship-1', 'officer-1').state
+    state = lockOfficer(state, 'ship-1', 'officer-1').state
+    const result = excludeOfficerFromShip(state, 'ship-1', 'officer-1')
+
+    expect(result.error).toBe('officer-locked')
+    expect(result.state).toBe(state)
+  })
+
+  it('rejects excluding an officer not on the selected ship', () => {
+    const state = createFleetState()
+    const result = excludeOfficerFromShip(state, 'ship-1', 'officer-missing')
+
+    expect(result.error).toBe('officer-not-found')
   })
 
   it('returns one mutually exclusive officer availability status', () => {

@@ -15,6 +15,9 @@ const officers: RuntimeFleetOfficer[] = [
     jobName: '炮術家',
     rarityName: 'S',
     portraitPath: '/subpkg-assets-0/imgs/officer-a.png',
+    visualGradeId: 'grade_6',
+    typeId: 'type_class_1',
+    genderId: 'gender_f',
     skills: [
       {
         skillId: 'skill-main',
@@ -30,6 +33,9 @@ const officers: RuntimeFleetOfficer[] = [
     jobName: '炮術家',
     rarityName: 'A',
     portraitPath: '/subpkg-assets-0/imgs/officer-c.png',
+    visualGradeId: 'grade_5',
+    typeId: 'type_class_2',
+    genderId: 'gender_m',
     skills: [
       {
         skillId: 'skill-main',
@@ -45,6 +51,9 @@ const officers: RuntimeFleetOfficer[] = [
     jobName: '肉搏家',
     rarityName: 'A',
     portraitPath: '/subpkg-assets-0/imgs/officer-p.png',
+    visualGradeId: 'grade_4',
+    typeId: 'type_class_3',
+    genderId: 'gender_f',
     skills: [
       {
         skillId: 'skill-target-only',

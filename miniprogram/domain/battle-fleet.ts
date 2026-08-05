@@ -141,6 +141,32 @@ export const moveOfficerToShip = (
   return { state: next }
 }
 
+export const excludeOfficerFromShip = (
+  state: FleetState,
+  shipId: string,
+  officerId: string,
+): FleetTransitionResult => {
+  const ship = findShip(state, shipId)
+  if (!ship) return { state, error: 'unknown-ship' }
+  if (!ship.officerIds.includes(officerId)) return { state, error: 'officer-not-found' }
+  if (ship.lockedOfficerIds.includes(officerId)) return { state, error: 'officer-locked' }
+
+  let next: FleetState = updateShip(state, shipId, (current) => ({
+    ...current,
+    officerIds: current.officerIds.filter((id) => id !== officerId),
+    lockedOfficerIds: current.lockedOfficerIds.filter((id) => id !== officerId),
+    removedOfficerIds: current.removedOfficerIds.includes(officerId)
+      ? current.removedOfficerIds
+      : [...current.removedOfficerIds, officerId],
+  }))
+
+  if (!next.bannedOfficerIds.includes(officerId)) {
+    next = { ...cloneState(next), bannedOfficerIds: [...next.bannedOfficerIds, officerId] }
+  }
+
+  return { state: next }
+}
+
 export const banOfficer = (state: FleetState, officerId: string): FleetTransitionResult => {
   const occupiedBy = findOfficerShip(state, officerId)
   if (occupiedBy) {
@@ -223,6 +249,7 @@ export const filterBattleSkills = (
         categoryId: relation.categoryId,
         categoryName: skill.cn,
         iconPath: skill.ip,
+        description: skill.d,
       }
     })
     .filter((item): item is BattleSkillOption => {

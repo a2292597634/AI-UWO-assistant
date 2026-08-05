@@ -11,6 +11,9 @@ interface FleetTestData {
   assetLoading: boolean
   assetLoadError: string | null
   assetReady: boolean
+  sheetSkill: unknown
+  manualSkillId: string | null
+  bannedOfficers: unknown[]
   [key: string]: unknown
 }
 
@@ -27,6 +30,11 @@ interface FleetPageConfig {
   onTargetLevelBlur(event: WechatMiniprogram.Input): void
   onRemoveTarget(event: WechatMiniprogram.BaseEvent): void
   onRecalculate(): void
+  onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
+  onOfficerRemove(event: WechatMiniprogram.BaseEvent): void
+  onBanOfficer(event: WechatMiniprogram.BaseEvent): void
+  onSkillSelect(event: WechatMiniprogram.BaseEvent): void
+  onSheetDismiss(): void
 }
 
 interface FleetPageInstance extends FleetPageConfig {
@@ -139,16 +147,58 @@ describe('battle fleet page', () => {
     expect(page.data.fleetOverview).toHaveLength(7)
   })
 
-  it('adds a filtered skill to the first target only after a double tap in auto mode', () => {
+  it('assigns a skill to a target via the explicit select action in auto mode', () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
 
-    page.onSkillTap({ currentTarget: { dataset: { id: 'skill-cannon' } }, timeStamp: 100 } as never)
-    expect((page.data.targets[0] as { skillId: string | null }).skillId).toBeNull()
-
-    page.onSkillTap({ currentTarget: { dataset: { id: 'skill-cannon' } }, timeStamp: 250 } as never)
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill-cannon' } } } as never)
     expect(page.data.targets[0]).toMatchObject({ skillId: 'skill-cannon', targetLevel: 1 })
+  })
+
+  it('opens the skill sheet on single tap and sets manualSkillId on select in manual mode', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onSkillTap({ currentTarget: { dataset: { id: 'skill_skill200681' } } } as never)
+    expect(page.data.sheetSkill).toBeDefined()
+    expect((page.data.sheetSkill as { id: string }).id).toBe('skill_skill200681')
+
+    page.onSheetDismiss()
+    expect(page.data.sheetSkill).toBeNull()
+
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill_skill200681' } } } as never)
+    expect(page.data.manualSkillId).toBe('skill_skill200681')
+  })
+
+  it('excludes an unlocked officer from the current ship and adds to bannedOfficers', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    // Add an officer to ship-1
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const shipAfterAdd = page.data.currentShip
+    expect(
+      shipAfterAdd.slots.some(
+        (s: unknown) =>
+          (s as { officer: { id: string } | null }).officer?.id === 'officer_chast089',
+      ),
+    ).toBe(true)
+
+    // Ban the officer from the current ship
+    page.onBanOfficer({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    // After ban, ship should be empty and bannedOfficers should contain the officer
+    const shipAfterBan = page.data.currentShip
+    expect(
+      shipAfterBan.slots.some(
+        (s: unknown) =>
+          (s as { officer: { id: string } | null }).officer?.id === 'officer_chast089',
+      ),
+    ).toBe(false)
+    expect(page.data.bannedOfficers).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'officer_chast089' })]),
+    )
   })
 
   it('updates a target level from direct input and deletes the target row', () => {
@@ -190,6 +240,12 @@ describe('fleet slot action touch targets', () => {
       /<view\s+class="slot-action[^"]*"[\s\S]*?bindtap="onBanOfficer"[\s\S]*?class="slot-action__glyph"/,
     )
     expect(fleetWxml).toMatch(/class="slot-action__label"/)
+    // Visual layers
+    expect(fleetWxml).toContain('officer-slot__visuals')
+    expect(fleetWxml).toContain('officer-slot__frame')
+    expect(fleetWxml).toContain('officer-slot__rarity-icon')
+    expect(fleetWxml).toContain('officer-slot__type-icon')
+    expect(fleetWxml).toContain('item.officer.visuals.framePath')
     expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(6,\s*1fr\)/)
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
     expect(fleetWxss).toMatch(

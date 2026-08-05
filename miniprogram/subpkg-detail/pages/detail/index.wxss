@@ -204,6 +204,41 @@
   flex-shrink: 0;
 }
 
+.detail-skill-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx;
+  height: 80rpx;
+  margin-right: 18rpx;
+  flex-shrink: 0;
+}
+
+.detail-skill-icon-wrapper .skill-icon {
+  margin-right: 0;
+}
+
+.skill-level-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32rpx;
+  height: 24rpx;
+  padding: 0 4rpx;
+  color: #f0e4c4;
+  background: #8b3a3a;
+  border: 1rpx solid #f0e4c4;
+  border-radius: 10rpx;
+  font-size: 16rpx;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .skill-body {
   min-width: 0;
   flex: 1;

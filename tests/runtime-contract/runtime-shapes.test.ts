@@ -133,6 +133,7 @@ describe('Runtime Contract: catalog.js', () => {
       'activeSkills',
       'passiveSkills',
       'searchAliases',
+      'skillLevels',
     ])
     for (const entry of catalog) {
       for (const key of Object.keys(entry)) {
@@ -168,6 +169,26 @@ describe('Runtime Contract: catalog.js', () => {
       }
       for (const sid of entry.passiveSkills as string[]) {
         expect(typeof sid).toBe('string')
+      }
+    }
+  })
+
+  it('skillLevels maps skill IDs to integer levels greater than 1', () => {
+    for (const entry of catalog) {
+      const skillLevels = entry.skillLevels as Record<string, number> | undefined
+      if (skillLevels === undefined) continue
+      expect(typeof skillLevels).toBe('object')
+      const allSkillIds = new Set([
+        ...(entry.activeSkills as string[]),
+        ...(entry.passiveSkills as string[]),
+      ])
+      for (const [skillId, level] of Object.entries(skillLevels)) {
+        // Keys must be valid skill IDs from the entry
+        expect(allSkillIds.has(skillId)).toBe(true)
+        // Values must be integers
+        expect(Number.isInteger(level)).toBe(true)
+        // Level must be at least 2 (since 1 is omitted)
+        expect(level).toBeGreaterThanOrEqual(2)
       }
     }
   })
@@ -247,6 +268,9 @@ describe('Runtime Contract: fleet-officers.js', () => {
         jobName: expect.any(String),
         rarityName: expect.any(String),
         portraitPath: expect.any(String),
+        visualGradeId: expect.any(String),
+        typeId: expect.any(String),
+        genderId: expect.any(String),
         skills: expect.any(Array),
       })
       expectPublishedAssetUrl(entry.portraitPath as string, 'officer_')

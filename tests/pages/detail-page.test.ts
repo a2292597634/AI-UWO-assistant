@@ -110,5 +110,18 @@ describe('detail page CDN assets', () => {
     expect(wxml).not.toContain('lazy-load="true"')
     expect(wxml).toContain('portrait-fallback')
     expect(wxml).toContain('skill-icon--placeholder')
+    // Level badge wrapper and condition
+    expect(wxml).toContain('detail-skill-icon-wrapper')
+    expect(wxml).toContain('skill-level-badge')
+    expect(wxml).toContain('item.level !== 1')
+  })
+
+  it('shows Lv.N badge only when detail skill level is not 1', () => {
+    const wxss = fs.readFileSync(
+      path.resolve(__dirname, '../../miniprogram/subpkg-detail/pages/detail/index.wxss'),
+      'utf8',
+    )
+    expect(wxss).toMatch(/\.detail-skill-icon-wrapper\s*\{[\s\S]*position:\s*relative/)
+    expect(wxss).toMatch(/\.skill-level-badge\s*\{[\s\S]*position:\s*absolute/)
   })
 })

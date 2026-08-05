@@ -237,24 +237,31 @@ describe('catalog touch target markup contracts', () => {
     expect(cssRule('.officer-filter-toolbar__content')).toMatch(/min-width:\s*834rpx;/)
   })
 
-  it('wraps every catalog skill icon in an 88rpx catchtap target without expanding the compact row', () => {
+  it('wraps every catalog skill icon in a 52rpx catchtap target with level badges', () => {
     expect(catalogWxml).toMatch(
-      /<scroll-view class="row-skills"[^>]*scroll-x="true"[^>]*>[\s\S]*?<view[^>]*class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*>[\s\S]*?<image[^>]*class="row-skill-icon"/,
+      /<scroll-view class="row-skills"[^>]*scroll-x="true"[^>]*>[\s\S]*?<view[^>]*class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*>[\s\S]*?<view[^>]*class="skill-icon-wrapper"/,
     )
     expect(catalogWxml).toMatch(
-      /class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*data-kind="active"[^>]*>\s*<image[^>]*class="row-skill-icon"/,
+      /class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*data-kind="active"[^>]*>\s*<view[^>]*class="skill-icon-wrapper"/,
     )
     expect(catalogWxml).toMatch(
-      /class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*data-kind="passive"[^>]*>\s*<image[^>]*class="row-skill-icon"/,
+      /class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*data-kind="passive"[^>]*>\s*<view[^>]*class="skill-icon-wrapper"/,
     )
+    // Level badge for non-1 skill levels
+    expect(catalogWxml).toMatch(/class="skill-level-badge"/)
+    expect(catalogWxml).toContain('item.skillLevels')
     expect(catalogWxml).toMatch(/class="officer-row" bindtap="onOfficerTap"/)
 
     const skillTargetRule = cssRule('.row-skill-hit-target')
-    expect(skillTargetRule).toMatch(/width:\s*88rpx;/)
-    expect(skillTargetRule).toMatch(/height:\s*88rpx;/)
+    expect(skillTargetRule).toMatch(/width:\s*52rpx;/)
+    expect(skillTargetRule).toMatch(/height:\s*52rpx;/)
     expect(skillTargetRule).not.toMatch(/(?:background|border|border-radius)\s*:/)
-    expect(cssRule('.row-skill-icon')).toMatch(/width:\s*32rpx;[\s\S]*height:\s*32rpx;/)
+    expect(cssRule('.row-skill-icon')).toMatch(/width:\s*48rpx;[\s\S]*height:\s*48rpx;/)
     expect(cssRule('.officer-row')).toMatch(/min-height:\s*116rpx;/)
-    expect(cssRule('.row-skills')).toMatch(/width:\s*176rpx;[\s\S]*height:\s*92rpx;/)
+    expect(cssRule('.row-skills')).toMatch(/width:\s*320rpx;/)
+    expect(cssRule('.row-skills')).toMatch(/min-height:\s*116rpx;/)
+    // Icon wrapper for positioning the badge
+    expect(cssRule('.skill-icon-wrapper')).toMatch(/position:\s*relative/)
+    expect(cssRule('.skill-level-badge')).toMatch(/position:\s*absolute/)
   })
 })

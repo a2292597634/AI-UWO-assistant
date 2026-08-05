@@ -293,8 +293,8 @@
   position: relative;
   box-sizing: border-box;
   min-width: 0;
-  height: 92rpx;
-  padding-right: 176rpx;
+  min-height: 116rpx;
+  padding-right: 320rpx;
   flex: 1;
 }
 
@@ -333,8 +333,9 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 176rpx;
-  height: 92rpx;
+  width: 320rpx;
+  min-height: 116rpx;
+  height: auto;
   margin: 0;
   flex-shrink: 0;
 }
@@ -342,8 +343,8 @@
 .row-skills__content {
   display: inline-flex;
   align-items: center;
-  min-width: 176rpx;
-  height: 92rpx;
+  min-width: 320rpx;
+  min-height: 116rpx;
 }
 
 .skill-icon-group {
@@ -356,14 +357,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 88rpx;
-  width: 88rpx;
-  height: 88rpx;
+  flex: 0 0 52rpx;
+  width: 52rpx;
+  height: 52rpx;
+}
+
+.skill-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
 }
 
 .row-skill-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.skill-level-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32rpx;
+  height: 24rpx;
+  padding: 0 4rpx;
+  color: #f0e4c4;
+  background: #8b3a3a;
+  border: 1rpx solid #f0e4c4;
+  border-radius: 10rpx;
+  font-size: 16rpx;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .skill-divider {
@@ -378,7 +408,7 @@
   align-items: center;
   justify-content: center;
   min-width: 40rpx;
-  height: 88rpx;
+  height: 52rpx;
   color: #756b59;
   font-size: 20rpx;
 }

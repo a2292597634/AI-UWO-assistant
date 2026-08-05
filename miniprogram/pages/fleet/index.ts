@@ -1,8 +1,8 @@
 import {
   addOfficerToShip,
   assignSkillToFirstOpenTarget,
-  banOfficer,
   createFleetState,
+  excludeOfficerFromShip,
   lockOfficer,
   moveOfficerToShip,
   recalculateShip,
@@ -15,8 +15,10 @@ import {
 import { solveBattleTargets } from '../../domain/battle-fleet-solver'
 import { getDictionaries, getFleetOfficers, getSkills } from '../../runtime/main-data-store'
 import { buildBattleFleetPageData } from '../../presenters/battle-fleet-presenter'
+import { buildSkillSheet } from '../../presenters/skill-sheet'
 import type { BattleSkillFilter, FleetState } from '../../contracts/battle-fleet'
 import type { BattleFleetPageData } from '../../presenters/battle-fleet-presenter'
+import type { SkillSheetView } from '../../presenters/skill-sheet'
 import type {
   RuntimeDictionaries,
   RuntimeFleetOfficer,
@@ -33,6 +35,7 @@ interface FleetPageData extends BattleFleetPageData {
   manualKind: BattleSkillFilter['kind']
   manualCategoryId: string | null
   skillSearchText: string
+  sheetSkill: SkillSheetView | null
 }
 
 interface FleetPageState {
@@ -43,7 +46,6 @@ interface FleetPageState {
   currentShipId: string
   manualSkillId: string | null
   manualFilters: BattleSkillFilter
-  lastSkillTap: { skillId: string; timestamp: number } | null
   assetRetryCount: number
   manualSkillLimit: number
 }
@@ -104,6 +106,7 @@ const emptyPageData: FleetPageData = {
   failedPortraitImages: {},
   failedSkillImages: {},
   manualSkillHasMore: false,
+  sheetSkill: null,
 }
 
 const showError = (message: string): void => {
@@ -147,6 +150,7 @@ const render = (page: FleetPageLike, startAssetLoading = true): Promise<void> =>
     manualKind: state.manualFilters.kind,
     manualCategoryId: state.manualFilters.categoryId,
     skillSearchText: state.manualFilters.searchText,
+    sheetSkill: view.sheetSkill,
     assetLoading: false,
     assetLoadError: null,
     assetReady: true,
@@ -156,11 +160,6 @@ const render = (page: FleetPageLike, startAssetLoading = true): Promise<void> =>
 
   void startAssetLoading
   return Promise.resolve()
-}
-
-const getEventTimestamp = (event: WechatMiniprogram.BaseEvent): number => {
-  const timestamp = (event as unknown as { timeStamp?: unknown }).timeStamp
-  return typeof timestamp === 'number' ? timestamp : Date.now()
 }
 
 const updateTargets = (
@@ -190,7 +189,6 @@ Page({
       currentShipId: 'ship-1',
       manualSkillId: null,
       manualFilters: { kind: 'all', categoryId: null, searchText: '' },
-      lastSkillTap: null,
       assetRetryCount: 0,
       manualSkillLimit: MANUAL_SKILL_WINDOW_SIZE,
     }
@@ -240,7 +238,6 @@ Page({
     if (!state.fleet.ships.some((ship) => ship.id === shipId)) return
     state.currentShipId = shipId
     state.manualSkillId = null
-    state.lastSkillTap = null
     render(this)
   },
 
@@ -249,7 +246,6 @@ Page({
     if (mode !== 'manual' && mode !== 'auto') return
     const state = getState(this)
     applyResult(this, setShipMode(state.fleet, state.currentShipId, mode))
-    state.lastSkillTap = null
     render(this)
   },
 
@@ -289,28 +285,37 @@ Page({
     const skillId = eventDataset(event).id
     if (typeof skillId !== 'string') return
     const state = getState(this)
+    const skill = state.skills[skillId]
+    if (!skill) return
+    const fleetSkill = state.officers.flatMap((o) => o.skills).find((r) => r.skillId === skillId)
+    const kind: 'active' | 'passive' = fleetSkill?.kind === 'active' ? 'active' : 'passive'
+    const sheet = buildSkillSheet(skill, kind)
+    this.setData({ sheetSkill: sheet })
+  },
+
+  onSheetDismiss() {
+    this.setData({ sheetSkill: null })
+  },
+
+  onReverseLookup() {
+    const skillId = this.data.sheetSkill?.id
+    if (!skillId) return
+    this.setData({ sheetSkill: null })
+    wx.navigateTo({ url: `/pages/catalog/index?skillId=${skillId}` })
+  },
+
+  onSkillSelect(event: WechatMiniprogram.BaseEvent) {
+    const skillId = eventDataset(event).id
+    if (typeof skillId !== 'string') return
+    const state = getState(this)
     const current = state.fleet.ships.find((ship) => ship.id === state.currentShipId)!
     if (current.mode === 'manual') {
       state.manualSkillId = skillId
-      state.lastSkillTap = null
       render(this)
       return
     }
-
-    const timestamp = getEventTimestamp(event)
-    const lastTap = state.lastSkillTap
-    if (
-      lastTap &&
-      lastTap.skillId === skillId &&
-      timestamp >= lastTap.timestamp &&
-      timestamp - lastTap.timestamp <= 350
-    ) {
-      state.lastSkillTap = null
-      applyResult(this, assignSkillToFirstOpenTarget(state.fleet, current.id, skillId))
-      render(this)
-      return
-    }
-    state.lastSkillTap = { skillId, timestamp }
+    applyResult(this, assignSkillToFirstOpenTarget(state.fleet, current.id, skillId))
+    render(this)
   },
 
   onTargetLevelBlur(event: WechatMiniprogram.Input) {
@@ -427,7 +432,7 @@ Page({
     const officerId = eventDataset(event).id
     if (typeof officerId !== 'string') return
     const state = getState(this)
-    applyResult(this, banOfficer(state.fleet, officerId))
+    applyResult(this, excludeOfficerFromShip(state.fleet, state.currentShipId, officerId))
     render(this)
   },
 

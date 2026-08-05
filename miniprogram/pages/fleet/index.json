@@ -2,5 +2,8 @@
   "navigationBarTitleText": "戰鬥模擬艦隊",
   "navigationBarBackgroundColor": "#26332f",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#ded7c7"
+  "backgroundColor": "#ded7c7",
+  "usingComponents": {
+    "skill-sheet": "../../components/skill-sheet/index"
+  }
 }

@@ -46,6 +46,7 @@ export interface BattleSkillOption {
   categoryId: string
   categoryName: string
   iconPath: string
+  description: string
 }
 
 export interface ShipSkillSummary {

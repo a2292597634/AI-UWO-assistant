@@ -156,6 +156,13 @@ export const buildCatalog = (
       }
     }
 
+    const skillLevels: Record<string, number> = {}
+    for (const relation of o.skills) {
+      if (relation.level !== 1) {
+        skillLevels[relation.skillId] = relation.level
+      }
+    }
+
     return {
       id: o.id,
       name: nameTrimmed,
@@ -173,6 +180,7 @@ export const buildCatalog = (
       languages: o.languages.map((l) => unprefix(l.languageId)),
       activeSkills: o.skills.filter((r) => r.kind === 'active').map((r) => r.skillId),
       passiveSkills: o.skills.filter((r) => r.kind === 'passive').map((r) => r.skillId),
+      skillLevels: Object.keys(skillLevels).length > 0 ? skillLevels : undefined,
       searchAliases: aliases,
     }
   })
@@ -203,6 +211,9 @@ export const buildFleetOfficers = (
     jobName: dictName('jobs', officer.jobId),
     rarityName: rarityGrade(officer.rarityId),
     portraitPath: resolvedPortraitPath(officer.id, dependencies, manifest),
+    visualGradeId: officer.visualGradeId,
+    typeId: officer.typeId,
+    genderId: officer.genderId,
     skills: officer.skills
       .map((relation) => ({ ...relation, categoryId: skillMap.get(relation.skillId)?.categoryId }))
       .filter(

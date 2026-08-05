@@ -45,6 +45,39 @@ describe('buildCatalog', () => {
     expect(r5.rarityName).toBe('S')
     expect(r5.rarityClass).toBe('s')
   })
+
+  it('emits skillLevels using canonical level for non-1 values only', () => {
+    const catalog = buildCatalog(officers, skills, dictionaries)
+    const officer = catalog.find((o) => o.id === 'officer_chast089')!
+
+    expect(officer.skillLevels).toBeDefined()
+    // skill_skill203426 has level=2 in fixtures
+    expect(officer.skillLevels!['skill_skill203426']).toBe(2)
+    // skill_skill400581 has level=2 in fixtures
+    expect(officer.skillLevels!['skill_skill400581']).toBe(2)
+    // skill_skill300001 has level=3 in fixtures
+    expect(officer.skillLevels!['skill_skill300001']).toBe(3)
+    // Level 1 skills are absent from the map
+    expect(officer.skillLevels!['skill_skill200681']).toBeUndefined()
+    expect(officer.skillLevels!['skill_skill200921']).toBeUndefined()
+    // All map keys are valid skill IDs from activeSkills or passiveSkills
+    const allSkillIds = new Set([...officer.activeSkills, ...officer.passiveSkills])
+    for (const key of Object.keys(officer.skillLevels!)) {
+      expect(allSkillIds.has(key)).toBe(true)
+    }
+  })
+
+  it('omits skillLevels when all skills are level 1', () => {
+    const catalog = buildCatalog(officers, skills, dictionaries)
+    // Find an officer with all level 1 skills or create one
+    const noLevelsOfficer = catalog.find(
+      (o) => o.skillLevels === undefined || Object.keys(o.skillLevels).length === 0,
+    )
+    // At least one officer should have all level 1 skills
+    if (noLevelsOfficer) {
+      expect(noLevelsOfficer.skillLevels).toBeUndefined()
+    }
+  })
 })
 
 describe('buildFleetOfficers', () => {
@@ -74,6 +107,15 @@ describe('buildFleetOfficers', () => {
 
     expect(second).toEqual(first)
     expect(new Set(first.map((item) => item.id)).size).toBe(officers.length)
+  })
+
+  it('includes visual IDs for grade, type, and gender', () => {
+    const index = buildFleetOfficers(officers, skills, dictionaries)
+    const officer = index.find((item) => item.id === 'officer_chast089')!
+
+    expect(officer.visualGradeId).toBe('grade_6')
+    expect(officer.typeId).toBe('type_class_2')
+    expect(officer.genderId).toBe('gender_f')
   })
 })
 
