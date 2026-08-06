@@ -170,6 +170,172 @@ export function preservePortraitFails(
   return newRows.map((o) => (failMap[o.id] ? { ...o, ...failMap[o.id] } : o))
 }
 
+// ── Skill checklist types ──
+
+export interface SkillCheckRowView {
+  skillId: string
+  name: string
+  iconPath: string
+  categoryName: string
+  categoryId: string
+  kind: 'active' | 'passive'
+  officerCount: number
+}
+
+// ── Skill checklist functions ──
+
+/**
+ * Build a deduplicated skill list from all catalog entries.
+ * Each skill appears once; officerCount is the number of officers who have it.
+ * If a skill appears in both active and passive contexts, it is listed once
+ * with the kind of its first occurrence.
+ */
+export function buildSkillCheckList(
+  catalog: readonly RuntimeCatalogEntry[],
+  skills: Readonly<Record<string, RuntimeSkill>>,
+): SkillCheckRowView[] {
+  const skillMap = new Map<string, SkillCheckRowView>()
+  const officerCounts = new Map<string, number>()
+
+  for (const officer of catalog) {
+    const seen = new Set<string>()
+
+    for (const sid of officer.activeSkills ?? []) {
+      if (seen.has(sid)) continue
+      seen.add(sid)
+
+      officerCounts.set(sid, (officerCounts.get(sid) ?? 0) + 1)
+
+      if (!skillMap.has(sid)) {
+        const sk = skills[sid]
+        if (sk) {
+          skillMap.set(sid, {
+            skillId: sid,
+            name: sk.n,
+            iconPath: sk.ip,
+            categoryName: sk.cn,
+            categoryId: sk.cat,
+            kind: 'active',
+            officerCount: 0,
+          })
+        }
+      }
+    }
+
+    for (const sid of officer.passiveSkills ?? []) {
+      if (seen.has(sid)) continue
+      seen.add(sid)
+
+      officerCounts.set(sid, (officerCounts.get(sid) ?? 0) + 1)
+
+      if (!skillMap.has(sid)) {
+        const sk = skills[sid]
+        if (sk) {
+          skillMap.set(sid, {
+            skillId: sid,
+            name: sk.n,
+            iconPath: sk.ip,
+            categoryName: sk.cn,
+            categoryId: sk.cat,
+            kind: 'passive',
+            officerCount: 0,
+          })
+        }
+      }
+    }
+  }
+
+  // Merge officer counts
+  for (const [skillId, row] of skillMap) {
+    row.officerCount = officerCounts.get(skillId) ?? 0
+  }
+
+  // Sort by category then name
+  return Array.from(skillMap.values()).sort((a, b) => {
+    const catCmp = a.categoryName.localeCompare(b.categoryName, 'zh-Hans-CN')
+    if (catCmp !== 0) return catCmp
+    return a.name.localeCompare(b.name, 'zh-Hans-CN')
+  })
+}
+
+/**
+ * Filter a skill checklist by kind, categories, and search text.
+ * All filters compose with AND semantics.
+ */
+export function filterSkillCheckList(
+  list: readonly SkillCheckRowView[],
+  kind: 'all' | 'active' | 'passive',
+  categories: readonly string[],
+  searchText: string,
+): SkillCheckRowView[] {
+  let result: readonly SkillCheckRowView[] = list
+
+  if (kind !== 'all') {
+    result = result.filter((s) => s.kind === kind)
+  }
+
+  if (categories.length > 0) {
+    const catSet = new Set(categories)
+    result = result.filter((s) => catSet.has(s.categoryId))
+  }
+
+  if (searchText.trim().length > 0) {
+    const lower = searchText.trim().toLowerCase()
+    result = result.filter(
+      (s) => s.name.toLowerCase().includes(lower) || s.categoryName.toLowerCase().includes(lower),
+    )
+  }
+
+  return result as SkillCheckRowView[]
+}
+
+// ── Expanded officers view ──
+
+export interface SkillCheckExpandedOfficerView {
+  officerId: string
+  name: string
+  portraitPath: string
+  rarityName: string
+  jobName: string
+  visuals: OfficerVisualPaths
+}
+
+/**
+ * Get all officers who possess a given skill, sorted by rarity (desc) then name.
+ */
+export function getOfficersForSkill(
+  skillId: string,
+  catalog: readonly RuntimeCatalogEntry[],
+): SkillCheckExpandedOfficerView[] {
+  const results: SkillCheckExpandedOfficerView[] = []
+
+  for (const officer of catalog) {
+    const has =
+      (officer.activeSkills?.includes(skillId) ?? false) ||
+      (officer.passiveSkills?.includes(skillId) ?? false)
+    if (!has) continue
+
+    results.push({
+      officerId: officer.id,
+      name: officer.name,
+      portraitPath: officer.portraitPath,
+      rarityName: officer.rarityName,
+      jobName: officer.jobName,
+      visuals: buildOfficerVisuals(officer),
+    })
+  }
+
+  // Sort by rarity (S > A > B > C > D) then name
+  const rarityOrder: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4 }
+  results.sort((a, b) => {
+    const r = (rarityOrder[a.rarityName] ?? 5) - (rarityOrder[b.rarityName] ?? 5)
+    if (r !== 0) return r
+    return a.name.localeCompare(b.name, 'zh-Hans-CN')
+  })
+
+  return results
+}
+
 /** Create empty CatalogPageData for initial data state. */
 export function createCatalogPageData(
   visibleRows: CatalogRowView[],

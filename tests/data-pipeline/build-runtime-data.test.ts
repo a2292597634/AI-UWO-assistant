@@ -46,20 +46,22 @@ describe('buildCatalog', () => {
     expect(r5.rarityClass).toBe('s')
   })
 
-  it('emits skillLevels using canonical level for non-1 values only', () => {
+  it('emits skillLevels using unlockLevel for non-1 values only', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     const officer = catalog.find((o) => o.id === 'officer_chast089')!
 
     expect(officer.skillLevels).toBeDefined()
-    // skill_skill203426 has level=2 in fixtures
-    expect(officer.skillLevels!['skill_skill203426']).toBe(2)
-    // skill_skill400581 has level=2 in fixtures
-    expect(officer.skillLevels!['skill_skill400581']).toBe(2)
-    // skill_skill300001 has level=3 in fixtures
-    expect(officer.skillLevels!['skill_skill300001']).toBe(3)
-    // Level 1 skills are absent from the map
-    expect(officer.skillLevels!['skill_skill200681']).toBeUndefined()
-    expect(officer.skillLevels!['skill_skill200921']).toBeUndefined()
+    // skill_skill203426 has unlockLevel=70 in fixtures
+    expect(officer.skillLevels!['skill_skill203426']).toBe(70)
+    // skill_skill400581 has unlockLevel=50 in fixtures
+    expect(officer.skillLevels!['skill_skill400581']).toBe(50)
+    // skill_skill200681 has unlockLevel=10 in fixtures (was level=1, previously absent)
+    expect(officer.skillLevels!['skill_skill200681']).toBe(10)
+    // skill_skill200921 has unlockLevel=30 in fixtures (was level=1, previously absent)
+    expect(officer.skillLevels!['skill_skill200921']).toBe(30)
+    // Level 1 unlockLevel skills are absent from the map
+    expect(officer.skillLevels!['skill_skill300001']).toBeUndefined()
+    expect(officer.skillLevels!['skill_skill400591']).toBeUndefined()
     // All map keys are valid skill IDs from activeSkills or passiveSkills
     const allSkillIds = new Set([...officer.activeSkills, ...officer.passiveSkills])
     for (const key of Object.keys(officer.skillLevels!)) {

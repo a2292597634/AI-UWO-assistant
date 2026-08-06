@@ -36,3 +36,4 @@ pages → presenters → domain/runtime → contracts → generated
 - **流水线顺序**：必须先 `assets:full` 再 `data:generate`，运行数据依赖素材已存在。
 - **分包图片**：不要加 preloadRule（超 2MB 限制），不要手动 loadSubpackage（API 不可用）。现状已验证可行。详情见上述参考文档。
 - **离线优先**：运行时禁止网络请求，`check:runtime-network` 会拦截。
+- **头像显示一致性**：所有页面头像层级统一为 z-index: 1=frame, 2=portrait, 3=rarity(top-left), 4=type(bottom-left)。稀有度图标约为头像尺寸的 65%，类型图标约 26%。容器暗色背景 #2f302b（或对应页面的暗色背景）。不可简化为纯肖像图——必须包含 frame + rarity + type 三层。

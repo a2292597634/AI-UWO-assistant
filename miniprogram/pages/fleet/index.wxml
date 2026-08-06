@@ -136,7 +136,12 @@
           <text class="panel-heading__hint">選擇技能後顯示候選</text>
         </view>
         <view wx:for="{{manualCandidates}}" wx:key="id" class="candidate-row {{item.canSelect ? '' : 'candidate-row--disabled'}}" bindtap="onOfficerSelect" data-id="{{item.id}}">
-          <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+          <view class="candidate-row__visuals">
+            <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="candidate-row__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
+            <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+            <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="candidate-row__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
+            <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="candidate-row__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
+          </view>
           <view class="candidate-row__copy">
             <text class="candidate-row__name">{{item.name}}</text>
             <text class="candidate-row__meta">{{item.jobName}} · {{item.rarityName}}</text>
@@ -154,7 +159,12 @@
         <scroll-view class="ban-list" scroll-x="true" enable-flex>
           <view class="ban-list__content">
             <view wx:for="{{bannedOfficers}}" wx:key="id" class="ban-chip">
-              <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+              <view class="ban-chip__visuals">
+                <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="ban-chip__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
+                <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+                <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="ban-chip__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
+                <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="ban-chip__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
+              </view>
               <text class="ban-chip__name">{{item.name}}</text>
               <text class="ban-chip__remove" bindtap="onUnbanOfficer" data-id="{{item.id}}">解除</text>
             </view>

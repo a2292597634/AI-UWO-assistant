@@ -10,7 +10,14 @@ import {
   preservePortraitFails,
   buildViewMaps,
   buildCatalogFilterOptions,
+  buildSkillCheckList,
+  filterSkillCheckList,
+  getOfficersForSkill,
   PAGE_SIZE,
+} from '../../presenters/catalog-presenter'
+import type {
+  SkillCheckRowView,
+  SkillCheckExpandedOfficerView,
 } from '../../presenters/catalog-presenter'
 import { buildSkillSheet } from '../../presenters/skill-sheet'
 import { getDatasetString, isCatalogFilterField } from '../../contracts/page-events'
@@ -39,6 +46,15 @@ interface CatalogPageState {
   _filterState: CatalogFilterState
   _loadOptions: Record<string, string | undefined>
   _assetRetryCount: number
+  // Skill checklist
+  _fullSkillCheckList: SkillCheckRowView[]
+  _filteredSkillList: SkillCheckRowView[]
+  _skillCheckKind: 'all' | 'active' | 'passive'
+  _skillCheckCategories: string[]
+  _skillCheckSearchText: string
+  _skillCheckVisible: number
+  _expandedSkillId: string | null
+  _expandedOfficers: SkillCheckExpandedOfficerView[]
 }
 
 const pageStateByInstance = new WeakMap<object, CatalogPageState>()
@@ -53,6 +69,14 @@ const getPageState = (page: object): CatalogPageState => {
       _filterState: createEmptyFilterState(),
       _loadOptions: {},
       _assetRetryCount: 0,
+      _fullSkillCheckList: [],
+      _filteredSkillList: [],
+      _skillCheckKind: 'all',
+      _skillCheckCategories: [],
+      _skillCheckSearchText: '',
+      _skillCheckVisible: 30,
+      _expandedSkillId: null,
+      _expandedOfficers: [],
     }
     pageStateByInstance.set(page, state)
   }
@@ -88,6 +112,17 @@ interface PageData extends CatalogViewMaps {
   selectedJobs: string[]
   selectedSkillId: string | null
   searchText: string
+  // Skill checklist tab
+  skillCheckRows: SkillCheckRowView[]
+  skillCheckTotal: number
+  skillCheckHasMore: boolean
+  skillCheckKind: 'all' | 'active' | 'passive'
+  skillCheckCategoryMap: Record<string, boolean>
+  skillCheckSearchText: string
+  expandedSkillId: string | null
+  expandedSkillMap: Record<string, boolean>
+  expandedOfficers: SkillCheckExpandedOfficerView[]
+  expandedOfficerAssetReady: boolean
 }
 
 interface CatalogPageUpdater {
@@ -141,9 +176,15 @@ const initializeCatalogPage = (
         state._filteredAll = enriched
       }
 
+      // Build skill checklist (once, for Tab 4)
+      state._fullSkillCheckList = buildSkillCheckList(catalog, skills)
+      state._filteredSkillList = state._fullSkillCheckList
+      state._skillCheckVisible = 30
+
       const filtered = state._filteredAll
       const maps = buildViewMaps(state._filterState)
       const visibleRows = filtered.slice(0, PAGE_SIZE)
+      const skillCheckSlice = state._filteredSkillList.slice(0, state._skillCheckVisible)
       page.setData({
         assetLoading: false,
         assetLoadError: null,
@@ -159,6 +200,10 @@ const initializeCatalogPage = (
         jobs: dicts.jobs,
         activeFilter: state._filterState.activeFilter,
         selectedSkillId: state._filterState.selectedSkillId,
+        // Skill checklist
+        skillCheckRows: skillCheckSlice,
+        skillCheckTotal: state._filteredSkillList.length,
+        skillCheckHasMore: state._filteredSkillList.length > state._skillCheckVisible,
         ...maps,
       })
     } catch (error) {
@@ -176,7 +221,7 @@ const initializeCatalogPage = (
 
 Page({
   data: {
-    tabs: ['航海士', '技能', '語言', '職業'],
+    tabs: ['航海士', '技能', '語言', '職業', '技能清單'],
     activeTab: 0,
     assetLoading: true,
     assetLoadError: null,
@@ -209,6 +254,17 @@ Page({
     selectedLanguageMap: {},
     selectedJobMap: {},
     selectedSkillCategoryMap: {},
+    // Skill checklist
+    skillCheckRows: [],
+    skillCheckTotal: 0,
+    skillCheckHasMore: false,
+    skillCheckKind: 'all',
+    skillCheckCategoryMap: {},
+    skillCheckSearchText: '',
+    expandedSkillId: null,
+    expandedSkillMap: {},
+    expandedOfficers: [],
+    expandedOfficerAssetReady: false,
   } as PageData,
 
   onLoad(options: Record<string, string | undefined> = {}) {
@@ -406,6 +462,114 @@ Page({
     })
     // Update nav title to show skill name
     wx.setNavigationBarTitle({ title: skill.name })
+  },
+
+  // ── Skill checklist Tab (index 4) ──
+
+  applySkillCheckFilter() {
+    const state = getPageState(this)
+    const filtered = filterSkillCheckList(
+      state._fullSkillCheckList,
+      state._skillCheckKind,
+      state._skillCheckCategories,
+      state._skillCheckSearchText,
+    )
+    state._filteredSkillList = filtered
+    state._skillCheckVisible = 30
+
+    const catMap: Record<string, boolean> = {}
+    for (const cat of state._skillCheckCategories) catMap[cat] = true
+
+    const slice = filtered.slice(0, state._skillCheckVisible)
+    this.setData({
+      skillCheckRows: slice,
+      skillCheckTotal: filtered.length,
+      skillCheckHasMore: filtered.length > state._skillCheckVisible,
+      skillCheckKind: state._skillCheckKind,
+      skillCheckCategoryMap: catMap,
+      skillCheckSearchText: state._skillCheckSearchText,
+    })
+  },
+
+  onSkillCheckKindTap(e: WechatMiniprogram.BaseEvent) {
+    const kind = getDatasetString(eventDataset(e), 'kind')
+    if (kind !== 'all' && kind !== 'active' && kind !== 'passive') return
+
+    const state = getPageState(this)
+    state._skillCheckKind = kind
+    this.applySkillCheckFilter()
+  },
+
+  onSkillCheckCategoryTap(e: WechatMiniprogram.BaseEvent) {
+    const id = getDatasetString(eventDataset(e), 'id')
+    if (!id) return
+
+    const state = getPageState(this)
+    const current = state._skillCheckCategories
+    const next = toggleArrayFilter(current, id)
+    state._skillCheckCategories = next
+    this.applySkillCheckFilter()
+  },
+
+  onSkillCheckSearchInput(e: WechatMiniprogram.Input) {
+    const state = getPageState(this)
+    state._skillCheckSearchText = e.detail.value || ''
+    this.applySkillCheckFilter()
+  },
+
+  onSkillCheckTap(e: WechatMiniprogram.BaseEvent) {
+    const skillId = getDatasetString(eventDataset(e), 'skillId')
+    if (!skillId) return
+
+    const state = getPageState(this)
+
+    // Toggle: if already expanded, collapse
+    if (state._expandedSkillId === skillId) {
+      state._expandedSkillId = null
+      state._expandedOfficers = []
+      this.setData({
+        expandedSkillId: null,
+        expandedSkillMap: {},
+        expandedOfficers: [],
+        expandedOfficerAssetReady: false,
+      })
+      return
+    }
+
+    // Expand: find officers who have this skill
+    const officers = getOfficersForSkill(skillId, state._enrichedCatalog)
+    state._expandedSkillId = skillId
+    state._expandedOfficers = officers
+
+    const expMap: Record<string, boolean> = {}
+    expMap[skillId] = true
+
+    this.setData({
+      expandedSkillId: skillId,
+      expandedSkillMap: expMap,
+      expandedOfficers: officers,
+      expandedOfficerAssetReady: true,
+    })
+  },
+
+  onExpandedOfficerTap(e: WechatMiniprogram.BaseEvent) {
+    const id = getDatasetString(eventDataset(e), 'id')
+    if (!id) return
+    wx.navigateTo({ url: `/subpkg-detail/pages/detail/index?id=${id}` })
+  },
+
+  skillCheckLoadMore(): Promise<void> {
+    const state = getPageState(this)
+    const currentLen = this.data.skillCheckRows.length
+    if (currentLen >= state._filteredSkillList.length) return Promise.resolve()
+
+    const next = state._filteredSkillList.slice(currentLen, currentLen + PAGE_SIZE)
+    const nextRows = this.data.skillCheckRows.concat(next)
+    this.setData({
+      skillCheckRows: nextRows,
+      skillCheckHasMore: currentLen + PAGE_SIZE < state._filteredSkillList.length,
+    })
+    return Promise.resolve()
   },
 
   // ── Pagination ──

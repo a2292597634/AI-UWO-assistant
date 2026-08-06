@@ -182,44 +182,48 @@
 .officer-slot__visuals {
   position: relative;
   display: inline-block;
-  width: 48rpx;
-  height: 48rpx;
+  width: 64rpx;
+  height: 64rpx;
+  background: #2f302b;
+  border-radius: 8rpx;
 }
 
 .officer-slot__frame {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 0;
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 5rpx;
+  z-index: 1;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
 }
 
 .officer-slot__portrait {
-  position: relative;
-  z-index: 1;
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 5rpx;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
 }
 
 .officer-slot__rarity-icon {
   position: absolute;
-  top: -4rpx;
-  right: -4rpx;
-  z-index: 2;
-  width: 22rpx;
-  height: 22rpx;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 42rpx;
+  height: 42rpx;
 }
 
 .officer-slot__type-icon {
   position: absolute;
-  bottom: -4rpx;
-  left: -4rpx;
-  z-index: 2;
-  width: 20rpx;
-  height: 20rpx;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  width: 17rpx;
+  height: 17rpx;
 }
 
 .officer-slot__name,
@@ -561,8 +565,59 @@ button.primary-button {
   opacity: 0.55;
 }
 
+.candidate-row__visuals,
+.ban-chip__visuals {
+  position: relative;
+  flex: 0 0 auto;
+  width: 54rpx;
+  height: 54rpx;
+  margin-right: 12rpx;
+  background: #2f302b;
+  border-radius: 7rpx;
+}
+
+.candidate-row__frame,
+.ban-chip__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 7rpx;
+}
+
 .candidate-row__portrait,
-.ban-chip__portrait,
+.ban-chip__portrait {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 7rpx;
+}
+
+.candidate-row__rarity-icon,
+.ban-chip__rarity-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 35rpx;
+  height: 35rpx;
+}
+
+.candidate-row__type-icon,
+.ban-chip__type-icon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  width: 14rpx;
+  height: 14rpx;
+}
+
 .contributor-avatar {
   width: 54rpx;
   height: 54rpx;
@@ -603,10 +658,10 @@ button.primary-button {
 
 .summary-row {
   display: grid;
-  grid-template-columns: 46rpx minmax(0, 1fr) auto;
-  gap: 8rpx;
+  grid-template-columns: 42rpx minmax(0, 1fr) auto;
+  gap: 6rpx 8rpx;
   align-items: center;
-  padding: 11rpx 0;
+  padding: 7rpx 0;
   border-bottom: 1rpx solid #d4cbb4;
 }
 

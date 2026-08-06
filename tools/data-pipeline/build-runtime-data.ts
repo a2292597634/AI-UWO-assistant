@@ -158,8 +158,8 @@ export const buildCatalog = (
 
     const skillLevels: Record<string, number> = {}
     for (const relation of o.skills) {
-      if (relation.level !== 1) {
-        skillLevels[relation.skillId] = relation.level
+      if (relation.unlockLevel !== 1) {
+        skillLevels[relation.skillId] = relation.unlockLevel
       }
     }
 

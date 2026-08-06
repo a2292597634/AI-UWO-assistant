@@ -65,14 +65,34 @@
     </view>
   </view>
 
-  <!-- Count bar with clear -->
-  <view class="count-bar">
+  <!-- Tab 4: Skill checklist -->
+  <view wx:if="{{activeTab === 4}}">
+    <view class="skill-check-panel">
+      <view class="skill-kind-tabs">
+        <view class="kind-tab {{skillCheckKind === 'all' ? 'kind-tab--on' : ''}}" bindtap="onSkillCheckKindTap" data-kind="all">全部</view>
+        <view class="kind-tab {{skillCheckKind === 'active' ? 'kind-tab--on' : ''}}" bindtap="onSkillCheckKindTap" data-kind="active">主動</view>
+        <view class="kind-tab {{skillCheckKind === 'passive' ? 'kind-tab--on' : ''}}" bindtap="onSkillCheckKindTap" data-kind="passive">被動</view>
+      </view>
+      <view class="filter-chips">
+        <view wx:for="{{skillCategories}}" wx:key="id" class="chip {{skillCheckCategoryMap[item.id] ? 'chip--on' : ''}}" bindtap="onSkillCheckCategoryTap" data-id="{{item.id}}">{{item.name}}</view>
+      </view>
+      <view class="search-bar">
+        <input class="search-input" placeholder="搜尋技能名稱..." value="{{skillCheckSearchText}}" bindinput="onSkillCheckSearchInput" />
+      </view>
+    </view>
+    <view class="count-bar">
+      <text>{{skillCheckTotal}} 項技能</text>
+    </view>
+  </view>
+
+  <!-- Count bar with clear (Tabs 0-3) -->
+  <view class="count-bar" wx:if="{{activeTab !== 4}}">
     <text>{{filterCount}} 位航海士</text>
     <text class="count-clear" bindtap="clearFilters" wx:if="{{hasActiveFilters}}">清除篩選</text>
   </view>
 
-  <!-- Officer list -->
-  <scroll-view class="list" scroll-y bindscrolltolower="loadMore" lower-threshold="200">
+  <!-- Officer list (Tabs 0-3) -->
+  <scroll-view wx:if="{{activeTab !== 4}}" class="list" scroll-y bindscrolltolower="loadMore" lower-threshold="200">
     <view wx:for="{{visibleRows}}" wx:key="id" class="officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
       <view class="row-portrait">
         <image wx:if="{{item.visuals.framePath && !item.frameFail}}" src="{{item.visuals.framePath}}" mode="aspectFill" class="row-portrait-layer row-portrait-frame" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="frameFail" />
@@ -123,6 +143,41 @@
       <view wx:if="{{hasActiveFilters}}" class="empty-clear" bindtap="clearFilters">清除篩選</view>
     </view>
     <view wx:elif="{{hasMore}}" class="load-more">載入更多...</view>
+  </scroll-view>
+
+  <!-- Skill checklist list (Tab 4) -->
+  <scroll-view wx:if="{{activeTab === 4}}" class="list" scroll-y bindscrolltolower="skillCheckLoadMore" lower-threshold="200">
+    <view wx:for="{{skillCheckRows}}" wx:key="skillId">
+      <view class="skill-check-row" bindtap="onSkillCheckTap" data-skill-id="{{item.skillId}}">
+        <image class="skill-check-icon" src="{{item.iconPath}}" mode="aspectFit" />
+        <view class="skill-check-info">
+          <text class="skill-check-name">{{item.name}}</text>
+          <text class="skill-check-category">{{item.categoryName}}</text>
+        </view>
+        <view class="skill-check-badges">
+          <text class="skill-check-kind {{item.kind === 'active' ? 'skill-check-kind--active' : 'skill-check-kind--passive'}}">{{item.kind === 'active' ? '主' : '被'}}</text>
+          <text class="skill-check-count">{{item.officerCount}} 位</text>
+        </view>
+      </view>
+      <view wx:if="{{expandedSkillMap[item.skillId]}}" class="skill-check-expanded">
+        <view class="skill-check-expanded__heading">持有此技能的航海士（{{expandedOfficers.length}} 位）</view>
+        <view class="skill-check-expanded__list">
+          <view wx:for="{{expandedOfficers}}" wx:for-item="officer" wx:key="officerId" class="expanded-officer" bindtap="onExpandedOfficerTap" data-id="{{officer.officerId}}">
+            <view class="expanded-officer__visuals">
+              <image wx:if="{{expandedOfficerAssetReady && officer.visuals.framePath}}" class="expanded-officer__frame" src="{{officer.visuals.framePath}}" mode="aspectFill" />
+              <image wx:if="{{expandedOfficerAssetReady}}" class="expanded-officer__portrait" src="{{officer.portraitPath}}" mode="aspectFill" />
+              <image wx:if="{{expandedOfficerAssetReady && officer.visuals.rarityIconPath}}" class="expanded-officer__rarity-icon" src="{{officer.visuals.rarityIconPath}}" mode="aspectFit" />
+              <image wx:if="{{expandedOfficerAssetReady && officer.visuals.typeIconPath}}" class="expanded-officer__type-icon" src="{{officer.visuals.typeIconPath}}" mode="aspectFit" />
+            </view>
+            <text class="expanded-officer__name">{{officer.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{skillCheckRows.length === 0}}" class="empty">
+      <text class="empty-title">沒有符合條件的技能</text>
+    </view>
+    <view wx:elif="{{skillCheckHasMore}}" class="load-more">載入更多...</view>
   </scroll-view>
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
