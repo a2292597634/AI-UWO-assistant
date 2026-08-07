@@ -320,6 +320,11 @@ export const summarizeShipSkills = (
       }
     })
     .sort((a, b) => {
+      // 有目标的排前
+      const aHas = a.targetLevel !== null
+      const bHas = b.targetLevel !== null
+      if (aHas !== bHas) return aHas ? -1 : 1
+      // 同组内按总等级降序
       if (a.totalLevel !== b.totalLevel) return b.totalLevel - a.totalLevel
       return a.skillId < b.skillId ? -1 : a.skillId > b.skillId ? 1 : 0
     })
@@ -376,7 +381,7 @@ export const updateShipTargets = (
   const ship = findShip(state, shipId)
   if (!ship) return { state, error: 'unknown-ship' }
   const valid = targets.filter((target) => target.skillId !== null)
-  if (valid.some((target) => target.targetLevel < 1 || target.targetLevel > 10)) {
+  if (valid.some((target) => target.targetLevel < 0 || target.targetLevel > 10)) {
     return { state, error: 'invalid-target-level' }
   }
   const ids = valid.map((target) => target.skillId!)

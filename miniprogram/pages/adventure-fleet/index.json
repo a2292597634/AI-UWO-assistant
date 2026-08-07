@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "冒險模擬艦隊",
+  "navigationBarBackgroundColor": "#2f302b",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#ded7c7",
+  "usingComponents": {
+    "skill-sheet": "../../components/skill-sheet/index"
+  }
+}

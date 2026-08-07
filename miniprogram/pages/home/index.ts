@@ -21,6 +21,14 @@ Page({
         route: '/pages/fleet/index',
         iconFailed: true,
       },
+      {
+        id: 'adventure-fleet',
+        name: '冒險模擬艦隊',
+        iconPath: '',
+        iconFallback: '探',
+        route: '/pages/adventure-fleet/index',
+        iconFailed: true,
+      },
     ],
   },
 

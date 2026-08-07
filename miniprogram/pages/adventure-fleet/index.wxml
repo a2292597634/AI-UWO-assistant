@@ -1,0 +1,244 @@
+<view class="fleet-page">
+  <!-- 页面头部 -->
+  <view class="fleet-header">
+    <view>
+      <text class="fleet-header__eyebrow">冒險配置工作台</text>
+      <text class="fleet-header__title">冒險模擬艦隊</text>
+    </view>
+    <text class="fleet-header__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
+  </view>
+
+  <!-- 配置管理栏 -->
+  <view class="config-bar">
+    <view class="config-bar__info" bindtap="onConfigListOpen">
+      <text class="config-bar__name">{{configName}}</text>
+      <text class="config-bar__status {{configStatus === 'saved' ? 'config-bar__status--saved' : configStatus === 'unsaved' ? 'config-bar__status--unsaved' : ''}}">
+        {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
+      </text>
+    </view>
+    <view class="config-bar__actions">
+      <text wx:if="{{authStatus === 'guest'}}" class="config-bar__login" bindtap="onConfigLogin">登入後保存</text>
+      <text wx:if="{{authStatus !== 'guest'}}" class="config-bar__menu-btn" bindtap="onConfigMenuTap">{{showConfigMenu ? '✕' : '☰'}}</text>
+    </view>
+  </view>
+
+  <!-- 配置管理菜单 -->
+  <view wx:if="{{showConfigMenu}}" class="config-menu">
+    <view class="config-menu__item" bindtap="onConfigSave"><text>覆蓋保存</text></view>
+    <view class="config-menu__item" bindtap="onConfigSaveAs"><text>另存為</text></view>
+    <view wx:if="{{activeConfigId}}" class="config-menu__item" bindtap="onConfigRename"><text>重命名</text></view>
+    <view wx:if="{{activeConfigId}}" class="config-menu__item config-menu__item--danger" bindtap="onConfigDelete"><text>刪除配置</text></view>
+    <view class="config-menu__item" bindtap="onConfigNew"><text>新建配置</text></view>
+  </view>
+
+  <!-- 配置列表弹窗 -->
+  <view wx:if="{{showConfigList}}" class="config-modal-mask" bindtap="onConfigListClose">
+    <view class="config-modal" catchtap="onNoop">
+      <view class="config-modal__header">
+        <text class="config-modal__title">我的配置</text>
+        <text class="config-modal__close" bindtap="onConfigListClose">✕</text>
+      </view>
+      <scroll-view class="config-modal__list" scroll-y>
+        <view
+          wx:for="{{configList}}" wx:key="configId"
+          class="config-item {{activeConfigId === item.configId ? 'config-item--active' : ''}}"
+          bindtap="onConfigSelect" data-id="{{item.configId}}"
+        >
+          <view class="config-item__info">
+            <text class="config-item__name">{{item.name}}</text>
+            <text class="config-item__meta">最後修改：{{item.updatedAt}}</text>
+          </view>
+          <text wx:if="{{activeConfigId === item.configId}}" class="config-item__current">使用中</text>
+        </view>
+        <view wx:if="{{configList.length === 0}}" class="config-modal__empty">尚無已保存配置</view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 名称输入弹窗 -->
+  <view wx:if="{{showNameModal}}" class="config-modal-mask" bindtap="onConfigModalCancel">
+    <view class="config-modal config-modal--small" catchtap="onNoop">
+      <view class="config-modal__header">
+        <text class="config-modal__title">{{modalTitle}}</text>
+        <text class="config-modal__close" bindtap="onConfigModalCancel">✕</text>
+      </view>
+      <view class="config-modal__body">
+        <view catchtap="onNoop">
+          <input
+            class="config-modal__input" placeholder="輸入配置名稱（1–30 字）" maxlength="30"
+            value="{{modalInputValue}}" bindinput="onConfigNameInput" catchtap="onNoop"
+          />
+        </view>
+        <view class="config-modal__actions">
+          <button class="config-modal__btn config-modal__btn--cancel" bindtap="onConfigModalCancel">取消</button>
+          <button class="config-modal__btn config-modal__btn--confirm" bindtap="onConfigModalConfirm">確認</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 未保存守卫 -->
+  <view wx:if="{{showUnsavedGuard}}" class="config-modal-mask">
+    <view class="config-modal config-modal--small" catchtap="onNoop">
+      <view class="config-modal__header"><text class="config-modal__title">尚未保存</text></view>
+      <view class="config-modal__body">
+        <text class="config-modal__text">目前配置尚未保存，要如何處理？</text>
+        <view class="config-modal__actions config-modal__actions--stack">
+          <button class="config-modal__btn config-modal__btn--confirm" bindtap="onUnsavedGuardSave">保存並繼續</button>
+          <button class="config-modal__btn config-modal__btn--danger" bindtap="onUnsavedGuardDiscard">放棄修改</button>
+          <button class="config-modal__btn config-modal__btn--cancel" bindtap="onUnsavedGuardCancel">取消</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 冲突弹窗 -->
+  <view wx:if="{{showConflictDialog}}" class="config-modal-mask">
+    <view class="config-modal config-modal--small" catchtap="onNoop">
+      <view class="config-modal__header"><text class="config-modal__title">版本衝突</text></view>
+      <view class="config-modal__body">
+        <text class="config-modal__text">此配置已被其他裝置修改，請選擇處理方式：</text>
+        <view class="config-modal__actions config-modal__actions--stack">
+          <button class="config-modal__btn config-modal__btn--confirm" bindtap="onConflictReload">重新載入雲端版本</button>
+          <button class="config-modal__btn config-modal__btn--danger" bindtap="onConflictForceOverwrite">強制覆蓋</button>
+          <button class="config-modal__btn config-modal__btn--cancel" bindtap="onConflictCancel">取消</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主内容滚动区 -->
+  <scroll-view class="fleet-scroll" scroll-y>
+
+    <!-- 配队目标面板 -->
+    <view class="target-panel">
+      <view class="panel-heading">
+        <text class="panel-heading__title">配隊目標</text>
+        <text class="panel-heading__hint">全艦隊 77 人範圍內求解</text>
+      </view>
+      <view wx:for="{{targets}}" wx:key="id" class="target-row" bindtap="onTargetSkillTap" data-skill-id="{{item.skillId}}">
+        <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="target-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />
+        <view class="target-row__copy">
+          <text class="target-row__name">{{item.configured ? item.skillName : '尚未選擇技能'}}</text>
+          <text wx:if="{{item.skillDescription}}" class="target-row__desc">{{item.skillDescription}}</text>
+        </view>
+        <view class="target-row__right">
+          <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" catchtap="onNoop" data-id="{{item.id}}" />
+          <text class="target-row__remove" catchtap="onRemoveTarget" data-id="{{item.id}}">刪除目標</text>
+        </view>
+      </view>
+      <view class="target-actions">
+        <button class="subtle-button" bindtap="onAddTarget">新增目標</button>
+        <button class="primary-button" bindtap="onRecalculate">重新計算</button>
+      </view>
+    </view>
+
+    <!-- 类型分区 航海士头像网格 -->
+    <view wx:for="{{typeZones}}" wx:key="zone" class="zone-section">
+      <view class="zone-section__header">
+        <text class="zone-section__title">{{item.zoneLabel}}</text>
+        <text class="zone-section__meta">{{item.totalCount}} 人 · 鎖定 {{item.lockedCount}}</text>
+      </view>
+      <view class="officer-grid">
+        <view
+          wx:for="{{item.officers}}" wx:key="id"
+          class="officer-card {{item.status === 'locked' ? 'officer-card--locked' : ''}}"
+        >
+          <view class="officer-card__visuals">
+            <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="officer-card__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
+            <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="officer-card__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+            <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="officer-card__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
+            <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="officer-card__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
+          </view>
+          <text class="officer-card__name">{{item.name}}</text>
+          <text wx:if="{{item.shipLabel}}" class="officer-card__ship">{{item.shipLabel}}</text>
+          <view class="officer-card__actions">
+            <view class="card-action card-action--lock" bindtap="onOfficerLock" data-id="{{item.id}}">
+              <text class="card-action__glyph">{{item.status === 'locked' ? '🔓' : '🔒'}}</text>
+              <text class="card-action__label">{{item.status === 'locked' ? '解鎖' : '鎖定'}}</text>
+            </view>
+            <view class="card-action" bindtap="onOfficerRemove" data-id="{{item.id}}">
+              <text class="card-action__glyph">×</text>
+              <text class="card-action__label">移除</text>
+            </view>
+            <view class="card-action card-action--danger" bindtap="onBanOfficer" data-id="{{item.id}}">
+              <text class="card-action__glyph">⊘</text>
+              <text class="card-action__label">排除</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 全舰队排除名单 -->
+    <view class="ban-panel">
+      <view class="panel-heading">
+        <text class="panel-heading__title">全艦隊排除名單（{{bannedOfficers.length}}）</text>
+        <text class="panel-heading__hint">解除後下次重算才會出現</text>
+      </view>
+      <view wx:if="{{bannedOfficers.length > 0}}" class="ban-grid">
+        <view wx:for="{{bannedOfficers}}" wx:key="id" class="ban-card" bindtap="onUnbanOfficer" data-id="{{item.id}}">
+          <view class="ban-card__visuals">
+            <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="ban-card__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
+            <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="ban-card__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+            <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="ban-card__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
+            <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="ban-card__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
+          </view>
+          <text class="ban-card__name">{{item.name}}</text>
+          <text class="ban-card__remove">解除</text>
+        </view>
+      </view>
+      <view wx:else class="inline-empty">目前沒有排除航海士</view>
+    </view>
+
+    <!-- 舰队技能累计 -->
+    <view class="summary-panel">
+      <view class="panel-heading">
+        <text class="panel-heading__title">全艦隊冒險技能累計</text>
+        <text class="panel-heading__hint">使用真實累計值 · 不封頂</text>
+      </view>
+      <view wx:for="{{skillSummary}}" wx:key="skillId" class="summary-row">
+        <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="summary-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />
+        <view class="summary-row__copy">
+          <text class="summary-row__name">{{item.skillName}}</text>
+          <text class="summary-row__level">Lv.{{item.totalLevel}}{{item.targetLevel !== null ? ' / 目標 Lv.' + item.targetLevel : ''}}</text>
+        </view>
+        <text class="summary-row__state {{item.isReached === true ? 'summary-row__state--ok' : ''}}">{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}</text>
+        <scroll-view class="summary-row__contributors" scroll-x="true" enable-flex>
+          <view class="summary-row__contributors-content">
+            <image wx:if="{{assetReady && !failedPortraitImages[item.officerId]}}" wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.officerId}}" />
+            <text wx:if="{{item.contributors.length === 0}}" class="contributors-empty">尚無貢獻者</text>
+          </view>
+        </scroll-view>
+      </view>
+      <view wx:if="{{skillSummary.length === 0}}" class="inline-empty">尚未配置冒險技能</view>
+    </view>
+
+    <!-- 技能选择器 -->
+    <view class="skill-selector">
+      <view class="panel-heading">
+        <text class="panel-heading__title">冒險技能列表</text>
+        <text class="panel-heading__hint">點擊「加入目標」或直接點技能行查看詳情</text>
+      </view>
+      <input class="skill-search" placeholder="搜尋冒險技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
+      <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
+        <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option {{selectedSkillId === item.id ? 'skill-option--active' : ''}}" bindtap="onSkillTap" data-id="{{item.id}}">
+          <image wx:if="{{assetReady && !failedSkillImages[item.id]}}" class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.id}}" />
+          <view class="skill-option__copy">
+            <text class="skill-option__name">{{item.name}}</text>
+            <text class="skill-option__meta">冒險技能 · {{item.categoryName}} · {{item.officerCount}} 人擁有</text>
+            <text class="skill-option__description">{{item.description || '暫無技能描述'}}</text>
+          </view>
+          <view class="skill-option__select" catchtap="onSkillSelect" data-id="{{item.id}}">
+            <text>加入目標</text>
+          </view>
+        </view>
+        <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的冒險技能</view>
+        <view wx:if="{{manualSkillHasMore}}" class="inline-empty">繼續上滑載入更多技能</view>
+      </scroll-view>
+    </view>
+
+  </scroll-view>
+
+  <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
+</view>

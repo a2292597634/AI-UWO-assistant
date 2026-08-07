@@ -1,5 +1,10 @@
 {
-  "pages": ["pages/home/index", "pages/catalog/index", "pages/fleet/index"],
+  "pages": [
+    "pages/home/index",
+    "pages/catalog/index",
+    "pages/fleet/index",
+    "pages/adventure-fleet/index"
+  ],
   "subpackages": [
     {
       "root": "subpkg-detail",

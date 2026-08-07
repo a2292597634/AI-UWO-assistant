@@ -258,7 +258,7 @@ const isValidTarget = (value: unknown): boolean => {
   if (typeof target.id !== 'string' || !target.id) return false
   if (target.skillId !== null && typeof target.skillId !== 'string') return false
   if (typeof target.targetLevel !== 'number' || !Number.isInteger(target.targetLevel)) return false
-  if (target.targetLevel < 1 || target.targetLevel > 10) return false
+  if (target.targetLevel < 0 || target.targetLevel > 10) return false
 
   return true
 }

@@ -136,32 +136,26 @@ describe('FleetState validation', () => {
   })
 
   it('rejects invalid target levels', () => {
-    const state = createFleetState()
-    const invalid: FleetState = {
-      ...state,
-      ships: state.ships.map((ship, i) =>
-        i === 0
-          ? {
-              ...ship,
-              targets: [{ id: 't1', skillId: 'skill_abc', targetLevel: 0 }],
-            }
-          : ship,
-      ),
-    }
-    expect(isValidFleetState(invalid)).toBe(false)
+    // 用序列化的原始数据作为测试输入（包含 schemaVersion）
+    const raw = JSON.parse(serializeFleetState(createFleetState())) as Record<string, unknown>
 
-    const tooHigh: FleetState = {
-      ...state,
-      ships: state.ships.map((ship, i) =>
-        i === 0
-          ? {
-              ...ship,
-              targets: [{ id: 't1', skillId: 'skill_abc', targetLevel: 11 }],
-            }
-          : ship,
-      ),
-    }
-    expect(isValidFleetState(tooHigh)).toBe(false)
+    // 等级 0 是合法的（仅追踪，无最低要求）
+    ;(raw.ships as Array<Record<string, unknown>>)[0]!.targets = [
+      { id: 't0', skillId: 'skill_abc', targetLevel: 0 },
+    ]
+    expect(isValidFleetState(raw)).toBe(true)
+
+    // 等级 -1 非法
+    ;(raw.ships as Array<Record<string, unknown>>)[0]!.targets = [
+      { id: 't1', skillId: 'skill_abc', targetLevel: -1 },
+    ]
+    expect(isValidFleetState(raw)).toBe(false)
+
+    // 等级 11 非法
+    ;(raw.ships as Array<Record<string, unknown>>)[0]!.targets = [
+      { id: 't2', skillId: 'skill_abc', targetLevel: 11 },
+    ]
+    expect(isValidFleetState(raw)).toBe(false)
   })
 
   it('rejects duplicate non-null target skills per ship', () => {
