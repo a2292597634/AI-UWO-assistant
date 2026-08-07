@@ -7,6 +7,125 @@
     <text class="fleet-header__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
   </view>
 
+  <!-- Config Management Bar -->
+  <view class="config-bar">
+    <view class="config-bar__info" bindtap="onConfigListOpen">
+      <text class="config-bar__name">{{configName}}</text>
+      <text class="config-bar__status {{configStatus === 'saved' ? 'config-bar__status--saved' : configStatus === 'unsaved' ? 'config-bar__status--unsaved' : ''}}">
+        {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
+      </text>
+    </view>
+    <view class="config-bar__actions">
+      <text wx:if="{{authStatus === 'guest'}}" class="config-bar__login" bindtap="onConfigLogin">登入後保存</text>
+      <text wx:if="{{authStatus !== 'guest'}}" class="config-bar__menu-btn" bindtap="onConfigMenuTap">{{showConfigMenu ? '✕' : '☰'}}</text>
+    </view>
+  </view>
+
+  <!-- Config Management Menu -->
+  <view wx:if="{{showConfigMenu}}" class="config-menu">
+    <view class="config-menu__item" bindtap="onConfigSave">
+      <text>覆蓋保存</text>
+    </view>
+    <view class="config-menu__item" bindtap="onConfigSaveAs">
+      <text>另存為</text>
+    </view>
+    <view wx:if="{{activeConfigId}}" class="config-menu__item" bindtap="onConfigRename">
+      <text>重命名</text>
+    </view>
+    <view wx:if="{{activeConfigId}}" class="config-menu__item config-menu__item--danger" bindtap="onConfigDelete">
+      <text>刪除配置</text>
+    </view>
+    <view class="config-menu__item" bindtap="onConfigNew">
+      <text>新建配置</text>
+    </view>
+  </view>
+
+  <!-- Config List Modal -->
+  <view wx:if="{{showConfigList}}" class="config-modal-mask" bindtap="onConfigListClose">
+    <view class="config-modal" catchtap="onNoop">
+      <view class="config-modal__header">
+        <text class="config-modal__title">我的配置</text>
+        <text class="config-modal__close" bindtap="onConfigListClose">✕</text>
+      </view>
+      <scroll-view class="config-modal__list" scroll-y>
+        <view
+          wx:for="{{configList}}"
+          wx:key="configId"
+          class="config-item {{activeConfigId === item.configId ? 'config-item--active' : ''}}"
+          bindtap="onConfigSelect"
+          data-id="{{item.configId}}"
+        >
+          <view class="config-item__info">
+            <text class="config-item__name">{{item.name}}</text>
+            <text class="config-item__meta">最後修改：{{item.updatedAt}}</text>
+          </view>
+          <text wx:if="{{activeConfigId === item.configId}}" class="config-item__current">使用中</text>
+        </view>
+        <view wx:if="{{configList.length === 0}}" class="config-modal__empty">尚無已保存配置</view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- Name Input Modal -->
+  <view wx:if="{{showNameModal}}" class="config-modal-mask" bindtap="onConfigModalCancel">
+    <view class="config-modal config-modal--small" catchtap="onNoop">
+      <view class="config-modal__header">
+        <text class="config-modal__title">{{modalTitle}}</text>
+        <text class="config-modal__close" bindtap="onConfigModalCancel">✕</text>
+      </view>
+      <view class="config-modal__body">
+        <view catchtap="onNoop">
+          <input
+            class="config-modal__input"
+            placeholder="輸入配置名稱（1–30 字）"
+            maxlength="30"
+            value="{{modalInputValue}}"
+            bindinput="onConfigNameInput"
+            catchtap="onNoop"
+          />
+        </view>
+        <view class="config-modal__actions">
+          <button class="config-modal__btn config-modal__btn--cancel" bindtap="onConfigModalCancel">取消</button>
+          <button class="config-modal__btn config-modal__btn--confirm" bindtap="onConfigModalConfirm">確認</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Unsaved Changes Guard -->
+  <view wx:if="{{showUnsavedGuard}}" class="config-modal-mask">
+    <view class="config-modal config-modal--small" catchtap="onNoop">
+      <view class="config-modal__header">
+        <text class="config-modal__title">尚未保存</text>
+      </view>
+      <view class="config-modal__body">
+        <text class="config-modal__text">目前配置尚未保存，要如何處理？</text>
+        <view class="config-modal__actions config-modal__actions--stack">
+          <button class="config-modal__btn config-modal__btn--confirm" bindtap="onUnsavedGuardSave">保存並繼續</button>
+          <button class="config-modal__btn config-modal__btn--danger" bindtap="onUnsavedGuardDiscard">放棄修改</button>
+          <button class="config-modal__btn config-modal__btn--cancel" bindtap="onUnsavedGuardCancel">取消</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Conflict Dialog -->
+  <view wx:if="{{showConflictDialog}}" class="config-modal-mask">
+    <view class="config-modal config-modal--small" catchtap="onNoop">
+      <view class="config-modal__header">
+        <text class="config-modal__title">版本衝突</text>
+      </view>
+      <view class="config-modal__body">
+        <text class="config-modal__text">此配置已被其他裝置修改，請選擇處理方式：</text>
+        <view class="config-modal__actions config-modal__actions--stack">
+          <button class="config-modal__btn config-modal__btn--confirm" bindtap="onConflictReload">重新載入雲端版本</button>
+          <button class="config-modal__btn config-modal__btn--danger" bindtap="onConflictForceOverwrite">強制覆蓋</button>
+          <button class="config-modal__btn config-modal__btn--cancel" bindtap="onConflictCancel">取消</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <scroll-view class="fleet-scroll" scroll-y>
     <scroll-view class="ship-tabs" scroll-x="true" enable-flex>
       <view class="ship-tabs__content">

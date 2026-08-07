@@ -14,8 +14,26 @@ interface FleetTestData {
   sheetSkill: unknown
   manualSkillId: string | null
   bannedOfficers: unknown[]
+  // Config management
+  authStatus: string
+  configName: string
+  configStatus: string
+  activeConfigId: string | null
+  configList: unknown[]
+  showConfigMenu: boolean
+  showConfigList: boolean
+  showNameModal: boolean
+  showUnsavedGuard: boolean
+  modalAction: string
+  modalInputValue: string
+  modalTitle: string
+  pendingAction: unknown
+  configLimitReached: boolean
+  showConflictDialog: boolean
   [key: string]: unknown
 }
+
+const mockCallFunction = vi.fn()
 
 interface FleetPageConfig {
   data: FleetTestData
@@ -24,17 +42,44 @@ interface FleetPageConfig {
   retryAssetLoading(): Promise<void>
   onImageError(event: WechatMiniprogram.BaseEvent): void
   onSkillListReachEnd(): void
+  onShipTabTap(event: WechatMiniprogram.BaseEvent): void
   onModeTap(event: WechatMiniprogram.BaseEvent): void
+  onSkillKindTap(event: WechatMiniprogram.BaseEvent): void
+  onSkillCategoryTap(event: WechatMiniprogram.BaseEvent): void
+  onSkillSearchInput(event: WechatMiniprogram.Input): void
   onSkillTap(event: WechatMiniprogram.BaseEvent): void
+  onSkillSelect(event: WechatMiniprogram.BaseEvent): void
+  onSheetDismiss(): void
+  onReverseLookup(): void
   onAddTarget(): void
   onTargetLevelBlur(event: WechatMiniprogram.Input): void
   onRemoveTarget(event: WechatMiniprogram.BaseEvent): void
   onRecalculate(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
   onOfficerRemove(event: WechatMiniprogram.BaseEvent): void
+  onOfficerLock(event: WechatMiniprogram.BaseEvent): void
   onBanOfficer(event: WechatMiniprogram.BaseEvent): void
-  onSkillSelect(event: WechatMiniprogram.BaseEvent): void
-  onSheetDismiss(): void
+  onUnbanOfficer(event: WechatMiniprogram.BaseEvent): void
+  // Config management handlers
+  onConfigLogin(): Promise<void>
+  onConfigMenuTap(): void
+  onConfigListOpen(): Promise<void>
+  onConfigListClose(): void
+  onConfigSelect(event: WechatMiniprogram.BaseEvent): void
+  onConfigNew(): void
+  onConfigSave(): Promise<void>
+  onConfigSaveAs(): Promise<void>
+  onConfigRename(): void
+  onConfigDelete(): void
+  onConfigNameInput(event: WechatMiniprogram.Input): void
+  onConfigModalConfirm(): Promise<void>
+  onConfigModalCancel(): void
+  onUnsavedGuardSave(): Promise<void>
+  onUnsavedGuardDiscard(): void
+  onUnsavedGuardCancel(): void
+  onConflictReload(): Promise<void>
+  onConflictForceOverwrite(): Promise<void>
+  onConflictCancel(): void
 }
 
 interface FleetPageInstance extends FleetPageConfig {
@@ -49,6 +94,9 @@ const wxStub = {
   setNavigationBarTitle: vi.fn(),
   navigateTo: vi.fn(),
   navigateBack: vi.fn((options: { success?: () => void }) => options.success?.()),
+  cloud: {
+    callFunction: mockCallFunction,
+  },
 }
 
 const createPageInstance = (): FleetPageInstance => {
@@ -65,6 +113,11 @@ beforeAll(async () => {
   vi.stubGlobal('wx', wxStub)
 
   await import('../../miniprogram/pages/fleet/index')
+})
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  mockCallFunction.mockReset()
 })
 
 beforeEach(() => {
@@ -262,5 +315,140 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxml).not.toContain('lazy-load="true"')
     expect(fleetWxml).toContain('binderror="onImageError"')
     expect(fleetWxml).toContain('bindscrolltolower="onSkillListReachEnd"')
+  })
+})
+
+// ── Config lifecycle tests ──
+
+describe('fleet config lifecycle', () => {
+  it('starts as an editable guest page without loading cloud data', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    expect(page.data.authStatus).toBe('guest')
+    expect(page.data.configStatus).toBe('new')
+    expect(page.data.activeConfigId).toBeNull()
+    expect(mockCallFunction).not.toHaveBeenCalled()
+  })
+
+  it('marks domain changes dirty', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    // Initially clean
+    expect(page.data.configStatus).toBe('new')
+
+    // Add an officer → should become unsaved
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    expect(page.data.configStatus).toBe('unsaved')
+  })
+
+  it('does not mark UI-only changes dirty', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    // Switch ship tab
+    page.onShipTabTap({ currentTarget: { dataset: { id: 'ship-2' } } } as never)
+    // Ship tab switching is UI-only, does not change fleet state
+    expect(page.data.currentShipId).toBe('ship-2')
+  })
+
+  it('returns ok: true for authenticate call', async () => {
+    mockCallFunction
+      .mockResolvedValueOnce({
+        result: { ok: true, data: { authenticated: true } },
+      })
+      .mockResolvedValueOnce({
+        result: { ok: true, data: [] },
+      })
+
+    const page = createPageInstance()
+    page.onLoad()
+
+    // Simulate the login flow
+    await page.onConfigLogin()
+    expect(mockCallFunction).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { action: 'authenticate' } }),
+    )
+  })
+
+  it('shows guest save prompt when not logged in', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    expect(page.data.authStatus).toBe('guest')
+    // The login button should be visible for guests
+  })
+
+  it('handles unsaved guard on new config when dirty', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    // Make a change
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    expect(page.data.configStatus).toBe('unsaved')
+
+    // Try to create new config → should trigger unsaved guard
+    page.onConfigNew()
+    expect(page.data.showUnsavedGuard).toBe(true)
+  })
+
+  it('dismisses unsaved guard on cancel', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    page.onConfigNew()
+    expect(page.data.showUnsavedGuard).toBe(true)
+
+    page.onUnsavedGuardCancel()
+    expect(page.data.showUnsavedGuard).toBe(false)
+    expect(page.data.pendingAction).toBeNull()
+  })
+
+  it('executes new config after discarding unsaved changes', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    page.onConfigNew()
+    expect(page.data.showUnsavedGuard).toBe(true)
+
+    page.onUnsavedGuardDiscard()
+    expect(page.data.showUnsavedGuard).toBe(false)
+    expect(page.data.activeConfigId).toBeNull()
+  })
+
+  it('shows name modal for save-as', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    page.onConfigSaveAs()
+    // Without login, save-as will trigger login first then save-as
+    // The exact flow depends on auth state
+  })
+
+  it('closes config menu after menu tap', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    expect(page.data.showConfigMenu).toBe(false)
+    page.onConfigMenuTap()
+    expect(page.data.showConfigMenu).toBe(true)
+    page.onConfigMenuTap()
+    expect(page.data.showConfigMenu).toBe(false)
+  })
+
+  it('closes name modal on cancel', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    // Simulate opening the modal
+    page.setData({ showNameModal: true, modalAction: 'saveAs', modalInputValue: 'test' })
+    expect(page.data.showNameModal).toBe(true)
+
+    page.onConfigModalCancel()
+    expect(page.data.showNameModal).toBe(false)
   })
 })

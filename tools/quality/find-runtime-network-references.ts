@@ -10,6 +10,10 @@ export interface RuntimeNetworkReference {
 export interface RuntimeNetworkScanOptions {
   generatedCdnOrigin?: string
   generatedAssetPathPrefix?: string
+  /** Relative file paths (from miniprogram root) allowed to call wx.cloud.callFunction */
+  allowedCloudFunctionFiles?: readonly string[]
+  /** Relative file paths (from miniprogram root) allowed to call wx.cloud.init */
+  allowedCloudInitFiles?: readonly string[]
 }
 
 const sourceExtensions = new Set(['.ts', '.js', '.json', '.wxml', '.wxss', '.wxs'])
@@ -60,14 +64,34 @@ export const findRuntimeNetworkReferences = (
       }
       if (!sourceExtensions.has(extname(path))) continue
 
+      const relativePath = relative(root, path).replace(/\\/g, '/')
+
       readFileSync(path, 'utf8')
         .split(/\r?\n/)
         .forEach((line, index) => {
           for (const rule of forbidden) {
             if (rule.reason === 'remote URL' && generatedAssetLine(path, line)) continue
+
+            // Skip ALL wx.cloud references in allowed init files
+            if (
+              rule.reason === 'wx.cloud' &&
+              options.allowedCloudInitFiles?.includes(relativePath)
+            ) {
+              continue
+            }
+
+            // Skip wx.cloud.callFunction in allowed function files
+            if (
+              rule.reason === 'wx.cloud' &&
+              options.allowedCloudFunctionFiles?.includes(relativePath) &&
+              /\bwx\.cloud\.callFunction\b/.test(line)
+            ) {
+              continue
+            }
+
             if (rule.pattern.test(line)) {
               results.push({
-                file: relative(root, path).replace(/\\/g, '/'),
+                file: relativePath,
                 line: index + 1,
                 reason: rule.reason,
               })

@@ -1,0 +1,10 @@
+{
+  "name": "fleet-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CloudBase cloud function for fleet configuration persistence",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

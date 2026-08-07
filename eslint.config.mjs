@@ -50,5 +50,32 @@ export default tseslint.config(
       'no-unused-vars': ['warn', { varsIgnorePattern: '^_' }],
     },
   },
+  {
+    files: ['cloudfunctions/**/*.js'],
+    languageOptions: {
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   eslintConfigPrettier,
 )

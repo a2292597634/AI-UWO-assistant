@@ -52,4 +52,69 @@ describe('findRuntimeNetworkReferences', () => {
       },
     ])
   })
+
+  // ── CloudBase allowlist ──
+
+  it('allows wx.cloud.callFunction in an allowed file', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-allow-'))
+    fixtureRoots.push(root)
+    const runtimeDir = join(root, 'runtime')
+    mkdirSync(runtimeDir, { recursive: true })
+    writeFileSync(
+      join(runtimeDir, 'fleet-config-service.ts'),
+      "wx.cloud.callFunction({ name: 'fleet-config', data: { action: 'listMyConfigs' } })",
+      'utf8',
+    )
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudFunctionFiles: ['runtime/fleet-config-service.ts'],
+      }),
+    ).toEqual([])
+  })
+
+  it('rejects wx.cloud.callFunction in a non-allowed page', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-reject-'))
+    fixtureRoots.push(root)
+    const pagesDir = join(root, 'pages', 'fleet')
+    mkdirSync(pagesDir, { recursive: true })
+    writeFileSync(
+      join(pagesDir, 'index.ts'),
+      "wx.cloud.callFunction({ name: 'fleet-config' })",
+      'utf8',
+    )
+
+    const findings = findRuntimeNetworkReferences(root, {
+      allowedCloudFunctionFiles: ['runtime/fleet-config-service.ts'],
+    })
+    expect(findings).toHaveLength(1)
+    expect(findings[0].reason).toBe('wx.cloud')
+    expect(findings[0].file).toContain('pages/fleet/index.ts')
+  })
+
+  it('allows wx.cloud.init only in app.ts', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-init-'))
+    fixtureRoots.push(root)
+    writeFileSync(join(root, 'app.ts'), "wx.cloud.init({ env: 'test-env' })", 'utf8')
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudInitFiles: ['app.ts'],
+      }),
+    ).toEqual([])
+  })
+
+  it('rejects wx.cloud.init in non-allowed files', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-init-reject-'))
+    fixtureRoots.push(root)
+    const pagesDir = join(root, 'pages', 'index')
+    mkdirSync(pagesDir, { recursive: true })
+    writeFileSync(join(pagesDir, 'index.ts'), "wx.cloud.init({ env: 'bad' })", 'utf8')
+
+    const findings = findRuntimeNetworkReferences(root, {
+      allowedCloudInitFiles: ['app.ts'],
+    })
+    expect(findings).toHaveLength(1)
+    expect(findings[0].reason).toBe('wx.cloud')
+  })
 })

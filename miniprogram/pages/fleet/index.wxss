@@ -1,3 +1,260 @@
+/* ── Config Management Bar ── */
+
+.config-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 24rpx;
+  background: #2a2b25;
+  border-bottom: 1rpx solid #3d3e38;
+  flex: 0 0 auto;
+}
+
+.config-bar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  flex: 1;
+  overflow: hidden;
+}
+
+.config-bar__name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e0d8c0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.config-bar__status {
+  font-size: 20rpx;
+  color: #7a7a6e;
+}
+
+.config-bar__status--saved {
+  color: #5b8c3e;
+}
+
+.config-bar__status--unsaved {
+  color: #d48c2c;
+}
+
+.config-bar__actions {
+  flex: 0 0 auto;
+  margin-left: 16rpx;
+}
+
+.config-bar__login {
+  font-size: 24rpx;
+  color: #d48c2c;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid #d48c2c;
+  border-radius: 8rpx;
+}
+
+.config-bar__menu-btn {
+  font-size: 32rpx;
+  padding: 8rpx 12rpx;
+  color: #e0d8c0;
+}
+
+/* ── Config Management Menu ── */
+
+.config-menu {
+  position: absolute;
+  top: 160rpx;
+  right: 16rpx;
+  z-index: 100;
+  background: #2f302b;
+  border: 1rpx solid #4a4b45;
+  border-radius: 12rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.4);
+  padding: 8rpx 0;
+  min-width: 200rpx;
+}
+
+.config-menu__item {
+  padding: 16rpx 24rpx;
+  font-size: 26rpx;
+  color: #d0c8b0;
+  border-bottom: 1rpx solid #3a3b35;
+}
+
+.config-menu__item:last-child {
+  border-bottom: none;
+}
+
+.config-menu__item--danger {
+  color: #e07060;
+}
+
+/* ── Config Modal (shared) ── */
+
+.config-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-modal {
+  background: #2f302b;
+  border-radius: 16rpx;
+  width: 600rpx;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-modal--small {
+  width: 520rpx;
+}
+
+.config-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  border-bottom: 1rpx solid #3d3e38;
+  flex: 0 0 auto;
+}
+
+.config-modal__title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #e0d8c0;
+}
+
+.config-modal__close {
+  font-size: 28rpx;
+  color: #8a8a7e;
+  padding: 4rpx;
+}
+
+.config-modal__body {
+  padding: 24rpx;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.config-modal__text {
+  font-size: 26rpx;
+  color: #c0b890;
+  line-height: 1.6;
+  margin-bottom: 24rpx;
+}
+
+.config-modal__input {
+  width: 100%;
+  padding: 16rpx;
+  background: #3a3b35;
+  border: 1rpx solid #4a4b45;
+  border-radius: 8rpx;
+  color: #e0d8c0;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  margin-bottom: 24rpx;
+}
+
+.config-modal__actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.config-modal__actions--stack {
+  flex-direction: column;
+}
+
+.config-modal__btn {
+  flex: 1;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  text-align: center;
+  border: none;
+}
+
+.config-modal__btn--confirm {
+  background: #4a6b2e;
+  color: #e0d8c0;
+}
+
+.config-modal__btn--cancel {
+  background: #3a3b35;
+  color: #a0a090;
+}
+
+.config-modal__btn--danger {
+  background: #6b3a2e;
+  color: #e0c8c0;
+}
+
+/* ── Config List ── */
+
+.config-modal__list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  border-bottom: 1rpx solid #3a3b35;
+}
+
+.config-item:last-child {
+  border-bottom: none;
+}
+
+.config-item--active {
+  background: #3a3b35;
+}
+
+.config-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  flex: 1;
+  overflow: hidden;
+}
+
+.config-item__name {
+  font-size: 28rpx;
+  color: #e0d8c0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.config-item__meta {
+  font-size: 20rpx;
+  color: #7a7a6e;
+}
+
+.config-item__current {
+  font-size: 22rpx;
+  color: #5b8c3e;
+  flex: 0 0 auto;
+  margin-left: 16rpx;
+}
+
+.config-modal__empty {
+  padding: 40rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #7a7a6e;
+}
+
 .asset-loading-state,
 .asset-load-error {
   display: flex;

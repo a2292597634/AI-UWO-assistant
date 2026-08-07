@@ -69,6 +69,18 @@ describe('App entry', () => {
   })
 })
 
+describe('CloudBase project configuration', () => {
+  it('project.config.json declares cloudfunctionRoot as cloudfunctions/', () => {
+    const config = readJson(path.join(ROOT, 'project.config.json'))
+    expect(config.cloudfunctionRoot).toBe('cloudfunctions/')
+  })
+
+  it('project.config.json declares miniprogramRoot as miniprogram/', () => {
+    const config = readJson(path.join(ROOT, 'project.config.json'))
+    expect(config.miniprogramRoot).toBe('miniprogram/')
+  })
+})
+
 describe('Home page', () => {
   it('pages/home/index.ts exists', () => {
     const tsPath = path.join(MINIPROGRAM_DIR, 'pages', 'home', 'index.ts')
