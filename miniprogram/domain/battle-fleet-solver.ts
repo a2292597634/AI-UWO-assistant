@@ -45,7 +45,15 @@ interface ScoredSelection {
   overageTotal: number
 }
 
-const EXACT_CANDIDATE_LIMIT = 40
+interface DpState {
+  officerIds: string[]
+  totals: Record<string, number>
+  achievedCount: number
+  overageTotal: number
+}
+
+/** 状态空间上限：超过此值时跳过 DP，避免极端参数下性能退化 */
+const MAX_STATE_SPACE = 200_000
 
 const sortedIds = (ids: readonly string[]): string[] => [...ids].sort()
 
@@ -95,28 +103,6 @@ const scoreSelection = (
   }
 }
 
-const compareSelections = (
-  left: ScoredSelection,
-  right: ScoredSelection,
-  targetCount: number,
-): number => {
-  if (left.achievedTargetCount !== right.achievedTargetCount) {
-    return left.achievedTargetCount > right.achievedTargetCount ? 1 : -1
-  }
-  if (targetCount > 0 && left.allTargetsComplete && right.allTargetsComplete) {
-    if (left.officerIds.length !== right.officerIds.length) {
-      return left.officerIds.length < right.officerIds.length ? 1 : -1
-    }
-    if (left.overageTotal !== right.overageTotal) {
-      return left.overageTotal < right.overageTotal ? 1 : -1
-    }
-  }
-  const leftKey = left.officerIds.join('\u0000')
-  const rightKey = right.officerIds.join('\u0000')
-  if (leftKey === rightKey) return 0
-  return leftKey < rightKey ? 1 : -1
-}
-
 const buildProgress = (
   selection: ScoredSelection,
   targets: readonly AutoTargetInput[],
@@ -143,114 +129,89 @@ const buildResult = (
   overageTotal: selection.overageTotal,
 })
 
-const greedySelection = (
-  lockedIds: readonly string[],
-  lockedTotals: Readonly<Record<string, number>>,
-  candidates: readonly Candidate[],
-  targets: readonly AutoTargetInput[],
-  capacity: number,
-): ScoredSelection => {
-  const selected = sortedIds(lockedIds)
-  let totals: Record<string, number> = { ...lockedTotals }
+// ── State-space DP ──
 
-  while (selected.length < capacity) {
-    let best: { candidate: Candidate; selection: ScoredSelection; gain: number } | null = null
-    const current = scoreSelection(selected, totals, targets)
-    for (const candidate of candidates) {
-      if (selected.includes(candidate.officer.id)) continue
-      const nextTotals = addContribution(totals, candidate.contributions)
-      const next = scoreSelection([...selected, candidate.officer.id], nextTotals, targets)
-      const gain = next.achievedTargetCount - current.achievedTargetCount
-      const deficitReduction = targets.reduce(
-        (sum, target) =>
-          sum +
-          Math.max(target.targetLevel - (totals[target.skillId] ?? 0), 0) -
-          Math.max(target.targetLevel - (nextTotals[target.skillId] ?? 0), 0),
-        0,
-      )
-      const bestDeficitReduction = best
-        ? targets.reduce(
-            (sum, target) =>
-              sum +
-              Math.max(target.targetLevel - (totals[target.skillId] ?? 0), 0) -
-              Math.max(target.targetLevel - (best!.selection.totals[target.skillId] ?? 0), 0),
-            0,
-          )
-        : -1
-      if (
-        !best ||
-        gain > best.gain ||
-        (gain === best.gain && deficitReduction > bestDeficitReduction) ||
-        (gain === best.gain &&
-          deficitReduction === bestDeficitReduction &&
-          candidate.officer.id < best.candidate.officer.id)
-      ) {
-        best = { candidate, selection: next, gain }
-      }
-    }
-    if (
-      !best ||
-      (best.gain === 0 && best.selection.officerIds.length > 0 && current.allTargetsComplete)
-    ) {
-      break
-    }
-    selected.push(best.candidate.officer.id)
-    totals = best.selection.totals
-    if (best.selection.allTargetsComplete) break
-  }
-  return scoreSelection(selected, totals, targets)
-}
-
-const maxReachableCount = (
+const makeStateKey = (
   totals: Readonly<Record<string, number>>,
-  remaining: readonly Candidate[],
-  targets: readonly AutoTargetInput[],
-): number => {
-  const upper = { ...totals }
-  for (const candidate of remaining) {
-    for (const [skillId, level] of Object.entries(candidate.contributions)) {
-      upper[skillId] = (upper[skillId] ?? 0) + level
-    }
-  }
-  return targets.reduce(
-    (count, target) => count + ((upper[target.skillId] ?? 0) >= target.targetLevel ? 1 : 0),
+  targetSkillIds: readonly string[],
+  targetLevels: readonly number[],
+): string =>
+  targetSkillIds.map((sid, i) => String(Math.min(totals[sid] ?? 0, targetLevels[i]!))).join(',')
+
+const countAchieved = (
+  totals: Readonly<Record<string, number>>,
+  targetSkillIds: readonly string[],
+  targetLevels: readonly number[],
+): number =>
+  targetSkillIds.reduce(
+    (count, sid, i) => count + ((totals[sid] ?? 0) >= targetLevels[i]! ? 1 : 0),
     0,
   )
+
+const betterForSameKey = (a: DpState, b: DpState, _targetCount: number): boolean => {
+  if (a.achievedCount !== b.achievedCount) return a.achievedCount > b.achievedCount
+  // 同一等级分布下，人数少一定更优（剩余空间更多）
+  if (a.officerIds.length !== b.officerIds.length) return a.officerIds.length < b.officerIds.length
+  // 溢出少更优
+  if (a.overageTotal !== b.overageTotal) return a.overageTotal < b.overageTotal
+  return sortedIds(a.officerIds).join(',') < sortedIds(b.officerIds).join(',')
 }
 
-const exactSelection = (
+const runStateDp = (
   lockedIds: readonly string[],
   lockedTotals: Readonly<Record<string, number>>,
   candidates: readonly Candidate[],
   targets: readonly AutoTargetInput[],
   capacity: number,
-  seeded: ScoredSelection,
 ): ScoredSelection => {
-  let best = seeded
+  const targetSkillIds = targets.map((t) => t.skillId)
+  const targetLevels = targets.map((t) => t.targetLevel)
+  const targetCount = targets.length
 
-  const visit = (start: number, selected: string[], totals: Record<string, number>): void => {
-    const current = scoreSelection(selected, totals, targets)
-    if (compareSelections(current, best, targets.length) > 0) best = current
+  const seedTotals: Record<string, number> = {}
+  for (const sid of targetSkillIds) seedTotals[sid] = lockedTotals[sid] ?? 0
 
-    if (selected.length >= capacity || start >= candidates.length) return
-    if (maxReachableCount(totals, candidates.slice(start), targets) < best.achievedTargetCount) {
-      return
-    }
-    if (best.allTargetsComplete && selected.length >= best.officerIds.length) return
+  const overage = (totals: Record<string, number>): number =>
+    targets.reduce((sum, t) => sum + Math.max((totals[t.skillId] ?? 0) - t.targetLevel, 0), 0)
 
-    for (let index = start; index < candidates.length; index += 1) {
-      if (selected.length >= capacity) break
-      const candidate = candidates[index]!
-      visit(
-        index + 1,
-        [...selected, candidate.officer.id],
-        addContribution(totals, candidate.contributions),
-      )
+  const initialState: DpState = {
+    officerIds: [...lockedIds],
+    totals: { ...seedTotals },
+    achievedCount: countAchieved(seedTotals, targetSkillIds, targetLevels),
+    overageTotal: overage(seedTotals),
+  }
+
+  const dp = new Map<string, DpState>()
+  dp.set(makeStateKey(seedTotals, targetSkillIds, targetLevels), initialState)
+
+  for (const candidate of candidates) {
+    const snapshot = [...dp.values()]
+    for (const state of snapshot) {
+      if (state.officerIds.length >= capacity) continue
+
+      const newTotals = addContribution(state.totals, candidate.contributions)
+      const achievedCount = countAchieved(newTotals, targetSkillIds, targetLevels)
+      const newState: DpState = {
+        officerIds: [...state.officerIds, candidate.officer.id],
+        totals: newTotals,
+        achievedCount,
+        overageTotal: overage(newTotals),
+      }
+
+      const key = makeStateKey(newTotals, targetSkillIds, targetLevels)
+      const existing = dp.get(key)
+      if (!existing || betterForSameKey(newState, existing, targetCount)) {
+        dp.set(key, newState)
+      }
     }
   }
 
-  visit(0, [...lockedIds], { ...lockedTotals })
-  return best
+  let best: DpState = initialState
+  for (const state of dp.values()) {
+    if (betterForSameKey(state, best, targetCount)) best = state
+  }
+
+  return scoreSelection(best.officerIds, best.totals, targets)
 }
 
 const validateTargets = (targets: readonly AutoTargetInput[]): AutoTargetInput[] => {
@@ -304,10 +265,10 @@ export const solveBattleTargets = (input: AutoSolveInput): AutoSolveResult => {
     return buildResult(scoreSelection(lockedIds.slice(0, capacity), lockedTotals, targets), targets)
   }
 
-  const seeded = greedySelection(lockedIds, lockedTotals, candidates, targets, capacity)
+  const stateSpace = targets.reduce((product, t) => product * (t.targetLevel + 1), 1)
   const selection =
-    candidates.length <= EXACT_CANDIDATE_LIMIT
-      ? exactSelection(lockedIds, lockedTotals, candidates, targets, capacity, seeded)
-      : seeded
+    stateSpace <= MAX_STATE_SPACE
+      ? runStateDp(lockedIds, lockedTotals, candidates, targets, capacity)
+      : scoreSelection(lockedIds, lockedTotals, targets)
   return buildResult(selection, targets)
 }
