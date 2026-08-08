@@ -24,6 +24,34 @@ const forbidden = [
   { pattern: /\bwx\.cloud\b/, reason: 'wx.cloud' as const },
 ]
 
+const cloudReferencePattern = /\bwx\.cloud\b/g
+const cloudCallPattern = /^wx\.cloud\.([A-Za-z_$][\w$]*)\s*\(/u
+const cloudAvailabilityGuardPattern = /^\s*if\s*\(\s*wx\.cloud\s*\)\s*\{?\s*$/u
+
+const stripCloudComments = (line: string, state: { inBlockComment: boolean }): string => {
+  let code = line
+  while (true) {
+    if (state.inBlockComment) {
+      const end = code.indexOf('*/')
+      if (end === -1) return ''
+      state.inBlockComment = false
+      code = code.slice(end + 2)
+      continue
+    }
+
+    if (code.trimStart().startsWith('//')) return ''
+    const start = code.indexOf('/*')
+    if (start === -1) return code
+
+    const end = code.indexOf('*/', start + 2)
+    if (end === -1) {
+      state.inBlockComment = true
+      return code.slice(0, start)
+    }
+    code = code.slice(0, start) + code.slice(end + 2)
+  }
+}
+
 export const findRuntimeNetworkReferences = (
   root: string,
   options: RuntimeNetworkScanOptions = {},
@@ -66,27 +94,29 @@ export const findRuntimeNetworkReferences = (
 
       const relativePath = relative(root, path).replace(/\\/g, '/')
 
+      const commentState = { inBlockComment: false }
       readFileSync(path, 'utf8')
         .split(/\r?\n/)
         .forEach((line, index) => {
+          const cloudScanLine = stripCloudComments(line, commentState)
           for (const rule of forbidden) {
             if (rule.reason === 'remote URL' && generatedAssetLine(path, line)) continue
 
-            // Skip ALL wx.cloud references in allowed init files
-            if (
-              rule.reason === 'wx.cloud' &&
-              options.allowedCloudInitFiles?.includes(relativePath)
-            ) {
-              continue
-            }
+            if (rule.reason === 'wx.cloud') {
+              const cloudReferences = [...cloudScanLine.matchAll(cloudReferencePattern)]
+              const hasForbiddenCloudReference = cloudReferences.some((match) => {
+                const api = cloudScanLine.slice(match.index).match(cloudCallPattern)?.[1]
+                return !(
+                  (api === undefined &&
+                    cloudAvailabilityGuardPattern.test(cloudScanLine) &&
+                    options.allowedCloudInitFiles?.includes(relativePath)) ||
+                  (api === 'init' && options.allowedCloudInitFiles?.includes(relativePath)) ||
+                  (api === 'callFunction' &&
+                    options.allowedCloudFunctionFiles?.includes(relativePath))
+                )
+              })
 
-            // Skip wx.cloud.callFunction in allowed function files
-            if (
-              rule.reason === 'wx.cloud' &&
-              options.allowedCloudFunctionFiles?.includes(relativePath) &&
-              /\bwx\.cloud\.callFunction\b/.test(line)
-            ) {
-              continue
+              if (!hasForbiddenCloudReference) continue
             }
 
             if (rule.pattern.test(line)) {

@@ -52,12 +52,9 @@ describe('downloadFullFile', () => {
 
 describe('downloadWithRanges', () => {
   it('sends Range requests for each range and saves individual files', async () => {
-    const rangeParts = [
-      '"skill100043":"神之手腕"',
-      '"skill200681":"砲擊術"',
-      '"job_jobchasT089":"大商人"',
-    ]
-    // Make each range response contain one part
+    const rangeParts = ['part-0', 'part-1', 'part-2', 'part-3']
+    const ranges = [[0, 5] as const, [6, 11] as const, [12, 17] as const, [18, 23] as const]
+
     const fetcher = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
@@ -65,7 +62,7 @@ describe('downloadWithRanges', () => {
           status: 206,
           headers: {
             'content-type': 'application/javascript',
-            'content-range': 'bytes 0-47237/337759',
+            'content-range': 'bytes 0-5/337759',
             'content-length': String(rangeParts[0].length),
           },
         }),
@@ -75,7 +72,7 @@ describe('downloadWithRanges', () => {
           status: 206,
           headers: {
             'content-type': 'application/javascript',
-            'content-range': 'bytes 47238-88188/337759',
+            'content-range': 'bytes 6-11/337759',
             'content-length': String(rangeParts[1].length),
           },
         }),
@@ -85,29 +82,21 @@ describe('downloadWithRanges', () => {
           status: 206,
           headers: {
             'content-type': 'application/javascript',
-            'content-range': 'bytes 92126-178363/337759',
+            'content-range': 'bytes 12-17/337759',
             'content-length': String(rangeParts[2].length),
           },
         }),
       )
-      // The 4th range is empty/EOF
       .mockResolvedValueOnce(
-        new Response('', {
+        new Response(rangeParts[3], {
           status: 206,
           headers: {
             'content-type': 'application/javascript',
-            'content-range': 'bytes 178364-262143/337759',
-            'content-length': '0',
+            'content-range': 'bytes 18-23/337759',
+            'content-length': String(rangeParts[3].length),
           },
         }),
       )
-
-    const ranges = [
-      [0, 47237] as const,
-      [47238, 88188] as const,
-      [92126, 178363] as const,
-      [178364, 262143] as const,
-    ]
     const result = await downloadWithRanges(
       'https://voyage.tw/js/lang_1.js?v=1779690379',
       ranges,
@@ -129,7 +118,7 @@ describe('downloadWithRanges', () => {
       .reduce((a, b) => a + b, 0)
     expect(result.combinedByteCount).toBe(expectedBytes)
     expect(result.results).toHaveLength(4)
-    expect(result.results[0]!.contentRange).toBe('bytes 0-47237/337759')
+    expect(result.results[0]!.contentRange).toBe('bytes 0-5/337759')
   })
 
   it('rejects non-206 responses for Range requests', async () => {
@@ -137,6 +126,40 @@ describe('downloadWithRanges', () => {
     await expect(
       downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 100]], '/tmp/lang-out', fetcher),
     ).rejects.toThrow('IMPORT_RANGE_REQUIRED')
+  })
+
+  it('rejects a 206 response without Content-Range', async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response('abc', { status: 206 }))
+
+    await expect(
+      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 2]], '/tmp/lang-out', fetcher),
+    ).rejects.toThrow('IMPORT_RANGE_CONTENT_RANGE_MISSING')
+  })
+
+  it('rejects a Content-Range that differs from the requested range', async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response('abcd', {
+        status: 206,
+        headers: { 'content-range': 'bytes 0-3/20' },
+      }),
+    )
+
+    await expect(
+      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[10, 13]], '/tmp/lang-out', fetcher),
+    ).rejects.toThrow('IMPORT_RANGE_CONTENT_RANGE_MISMATCH')
+  })
+
+  it('rejects a body whose length differs from the advertised range', async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response('abc', {
+        status: 206,
+        headers: { 'content-range': 'bytes 0-3/20' },
+      }),
+    )
+
+    await expect(
+      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 3]], '/tmp/lang-out', fetcher),
+    ).rejects.toThrow('IMPORT_RANGE_LENGTH_MISMATCH')
   })
 })
 

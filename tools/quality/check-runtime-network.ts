@@ -17,7 +17,11 @@ if (existsSync(manifestPath)) {
 const findings = findRuntimeNetworkReferences('miniprogram', {
   generatedCdnOrigin,
   generatedAssetPathPrefix,
-  allowedCloudFunctionFiles: ['runtime/fleet-config-service.ts'],
+  allowedCloudFunctionFiles: [
+    'runtime/fleet-config-service.ts',
+    'runtime/officer-editor-service.ts',
+    'runtime/main-data-store.ts',
+  ],
   allowedCloudInitFiles: ['app.ts'],
 })
 

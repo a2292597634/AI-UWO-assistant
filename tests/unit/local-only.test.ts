@@ -104,6 +104,66 @@ describe('findRuntimeNetworkReferences', () => {
     ).toEqual([])
   })
 
+  it('allows the exact wx.cloud availability guard in app.ts', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-init-guard-'))
+    fixtureRoots.push(root)
+    writeFileSync(join(root, 'app.ts'), 'if (wx.cloud) {\n}', 'utf8')
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudInitFiles: ['app.ts'],
+      }),
+    ).toEqual([])
+  })
+
+  it('ignores wx.cloud mentions in comments', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-comment-'))
+    fixtureRoots.push(root)
+    writeFileSync(join(root, 'runtime.ts'), '/* wx.cloud.callFunction() */\n', 'utf8')
+
+    expect(findRuntimeNetworkReferences(root)).toEqual([])
+  })
+
+  it('rejects wx.cloud.callFunction even when it appears in app.ts', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-init-call-function-'))
+    fixtureRoots.push(root)
+    writeFileSync(
+      join(root, 'app.ts'),
+      "wx.cloud.init({ env: 'test-env' }); wx.cloud.callFunction({ name: 'fleet-config' })",
+      'utf8',
+    )
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudInitFiles: ['app.ts'],
+      }),
+    ).toEqual([
+      {
+        file: 'app.ts',
+        line: 1,
+        reason: 'wx.cloud',
+      },
+    ])
+  })
+
+  it('rejects other wx.cloud APIs even when they appear in app.ts', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-init-database-'))
+    fixtureRoots.push(root)
+    writeFileSync(join(root, 'app.ts'), 'wx.cloud.database()', 'utf8')
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudInitFiles: ['app.ts'],
+      }),
+    ).toEqual([
+      {
+        file: 'app.ts',
+        line: 1,
+        reason: 'wx.cloud',
+      },
+    ])
+  })
+
   it('rejects wx.cloud.init in non-allowed files', () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-local-init-reject-'))
     fixtureRoots.push(root)

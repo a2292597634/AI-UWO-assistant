@@ -122,6 +122,17 @@ describe('miniprogram package size scanner', () => {
     }
   })
 
+  it('uses a default budget no greater than 1.9 MiB', () => {
+    expect(() =>
+      assertMiniProgramPackageBudget({
+        mainPackageBytes: 1.95 * 1024 * 1024,
+        mainPackageFiles: 1,
+        disallowedMedia: [],
+        largestFiles: [],
+      }),
+    ).toThrow(/budget/)
+  })
+
   it('returns largestFiles sorted by bytes descending', () => {
     const root = createFixture()
     try {

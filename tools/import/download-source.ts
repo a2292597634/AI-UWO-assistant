@@ -18,6 +18,40 @@ export const rangeHeader = (start: number, end: number): string => `bytes=${star
 
 const sha256Hex = (buffer: Buffer): string => createHash('sha256').update(buffer).digest('hex')
 
+interface ParsedContentRange {
+  start: number
+  end: number
+}
+
+const parseContentRange = (
+  value: string | null,
+  url: string,
+  header: string,
+): ParsedContentRange => {
+  if (!value) {
+    throw new Error(`IMPORT_RANGE_CONTENT_RANGE_MISSING:${url}:${header}`)
+  }
+
+  const match = /^bytes\s+(\d+)-(\d+)\/(\d+|\*)$/i.exec(value.trim())
+  if (!match) {
+    throw new Error(`IMPORT_RANGE_CONTENT_RANGE_INVALID:${url}:${header}:${value}`)
+  }
+
+  const start = Number(match[1])
+  const end = Number(match[2])
+  const total = match[3] === '*' ? null : Number(match[3])
+  if (
+    !Number.isSafeInteger(start) ||
+    !Number.isSafeInteger(end) ||
+    start > end ||
+    (total !== null && (!Number.isSafeInteger(total) || total <= end))
+  ) {
+    throw new Error(`IMPORT_RANGE_CONTENT_RANGE_INVALID:${url}:${header}:${value}`)
+  }
+
+  return { start, end }
+}
+
 // ── Full-file download ──
 
 export const downloadFullFile = async (
@@ -64,6 +98,18 @@ export const downloadWithRanges = async (
     }
 
     const buffer = Buffer.from(await response.arrayBuffer())
+    const contentRange = parseContentRange(response.headers.get('content-range'), url, header)
+    if (contentRange.start !== range[0] || contentRange.end !== range[1]) {
+      throw new Error(
+        `IMPORT_RANGE_CONTENT_RANGE_MISMATCH:${url}:${header}:${response.headers.get('content-range')}`,
+      )
+    }
+
+    const expectedByteCount = range[1] - range[0] + 1
+    if (buffer.length !== expectedByteCount) {
+      throw new Error(`IMPORT_RANGE_LENGTH_MISMATCH:${url}:${header}:${buffer.length}`)
+    }
+
     const filename = `r${i}.txt`
     await writeFile(`${destDir}/${filename}`, buffer)
 

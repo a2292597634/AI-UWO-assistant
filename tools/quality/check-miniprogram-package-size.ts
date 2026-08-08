@@ -19,7 +19,7 @@ const MEDIA_EXTENSIONS = new Set([
 
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', '.worktrees', '.superpowers'])
 
-const DEFAULT_MAX_MAIN_PACKAGE_BYTES = 3.5 * 1024 * 1024
+export const DEFAULT_MAX_MAIN_PACKAGE_BYTES = 1.9 * 1024 * 1024
 const DEFAULT_ALLOWED_LOCAL_MEDIA_ROOTS = ['assets/ui/']
 
 // ── Types ──────────────────────────────────────────────────
