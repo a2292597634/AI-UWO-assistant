@@ -133,6 +133,25 @@ describe('miniprogram package size scanner', () => {
     ).toThrow(/budget/)
   })
 
+  it('does not count TypeScript source files in the compiled package size', () => {
+    const root = createFixture()
+    try {
+      writeFileSync(join(root, 'miniprogram', 'pages', 'source-only.ts'), Buffer.alloc(2 * 1024 * 1024))
+      const config = readMiniProgramConfig(root)
+      const report = analyzeMiniProgramPackage({
+        projectRoot: root,
+        miniprogramRoot: config.miniprogramRoot,
+        subpackageRoots: config.subpackageRoots,
+      })
+
+      expect(report.largestFiles).not.toContainEqual(
+        expect.objectContaining({ path: 'pages/source-only.ts' }),
+      )
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('returns largestFiles sorted by bytes descending', () => {
     const root = createFixture()
     try {

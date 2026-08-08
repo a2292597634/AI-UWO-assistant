@@ -18,6 +18,7 @@ const MEDIA_EXTENSIONS = new Set([
 ])
 
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', '.worktrees', '.superpowers'])
+const SOURCE_ONLY_EXTENSIONS = new Set(['.ts', '.tsx'])
 
 export const DEFAULT_MAX_MAIN_PACKAGE_BYTES = 1.9 * 1024 * 1024
 const DEFAULT_ALLOWED_LOCAL_MEDIA_ROOTS = ['assets/ui/']
@@ -65,6 +66,12 @@ function isMediaFile(filename: string): boolean {
   return MEDIA_EXTENSIONS.has(filename.slice(dot).toLowerCase())
 }
 
+function isSourceOnlyFile(filename: string): boolean {
+  const dot = filename.lastIndexOf('.')
+  if (dot === -1) return false
+  return SOURCE_ONLY_EXTENSIONS.has(filename.slice(dot).toLowerCase())
+}
+
 function walkDir(dir: string, basePath: string): { files: FileEntry[]; mediaFiles: FileEntry[] } {
   const files: FileEntry[] = []
   const mediaFiles: FileEntry[] = []
@@ -86,6 +93,7 @@ function walkDir(dir: string, basePath: string): { files: FileEntry[]; mediaFile
       files.push(...sub.files)
       mediaFiles.push(...sub.mediaFiles)
     } else {
+      if (isSourceOnlyFile(name)) continue
       const relPath = relative(basePath, fullPath).replace(/\\/g, '/')
       const entry_ = { path: relPath, bytes: stats.size }
       files.push(entry_)
