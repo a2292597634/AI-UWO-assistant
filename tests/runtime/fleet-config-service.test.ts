@@ -7,6 +7,7 @@
  */
 
 import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { createFleetConfigService } from '../../miniprogram/runtime/fleet-config-service'
 
 // Mock wx.cloud before importing the adapter
 const mockCallFunction = vi.fn()
@@ -77,6 +78,21 @@ describe('FleetConfigService adapter contract', () => {
 
   it('maps "network" error code from connection failures', async () => {
     mockNetworkError()
+  })
+
+  it('sends the expected version when deleting a config', async () => {
+    mockSuccess({ deleted: true })
+
+    await createFleetConfigService().deleteConfig('cfg_1', 3)
+
+    expect(mockCallFunction).toHaveBeenCalledWith({
+      name: 'fleet-config',
+      data: {
+        action: 'deleteConfig',
+        configId: 'cfg_1',
+        expectedVersion: 3,
+      },
+    })
   })
 
   // ── All actions are supported ──

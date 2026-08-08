@@ -376,7 +376,7 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
   const configId = state.activeConfigId
   if (!configId) return
   try {
-    await state.configService.deleteConfig(configId)
+    await state.configService.deleteConfig(configId, state.configVersion)
     showError('配置已刪除')
     doNewConfig(page)
     await refreshConfigList(state, page)

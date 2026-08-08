@@ -63,8 +63,11 @@ function createMemoryRepo() {
       records.set(key(ownerUid, configId), updated)
       return updated
     },
-    async deleteByOwnerAndId(ownerUid: string, configId: string) {
-      return records.delete(key(ownerUid, configId))
+    async deleteByOwnerAndId(ownerUid: string, configId: string, expectedVersion: number) {
+      const configKey = key(ownerUid, configId)
+      const existing = records.get(configKey)
+      if (!existing || existing.version !== expectedVersion) return false
+      return records.delete(configKey)
     },
     async touchLastUsed(ownerUid: string, configId: string, updatedAt: string) {
       const k = key(ownerUid, configId)
@@ -163,7 +166,7 @@ describe('FleetConfigService dispatch', () => {
       ? ((created.data as Record<string, unknown>).configId as string)
       : ''
 
-    const r = await dispatch('deleteConfig', { configId }, ownerA)
+    const r = await dispatch('deleteConfig', { configId, expectedVersion: 1 }, ownerA)
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.code).toBe('not-found')
   })
@@ -410,7 +413,7 @@ describe('FleetConfigService dispatch', () => {
       ? ((created.data as Record<string, unknown>).configId as string)
       : ''
 
-    const r = await dispatch('deleteConfig', { configId })
+    const r = await dispatch('deleteConfig', { configId, expectedVersion: 1 })
     expect(r.ok).toBe(true)
 
     const load = await dispatch('loadConfig', { configId })
@@ -425,9 +428,30 @@ describe('FleetConfigService dispatch', () => {
       ? ((created.data as Record<string, unknown>).configId as string)
       : ''
 
-    const r = await dispatch('deleteConfig', { configId })
+    const r = await dispatch('deleteConfig', { configId, expectedVersion: 1 })
     expect(r.ok).toBe(true)
     if (r.ok) expect(r.data).toEqual({ deleted: true })
+  })
+
+  it('deleteConfig with a stale version returns conflict and preserves the config', async () => {
+    const created = await createViaService('版本刪除衝突')
+    expect(created.ok).toBe(true)
+    const configId = created.ok
+      ? ((created.data as Record<string, unknown>).configId as string)
+      : ''
+
+    await dispatch('updateConfig', {
+      configId,
+      expectedVersion: 1,
+      fleetState: createFleetState(),
+    })
+
+    const result = await dispatch('deleteConfig', { configId, expectedVersion: 1 })
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.code).toBe('conflict')
+    const loaded = await dispatch('loadConfig', { configId })
+    expect(loaded.ok).toBe(true)
   })
 
   it('setLastUsedConfig updates lastUsedAt', async () => {

@@ -7,6 +7,13 @@
 
 const COLLECTION = 'fleet_configs'
 
+function isCollectionAlreadyExistsError(error) {
+  const code = error && typeof error === 'object' ? (error.errCode ?? error.code) : undefined
+  return (
+    code === 'DATABASE_COLLECTION_ALREADY_EXIST' || code === 'DATABASE_COLLECTION_ALREADY_EXISTS'
+  )
+}
+
 /**
  * @param {object} db - CloudBase database instance from cloud.database()
  */
@@ -20,8 +27,8 @@ function createRepository(db) {
     if (collectionReady) return
     try {
       await db.createCollection(COLLECTION)
-    } catch {
-      // Collection already exists or is being created — ignore
+    } catch (error) {
+      if (!isCollectionAlreadyExistsError(error)) throw error
     }
     collectionReady = true
   }
@@ -97,17 +104,19 @@ function createRepository(db) {
     const existing = await findByOwnerAndId(ownerUid, configId)
     if (!existing || existing.version !== expectedVersion) return null
 
+    const nextVersion = expectedVersion + 1
+    const updateResult = await collection
+      .where({ ownerUid, configId, version: expectedVersion })
+      .update({ data: { ...patch, version: nextVersion, updatedAt: now } })
+
+    if (updateResult?.stats?.updated !== 1) return null
+
     const updated = {
       ...existing,
       ...patch,
-      version: existing.version + 1,
+      version: nextVersion,
       updatedAt: now,
     }
-    // Remove _id before update to use where-based update
-    await collection
-      .where({ ownerUid, configId, version: expectedVersion })
-      .update({ data: { ...patch, version: existing.version + 1, updatedAt: now } })
-
     return updated
   }
 
@@ -115,13 +124,15 @@ function createRepository(db) {
    * Delete a config by owner and configId.
    * @param {string} ownerUid
    * @param {string} configId
+   * @param {number} expectedVersion
    * @returns {Promise<boolean>}
    */
-  async function deleteByOwnerAndId(ownerUid, configId) {
-    const existing = await findByOwnerAndId(ownerUid, configId)
-    if (!existing) return false
-    await collection.where({ ownerUid, configId }).remove()
-    return true
+  async function deleteByOwnerAndId(ownerUid, configId, expectedVersion) {
+    await ensureCollection()
+    if (typeof expectedVersion !== 'number') return false
+
+    const result = await collection.where({ ownerUid, configId, version: expectedVersion }).remove()
+    return result?.stats?.removed === 1
   }
 
   /**

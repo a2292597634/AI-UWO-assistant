@@ -51,7 +51,7 @@ export interface FleetConfigService {
   updateConfig(input: UpdateConfigInput): Promise<FleetConfigRecord>
   saveAsConfig(name: string, fleetState: FleetState): Promise<FleetConfigRecord>
   renameConfig(configId: string, version: number, name: string): Promise<FleetConfigRecord>
-  deleteConfig(configId: string): Promise<void>
+  deleteConfig(configId: string, expectedVersion: number): Promise<void>
   setLastUsedConfig(configId: string): Promise<void>
 }
 
@@ -130,8 +130,8 @@ export function createFleetConfigService(): FleetConfigService {
       })
     },
 
-    async deleteConfig(configId: string): Promise<void> {
-      await callFunction<{ deleted: boolean }>('deleteConfig', { configId })
+    async deleteConfig(configId: string, expectedVersion: number): Promise<void> {
+      await callFunction<{ deleted: boolean }>('deleteConfig', { configId, expectedVersion })
     },
 
     async setLastUsedConfig(configId: string): Promise<void> {

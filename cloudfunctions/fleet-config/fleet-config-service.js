@@ -392,14 +392,23 @@ function createFleetConfigService(repo) {
 
   async function handleDeleteConfig(ownerUid, payload) {
     const configId = payload?.configId
+    const expectedVersion = payload?.expectedVersion
     if (!configId || typeof configId !== 'string') {
       return fail('not-found', 'Config ID is required')
+    }
+
+    if (typeof expectedVersion !== 'number') {
+      return fail('conflict', 'Version is required')
     }
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
     if (!existing) return fail('not-found', 'Config not found')
 
-    await repo.deleteByOwnerAndId(ownerUid, configId)
+    const deleted = await repo.deleteByOwnerAndId(ownerUid, configId, expectedVersion)
+    if (!deleted) {
+      return fail('conflict', 'Config was modified by another device')
+    }
+
     return ok({ deleted: true })
   }
 
