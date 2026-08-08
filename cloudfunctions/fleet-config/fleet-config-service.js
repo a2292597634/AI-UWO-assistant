@@ -100,6 +100,17 @@ function isNameTaken(name, existing, ignoredConfigId) {
   )
 }
 
+/**
+ * @param {'duplicate-name' | 'limit-reached'} code
+ * @returns {{ code: string, message: string }}
+ */
+function getConstraintFailure(code) {
+  if (code === 'limit-reached') {
+    return { code, message: `Maximum ${MAX_CONFIGS_PER_USER} configs per user` }
+  }
+  return { code: 'duplicate-name', message: 'A config with this name already exists' }
+}
+
 // ── Result envelopes ──
 
 /**
@@ -239,23 +250,13 @@ function createFleetConfigService(repo) {
       return fail('invalid-state', 'Invalid fleet configuration data')
     }
 
-    // Check limit
-    const count = await repo.countByOwner(ownerUid)
-    if (count >= MAX_CONFIGS_PER_USER) {
-      return fail('limit-reached', `Maximum ${MAX_CONFIGS_PER_USER} configs per user`)
-    }
-
-    // Check duplicate name
-    const existing = await repo.listByOwner(ownerUid)
-    if (isNameTaken(name, existing)) {
-      return fail('duplicate-name', 'A config with this name already exists')
-    }
-
     const configId = generateConfigId()
+    const normalizedName = normalizeConfigName(name)
     const record = {
       configId,
       ownerUid,
-      name: normalizeConfigName(name),
+      name: normalizedName,
+      normalizedName,
       fleetState,
       schemaVersion: SCHEMA_VERSION,
       version: 1,
@@ -264,8 +265,13 @@ function createFleetConfigService(repo) {
       lastUsedAt: new Date().toISOString(),
     }
 
-    await repo.insert(record)
-    return ok(toClientRecord(record))
+    const result = await repo.insertWithConstraints(record, MAX_CONFIGS_PER_USER)
+    if (!result.ok) {
+      const constraintFailure = getConstraintFailure(result.code)
+      return fail(constraintFailure.code, constraintFailure.message)
+    }
+
+    return ok(toClientRecord(result.data))
   }
 
   async function handleUpdateConfig(ownerUid, payload) {
@@ -320,21 +326,13 @@ function createFleetConfigService(repo) {
       return fail('invalid-state', 'Invalid fleet configuration data')
     }
 
-    const count = await repo.countByOwner(ownerUid)
-    if (count >= MAX_CONFIGS_PER_USER) {
-      return fail('limit-reached', `Maximum ${MAX_CONFIGS_PER_USER} configs per user`)
-    }
-
-    const existing = await repo.listByOwner(ownerUid)
-    if (isNameTaken(name, existing)) {
-      return fail('duplicate-name', 'A config with this name already exists')
-    }
-
     const configId = generateConfigId()
+    const normalizedName = normalizeConfigName(name)
     const record = {
       configId,
       ownerUid,
-      name: normalizeConfigName(name),
+      name: normalizedName,
+      normalizedName,
       fleetState,
       schemaVersion: SCHEMA_VERSION,
       version: 1,
@@ -343,14 +341,16 @@ function createFleetConfigService(repo) {
       lastUsedAt: new Date().toISOString(),
     }
 
-    await repo.insert(record)
+    const result = await repo.insertWithConstraints(record, MAX_CONFIGS_PER_USER)
+    if (!result.ok) {
+      const constraintFailure = getConstraintFailure(result.code)
+      return fail(constraintFailure.code, constraintFailure.message)
+    }
+
     console.log(
-      `[fleet-config] saveAs: owner=${ownerUid.slice(0, 8)}... configId=${configId} name="${record.name}"`,
+      `[fleet-config] saveAs: owner=${ownerUid.slice(0, 8)}... configId=${configId} name="${result.data.name}"`,
     )
-    // Verify data is immediately readable
-    const verify = await repo.findByOwnerAndId(ownerUid, configId)
-    console.log(`[fleet-config] saveAs verify: found=${Boolean(verify)}`)
-    return ok(toClientRecord(record))
+    return ok(toClientRecord(result.data))
   }
 
   async function handleRenameConfig(ownerUid, payload) {
@@ -373,21 +373,26 @@ function createFleetConfigService(repo) {
       return fail('conflict', 'Version is required')
     }
 
-    // Check name uniqueness (excluding self)
-    const all = await repo.listByOwner(ownerUid)
-    if (isNameTaken(name, all, configId)) {
-      return fail('duplicate-name', 'A config with this name already exists')
-    }
+    const normalizedName = normalizeConfigName(name)
+    const result = await repo.renameIfVersionAndNameAvailable(
+      ownerUid,
+      configId,
+      expectedVersion,
+      normalizedName,
+      normalizedName,
+    )
 
-    const result = await repo.updateIfVersion(ownerUid, configId, expectedVersion, {
-      name: normalizeConfigName(name),
-    })
-
-    if (!result) {
+    if (!result.ok) {
+      if (result.code === 'duplicate-name') {
+        return fail('duplicate-name', 'A config with this name already exists')
+      }
+      if (result.code === 'not-found') {
+        return fail('not-found', 'Config not found')
+      }
       return fail('conflict', 'Config was modified by another device')
     }
 
-    return ok(toClientRecord(result))
+    return ok(toClientRecord(result.data))
   }
 
   async function handleDeleteConfig(ownerUid, payload) {

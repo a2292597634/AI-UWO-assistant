@@ -29,12 +29,22 @@ cloudfunctions/fleet-config/
 
 Create the collection `fleet_configs` in the CloudBase console with the following indexes:
 
-| Field                   | Direction  | Type            |
-| ----------------------- | ---------- | --------------- |
-| `ownerUid`              | ascending  | standard        |
-| `configId`              | ascending  | standard        |
-| `ownerUid` + `configId` | ascending  | unique compound |
-| `updatedAt`             | descending | standard        |
+| Field                         | Direction  | Type            |
+| ----------------------------- | ---------- | --------------- |
+| `ownerUid`                    | ascending  | standard        |
+| `configId`                    | ascending  | standard        |
+| `ownerUid` + `configId`       | ascending  | unique compound |
+| `ownerUid` + `normalizedName` | ascending  | unique compound |
+| `updatedAt`                   | descending | standard        |
+
+`normalizedName` 是服務端 trim 後持久化的名稱。既有資料在建立唯一索引前，必須先以
+`name.trim()` 回填此欄位並處理同 owner 的重複名稱。
+
+為了讓「名稱檢查、20 筆上限檢查、寫入」具備原子性，另建立
+`fleet_config_owner_locks` 集合；每個 owner 使用一個穩定文件 ID。`createConfig`、
+`saveAsConfig` 和 `renameConfig` 會在 CloudBase server-side transaction 內更新該文件，
+再讀取並寫入 `fleet_configs`。交易衝突由 `runTransaction` 重試，故不依賴
+`count -> if -> insert` 的非原子流程。唯一索引是資料庫層的第二道防線。
 
 ### Security
 
@@ -45,7 +55,7 @@ Create the collection `fleet_configs` in the CloudBase console with the followin
 ### Function Limits
 
 - Max 20 configs per user (enforced by `createConfig` and `saveAsConfig`)
-- Config name: 1-30 Unicode characters, trimmed, unique per user
+- Config name: 1-30 Unicode characters, trimmed, unique per user; persisted as `normalizedName`
 - Optimistic locking with version number for conflict detection
 
 ### Runtime Network Boundary

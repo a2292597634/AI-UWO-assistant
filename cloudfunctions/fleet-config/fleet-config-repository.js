@@ -6,6 +6,32 @@
  */
 
 const COLLECTION = 'fleet_configs'
+const OWNER_LOCK_COLLECTION = 'fleet_config_owner_locks'
+
+/**
+ * @param {unknown} value
+ * @returns {string}
+ */
+function normalizeStoredName(value) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+/**
+ * @param {object} record
+ * @returns {string}
+ */
+function getStoredNormalizedName(record) {
+  return normalizeStoredName(record.normalizedName ?? record.name)
+}
+
+/**
+ * 使用穩定文件 ID 建立 owner 範圍的交易鎖。
+ * @param {string} ownerUid
+ * @returns {string}
+ */
+function getOwnerLockId(ownerUid) {
+  return `owner_${encodeURIComponent(ownerUid)}`
+}
 
 function isCollectionAlreadyExistsError(error) {
   const code = error && typeof error === 'object' ? (error.errCode ?? error.code) : undefined
@@ -21,16 +47,37 @@ function createRepository(db) {
   const collection = db.collection(COLLECTION)
 
   // Lazy-create the collection on first access
-  let collectionReady = false
+  const collectionReady = new Set()
 
-  async function ensureCollection() {
-    if (collectionReady) return
+  async function ensureCollection(collectionName = COLLECTION) {
+    if (collectionReady.has(collectionName)) return
     try {
-      await db.createCollection(COLLECTION)
+      await db.createCollection(collectionName)
     } catch (error) {
       if (!isCollectionAlreadyExistsError(error)) throw error
     }
-    collectionReady = true
+    collectionReady.add(collectionName)
+  }
+
+  /**
+   * 交易內更新 owner lock 文件。所有需要檢查名稱或數量的寫入都必須
+   * 更新同一份文件，讓同一 owner 的交易在提交時產生寫衝突並自動重試。
+   * @param {object} transaction
+   * @param {string} ownerUid
+   * @returns {Promise<void>}
+   */
+  async function touchOwnerLock(transaction, ownerUid) {
+    const lockCollection = transaction.collection(OWNER_LOCK_COLLECTION)
+    const lockId = getOwnerLockId(ownerUid)
+    const current = await lockCollection.where({ ownerUid }).limit(1).get()
+    const currentRevision = current.data[0]?.revision ?? 0
+    await lockCollection.doc(lockId).set({
+      data: {
+        ownerUid,
+        revision: currentRevision + 1,
+        updatedAt: new Date().toISOString(),
+      },
+    })
   }
 
   /**
@@ -81,6 +128,7 @@ function createRepository(db) {
     const now = new Date().toISOString()
     const doc = {
       ...record,
+      normalizedName: record.normalizedName ?? normalizeStoredName(record.name),
       createdAt: now,
       updatedAt: now,
       lastUsedAt: now,
@@ -88,6 +136,47 @@ function createRepository(db) {
     }
     const result = await collection.add({ data: doc })
     return { ...doc, _id: result._id, configId: doc.configId }
+  }
+
+  /**
+   * 在交易內完成名稱唯一性、數量上限與新增，避免 count/list 後再 insert 的
+   * TOCTOU 競態。CloudBase 交易會在 owner lock 文件發生寫衝突時自動重試。
+   * @param {object} record
+   * @param {number} maxConfigsPerOwner
+   * @returns {Promise<{ok: true, data: object} | {ok: false, code: 'duplicate-name' | 'limit-reached'}>}
+   */
+  async function insertWithConstraints(record, maxConfigsPerOwner) {
+    await ensureCollection()
+    await ensureCollection(OWNER_LOCK_COLLECTION)
+
+    return db.runTransaction(async (transaction) => {
+      await touchOwnerLock(transaction, record.ownerUid)
+      const existing = await transaction
+        .collection(COLLECTION)
+        .where({ ownerUid: record.ownerUid })
+        .get()
+
+      if (existing.data.length >= maxConfigsPerOwner) {
+        return { ok: false, code: 'limit-reached' }
+      }
+
+      const normalizedName = normalizeStoredName(record.normalizedName ?? record.name)
+      if (existing.data.some((item) => getStoredNormalizedName(item) === normalizedName)) {
+        return { ok: false, code: 'duplicate-name' }
+      }
+
+      const now = new Date().toISOString()
+      const doc = {
+        ...record,
+        normalizedName,
+        createdAt: now,
+        updatedAt: now,
+        lastUsedAt: now,
+        version: 1,
+      }
+      const result = await transaction.collection(COLLECTION).add({ data: doc })
+      return { ok: true, data: { ...doc, _id: result._id, configId: doc.configId } }
+    })
   }
 
   /**
@@ -121,6 +210,56 @@ function createRepository(db) {
   }
 
   /**
+   * 在 owner 交易鎖內檢查名稱唯一性並執行 rename。
+   * @param {string} ownerUid
+   * @param {string} configId
+   * @param {number} expectedVersion
+   * @param {string} name
+   * @param {string} normalizedName
+   * @returns {Promise<{ok: true, data: object} | {ok: false, code: 'not-found' | 'conflict' | 'duplicate-name'}>}
+   */
+  async function renameIfVersionAndNameAvailable(
+    ownerUid,
+    configId,
+    expectedVersion,
+    name,
+    normalizedName,
+  ) {
+    await ensureCollection()
+    await ensureCollection(OWNER_LOCK_COLLECTION)
+
+    return db.runTransaction(async (transaction) => {
+      await touchOwnerLock(transaction, ownerUid)
+      const configCollection = transaction.collection(COLLECTION)
+      const result = await configCollection.where({ ownerUid, configId }).limit(1).get()
+      const existing = result.data[0]
+
+      if (!existing) return { ok: false, code: 'not-found' }
+      if (existing.version !== expectedVersion) return { ok: false, code: 'conflict' }
+
+      const allConfigs = await configCollection.where({ ownerUid }).get()
+      const taken = allConfigs.data.some(
+        (item) => item.configId !== configId && getStoredNormalizedName(item) === normalizedName,
+      )
+      if (taken) return { ok: false, code: 'duplicate-name' }
+
+      const now = new Date().toISOString()
+      const updated = {
+        ...existing,
+        name,
+        normalizedName,
+        version: existing.version + 1,
+        updatedAt: now,
+      }
+      await configCollection
+        .where({ ownerUid, configId, version: expectedVersion })
+        .update({ data: { name, normalizedName, version: updated.version, updatedAt: now } })
+
+      return { ok: true, data: updated }
+    })
+  }
+
+  /**
    * Delete a config by owner and configId.
    * @param {string} ownerUid
    * @param {string} configId
@@ -151,10 +290,12 @@ function createRepository(db) {
     findByOwnerAndId,
     countByOwner,
     insert,
+    insertWithConstraints,
     updateIfVersion,
+    renameIfVersionAndNameAvailable,
     deleteByOwnerAndId,
     touchLastUsed,
   }
 }
 
-module.exports = { createRepository }
+module.exports = { createRepository, getOwnerLockId }

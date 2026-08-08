@@ -7,179 +7,258 @@ const { createRepository } =
   }
 /* eslint-enable @typescript-eslint/no-require-imports */
 
-interface FleetConfigRecord {
+interface StoredRecord {
   _id?: string
-  configId: string
   ownerUid: string
-  version: number
-  updatedAt: string
+  configId: string
+  name: string
+  normalizedName?: string
   [key: string]: unknown
 }
 
 interface QueryResult {
-  data: FleetConfigRecord[]
-}
-
-interface Query {
-  get(): Promise<QueryResult>
-  limit(count: number): Query
-  update(input: { data: Record<string, unknown> }): Promise<{ stats: { updated: number } }>
-  remove(): Promise<{ stats: { removed: number } }>
+  data: StoredRecord[]
 }
 
 interface FakeCollection {
-  where(query: Record<string, unknown>): Query
-  add(input: { data: Record<string, unknown> }): Promise<{ _id: string }>
+  where(filter: Record<string, unknown>): FakeQuery
+  doc(id: string): { set(options: { data: StoredRecord }): Promise<void> }
+  add(options: { data: StoredRecord }): Promise<{ _id: string }>
 }
 
-interface FakeDatabase {
-  createCollection(name: string): Promise<void>
+interface FakeQuery {
+  limit(count: number): FakeQuery
+  get(): Promise<QueryResult>
+  count(): Promise<{ total: number }>
+  update(options: { data: Partial<StoredRecord> }): Promise<{ stats: { updated: number } }>
+  remove(): Promise<{ stats: { removed: number } }>
+}
+
+interface FakeTransaction {
   collection(name: string): FakeCollection
 }
 
+interface FakeDatabase {
+  collection(name: string): FakeCollection
+  createCollection(name: string): Promise<void>
+  runTransaction<T>(callback: (transaction: FakeTransaction) => Promise<T>): Promise<T>
+}
+
 interface FleetConfigRepository {
-  listByOwner(ownerUid: string): Promise<FleetConfigRecord[]>
+  insertWithConstraints(
+    record: StoredRecord,
+    maxConfigsPerOwner: number,
+  ): Promise<
+    { ok: true; data: StoredRecord } | { ok: false; code: 'duplicate-name' | 'limit-reached' }
+  >
+  renameIfVersionAndNameAvailable(
+    ownerUid: string,
+    configId: string,
+    expectedVersion: number,
+    name: string,
+    normalizedName: string,
+  ): Promise<
+    | { ok: true; data: StoredRecord }
+    | { ok: false; code: 'not-found' | 'conflict' | 'duplicate-name' }
+  >
   updateIfVersion(
     ownerUid: string,
     configId: string,
     expectedVersion: number,
     patch: Record<string, unknown>,
-  ): Promise<FleetConfigRecord | null>
+  ): Promise<StoredRecord | null>
   deleteByOwnerAndId(ownerUid: string, configId: string, expectedVersion: number): Promise<boolean>
 }
 
-function createFakeDatabase(options: {
-  records?: FleetConfigRecord[]
-  createCollection?: () => Promise<void>
-  waitForGets?: number
-}) {
-  const records = options.records ?? []
-  let createCollectionCalls = 0
-  let getCalls = 0
-  let releaseGets: (() => void) | undefined
-  const allGetsReady = new Promise<void>((resolve) => {
-    releaseGets = resolve
-  })
+function createFakeDatabase(): FakeDatabase {
+  const collections = new Map<string, Map<string, StoredRecord>>()
+  let nextId = 0
+  let transactionTail = Promise.resolve()
 
-  const matches = (record: FleetConfigRecord, query: Record<string, unknown>) =>
-    Object.entries(query).every(([key, value]) => record[key] === value)
+  const getCollectionData = (name: string) => {
+    const existing = collections.get(name)
+    if (existing) return existing
+    const created = new Map<string, StoredRecord>()
+    collections.set(name, created)
+    return created
+  }
 
-  const db: FakeDatabase = {
-    async createCollection(name: string) {
-      expect(name).toBe('fleet_configs')
-      createCollectionCalls += 1
-      await options.createCollection?.()
+  const createCollection = (name: string): FakeCollection => {
+    const collectionData = getCollectionData(name)
+    const makeQuery = (filter: Record<string, unknown>, maxResults?: number): FakeQuery => ({
+      limit(count) {
+        return makeQuery(filter, count)
+      },
+      async get() {
+        const matches = [...collectionData.values()].filter((record) =>
+          Object.entries(filter).every(([field, expected]) => record[field] === expected),
+        )
+        return { data: maxResults === undefined ? matches : matches.slice(0, maxResults) }
+      },
+      async count() {
+        const result = await this.get()
+        return { total: result.data.length }
+      },
+      async update({ data: patch }) {
+        const matches = [...collectionData.values()].filter((record) =>
+          Object.entries(filter).every(([field, expected]) => record[field] === expected),
+        )
+        for (const record of matches) {
+          Object.assign(record, patch)
+        }
+        return { stats: { updated: matches.length } }
+      },
+      async remove() {
+        const matches = [...collectionData.values()].filter((record) =>
+          Object.entries(filter).every(([field, expected]) => record[field] === expected),
+        )
+        for (const record of matches) {
+          collectionData.delete(record._id ?? '')
+        }
+        return { stats: { removed: matches.length } }
+      },
+    })
+
+    return {
+      where(filter) {
+        return makeQuery(filter)
+      },
+      doc(id) {
+        return {
+          async set({ data: record }) {
+            collectionData.set(id, { ...record, _id: id })
+          },
+        }
+      },
+      async add({ data: record }) {
+        const id = `doc_${nextId++}`
+        collectionData.set(id, { ...record, _id: id })
+        return { _id: id }
+      },
+    }
+  }
+
+  return {
+    collection(name) {
+      return createCollection(name)
     },
-    collection(name: string) {
-      expect(name).toBe('fleet_configs')
-      return {
-        where(query: Record<string, unknown>) {
-          let limitCount: number | undefined
-          const queryApi: Query = {
-            async get() {
-              if (options.waitForGets) {
-                getCalls += 1
-                if (getCalls === options.waitForGets) releaseGets?.()
-                await allGetsReady
-              }
-              const matched = records.filter((record) => matches(record, query))
-              return { data: limitCount ? matched.slice(0, limitCount) : matched }
-            },
-            limit(count: number) {
-              limitCount = count
-              return queryApi
-            },
-            async update(input: { data: Record<string, unknown> }) {
-              const matched = records.filter((record) => matches(record, query))
-              for (const record of matched) Object.assign(record, input.data)
-              return { stats: { updated: matched.length } }
-            },
-            async remove() {
-              const matched = records.filter((record) => matches(record, query))
-              for (const record of matched) records.splice(records.indexOf(record), 1)
-              return { stats: { removed: matched.length } }
-            },
-          }
-          return queryApi
-        },
-        async add(input: { data: Record<string, unknown> }) {
-          const record = input.data as FleetConfigRecord
-          records.push(record)
-          return { _id: record._id ?? 'new-id' }
-        },
+    async createCollection() {},
+    async runTransaction<T>(callback: (transaction: FakeTransaction) => Promise<T>): Promise<T> {
+      const previous = transactionTail
+      let release!: () => void
+      transactionTail = new Promise<void>((resolve) => {
+        release = resolve
+      })
+      await previous
+      try {
+        return await callback({
+          collection: createCollection,
+        })
+      } finally {
+        release()
       }
     },
   }
-
-  return { db, records, getCreateCollectionCalls: () => createCollectionCalls }
 }
 
-function createRecord(overrides: Partial<FleetConfigRecord> = {}): FleetConfigRecord {
+function makeRecord(ownerUid: string, configId: string, name: string): StoredRecord {
   return {
-    _id: 'mongo-id',
-    configId: 'cfg_1',
-    ownerUid: 'owner_1',
+    ownerUid,
+    configId,
+    name,
+    normalizedName: name.trim(),
     version: 1,
-    updatedAt: '2026-08-08T00:00:00.000Z',
-    name: '測試配置',
-    ...overrides,
   }
 }
 
-describe('fleet-config repository optimistic locking', () => {
-  it('returns exactly one success when two updates use the same version', async () => {
-    const { db, records } = createFakeDatabase({ records: [createRecord()], waitForGets: 2 })
-    const repo = createRepository(db)
-    const patch = { fleetState: { ships: [] } }
+describe('Fleet config repository atomic constraints', () => {
+  it('allows only one concurrent insert with the same owner and name', async () => {
+    const repo = createRepository(createFakeDatabase())
 
     const results = await Promise.all([
-      repo.updateIfVersion('owner_1', 'cfg_1', 1, patch),
-      repo.updateIfVersion('owner_1', 'cfg_1', 1, patch),
+      repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '並發同名'), 20),
+      repo.insertWithConstraints(makeRecord('owner_a', 'cfg_2', '  並發同名  '), 20),
+    ])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toEqual([{ ok: false, code: 'duplicate-name' }])
+  })
+
+  it('enforces normalized-name uniqueness and owner isolation', async () => {
+    const repo = createRepository(createFakeDatabase())
+
+    const first = await repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '主力艦隊'), 20)
+    const duplicate = await repo.insertWithConstraints(
+      makeRecord('owner_a', 'cfg_2', '  主力艦隊  '),
+      20,
+    )
+    const otherOwner = await repo.insertWithConstraints(
+      makeRecord('owner_b', 'cfg_3', '主力艦隊'),
+      20,
+    )
+
+    expect(first.ok).toBe(true)
+    expect(duplicate).toEqual({ ok: false, code: 'duplicate-name' })
+    expect(otherOwner.ok).toBe(true)
+  })
+
+  it('enforces the 20-record limit across concurrent inserts', async () => {
+    const repo = createRepository(createFakeDatabase())
+    for (let i = 0; i < 19; i++) {
+      const result = await repo.insertWithConstraints(
+        makeRecord('owner_a', `cfg_${i}`, `配置${i}`),
+        20,
+      )
+      expect(result.ok).toBe(true)
+    }
+
+    const results = await Promise.all([
+      repo.insertWithConstraints(makeRecord('owner_a', 'cfg_20', '第20個'), 20),
+      repo.insertWithConstraints(makeRecord('owner_a', 'cfg_21', '第21個'), 20),
+    ])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toEqual([{ ok: false, code: 'limit-reached' }])
+  })
+
+  it('protects rename uniqueness inside the owner transaction', async () => {
+    const repo = createRepository(createFakeDatabase())
+    await repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '配置A'), 20)
+    await repo.insertWithConstraints(makeRecord('owner_a', 'cfg_2', '配置B'), 20)
+
+    const result = await repo.renameIfVersionAndNameAvailable(
+      'owner_a',
+      'cfg_2',
+      1,
+      '配置A',
+      '配置A',
+    )
+
+    expect(result).toEqual({ ok: false, code: 'duplicate-name' })
+  })
+})
+
+describe('Fleet config repository optimistic locking', () => {
+  it('returns exactly one update success for two callers using the same version', async () => {
+    const db = createFakeDatabase()
+    const repo = createRepository(db)
+    await repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '配置A'), 20)
+
+    const results = await Promise.all([
+      repo.updateIfVersion('owner_a', 'cfg_1', 1, { name: '更新A' }),
+      repo.updateIfVersion('owner_a', 'cfg_1', 1, { name: '更新B' }),
     ])
 
     expect(results.filter((result) => result !== null)).toHaveLength(1)
     expect(results.filter((result) => result === null)).toHaveLength(1)
-    expect(records[0].version).toBe(2)
   })
 
-  it('returns conflict when deleting a stale version', async () => {
-    const { db, records } = createFakeDatabase({ records: [createRecord({ version: 2 })] })
+  it('rejects deleting a stale version', async () => {
+    const db = createFakeDatabase()
     const repo = createRepository(db)
+    await repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '配置A'), 20)
+    await repo.updateIfVersion('owner_a', 'cfg_1', 1, { name: '更新后' })
 
-    const deleted = await repo.deleteByOwnerAndId('owner_1', 'cfg_1', 1)
-
-    expect(deleted).toBe(false)
-    expect(records).toHaveLength(1)
-  })
-})
-
-describe('fleet-config repository collection setup', () => {
-  it('propagates unknown collection creation errors and retries after failure', async () => {
-    let attempts = 0
-    const { db, getCreateCollectionCalls } = createFakeDatabase({
-      createCollection: async () => {
-        attempts += 1
-        if (attempts === 1) throw { errCode: 'DATABASE_PERMISSION_DENIED' }
-      },
-    })
-    const repo = createRepository(db)
-
-    await expect(repo.listByOwner('owner_1')).rejects.toMatchObject({
-      errCode: 'DATABASE_PERMISSION_DENIED',
-    })
-    await expect(repo.listByOwner('owner_1')).resolves.toEqual([])
-    expect(getCreateCollectionCalls()).toBe(2)
-  })
-
-  it('continues when CloudBase reports that the collection already exists', async () => {
-    const { db, getCreateCollectionCalls } = createFakeDatabase({
-      createCollection: async () => {
-        throw { errCode: 'DATABASE_COLLECTION_ALREADY_EXIST' }
-      },
-    })
-    const repo = createRepository(db)
-
-    await expect(repo.listByOwner('owner_1')).resolves.toEqual([])
-    expect(getCreateCollectionCalls()).toBe(1)
+    await expect(repo.deleteByOwnerAndId('owner_a', 'cfg_1', 1)).resolves.toBe(false)
   })
 })

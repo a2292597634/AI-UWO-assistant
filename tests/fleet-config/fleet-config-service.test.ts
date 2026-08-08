@@ -16,6 +16,7 @@ interface FleetConfigRecord {
   configId: string
   ownerUid: string
   name: string
+  normalizedName?: string
   fleetState: FleetState
   schemaVersion: number
   version: number
@@ -28,6 +29,21 @@ interface FleetConfigRecord {
 function createMemoryRepo() {
   const records = new Map<string, FleetConfigRecord>()
   const key = (o: string, c: string): string => `${o}:${c}`
+  let operationTail = Promise.resolve()
+
+  const withOwnerLock = async <T>(operation: () => Promise<T> | T): Promise<T> => {
+    const previous = operationTail
+    let release!: () => void
+    operationTail = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    await previous
+    try {
+      return await operation()
+    } finally {
+      release()
+    }
+  }
 
   return {
     async listByOwner(ownerUid: string) {
@@ -51,6 +67,26 @@ function createMemoryRepo() {
       records.set(key(record.ownerUid, record.configId), { ...record })
       return record
     },
+    async insertWithConstraints(record: FleetConfigRecord, maxConfigsPerOwner: number) {
+      return withOwnerLock(async () => {
+        const ownerRecords = [...records.values()].filter(
+          (item) => item.ownerUid === record.ownerUid,
+        )
+        if (ownerRecords.length >= maxConfigsPerOwner) {
+          return { ok: false as const, code: 'limit-reached' as const }
+        }
+        if (
+          ownerRecords.some(
+            (item) => (item.normalizedName ?? item.name.trim()) === record.normalizedName,
+          )
+        ) {
+          return { ok: false as const, code: 'duplicate-name' as const }
+        }
+        const saved = { ...record }
+        records.set(key(record.ownerUid, record.configId), saved)
+        return { ok: true as const, data: saved }
+      })
+    },
     async updateIfVersion(
       ownerUid: string,
       configId: string,
@@ -62,6 +98,31 @@ function createMemoryRepo() {
       const updated = { ...existing, ...patch, version: existing.version + 1 }
       records.set(key(ownerUid, configId), updated)
       return updated
+    },
+    async renameIfVersionAndNameAvailable(
+      ownerUid: string,
+      configId: string,
+      expectedVersion: number,
+      name: string,
+      normalizedName: string,
+    ) {
+      return withOwnerLock(async () => {
+        const existing = records.get(key(ownerUid, configId))
+        if (!existing) return { ok: false as const, code: 'not-found' as const }
+        if (existing.version !== expectedVersion) {
+          return { ok: false as const, code: 'conflict' as const }
+        }
+        const duplicate = [...records.values()].some(
+          (item) =>
+            item.ownerUid === ownerUid &&
+            item.configId !== configId &&
+            (item.normalizedName ?? item.name.trim()) === normalizedName,
+        )
+        if (duplicate) return { ok: false as const, code: 'duplicate-name' as const }
+        const updated = { ...existing, name, normalizedName, version: existing.version + 1 }
+        records.set(key(ownerUid, configId), updated)
+        return { ok: true as const, data: updated }
+      })
     },
     async deleteByOwnerAndId(ownerUid: string, configId: string, expectedVersion: number) {
       const configKey = key(ownerUid, configId)
@@ -180,6 +241,23 @@ describe('FleetConfigService dispatch', () => {
     if (!r.ok) expect(r.code).toBe('duplicate-name')
   })
 
+  it('persists the normalized name used for uniqueness checks', async () => {
+    const r = await createViaService('  主力艦隊  ')
+    expect(r.ok).toBe(true)
+    if (r.ok) expect((r.data as Record<string, unknown>).normalizedName).toBe('主力艦隊')
+  })
+
+  it('allows only one concurrent create with the same owner and name', async () => {
+    const results = await Promise.all([
+      createViaService('並發同名'),
+      createViaService('  並發同名  '),
+    ])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toHaveLength(1)
+    expect(await repo.countByOwner(ownerA)).toBe(1)
+  })
+
   it('allows same name for different owners', async () => {
     const r1 = await createViaService('通用配置', ownerA)
     const r2 = await createViaService('通用配置', ownerB)
@@ -214,6 +292,41 @@ describe('FleetConfigService dispatch', () => {
     const r21 = await dispatch('saveAsConfig', { name: '超出限制', fleetState: state })
     expect(r21.ok).toBe(false)
     if (!r21.ok) expect(r21.code).toBe('limit-reached')
+  })
+
+  it('does not exceed 20 configs under concurrent create', async () => {
+    for (let i = 0; i < 19; i++) await createViaService(`既有配置${i}`)
+
+    const results = await Promise.all([
+      createViaService('並發第20個'),
+      createViaService('並發第21個'),
+    ])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toHaveLength(1)
+    expect(results.find((result) => !result.ok)).toMatchObject({
+      ok: false,
+      code: 'limit-reached',
+    })
+    expect(await repo.countByOwner(ownerA)).toBe(20)
+  })
+
+  it('does not exceed 20 configs under concurrent saveAs', async () => {
+    for (let i = 0; i < 19; i++) await createViaService(`另存既有${i}`)
+
+    const state = createFleetState()
+    const results = await Promise.all([
+      dispatch('saveAsConfig', { name: '並發另存第20個', fleetState: state }),
+      dispatch('saveAsConfig', { name: '並發另存第21個', fleetState: state }),
+    ])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toHaveLength(1)
+    expect(results.find((result) => !result.ok)).toMatchObject({
+      ok: false,
+      code: 'limit-reached',
+    })
+    expect(await repo.countByOwner(ownerA)).toBe(20)
   })
 
   it('rename does not increase config count', async () => {
@@ -258,6 +371,36 @@ describe('FleetConfigService dispatch', () => {
       expect(r.ok).toBe(false)
       if (!r.ok) expect(r.code).toBe('duplicate-name')
     }
+  })
+
+  it('does not allow concurrent renames to claim the same name', async () => {
+    const first = await createViaService('待改名A')
+    const second = await createViaService('待改名B')
+    expect(first.ok).toBe(true)
+    expect(second.ok).toBe(true)
+    if (!first.ok || !second.ok) return
+
+    const firstData = first.data as Record<string, unknown>
+    const secondData = second.data as Record<string, unknown>
+    const results = await Promise.all([
+      dispatch('renameConfig', {
+        configId: firstData.configId,
+        expectedVersion: firstData.version,
+        name: '並發新名稱',
+      }),
+      dispatch('renameConfig', {
+        configId: secondData.configId,
+        expectedVersion: secondData.version,
+        name: '  並發新名稱  ',
+      }),
+    ])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toHaveLength(1)
+    expect(results.find((result) => !result.ok)).toMatchObject({
+      ok: false,
+      code: 'duplicate-name',
+    })
   })
 
   // ── CRUD actions ──
@@ -444,14 +587,14 @@ describe('FleetConfigService dispatch', () => {
       configId,
       expectedVersion: 1,
       fleetState: createFleetState(),
+      force: false,
     })
 
     const result = await dispatch('deleteConfig', { configId, expectedVersion: 1 })
 
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.code).toBe('conflict')
-    const loaded = await dispatch('loadConfig', { configId })
-    expect(loaded.ok).toBe(true)
+    await expect(dispatch('loadConfig', { configId })).resolves.toMatchObject({ ok: true })
   })
 
   it('setLastUsedConfig updates lastUsedAt', async () => {
