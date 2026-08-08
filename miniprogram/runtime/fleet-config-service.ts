@@ -11,6 +11,12 @@ import type {
   FleetConfigRecord,
   FleetConfigSummary,
   FleetConfigErrorCode,
+  FleetConfigAction,
+} from '../contracts/fleet-config'
+import {
+  isValidFleetState,
+  MAX_CONFIG_NAME_LENGTH,
+  SCHEMA_VERSION,
 } from '../contracts/fleet-config'
 import type { FleetState } from '../contracts/battle-fleet'
 
@@ -27,11 +33,10 @@ export class FleetConfigError extends Error {
 
 // ── Result types ──
 
-interface FleetConfigFunctionResult<T> {
-  ok: boolean
-  data?: T
-  code?: string
-  message?: string
+interface FleetConfigFunctionFailure {
+  ok: false
+  code: FleetConfigErrorCode
+  message: string
 }
 
 // ── Service interface ──
@@ -57,24 +62,144 @@ export interface FleetConfigService {
 
 // ── Internal: call the cloud function ──
 
-async function callFunction<T>(action: string, payload: Record<string, unknown> = {}): Promise<T> {
-  let result: FleetConfigFunctionResult<T>
+const SAFE_NETWORK_ERROR_MESSAGE = '伺服器暫時無法處理請求，請稍後再試'
+const INVALID_RESPONSE_MESSAGE = '伺服器回應格式無效，請稍後再試'
+const ERROR_CODES = new Set<FleetConfigErrorCode>([
+  'unauthenticated',
+  'not-found',
+  'forbidden',
+  'name-required',
+  'duplicate-name',
+  'limit-reached',
+  'invalid-state',
+  'conflict',
+  'network',
+  'unknown-action',
+])
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const hasOnlyKeys = (value: Record<string, unknown>, allowed: readonly string[]): boolean =>
+  Object.keys(value).every((key) => allowed.includes(key))
+
+const isNonEmptyString = (value: unknown, maxLength = 100): value is string =>
+  typeof value === 'string' && value.length > 0 && [...value].length <= maxLength
+
+const isValidTimestamp = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0 && !Number.isNaN(Date.parse(value))
+
+const isValidVersion = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 1
+
+const isValidFleetConfigSummary = (value: unknown): value is FleetConfigSummary => {
+  if (!isRecord(value)) return false
+  if (!hasOnlyKeys(value, ['configId', 'name', 'version', 'updatedAt', 'lastUsedAt'])) return false
+  return (
+    isNonEmptyString(value.configId) &&
+    isNonEmptyString(value.name, MAX_CONFIG_NAME_LENGTH) &&
+    isValidVersion(value.version) &&
+    isValidTimestamp(value.updatedAt) &&
+    isValidTimestamp(value.lastUsedAt)
+  )
+}
+
+const isValidFleetConfigRecord = (value: unknown): value is FleetConfigRecord => {
+  if (!isRecord(value)) return false
+  if (
+    !hasOnlyKeys(value, [
+      'configId',
+      'name',
+      'fleetState',
+      'schemaVersion',
+      'version',
+      'createdAt',
+      'updatedAt',
+      'lastUsedAt',
+    ])
+  ) {
+    return false
+  }
+  return (
+    isNonEmptyString(value.configId) &&
+    isNonEmptyString(value.name, MAX_CONFIG_NAME_LENGTH) &&
+    isValidFleetState(value.fleetState) &&
+    value.schemaVersion === SCHEMA_VERSION &&
+    isValidVersion(value.version) &&
+    isValidTimestamp(value.createdAt) &&
+    isValidTimestamp(value.updatedAt) &&
+    isValidTimestamp(value.lastUsedAt)
+  )
+}
+
+const isValidActionData = (action: FleetConfigAction, value: unknown): boolean => {
+  switch (action) {
+    case 'authenticate':
+      return (
+        isRecord(value) &&
+        hasOnlyKeys(value, ['authenticated']) &&
+        typeof value.authenticated === 'boolean'
+      )
+    case 'listMyConfigs':
+      return Array.isArray(value) && value.every(isValidFleetConfigSummary)
+    case 'loadConfig':
+    case 'createConfig':
+    case 'updateConfig':
+    case 'saveAsConfig':
+    case 'renameConfig':
+      return isValidFleetConfigRecord(value)
+    case 'deleteConfig':
+      return isRecord(value) && hasOnlyKeys(value, ['deleted']) && value.deleted === true
+    case 'setLastUsedConfig':
+      return isRecord(value) && hasOnlyKeys(value, ['updated']) && value.updated === true
+  }
+}
+
+const isValidFailureResult = (
+  value: Record<string, unknown>,
+): value is Record<string, unknown> & FleetConfigFunctionFailure =>
+  hasOnlyKeys(value, ['ok', 'code', 'message']) &&
+  value.ok === false &&
+  typeof value.code === 'string' &&
+  ERROR_CODES.has(value.code as FleetConfigErrorCode) &&
+  typeof value.message === 'string' &&
+  value.message.length > 0 &&
+  value.message.length <= 200
+
+const createInvalidResponseError = (): FleetConfigError =>
+  new FleetConfigError('network', INVALID_RESPONSE_MESSAGE)
+
+async function callFunction<T>(
+  action: FleetConfigAction,
+  payload: Record<string, unknown> = {},
+): Promise<T> {
+  let rawResponse: unknown
   try {
-    const response = await wx.cloud.callFunction({
+    rawResponse = await wx.cloud.callFunction({
       name: FLEET_CONFIG_FUNCTION_NAME,
       data: { action, ...payload },
     })
-    result = response.result as FleetConfigFunctionResult<T>
   } catch {
-    throw new FleetConfigError('network', 'Network error — unable to reach the server')
+    throw new FleetConfigError('network', SAFE_NETWORK_ERROR_MESSAGE)
   }
 
+  if (!isRecord(rawResponse) || !isRecord(rawResponse.result)) {
+    throw createInvalidResponseError()
+  }
+
+  const result = rawResponse.result
   if (result.ok === false) {
+    if (!isValidFailureResult(result)) throw createInvalidResponseError()
     throw new FleetConfigError(
-      (result.code as FleetConfigErrorCode) ?? 'network',
-      result.message ?? 'Unknown server error',
+      result.code,
+      result.code === 'network' ? SAFE_NETWORK_ERROR_MESSAGE : result.message,
     )
   }
+
+  if (result.ok !== true || !hasOnlyKeys(result, ['ok', 'data'])) {
+    throw createInvalidResponseError()
+  }
+  if (!isValidActionData(action, result.data)) throw createInvalidResponseError()
 
   return result.data as T
 }

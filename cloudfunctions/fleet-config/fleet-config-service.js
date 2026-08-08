@@ -9,6 +9,12 @@
 const MAX_CONFIGS_PER_USER = 20
 const MAX_CONFIG_NAME_LENGTH = 30
 const SCHEMA_VERSION = 1
+const FLEET_SHIP_COUNT = 7
+const SHIP_OFFICER_CAPACITY = 11
+const MAX_IDENTIFIER_LENGTH = 100
+const MAX_LABEL_LENGTH = 30
+const MAX_TARGETS_PER_SHIP = 20
+const MAX_OFFICER_ID_LIST_LENGTH = 1000
 const VALID_ACTIONS = new Set([
   'authenticate',
   'listMyConfigs',
@@ -51,29 +57,158 @@ function isSchemaCompatible(version) {
   return version === SCHEMA_VERSION
 }
 
+const ALLOWED_STATE_KEYS = new Set(['ships', 'bannedOfficerIds'])
+const ALLOWED_SHIP_KEYS = new Set([
+  'id',
+  'label',
+  'mode',
+  'officerIds',
+  'targets',
+  'lockedOfficerIds',
+  'removedOfficerIds',
+  'needsReview',
+])
+const ALLOWED_TARGET_KEYS = new Set(['id', 'skillId', 'targetLevel'])
+
 /**
- * Validate fleet state structure.
- * Basic structural checks; the contract module has more thorough validation.
- * @param {object} state
+ * 驗證可由 runtime 使用的 FleetState business state。
+ * schemaVersion 屬於持久化 envelope，不是此型別的一部分。
+ * @param {unknown} state
  * @returns {boolean}
  */
 function isValidFleetState(state) {
-  if (!state || typeof state !== 'object') return false
-  if (!Array.isArray(state.ships) || state.ships.length !== 7) return false
-  if (!Array.isArray(state.bannedOfficerIds)) return false
-  // Each ship must have required fields
+  if (!isPlainObject(state)) return false
+  if (!hasOnlyAllowedKeys(state, ALLOWED_STATE_KEYS)) return false
+  if (!Array.isArray(state.ships) || state.ships.length !== FLEET_SHIP_COUNT) return false
+  if (!isValidIdArray(state.bannedOfficerIds, MAX_OFFICER_ID_LIST_LENGTH)) return false
+
+  const allOfficerIds = new Set()
+  const shipIds = new Set()
   for (const ship of state.ships) {
-    if (!ship || typeof ship !== 'object') return false
-    if (typeof ship.id !== 'string' || !ship.id) return false
-    if (!Array.isArray(ship.officerIds)) return false
-    if (ship.officerIds.length > 11) return false
-    if (ship.mode !== 'manual' && ship.mode !== 'auto') return false
-    if (!Array.isArray(ship.targets)) return false
-    for (const t of ship.targets) {
-      if (t.targetLevel < 1 || t.targetLevel > 10) return false
+    if (!isValidShip(ship)) return false
+    if (shipIds.has(ship.id)) return false
+    shipIds.add(ship.id)
+    for (const officerId of ship.officerIds) {
+      if (allOfficerIds.has(officerId)) return false
+      allOfficerIds.add(officerId)
     }
   }
   return true
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is Record<string, unknown>}
+ */
+function isPlainObject(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/**
+ * @param {Record<string, unknown>} value
+ * @param {Set<string>} allowed
+ * @returns {boolean}
+ */
+function hasOnlyAllowedKeys(value, allowed) {
+  return Object.keys(value).every((key) => allowed.has(key))
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is string}
+ */
+function isValidIdentifier(value) {
+  return typeof value === 'string' && value.length > 0 && [...value].length <= MAX_IDENTIFIER_LENGTH
+}
+
+/**
+ * @param {unknown} value
+ * @param {number} maxLength
+ * @returns {value is string[]}
+ */
+function isValidIdArray(value, maxLength) {
+  if (!Array.isArray(value) || value.length > maxLength) return false
+  if (!value.every(isValidIdentifier)) return false
+  return new Set(value).size === value.length
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isValidShip(value) {
+  if (!isPlainObject(value) || !hasOnlyAllowedKeys(value, ALLOWED_SHIP_KEYS)) return false
+  if (!isValidIdentifier(value.id)) return false
+  if (
+    typeof value.label !== 'string' ||
+    value.label.length === 0 ||
+    [...value.label].length > MAX_LABEL_LENGTH
+  ) {
+    return false
+  }
+  if (value.mode !== 'manual' && value.mode !== 'auto') return false
+  if (!isValidIdArray(value.officerIds, SHIP_OFFICER_CAPACITY)) return false
+  if (!isValidIdArray(value.lockedOfficerIds, SHIP_OFFICER_CAPACITY)) return false
+  if (!isValidIdArray(value.removedOfficerIds, MAX_OFFICER_ID_LIST_LENGTH)) return false
+  if (typeof value.needsReview !== 'boolean') return false
+  if (!Array.isArray(value.targets) || value.targets.length > MAX_TARGETS_PER_SHIP) return false
+
+  const skillIds = new Set()
+  for (const target of value.targets) {
+    if (!isValidTarget(target)) return false
+    if (target.skillId !== null) {
+      if (skillIds.has(target.skillId)) return false
+      skillIds.add(target.skillId)
+    }
+  }
+  return true
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isValidTarget(value) {
+  if (!isPlainObject(value) || !hasOnlyAllowedKeys(value, ALLOWED_TARGET_KEYS)) return false
+  if (!isValidIdentifier(value.id)) return false
+  if (value.skillId !== null && !isValidIdentifier(value.skillId)) return false
+  if (typeof value.targetLevel !== 'number') return false
+  if (!Number.isInteger(value.targetLevel) || value.targetLevel < 1 || value.targetLevel > 10) {
+    return false
+  }
+  return true
+}
+
+/**
+ * 由 CloudBase context 取得 request id，沒有時建立可追蹤的本地 id。
+ * @param {unknown} context
+ * @returns {string}
+ */
+function getRequestId(context) {
+  const requestId = isPlainObject(context) ? context.requestId : undefined
+  if (typeof requestId === 'string' && requestId.trim()) return requestId.trim()
+  return `req-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+/**
+ * @param {string} action
+ * @param {string} requestId
+ * @param {unknown} error
+ * @returns {void}
+ */
+function logServerError(action, requestId, error) {
+  console.error(`[fleet-config] ${action} error requestId=${requestId}`, error)
+}
+
+/**
+ * @returns {{ ok: false, code: string, message: string }}
+ */
+function createSafeServerError() {
+  return {
+    ok: false,
+    code: 'network',
+    message: '伺服器暫時無法處理請求，請稍後再試',
+  }
 }
 
 /**
@@ -231,6 +366,9 @@ function createFleetConfigService(repo) {
 
     if (!isSchemaCompatible(record.schemaVersion)) {
       return fail('invalid-state', `Unsupported schema version: ${record.schemaVersion}`)
+    }
+    if (!isValidFleetState(record.fleetState)) {
+      return fail('invalid-state', 'Invalid fleet configuration data')
     }
 
     return ok(toClientRecord(record))
@@ -445,4 +583,7 @@ module.exports = {
   isSchemaCompatible,
   isNameTaken,
   generateConfigId,
+  getRequestId,
+  logServerError,
+  createSafeServerError,
 }

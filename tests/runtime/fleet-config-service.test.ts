@@ -7,7 +7,11 @@
  */
 
 import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { createFleetConfigService } from '../../miniprogram/runtime/fleet-config-service'
+import { createFleetState } from '../../miniprogram/domain/battle-fleet'
+import {
+  createFleetConfigService,
+  FleetConfigError,
+} from '../../miniprogram/runtime/fleet-config-service'
 
 // Mock wx.cloud before importing the adapter
 const mockCallFunction = vi.fn()
@@ -17,9 +21,6 @@ vi.stubGlobal('wx', {
     callFunction: mockCallFunction,
   },
 })
-
-// These imports will fail until the adapter module exists
-// We test the adapter's expected behavior contractually first
 
 describe('FleetConfigService adapter contract', () => {
   beforeEach(() => {
@@ -43,21 +44,29 @@ describe('FleetConfigService adapter contract', () => {
   it('sends the correct CloudBase function name', async () => {
     mockSuccess({ authenticated: true })
 
-    // The adapter should call wx.cloud.callFunction with name 'fleet-config'
-    // When the adapter is created, these tests will validate actual behavior
+    await createFleetConfigService().authenticate()
+    expect(mockCallFunction).toHaveBeenCalledWith({
+      name: 'fleet-config',
+      data: { action: 'authenticate' },
+    })
   })
 
   it('includes action in the callFunction data', async () => {
     mockSuccess([])
 
-    // The adapter's listMyConfigs() should call:
-    // wx.cloud.callFunction({ name: 'fleet-config', data: { action: 'listMyConfigs' } })
+    await createFleetConfigService().listMyConfigs()
+    expect(mockCallFunction).toHaveBeenCalledWith({
+      name: 'fleet-config',
+      data: { action: 'listMyConfigs' },
+    })
   })
 
   it('never sends owner identity in the payload', async () => {
-    // All ownerUid/openid fields must come from server context,
-    // never from the adapter payload.
     mockSuccess([])
+    await createFleetConfigService().listMyConfigs()
+    const payload = mockCallFunction.mock.calls[0]![0].data as Record<string, unknown>
+    expect(payload).not.toHaveProperty('ownerUid')
+    expect(payload).not.toHaveProperty('openid')
   })
 
   // ── Error mapping ──
@@ -65,19 +74,86 @@ describe('FleetConfigService adapter contract', () => {
   it('maps "conflict" error code to a typed error', async () => {
     mockFailure('conflict', 'Version conflict')
 
-    // The adapter should throw or return a typed result indicating conflict
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'conflict',
+      message: 'Version conflict',
+    })
   })
 
   it('maps "not-found" error code', async () => {
     mockFailure('not-found', 'Config not found')
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'not-found',
+    })
   })
 
   it('maps "unauthenticated" error code', async () => {
     mockFailure('unauthenticated', 'Login required')
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'unauthenticated',
+    })
   })
 
   it('maps "network" error code from connection failures', async () => {
     mockNetworkError()
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'network',
+    })
+  })
+
+  it('rejects a non-object CloudBase result envelope', async () => {
+    mockCallFunction.mockResolvedValue({ result: null })
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'network',
+    })
+  })
+
+  it('rejects a result envelope whose ok field is not boolean', async () => {
+    mockCallFunction.mockResolvedValue({ result: { ok: 'yes', data: [] } })
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'network',
+    })
+  })
+
+  it('rejects a successful response whose data violates the action contract', async () => {
+    mockCallFunction.mockResolvedValue({ result: { ok: true, data: [{ configId: 42 }] } })
+    await expect(createFleetConfigService().listMyConfigs()).rejects.toMatchObject({
+      code: 'network',
+    })
+  })
+
+  it('does not expose an internal server error in a network failure message', async () => {
+    mockCallFunction.mockResolvedValue({
+      result: { ok: false, code: 'network', message: 'Server error: database password=secret' },
+    })
+    const error = await createFleetConfigService()
+      .listMyConfigs()
+      .catch((value: unknown) => value)
+    expect(error).toBeInstanceOf(FleetConfigError)
+    expect((error as FleetConfigError).code).toBe('network')
+    expect((error as Error).message).not.toContain('secret')
+  })
+
+  it('validates a successful record payload before returning it', async () => {
+    const state = createFleetState()
+    mockCallFunction.mockResolvedValue({
+      result: {
+        ok: true,
+        data: {
+          configId: 'cfg-1',
+          name: '我的配隊',
+          fleetState: state,
+          schemaVersion: 1,
+          version: 1,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          lastUsedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    })
+    await expect(createFleetConfigService().loadConfig('cfg-1')).resolves.toMatchObject({
+      configId: 'cfg-1',
+    })
   })
 
   it('sends the expected version when deleting a config', async () => {

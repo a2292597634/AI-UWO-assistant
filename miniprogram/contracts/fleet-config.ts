@@ -104,7 +104,7 @@ export const parseFleetState = (encoded: string): FleetState | null => {
   } catch {
     return null
   }
-  if (!isValidFleetState(raw)) return null
+  if (!isValidSerializedFleetState(raw)) return null
   const data = raw as SerializedFleetState
   return {
     ships: data.ships.map(parseShip),
@@ -142,7 +142,8 @@ const parseShip = (raw: SerializedShip): FleetShipState => ({
 
 // ── Validation ──
 
-const ALLOWED_TOP_LEVEL_KEYS = new Set(['schemaVersion', 'ships', 'bannedOfficerIds'])
+const ALLOWED_RUNTIME_TOP_LEVEL_KEYS = new Set(['ships', 'bannedOfficerIds'])
+const ALLOWED_SERIALIZED_TOP_LEVEL_KEYS = new Set(['schemaVersion', 'ships', 'bannedOfficerIds'])
 const ALLOWED_SHIP_KEYS = new Set([
   'id',
   'label',
@@ -155,6 +156,10 @@ const ALLOWED_SHIP_KEYS = new Set([
 ])
 const ALLOWED_TARGET_KEYS = new Set(['id', 'skillId', 'targetLevel'])
 const VALID_MODES = new Set(['manual', 'auto'])
+const MAX_IDENTIFIER_LENGTH = 100
+const MAX_LABEL_LENGTH = 30
+const MAX_TARGETS_PER_SHIP = 20
+const MAX_OFFICER_ID_LIST_LENGTH = 1000
 
 /**
  * Validate that an unknown value is a well-formed FleetState suitable for storage.
@@ -164,28 +169,39 @@ export const isValidFleetState = (value: unknown): value is FleetState => {
   if (typeof value !== 'object' || value === null) return false
   const obj = value as Record<string, unknown>
 
-  // Reject unknown top-level keys
-  for (const key of Object.keys(obj)) {
-    if (!ALLOWED_TOP_LEVEL_KEYS.has(key)) return false
-  }
+  if (!hasOnlyAllowedKeys(obj, ALLOWED_RUNTIME_TOP_LEVEL_KEYS)) return false
+  return isValidFleetStateFields(obj)
+}
 
-  // schemaVersion must be a positive integer
-  if (
-    typeof obj.schemaVersion !== 'number' ||
-    !Number.isInteger(obj.schemaVersion) ||
-    obj.schemaVersion < 1
-  ) {
-    return false
-  }
+/**
+ * 驗證包含 schemaVersion 的持久化 FleetState。
+ * schemaVersion 屬於序列化 envelope，不是 FleetState runtime business state。
+ */
+export const isValidSerializedFleetState = (value: unknown): value is SerializedFleetState => {
+  if (typeof value !== 'object' || value === null) return false
+  const obj = value as Record<string, unknown>
 
+  if (!hasOnlyAllowedKeys(obj, ALLOWED_SERIALIZED_TOP_LEVEL_KEYS)) return false
+  if (obj.schemaVersion !== SCHEMA_VERSION) return false
+  return isValidFleetStateFields(obj)
+}
+
+const hasOnlyAllowedKeys = (value: Record<string, unknown>, allowed: Set<string>): boolean => {
+  return Object.keys(value).every((key) => allowed.has(key))
+}
+
+const isValidFleetStateFields = (obj: Record<string, unknown>): boolean => {
   // ships must be an array of exactly 7
   if (!Array.isArray(obj.ships) || obj.ships.length !== FLEET_SHIP_COUNT) return false
 
   // Validate each ship
   const allOfficerIds = new Set<string>()
+  const shipIds = new Set<string>()
   for (const ship of obj.ships) {
     if (!isValidShip(ship)) return false
     const s = ship as Record<string, unknown>
+    if (shipIds.has(s.id as string)) return false
+    shipIds.add(s.id as string)
 
     // Check for duplicate officers across ships
     const officerIds = s.officerIds as string[]
@@ -195,9 +211,8 @@ export const isValidFleetState = (value: unknown): value is FleetState => {
     }
   }
 
-  // bannedOfficerIds must be an array of strings
-  if (!Array.isArray(obj.bannedOfficerIds)) return false
-  if (obj.bannedOfficerIds.some((id: unknown) => typeof id !== 'string')) return false
+  // bannedOfficerIds must be a bounded array of unique strings
+  if (!isValidIdArray(obj.bannedOfficerIds, MAX_OFFICER_ID_LIST_LENGTH)) return false
 
   return true
 }
@@ -206,33 +221,33 @@ const isValidShip = (value: unknown): boolean => {
   if (typeof value !== 'object' || value === null) return false
   const ship = value as Record<string, unknown>
 
-  // Reject unknown ship keys
-  for (const key of Object.keys(ship)) {
-    if (!ALLOWED_SHIP_KEYS.has(key)) return false
-  }
+  if (!hasOnlyAllowedKeys(ship, ALLOWED_SHIP_KEYS)) return false
 
-  if (typeof ship.id !== 'string' || !ship.id) return false
-  if (typeof ship.label !== 'string') return false
+  if (!isValidIdentifier(ship.id)) return false
+  if (
+    typeof ship.label !== 'string' ||
+    ship.label.length === 0 ||
+    [...ship.label].length > MAX_LABEL_LENGTH
+  ) {
+    return false
+  }
   if (!VALID_MODES.has(ship.mode as string)) return false
 
   // officerIds
-  if (!Array.isArray(ship.officerIds)) return false
-  if (ship.officerIds.some((id: unknown) => typeof id !== 'string')) return false
-  if (ship.officerIds.length > SHIP_OFFICER_CAPACITY) return false
+  if (!isValidIdArray(ship.officerIds, SHIP_OFFICER_CAPACITY)) return false
 
   // lockedOfficerIds
-  if (!Array.isArray(ship.lockedOfficerIds)) return false
-  if (ship.lockedOfficerIds.some((id: unknown) => typeof id !== 'string')) return false
+  if (!isValidIdArray(ship.lockedOfficerIds, SHIP_OFFICER_CAPACITY)) return false
 
   // removedOfficerIds
-  if (!Array.isArray(ship.removedOfficerIds)) return false
-  if (ship.removedOfficerIds.some((id: unknown) => typeof id !== 'string')) return false
+  if (!isValidIdArray(ship.removedOfficerIds, MAX_OFFICER_ID_LIST_LENGTH)) return false
 
   // needsReview
   if (typeof ship.needsReview !== 'boolean') return false
 
   // targets
   if (!Array.isArray(ship.targets)) return false
+  if (ship.targets.length > MAX_TARGETS_PER_SHIP) return false
   for (const target of ship.targets) {
     if (!isValidTarget(target)) return false
   }
@@ -250,17 +265,23 @@ const isValidTarget = (value: unknown): boolean => {
   if (typeof value !== 'object' || value === null) return false
   const target = value as Record<string, unknown>
 
-  // Reject unknown target keys
-  for (const key of Object.keys(target)) {
-    if (!ALLOWED_TARGET_KEYS.has(key)) return false
-  }
+  if (!hasOnlyAllowedKeys(target, ALLOWED_TARGET_KEYS)) return false
 
-  if (typeof target.id !== 'string' || !target.id) return false
-  if (target.skillId !== null && typeof target.skillId !== 'string') return false
+  if (!isValidIdentifier(target.id)) return false
+  if (target.skillId !== null && !isValidIdentifier(target.skillId)) return false
   if (typeof target.targetLevel !== 'number' || !Number.isInteger(target.targetLevel)) return false
-  if (target.targetLevel < 0 || target.targetLevel > 10) return false
+  if (target.targetLevel < 1 || target.targetLevel > 10) return false
 
   return true
+}
+
+const isValidIdentifier = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0 && [...value].length <= MAX_IDENTIFIER_LENGTH
+
+const isValidIdArray = (value: unknown, maxLength: number): value is string[] => {
+  if (!Array.isArray(value) || value.length > maxLength) return false
+  if (!value.every(isValidIdentifier)) return false
+  return new Set(value).size === value.length
 }
 
 // ── Name helpers ──

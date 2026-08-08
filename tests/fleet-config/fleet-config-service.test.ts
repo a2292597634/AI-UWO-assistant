@@ -626,6 +626,89 @@ describe('FleetConfigService dispatch', () => {
     if (!r.ok) expect(r.code).toBe('invalid-state')
   })
 
+  it('rejects malformed FleetState fields at the server boundary', async () => {
+    const state = createFleetState()
+    const cases: Array<[string, unknown]> = [
+      [
+        '字串目標等級',
+        {
+          ...state,
+          ships: state.ships.map((ship, index) =>
+            index === 0
+              ? { ...ship, targets: [{ id: 'target-1', skillId: 'skill-a', targetLevel: 'abc' }] }
+              : ship,
+          ),
+        },
+      ],
+      [
+        '小數目標等級',
+        {
+          ...state,
+          ships: state.ships.map((ship, index) =>
+            index === 0
+              ? { ...ship, targets: [{ id: 'target-1', skillId: 'skill-a', targetLevel: 1.5 }] }
+              : ship,
+          ),
+        },
+      ],
+      [
+        '非字串技能 ID',
+        {
+          ...state,
+          ships: state.ships.map((ship, index) =>
+            index === 0
+              ? { ...ship, targets: [{ id: 'target-1', skillId: 42, targetLevel: 1 }] }
+              : ship,
+          ),
+        },
+      ],
+      [
+        '跨船重複航海士',
+        {
+          ...state,
+          ships: state.ships.map((ship, index) =>
+            index < 2 ? { ...ship, officerIds: ['officer-shared'] } : ship,
+          ),
+        },
+      ],
+      [
+        '重複目標技能',
+        {
+          ...state,
+          ships: state.ships.map((ship, index) =>
+            index === 0
+              ? {
+                  ...ship,
+                  targets: [
+                    { id: 'target-1', skillId: 'skill-a', targetLevel: 1 },
+                    { id: 'target-2', skillId: 'skill-a', targetLevel: 2 },
+                  ],
+                }
+              : ship,
+          ),
+        },
+      ],
+      [
+        '非字串陣列元素與錯誤旗標',
+        {
+          ...state,
+          bannedOfficerIds: [42],
+          ships: state.ships.map((ship, index) =>
+            index === 0
+              ? { ...ship, lockedOfficerIds: [42], removedOfficerIds: [42], needsReview: 'yes' }
+              : ship,
+          ),
+        },
+      ],
+    ]
+
+    for (const [name, fleetState] of cases) {
+      const result = await dispatch('createConfig', { name, fleetState })
+      expect(result.ok, name).toBe(false)
+      if (!result.ok) expect(result.code, name).toBe('invalid-state')
+    }
+  })
+
   it('rejects unknown action', async () => {
     const r = await dispatch('unknownAction' as string)
     expect(r.ok).toBe(false)
