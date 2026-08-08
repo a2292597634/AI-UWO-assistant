@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { createFleetState } from '../../miniprogram/domain/battle-fleet'
 
 interface FleetTestData {
   shipTabs: unknown[]
@@ -406,6 +407,47 @@ describe('fleet config lifecycle', () => {
     expect(page.data.pendingAction).toBeNull()
   })
 
+  it('continues the pending action after saving an unnamed dirty config', async () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    page.onConfigNew()
+    expect(page.data.pendingAction).toEqual({ type: 'new' })
+
+    page.onUnsavedGuardSave()
+    expect(page.data.showNameModal).toBe(true)
+    expect(page.data.modalAction).toBe('saveAs')
+
+    const now = '2026-01-01T00:00:00.000Z'
+    mockCallFunction
+      .mockResolvedValueOnce({
+        result: {
+          ok: true,
+          data: {
+            configId: 'cfg-1',
+            name: '保存後配置',
+            fleetState: createFleetState(),
+            schemaVersion: 1,
+            version: 1,
+            createdAt: now,
+            updatedAt: now,
+            lastUsedAt: now,
+          },
+        },
+      })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+    page.setData({ modalInputValue: '保存後配置' })
+
+    await page.onConfigModalConfirm()
+
+    expect(page.data.pendingAction).toBeNull()
+    expect(page.data.showUnsavedGuard).toBe(false)
+    expect(page.data.showNameModal).toBe(false)
+    expect(page.data.activeConfigId).toBeNull()
+    expect(page.data.configStatus).toBe('new')
+  })
+
   it('executes new config after discarding unsaved changes', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -450,5 +492,23 @@ describe('fleet config lifecycle', () => {
 
     page.onConfigModalCancel()
     expect(page.data.showNameModal).toBe(false)
+  })
+
+  it('clears a pending action when the name modal is cancelled', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.setData({
+      showNameModal: true,
+      modalAction: 'saveAs',
+      modalInputValue: 'test',
+      pendingAction: { type: 'new' },
+      showUnsavedGuard: false,
+    })
+
+    page.onConfigModalCancel()
+
+    expect(page.data.showNameModal).toBe(false)
+    expect(page.data.pendingAction).toBeNull()
   })
 })

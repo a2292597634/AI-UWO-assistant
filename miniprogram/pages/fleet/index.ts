@@ -755,6 +755,7 @@ Page({
           configStatus: 'saved',
         })
         await refreshConfigList(state, this)
+        resolvePendingAction(this)
         showError('已保存為新配置')
       } else if (action === 'rename') {
         if (!state.activeConfigId) return
@@ -777,7 +778,13 @@ Page({
   },
 
   onConfigModalCancel() {
-    this.setData({ showNameModal: false })
+    const state = getState(this)
+    state.pendingAction = null
+    this.setData({
+      showNameModal: false,
+      pendingAction: null,
+      showUnsavedGuard: false,
+    })
   },
 
   // ── Unsaved guard ──
