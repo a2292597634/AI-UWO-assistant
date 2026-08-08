@@ -106,17 +106,16 @@ export const generateOfficerId = (
   const candidate = `officer_custom_${datePart}_${hexPart}`
   if (!existingIds.has(candidate)) return candidate
   // 极小概率冲突，追加随机位
-  const extra = Math.floor(Math.random() * 0xff).toString(16).padStart(2, '0')
+  const extra = Math.floor(Math.random() * 0xff)
+    .toString(16)
+    .padStart(2, '0')
   return `officer_custom_${datePart}_${hexPart}${extra}`
 }
 
 // ── VisualGrade 推导 ──
 
 /** 根据稀有度 ID 和 Boss 标志推导 visualGradeId */
-export const deriveVisualGrade = (
-  rarityId: string,
-  isBoss: boolean,
-): VisualGradeId => {
+export const deriveVisualGrade = (rarityId: string, isBoss: boolean): VisualGradeId => {
   if (isBoss) return 'grade_6'
   const grade = RARITY_TO_VISUAL_GRADE[rarityId]
   if (grade) return grade
@@ -284,10 +283,7 @@ export const validateOfficerForm = (
     }
     seenSkillIds.add(skill.skillId)
 
-    if (
-      !Number.isInteger(skill.unlockLevel) ||
-      skill.unlockLevel < SKILL_LEVEL_MIN
-    ) {
+    if (!Number.isInteger(skill.unlockLevel) || skill.unlockLevel < SKILL_LEVEL_MIN) {
       errors.push({
         field: `${prefix}.unlockLevel`,
         message: `解鎖等級不可小於 ${SKILL_LEVEL_MIN}`,
@@ -352,9 +348,9 @@ export const buildCanonicalOfficerFromForm = (
       .filter((id) => id)
       .map((id) => (id.startsWith(CITY_PREFIX) ? id : `${CITY_PREFIX}${id}`)),
     requirementId: form.recruitment.requirementId
-      ? (form.recruitment.requirementId.startsWith(REQUIREMENT_PREFIX)
+      ? form.recruitment.requirementId.startsWith(REQUIREMENT_PREFIX)
         ? form.recruitment.requirementId
-        : `${REQUIREMENT_PREFIX}${form.recruitment.requirementId}`)
+        : `${REQUIREMENT_PREFIX}${form.recruitment.requirementId}`
       : null,
     requiredOfficerIds: form.recruitment.requiredOfficerIds.filter((id) => id),
     note: form.recruitment.note.trim() || null,
@@ -386,23 +382,18 @@ export const buildCanonicalOfficerFromForm = (
     portraitId: form.portraitFileId || null,
     displayOrder: maxDisplayOrder + 1,
     sourceRefs,
-    ...(form.maintenanceNote.trim()
-      ? { maintenanceNote: form.maintenanceNote.trim() }
-      : {}),
+    ...(form.maintenanceNote.trim() ? { maintenanceNote: form.maintenanceNote.trim() } : {}),
   }
 }
 
 // ── 辅助：从现有 catalog 构建 ID 集合 ──
 
 /** 从 catalog 条目收集所有已有 officer ID */
-export const collectExistingOfficerIds = (
-  catalog: readonly { id: string }[],
-): Set<string> => new Set(catalog.map((o) => o.id))
+export const collectExistingOfficerIds = (catalog: readonly { id: string }[]): Set<string> =>
+  new Set(catalog.map((o) => o.id))
 
 /** 获取当前最大 displayOrder */
-export const getMaxDisplayOrder = (
-  catalog: readonly { displayOrder?: number }[],
-): number => {
+export const getMaxDisplayOrder = (catalog: readonly { displayOrder?: number }[]): number => {
   let max = 0
   for (const o of catalog) {
     if ((o.displayOrder ?? 0) > max) max = o.displayOrder ?? 0

@@ -41,10 +41,7 @@ async function callOfficerFunction(
     })
     result = response.result as CloudFunctionResponse
   } catch {
-    throw new OfficerSubmitError(
-      'network',
-      '無法連接伺服器，請檢查網絡後重試',
-    )
+    throw new OfficerSubmitError('network', '無法連接伺服器，請檢查網絡後重試')
   }
 
   if (result.ok === false || !result.data?.ok) {

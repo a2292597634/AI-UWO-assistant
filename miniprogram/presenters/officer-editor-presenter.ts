@@ -16,9 +16,7 @@ import type { RuntimeDictionaries, RuntimeSkill } from '../contracts/runtime-dat
 // ── 选项构建 ──
 
 /** 稀有度选项（显示星级） */
-export const buildRarityOptions = (
-  dicts: RuntimeDictionaries,
-): DropdownOption[] =>
+export const buildRarityOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
   dicts.rarities.map((r) => ({
     id: r.id,
     name: RARITY_DISPLAY[r.id] ?? r.name,
@@ -29,9 +27,7 @@ export const buildTypeOptions = (dicts: RuntimeDictionaries): DropdownOption[] =
   [...dicts.types].map((t) => ({ id: t.id, name: t.name }))
 
 /** 性别选项 */
-export const buildGenderOptions = (
-  dicts: RuntimeDictionaries,
-): DropdownOption[] =>
+export const buildGenderOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
   [...dicts.genders].map((g) => ({ id: g.id, name: g.name }))
 
 /** 职业选项 */
@@ -41,33 +37,25 @@ export const buildJobOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
     .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'))
 
 /** 国籍选项 */
-export const buildNationalityOptions = (
-  dicts: RuntimeDictionaries,
-): DropdownOption[] =>
+export const buildNationalityOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
   [...dicts.nationalities]
     .map((n) => ({ id: n.id, name: n.name }))
     .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'))
 
 /** 城市选项 */
-export const buildCityOptions = (
-  dicts: RuntimeDictionaries,
-): DropdownOption[] =>
+export const buildCityOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
   [...dicts.cities]
     .map((c) => ({ id: c.id, name: c.name }))
     .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'))
 
 /** 招募条件选项 */
-export const buildRequirementOptions = (
-  dicts: RuntimeDictionaries,
-): DropdownOption[] =>
+export const buildRequirementOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
   [...dicts.requirements]
     .map((r) => ({ id: r.id, name: r.name }))
     .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'))
 
 /** 语言选项 */
-export const buildLanguageOptions = (
-  dicts: RuntimeDictionaries,
-): DropdownOption[] =>
+export const buildLanguageOptions = (dicts: RuntimeDictionaries): DropdownOption[] =>
   [...dicts.languages]
     .map((l) => ({ id: l.id, name: l.name }))
     .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'))
@@ -128,9 +116,7 @@ export const filterSkillOptions = (
 ): DropdownOption[] => {
   if (!searchText.trim()) return [...allOptions].slice(0, limit)
   const lower = searchText.trim().toLowerCase()
-  return allOptions
-    .filter((o) => o.name.toLowerCase().includes(lower))
-    .slice(0, limit)
+  return allOptions.filter((o) => o.name.toLowerCase().includes(lower)).slice(0, limit)
 }
 
 /** 根据搜索文本过滤职业选项 */
@@ -227,32 +213,22 @@ export const buildOfficerEditorPageData = (
   nationalitySearchText: string,
 ): OfficerEditorPageData => {
   // 查找已选中的 picker 索引
-  const rarityIndex = options.rarityOptions.findIndex(
-    (o) => o.id === form.rarityId,
-  )
+  const rarityIndex = options.rarityOptions.findIndex((o) => o.id === form.rarityId)
   const typeIndex = options.typeOptions.findIndex((o) => o.id === form.typeId)
-  const genderIndex = options.genderOptions.findIndex(
-    (o) => o.id === form.genderId,
-  )
+  const genderIndex = options.genderOptions.findIndex((o) => o.id === form.genderId)
   const jobIndex = options.jobOptions.findIndex((o) => o.id === form.jobId)
-  const nationalityIndex = options.nationalityOptions.findIndex(
-    (o) => o.id === form.nationalityId,
-  )
+  const nationalityIndex = options.nationalityOptions.findIndex((o) => o.id === form.nationalityId)
 
   // 语言视图
   const languageViews: LanguageRowView[] = form.languages.map((l) => ({
     ...l,
-    languageIndex: options.languageOptions.findIndex(
-      (o) => o.id === l.languageId,
-    ),
+    languageIndex: options.languageOptions.findIndex((o) => o.id === l.languageId),
   }))
 
   // 技能视图
   const skillViews: SkillRowView[] = form.skills.map((s) => ({
     ...s,
-    groupIndex: GROUP_LABEL_OPTIONS.findIndex(
-      (o) => o.id === s.groupLabel,
-    ),
+    groupIndex: GROUP_LABEL_OPTIONS.findIndex((o) => o.id === s.groupLabel),
     expanded: false,
   }))
 
@@ -264,10 +240,7 @@ export const buildOfficerEditorPageData = (
   )
 
   // 过滤职业选项
-  const filteredJobOptions: DropdownOption[] = filterJobOptions(
-    options.jobOptions,
-    jobSearchText,
-  )
+  const filteredJobOptions: DropdownOption[] = filterJobOptions(options.jobOptions, jobSearchText)
 
   // 过滤国籍选项
   const filteredNationalityOptions: DropdownOption[] = filterJobOptions(

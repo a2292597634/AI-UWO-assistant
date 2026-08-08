@@ -4,7 +4,12 @@
  * 遵循两层状态模式：PageData（响应式）+ PageState（WeakMap 非响应式）。
  */
 
-import { getCatalog, getDictionaries, getSkills, addCachedCustomOfficer } from '../../runtime/main-data-store'
+import {
+  getCatalog,
+  getDictionaries,
+  getSkills,
+  addCachedCustomOfficer,
+} from '../../runtime/main-data-store'
 import type { RuntimeDictionaries, RuntimeSkill } from '../../contracts/runtime-data'
 import type { OfficerEditorFormState } from '../../contracts/officer-editor'
 import {
@@ -25,10 +30,7 @@ import {
   filterSkillOptions,
   type OfficerEditorPageData,
 } from '../../presenters/officer-editor-presenter'
-import {
-  getOfficerEditorService,
-  OfficerSubmitError,
-} from '../../runtime/officer-editor-service'
+import { getOfficerEditorService, OfficerSubmitError } from '../../runtime/officer-editor-service'
 
 // ── 类型 ──
 
@@ -149,9 +151,7 @@ Page({
     const dictionaries = getDictionaries()
     const skills = getSkills()
     const existingOfficerIds = collectExistingOfficerIds(catalog)
-    const maxDisplayOrder = getMaxDisplayOrder(
-      catalog as unknown as { displayOrder?: number }[],
-    )
+    const maxDisplayOrder = getMaxDisplayOrder(catalog as unknown as { displayOrder?: number }[])
 
     const state: OfficerEditorPageState = {
       form: createEmptyFormState(),
@@ -258,8 +258,7 @@ Page({
     wx.showActionSheet({
       itemList: ['拍照', '從相冊選擇'],
       success: (res) => {
-        const sourceType: ('camera' | 'album')[] =
-          res.tapIndex === 0 ? ['camera'] : ['album']
+        const sourceType: ('camera' | 'album')[] = res.tapIndex === 0 ? ['camera'] : ['album']
         wx.chooseImage({
           count: 1,
           sizeType: ['compressed'],
@@ -541,9 +540,7 @@ Page({
       validLanguageIds: new Set(state.dictionaries.languages.map((l) => l.id)),
       validSkillIds: new Set(Object.keys(state.skills)),
       validJobIds: new Set(state.dictionaries.jobs.map((j) => j.id)),
-      validNationalityIds: new Set(
-        (state.dictionaries.nationalities ?? []).map((n) => n.id),
-      ),
+      validNationalityIds: new Set((state.dictionaries.nationalities ?? []).map((n) => n.id)),
     }
     const errors = validateOfficerForm(form, ctx)
     if (errors.length > 0) {

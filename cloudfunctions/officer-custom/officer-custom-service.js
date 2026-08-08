@@ -165,10 +165,7 @@ function createOfficerCustomService(repo, cloud) {
     // 用户提交上限
     const count = await repo.countByOwner(ownerUid)
     if (count >= MAX_CUSTOM_OFFICERS_PER_USER) {
-      return fail(
-        'limit-reached',
-        `每位用戶最多提交 ${MAX_CUSTOM_OFFICERS_PER_USER} 位航海士`,
-      )
+      return fail('limit-reached', `每位用戶最多提交 ${MAX_CUSTOM_OFFICERS_PER_USER} 位航海士`)
     }
 
     // 插入记录
@@ -179,9 +176,7 @@ function createOfficerCustomService(repo, cloud) {
     }
     const saved = await repo.insert(record)
 
-    console.log(
-      `[officer-custom] submit: owner=${ownerUid.slice(0, 8)}... officerId=${officerId}`,
-    )
+    console.log(`[officer-custom] submit: owner=${ownerUid.slice(0, 8)}... officerId=${officerId}`)
 
     return ok({
       ok: true,

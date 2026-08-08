@@ -31,13 +31,7 @@ export interface LanguageFormRow {
 }
 
 /** 技能组别（用户可见中文标签 → 系统 sk0~sk5） */
-export type SkillGroupLabel =
-  | '被動組0'
-  | '被動組1'
-  | '主動組0'
-  | '主動組1'
-  | '主動組2'
-  | '被動組2'
+export type SkillGroupLabel = '被動組0' | '被動組1' | '主動組0' | '主動組1' | '主動組2' | '被動組2'
 
 /** 技能表单行 */
 export interface SkillFormRow {
@@ -145,12 +139,12 @@ export interface OfficerSubmitResult {
 
 /** 中文标签 → sourceGroup 映射 */
 export const GROUP_LABEL_TO_SOURCE: Record<SkillGroupLabel, string> = {
-  '被動組0': 'sk0',
-  '被動組1': 'sk1',
-  '主動組0': 'sk2',
-  '主動組1': 'sk3',
-  '主動組2': 'sk4',
-  '被動組2': 'sk5',
+  被動組0: 'sk0',
+  被動組1: 'sk1',
+  主動組0: 'sk2',
+  主動組1: 'sk3',
+  主動組2: 'sk4',
+  被動組2: 'sk5',
 }
 
 /** sourceGroup → 中文标签反向映射 */

@@ -59,6 +59,7 @@ for (const sid of targetSkills) {
 ```
 
 按以下规则分配：
+
 - 多个参考案例使用相同 sourceGroup → 沿用
 - 同 sourceGroup 内 slot 按参考数据中出现的顺序递增
 - kind 根据 skill 的 categoryId 判定：`skill_category_naval_active_*` → active，其余 → passive
@@ -107,6 +108,7 @@ npm test                # 全量测试
 ### 7. 处理头像
 
 如果用户提供了头像路径，复制到：
+
 - `data/assets/staging/officer_custom_xxx.png`（源文件）
 - `miniprogram/subpkg-assets-N/imgs/officer_custom_xxx.png`（运行时使用，N 根据生成结果确定）
 

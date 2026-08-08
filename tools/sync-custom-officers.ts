@@ -23,10 +23,10 @@ const OUTPUT_FILE = resolve(MASTER_DIR, 'custom-officers.json')
 async function fetchCustomOfficers(): Promise<Record<string, unknown>[]> {
   try {
     // 通过 tcb fn invoke 调用云函数
-    const result = execSync(
-      `tcb fn invoke officer-custom --params '{"action":"listCustom"}'`,
-      { encoding: 'utf8', cwd: PROJECT_ROOT },
-    )
+    const result = execSync(`tcb fn invoke officer-custom --params '{"action":"listCustom"}'`, {
+      encoding: 'utf8',
+      cwd: PROJECT_ROOT,
+    })
     const parsed = JSON.parse(result) as {
       ok?: boolean
       data?: { officers?: Record<string, unknown>[] }
@@ -62,9 +62,7 @@ async function sync(): Promise<void> {
   let existingOfficers: Record<string, unknown>[] = []
   if (existsSync(OUTPUT_FILE)) {
     try {
-      existingOfficers = JSON.parse(
-        readFileSync(OUTPUT_FILE, 'utf8'),
-      ) as Record<string, unknown>[]
+      existingOfficers = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8')) as Record<string, unknown>[]
       console.log(`  本地已有 ${existingOfficers.length} 条记录`)
     } catch {
       console.log('  本地文件解析失败，将覆盖')
