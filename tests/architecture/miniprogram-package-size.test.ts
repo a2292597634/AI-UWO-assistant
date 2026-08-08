@@ -136,7 +136,10 @@ describe('miniprogram package size scanner', () => {
   it('does not count TypeScript source files in the compiled package size', () => {
     const root = createFixture()
     try {
-      writeFileSync(join(root, 'miniprogram', 'pages', 'source-only.ts'), Buffer.alloc(2 * 1024 * 1024))
+      writeFileSync(
+        join(root, 'miniprogram', 'pages', 'source-only.ts'),
+        Buffer.alloc(2 * 1024 * 1024),
+      )
       const config = readMiniProgramConfig(root)
       const report = analyzeMiniProgramPackage({
         projectRoot: root,

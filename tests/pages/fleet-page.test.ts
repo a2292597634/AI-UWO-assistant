@@ -376,49 +376,47 @@ describe('fleet config lifecycle', () => {
   it('does not repeat the last-used update after loading a config', async () => {
     const now = '2026-01-01T00:00:00.000Z'
     const fleetState = createFleetState()
-    mockCallFunction.mockImplementation(
-      async ({ data }: { data: { action: string } }) => {
-        switch (data.action) {
-          case 'authenticate':
-            return { result: { ok: true, data: { authenticated: true } } }
-          case 'listMyConfigs':
-            return {
-              result: {
-                ok: true,
-                data: [
-                  {
-                    configId: 'cfg-1',
-                    name: '測試配置',
-                    version: 1,
-                    updatedAt: now,
-                    lastUsedAt: now,
-                  },
-                ],
-              },
-            }
-          case 'loadConfig':
-            return {
-              result: {
-                ok: true,
-                data: {
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
                   configId: 'cfg-1',
                   name: '測試配置',
-                  fleetState,
-                  schemaVersion: 1,
                   version: 1,
-                  createdAt: now,
                   updatedAt: now,
                   lastUsedAt: now,
                 },
+              ],
+            },
+          }
+        case 'loadConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'cfg-1',
+                name: '測試配置',
+                fleetState,
+                schemaVersion: 1,
+                version: 1,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
               },
-            }
-          case 'setLastUsedConfig':
-            return { result: { ok: true, data: { updated: true } } }
-          default:
-            throw new Error(`unexpected action: ${data.action}`)
-        }
-      },
-    )
+            },
+          }
+        case 'setLastUsedConfig':
+          return { result: { ok: true, data: { updated: true } } }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
 
     const page = createPageInstance()
     await page.onLoad()
