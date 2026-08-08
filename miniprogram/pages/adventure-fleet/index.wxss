@@ -321,6 +321,7 @@
 
 .target-panel,
 .skill-selector,
+.candidate-panel,
 .ban-panel,
 .summary-panel {
   margin: 0 20rpx 18rpx;
@@ -833,4 +834,348 @@ button.primary-button {
 .inline-empty {
   padding: 18rpx 0 6rpx;
   text-align: center;
+}
+
+/* ── 船标签页 ── */
+
+.ship-tabs {
+  width: 100%;
+  background: #e8dfce;
+  border-bottom: 1rpx solid #c4b99a;
+}
+
+.ship-tabs__content {
+  display: flex;
+  width: 1120rpx;
+  min-width: 1120rpx;
+}
+
+.ship-tab {
+  box-sizing: border-box;
+  width: 160rpx;
+  padding: 16rpx 8rpx 14rpx;
+  color: #756b59;
+  text-align: center;
+}
+
+.ship-tab--active {
+  color: #292a26;
+  background: #d4cbb4;
+  border-bottom: 5rpx solid #b99552;
+}
+
+.ship-tab__label,
+.ship-tab__meta {
+  display: block;
+}
+
+.ship-tab__label {
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.ship-tab__meta {
+  margin-top: 4rpx;
+  font-size: 18rpx;
+}
+
+/* ── 船编辑区 ── */
+
+.ship-editor {
+  padding-bottom: 48rpx;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 24rpx 16rpx;
+}
+
+.section-heading__title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.section-heading__meta {
+  display: block;
+  margin-top: 5rpx;
+  color: #756b59;
+  font-size: 21rpx;
+}
+
+.section-heading__status {
+  display: block;
+  padding: 8rpx 12rpx;
+  color: #f0e4c4;
+  background: #596257;
+  border-radius: 6rpx;
+  font-size: 21rpx;
+}
+
+/* ── 船位网格 ── */
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6rpx;
+  padding: 0 14rpx 10rpx;
+}
+
+.officer-slot {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 180rpx;
+  padding: 10rpx 2rpx 72rpx;
+  overflow: hidden;
+  text-align: center;
+  background: #e8dfce;
+  border: 1rpx solid #c4b99a;
+  border-radius: 8rpx;
+}
+
+.officer-slot--filled {
+  background: #d4cbb4;
+}
+
+.officer-slot__number {
+  position: absolute;
+  top: 3rpx;
+  left: 4rpx;
+  color: #9b8b6d;
+  font-size: 12rpx;
+}
+
+.officer-slot__visuals {
+  position: relative;
+  display: inline-block;
+  width: 64rpx;
+  height: 64rpx;
+  background: #2f302b;
+  border-radius: 8rpx;
+}
+
+.officer-slot__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
+}
+
+.officer-slot__portrait {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
+}
+
+.officer-slot__rarity-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.officer-slot__type-icon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  width: 17rpx;
+  height: 17rpx;
+}
+
+.officer-slot__name,
+.officer-slot__empty {
+  display: block;
+  overflow: hidden;
+  margin-top: 2rpx;
+  font-size: 14rpx;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.officer-slot__empty {
+  padding-top: 33rpx;
+  color: #a2967d;
+}
+
+/* ── 船位操作按钮 ── */
+
+.officer-slot__actions {
+  position: absolute;
+  right: 4rpx;
+  bottom: 4rpx;
+  left: 4rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rpx;
+  min-height: 64rpx;
+}
+
+.slot-action {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  min-height: 64rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rpx 0;
+  overflow: hidden;
+  color: #596257;
+  background: #e8dfce;
+  border-radius: 5rpx;
+  font-size: 12rpx;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.slot-action:active {
+  background: #c4b99a;
+}
+
+.slot-action--danger {
+  color: #8b3a3a;
+  background: #ead2c8;
+}
+
+.slot-action--danger:active {
+  background: #d7b5a9;
+}
+
+.slot-action__glyph,
+.slot-action__label {
+  display: block;
+}
+
+.slot-action__glyph {
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.slot-action__label {
+  margin-top: 2rpx;
+  font-size: 12rpx;
+  line-height: 1.1;
+}
+
+/* ── 模式切换标签 ── */
+
+.mode-tabs {
+  display: flex;
+  margin: 0 20rpx 18rpx;
+  background: #c4b99a;
+  border-radius: 8rpx;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 14rpx;
+  color: #5a5a4e;
+  font-size: 25rpx;
+  text-align: center;
+}
+
+.mode-tab--active {
+  color: #f0e4c4;
+  background: #2f302b;
+  border-radius: 8rpx;
+}
+
+/* ── 候选航海士面板 ── */
+
+.candidate-row {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #d4cbb4;
+}
+
+.candidate-row--disabled {
+  opacity: 0.55;
+}
+
+.candidate-row__visuals {
+  position: relative;
+  flex: 0 0 auto;
+  width: 54rpx;
+  height: 54rpx;
+  margin-right: 12rpx;
+  background: #2f302b;
+  border-radius: 7rpx;
+}
+
+.candidate-row__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 7rpx;
+}
+
+.candidate-row__portrait {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 7rpx;
+}
+
+.candidate-row__rarity-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 35rpx;
+  height: 35rpx;
+}
+
+.candidate-row__type-icon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  width: 14rpx;
+  height: 14rpx;
+}
+
+.candidate-row__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.candidate-row__name {
+  display: block;
+  overflow: hidden;
+  font-size: 23rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-row__meta,
+.candidate-row__status {
+  display: block;
+  margin-top: 3rpx;
+  color: #756b59;
+  font-size: 19rpx;
+}
+
+.candidate-row__status {
+  margin-left: 10rpx;
+  text-align: right;
 }

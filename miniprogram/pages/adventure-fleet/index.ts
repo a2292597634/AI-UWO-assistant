@@ -158,6 +158,7 @@ const resultMessage: Record<string, string> = {
   'invalid-target-level': '目標等級必須是 Lv.0 至 Lv.10',
   'duplicate-target': '該技能已在目標列表中',
   'invalid-recommendation': '自動配隊結果無效',
+  'ship-slot-full': '目前船已滿 (11人)',
 }
 
 // ── 脏数据追踪 ──
@@ -574,6 +575,18 @@ Page({
     render(this)
   },
 
+  // ── 模式切换 ──
+
+  onModeTap(event: WechatMiniprogram.BaseEvent) {
+    const mode = eventDataset(event).mode
+    if (mode !== 'manual' && mode !== 'auto') return
+    const state = getState(this)
+    syncAllShipsMode(state, mode)
+    state.manualSkillId = null
+    updateDirty(this, state)
+    render(this)
+  },
+
   // ── 技能选择器 ──
 
   onSkillSearchInput(event: WechatMiniprogram.Input) {
@@ -616,6 +629,15 @@ Page({
     if (typeof skillId !== 'string') return
     const state = getState(this)
     const ship = state.fleet.ships[0]!
+
+    // 手动模式：设置选中技能以筛选候选人
+    if (ship.mode === 'manual') {
+      state.manualSkillId = skillId
+      render(this)
+      return
+    }
+
+    // 自动模式：将技能加入舰队目标
     if (ship.targets.some((t) => t.skillId === skillId)) {
       showError(resultMessage['duplicate-target'])
       return
@@ -755,6 +777,7 @@ Page({
 
     // 找有空位的船
     const shipId = findOpenShip(state.fleet)
+
     if (!shipId) {
       showError(resultMessage['ship-full'])
       return

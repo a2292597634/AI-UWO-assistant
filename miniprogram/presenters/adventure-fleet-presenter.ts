@@ -84,7 +84,7 @@ export interface AdventureFleetPageData {
   targets: AdventureFleetTargetView[]
   // 舰队技能累计
   skillSummary: AdventureFleetSkillSummaryView[]
-  // 排除名单（从 bannedOfficerIds + removedOfficerIds 收集）
+  // 排除名单
   bannedOfficers: AdventureFleetOfficerView[]
   // 技能详情弹窗
   sheetSkill: SkillSheetView | null
@@ -190,17 +190,19 @@ export const buildAdventureFleetPageData = (
   const lockedIds = new Set(collectAllLockedIds(state))
   const bannedIds = new Set(state.bannedOfficerIds)
 
-  // 收集全部已配置 + 排除的航海士 ID
+  // 收集全部已配置的航海士 ID
   const allConfiguredIds = collectAllOfficerIds(state)
 
   // 从第一艘船取目标（舰队级目标）
   const fleetTargets = state.ships[0]?.targets ?? []
   const targetMap = targetsToMap(fleetTargets)
 
+  // 取全局模式：所有船的模式应一致（页面保证），取第一艘
+  const globalMode = state.ships[0]?.mode ?? 'manual'
+
   // ── 类型分区 ──
   const typeGroups = groupOfficersByType(allConfiguredIds, adventureOfficers)
   const typeZones: AdventureTypeZoneView[] = ZONE_ORDER.filter((zone) => {
-    // 检查该区域是否有人（包括未配置但属于该类型的航海士也在数据中，这里只看已配置的）
     const group = typeGroups.find((g) => g.zone === zone)
     return group && group.officerIds.length > 0
   }).map((zone) => {
@@ -212,7 +214,6 @@ export const buildAdventureFleetPageData = (
         return buildOfficerView(state, officer, lockedIds, bannedIds)
       })
       .filter((v): v is AdventureFleetOfficerView => v !== null)
-    // 锁定排前
     const locked = officers.filter((o) => o.status === 'locked')
     const others = officers.filter((o) => o.status !== 'locked')
     return {
@@ -255,9 +256,6 @@ export const buildAdventureFleetPageData = (
 
   // ── 舰队技能累计 ──
   const skillSummary = buildSummaryViews(state, adventureOfficers, skillRecord, targetMap)
-
-  // 取全局模式：所有船的模式应一致（页面保证），取第一艘
-  const globalMode = state.ships[0]?.mode ?? 'manual'
 
   return {
     occupiedCount: allConfiguredIds.length,

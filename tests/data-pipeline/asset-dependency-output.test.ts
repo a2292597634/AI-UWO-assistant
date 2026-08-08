@@ -45,9 +45,11 @@ describe('generated asset dependency output', () => {
       'subpkg-assets-5',
       'subpkg-assets-6',
     ])
-    expect(dependencies.roots.map((root) => root.officerIds.length)).toEqual([
-      100, 100, 100, 100, 100, 100, 27,
-    ])
+    const counts = dependencies.roots.map((root) => root.officerIds.length)
+    // 7 个素材根，每个最多 100 个航海士
+    expect(counts).toHaveLength(7)
+    expect(counts.every((c) => c <= 100)).toBe(true)
+    expect(counts.reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(627)
   })
 
   it('validates one physical owner for every generated asset reference', () => {

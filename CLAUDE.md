@@ -28,6 +28,7 @@ pages → presenters → domain/runtime → contracts → generated
 | 修改数据流水线、生成逻辑            | `tools/data-pipeline/` 源码 + `tools/asset-pipeline/` 源码 |
 | 修改筛选/查询逻辑                   | `miniprogram/domain/catalog-query.ts`                      |
 | 数据审计与 Schema                   | `docs/data-audit/`                                         |
+| 新增航海士                          | `.claude/skills/add-officer.md`                            |
 
 ## 常用命令
 

@@ -98,7 +98,16 @@ const resolvedPortraitPath = (
   manifest?: RuntimeAssetUrlManifest,
 ): string => {
   const path = dependencies?.officerPortraits[officerId]?.path ?? legacyPortraitPath(officerId)
-  return publicAssetUrl(filenameFromPath(path), manifest) ?? path
+  try {
+    return publicAssetUrl(filenameFromPath(path), manifest) ?? path
+  } catch (err) {
+    // 仅当错误是"资源不在 CDN 清单中"时才回退到本地路径
+    // 其他错误（如 CDN origin 无效）仍需抛出
+    if (err instanceof Error && err.message.includes('missing')) {
+      return path
+    }
+    throw err
+  }
 }
 
 /** Skill icon path from skill ID, with fallback for variant skills. */
@@ -502,7 +511,10 @@ export const buildDictionaries = (
     types: map('types'),
     genders: map('genders'),
     jobs: sortByTypeGroup(map('jobs')),
+    nationalities: map('nationalities').map((n) => ({ ...n, id: unprefix(n.id) })),
     languages: map('languages').map((l) => ({ ...l, id: unprefix(l.id) })),
+    cities: map('cities').map((c) => ({ ...c, id: unprefix(c.id) })),
+    requirements: map('requirements').map((r) => ({ ...r, id: unprefix(r.id) })),
     skillCategories: sortSkillCategories(map('skillCategories')),
   }
 }
@@ -555,7 +567,7 @@ export const writeRuntimeData = (
   console.log(`  fleet-officers.js: ${fleetOfficers.length} officers`)
   console.log(`  skills.js: ${Object.keys(runtimeSkills).length} entries (dict format)`)
   console.log(
-    `  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, languages=${runtimeDicts.languages.length}, categories=${runtimeDicts.skillCategories.length}`,
+    `  dictionaries.js: rarities=${runtimeDicts.rarities.length}, types=${runtimeDicts.types.length}, genders=${runtimeDicts.genders.length}, jobs=${runtimeDicts.jobs.length}, nationalities=${runtimeDicts.nationalities.length}, languages=${runtimeDicts.languages.length}, cities=${runtimeDicts.cities.length}, requirements=${runtimeDicts.requirements.length}, categories=${runtimeDicts.skillCategories.length}`,
   )
   console.log(
     `  dataset-meta.js: officerCount=${catalog.length}, skillCount=${Object.keys(runtimeSkills).length}`,

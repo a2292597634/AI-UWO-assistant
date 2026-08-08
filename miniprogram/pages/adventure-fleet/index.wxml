@@ -110,8 +110,38 @@
   <!-- 主内容滚动区 -->
   <scroll-view class="fleet-scroll" scroll-y>
 
-    <!-- 配队目标面板 -->
-    <view class="target-panel">
+    <!-- 模式切换 -->
+    <view class="mode-tabs">
+      <view class="mode-tab {{mode === 'manual' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="manual">手動配隊</view>
+      <view class="mode-tab {{mode === 'auto' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="auto">自動配隊</view>
+    </view>
+
+    <!-- 技能选择器（手动模式） -->
+    <view wx:if="{{mode === 'manual'}}" class="skill-selector">
+      <view class="panel-heading">
+        <text class="panel-heading__title">冒險技能列表</text>
+        <text class="panel-heading__hint">{{mode === 'auto' ? '點擊「加入目標」或直接點技能行查看詳情' : '點擊「選擇」篩選候選航海士'}}</text>
+      </view>
+      <input class="skill-search" placeholder="搜尋冒險技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
+      <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
+        <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option {{selectedSkillId === item.id ? 'skill-option--active' : ''}}" bindtap="onSkillTap" data-id="{{item.id}}">
+          <image wx:if="{{assetReady && !failedSkillImages[item.id]}}" class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.id}}" />
+          <view class="skill-option__copy">
+            <text class="skill-option__name">{{item.name}}</text>
+            <text class="skill-option__meta">冒險技能 · {{item.categoryName}} · {{item.officerCount}} 人擁有</text>
+            <text class="skill-option__description">{{item.description || '暫無技能描述'}}</text>
+          </view>
+          <view class="skill-option__select" catchtap="onSkillSelect" data-id="{{item.id}}">
+            <text>{{mode === 'auto' ? '加入目標' : '選擇'}}</text>
+          </view>
+        </view>
+        <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的冒險技能</view>
+        <view wx:if="{{manualSkillHasMore}}" class="inline-empty">繼續上滑載入更多技能</view>
+      </scroll-view>
+    </view>
+
+    <!-- 配队目标面板（自动模式） -->
+    <view wx:if="{{mode === 'auto'}}" class="target-panel">
       <view class="panel-heading">
         <text class="panel-heading__title">配隊目標</text>
         <text class="panel-heading__hint">全艦隊 77 人範圍內求解</text>
@@ -131,6 +161,29 @@
         <button class="subtle-button" bindtap="onAddTarget">新增目標</button>
         <button class="primary-button" bindtap="onRecalculate">重新計算</button>
       </view>
+    </view>
+
+    <!-- 候选航海士面板（手动模式） -->
+    <view wx:if="{{mode === 'manual'}}" class="candidate-panel">
+      <view class="panel-heading">
+        <text class="panel-heading__title">可用航海士</text>
+        <text class="panel-heading__hint">選擇技能後顯示候選</text>
+      </view>
+      <view wx:for="{{manualCandidates}}" wx:key="id" class="candidate-row {{item.canSelect ? '' : 'candidate-row--disabled'}}" bindtap="onOfficerSelect" data-id="{{item.id}}">
+        <view class="candidate-row__visuals">
+          <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="candidate-row__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
+          <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+          <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="candidate-row__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
+          <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="candidate-row__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
+        </view>
+        <view class="candidate-row__copy">
+          <text class="candidate-row__name">{{item.name}}</text>
+          <text class="candidate-row__meta">{{item.jobName}} · {{item.rarityName}}</text>
+        </view>
+        <text class="candidate-row__status">{{item.statusLabel}}{{item.shipLabel ? ' · ' + item.shipLabel : ''}}</text>
+      </view>
+      <view wx:if="{{selectedSkillId && manualCandidates.length === 0}}" class="inline-empty">沒有可用航海士</view>
+      <view wx:if="{{!selectedSkillId}}" class="inline-empty">請在上方技能列表中選擇一個技能</view>
     </view>
 
     <!-- 类型分区 航海士头像网格 -->
@@ -212,30 +265,6 @@
         </scroll-view>
       </view>
       <view wx:if="{{skillSummary.length === 0}}" class="inline-empty">尚未配置冒險技能</view>
-    </view>
-
-    <!-- 技能选择器 -->
-    <view class="skill-selector">
-      <view class="panel-heading">
-        <text class="panel-heading__title">冒險技能列表</text>
-        <text class="panel-heading__hint">點擊「加入目標」或直接點技能行查看詳情</text>
-      </view>
-      <input class="skill-search" placeholder="搜尋冒險技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
-      <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
-        <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option {{selectedSkillId === item.id ? 'skill-option--active' : ''}}" bindtap="onSkillTap" data-id="{{item.id}}">
-          <image wx:if="{{assetReady && !failedSkillImages[item.id]}}" class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.id}}" />
-          <view class="skill-option__copy">
-            <text class="skill-option__name">{{item.name}}</text>
-            <text class="skill-option__meta">冒險技能 · {{item.categoryName}} · {{item.officerCount}} 人擁有</text>
-            <text class="skill-option__description">{{item.description || '暫無技能描述'}}</text>
-          </view>
-          <view class="skill-option__select" catchtap="onSkillSelect" data-id="{{item.id}}">
-            <text>加入目標</text>
-          </view>
-        </view>
-        <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的冒險技能</view>
-        <view wx:if="{{manualSkillHasMore}}" class="inline-empty">繼續上滑載入更多技能</view>
-      </scroll-view>
     </view>
 
   </scroll-view>

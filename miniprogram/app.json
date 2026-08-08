@@ -3,7 +3,8 @@
     "pages/home/index",
     "pages/catalog/index",
     "pages/fleet/index",
-    "pages/adventure-fleet/index"
+    "pages/adventure-fleet/index",
+    "pages/officer-editor/index"
   ],
   "subpackages": [
     {

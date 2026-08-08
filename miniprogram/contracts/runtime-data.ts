@@ -79,7 +79,10 @@ export interface RuntimeDictionaries {
   types: RuntimeDictionaryItem[]
   genders: RuntimeDictionaryItem[]
   jobs: RuntimeDictionaryItem[]
+  nationalities: RuntimeDictionaryItem[]
   languages: RuntimeDictionaryItem[]
+  cities: RuntimeDictionaryItem[]
+  requirements: RuntimeDictionaryItem[]
   skillCategories: RuntimeDictionaryItem[]
 }
 

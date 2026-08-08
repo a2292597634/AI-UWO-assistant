@@ -1,0 +1,10 @@
+{
+  "name": "officer-custom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CloudBase cloud function for custom officer submission",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

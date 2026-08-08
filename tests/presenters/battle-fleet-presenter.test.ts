@@ -91,7 +91,10 @@ const dictionaries = {
   types: [],
   genders: [],
   jobs: [],
+  nationalities: [],
   languages: [],
+  cities: [],
+  requirements: [],
   skillCategories: [],
 }
 

@@ -187,6 +187,10 @@ export const unbanOfficer = (state: FleetState, officerId: string): FleetTransit
   state: {
     ...cloneState(state),
     bannedOfficerIds: state.bannedOfficerIds.filter((id) => id !== officerId),
+    ships: state.ships.map((ship) => ({
+      ...cloneShip(ship),
+      removedOfficerIds: ship.removedOfficerIds.filter((id) => id !== officerId),
+    })),
   },
 })
 

@@ -29,6 +29,14 @@ Page({
         route: '/pages/adventure-fleet/index',
         iconFailed: true,
       },
+      {
+        id: 'add-officer',
+        name: '新增航海士',
+        iconPath: '',
+        iconFallback: '新',
+        route: '/pages/officer-editor/index',
+        iconFailed: true,
+      },
     ],
   },
 

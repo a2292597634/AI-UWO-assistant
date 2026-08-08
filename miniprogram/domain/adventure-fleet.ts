@@ -1,8 +1,4 @@
-import type {
-  FleetSkillMap,
-  FleetState,
-  ShipSkillSummary,
-} from '../contracts/battle-fleet'
+import type { FleetSkillMap, FleetState, ShipSkillSummary } from '../contracts/battle-fleet'
 import { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY } from '../contracts/battle-fleet'
 import type {
   RuntimeCatalogEntry,

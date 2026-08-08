@@ -223,7 +223,11 @@ describe('Runtime files must remain offline and mini program compatible', () => 
       findRuntimeNetworkReferences(MINIPROGRAM, {
         generatedCdnOrigin: manifest.cdnOrigin,
         generatedAssetPathPrefix: `/${manifest.cloudPathPrefix}/`,
-        allowedCloudFunctionFiles: ['runtime/fleet-config-service.ts'],
+        allowedCloudFunctionFiles: [
+          'runtime/fleet-config-service.ts',
+          'runtime/officer-editor-service.ts',
+          'runtime/main-data-store.ts',
+        ],
         allowedCloudInitFiles: ['app.ts'],
       }),
     ).toEqual([])

@@ -16,12 +16,12 @@ const officers = readJson<CanonicalOfficer[]>('data/master/officers.json')
 const skills = readJson<CanonicalSkill[]>('data/master/skills.json')
 const dictionaries = readJson<Record<string, DictionaryItem[]>>('data/master/dictionaries.json')
 
-describe('Full data integrity (627 officers)', () => {
+describe('Full data integrity', () => {
   it('generates a complete fleet officer index with battle-only relations', () => {
     const fleet = buildFleetOfficers(officers, skills, dictionaries)
 
-    expect(fleet).toHaveLength(627)
-    expect(new Set(fleet.map((item) => item.id)).size).toBe(627)
+    expect(fleet).toHaveLength(officers.length)
+    expect(new Set(fleet.map((item) => item.id)).size).toBe(officers.length)
     expect(
       fleet.flatMap((item) => item.skills).every((skill) => typeof skill.unlockLevel === 'number'),
     ).toBe(true)
@@ -36,9 +36,9 @@ describe('Full data integrity (627 officers)', () => {
     ).toBe(true)
   })
 
-  it('generates catalog for all 627 officers', () => {
+  it('generates catalog for all officers', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
-    expect(catalog).toHaveLength(627)
+    expect(catalog).toHaveLength(officers.length)
   })
 
   it('all officers have Chinese gender labels (not f/m)', () => {
@@ -58,7 +58,7 @@ describe('Full data integrity (627 officers)', () => {
   it('portrait paths use lowercase canonical IDs', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     for (const o of catalog) {
-      expect(o.portraitPath).toMatch(/^\/subpkg-assets-\d\/imgs\/officer_[a-z0-9]+\.png$/)
+      expect(o.portraitPath).toMatch(/^\/subpkg-assets-\d\/imgs\/officer_[a-z0-9_]+\.png$/)
       // No uppercase in filename portion
       const filename = o.portraitPath.split('/').pop()!
       expect(filename).toBe(filename.toLowerCase())
@@ -101,10 +101,10 @@ describe('Full data integrity (627 officers)', () => {
 })
 
 describe('Detail shard distribution', () => {
-  it('distributes 627 officers across 10 shards with no duplicates', () => {
+  it('distributes all officers across 10 shards with no duplicates', () => {
     const allDetails = buildDetails(officers, skills, dictionaries)
     const allIds = Object.keys(allDetails)
-    expect(allIds).toHaveLength(627)
+    expect(allIds).toHaveLength(officers.length)
 
     // Verify shard assignment is deterministic and covers all officers
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -142,7 +142,7 @@ describe('Detail shard distribution', () => {
         expect(stat.size).toBeLessThan(340 * 1024) // < 340 KB per shard
       }
 
-      expect(seen.size).toBe(627)
+      expect(seen.size).toBe(officers.length)
 
       // Distribution should be reasonably balanced (no shard has < 50 or > 80)
       const maxShard = Math.max(...shardCounts)
