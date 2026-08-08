@@ -136,8 +136,8 @@ describe('state DP solver', () => {
     expect(elapsed).toBeLessThan(500)
     expect(result.officerIds.length).toBeGreaterThan(0)
     expect(result.officerIds.length).toBeLessThanOrEqual(11)
-    // Should achieve all targets or at least try
-    expect(result.achievedTargetCount).toBeGreaterThanOrEqual(0)
+    expect(result.achievedTargetCount).toBe(2)
+    expect(result.allTargetsComplete).toBe(true)
   })
 
   it('scales linearly — 200 candidates with 2 targets finishes fast', () => {
@@ -186,9 +186,8 @@ describe('state DP solver', () => {
       capacity: 11,
     })
 
-    // DP should at least achieve all targets if possible
-    // With 15 officers each contributing to 3 skills, it should be achievable
-    expect(result.achievedTargetCount).toBeGreaterThanOrEqual(2)
+    expect(result.achievedTargetCount).toBe(3)
+    expect(result.allTargetsComplete).toBe(true)
     expect(result.officerIds.length).toBeLessThanOrEqual(11)
   })
 
@@ -241,7 +240,107 @@ describe('state DP solver', () => {
       capacity: 1,
     })
     expect(result.officerIds.length).toBe(1)
-    // Should include only the first locked officer (truncated)
-    expect(result.achievedTargetCount).toBeGreaterThanOrEqual(0)
+    expect(result.achievedTargetCount).toBe(1)
+    expect(result.allTargetsComplete).toBe(true)
+  })
+
+  it('selects partial progress when a target cannot be fully completed', () => {
+    const officers = Array.from({ length: 5 }, (_, i) =>
+      officer(`officer-partial-${i}`, [active('skill-partial', 1)]),
+    )
+
+    const result = solveBattleTargets({
+      officers,
+      targets: [{ skillId: 'skill-partial', targetLevel: 10 }],
+      lockedOfficerIds: [],
+      excludedOfficerIds: [],
+      occupiedByOtherShips: [],
+      currentOfficerIds: [],
+      capacity: 5,
+    })
+
+    expect(result.officerIds).toHaveLength(5)
+    expect(result.targetProgress).toEqual([
+      {
+        skillId: 'skill-partial',
+        targetLevel: 10,
+        currentLevel: 5,
+        difference: 5,
+        reached: false,
+      },
+    ])
+    expect(result.achievedTargetCount).toBe(0)
+  })
+
+  it('uses a bounded fallback that still selects candidates for large state spaces', () => {
+    const targets = Array.from({ length: 6 }, (_, i) => ({
+      skillId: `skill-large-${i}`,
+      targetLevel: 10,
+    }))
+    const officers = targets.map((target) =>
+      officer(`officer-large-${target.skillId}`, [active(target.skillId, 1)]),
+    )
+
+    const result = solveBattleTargets({
+      officers,
+      targets,
+      lockedOfficerIds: [],
+      excludedOfficerIds: [],
+      occupiedByOtherShips: [],
+      currentOfficerIds: [],
+      capacity: 6,
+    })
+
+    expect(result.officerIds).toHaveLength(6)
+    expect(result.officerIds).not.toEqual([])
+    expect(result.targetProgress.every((progress) => progress.currentLevel === 1)).toBe(true)
+    expect(result.achievedTargetCount).toBe(0)
+  })
+
+  it('calculates locked overflow progress from the officers actually returned', () => {
+    const officers = [
+      officer('officer-a', [active('skill-a', 1)]),
+      officer('officer-b', [active('skill-b', 1)]),
+    ]
+
+    const result = solveBattleTargets({
+      officers,
+      targets: [{ skillId: 'skill-b', targetLevel: 1 }],
+      lockedOfficerIds: ['officer-a', 'officer-b'],
+      excludedOfficerIds: [],
+      occupiedByOtherShips: [],
+      currentOfficerIds: ['officer-a', 'officer-b'],
+      capacity: 1,
+    })
+
+    expect(result.officerIds).toEqual(['officer-a'])
+    expect(result.targetProgress).toEqual([
+      {
+        skillId: 'skill-b',
+        targetLevel: 1,
+        currentLevel: 0,
+        difference: 1,
+        reached: false,
+      },
+    ])
+    expect(result.achievedTargetCount).toBe(0)
+  })
+
+  it('reports the exact completed target count for a fully reachable DP result', () => {
+    const result = solveBattleTargets({
+      officers: tieBreakOfficers,
+      targets: [
+        { skillId: 'skill-cannon', targetLevel: 2 },
+        { skillId: 'skill-melee', targetLevel: 2 },
+      ],
+      lockedOfficerIds: [],
+      excludedOfficerIds: [],
+      occupiedByOtherShips: [],
+      currentOfficerIds: [],
+      capacity: 11,
+    })
+
+    expect(result.achievedTargetCount).toBe(2)
+    expect(result.allTargetsComplete).toBe(true)
   })
 })
