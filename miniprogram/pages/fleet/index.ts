@@ -342,7 +342,6 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
       configStatus: 'saved',
       showConfigList: false,
     })
-    await state.configService.setLastUsedConfig(record.configId)
     render(page)
   } catch (e) {
     handleConfigError(page, e)
