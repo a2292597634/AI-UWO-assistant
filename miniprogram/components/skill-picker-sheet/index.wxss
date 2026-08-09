@@ -22,6 +22,31 @@
   box-shadow: var(--uwo-shadow-sheet);
 }
 
+.skill-picker-sheet--inline .skill-picker-sheet__tab {
+  min-height: 56rpx;
+  padding: 0 var(--uwo-space-3);
+  white-space: nowrap;
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__skill {
+  padding: var(--uwo-space-1) 0;
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__detail {
+  min-height: 64rpx;
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__icon,
+.skill-picker-sheet--inline .skill-picker-sheet__icon-placeholder {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__select {
+  min-height: 64rpx;
+  padding: 0 var(--uwo-space-2);
+}
+
 .skill-picker-sheet__mask {
   position: fixed;
   inset: 0;

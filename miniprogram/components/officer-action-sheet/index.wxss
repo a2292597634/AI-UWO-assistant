@@ -14,6 +14,11 @@
   align-items: stretch;
 }
 
+.officer-action-sheet--slot .officer-action-sheet__visual {
+  gap: 0;
+  padding: 0 var(--uwo-space-2);
+}
+
 .officer-action-sheet--card {
   align-items: end;
 }
@@ -26,10 +31,9 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: var(--uwo-space-2) var(--uwo-space-1);
-  border: 2rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-control);
-  background: var(--uwo-color-surface-muted);
+  padding: var(--uwo-space-2) 0;
+  border: 0;
+  background: transparent;
   color: var(--uwo-color-text-primary);
   font-family: var(--uwo-font-family-body);
   font-size: var(--uwo-font-size-minimum-action);
@@ -43,27 +47,117 @@
   border: 0;
 }
 
+.officer-action-sheet__visual {
+  box-sizing: border-box;
+  display: flex;
+  min-height: 56rpx;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uwo-space-1);
+  width: 100%;
+  padding: 0 var(--uwo-space-1);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+  overflow-wrap: anywhere;
+}
+
+.officer-action-sheet__icon {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.officer-action-sheet__icon--lock::before {
+  position: absolute;
+  top: 11rpx;
+  left: 4rpx;
+  width: 20rpx;
+  height: 14rpx;
+  border-width: 3rpx;
+  border-style: solid;
+  border-color: currentColor;
+  border-radius: var(--uwo-radius-control);
+  content: '';
+}
+
+.officer-action-sheet__icon--lock::after {
+  position: absolute;
+  top: 3rpx;
+  left: 8rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border-width: 3rpx 3rpx 0;
+  border-style: solid;
+  border-color: currentColor;
+  border-radius: var(--uwo-radius-pill) var(--uwo-radius-pill) 0 0;
+  content: '';
+}
+
+.officer-action-sheet__icon--remove::before,
+.officer-action-sheet__icon--ban::before {
+  position: absolute;
+  top: 2rpx;
+  left: 2rpx;
+  box-sizing: border-box;
+  width: 24rpx;
+  height: 24rpx;
+  border-width: 3rpx;
+  border-style: solid;
+  border-color: currentColor;
+  border-radius: var(--uwo-radius-pill);
+  content: '';
+}
+
+.officer-action-sheet__icon--remove::after {
+  position: absolute;
+  top: 13rpx;
+  left: 7rpx;
+  width: 14rpx;
+  height: 3rpx;
+  background: currentColor;
+  content: '';
+}
+
+.officer-action-sheet__icon--ban::after {
+  position: absolute;
+  top: 12rpx;
+  left: 3rpx;
+  width: 22rpx;
+  height: 3rpx;
+  background: currentColor;
+  content: '';
+  transform: rotate(-45deg);
+}
+
 .officer-action-sheet__action--lock {
   color: var(--uwo-color-success);
 }
 
 .officer-action-sheet__action--danger {
+  color: var(--uwo-color-danger);
+}
+
+.officer-action-sheet__action--danger .officer-action-sheet__visual {
   border-color: var(--uwo-color-danger);
   background: var(--uwo-color-danger);
   color: var(--uwo-color-surface);
 }
 
-.officer-action-sheet__action:active {
+.officer-action-sheet__action:active .officer-action-sheet__visual {
   opacity: 0.88;
   transform: translateY(2rpx);
 }
 
-.officer-action-sheet__action:focus {
+.officer-action-sheet__action:focus .officer-action-sheet__visual {
   outline: 4rpx solid var(--uwo-color-accent-brass);
   outline-offset: 4rpx;
 }
 
-.officer-action-sheet__action[disabled] {
+.officer-action-sheet__action[disabled] .officer-action-sheet__visual {
   border-color: var(--uwo-color-border-subtle);
   background: var(--uwo-color-surface-muted);
   color: var(--uwo-color-text-secondary);
@@ -74,10 +168,32 @@
 .officer-action-sheet__label,
 .officer-action-sheet__disabled-label {
   display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.officer-action-sheet--slot .officer-action-sheet__label {
+  position: absolute;
+  width: 1rpx;
+  height: 1rpx;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.officer-action-sheet--slot .officer-action-sheet__disabled-label {
+  position: absolute;
+  width: 1rpx;
+  height: 1rpx;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .officer-action-sheet__disabled-label {
-  margin-top: var(--uwo-space-1);
+  margin-left: var(--uwo-space-1);
   font-size: var(--uwo-font-size-supporting);
   font-weight: 400;
 }

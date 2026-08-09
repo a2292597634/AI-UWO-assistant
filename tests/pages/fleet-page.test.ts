@@ -455,6 +455,13 @@ describe('battle fleet shared component wiring', () => {
     expect(fleetWxml).toContain('search-placeholder="在目前分類搜尋技能名稱"')
     expect(fleetWxml).toContain('empty-label="沒有符合的戰鬥技能"')
   })
+
+  it('keeps the inline battle skill picker for compact density styling', () => {
+    expect(fleetWxml).toMatch(
+      /<skill-picker-sheet[\s\S]*presentation="inline"[\s\S]*selection-label="\{\{mode === 'auto' \? '加入目標' : '選擇'\}\}"/,
+    )
+    expect(fleetWxml).toContain('bind:select="onSkillSelect"')
+  })
 })
 
 describe('battle fleet P5 workbench structure', () => {
