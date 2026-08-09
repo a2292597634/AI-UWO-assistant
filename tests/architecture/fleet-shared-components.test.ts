@@ -409,3 +409,73 @@ describe('Task 3 航海士操作共享元件契約', () => {
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
   })
 })
+
+describe('Task 4 技能選擇共享元件契約', () => {
+  const readSkillPickerFile = (file: (typeof COMPONENT_FILES)[number]): string => {
+    const relativePath = `${COMPONENT_ROOT}/skill-picker-sheet/${file}`
+    expect(projectFileExists(relativePath), `${relativePath} 應存在`).toBe(true)
+    return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
+  }
+
+  it('提供兩種展示模式與完整技能篩選屬性', () => {
+    const script = readSkillPickerFile('index.ts')
+    const wxml = readSkillPickerFile('index.wxml')
+
+    for (const property of [
+      'presentation',
+      'visible',
+      'skillKinds',
+      'skillCategories',
+      'skills',
+      'selectedSkillId',
+      'searchText',
+      'hasMore',
+      'selectionLabel',
+    ]) {
+      expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
+    }
+    expect(wxml).toContain("presentation === 'inline'")
+    expect(wxml).toContain("presentation === 'sheet'")
+    expect(wxml).toContain('skill-picker-sheet__mask')
+  })
+
+  it('顯示類型、分類、搜尋、技能詳情、選擇與載入入口', () => {
+    const wxml = readSkillPickerFile('index.wxml')
+
+    expect(wxml).toContain('skill-picker-sheet__kind-tabs')
+    expect(wxml).toContain('skill-picker-sheet__category-tabs')
+    expect(wxml).toMatch(/<input[\s\S]*?bindinput="onSearchInput"/)
+    expect(wxml).toMatch(/wx:for="\{\{skills\}\}"/)
+    expect(wxml).toMatch(/bindtap="onSkillTap"/)
+    expect(wxml).toMatch(/catchtap="onSelect"/)
+    expect(wxml).toMatch(/bindscrolltolower="onReachEnd"/)
+    expect(wxml).toMatch(/沒有符合|請先選擇/)
+  })
+
+  it('所有事件只攜帶必要識別值並交回頁面', () => {
+    const script = readSkillPickerFile('index.ts')
+
+    expect(script).toMatch(/triggerEvent\(\s*['"]dismiss['"]\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]kind-change['"]\s*,\s*\{\s*value\s*\}\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]category-change['"]\s*,\s*\{\s*value\s*\}\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]search-input['"]\s*,\s*\{\s*value\s*\}\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]skill-tap['"]\s*,\s*\{\s*skillId\s*\}\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]select['"]\s*,\s*\{\s*skillId\s*\}\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]reach-end['"]\s*\)/)
+  })
+
+  it('長文字、安全區與操作熱區符合 Design Foundation', () => {
+    const wxss = readSkillPickerFile('index.wxss')
+
+    for (const element of ['name', 'meta', 'description']) {
+      expect(wxss).toMatch(
+        new RegExp(
+          `\\.skill-picker-sheet__${element}\\s*\\{[\\s\\S]*?overflow-wrap\\s*:\\s*anywhere`,
+        ),
+      )
+    }
+    expect(wxss).toMatch(/padding(?:-bottom)?\s*:\s*calc\([^;]*env\(safe-area-inset-bottom\)\)/)
+    expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
+  })
+})

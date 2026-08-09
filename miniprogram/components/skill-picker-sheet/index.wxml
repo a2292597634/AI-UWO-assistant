@@ -1,0 +1,80 @@
+<view
+  wx:if="{{presentation === 'sheet' && visible}}"
+  class="skill-picker-sheet__mask"
+  bindtap="onDismiss"
+  aria-label="關閉技能選擇"
+></view>
+
+<view
+  wx:if="{{presentation === 'inline' || (presentation === 'sheet' && visible)}}"
+  class="skill-picker-sheet skill-picker-sheet--{{presentation}}"
+>
+  <view wx:if="{{presentation === 'sheet'}}" class="skill-picker-sheet__header">
+    <text class="skill-picker-sheet__title">選擇技能</text>
+    <button class="skill-picker-sheet__dismiss" bindtap="onDismiss">關閉</button>
+  </view>
+
+  <scroll-view wx:if="{{skillKinds.length > 0}}" class="skill-picker-sheet__kind-tabs" scroll-x enable-flex>
+    <view class="skill-picker-sheet__tabs-content">
+      <button
+        wx:for="{{skillKinds}}"
+        wx:key="id"
+        class="skill-picker-sheet__tab {{item.isActive ? 'skill-picker-sheet__tab--active' : ''}}"
+        bindtap="onKindChange"
+        data-value="{{item.id}}"
+      >
+        {{item.name}}
+      </button>
+    </view>
+  </scroll-view>
+
+  <scroll-view wx:if="{{skillCategories.length > 0}}" class="skill-picker-sheet__category-tabs" scroll-x enable-flex>
+    <view class="skill-picker-sheet__tabs-content">
+      <button
+        wx:for="{{skillCategories}}"
+        wx:key="id"
+        class="skill-picker-sheet__tab {{item.isActive ? 'skill-picker-sheet__tab--active' : ''}}"
+        bindtap="onCategoryChange"
+        data-value="{{item.id}}"
+      >
+        {{item.name}}
+      </button>
+    </view>
+  </scroll-view>
+
+  <input
+    class="skill-picker-sheet__search"
+    type="text"
+    placeholder="搜尋技能名稱"
+    value="{{searchText}}"
+    bindinput="onSearchInput"
+  />
+
+  <scroll-view
+    class="skill-picker-sheet__list"
+    scroll-y
+    lower-threshold="200"
+    bindscrolltolower="onReachEnd"
+  >
+    <view
+      wx:for="{{skills}}"
+      wx:key="id"
+      class="skill-picker-sheet__skill {{selectedSkillId === item.id ? 'skill-picker-sheet__skill--selected' : ''}}"
+    >
+      <view class="skill-picker-sheet__detail" bindtap="onSkillTap" data-id="{{item.id}}">
+        <image wx:if="{{item.iconPath}}" class="skill-picker-sheet__icon" src="{{item.iconPath}}" mode="aspectFit" />
+        <view class="skill-picker-sheet__copy">
+          <text class="skill-picker-sheet__name">{{item.name}}</text>
+          <text class="skill-picker-sheet__meta">{{item.kindLabel}}{{item.kindLabel && item.categoryName ? ' · ' : ''}}{{item.categoryName}}</text>
+          <text class="skill-picker-sheet__description">{{item.description || '暫無技能描述'}}</text>
+        </view>
+      </view>
+      <button class="skill-picker-sheet__select" catchtap="onSelect" data-id="{{item.id}}">
+        {{selectionLabel}}
+      </button>
+    </view>
+
+    <view wx:if="{{skills.length === 0}}" class="skill-picker-sheet__empty">沒有符合的技能，請先選擇其他分類或調整搜尋條件</view>
+    <view wx:if="{{hasMore}}" class="skill-picker-sheet__more">繼續上滑載入更多技能</view>
+  </scroll-view>
+</view>
