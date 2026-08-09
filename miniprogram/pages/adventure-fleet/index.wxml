@@ -161,7 +161,7 @@
         title="技能追蹤"
         hint="Lv.0 僅供查看，不參與計算"
         count-label="{{trackingTargets ? trackingTargets.length : 0}}"
-        default-expanded="{{false}}"
+        default-expanded="{{true}}"
       >
         <view wx:for="{{trackingTargets}}" wx:key="id" class="tracking-row" bindtap="onTargetSkillTap" data-skill-id="{{item.skillId}}">
           <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="tracking-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />

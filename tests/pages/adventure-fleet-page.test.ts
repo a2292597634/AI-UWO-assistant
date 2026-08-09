@@ -317,9 +317,10 @@ describe('adventure fleet shared component wiring', () => {
     expect(adventureWxml).toContain('title="技能追蹤"')
     expect(adventureWxml).toContain('title="全艦隊排除名單"')
     expect(adventureWxml).toContain('title="全艦隊冒險技能累計"')
-    expect(adventureWxml.match(/default-expanded="\{\{false\}\}"/g)?.length).toBeGreaterThanOrEqual(
-      3,
+    expect(adventureWxml).toMatch(
+      /<disclosure-section[^>]*title="技能追蹤"[^>]*default-expanded="\{\{true\}\}"[^>]*>/,
     )
+    expect(adventureWxml.match(/default-expanded="\{\{false\}\}"/g)).toHaveLength(2)
 
     for (const handler of [
       'onAddTarget',
