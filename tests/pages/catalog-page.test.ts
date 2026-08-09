@@ -1,9 +1,8 @@
 /**
- * Catalog Page Regression Tests
+ * 資料頁回歸測試。
  *
- * These tests exercise the registered Page configuration so navigation that
- * retains an older catalog Page cannot leak filters or pagination from a
- * newer Page instance.
+ * 測試直接操作已註冊的 Page 設定，確保保留舊資料頁的導航不會把篩選
+ * 或分頁狀態洩漏到新的頁面實例。
  */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,6 +21,13 @@ interface CatalogPageData {
   }>
   selectedRarities: string[]
   searchText: string
+  skillCheckSearchText: string
+  skillCheckKind: 'all' | 'active' | 'passive'
+  skillCheckCategoryMap: Record<string, boolean>
+  activeMode: 'officer' | 'skill'
+  filterSheetOpen: boolean
+  filterDraftCount: number
+  filterDraftHasActiveFilters: boolean
   assetLoading: boolean
   assetLoadError: string | null
   [key: string]: unknown
@@ -32,6 +38,15 @@ interface CatalogPageConfig {
   onLoad(options?: Record<string, string | undefined>): Promise<void>
   onReady(): Promise<void>
   retryAssetLoading(): Promise<void>
+  onModeTap(event: WechatMiniprogram.BaseEvent): void
+  onCatalogSearchInput(event: WechatMiniprogram.Input): void
+  openFilterSheet(): void
+  toggleDraftFilter(event: WechatMiniprogram.BaseEvent): void
+  onDraftSkillKindTap(event: WechatMiniprogram.BaseEvent): void
+  toggleDraftSkillCategory(event: WechatMiniprogram.BaseEvent): void
+  clearDraftFilters(): void
+  cancelFilterSheet(): void
+  applyDraftFilters(): void
   toggleFilter(event: WechatMiniprogram.BaseEvent): void
   onSearchInput(event: WechatMiniprogram.Input): void
   loadMore(): Promise<void>
@@ -77,6 +92,21 @@ const filterEvent = (id: string): WechatMiniprogram.BaseEvent =>
   ({ currentTarget: { dataset: { field: 'selectedRarities', id } } }) as never
 
 const searchEvent = (value: string): WechatMiniprogram.Input => ({ detail: { value } }) as never
+
+const skillSearchEvent = (value: string): WechatMiniprogram.Input =>
+  ({ detail: { value } }) as never
+
+const modeEvent = (mode: 'officer' | 'skill'): WechatMiniprogram.BaseEvent =>
+  ({ currentTarget: { dataset: { mode } } }) as never
+
+const draftFilterEvent = (field: string, id: string): WechatMiniprogram.BaseEvent =>
+  ({ currentTarget: { dataset: { field, id } } }) as never
+
+const draftSkillKindEvent = (kind: 'all' | 'active' | 'passive'): WechatMiniprogram.BaseEvent =>
+  ({ currentTarget: { dataset: { kind } } }) as never
+
+const draftSkillCategoryEvent = (id: string): WechatMiniprogram.BaseEvent =>
+  ({ currentTarget: { dataset: { id } } }) as never
 
 beforeAll(async () => {
   vi.stubGlobal('Page', (config: CatalogPageConfig) => {
@@ -176,6 +206,102 @@ describe('catalog Page instance isolation', () => {
   })
 })
 
+describe('catalog information architecture', () => {
+  it('only provides officer and skill content modes', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+
+    expect(page.data.activeMode).toBe('officer')
+    page.onModeTap(modeEvent('skill'))
+    expect(page.data.activeMode).toBe('skill')
+  })
+
+  it('routes skill-mode search to the skill list without overwriting officer search', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+
+    page.onCatalogSearchInput(searchEvent('航海士條件'))
+    page.onModeTap(modeEvent('skill'))
+    page.onCatalogSearchInput(skillSearchEvent('技能條件'))
+
+    expect(page.data.searchText).toBe('航海士條件')
+    expect(page.data.skillCheckSearchText).toBe('技能條件')
+  })
+
+  it('cancels a filter draft without changing the current officer list', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+    const before = page.data.visibleRows.map((row) => row.id)
+
+    page.openFilterSheet()
+    page.toggleDraftFilter(draftFilterEvent('selectedRarities', 'rarity_2'))
+
+    expect(page.data.filterSheetOpen).toBe(true)
+    expect(page.data.filterDraftHasActiveFilters).toBe(true)
+    expect(page.data.visibleRows.map((row) => row.id)).toEqual(before)
+
+    page.cancelFilterSheet()
+    expect(page.data.filterSheetOpen).toBe(false)
+    expect(page.data.selectedRarities).toEqual([])
+  })
+
+  it('applies a filter draft before changing the current officer list', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+
+    page.openFilterSheet()
+    page.toggleDraftFilter(draftFilterEvent('selectedRarities', 'rarity_2'))
+    page.applyDraftFilters()
+
+    expect(page.data.filterSheetOpen).toBe(false)
+    expect(page.data.selectedRarities).toEqual(['rarity_2'])
+    expect(page.data.visibleRows.every((row) => row.rarityId === 'rarity_2')).toBe(true)
+  })
+
+  it('clears draft filters without applying them until the user confirms', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+
+    page.openFilterSheet()
+    page.toggleDraftFilter(draftFilterEvent('selectedRarities', 'rarity_2'))
+    page.clearDraftFilters()
+
+    expect(page.data.filterDraftHasActiveFilters).toBe(false)
+    expect(page.data.filterDraftCount).toBe(getCatalog().length)
+    expect(page.data.selectedRarities).toEqual([])
+  })
+
+  it('keeps skill kind and category changes inside the draft', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+
+    page.openFilterSheet()
+    page.onDraftSkillKindTap(draftSkillKindEvent('active'))
+    page.toggleDraftSkillCategory(draftSkillCategoryEvent('cat_combat'))
+
+    expect(page.data.filterSheetOpen).toBe(true)
+    expect(page.data.activeFilter).toBe('all')
+    expect(page.data.selectedSkillCategories).toEqual([])
+    expect(page.data.filterDraftHasActiveFilters).toBe(true)
+  })
+
+  it('routes skill-mode filters through the same bottom sheet', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+    page.onModeTap(modeEvent('skill'))
+
+    page.openFilterSheet()
+    page.onDraftSkillKindTap(draftSkillKindEvent('active'))
+    page.toggleDraftSkillCategory(draftSkillCategoryEvent('cat_combat'))
+
+    expect(page.data.skillCheckKind).toBe('all')
+    page.applyDraftFilters()
+
+    expect(page.data.skillCheckKind).toBe('active')
+    expect(page.data.skillCheckCategoryMap.cat_combat).toBe(true)
+  })
+})
+
 afterEach(() => {
   vi.useRealTimers()
 })
@@ -195,73 +321,51 @@ const cssRule = (selector: string): string => {
 }
 
 describe('catalog touch target markup contracts', () => {
-  it('renders text-first catalog rows with direct image fallback handlers', () => {
+  it('renders exactly two content modes and one search input per mode', () => {
+    expect(catalogWxml).toContain('class="catalog-page__mode-tabs"')
+    expect([...catalogWxml.matchAll(/data-mode="(?:officer|skill)"/g)]).toHaveLength(2)
+    expect(catalogWxml.match(/placeholder="搜尋航海士名稱/g)?.length ?? 0).toBe(1)
+    expect(catalogWxml.match(/placeholder="搜尋技能名稱/g)?.length ?? 0).toBe(1)
+    expect(catalogWxml).not.toContain('技能清單')
+    expect(catalogWxml).not.toContain('skill-check-panel')
+  })
+
+  it('places officer filters inside one page-local filter bottom sheet', () => {
+    expect(catalogWxml).toContain('bindtap="openFilterSheet"')
+    expect(catalogWxml).toContain('class="catalog-page__filter-sheet"')
+    expect(catalogWxml).toContain('bindtap="cancelFilterSheet"')
+    expect(catalogWxml).toContain('bindtap="applyDraftFilters"')
+    expect(catalogWxml).toContain('bindtap="clearDraftFilters"')
+    expect(catalogWxml).toContain('data-field="selectedLanguages"')
+    expect(catalogWxml).toContain('data-field="selectedJobs"')
+    expect(catalogWxml).toContain('data-field="selectedRarities"')
+    expect(catalogWxml).toContain('data-field="selectedTypes"')
+    expect(catalogWxml).toContain('data-field="selectedGenders"')
+    expect(catalogWxml).toContain('bindtap="toggleDraftSkillCategory"')
+    expect(catalogWxml).not.toContain('bindtap="onSkillCheckKindTap"')
+    expect(catalogWxml).not.toContain('bindtap="onSkillCheckCategoryTap"')
+  })
+
+  it('keeps officer rows, skill hit targets, image fallbacks and navigation handlers', () => {
     expect(catalogWxml).not.toContain('asset-loading-state')
     expect(catalogWxml).not.toContain('正在載入本地圖片素材')
-    expect(catalogWxml).toMatch(/class="officer-row"[^>]*bindtap="onOfficerTap"/)
+    expect(catalogWxml).toMatch(/class="catalog-page__officer-row"[^>]*bindtap="onOfficerTap"/)
     expect(catalogWxml).not.toContain('lazy-load="true"')
     expect(catalogWxml).toContain('binderror="onPortraitError"')
     expect(catalogWxml).toContain('binderror="onSkillIconError"')
+    expect(catalogWxml).toContain('catchtap="onSkillIconTap"')
+    expect(catalogWxml).toContain('class="catalog-page__skill-level-badge"')
   })
 
-  it('uses bounded horizontal image-only filter controls with 88rpx hit targets and 58rpx rarity marks', () => {
-    expect(catalogWxml).toMatch(
-      /<scroll-view class="officer-filter-toolbar"[^>]*scroll-x="true"[^>]*>[\s\S]*class="officer-filter-toolbar__content"/,
+  it('uses Design Foundation tokens and safe-area styling for the filter sheet', () => {
+    const sheetRule = cssRule('.catalog-page__filter-sheet')
+    expect(sheetRule).toMatch(
+      /border-radius:\s*var\(--uwo-radius-sheet\) var\(--uwo-radius-sheet\) 0 0;/,
     )
-    expect(catalogWxml).toMatch(
-      /class="image-filter-option[^>]*bindtap="toggleFilter"[^>]*>[\s\S]*?<image class="image-filter-icon image-filter-icon--rarity"/,
-    )
-    expect(catalogWxml).toMatch(
-      /class="image-filter-option[^>]*data-field="selectedTypes"[^>]*>[\s\S]*?<image class="image-filter-icon image-filter-icon--type"/,
-    )
-    expect(catalogWxml).toMatch(
-      /class="image-filter-option[^>]*data-field="selectedGenders"[^>]*>[\s\S]*?<image class="image-filter-icon image-filter-icon--gender"/,
-    )
-    expect([...catalogWxml.matchAll(/class="filter-separator"/g)]).toHaveLength(2)
-    const imageOnlyControlBlocks = [
-      ...catalogWxml.matchAll(
-        /<view[^>]*class="image-filter-option[^>]*>\s*<image[^>]*class="image-filter-icon[^>]*\/>\s*<\/view>/g,
-      ),
-    ]
-    expect(imageOnlyControlBlocks).toHaveLength(3)
-
-    const targetRule = cssRule('.image-filter-option')
-    expect(targetRule).toMatch(/width:\s*88rpx;/)
-    expect(targetRule).toMatch(/height:\s*88rpx;/)
-    expect(targetRule).not.toMatch(/(?:background|border|border-radius)\s*:/)
-    expect(cssRule('.image-filter-icon--rarity')).toMatch(/width:\s*58rpx;[\s\S]*height:\s*58rpx;/)
-    expect(cssRule('.officer-filter-toolbar')).toMatch(/height:\s*100rpx;/)
-    expect(cssRule('.filter-separator')).toMatch(
-      /width:\s*1rpx;[\s\S]*height:\s*48rpx;[\s\S]*margin:\s*0 10rpx;/,
-    )
-    expect(cssRule('.officer-filter-toolbar__content')).toMatch(/min-width:\s*834rpx;/)
-  })
-
-  it('wraps every catalog skill icon in a 52rpx catchtap target with level badges', () => {
-    expect(catalogWxml).toMatch(
-      /<scroll-view class="row-skills"[^>]*scroll-x="true"[^>]*>[\s\S]*?<view[^>]*class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*>[\s\S]*?<view[^>]*class="skill-icon-wrapper"/,
-    )
-    expect(catalogWxml).toMatch(
-      /class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*data-kind="active"[^>]*>\s*<view[^>]*class="skill-icon-wrapper"/,
-    )
-    expect(catalogWxml).toMatch(
-      /class="row-skill-hit-target"[^>]*catchtap="onSkillIconTap"[^>]*data-kind="passive"[^>]*>\s*<view[^>]*class="skill-icon-wrapper"/,
-    )
-    // Level badge for non-1 skill levels
-    expect(catalogWxml).toMatch(/class="skill-level-badge"/)
-    expect(catalogWxml).toContain('item.skillLevels')
-    expect(catalogWxml).toMatch(/class="officer-row" bindtap="onOfficerTap"/)
-
-    const skillTargetRule = cssRule('.row-skill-hit-target')
-    expect(skillTargetRule).toMatch(/width:\s*52rpx;/)
-    expect(skillTargetRule).toMatch(/height:\s*52rpx;/)
-    expect(skillTargetRule).not.toMatch(/(?:background|border|border-radius)\s*:/)
-    expect(cssRule('.row-skill-icon')).toMatch(/width:\s*48rpx;[\s\S]*height:\s*48rpx;/)
-    expect(cssRule('.officer-row')).toMatch(/min-height:\s*116rpx;/)
-    expect(cssRule('.row-skills')).toMatch(/width:\s*320rpx;/)
-    expect(cssRule('.row-skills')).toMatch(/min-height:\s*116rpx;/)
-    // Icon wrapper for positioning the badge
-    expect(cssRule('.skill-icon-wrapper')).toMatch(/position:\s*relative/)
-    expect(cssRule('.skill-level-badge')).toMatch(/position:\s*absolute/)
+    expect(sheetRule).toMatch(/env\(safe-area-inset-bottom\)/)
+    expect(sheetRule).toMatch(/var\(--uwo-shadow-sheet\)/)
+    expect(cssRule('.catalog-page__filter-action--apply')).toMatch(/min-height:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/width:\s*52rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*52rpx;/)
   })
 })

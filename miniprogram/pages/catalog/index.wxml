@@ -1,184 +1,218 @@
 <view class="catalog-page">
-  <!-- Search bar -->
-  <view class="search-bar">
-    <input class="search-input" placeholder="搜尋航海士名稱..." value="{{searchText}}" bindinput="onSearchInput" />
-    <text class="search-clear" wx:if="{{searchText.length > 0}}" bindtap="onSearchClear">✕</text>
+  <view class="catalog-page__mode-tabs">
+    <view class="catalog-page__mode-tab {{activeMode === 'officer' ? 'catalog-page__mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="officer">航海士</view>
+    <view class="catalog-page__mode-tab {{activeMode === 'skill' ? 'catalog-page__mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="skill">技能</view>
   </view>
 
-  <!-- Tabs -->
-  <view class="tabs">
-    <view wx:for="{{tabs}}" wx:key="*this" class="tab {{activeTab === index ? 'tab--active' : ''}}" bindtap="onTabTap" data-index="{{index}}">{{item}}</view>
-  </view>
+  <view wx:if="{{activeMode === 'officer'}}" class="catalog-page__mode-content">
+    <view class="catalog-page__search">
+      <input class="catalog-page__search-input" placeholder="搜尋航海士名稱..." value="{{searchText}}" bindinput="onCatalogSearchInput" />
+      <text wx:if="{{searchText.length > 0}}" class="catalog-page__search-clear" bindtap="onSearchClear">清除</text>
+    </view>
 
-  <!-- Tab 0: Officer filters -->
-  <scroll-view class="officer-filter-toolbar" wx:if="{{activeTab === 0}}" scroll-x="true" enable-flex>
-    <view class="officer-filter-toolbar__content">
-      <view class="image-filter-group" aria-label="稀有度篩選">
-        <view class="image-filter-options image-filter-options--rarity">
-          <view wx:for="{{rarities}}" wx:key="id" class="image-filter-option {{selectedRarityMap[item.id] ? 'image-filter-option--on' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleFilter" data-field="selectedRarities" data-id="{{item.id}}">
-            <image class="image-filter-icon image-filter-icon--rarity" src="{{item.iconPath}}" mode="aspectFit" />
+    <view class="catalog-page__result-bar">
+      <text class="catalog-page__result-count">{{filterCount}} 位航海士</text>
+      <view class="catalog-page__result-actions">
+        <text class="catalog-page__filter-trigger" bindtap="openFilterSheet">篩選{{hasActiveFilters ? '（已套用）' : ''}}</text>
+        <text wx:if="{{hasActiveFilters}}" class="catalog-page__clear-trigger" bindtap="clearFilters">清除</text>
+      </view>
+    </view>
+
+    <scroll-view class="catalog-page__list" scroll-y bindscrolltolower="loadMore" lower-threshold="200">
+      <view wx:for="{{visibleRows}}" wx:key="id" class="catalog-page__officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
+        <view class="catalog-page__officer-portrait">
+          <image wx:if="{{item.visuals.framePath && !item.frameFail}}" src="{{item.visuals.framePath}}" mode="aspectFill" class="catalog-page__officer-portrait-layer catalog-page__officer-portrait-layer--frame" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="frameFail" />
+          <image wx:if="{{item.assetReady && !item.portraitFail}}" src="{{item.portraitPath}}" mode="aspectFill" class="catalog-page__officer-portrait-layer catalog-page__officer-avatar" binderror="onPortraitError" data-index="{{index}}" />
+          <view class="catalog-page__officer-portrait-layer catalog-page__officer-portrait-fallback" wx:else>
+            <text class="catalog-page__officer-portrait-initial">{{item.name[0]}}</text>
           </view>
+          <image wx:if="{{item.visuals.rarityIconPath && !item.rarityIconFail}}" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" class="catalog-page__officer-rarity-icon" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="rarityIconFail" />
+          <image wx:if="{{item.visuals.typeIconPath && !item.typeIconFail}}" src="{{item.visuals.typeIconPath}}" mode="aspectFit" class="catalog-page__officer-type-icon" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="typeIconFail" />
         </view>
-      </view>
-      <view class="filter-separator"></view>
-      <view class="image-filter-group" aria-label="類型篩選">
-        <view class="image-filter-options">
-          <view wx:for="{{types}}" wx:key="id" class="image-filter-option {{selectedTypeMap[item.id] ? 'image-filter-option--on' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleFilter" data-field="selectedTypes" data-id="{{item.id}}">
-            <image class="image-filter-icon image-filter-icon--type" src="{{item.iconPath}}" mode="aspectFit" />
+        <view class="catalog-page__officer-info">
+          <view class="catalog-page__officer-heading">
+            <text class="catalog-page__officer-name">{{item.name}}</text>
           </view>
-        </view>
-      </view>
-      <view class="filter-separator"></view>
-      <view class="image-filter-group" aria-label="性別篩選">
-        <view class="image-filter-options">
-          <view wx:for="{{genders}}" wx:key="id" class="image-filter-option {{selectedGenderMap[item.id] ? 'image-filter-option--on' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleFilter" data-field="selectedGenders" data-id="{{item.id}}">
-            <image class="image-filter-icon image-filter-icon--gender" src="{{item.iconPath}}" mode="aspectFit" />
+          <view class="catalog-page__officer-meta">
+            <text class="catalog-page__officer-job">{{item.jobName}}</text>
+            <text class="catalog-page__officer-gender">{{item.genderLabel}}</text>
           </view>
-        </view>
-      </view>
-    </view>
-  </scroll-view>
-
-  <!-- Tab 1: Skill filters -->
-  <view class="filter-panel" wx:if="{{activeTab === 1}}">
-    <view class="skill-kind-tabs">
-      <view class="kind-tab {{activeFilter === 'all' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="all">全部</view>
-      <view class="kind-tab {{activeFilter === 'active' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="active">主動</view>
-      <view class="kind-tab {{activeFilter === 'passive' ? 'kind-tab--on' : ''}}" bindtap="onSkillKindTap" data-kind="passive">被動</view>
-    </view>
-    <view class="filter-chips">
-      <view wx:for="{{skillCategories}}" wx:key="id" class="chip {{selectedSkillCategoryMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
-    </view>
-  </view>
-
-  <!-- Tab 2: Language filters -->
-  <view class="filter-panel" wx:if="{{activeTab === 2}}">
-    <view class="filter-chips">
-      <view wx:for="{{languages}}" wx:key="id" class="chip {{selectedLanguageMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
-    </view>
-  </view>
-
-  <!-- Tab 3: Job filters -->
-  <view class="filter-panel" wx:if="{{activeTab === 3}}">
-    <view class="filter-chips">
-      <view wx:for="{{jobs}}" wx:key="id" class="chip {{selectedJobMap[item.id] ? 'chip--on' : ''}}" bindtap="toggleFilter" data-field="selectedJobs" data-id="{{item.id}}">{{item.name}}</view>
-    </view>
-  </view>
-
-  <!-- Tab 4: Skill checklist -->
-  <view wx:if="{{activeTab === 4}}">
-    <view class="skill-check-panel">
-      <view class="skill-kind-tabs">
-        <view class="kind-tab {{skillCheckKind === 'all' ? 'kind-tab--on' : ''}}" bindtap="onSkillCheckKindTap" data-kind="all">全部</view>
-        <view class="kind-tab {{skillCheckKind === 'active' ? 'kind-tab--on' : ''}}" bindtap="onSkillCheckKindTap" data-kind="active">主動</view>
-        <view class="kind-tab {{skillCheckKind === 'passive' ? 'kind-tab--on' : ''}}" bindtap="onSkillCheckKindTap" data-kind="passive">被動</view>
-      </view>
-      <view class="filter-chips">
-        <view wx:for="{{skillCategories}}" wx:key="id" class="chip {{skillCheckCategoryMap[item.id] ? 'chip--on' : ''}}" bindtap="onSkillCheckCategoryTap" data-id="{{item.id}}">{{item.name}}</view>
-      </view>
-      <view class="search-bar">
-        <input class="search-input" placeholder="搜尋技能名稱..." value="{{skillCheckSearchText}}" bindinput="onSkillCheckSearchInput" />
-      </view>
-    </view>
-    <view class="count-bar">
-      <text>{{skillCheckTotal}} 項技能</text>
-    </view>
-  </view>
-
-  <!-- Count bar with clear (Tabs 0-3) -->
-  <view class="count-bar" wx:if="{{activeTab !== 4}}">
-    <text>{{filterCount}} 位航海士</text>
-    <text class="count-clear" bindtap="clearFilters" wx:if="{{hasActiveFilters}}">清除篩選</text>
-  </view>
-
-  <!-- Officer list (Tabs 0-3) -->
-  <scroll-view wx:if="{{activeTab !== 4}}" class="list" scroll-y bindscrolltolower="loadMore" lower-threshold="200">
-    <view wx:for="{{visibleRows}}" wx:key="id" class="officer-row" bindtap="onOfficerTap" data-id="{{item.id}}">
-      <view class="row-portrait">
-        <image wx:if="{{item.visuals.framePath && !item.frameFail}}" src="{{item.visuals.framePath}}" mode="aspectFill" class="row-portrait-layer row-portrait-frame" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="frameFail" />
-        <image wx:if="{{item.assetReady && !item.portraitFail}}" src="{{item.portraitPath}}" mode="aspectFill" class="row-portrait-layer row-avatar" binderror="onPortraitError" data-index="{{index}}" />
-        <view class="row-portrait-layer row-portrait-fb" wx:else>
-          <text class="row-portrait-initial">{{item.name[0]}}</text>
-        </view>
-        <image wx:if="{{item.visuals.rarityIconPath && !item.rarityIconFail}}" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" class="row-rarity-icon" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="rarityIconFail" />
-        <image wx:if="{{item.visuals.typeIconPath && !item.typeIconFail}}" src="{{item.visuals.typeIconPath}}" mode="aspectFit" class="row-type-icon" binderror="onPortraitLayerError" data-index="{{index}}" data-layer="typeIconFail" />
-      </view>
-      <view class="row-info">
-        <view class="row-top">
-          <text class="row-name">{{item.name}}</text>
-        </view>
-        <view class="row-meta">
-          <text class="row-job">{{item.jobName}}</text>
-          <text class="row-gender">{{item.genderLabel}}</text>
-        </view>
-        <scroll-view class="row-skills" scroll-x="true" enable-flex>
-          <view class="row-skills__content">
-            <view class="skill-icon-group" wx:if="{{item.activeSkills.length > 0}}">
-              <view wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="row-skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="active">
-                <view class="skill-icon-wrapper">
-                  <image wx:if="{{item.assetReady && item.activeSkillIcons[sid]}}" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
-                  <text wx:else class="row-skill-fallback">技</text>
-                  <text wx:if="{{item.skillLevels && item.skillLevels[sid]}}" class="skill-level-badge">Lv.{{item.skillLevels[sid]}}</text>
+          <scroll-view class="catalog-page__officer-skills" scroll-x="true" enable-flex>
+            <view class="catalog-page__officer-skills-content">
+              <view class="catalog-page__skill-group" wx:if="{{item.activeSkills.length > 0}}">
+                <view wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="catalog-page__skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="active">
+                  <view class="catalog-page__skill-icon-wrapper">
+                    <image wx:if="{{item.assetReady && item.activeSkillIcons[sid]}}" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="catalog-page__skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
+                    <text wx:else class="catalog-page__skill-fallback">技</text>
+                    <text wx:if="{{item.skillLevels && item.skillLevels[sid]}}" class="catalog-page__skill-level-badge">Lv.{{item.skillLevels[sid]}}</text>
+                  </view>
                 </view>
+                <text class="catalog-page__skill-more" wx:if="{{item.activeSkills.length > 3}}">+{{item.activeSkills.length - 3}}</text>
               </view>
-              <text class="skill-more" wx:if="{{item.activeSkills.length > 3}}">+{{item.activeSkills.length - 3}}</text>
-            </view>
-            <view class="skill-icon-group" wx:if="{{item.passiveSkills.length > 0}}">
-              <view class="skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
-              <view wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="row-skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="passive">
-                <view class="skill-icon-wrapper">
-                  <image wx:if="{{item.assetReady && item.passiveSkillIcons[sid]}}" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="row-skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
-                  <text wx:else class="row-skill-fallback">技</text>
-                  <text wx:if="{{item.skillLevels && item.skillLevels[sid]}}" class="skill-level-badge">Lv.{{item.skillLevels[sid]}}</text>
+              <view class="catalog-page__skill-group" wx:if="{{item.passiveSkills.length > 0}}">
+                <view class="catalog-page__skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
+                <view wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="catalog-page__skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="passive">
+                  <view class="catalog-page__skill-icon-wrapper">
+                    <image wx:if="{{item.assetReady && item.passiveSkillIcons[sid]}}" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="catalog-page__skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
+                    <text wx:else class="catalog-page__skill-fallback">技</text>
+                    <text wx:if="{{item.skillLevels && item.skillLevels[sid]}}" class="catalog-page__skill-level-badge">Lv.{{item.skillLevels[sid]}}</text>
+                  </view>
                 </view>
+                <text class="catalog-page__skill-more" wx:if="{{item.passiveSkills.length > 3}}">+{{item.passiveSkills.length - 3}}</text>
               </view>
-              <text class="skill-more" wx:if="{{item.passiveSkills.length > 3}}">+{{item.passiveSkills.length - 3}}</text>
             </view>
-          </view>
-        </scroll-view>
+          </scroll-view>
+        </view>
       </view>
-    </view>
-    <view wx:if="{{visibleRows.length === 0}}" class="empty">
-      <text class="empty-title">沒有符合條件的航海士</text>
-      <view wx:if="{{hasActiveFilters}}" class="empty-clear" bindtap="clearFilters">清除篩選</view>
-    </view>
-    <view wx:elif="{{hasMore}}" class="load-more">載入更多...</view>
-  </scroll-view>
+      <view wx:if="{{visibleRows.length === 0}}" class="catalog-page__empty">
+        <text class="catalog-page__empty-title">沒有符合條件的航海士</text>
+        <view wx:if="{{hasActiveFilters}}" class="catalog-page__empty-clear" bindtap="clearFilters">清除篩選</view>
+      </view>
+      <view wx:elif="{{hasMore}}" class="catalog-page__load-more">載入更多...</view>
+    </scroll-view>
+  </view>
 
-  <!-- Skill checklist list (Tab 4) -->
-  <scroll-view wx:if="{{activeTab === 4}}" class="list" scroll-y bindscrolltolower="skillCheckLoadMore" lower-threshold="200">
-    <view wx:for="{{skillCheckRows}}" wx:key="skillId">
-      <view class="skill-check-row" bindtap="onSkillCheckTap" data-skill-id="{{item.skillId}}">
-        <image class="skill-check-icon" src="{{item.iconPath}}" mode="aspectFit" />
-        <view class="skill-check-info">
-          <text class="skill-check-name">{{item.name}}</text>
-          <text class="skill-check-category">{{item.categoryName}}</text>
-        </view>
-        <view class="skill-check-badges">
-          <text class="skill-check-kind {{item.kind === 'active' ? 'skill-check-kind--active' : 'skill-check-kind--passive'}}">{{item.kind === 'active' ? '主' : '被'}}</text>
-          <text class="skill-check-count">{{item.officerCount}} 位</text>
-        </view>
+  <view wx:if="{{activeMode === 'skill'}}" class="catalog-page__mode-content">
+    <view class="catalog-page__search">
+      <input class="catalog-page__search-input" placeholder="搜尋技能名稱..." value="{{skillCheckSearchText}}" bindinput="onCatalogSearchInput" />
+      <text wx:if="{{skillCheckSearchText.length > 0}}" class="catalog-page__search-clear" bindtap="onSearchClear">清除</text>
+    </view>
+
+    <view class="catalog-page__result-bar">
+      <text class="catalog-page__result-count">{{skillCheckTotal}} 項技能</text>
+      <view class="catalog-page__result-actions">
+        <text class="catalog-page__filter-trigger" bindtap="openFilterSheet">篩選</text>
       </view>
-      <view wx:if="{{expandedSkillMap[item.skillId]}}" class="skill-check-expanded">
-        <view class="skill-check-expanded__heading">持有此技能的航海士（{{expandedOfficers.length}} 位）</view>
-        <view class="skill-check-expanded__list">
-          <view wx:for="{{expandedOfficers}}" wx:for-item="officer" wx:key="officerId" class="expanded-officer" bindtap="onExpandedOfficerTap" data-id="{{officer.officerId}}">
-            <view class="expanded-officer__visuals">
-              <image wx:if="{{expandedOfficerAssetReady && officer.visuals.framePath}}" class="expanded-officer__frame" src="{{officer.visuals.framePath}}" mode="aspectFill" />
-              <image wx:if="{{expandedOfficerAssetReady}}" class="expanded-officer__portrait" src="{{officer.portraitPath}}" mode="aspectFill" />
-              <image wx:if="{{expandedOfficerAssetReady && officer.visuals.rarityIconPath}}" class="expanded-officer__rarity-icon" src="{{officer.visuals.rarityIconPath}}" mode="aspectFit" />
-              <image wx:if="{{expandedOfficerAssetReady && officer.visuals.typeIconPath}}" class="expanded-officer__type-icon" src="{{officer.visuals.typeIconPath}}" mode="aspectFit" />
+    </view>
+
+    <scroll-view class="catalog-page__list" scroll-y bindscrolltolower="skillCheckLoadMore" lower-threshold="200">
+      <view wx:for="{{skillCheckRows}}" wx:key="skillId">
+        <view class="catalog-page__skill-row" bindtap="onSkillCheckTap" data-skill-id="{{item.skillId}}">
+          <image class="catalog-page__skill-row-icon" src="{{item.iconPath}}" mode="aspectFit" />
+          <view class="catalog-page__skill-row-info">
+            <text class="catalog-page__skill-row-name">{{item.name}}</text>
+            <text class="catalog-page__skill-row-category">{{item.categoryName}}</text>
+          </view>
+          <view class="catalog-page__skill-row-badges">
+            <text class="catalog-page__skill-row-kind {{item.kind === 'active' ? 'catalog-page__skill-row-kind--active' : 'catalog-page__skill-row-kind--passive'}}">{{item.kind === 'active' ? '主' : '被'}}</text>
+            <text class="catalog-page__skill-row-count">{{item.officerCount}} 位</text>
+          </view>
+        </view>
+        <view wx:if="{{expandedSkillMap[item.skillId]}}" class="catalog-page__skill-expanded">
+          <view class="catalog-page__skill-expanded-heading">持有此技能的航海士（{{expandedOfficers.length}} 位）</view>
+          <view class="catalog-page__skill-expanded-list">
+            <view wx:for="{{expandedOfficers}}" wx:for-item="officer" wx:key="officerId" class="catalog-page__expanded-officer" bindtap="onExpandedOfficerTap" data-id="{{officer.officerId}}">
+              <view class="catalog-page__expanded-officer-visuals">
+                <image wx:if="{{expandedOfficerAssetReady && officer.visuals.framePath}}" class="catalog-page__expanded-officer-frame" src="{{officer.visuals.framePath}}" mode="aspectFill" />
+                <image wx:if="{{expandedOfficerAssetReady}}" class="catalog-page__expanded-officer-portrait" src="{{officer.portraitPath}}" mode="aspectFill" />
+                <image wx:if="{{expandedOfficerAssetReady && officer.visuals.rarityIconPath}}" class="catalog-page__expanded-officer-rarity" src="{{officer.visuals.rarityIconPath}}" mode="aspectFit" />
+                <image wx:if="{{expandedOfficerAssetReady && officer.visuals.typeIconPath}}" class="catalog-page__expanded-officer-type" src="{{officer.visuals.typeIconPath}}" mode="aspectFit" />
+              </view>
+              <text class="catalog-page__expanded-officer-name">{{officer.name}}</text>
             </view>
-            <text class="expanded-officer__name">{{officer.name}}</text>
           </view>
         </view>
       </view>
-    </view>
-    <view wx:if="{{skillCheckRows.length === 0}}" class="empty">
-      <text class="empty-title">沒有符合條件的技能</text>
-    </view>
-    <view wx:elif="{{skillCheckHasMore}}" class="load-more">載入更多...</view>
-  </scroll-view>
+      <view wx:if="{{skillCheckRows.length === 0}}" class="catalog-page__empty">
+        <text class="catalog-page__empty-title">沒有符合條件的技能</text>
+      </view>
+      <view wx:elif="{{skillCheckHasMore}}" class="catalog-page__load-more">載入更多...</view>
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{filterSheetOpen}}" class="catalog-page__filter-mask" bindtap="cancelFilterSheet">
+    <scroll-view class="catalog-page__filter-sheet" scroll-y catchtap="stopFilterSheetPropagation">
+      <view class="catalog-page__filter-handle"></view>
+      <view class="catalog-page__filter-heading">
+        <text class="catalog-page__filter-title ui-display-title">{{filterSheetMode === 'skill' ? '篩選技能' : '篩選航海士'}}</text>
+        <text class="catalog-page__filter-count">{{filterDraftCount}} {{filterSheetMode === 'skill' ? '項技能符合條件' : '位航海士符合條件'}}</text>
+      </view>
+
+      <block wx:if="{{filterSheetMode === 'officer'}}">
+      <view class="catalog-page__filter-section">
+        <text class="catalog-page__filter-section-title">稀有度</text>
+        <view class="catalog-page__filter-options catalog-page__filter-options--icons">
+          <view wx:for="{{rarities}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedRarityMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleDraftFilter" data-field="selectedRarities" data-id="{{item.id}}">
+            <image class="catalog-page__filter-icon catalog-page__filter-icon--rarity" src="{{item.iconPath}}" mode="aspectFit" />
+            <text class="catalog-page__filter-icon-label">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="catalog-page__filter-section">
+        <text class="catalog-page__filter-section-title">類型</text>
+        <view class="catalog-page__filter-options catalog-page__filter-options--icons">
+          <view wx:for="{{types}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedTypeMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleDraftFilter" data-field="selectedTypes" data-id="{{item.id}}">
+            <image class="catalog-page__filter-icon catalog-page__filter-icon--type" src="{{item.iconPath}}" mode="aspectFit" />
+            <text class="catalog-page__filter-icon-label">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="catalog-page__filter-section">
+        <text class="catalog-page__filter-section-title">性別</text>
+        <view class="catalog-page__filter-options catalog-page__filter-options--icons">
+          <view wx:for="{{genders}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedGenderMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleDraftFilter" data-field="selectedGenders" data-id="{{item.id}}">
+            <image class="catalog-page__filter-icon catalog-page__filter-icon--gender" src="{{item.iconPath}}" mode="aspectFit" />
+            <text class="catalog-page__filter-icon-label">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="catalog-page__filter-section">
+        <text class="catalog-page__filter-section-title">語言</text>
+        <view class="catalog-page__filter-options">
+          <view wx:for="{{languages}}" wx:key="id" class="catalog-page__chip {{draftSelectedLanguageMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
+        </view>
+      </view>
+
+      <view class="catalog-page__filter-section">
+        <text class="catalog-page__filter-section-title">職業</text>
+        <view class="catalog-page__filter-options">
+          <view wx:for="{{jobs}}" wx:key="id" class="catalog-page__chip {{draftSelectedJobMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftFilter" data-field="selectedJobs" data-id="{{item.id}}">{{item.name}}</view>
+        </view>
+      </view>
+
+      <view class="catalog-page__filter-section">
+        <text class="catalog-page__filter-section-title">技能</text>
+        <view class="catalog-page__skill-kind-tabs">
+          <view class="catalog-page__skill-kind {{draftActiveFilter === 'all' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="all">全部</view>
+          <view class="catalog-page__skill-kind {{draftActiveFilter === 'active' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="active">主動</view>
+          <view class="catalog-page__skill-kind {{draftActiveFilter === 'passive' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="passive">被動</view>
+        </view>
+        <view class="catalog-page__filter-options">
+          <view wx:for="{{skillCategories}}" wx:key="id" class="catalog-page__chip {{draftSelectedSkillCategoryMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
+        </view>
+      </view>
+      </block>
+
+      <block wx:else>
+        <view class="catalog-page__filter-section">
+          <text class="catalog-page__filter-section-title">技能類型</text>
+          <view class="catalog-page__skill-kind-tabs">
+            <view class="catalog-page__skill-kind {{draftSkillCheckKind === 'all' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="all">全部</view>
+            <view class="catalog-page__skill-kind {{draftSkillCheckKind === 'active' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="active">主動</view>
+            <view class="catalog-page__skill-kind {{draftSkillCheckKind === 'passive' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="passive">被動</view>
+          </view>
+        </view>
+
+        <view class="catalog-page__filter-section">
+          <text class="catalog-page__filter-section-title">技能分類</text>
+          <view class="catalog-page__filter-options">
+            <view wx:for="{{skillCategories}}" wx:key="id" class="catalog-page__chip {{draftSkillCheckCategoryMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
+          </view>
+        </view>
+      </block>
+
+       <view wx:if="{{filterDraftHasActiveFilters}}" class="catalog-page__filter-note">已選條件會在套用後更新{{filterSheetMode === 'skill' ? '技能結果' : '名冊'}}。</view>
+      <view wx:else class="catalog-page__filter-note">目前未設定篩選條件。</view>
+      <view class="catalog-page__filter-actions">
+        <view class="catalog-page__filter-action catalog-page__filter-action--secondary" bindtap="clearDraftFilters">清除全部</view>
+        <view class="catalog-page__filter-action catalog-page__filter-action--secondary" bindtap="cancelFilterSheet">取消</view>
+        <view class="catalog-page__filter-action catalog-page__filter-action--apply" bindtap="applyDraftFilters">套用篩選</view>
+      </view>
+    </scroll-view>
+  </view>
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
 </view>

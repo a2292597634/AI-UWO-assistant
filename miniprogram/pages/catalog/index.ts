@@ -31,13 +31,16 @@ import type { SkillSheetView } from '../../presenters/skill-sheet'
 import type { CatalogFilterState, SkillKindFilter } from '../../contracts/filter-state'
 import type { RuntimeSkill } from '../../contracts/runtime-data'
 
-// ── Helpers ──
+type CatalogMode = 'officer' | 'skill'
+type SkillCheckKind = 'all' | 'active' | 'passive'
 
-/** Extract dataset from event target, typed safely. */
+// ── 輔助函式 ──
+
+/** 安全取得事件目標的 dataset。 */
 const eventDataset = (e: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
   (e.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
 
-// ── Page instance state (not reactive) ──
+// ── 頁面實例狀態（非響應式） ──
 
 interface CatalogPageState {
   _enrichedCatalog: CatalogRowView[]
@@ -46,7 +49,10 @@ interface CatalogPageState {
   _filterState: CatalogFilterState
   _loadOptions: Record<string, string | undefined>
   _assetRetryCount: number
-  // Skill checklist
+  _draftFilterState: CatalogFilterState | null
+  _draftSkillCheckKind: SkillCheckKind | null
+  _draftSkillCheckCategories: string[] | null
+  // 技能清單
   _fullSkillCheckList: SkillCheckRowView[]
   _filteredSkillList: SkillCheckRowView[]
   _skillCheckKind: 'all' | 'active' | 'passive'
@@ -69,6 +75,9 @@ const getPageState = (page: object): CatalogPageState => {
       _filterState: createEmptyFilterState(),
       _loadOptions: {},
       _assetRetryCount: 0,
+      _draftFilterState: null,
+      _draftSkillCheckKind: null,
+      _draftSkillCheckCategories: null,
       _fullSkillCheckList: [],
       _filteredSkillList: [],
       _skillCheckKind: 'all',
@@ -83,11 +92,10 @@ const getPageState = (page: object): CatalogPageState => {
   return state
 }
 
-// ── Page data type (explicit, so setData sees the right shape) ──
+// ── 頁面資料型別（明確宣告，讓 setData 維持正確形狀） ──
 
 interface PageData extends CatalogViewMaps {
-  tabs: string[]
-  activeTab: number
+  activeMode: CatalogMode
   assetLoading: boolean
   assetLoadError: string | null
   visibleRows: CatalogRowView[]
@@ -95,14 +103,14 @@ interface PageData extends CatalogViewMaps {
   hasActiveFilters: boolean
   hasMore: boolean
   sheetSkill: SkillSheetView | null
-  // Filter options
+  // 篩選選項
   rarities: FilterOption[]
   types: FilterOption[]
   genders: FilterOption[]
   skillCategories: { id: string; name: string }[]
   languages: { id: string; name: string }[]
   jobs: { id: string; name: string }[]
-  // Filter state fields
+  // 篩選狀態欄位
   activeFilter: SkillKindFilter
   selectedRarities: string[]
   selectedTypes: string[]
@@ -112,7 +120,26 @@ interface PageData extends CatalogViewMaps {
   selectedJobs: string[]
   selectedSkillId: string | null
   searchText: string
-  // Skill checklist tab
+  filterSheetOpen: boolean
+  filterSheetMode: CatalogMode
+  filterDraftCount: number
+  filterDraftHasActiveFilters: boolean
+  draftActiveFilter: SkillKindFilter
+  draftSelectedRarities: string[]
+  draftSelectedTypes: string[]
+  draftSelectedGenders: string[]
+  draftSelectedLanguages: string[]
+  draftSelectedJobs: string[]
+  draftSelectedSkillCategories: string[]
+  draftSelectedRarityMap: Record<string, boolean>
+  draftSelectedTypeMap: Record<string, boolean>
+  draftSelectedGenderMap: Record<string, boolean>
+  draftSelectedLanguageMap: Record<string, boolean>
+  draftSelectedJobMap: Record<string, boolean>
+  draftSelectedSkillCategoryMap: Record<string, boolean>
+  draftSkillCheckKind: SkillCheckKind
+  draftSkillCheckCategoryMap: Record<string, boolean>
+  // 技能清單模式
   skillCheckRows: SkillCheckRowView[]
   skillCheckTotal: number
   skillCheckHasMore: boolean
@@ -133,12 +160,69 @@ interface CatalogPageUpdater {
 const rowsWithAssetState = (rows: readonly CatalogRowView[]): CatalogRowView[] =>
   rows.map((row) => ({ ...row, assetReady: true }))
 
+const cloneFilterState = (state: Readonly<CatalogFilterState>): CatalogFilterState => ({
+  searchText: state.searchText,
+  selectedRarities: [...state.selectedRarities],
+  selectedTypes: [...state.selectedTypes],
+  selectedGenders: [...state.selectedGenders],
+  selectedLanguages: [...state.selectedLanguages],
+  selectedJobs: [...state.selectedJobs],
+  selectedSkillCategories: [...state.selectedSkillCategories],
+  activeFilter: state.activeFilter,
+  selectedSkillId: state.selectedSkillId,
+})
+
+const buildDraftFilterData = (
+  catalog: readonly CatalogRowView[],
+  skills: Readonly<Record<string, RuntimeSkill>>,
+  draft: Readonly<CatalogFilterState>,
+): Record<string, unknown> => {
+  const maps = buildViewMaps(draft)
+  return {
+    filterDraftCount: queryCatalog(catalog, skills, draft).length,
+    filterDraftHasActiveFilters: hasActiveFilters(draft),
+    draftActiveFilter: draft.activeFilter,
+    draftSelectedRarities: draft.selectedRarities,
+    draftSelectedTypes: draft.selectedTypes,
+    draftSelectedGenders: draft.selectedGenders,
+    draftSelectedLanguages: draft.selectedLanguages,
+    draftSelectedJobs: draft.selectedJobs,
+    draftSelectedSkillCategories: draft.selectedSkillCategories,
+    draftSelectedRarityMap: maps.selectedRarityMap,
+    draftSelectedTypeMap: maps.selectedTypeMap,
+    draftSelectedGenderMap: maps.selectedGenderMap,
+    draftSelectedLanguageMap: maps.selectedLanguageMap,
+    draftSelectedJobMap: maps.selectedJobMap,
+    draftSelectedSkillCategoryMap: maps.selectedSkillCategoryMap,
+  }
+}
+
+const buildSkillDraftFilterData = (
+  rows: readonly SkillCheckRowView[],
+  kind: SkillCheckKind,
+  categories: readonly string[],
+  searchText: string,
+): Record<string, unknown> => {
+  const categoryMap: Record<string, boolean> = {}
+  for (const category of categories) categoryMap[category] = true
+
+  return {
+    filterDraftCount: filterSkillCheckList(rows, kind, categories, searchText).length,
+    filterDraftHasActiveFilters: kind !== 'all' || categories.length > 0,
+    draftSkillCheckKind: kind,
+    draftSkillCheckCategoryMap: categoryMap,
+  }
+}
+
 const initializeCatalogPage = (
   page: CatalogPageUpdater,
   options: Record<string, string | undefined>,
 ): Promise<void> => {
   const state = getPageState(page)
   state._loadOptions = options
+  state._draftFilterState = null
+  state._draftSkillCheckKind = null
+  state._draftSkillCheckCategories = null
 
   page.setData({
     assetLoading: true,
@@ -152,22 +236,22 @@ const initializeCatalogPage = (
       const dicts = getDictionaries()
       state._skills = skills
 
-      // Enrich catalog with precomputed skill icons
+      // 以預先計算的技能圖示擴充名冊資料
       const enriched = enrichCatalogWithIcons(catalog, skills)
       state._enrichedCatalog = enriched
 
-      // Reverse lookup: navigate from detail page with ?skillId=xxx
+      // 反向查詢：從詳情頁以 ?skillId=xxx 導入
       const skillId = options.skillId
       if (skillId) {
         const sk = skills[skillId]
         state._filterState = {
           ...createEmptyFilterState(),
           selectedSkillId: skillId,
-          // Set active/passive tab based on skill context
+          // 依技能情境設定主動／被動篩選
           activeFilter: 'all' as SkillKindFilter,
         }
         state._filteredAll = queryCatalog(enriched, skills, state._filterState)
-        // Load skill name into nav title
+        // 將技能名稱載入導覽列標題
         if (sk) {
           wx.setNavigationBarTitle({ title: sk.n })
         }
@@ -176,7 +260,7 @@ const initializeCatalogPage = (
         state._filteredAll = enriched
       }
 
-      // Build skill checklist (once, for Tab 4)
+      // 建立技能清單（只建立一次）
       state._fullSkillCheckList = buildSkillCheckList(catalog, skills)
       state._filteredSkillList = state._fullSkillCheckList
       state._skillCheckVisible = 30
@@ -200,7 +284,7 @@ const initializeCatalogPage = (
         jobs: dicts.jobs,
         activeFilter: state._filterState.activeFilter,
         selectedSkillId: state._filterState.selectedSkillId,
-        // Skill checklist
+        // 技能清單
         skillCheckRows: skillCheckSlice,
         skillCheckTotal: state._filteredSkillList.length,
         skillCheckHasMore: state._filteredSkillList.length > state._skillCheckVisible,
@@ -217,19 +301,18 @@ const initializeCatalogPage = (
   return initialization
 }
 
-// ── Page ──
+// ── 頁面 ──
 
 Page({
   data: {
-    tabs: ['航海士', '技能', '語言', '職業', '技能清單'],
-    activeTab: 0,
+    activeMode: 'officer' as CatalogMode,
     assetLoading: true,
     assetLoadError: null,
     visibleRows: [],
     filterCount: 0,
     hasActiveFilters: false,
     hasMore: false,
-    // Filter options
+    // 篩選選項
     rarities: [],
     types: [],
     genders: [],
@@ -237,7 +320,7 @@ Page({
     languages: [],
     jobs: [],
     sheetSkill: null,
-    // Filter state
+    // 篩選狀態
     activeFilter: 'all',
     selectedRarities: [],
     selectedTypes: [],
@@ -247,14 +330,33 @@ Page({
     selectedJobs: [],
     selectedSkillId: null,
     searchText: '',
-    // Precomputed maps for WXML
+    filterSheetOpen: false,
+    filterSheetMode: 'officer' as CatalogMode,
+    filterDraftCount: 0,
+    filterDraftHasActiveFilters: false,
+    draftActiveFilter: 'all' as SkillKindFilter,
+    draftSelectedRarities: [],
+    draftSelectedTypes: [],
+    draftSelectedGenders: [],
+    draftSelectedLanguages: [],
+    draftSelectedJobs: [],
+    draftSelectedSkillCategories: [],
+    draftSelectedRarityMap: {},
+    draftSelectedTypeMap: {},
+    draftSelectedGenderMap: {},
+    draftSelectedLanguageMap: {},
+    draftSelectedJobMap: {},
+    draftSelectedSkillCategoryMap: {},
+    draftSkillCheckKind: 'all' as SkillCheckKind,
+    draftSkillCheckCategoryMap: {},
+    // 提供 WXML 使用的預先計算 map
     selectedRarityMap: {},
     selectedTypeMap: {},
     selectedGenderMap: {},
     selectedLanguageMap: {},
     selectedJobMap: {},
     selectedSkillCategoryMap: {},
-    // Skill checklist
+    // 技能清單
     skillCheckRows: [],
     skillCheckTotal: 0,
     skillCheckHasMore: false,
@@ -282,16 +384,15 @@ Page({
     return initializeCatalogPage(this, state._loadOptions)
   },
 
-  // ── Tab ──
+  // ── 內容模式 ──
 
-  onTabTap(e: WechatMiniprogram.BaseEvent) {
-    const idx = Number(eventDataset(e)['index'])
-    if (!isNaN(idx)) {
-      this.setData({ activeTab: idx })
-    }
+  onModeTap(e: WechatMiniprogram.BaseEvent) {
+    const mode = getDatasetString(eventDataset(e), 'mode')
+    if (mode !== 'officer' && mode !== 'skill') return
+    this.setData({ activeMode: mode })
   },
 
-  // ── Filter toggles ──
+  // ── 篩選切換 ──
 
   toggleFilter(e: WechatMiniprogram.BaseEvent) {
     const dataset = eventDataset(e)
@@ -318,21 +419,44 @@ Page({
     this.applyFilterUpdate('selectedSkillCategories', next)
   },
 
-  // ── Search ──
+  // ── 搜尋 ──
+
+  onCatalogSearchInput(e: WechatMiniprogram.Input) {
+    const state = getPageState(this)
+    const value = e.detail.value || ''
+    if (this.data.activeMode === 'skill') {
+      state._skillCheckSearchText = value
+      this.applySkillCheckFilter()
+      return
+    }
+    this.applyFilterUpdate('searchText', value)
+  },
 
   onSearchInput(e: WechatMiniprogram.Input) {
-    this.applyFilterUpdate('searchText', e.detail.value || '')
+    this.onCatalogSearchInput(e)
   },
 
   onSearchClear() {
+    if (this.data.activeMode === 'skill') {
+      const state = getPageState(this)
+      state._skillCheckSearchText = ''
+      this.applySkillCheckFilter()
+      return
+    }
     this.applyFilterUpdate('searchText', '')
   },
 
-  // ── Core: apply one filter change and recompute ──
+  onSkillCheckSearchInput(e: WechatMiniprogram.Input) {
+    const state = getPageState(this)
+    state._skillCheckSearchText = e.detail.value || ''
+    this.applySkillCheckFilter()
+  },
+
+  // ── 核心：套用單一篩選變更並重新計算 ──
 
   applyFilterUpdate(key: string, value: unknown) {
     const state = getPageState(this)
-    // Build next filter state
+    // 建立下一個篩選狀態
     const ps = state._filterState
     const nextState: CatalogFilterState = {
       searchText: key === 'searchText' ? (value as string) : ps.searchText,
@@ -346,18 +470,23 @@ Page({
       activeFilter: key === 'activeFilter' ? (value as SkillKindFilter) : ps.activeFilter,
       selectedSkillId: key === 'selectedSkillId' ? (value as string | null) : ps.selectedSkillId,
     }
+    return this.applyFilterState(nextState)
+  },
+
+  applyFilterState(nextState: CatalogFilterState) {
+    const state = getPageState(this)
     state._filterState = nextState
 
-    // Query against enriched catalog (which extends RuntimeCatalogEntry)
+    // 對擴充後的名冊資料執行查詢
     const filtered = queryCatalog(state._enrichedCatalog, state._skills, nextState)
 
-    // Preserve portrait fail flags
+    // 保留肖像載入失敗標記
     const preserved = preservePortraitFails(filtered, this.data.visibleRows)
 
-    // Store full result for pagination
+    // 保存完整結果供分頁使用
     state._filteredAll = preserved
 
-    // Only send first page to view layer
+    // 只將第一頁資料送至視圖層
     const visible = preserved.slice(0, PAGE_SIZE)
     const maps = buildViewMaps(nextState)
 
@@ -380,7 +509,155 @@ Page({
     return Promise.resolve()
   },
 
-  // ── Clear all filters ──
+  // ── 篩選 Bottom Sheet 草稿 ──
+
+  openFilterSheet() {
+    const state = getPageState(this)
+    if (this.data.activeMode === 'skill') {
+      const kind = state._skillCheckKind
+      const categories = [...state._skillCheckCategories]
+      state._draftFilterState = null
+      state._draftSkillCheckKind = kind
+      state._draftSkillCheckCategories = categories
+      this.setData({
+        filterSheetOpen: true,
+        filterSheetMode: 'skill' as CatalogMode,
+        ...buildSkillDraftFilterData(
+          state._fullSkillCheckList,
+          kind,
+          categories,
+          state._skillCheckSearchText,
+        ),
+      })
+      return
+    }
+
+    const draft = cloneFilterState(state._filterState)
+    state._draftFilterState = draft
+    state._draftSkillCheckKind = null
+    state._draftSkillCheckCategories = null
+    this.setData({
+      filterSheetOpen: true,
+      filterSheetMode: 'officer' as CatalogMode,
+      ...buildDraftFilterData(state._enrichedCatalog, state._skills, draft),
+    })
+  },
+
+  updateDraftFilter(draft: CatalogFilterState) {
+    const state = getPageState(this)
+    state._draftFilterState = draft
+    this.setData(buildDraftFilterData(state._enrichedCatalog, state._skills, draft))
+  },
+
+  updateDraftSkillCheckFilter(kind: SkillCheckKind, categories: string[]) {
+    const state = getPageState(this)
+    state._draftSkillCheckKind = kind
+    state._draftSkillCheckCategories = categories
+    this.setData(
+      buildSkillDraftFilterData(
+        state._fullSkillCheckList,
+        kind,
+        categories,
+        state._skillCheckSearchText,
+      ),
+    )
+  },
+
+  toggleDraftFilter(e: WechatMiniprogram.BaseEvent) {
+    const dataset = eventDataset(e)
+    const field = getDatasetString(dataset, 'field')
+    const id = getDatasetString(dataset, 'id')
+    const draft = getPageState(this)._draftFilterState
+    if (!draft || !field || !id || !isCatalogFilterField(field)) return
+
+    const current = draft[field]
+    this.updateDraftFilter({ ...draft, [field]: toggleArrayFilter(current, id) })
+  },
+
+  onDraftSkillKindTap(e: WechatMiniprogram.BaseEvent) {
+    const kind = getDatasetString(eventDataset(e), 'kind')
+    if (kind !== 'all' && kind !== 'active' && kind !== 'passive') return
+
+    if (this.data.filterSheetMode === 'skill') {
+      const state = getPageState(this)
+      const categories = state._draftSkillCheckCategories ?? []
+      this.updateDraftSkillCheckFilter(kind, categories)
+      return
+    }
+
+    const draft = getPageState(this)._draftFilterState
+    if (!draft) return
+    this.updateDraftFilter({ ...draft, activeFilter: kind })
+  },
+
+  toggleDraftSkillCategory(e: WechatMiniprogram.BaseEvent) {
+    const id = getDatasetString(eventDataset(e), 'id')
+    if (!id) return
+
+    if (this.data.filterSheetMode === 'skill') {
+      const state = getPageState(this)
+      const kind = state._draftSkillCheckKind ?? 'all'
+      const categories = state._draftSkillCheckCategories ?? []
+      this.updateDraftSkillCheckFilter(kind, toggleArrayFilter(categories, id))
+      return
+    }
+
+    const draft = getPageState(this)._draftFilterState
+    if (!draft) return
+    this.updateDraftFilter({
+      ...draft,
+      selectedSkillCategories: toggleArrayFilter(draft.selectedSkillCategories, id),
+    })
+  },
+
+  clearDraftFilters() {
+    if (this.data.filterSheetMode === 'skill') {
+      this.updateDraftSkillCheckFilter('all', [])
+      return
+    }
+
+    const empty = createEmptyFilterState()
+    this.updateDraftFilter(empty)
+  },
+
+  stopFilterSheetPropagation() {
+    // 讓篩選內容區可以操作，而不會觸發遮罩的取消事件。
+  },
+
+  cancelFilterSheet() {
+    const state = getPageState(this)
+    state._draftFilterState = null
+    state._draftSkillCheckKind = null
+    state._draftSkillCheckCategories = null
+    this.setData({ filterSheetOpen: false })
+  },
+
+  applyDraftFilters() {
+    const state = getPageState(this)
+
+    if (this.data.filterSheetMode === 'skill') {
+      const kind = state._draftSkillCheckKind
+      const categories = state._draftSkillCheckCategories
+      if (!kind || !categories) return
+      state._skillCheckKind = kind
+      state._skillCheckCategories = [...categories]
+      state._draftSkillCheckKind = null
+      state._draftSkillCheckCategories = null
+      this.setData({ filterSheetOpen: false })
+      this.applySkillCheckFilter()
+      return
+    }
+
+    const draft = state._draftFilterState
+    if (!draft) return
+    state._draftFilterState = null
+    state._draftSkillCheckKind = null
+    state._draftSkillCheckCategories = null
+    this.setData({ filterSheetOpen: false })
+    this.applyFilterState(cloneFilterState(draft))
+  },
+
+  // ── 清除所有篩選 ──
 
   clearFilters() {
     const state = getPageState(this)
@@ -409,7 +686,7 @@ Page({
     wx.setNavigationBarTitle({ title: '航海士名鑑' })
   },
 
-  // ── Skill sheet (catalog row) ──
+  // ── 技能 Sheet（名冊列） ──
 
   onSkillIconTap(e: WechatMiniprogram.BaseEvent) {
     const dataset = eventDataset(e)
@@ -427,13 +704,16 @@ Page({
     this.setData({ sheetSkill: null })
   },
 
-  /** Reverse lookup: clear all filters first, then show every officer who has this skill. */
+  /** 反向查詢：先清除所有篩選，再顯示擁有此技能的航海士。 */
   onReverseLookup() {
     const skill = this.data.sheetSkill
     if (!skill) return
 
     const state = getPageState(this)
-    // Clear all filters, keep only the target skill ID
+    state._draftFilterState = null
+    state._draftSkillCheckKind = null
+    state._draftSkillCheckCategories = null
+    // 清除所有篩選，只保留目標技能 ID
     state._filterState = {
       ...createEmptyFilterState(),
       selectedSkillId: skill.id,
@@ -444,6 +724,8 @@ Page({
     const visible = filtered.slice(0, PAGE_SIZE)
     const maps = buildViewMaps(state._filterState)
     this.setData({
+      activeMode: 'officer' as CatalogMode,
+      filterSheetOpen: false,
       selectedRarities: [],
       selectedTypes: [],
       selectedGenders: [],
@@ -460,11 +742,11 @@ Page({
       sheetSkill: null,
       ...maps,
     })
-    // Update nav title to show skill name
+    // 更新導覽列標題以顯示技能名稱
     wx.setNavigationBarTitle({ title: skill.name })
   },
 
-  // ── Skill checklist Tab (index 4) ──
+  // ── 技能清單 ──
 
   applySkillCheckFilter() {
     const state = getPageState(this)
@@ -511,19 +793,13 @@ Page({
     this.applySkillCheckFilter()
   },
 
-  onSkillCheckSearchInput(e: WechatMiniprogram.Input) {
-    const state = getPageState(this)
-    state._skillCheckSearchText = e.detail.value || ''
-    this.applySkillCheckFilter()
-  },
-
   onSkillCheckTap(e: WechatMiniprogram.BaseEvent) {
     const skillId = getDatasetString(eventDataset(e), 'skillId')
     if (!skillId) return
 
     const state = getPageState(this)
 
-    // Toggle: if already expanded, collapse
+    // 切換：若已展開則收合
     if (state._expandedSkillId === skillId) {
       state._expandedSkillId = null
       state._expandedOfficers = []
@@ -536,7 +812,7 @@ Page({
       return
     }
 
-    // Expand: find officers who have this skill
+    // 展開：尋找擁有此技能的航海士
     const officers = getOfficersForSkill(skillId, state._enrichedCatalog)
     state._expandedSkillId = skillId
     state._expandedOfficers = officers
@@ -572,7 +848,7 @@ Page({
     return Promise.resolve()
   },
 
-  // ── Pagination ──
+  // ── 分頁 ──
 
   loadMore(): Promise<void> {
     const state = getPageState(this)
@@ -590,7 +866,7 @@ Page({
     return Promise.resolve()
   },
 
-  // ── Image error ──
+  // ── 圖片錯誤 ──
 
   onPortraitError(e: WechatMiniprogram.BaseEvent) {
     const idx = Number(eventDataset(e)['index'])
@@ -644,7 +920,7 @@ Page({
     })
   },
 
-  // ── Navigate ──
+  // ── 導航 ──
 
   onOfficerTap(e: WechatMiniprogram.BaseEvent) {
     const id = getDatasetString(eventDataset(e), 'id')
