@@ -1,0 +1,20 @@
+<view class="disclosure-section disclosure-section--{{expanded ? 'expanded' : 'collapsed'}}">
+  <button
+    class="disclosure-section__toggle"
+    bindtap="onToggle"
+    aria-expanded="{{expanded}}"
+    aria-label="{{expanded ? '收起' : '展開'}}{{title}}"
+  >
+    <view class="disclosure-section__copy">
+      <text class="disclosure-section__title">{{title}}</text>
+      <text wx:if="{{hint}}" class="disclosure-section__hint">{{hint}}</text>
+    </view>
+    <view class="disclosure-section__meta">
+      <text wx:if="{{countLabel}}" class="disclosure-section__count">{{countLabel}}</text>
+      <text class="disclosure-section__action">{{expanded ? '收起' : '展開'}}</text>
+    </view>
+  </button>
+  <view wx:if="{{expanded}}" class="disclosure-section__body">
+    <slot />
+  </view>
+</view>

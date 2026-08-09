@@ -1,12 +1,4 @@
 <view class="fleet-page">
-  <view class="fleet-header">
-    <view>
-      <text class="fleet-header__eyebrow">戰鬥配置工作台</text>
-      <text class="fleet-header__title">戰鬥模擬艦隊</text>
-    </view>
-    <text class="fleet-header__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
-  </view>
-
   <config-bar
     config-name="{{configName}}"
     config-status="{{configStatus}}"
@@ -22,6 +14,14 @@
     bind:delete="onConfigDelete"
     bind:new="onConfigNew"
   />
+
+  <view class="fleet-context">
+    <view class="fleet-context__copy">
+      <text class="fleet-context__eyebrow">戰鬥配隊</text>
+      <text class="fleet-context__title">{{currentShip.label}} · {{currentShip.statusLabel}}</text>
+    </view>
+    <text class="fleet-context__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
+  </view>
 
   <!-- Config List Modal -->
   <view wx:if="{{showConfigList}}" class="config-modal-mask" bindtap="onConfigListClose">
@@ -134,6 +134,12 @@
         <text class="section-heading__status">{{currentShip.statusLabel}}</text>
       </view>
 
+      <mode-tabs
+        value="{{mode}}"
+        options="{{[{ value: 'manual', label: '手動配隊' }, { value: 'auto', label: '自動配隊' } ]}}"
+        bind:change="onModeTap"
+      />
+
       <view class="slot-grid">
         <view wx:for="{{currentShip.slots}}" wx:key="position" class="officer-slot {{item.officer ? 'officer-slot--filled' : ''}}">
           <text class="officer-slot__number">{{item.position}}</text>
@@ -158,12 +164,6 @@
           <text wx:else class="officer-slot__empty">空位</text>
         </view>
       </view>
-
-      <mode-tabs
-        value="{{mode}}"
-        options="{{[{ value: 'manual', label: '手動配隊' }, { value: 'auto', label: '自動配隊' }]}}"
-        bind:change="onModeTap"
-      />
 
       <view wx:if="{{mode === 'auto'}}" class="target-panel">
         <view class="panel-heading">
@@ -222,7 +222,7 @@
           <text class="panel-heading__title">可用航海士</text>
           <text class="panel-heading__hint">選擇技能後顯示候選</text>
         </view>
-        <view wx:for="{{manualCandidates}}" wx:key="id" class="candidate-row {{item.canSelect ? '' : 'candidate-row--disabled'}}" bindtap="onOfficerSelect" data-id="{{item.id}}">
+        <view wx:for="{{manualCandidates}}" wx:key="id" class="candidate-row" bindtap="onOfficerSelect" data-id="{{item.id}}">
           <view class="candidate-row__visuals">
             <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="candidate-row__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
             <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="candidate-row__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
@@ -232,8 +232,9 @@
           <view class="candidate-row__copy">
             <text class="candidate-row__name">{{item.name}}</text>
             <text class="candidate-row__meta">{{item.jobName}} · {{item.rarityName}}</text>
+            <text wx:if="{{item.skillContributionLabel}}" class="candidate-row__contribution">{{item.skillContributionLabel}}</text>
           </view>
-          <text class="candidate-row__status">{{item.statusLabel}}{{item.ownerShipLabel ? ' · ' + item.ownerShipLabel : ''}}</text>
+          <text class="candidate-row__status">{{item.selectionHint}}</text>
         </view>
         <empty-state
           wx:if="{{manualSkillId && manualCandidates.length === 0}}"
@@ -242,72 +243,101 @@
         />
       </view>
 
-      <view wx:if="{{mode === 'auto'}}" class="ban-panel">
-        <view class="panel-heading">
-          <text class="panel-heading__title">全艦隊排除名單（{{bannedOfficers.length}}）</text>
-          <text class="panel-heading__hint">解除後下次重算才會出現</text>
-        </view>
-        <scroll-view class="ban-list" scroll-x="true" enable-flex>
-          <view class="ban-list__content">
-            <view wx:for="{{bannedOfficers}}" wx:key="id" class="ban-chip">
-              <view class="ban-chip__visuals">
-                <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="ban-chip__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
-                <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
-                <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="ban-chip__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
-                <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="ban-chip__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
-              </view>
-              <text class="ban-chip__name">{{item.name}}</text>
-              <text class="ban-chip__remove" bindtap="onUnbanOfficer" data-id="{{item.id}}">解除</text>
-            </view>
+      <disclosure-section
+        title="本船排除名單"
+        hint="解除後下次重算才會出現"
+        count-label="{{currentShipExcludedOfficers ? currentShipExcludedOfficers.length : 0}}"
+        default-expanded="{{false}}"
+      >
+        <view class="excluded-list">
+          <view wx:for="{{currentShipExcludedOfficers}}" wx:key="id" class="excluded-row">
+            <text class="excluded-row__name">{{item.name}}</text>
+            <button class="excluded-row__remove" bindtap="onUnbanOfficer" data-id="{{item.id}}">解除本船排除</button>
           </view>
-        </scroll-view>
+        </view>
         <empty-state
-          wx:if="{{bannedOfficers.length === 0}}"
-          title="目前沒有排除航海士"
-          description="排除後的航海士會顯示在此處"
+          wx:if="{{currentShipExcludedOfficers && currentShipExcludedOfficers.length === 0}}"
+          title="目前沒有本船排除"
+          description="從目前結果移出的航海士會顯示在此處"
         />
-      </view>
+      </disclosure-section>
 
-      <view class="summary-panel">
-        <view class="panel-heading">
-          <text class="panel-heading__title">{{currentShip.label}} 技能累計</text>
-          <text class="panel-heading__hint">使用真實累計值 · 不封頂</text>
-        </view>
-        <view wx:for="{{skillSummary}}" wx:key="skillId" class="summary-row">
-          <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="summary-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />
-          <view class="summary-row__copy">
-            <text class="summary-row__name">{{item.skillName}}</text>
-            <text class="summary-row__level">Lv.{{item.totalLevel}}{{item.targetLevel !== null ? ' / 目標 Lv.' + item.targetLevel : ''}}</text>
-          </view>
-          <status-badge
-            status="{{item.targetLevel === null ? 'review' : item.isReached ? 'achieved' : 'unmet'}}"
-            label="{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}"
-          />
-          <scroll-view class="summary-row__contributors" scroll-x="true" enable-flex>
-            <view class="summary-row__contributors-content">
-              <image wx:if="{{assetReady && !failedPortraitImages[item.officerId]}}" wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.officerId}}" />
-              <text wx:if="{{item.contributors.length === 0}}" class="contributors-empty">尚無貢獻者</text>
+      <disclosure-section
+        wx:if="{{mode === 'auto'}}"
+        title="全艦隊排除名單"
+        hint="解除後下次重算才會出現"
+        count-label="{{bannedOfficers.length}}"
+        default-expanded="{{false}}"
+      >
+        <view class="ban-panel">
+          <scroll-view class="ban-list" scroll-x="true" enable-flex>
+            <view class="ban-list__content">
+              <view wx:for="{{bannedOfficers}}" wx:key="id" class="ban-chip">
+                <view class="ban-chip__visuals">
+                  <image wx:if="{{item.visuals.framePath && !failedPortraitImages[item.id + '_frame']}}" class="ban-chip__frame" src="{{item.visuals.framePath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_frame" />
+                  <image wx:if="{{assetReady && !failedPortraitImages[item.id]}}" class="ban-chip__portrait" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}" />
+                  <image wx:if="{{item.visuals.rarityIconPath && !failedPortraitImages[item.id + '_rarity']}}" class="ban-chip__rarity-icon" src="{{item.visuals.rarityIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_rarity" />
+                  <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="ban-chip__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
+                </view>
+                <text class="ban-chip__name">{{item.name}}</text>
+                <text class="ban-chip__remove" bindtap="onUnbanOfficer" data-id="{{item.id}}">解除</text>
+              </view>
             </view>
           </scroll-view>
+          <empty-state
+            wx:if="{{bannedOfficers.length === 0}}"
+            title="目前沒有排除航海士"
+            description="排除後的航海士會顯示在此處"
+          />
         </view>
-        <empty-state
-          wx:if="{{skillSummary.length === 0}}"
-          title="尚未配置戰鬥技能"
-          description="選擇技能與航海士後，此處會顯示目前船的技能累計"
-        />
-      </view>
+      </disclosure-section>
 
-      <view class="overview-panel">
-        <view class="panel-heading">
-          <text class="panel-heading__title">全艦隊摘要</text>
-          <text class="panel-heading__hint">只展開目前船的工作區</text>
+      <disclosure-section
+        title="{{currentShip.label}} 技能累計"
+        hint="使用真實累計值 · 不封頂"
+        count-label="{{skillSummary.length}}"
+        default-expanded="{{false}}"
+      >
+        <view class="summary-panel">
+          <view wx:for="{{skillSummary}}" wx:key="skillId" class="summary-row">
+            <image wx:if="{{assetReady && item.skillIconPath && !failedSkillImages[item.skillId]}}" class="summary-row__icon" src="{{item.skillIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.skillId}}" />
+            <view class="summary-row__copy">
+              <text class="summary-row__name">{{item.skillName}}</text>
+              <text class="summary-row__level">Lv.{{item.totalLevel}}{{item.targetLevel !== null ? ' / 目標 Lv.' + item.targetLevel : ''}}</text>
+            </view>
+            <status-badge
+              status="{{item.targetLevel === null ? 'review' : item.isReached ? 'achieved' : 'unmet'}}"
+              label="{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}"
+            />
+            <scroll-view class="summary-row__contributors" scroll-x="true" enable-flex>
+              <view class="summary-row__contributors-content">
+                <image wx:if="{{assetReady && !failedPortraitImages[item.officerId]}}" wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.officerId}}" />
+                <text wx:if="{{item.contributors.length === 0}}" class="contributors-empty">尚無貢獻者</text>
+              </view>
+            </scroll-view>
+          </view>
+          <empty-state
+            wx:if="{{skillSummary.length === 0}}"
+            title="尚未配置戰鬥技能"
+            description="選擇技能與航海士後，此處會顯示目前船的技能累計"
+          />
         </view>
-        <view wx:for="{{fleetOverview}}" wx:key="id" class="overview-row">
-          <text class="overview-row__name">{{item.label}}</text>
-          <text class="overview-row__count">{{item.count}} / 11</text>
-          <text class="overview-row__status">{{item.statusLabel}}</text>
+      </disclosure-section>
+
+      <disclosure-section
+        title="全艦隊摘要"
+        hint="只展開目前船的工作區"
+        count-label="{{fleetOverview.length}}"
+        default-expanded="{{false}}"
+      >
+        <view class="overview-panel">
+          <view wx:for="{{fleetOverview}}" wx:key="id" class="overview-row">
+            <text class="overview-row__name">{{item.label}}</text>
+            <text class="overview-row__count">{{item.count}} / 11</text>
+            <text class="overview-row__status">{{item.statusLabel}}</text>
+          </view>
         </view>
-      </view>
+      </disclosure-section>
     </view>
    </scroll-view>
 

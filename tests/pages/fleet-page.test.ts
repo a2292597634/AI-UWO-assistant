@@ -395,7 +395,7 @@ const sharedComponentNames = [
 ] as const
 
 describe('fleet slot action touch targets', () => {
-  it('keeps six columns and delegates slot actions to the shared component', () => {
+  it('keeps five columns and delegates slot actions to the shared component', () => {
     expect(fleetWxml).toMatch(/<officer-action-sheet[\s\S]*?variant="slot"/)
     expect(fleetWxml).toContain('bind:lock="onOfficerLock"')
     expect(fleetWxml).toContain('bind:remove="onOfficerRemove"')
@@ -407,7 +407,9 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxml).toContain('officer-slot__rarity-icon')
     expect(fleetWxml).toContain('officer-slot__type-icon')
     expect(fleetWxml).toContain('item.officer.visuals.framePath')
-    expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(6,\s*1fr\)/)
+    expect(fleetWxss).toMatch(
+      /\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/,
+    )
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
     expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx 72rpx;/)
@@ -452,6 +454,31 @@ describe('battle fleet shared component wiring', () => {
     )
     expect(fleetWxml).toContain('search-placeholder="在目前分類搜尋技能名稱"')
     expect(fleetWxml).toContain('empty-label="沒有符合的戰鬥技能"')
+  })
+})
+
+describe('battle fleet P5 workbench structure', () => {
+  it('registers the disclosure component and uses the five-column workbench structure', () => {
+    expect(fleetJson.usingComponents?.['disclosure-section']).toBe(
+      '../../components/disclosure-section/index',
+    )
+    expect(fleetWxml.match(/<disclosure-section\b/g)).toHaveLength(4)
+    expect(fleetWxml).not.toContain('class="fleet-header"')
+    expect(fleetWxml.indexOf('<mode-tabs')).toBeLessThan(fleetWxml.indexOf('class="slot-grid"'))
+    expect(fleetWxml).toContain('skillContributionLabel')
+    expect(fleetWxml).toContain('selectionHint')
+    expect(fleetWxml).toContain('currentShipExcludedOfficers')
+    expect(fleetWxml).toContain('bindtap="onUnbanOfficer"')
+  })
+})
+
+describe('battle fleet P5 layout rules', () => {
+  it('uses five columns and tokenized P5 page rules', () => {
+    expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*repeat\(5,\s*minmax\(0,\s*1fr\)\)/)
+    expect(fleetWxss).toMatch(/\.fleet-context\s*\{[\s\S]*var\(--uwo-/)
+    expect(fleetWxss).toMatch(/\.candidate-row\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(fleetWxss).toContain('overflow-wrap: anywhere')
+    expect(fleetWxss).not.toMatch(/\.candidate-row--disabled\s*\{[\s\S]*opacity\s*:/)
   })
 })
 

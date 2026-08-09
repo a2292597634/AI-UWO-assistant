@@ -42,8 +42,17 @@ export interface BattleFleetOfficerView {
   portraitPath: string
   status: FleetOfficerStatus
   statusLabel: string
+  skillContributionLabel: string
+  selectionHint: string
   ownerShipLabel: string
   canSelect: boolean
+  visuals: OfficerVisualPaths
+}
+
+export interface BattleFleetExcludedOfficerView {
+  id: string
+  name: string
+  portraitPath: string
   visuals: OfficerVisualPaths
 }
 
@@ -100,6 +109,7 @@ export interface BattleFleetPageData {
   skillCategories: BattleFleetCategoryView[]
   targets: BattleFleetTargetView[]
   bannedOfficers: BattleFleetOfficerView[]
+  currentShipExcludedOfficers?: BattleFleetExcludedOfficerView[]
   skillSummary: BattleFleetSkillSummaryView[]
   sheetSkill: SkillSheetView | null
 }
@@ -150,6 +160,16 @@ const ownerLabel = (state: FleetState, currentShipId: string, officerId: string)
   return owner.label
 }
 
+const selectionHint = (status: FleetOfficerStatus, ownerShipLabel: string): string => {
+  if (status === 'available') return '可加入目前船'
+  if (status === 'current') return '目前船 · 已加入'
+  if (status === 'locked') return '目前船 · 已鎖定'
+  if (status === 'banned') return '全艦隊已排除'
+
+  const shipNumber = ownerShipLabel.replace('號船', '')
+  return shipNumber ? `第 ${shipNumber} 船 · 點擊後移動` : '已在其他船'
+}
+
 const buildOfficerView = (
   state: FleetState,
   currentShipId: string,
@@ -164,6 +184,8 @@ const buildOfficerView = (
     portraitPath: officer.portraitPath,
     status,
     statusLabel: OFFICER_STATUS_LABELS[status],
+    skillContributionLabel: '',
+    selectionHint: selectionHint(status, ownerLabel(state, currentShipId, officer.id)),
     ownerShipLabel: ownerLabel(state, currentShipId, officer.id),
     canSelect: status === 'available',
     visuals: buildOfficerVisuals({
@@ -239,11 +261,37 @@ export const buildBattleFleetPageData = (
   const manualCandidates = manualSkillId
     ? officerList
         .filter((officer) => officer.skills.some((relation) => relation.skillId === manualSkillId))
-        .map((officer) => buildOfficerView(state, currentShip.id, officer))
+        .map((officer) => {
+          const view = buildOfficerView(state, currentShip.id, officer)
+          const relation = officer.skills.find((item) => item.skillId === manualSkillId)
+          const skillName = skills[manualSkillId]?.n
+          return {
+            ...view,
+            skillContributionLabel:
+              relation && skillName ? `${skillName} +Lv.${relation.unlockLevel}` : '',
+          }
+        })
     : []
   const bannedOfficers = officerList
     .filter((officer) => state.bannedOfficerIds.includes(officer.id))
     .map((officer) => buildOfficerView(state, currentShip.id, officer))
+  const currentShipExcludedOfficers = currentShip.removedOfficerIds.flatMap((officerId) => {
+    const officer = officers[officerId]
+    return officer
+      ? [
+          {
+            id: officer.id,
+            name: officer.name,
+            portraitPath: officer.portraitPath,
+            visuals: buildOfficerVisuals({
+              visualGradeId: officer.visualGradeId,
+              typeId: officer.typeId,
+              genderId: officer.genderId,
+            }),
+          },
+        ]
+      : []
+  })
   const targetViews = buildTargetViews(currentShip, skills)
 
   return {
@@ -281,6 +329,7 @@ export const buildBattleFleetPageData = (
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
     targets: targetViews,
     bannedOfficers,
+    currentShipExcludedOfficers,
     skillSummary: buildSummaryViews(currentSummary, officers),
     sheetSkill: null,
   }

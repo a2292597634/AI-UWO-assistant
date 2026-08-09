@@ -4,6 +4,7 @@ import type { FleetState } from '../../miniprogram/contracts/battle-fleet'
 import {
   addOfficerToShip,
   createFleetState,
+  removeOfficerFromShip,
   updateShipTargets,
 } from '../../miniprogram/domain/battle-fleet'
 import { buildBattleFleetPageData } from '../../miniprogram/presenters/battle-fleet-presenter'
@@ -160,5 +161,45 @@ describe('battle fleet presenter', () => {
     )
 
     expect(view.skillCategories.every((item) => item.id.includes('naval_active'))).toBe(true)
+  })
+
+  it('projects the selected skill contribution as visible candidate text', () => {
+    const view = buildBattleFleetPageData(
+      stateWithCurrentShip(),
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+      'skill-main',
+    )
+
+    expect(view.manualCandidates.find((item) => item.id === 'officer-a')).toMatchObject({
+      skillContributionLabel: '主砲強化 +Lv.5',
+    })
+  })
+
+  it('explains cross-ship movement and exposes current-ship exclusions', () => {
+    let state = createFleetState()
+    state = addOfficerToShip(state, 'ship-2', 'officer-p').state
+    state = addOfficerToShip(state, 'ship-1', 'officer-a').state
+    state = removeOfficerFromShip(state, 'ship-1', 'officer-a').state
+
+    const view = buildBattleFleetPageData(
+      state,
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+      'skill-target-only',
+    )
+
+    expect(view.manualCandidates.find((item) => item.id === 'officer-p')).toMatchObject({
+      selectionHint: '第 2 船 · 點擊後移動',
+    })
+    expect(view.currentShipExcludedOfficers).toEqual([
+      expect.objectContaining({ id: 'officer-a', name: '甲' }),
+    ])
   })
 })
