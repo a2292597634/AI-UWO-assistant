@@ -30,6 +30,36 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     group: 'feature',
   },
   {
+    id: 'feature-battle-fleet',
+    source: 'feature-battle-fleet-source.png',
+    output: 'feature-battle-fleet.png',
+    mode: 'resize-png',
+    width: 96,
+    height: 96,
+    maxBytes: 12 * 1024,
+    group: 'feature',
+  },
+  {
+    id: 'feature-adventure-fleet',
+    source: 'feature-adventure-fleet-source.png',
+    output: 'feature-adventure-fleet.png',
+    mode: 'resize-png',
+    width: 96,
+    height: 96,
+    maxBytes: 12 * 1024,
+    group: 'feature',
+  },
+  {
+    id: 'feature-data-maintenance',
+    source: 'feature-data-maintenance-source.png',
+    output: 'feature-data-maintenance.png',
+    mode: 'resize-png',
+    width: 96,
+    height: 96,
+    maxBytes: 12 * 1024,
+    group: 'feature',
+  },
+  {
     id: 'home-harbor',
     source: 'home-harbor-source.png',
     output: 'home-harbor.jpg',
@@ -70,7 +100,7 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
 
 export const UI_ASSET_GROUP_BUDGETS: Readonly<Record<UiAssetRecipe['group'], number>> = {
   banner: 150 * 1024,
-  feature: 12 * 1024,
+  feature: 48 * 1024,
   'original-ui': 80 * 1024,
 }
 

@@ -105,6 +105,15 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-officer-catalog-source.png')),
+    sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
+      .png()
+      .toFile(join(sourceRoot, 'feature-battle-fleet-source.png')),
+    sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
+      .png()
+      .toFile(join(sourceRoot, 'feature-adventure-fleet-source.png')),
+    sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
+      .png()
+      .toFile(join(sourceRoot, 'feature-data-maintenance-source.png')),
   ])
 }
 
@@ -120,6 +129,11 @@ describe('buildUiAssets', () => {
     const files = first.files as ReportFileWithTransparency[]
     const grade = files.find((file) => file.id === 'rarity-filter-grade-5')
     const banner = files.find((file) => file.id === 'home-harbor')
+    const featureIds = [
+      'feature-battle-fleet',
+      'feature-adventure-fleet',
+      'feature-data-maintenance',
+    ]
 
     expect(grade?.trimBounds).toEqual({ left: 2, top: 0, width: 20, height: 23 })
     expect(grade?.sourceTransparentBounds).toEqual(grade?.trimBounds)
@@ -131,6 +145,12 @@ describe('buildUiAssets', () => {
     ).toBe(true)
     expect(banner?.outputTransparentBounds).toBeUndefined()
     expect([grade?.width, grade?.height]).toEqual([29, 29])
+    expect(featureIds.every((id) => files.some((file) => file.id === id))).toBe(true)
+    expect(
+      files
+        .filter((file) => featureIds.includes(file.id))
+        .every((file) => file.width === 96 && file.height === 96 && file.byteSize <= 12 * 1024),
+    ).toBe(true)
     expect(first).toEqual(second)
     for (const [group, byteSize] of Object.entries(first.groupBytes)) {
       expect(byteSize).toBeLessThanOrEqual(

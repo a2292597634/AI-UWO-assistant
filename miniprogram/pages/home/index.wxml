@@ -21,25 +21,64 @@
       <view class="feature-hub__rule"></view>
     </view>
     <view class="module-grid">
-      <view
-        wx:for="{{modules}}"
-        wx:key="id"
-        class="module-grid__item"
-        bindtap="onModuleTap"
-        data-route="{{item.route}}"
-      >
-        <view class="module-grid__badge">
-          <image
-            wx:if="{{!item.iconFailed}}"
-            class="module-grid__icon"
-            src="{{item.iconPath}}"
-            mode="aspectFit"
-            binderror="onModuleIconError"
-            data-index="{{index}}"
-          />
-          <view wx:else class="module-grid__icon-fallback">{{item.iconFallback}}</view>
+      <block wx:for="{{modules}}" wx:key="id">
+        <view
+          wx:if="{{index < 3}}"
+          class="module-grid__item"
+          bindtap="onModuleTap"
+          data-route="{{item.route}}"
+        >
+          <view class="module-grid__badge">
+            <image
+              wx:if="{{!item.iconFailed}}"
+              class="module-grid__icon"
+              src="{{item.iconPath}}"
+              mode="aspectFit"
+              binderror="onModuleIconError"
+              data-index="{{index}}"
+            />
+            <view
+              wx:else
+              class="module-grid__icon-fallback"
+              aria-label="功能圖標載入失敗"
+            ></view>
+          </view>
+          <text class="module-grid__name">{{item.name}}</text>
         </view>
-        <text class="module-grid__name">{{item.name}}</text>
+      </block>
+    </view>
+
+    <view class="feature-hub__secondary">
+      <text class="feature-hub__secondary-label">資料維護</text>
+      <view class="module-grid module-grid--secondary">
+        <block wx:for="{{modules}}" wx:key="id">
+          <view
+            wx:if="{{index === 3}}"
+            class="module-grid__item module-grid__item--secondary"
+            bindtap="onModuleTap"
+            data-route="{{item.route}}"
+          >
+            <view class="module-grid__badge">
+              <image
+                wx:if="{{!item.iconFailed}}"
+                class="module-grid__icon"
+                src="{{item.iconPath}}"
+                mode="aspectFit"
+                binderror="onModuleIconError"
+                data-index="{{index}}"
+              />
+              <view
+                wx:else
+                class="module-grid__icon-fallback"
+                aria-label="功能圖標載入失敗"
+              ></view>
+            </view>
+            <view class="module-grid__secondary-copy">
+              <text class="module-grid__name">{{item.name}}</text>
+              <text class="module-grid__hint">低頻入口 · 維護自訂航海士資料</text>
+            </view>
+          </view>
+        </block>
       </view>
     </view>
   </view>

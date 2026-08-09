@@ -2,6 +2,72 @@
   "processingRuleVersion": "1",
   "files": [
     {
+      "id": "feature-adventure-fleet",
+      "output": "feature-adventure-fleet.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 4991,
+      "sha256": "d2b9b2ed19aa09f82175b28c960c54947da6e5f6c8f5412aec466deabfeec02e",
+      "sourceTransparentBounds": {
+        "left": 96,
+        "top": 82,
+        "width": 1061,
+        "height": 1070
+      },
+      "outputTransparentBounds": {
+        "left": 5,
+        "top": 4,
+        "width": 86,
+        "height": 87
+      }
+    },
+    {
+      "id": "feature-battle-fleet",
+      "output": "feature-battle-fleet.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 5011,
+      "sha256": "f447f65a44b63bfee972801ab987a91ec4042d9e8450e503a8411a97a0923dad",
+      "sourceTransparentBounds": {
+        "left": 95,
+        "top": 79,
+        "width": 1064,
+        "height": 1075
+      },
+      "outputTransparentBounds": {
+        "left": 5,
+        "top": 3,
+        "width": 86,
+        "height": 88
+      }
+    },
+    {
+      "id": "feature-data-maintenance",
+      "output": "feature-data-maintenance.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 4920,
+      "sha256": "497e1cbcaaaaaa4157ddebfe333b3654f2f7920932e44231f4c06ca0ad222437",
+      "sourceTransparentBounds": {
+        "left": 96,
+        "top": 81,
+        "width": 1061,
+        "height": 1071
+      },
+      "outputTransparentBounds": {
+        "left": 5,
+        "top": 4,
+        "width": 86,
+        "height": 87
+      }
+    },
+    {
       "id": "feature-officer-catalog",
       "output": "feature-officer-catalog.png",
       "group": "feature",
@@ -484,8 +550,8 @@
   ],
   "groupBytes": {
     "banner": 32507,
-    "feature": 4887,
+    "feature": 19809,
     "original-ui": 40210
   },
-  "totalBytes": 77604
+  "totalBytes": 92526
 }
