@@ -479,3 +479,68 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
   })
 })
+
+describe('Task 5 方案預覽共享元件契約', () => {
+  const readResultPreviewFile = (file: (typeof COMPONENT_FILES)[number]): string => {
+    const relativePath = `${COMPONENT_ROOT}/result-preview-sheet/${file}`
+    expect(projectFileExists(relativePath), `${relativePath} 應存在`).toBe(true)
+    return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
+  }
+
+  it('接收預覽與撤銷狀態，且只將三種操作交回頁面', () => {
+    const script = readResultPreviewFile('index.ts')
+
+    for (const property of ['visible', 'preview', 'canUndo']) {
+      expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
+    }
+    for (const eventName of ['cancel', 'apply', 'undo']) {
+      expect(script).toMatch(new RegExp(`triggerEvent\\(\\s*['"]${eventName}['"]\\s*\\)`))
+    }
+    expect(script).not.toMatch(/buildFleetProposalPreview|FleetProposal|domain|solver/i)
+  })
+
+  it('顯示目標進度、成員差異、鎖定保留與約束語義', () => {
+    const wxml = readResultPreviewFile('index.wxml')
+
+    expect(wxml).toContain('目標達成')
+    expect(wxml).toContain('目前 Lv.')
+    expect(wxml).toContain('預期 Lv.')
+    for (const label of ['保留', '新增', '移除']) {
+      expect(wxml).toContain(label)
+    }
+    expect(wxml).toContain('鎖定成員')
+    expect(wxml).toContain('有成員未保留')
+    expect(wxml).toContain('約束與提示')
+    expect(wxml).toContain("item.reached ? '已達成' : '差 Lv.' + item.difference")
+  })
+
+  it('不可應用時保留原生禁用、無障礙語義與可見原因', () => {
+    const wxml = readResultPreviewFile('index.wxml')
+
+    expect(wxml).toContain('取消')
+    expect(wxml).toContain('應用方案')
+    expect(wxml).toContain('disabled="{{!preview.canApply}}"')
+    expect(wxml).toContain('aria-disabled="{{!preview.canApply}}"')
+    expect(wxml).toContain('方案目前不可應用')
+    expect(wxml).toMatch(/wx:if="\{\{!preview\.canApply\}\}"/)
+  })
+
+  it('canUndo 只顯示一次撤銷入口', () => {
+    const wxml = readResultPreviewFile('index.wxml')
+
+    expect(wxml).toContain('wx:if="{{canUndo}}"')
+    expect(wxml.match(/bindtap="onUndo"/g)).toHaveLength(1)
+    expect(wxml).toContain('撤銷本次配隊')
+  })
+
+  it('使用 P3 Sheet、按鈕、長文字與安全區規範', () => {
+    const wxss = readResultPreviewFile('index.wxss')
+
+    expect(wxss).toContain('var(--uwo-radius-sheet)')
+    expect(wxss).toContain('var(--uwo-shadow-sheet)')
+    expect(wxss).toMatch(/padding(?:-bottom)?\s*:\s*calc\([^;]*env\(safe-area-inset-bottom\)\)/)
+    expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
+    expect(wxss).toMatch(/overflow-wrap\s*:\s*anywhere/)
+  })
+})
