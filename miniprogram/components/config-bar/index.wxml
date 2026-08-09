@@ -1,0 +1,33 @@
+<view class="config-bar">
+  <view class="config-bar__info" bindtap="onInfoTap" aria-label="開啟配置列表">
+    <text class="config-bar__name">{{configName || '未命名配置'}}</text>
+    <text
+      class="config-bar__status config-bar__status--{{configStatus}}"
+    >{{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}</text>
+  </view>
+
+  <view class="config-bar__actions">
+    <button
+      wx:if="{{authStatus === 'guest'}}"
+      class="config-bar__action config-bar__login"
+      bindtap="onLoginTap"
+    >登入後保存</button>
+    <button
+      wx:else
+      class="config-bar__action config-bar__menu"
+      bindtap="onMenuTap"
+    >{{showMenu ? '關閉配置選單' : '開啟配置選單'}}</button>
+  </view>
+</view>
+
+<view wx:if="{{showMenu && authStatus !== 'guest'}}" class="config-bar__menu-panel">
+  <button class="config-bar__menu-item" bindtap="onSave">覆蓋保存</button>
+  <button class="config-bar__menu-item" bindtap="onSaveAs">另存為</button>
+  <button wx:if="{{activeConfigId}}" class="config-bar__menu-item" bindtap="onRename">重新命名</button>
+  <button
+    wx:if="{{activeConfigId}}"
+    class="config-bar__menu-item config-bar__menu-item--danger"
+    bindtap="onDelete"
+  >刪除配置</button>
+  <button class="config-bar__menu-item" bindtap="onNew">新建配置</button>
+</view>

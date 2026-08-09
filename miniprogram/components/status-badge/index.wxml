@@ -1,0 +1,6 @@
+<view class="status-badge">
+  <view class="ui-status ui-status--{{status}} status-badge__label">
+    <text class="ui-status__label">{{label || (status === 'achieved' ? '已達成' : status === 'unmet' ? '未達成' : status === 'error' ? '錯誤' : '需復核')}}</text>
+  </view>
+  <text wx:if="{{description}}" class="status-badge__description">{{description}}</text>
+</view>

@@ -1,0 +1,13 @@
+<view class="mode-tabs" role="tablist">
+  <button
+    wx:for="{{options}}"
+    wx:key="value"
+    class="mode-tabs__item {{value === item.value ? 'mode-tabs__item--active' : ''}}"
+    disabled="{{item.disabled}}"
+    bindtap="onChange"
+    data-value="{{item.value}}"
+    data-disabled="{{item.disabled}}"
+    role="tab"
+    aria-selected="{{value === item.value}}"
+  >{{item.label}}</button>
+</view>

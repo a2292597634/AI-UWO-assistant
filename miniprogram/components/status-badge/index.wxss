@@ -1,0 +1,33 @@
+.status-badge {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--uwo-space-2);
+  color: var(--uwo-color-text-primary);
+  font-family: var(--uwo-font-family-body);
+}
+
+.status-badge__label {
+  max-width: 100%;
+}
+
+.status-badge__description {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ui-status--achieved {
+  color: var(--uwo-color-success);
+}
+
+.ui-status--unmet,
+.ui-status--review {
+  color: var(--uwo-color-warning);
+}
+
+.ui-status--error {
+  color: var(--uwo-color-danger);
+}

@@ -1,0 +1,99 @@
+.config-bar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--uwo-space-4);
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  background: var(--uwo-color-surface);
+  color: var(--uwo-color-text-primary);
+  font-family: var(--uwo-font-family-body);
+}
+
+.config-bar__info,
+.config-bar__action,
+.config-bar__menu-item {
+  min-height: 88rpx;
+  font-family: var(--uwo-font-family-body);
+  font-size: var(--uwo-font-size-minimum-action);
+}
+
+.config-bar__info {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--uwo-space-1);
+}
+
+.config-bar__name {
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.config-bar__status {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.4;
+}
+
+.config-bar__status--saved {
+  color: var(--uwo-color-success);
+}
+
+.config-bar__status--unsaved,
+.config-bar__status--new {
+  color: var(--uwo-color-warning);
+}
+
+.config-bar__actions {
+  display: flex;
+  align-items: stretch;
+}
+
+.config-bar__action,
+.config-bar__menu-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--uwo-space-2) var(--uwo-space-4);
+  border: 2rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface);
+  color: var(--uwo-color-text-primary);
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.config-bar__action::after,
+.config-bar__menu-item::after {
+  border: 0;
+}
+
+.config-bar__menu-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uwo-space-2);
+  margin-top: var(--uwo-space-2);
+  padding: var(--uwo-space-3);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  background: var(--uwo-color-surface);
+}
+
+.config-bar__menu-item {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.config-bar__menu-item--danger {
+  border-color: var(--uwo-color-danger);
+  background: var(--uwo-color-danger);
+  color: var(--uwo-color-surface);
+}

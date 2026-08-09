@@ -93,7 +93,7 @@ const COMPONENT_CONTRACTS = [
   },
   { name: 'result-preview-sheet', events: ['cancel', 'apply', 'undo'] },
   { name: 'status-badge', events: [] },
-  { name: 'empty-state', events: [] },
+  { name: 'empty-state', events: ['action'] },
 ] as const
 
 const PAGE_PATHS = ['miniprogram/pages/fleet', 'miniprogram/pages/adventure-fleet'] as const
@@ -280,6 +280,78 @@ describe.each(PAGE_PATHS)('%s 共享元件接線', (pagePath) => {
 
     for (const { name } of COMPONENT_CONTRACTS) {
       expect(wxml).toMatch(new RegExp(`<${escapeRegExp(name)}(?:\\s|/?>)`))
+    }
+  })
+})
+
+describe('Task 2 基礎共享元件契約', () => {
+  const readComponentFile = (component: string, file: (typeof COMPONENT_FILES)[number]): string => {
+    const relativePath = `${COMPONENT_ROOT}/${component}/${file}`
+    expect(projectFileExists(relativePath), `${relativePath} 應存在`).toBe(true)
+    return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
+  }
+
+  it('ConfigBar 顯示配置狀態並提供完整配置操作入口', () => {
+    const script = readComponentFile('config-bar', 'index.ts')
+    const wxml = readComponentFile('config-bar', 'index.wxml')
+
+    for (const property of [
+      'configName',
+      'configStatus',
+      'authStatus',
+      'activeConfigId',
+      'showMenu',
+    ]) {
+      expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
+    }
+    expect(wxml).toContain('config-bar__status')
+    expect(wxml).toMatch(/bindtap="onSave"/)
+    expect(wxml).toContain('已保存')
+    expect(wxml).toContain('尚未保存')
+    expect(wxml).toContain('未命名配置')
+  })
+
+  it('ModeTabs 以選項值發出 change 並提供可見選中語義', () => {
+    const script = readComponentFile('mode-tabs', 'index.ts')
+    const wxml = readComponentFile('mode-tabs', 'index.wxml')
+
+    expect(script).toMatch(/\bvalue\s*:/)
+    expect(script).toMatch(/\boptions\s*:/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]change['"]\s*,\s*\{\s*value\s*\}/)
+    expect(wxml).toContain('data-value="{{item.value}}"')
+    expect(wxml).toContain('mode-tabs__item--active')
+  })
+
+  it('StatusBadge 以文字區分四種狀態', () => {
+    const script = readComponentFile('status-badge', 'index.ts')
+    const wxml = readComponentFile('status-badge', 'index.wxml')
+    const wxss = readComponentFile('status-badge', 'index.wxss')
+
+    for (const property of ['status', 'label', 'description']) {
+      expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
+    }
+    expect(wxml).toContain('ui-status__label')
+    for (const status of ['achieved', 'unmet', 'review', 'error']) {
+      expect(wxss).toContain(`ui-status--${status}`)
+    }
+  })
+
+  it('EmptyState 顯示標題與說明並以 action 交回操作', () => {
+    const script = readComponentFile('empty-state', 'index.ts')
+    const wxml = readComponentFile('empty-state', 'index.wxml')
+
+    for (const property of ['title', 'description', 'actionLabel', 'showAction']) {
+      expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
+    }
+    expect(wxml).toContain('empty-state__description')
+    expect(wxml).toMatch(/bindtap="onAction"/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]action['"]\s*\)/)
+  })
+
+  it('本任務操作入口維持至少 88rpx 熱區', () => {
+    for (const component of ['config-bar', 'mode-tabs', 'empty-state']) {
+      const wxss = readComponentFile(component, 'index.wxss')
+      expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
     }
   })
 })
