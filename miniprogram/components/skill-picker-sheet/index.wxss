@@ -38,11 +38,26 @@
   margin-bottom: var(--uwo-space-3);
 }
 
+.skill-picker-sheet__heading-copy {
+  min-width: 0;
+  flex: 1;
+}
+
 .skill-picker-sheet__title {
+  display: block;
   min-width: 0;
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-section-title);
   font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.skill-picker-sheet__hint {
+  display: block;
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 

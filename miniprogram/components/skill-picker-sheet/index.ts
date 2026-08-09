@@ -48,6 +48,26 @@ Component({
       type: String,
       value: '選擇',
     },
+    title: {
+      type: String,
+      value: '選擇技能',
+    },
+    hint: {
+      type: String,
+      value: '',
+    },
+    searchPlaceholder: {
+      type: String,
+      value: '搜尋技能名稱',
+    },
+    emptyLabel: {
+      type: String,
+      value: '沒有符合的技能',
+    },
+    loadMoreLabel: {
+      type: String,
+      value: '繼續上滑載入更多技能',
+    },
   },
 
   data: {

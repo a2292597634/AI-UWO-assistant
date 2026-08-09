@@ -444,6 +444,15 @@ describe('battle fleet shared component wiring', () => {
     expect(fleetWxml).not.toContain('class="proposal-preview-sheet"')
     expect(fleetWxml).not.toContain('class="skill-options"')
   })
+
+  it('keeps the battle skill picker title, guidance, search, empty state and meta semantics', () => {
+    expect(fleetWxml).toContain('title="選擇戰鬥技能"')
+    expect(fleetWxml).toContain(
+      "hint=\"{{mode === 'auto' ? '點擊技能查看詳情，選擇加入目標' : '點擊技能查看詳情，選擇後篩選可用航海士'}}\"",
+    )
+    expect(fleetWxml).toContain('search-placeholder="在目前分類搜尋技能名稱"')
+    expect(fleetWxml).toContain('empty-label="沒有符合的戰鬥技能"')
+  })
 })
 
 describe('battle fleet proposal preview layout', () => {

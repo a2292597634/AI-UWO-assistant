@@ -294,4 +294,15 @@ describe('adventure fleet shared component wiring', () => {
     expect(adventureWxss).toMatch(/\.officer-card\s*\{[\s\S]*padding:\s*8rpx 4rpx;/)
     expect(adventureWxss).not.toMatch(/\.officer-card\s*\{[\s\S]*padding:\s*8rpx 4rpx 68rpx;/)
   })
+
+  it('keeps distinct inline and sheet copy plus adventure skill ownership meta', () => {
+    expect(adventureWxml).toMatch(
+      /presentation="inline"[\s\S]*?title="冒險技能列表"[\s\S]*?hint="點擊「選擇」篩選候選航海士"/,
+    )
+    expect(adventureWxml).toMatch(
+      /presentation="sheet"[\s\S]*?title="選擇新增目標技能"[\s\S]*?hint="會建立 Lv\.1 優化目標"/,
+    )
+    expect(adventureWxml.match(/search-placeholder="搜尋冒險技能名稱"/g)).toHaveLength(2)
+    expect(adventureWxml.match(/empty-label="沒有符合的冒險技能"/g)).toHaveLength(2)
+  })
 })

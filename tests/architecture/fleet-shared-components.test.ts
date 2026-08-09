@@ -433,6 +433,11 @@ describe('Task 4 技能選擇共享元件契約', () => {
       'searchText',
       'hasMore',
       'selectionLabel',
+      'title',
+      'hint',
+      'searchPlaceholder',
+      'emptyLabel',
+      'loadMoreLabel',
     ]) {
       expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
     }
@@ -442,6 +447,11 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(wxml).toContain('item.id === selectedKindId')
     expect(wxml).toContain('item.id === selectedCategoryId')
     expect(wxml).not.toContain('item.isActive')
+    expect(wxml).toContain('{{title}}')
+    expect(wxml).toContain('{{hint}}')
+    expect(wxml).toContain('placeholder="{{searchPlaceholder}}"')
+    expect(wxml).toContain('{{emptyLabel}}')
+    expect(wxml).toContain('{{loadMoreLabel}}')
   })
 
   it('顯示類型、分類、搜尋、技能詳情、選擇與載入入口', () => {
@@ -454,7 +464,10 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(wxml).toMatch(/bindtap="onSkillTap"/)
     expect(wxml).toMatch(/catchtap="onSelect"/)
     expect(wxml).toMatch(/bindscrolltolower="onReachEnd"/)
-    expect(wxml).toMatch(/沒有符合|請先選擇/)
+    expect(wxml).toContain('item.metaLabel')
+    expect(wxml).toContain('item.kindLabel')
+    expect(wxml).toContain('item.categoryName')
+    expect(wxml).toContain('item.officerCount')
   })
 
   it('所有事件只攜帶必要識別值並交回頁面', () => {
