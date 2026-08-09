@@ -125,3 +125,25 @@ describe('detail page CDN assets', () => {
     expect(wxss).toMatch(/\.skill-level-badge\s*\{[\s\S]*position:\s*absolute/)
   })
 })
+
+describe('detail page skill hierarchy', () => {
+  const detailWxml = fs.readFileSync(
+    path.resolve(__dirname, '../../miniprogram/subpkg-detail/pages/detail/index.wxml'),
+    'utf8',
+  )
+  const detailWxss = fs.readFileSync(
+    path.resolve(__dirname, '../../miniprogram/subpkg-detail/pages/detail/index.wxss'),
+    'utf8',
+  )
+
+  it('keeps skill sections flat while retaining detail and reverse lookup events', () => {
+    expect(detailWxml).toContain('content-section--skills')
+    expect(detailWxml).toContain('bindtap="onSkillTap"')
+    expect(detailWxml).toContain('bind:dismiss="onSheetDismiss"')
+    expect(detailWxml).toContain('bind:reverselookup="onReverseLookup"')
+    expect(detailWxss).toMatch(/\.content-section--skills\s*\{[\s\S]*background:\s*transparent/)
+    expect(detailWxss).toMatch(
+      /\.skill-action\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-minimum-action\)/,
+    )
+  })
+})

@@ -4,13 +4,19 @@
     <view class="skill-sheet__header">
       <image class="skill-sheet__icon" src="{{skill.iconPath}}" mode="aspectFit" />
       <view class="skill-sheet__identity">
+        <text class="skill-sheet__eyebrow">技能詳情</text>
         <text class="skill-sheet__name">{{skill.name}}</text>
         <view class="skill-sheet__meta">
           <text class="skill-sheet__kind">{{skill.kindLabel}}</text>
           <text class="skill-sheet__category">{{skill.category}}</text>
         </view>
       </view>
-      <view class="skill-sheet__close" bindtap="onDismiss" aria-label="關閉">
+      <view
+        class="skill-sheet__close"
+        bindtap="onDismiss"
+        role="button"
+        aria-label="關閉技能詳情"
+      >
         <text>關閉</text>
       </view>
     </view>

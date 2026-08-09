@@ -62,7 +62,7 @@
     </view>
   </view>
 
-  <view class="content-section" wx:if="{{activeSkills.length > 0}}">
+  <view class="content-section content-section--skills" wx:if="{{activeSkills.length > 0}}">
     <view class="section-heading">
       <text class="section-title">主動技能</text>
       <text class="section-count">{{activeSkills.length}} 項</text>
@@ -94,7 +94,7 @@
     </view>
   </view>
 
-  <view class="content-section" wx:if="{{passiveSkills.length > 0}}">
+  <view class="content-section content-section--skills" wx:if="{{passiveSkills.length > 0}}">
     <view class="section-heading">
       <text class="section-title">被動技能</text>
       <text class="section-count">{{passiveSkills.length}} 項</text>

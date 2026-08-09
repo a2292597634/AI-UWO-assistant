@@ -31,7 +31,7 @@
     "assets:ui:check": "tsx tools/ui-assets/build-ui-assets.ts --check",
     "sync:custom-officers": "tsx tools/sync-custom-officers.ts",
     "pipeline:full": "npm run import:run && npm run assets:full && npm run data:generate",
-    "generate:check": "npm run data:generate && git diff --exit-code -- miniprogram/generated miniprogram/subpkg-detail data/assets/asset-dependencies.json",
+    "generate:check": "npm run data:generate && git diff --exit-code -- miniprogram/generated miniprogram/subpkg-detail/details-*.js miniprogram/subpkg-detail/detail-index.js miniprogram/subpkg-detail/detail-loaders.js data/assets/asset-dependencies.json",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:runtime-network && npm run check:miniprogram-size && npm run assets:ui:check && npm run assets:manifest:check && npm run data:check && npm run generate:check"
   },
   "devDependencies": {
