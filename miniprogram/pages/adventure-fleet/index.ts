@@ -10,7 +10,6 @@ import {
   getDefaultAdventureTargetSkillIds,
   lockOfficer,
   moveOfficerToShip,
-  recalculateShip,
   removeOfficerFromShip,
   setShipMode,
   unbanOfficer,
@@ -19,8 +18,14 @@ import {
   type AdventureFleetOfficer,
 } from '../../domain/adventure-fleet'
 import { solveAdventureTargets } from '../../domain/adventure-fleet-solver'
+import {
+  applyAdventureProposal,
+  cloneFleetState,
+  fleetStateFingerprint,
+} from '../../domain/fleet-proposal'
 import { getCatalog, getSkills } from '../../runtime/main-data-store'
 import { buildAdventureFleetPageData } from '../../presenters/adventure-fleet-presenter'
+import { buildFleetProposalPreview } from '../../presenters/fleet-proposal-presenter'
 import { buildSkillSheet } from '../../presenters/skill-sheet'
 import { serializeFleetState } from '../../contracts/fleet-config'
 import { getFleetConfigService, FleetConfigError } from '../../runtime/fleet-config-service'
@@ -29,6 +34,8 @@ import type { FleetConfigSummary } from '../../contracts/fleet-config'
 import type { FleetState, FleetShipState } from '../../contracts/battle-fleet'
 import type { RuntimeSkill } from '../../contracts/runtime-data'
 import type { AdventureFleetPageData } from '../../presenters/adventure-fleet-presenter'
+import type { FleetProposal } from '../../contracts/fleet-proposal'
+import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../presenters/skill-sheet'
 
 // ── 配置操作类型 ──
@@ -71,6 +78,8 @@ interface FleetPageData extends AdventureFleetPageData {
   pendingAction: PendingConfigAction | null
   configLimitReached: boolean
   showConflictDialog: boolean
+  proposalPreview: FleetProposalPreviewView | null
+  canUndoProposal: boolean
 }
 
 // ── 页面状态 ──
@@ -93,6 +102,8 @@ interface FleetPageState {
   isDirty: boolean
   configService: FleetConfigService
   pendingAction: PendingConfigAction | null
+  proposal: FleetProposal | null
+  undoFleetState: FleetState | null
 }
 
 interface FleetPageLike {
@@ -149,6 +160,8 @@ const emptyPageData: FleetPageData = {
   pendingAction: null,
   configLimitReached: false,
   showConflictDialog: false,
+  proposalPreview: null,
+  canUndoProposal: false,
 }
 
 const showError = (message: string): void => {
@@ -202,6 +215,9 @@ const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: str
   }
   const state = getState(page)
   state.fleet = next.state
+  state.proposal = null
+  state.undoFleetState = null
+  page.setData({ proposalPreview: null, canUndoProposal: false })
   updateDirty(page, state)
 }
 
@@ -227,6 +243,15 @@ const render = (page: FleetPageLike): void => {
     assetReady: true,
     failedPortraitImages: page.data.failedPortraitImages ?? {},
     failedSkillImages: page.data.failedSkillImages ?? {},
+    proposalPreview: state.proposal
+      ? buildFleetProposalPreview(
+          state.fleet,
+          state.proposal,
+          state.adventureOfficers,
+          state.skills,
+        )
+      : null,
+    canUndoProposal: state.undoFleetState !== null,
     configStatus: state.isDirty ? 'unsaved' : state.activeConfigId ? 'saved' : 'new',
   })
 }
@@ -278,6 +303,8 @@ const resolvePendingAction = (page: FleetPageLike): void => {
   const pending = state.pendingAction
   if (!pending) return
   state.pendingAction = null
+  state.proposal = null
+  state.undoFleetState = null
   page.setData({ pendingAction: null, showUnsavedGuard: false })
 
   switch (pending.type) {
@@ -339,6 +366,8 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
   try {
     const record = await state.configService.loadConfig(configId)
     state.fleet = record.fleetState
+    state.proposal = null
+    state.undoFleetState = null
     state.activeConfigId = record.configId
     state.configName = record.name
     state.configVersion = record.version
@@ -358,6 +387,8 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
 const doNewConfig = (page: FleetPageLike): void => {
   const state = getState(page)
   state.fleet = createFleetState()
+  state.proposal = null
+  state.undoFleetState = null
   state.activeConfigId = null
   state.configName = '未命名配置'
   state.configVersion = 0
@@ -466,6 +497,8 @@ const handleConflictReload = async (page: FleetPageLike): Promise<void> => {
   try {
     const record = await state.configService.loadConfig(configId)
     state.fleet = record.fleetState
+    state.proposal = null
+    state.undoFleetState = null
     state.configVersion = record.version
     markClean(page, state)
     page.setData({ configName: record.name })
@@ -555,6 +588,8 @@ Page({
       isDirty: false,
       configService: getFleetConfigService(),
       pendingAction: null,
+      proposal: null,
+      undoFleetState: null,
     }
     // 所有船设为自动模式 + 自动填充默认冒险技能目标
     syncAllShipsMode(state, 'auto')
@@ -762,32 +797,56 @@ Page({
       excludedOfficerIds: [...excludedIds],
       currentOfficerIds: state.fleet.ships.flatMap((s) => s.officerIds),
       capacity: 77,
+      shipId: null,
+      baseStateFingerprint: fleetStateFingerprint(state.fleet),
     })
 
-    // 结果：只保留锁定 + 求解出的最少人选
-    const recommendedIds = result.officerIds
+    state.proposal = result
+    this.setData({
+      proposalPreview: buildFleetProposalPreview(
+        state.fleet,
+        result,
+        state.adventureOfficers,
+        state.skills,
+      ),
+    })
+  },
 
-    let fleet = state.fleet
-    // 先清空所有非锁定航海士
-    for (const s of fleet.ships) {
-      const keepIds = s.officerIds.filter((id) => s.lockedOfficerIds.includes(id))
-      const removeResult = recalculateShip(fleet, s.id, keepIds)
-      if (!removeResult.error) fleet = removeResult.state
+  onProposalCancel() {
+    const state = getState(this)
+    state.proposal = null
+    this.setData({ proposalPreview: null })
+  },
+
+  onProposalApply() {
+    const state = getState(this)
+    const proposal = state.proposal
+    if (!proposal) return
+
+    const snapshot = cloneFleetState(state.fleet)
+    const result = applyAdventureProposal(state.fleet, proposal)
+    if (result.error) {
+      showError(
+        result.error === 'invalid-recommendation'
+          ? '目前艦隊已變更或方案無法套用，請重新計算方案'
+          : (resultMessage[result.error] ?? '方案套用失敗'),
+      )
+      return
     }
 
-    // 分配推荐航海士到各船（按顺序填）
-    let shipIndex = 0
-    for (const officerId of recommendedIds) {
-      if (fleet.ships.some((s) => s.officerIds.includes(officerId))) continue
-      while (shipIndex < fleet.ships.length && fleet.ships[shipIndex]!.officerIds.length >= 11) {
-        shipIndex++
-      }
-      if (shipIndex >= fleet.ships.length) break
-      const addResult = addOfficerToShip(fleet, fleet.ships[shipIndex]!.id, officerId)
-      if (!addResult.error) fleet = addResult.state
-    }
+    state.fleet = result.state
+    state.undoFleetState = snapshot
+    state.proposal = null
+    updateDirty(this, state)
+    render(this)
+  },
 
-    state.fleet = fleet
+  onUndoProposal() {
+    const state = getState(this)
+    if (!state.undoFleetState) return
+    state.fleet = cloneFleetState(state.undoFleetState)
+    state.undoFleetState = null
+    state.proposal = null
     updateDirty(this, state)
     render(this)
   },

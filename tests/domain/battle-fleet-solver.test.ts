@@ -57,6 +57,22 @@ const emptyInput = {
 }
 
 describe('battle fleet auto solver', () => {
+  it('returns an immutable battle proposal without changing solver input', () => {
+    const input = {
+      ...emptyInput,
+      baseStateFingerprint: 'battle-base',
+      targets: [...emptyInput.targets],
+    }
+    const before = structuredClone(input)
+
+    const result = solveBattleTargets(input)
+
+    expect(result.source).toBe('battle')
+    expect(result.baseStateFingerprint).toBe('battle-base')
+    expect(Object.isFrozen(result)).toBe(true)
+    expect(input).toEqual(before)
+  })
+
   it('keeps locked officers and excludes other ships, banned, and removed candidates', () => {
     const result = solveBattleTargets({
       officers: sampleOfficers,
@@ -223,6 +239,10 @@ describe('state DP solver', () => {
     })
     expect(result.officerIds).toEqual([])
     expect(result.allTargetsComplete).toBe(false)
+    expect(result.canApply).toBe(false)
+    expect(result.constraints).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'no-candidate' })]),
+    )
   })
 
   it('handles capacity overflow — more locked than capacity', () => {
@@ -239,9 +259,13 @@ describe('state DP solver', () => {
       currentOfficerIds: ['officer-a', 'officer-b'],
       capacity: 1,
     })
-    expect(result.officerIds.length).toBe(1)
+    expect(result.officerIds).toEqual(['officer-a', 'officer-b'])
     expect(result.achievedTargetCount).toBe(1)
     expect(result.allTargetsComplete).toBe(true)
+    expect(result.canApply).toBe(false)
+    expect(result.constraints).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'capacity-limit' })]),
+    )
   })
 
   it('selects partial progress when a target cannot be fully completed', () => {
@@ -313,17 +337,21 @@ describe('state DP solver', () => {
       capacity: 1,
     })
 
-    expect(result.officerIds).toEqual(['officer-a'])
+    expect(result.officerIds).toEqual(['officer-a', 'officer-b'])
     expect(result.targetProgress).toEqual([
       {
         skillId: 'skill-b',
         targetLevel: 1,
-        currentLevel: 0,
-        difference: 1,
-        reached: false,
+        currentLevel: 1,
+        difference: 0,
+        reached: true,
       },
     ])
-    expect(result.achievedTargetCount).toBe(0)
+    expect(result.achievedTargetCount).toBe(1)
+    expect(result.canApply).toBe(false)
+    expect(result.constraints).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'capacity-limit' })]),
+    )
   })
 
   it('reports the exact completed target count for a fully reachable DP result', () => {

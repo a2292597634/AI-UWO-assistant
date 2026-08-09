@@ -56,6 +56,9 @@ interface FleetPageConfig {
   onTargetLevelBlur(event: WechatMiniprogram.Input): void
   onRemoveTarget(event: WechatMiniprogram.BaseEvent): void
   onRecalculate(): void
+  onProposalCancel(): void
+  onProposalApply(): void
+  onUndoProposal(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
   onOfficerRemove(event: WechatMiniprogram.BaseEvent): void
   onOfficerLock(event: WechatMiniprogram.BaseEvent): void
@@ -270,6 +273,76 @@ describe('battle fleet page', () => {
     page.onRemoveTarget({ currentTarget: { dataset: { id: targetId } } } as never)
     expect(page.data.targets).toEqual([])
   })
+
+  it('opens a proposal preview without changing the current fleet or dirty state', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill-cannon' } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const before = {
+      currentShip: structuredClone(page.data.currentShip),
+      fleetOverview: structuredClone(page.data.fleetOverview),
+      configStatus: page.data.configStatus,
+    }
+
+    page.onRecalculate()
+
+    expect(page.data.proposalPreview).toBeDefined()
+    expect(page.data.currentShip).toEqual(before.currentShip)
+    expect(page.data.fleetOverview).toEqual(before.fleetOverview)
+    expect(page.data.configStatus).toBe(before.configStatus)
+  })
+
+  it('cancels a proposal without changing any business state', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+    page.onRecalculate()
+    const before = {
+      currentShip: structuredClone(page.data.currentShip),
+      targets: structuredClone(page.data.targets),
+      configStatus: page.data.configStatus,
+    }
+
+    page.onProposalCancel()
+
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.currentShip).toEqual(before.currentShip)
+    expect(page.data.targets).toEqual(before.targets)
+    expect(page.data.configStatus).toBe(before.configStatus)
+  })
+
+  it('applies a proposal and can undo the complete fleet view once', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill_skill400591' } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const before = {
+      currentShip: structuredClone(page.data.currentShip),
+      fleetOverview: structuredClone(page.data.fleetOverview),
+      targets: structuredClone(page.data.targets),
+    }
+
+    page.onRecalculate()
+    page.onProposalApply()
+
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.canUndoProposal).toBe(true)
+    expect(page.data.currentShip).not.toEqual(before.currentShip)
+
+    page.onUndoProposal()
+
+    expect(page.data.currentShip).toEqual(before.currentShip)
+    expect(page.data.fleetOverview).toEqual(before.fleetOverview)
+    expect(page.data.targets).toEqual(before.targets)
+    expect(page.data.canUndoProposal).toBe(false)
+    page.onUndoProposal()
+    expect(page.data.currentShip).toEqual(before.currentShip)
+  })
 })
 
 const fleetWxml = fs.readFileSync(
@@ -316,6 +389,19 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxml).not.toContain('lazy-load="true"')
     expect(fleetWxml).toContain('binderror="onImageError"')
     expect(fleetWxml).toContain('bindscrolltolower="onSkillListReachEnd"')
+  })
+})
+
+describe('battle fleet proposal preview layout', () => {
+  it('contains the shared preview actions and safe-area padding hook', () => {
+    expect(fleetWxml).toContain('proposalPreview')
+    expect(fleetWxml).toContain('onProposalCancel')
+    expect(fleetWxml).toContain('onProposalApply')
+    expect(fleetWxml).toContain('onUndoProposal')
+    expect(fleetWxml).toContain('保留')
+    expect(fleetWxml).toContain('新增')
+    expect(fleetWxml).toContain('移除')
+    expect(fleetWxss).toMatch(/env\(safe-area-inset-bottom\)/)
   })
 })
 

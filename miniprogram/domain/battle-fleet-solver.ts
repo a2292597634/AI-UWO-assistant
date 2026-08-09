@@ -1,5 +1,11 @@
 import type { RuntimeFleetOfficer } from '../contracts/runtime-data'
+import type {
+  FleetProposal,
+  FleetProposalConstraint,
+  FleetProposalTargetProgress,
+} from '../contracts/fleet-proposal'
 import { isBattleFleetSkill } from './battle-fleet'
+import { createFleetProposal } from './fleet-proposal'
 
 export interface AutoTargetInput {
   skillId: string
@@ -14,22 +20,15 @@ export interface AutoSolveInput {
   occupiedByOtherShips: readonly string[]
   currentOfficerIds: readonly string[]
   capacity: number
+  shipId?: string | null
+  baseStateFingerprint?: string | null
 }
 
-export interface AutoTargetProgress {
-  skillId: string
-  targetLevel: number
-  currentLevel: number
-  difference: number
-  reached: boolean
-}
+export type AutoTargetProgress = FleetProposalTargetProgress
 
-export interface AutoSolveResult {
-  officerIds: string[]
-  achievedTargetCount: number
-  allTargetsComplete: boolean
-  targetProgress: AutoTargetProgress[]
-  overageTotal: number
+export type AutoSolveResult = FleetProposal & {
+  source: 'battle'
+  targetProgress: readonly AutoTargetProgress[]
 }
 
 interface Candidate {
@@ -147,13 +146,24 @@ const buildProgress = (
 const buildResult = (
   selection: ScoredSelection,
   targets: readonly AutoTargetInput[],
-): AutoSolveResult => ({
-  officerIds: selection.officerIds,
-  achievedTargetCount: selection.achievedTargetCount,
-  allTargetsComplete: selection.allTargetsComplete,
-  targetProgress: buildProgress(selection, targets),
-  overageTotal: selection.overageTotal,
-})
+  input: AutoSolveInput,
+  beforeTargetLevels: Readonly<Record<string, number>>,
+  constraints: readonly FleetProposalConstraint[],
+  canApply: boolean,
+): AutoSolveResult =>
+  createFleetProposal({
+    source: 'battle',
+    shipId: input.shipId ?? null,
+    baseStateFingerprint: input.baseStateFingerprint ?? null,
+    officerIds: selection.officerIds,
+    beforeTargetLevels,
+    achievedTargetCount: selection.achievedTargetCount,
+    allTargetsComplete: selection.allTargetsComplete,
+    targetProgress: buildProgress(selection, targets),
+    overageTotal: selection.overageTotal,
+    constraints,
+    canApply,
+  }) as AutoSolveResult
 
 // ── State-space DP ──
 
@@ -298,25 +308,95 @@ const validateTargets = (targets: readonly AutoTargetInput[]): AutoTargetInput[]
   return valid.map((target) => ({ ...target }))
 }
 
+const beforeLevelsFor = (
+  input: AutoSolveInput,
+  targets: readonly AutoTargetInput[],
+  byId: ReadonlyMap<string, RuntimeFleetOfficer>,
+): Record<string, number> => {
+  const targetIds = new Set(targets.map((target) => target.skillId))
+  const totals = input.currentOfficerIds.reduce<Record<string, number>>((result, officerId) => {
+    const officer = byId.get(officerId)
+    return officer ? addContribution(result, candidateContributions(officer, targetIds)) : result
+  }, {})
+  return Object.fromEntries(targets.map((target) => [target.skillId, totals[target.skillId] ?? 0]))
+}
+
+const buildConstraints = (
+  selection: ScoredSelection,
+  targets: readonly AutoTargetInput[],
+  candidateCount: number,
+  lockedCount: number,
+  capacity: number,
+  hasLockedConflict: boolean,
+): { constraints: FleetProposalConstraint[]; canApply: boolean } => {
+  const constraints: FleetProposalConstraint[] = []
+  const hasUnmetTarget = !selection.allTargetsComplete
+
+  if (hasLockedConflict) {
+    constraints.push({
+      code: 'locked-conflict',
+      severity: 'error',
+      message: '鎖定航海士資料與目前候選或排除約束衝突，無法安全套用。',
+    })
+  }
+  if (lockedCount > capacity) {
+    constraints.push({
+      code: 'capacity-limit',
+      severity: 'error',
+      message: `鎖定航海士 ${lockedCount} 人超過目前船容量 ${capacity} 人。`,
+    })
+  }
+  if (hasUnmetTarget) {
+    constraints.push({
+      code: candidateCount === 0 ? 'no-candidate' : 'unmet-target',
+      severity: candidateCount === 0 ? 'error' : 'warning',
+      message:
+        candidateCount === 0
+          ? '沒有符合目前目標的可用航海士。'
+          : '部分目標仍未達成，請檢查目標差異與候選名單。',
+    })
+    if (selection.officerIds.length >= capacity && capacity >= 0) {
+      constraints.push({
+        code: 'capacity-limit',
+        severity: 'warning',
+        message: `方案已使用目前船容量上限 ${capacity} 人。`,
+      })
+    }
+  }
+
+  const cannotImprove = hasUnmetTarget && selection.officerIds.length === lockedCount
+  const canApply = !hasLockedConflict && lockedCount <= capacity && !cannotImprove
+  void targets
+  return { constraints, canApply }
+}
+
 export const solveBattleTargets = (input: AutoSolveInput): AutoSolveResult => {
   const targets = validateTargets(input.targets)
   if (targets.length === 0) {
-    return {
-      officerIds: [],
-      achievedTargetCount: 0,
-      allTargetsComplete: false,
-      targetProgress: [],
-      overageTotal: 0,
-    }
+    return buildResult(
+      {
+        officerIds: [],
+        totals: {},
+        achievedTargetCount: 0,
+        allTargetsComplete: false,
+        overageTotal: 0,
+        remainingDeficitTotal: 0,
+        completionScore: 0,
+      },
+      [],
+      input,
+      {},
+      [{ code: 'no-target', severity: 'error', message: '沒有可計算的配隊目標。' }],
+      false,
+    )
   }
 
   const targetIds = new Set(targets.map((target) => target.skillId))
   const byId = new Map(input.officers.map((officer) => [officer.id, officer]))
   const excluded = new Set([...input.excludedOfficerIds, ...input.occupiedByOtherShips])
-  const lockedIds = sortedIds(
-    input.lockedOfficerIds.filter((id) => byId.has(id) && !excluded.has(id)),
-  )
+  const lockedIds = sortedIds([...new Set(input.lockedOfficerIds)])
   const lockedSet = new Set(lockedIds)
+  const lockedConflictIds = lockedIds.filter((id) => !byId.has(id) || excluded.has(id))
   const lockedTotals = lockedIds.reduce<Record<string, number>>((totals, officerId) => {
     const officer = byId.get(officerId)
     if (!officer) return totals
@@ -334,17 +414,25 @@ export const solveBattleTargets = (input: AutoSolveInput): AutoSolveResult => {
     .sort((a, b) => (a.officer.id < b.officer.id ? -1 : a.officer.id > b.officer.id ? 1 : 0))
 
   const capacity = Math.max(0, input.capacity)
+  const beforeTargetLevels = beforeLevelsFor(input, targets, byId)
   if (lockedIds.length > capacity) {
-    const returnedLockedIds = lockedIds.slice(0, capacity)
-    const returnedLockedTotals = returnedLockedIds.reduce<Record<string, number>>(
-      (totals, officerId) => {
-        const officer = byId.get(officerId)
-        if (!officer) return totals
-        return addContribution(totals, candidateContributions(officer, targetIds))
-      },
-      {},
+    const overflowSelection = scoreSelection(lockedIds, lockedTotals, targets)
+    const constraintResult = buildConstraints(
+      overflowSelection,
+      targets,
+      candidates.length,
+      lockedIds.length,
+      capacity,
+      lockedConflictIds.length > 0,
     )
-    return buildResult(scoreSelection(returnedLockedIds, returnedLockedTotals, targets), targets)
+    return buildResult(
+      overflowSelection,
+      targets,
+      input,
+      beforeTargetLevels,
+      constraintResult.constraints,
+      false,
+    )
   }
 
   const stateSpace = targets.reduce((product, t) => product * (t.targetLevel + 1), 1)
@@ -352,5 +440,20 @@ export const solveBattleTargets = (input: AutoSolveInput): AutoSolveResult => {
     stateSpace <= MAX_STATE_SPACE
       ? runStateDp(lockedIds, lockedTotals, candidates, targets, capacity)
       : runGreedy(lockedIds, lockedTotals, candidates, targets, capacity)
-  return buildResult(selection, targets)
+  const constraintResult = buildConstraints(
+    selection,
+    targets,
+    candidates.length,
+    lockedIds.length,
+    capacity,
+    lockedConflictIds.length > 0,
+  )
+  return buildResult(
+    selection,
+    targets,
+    input,
+    beforeTargetLevels,
+    constraintResult.constraints,
+    constraintResult.canApply,
+  )
 }

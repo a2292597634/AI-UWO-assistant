@@ -14,6 +14,8 @@ interface AdventurePageData {
   showTargetPicker: boolean
   typeZones: unknown[]
   configStatus: string
+  proposalPreview: Record<string, unknown> | null
+  canUndoProposal: boolean
   [key: string]: unknown
 }
 
@@ -24,6 +26,9 @@ interface AdventurePageConfig {
   onAddTarget(): void
   onTargetPickerClose(): void
   onRecalculate(): void
+  onProposalCancel(): void
+  onProposalApply(): void
+  onUndoProposal(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
 }
 
@@ -130,6 +135,75 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.targets).toEqual(before)
     expect(page.data.configStatus).toBe('new')
   })
+
+  it('opens a proposal preview without changing the current adventure fleet', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const target = page.data.targets[0]!
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: target.skillId } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const before = {
+      typeZones: structuredClone(page.data.typeZones),
+      targets: structuredClone(page.data.targets),
+      configStatus: page.data.configStatus,
+    }
+
+    page.onRecalculate()
+
+    expect(page.data.proposalPreview).toBeDefined()
+    expect(page.data.typeZones).toEqual(before.typeZones)
+    expect(page.data.targets).toEqual(before.targets)
+    expect(page.data.configStatus).toBe(before.configStatus)
+  })
+
+  it('cancels an adventure proposal without changing business state', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const target = page.data.targets[0]!
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: target.skillId } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const before = {
+      typeZones: structuredClone(page.data.typeZones),
+      targets: structuredClone(page.data.targets),
+      configStatus: page.data.configStatus,
+    }
+
+    page.onRecalculate()
+    page.onProposalCancel()
+
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.typeZones).toEqual(before.typeZones)
+    expect(page.data.targets).toEqual(before.targets)
+    expect(page.data.configStatus).toBe(before.configStatus)
+  })
+
+  it('applies an adventure proposal and can undo the complete fleet snapshot', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const target = page.data.targets[0]!
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: target.skillId } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const before = {
+      typeZones: structuredClone(page.data.typeZones),
+      targets: structuredClone(page.data.targets),
+    }
+
+    page.onRecalculate()
+    page.onProposalApply()
+
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.canUndoProposal).toBe(true)
+    expect(page.data.typeZones).not.toEqual(before.typeZones)
+
+    page.onUndoProposal()
+
+    expect(page.data.typeZones).toEqual(before.typeZones)
+    expect(page.data.targets).toEqual(before.targets)
+    expect(page.data.canUndoProposal).toBe(false)
+  })
 })
 
 const adventureWxml = fs.readFileSync(
@@ -151,6 +225,10 @@ describe('adventure fleet page layout hooks', () => {
     expect(adventureWxml).toContain('showTargetPicker')
     expect(adventureWxml).toContain('onTargetPickerClose')
     expect(adventureWxml).toContain('disabled="{{!canRecalculate}}"')
+    expect(adventureWxml).toContain('onProposalCancel')
+    expect(adventureWxml).toContain('onProposalApply')
+    expect(adventureWxml).toContain('onUndoProposal')
+    expect(adventureWxml).toContain('proposalPreview')
     expect(adventureWxml).toContain('請先設定至少一個 Lv.1 以上的優化目標')
     expect(adventureWxss).toMatch(/env\(safe-area-inset-bottom\)/)
   })

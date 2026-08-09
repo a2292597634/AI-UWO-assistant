@@ -216,6 +216,60 @@
         </view>
       </view>
 
+      <view wx:if="{{proposalPreview}}" class="proposal-preview-mask" bindtap="onProposalCancel">
+        <view class="proposal-preview-sheet" catchtap="onNoop">
+          <view class="proposal-preview__header">
+            <view>
+              <text class="proposal-preview__title">方案預覽</text>
+              <text class="proposal-preview__scope">{{proposalPreview.scopeLabel}}</text>
+            </view>
+            <text class="proposal-preview__close" bindtap="onProposalCancel">取消</text>
+          </view>
+          <view class="proposal-preview__summary">
+            <text class="proposal-preview__summary-label">目標達成</text>
+            <text class="proposal-preview__summary-value">{{proposalPreview.achievedTargetCount}} / {{proposalPreview.targetCount}}</text>
+          </view>
+          <view class="proposal-preview__target-list">
+            <view wx:for="{{proposalPreview.targetDiffs}}" wx:key="skillId" class="proposal-preview__target-row">
+              <text class="proposal-preview__target-name">{{item.skillName}}</text>
+              <text class="proposal-preview__target-level">Lv.{{item.currentLevel}} → Lv.{{item.proposedLevel}} · 目標 Lv.{{item.targetLevel}}</text>
+              <text class="proposal-preview__target-state">{{item.reached ? '已達成' : '差 Lv.' + item.difference}}</text>
+            </view>
+          </view>
+          <view class="proposal-preview__member-count">
+            <text>保留 {{proposalPreview.keptOfficers.length}} 人</text>
+            <text>新增 {{proposalPreview.addedOfficers.length}} 人</text>
+            <text>移除 {{proposalPreview.removedOfficers.length}} 人</text>
+          </view>
+          <view class="proposal-preview__members">
+            <view class="proposal-preview__member-group">
+              <text class="proposal-preview__group-title">保留</text>
+              <text wx:for="{{proposalPreview.keptOfficers}}" wx:key="id" class="proposal-preview__member proposal-preview__member--kept">{{item.name}}</text>
+            </view>
+            <view class="proposal-preview__member-group">
+              <text class="proposal-preview__group-title">新增</text>
+              <text wx:for="{{proposalPreview.addedOfficers}}" wx:key="id" class="proposal-preview__member proposal-preview__member--added">{{item.name}}</text>
+            </view>
+            <view class="proposal-preview__member-group">
+              <text class="proposal-preview__group-title">移除</text>
+              <text wx:for="{{proposalPreview.removedOfficers}}" wx:key="id" class="proposal-preview__member proposal-preview__member--removed">{{item.name}}</text>
+            </view>
+          </view>
+          <view class="proposal-preview__locked">
+            <text class="proposal-preview__group-title">鎖定成員：{{proposalPreview.lockedAllRetained ? '全部保留' : '有成員未保留'}}</text>
+            <text wx:for="{{proposalPreview.lockedOfficers}}" wx:key="id" class="proposal-preview__member">{{item.name}} · {{item.retained ? '保留' : '未保留'}}</text>
+          </view>
+          <view wx:if="{{proposalPreview.constraints.length > 0}}" class="proposal-preview__constraints">
+            <text class="proposal-preview__group-title">約束與提示</text>
+            <text wx:for="{{proposalPreview.constraints}}" wx:key="code" class="proposal-preview__constraint">{{item.message}}</text>
+          </view>
+          <view class="proposal-preview__actions">
+            <button class="subtle-button" bindtap="onProposalCancel">取消</button>
+            <button class="primary-button" disabled="{{!proposalPreview.canApply}}" bindtap="onProposalApply">應用方案</button>
+          </view>
+        </view>
+      </view>
+
       <view class="skill-selector">
         <view class="panel-heading">
           <text class="panel-heading__title">選擇戰鬥技能</text>
@@ -326,7 +380,12 @@
         </view>
       </view>
     </view>
-  </scroll-view>
+   </scroll-view>
 
-  <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
+   <view wx:if="{{canUndoProposal}}" class="proposal-undo-bar">
+     <text class="proposal-undo-bar__text">已應用本次配隊</text>
+     <button class="subtle-button" bindtap="onUndoProposal">撤銷本次配隊</button>
+   </view>
+
+   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
 </view>

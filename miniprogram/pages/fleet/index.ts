@@ -5,7 +5,6 @@ import {
   excludeOfficerFromShip,
   lockOfficer,
   moveOfficerToShip,
-  recalculateShip,
   removeOfficerFromShip,
   setShipMode,
   unbanOfficer,
@@ -13,8 +12,14 @@ import {
   updateShipTargets,
 } from '../../domain/battle-fleet'
 import { solveBattleTargets } from '../../domain/battle-fleet-solver'
+import {
+  applyBattleProposal,
+  cloneFleetState,
+  fleetStateFingerprint,
+} from '../../domain/fleet-proposal'
 import { getDictionaries, getFleetOfficers, getSkills } from '../../runtime/main-data-store'
 import { buildBattleFleetPageData } from '../../presenters/battle-fleet-presenter'
+import { buildFleetProposalPreview } from '../../presenters/fleet-proposal-presenter'
 import { buildSkillSheet } from '../../presenters/skill-sheet'
 import { serializeFleetState } from '../../contracts/fleet-config'
 import { getFleetConfigService, FleetConfigError } from '../../runtime/fleet-config-service'
@@ -22,6 +27,8 @@ import type { FleetConfigService } from '../../runtime/fleet-config-service'
 import type { FleetConfigSummary } from '../../contracts/fleet-config'
 import type { BattleSkillFilter, FleetState } from '../../contracts/battle-fleet'
 import type { BattleFleetPageData } from '../../presenters/battle-fleet-presenter'
+import type { FleetProposal } from '../../contracts/fleet-proposal'
+import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../presenters/skill-sheet'
 import type {
   RuntimeDictionaries,
@@ -68,6 +75,8 @@ interface FleetPageData extends BattleFleetPageData {
   pendingAction: PendingConfigAction | null
   configLimitReached: boolean
   showConflictDialog: boolean
+  proposalPreview: FleetProposalPreviewView | null
+  canUndoProposal: boolean
 }
 
 // ── Page state ──
@@ -92,6 +101,8 @@ interface FleetPageState {
   isDirty: boolean
   configService: FleetConfigService
   pendingAction: PendingConfigAction | null
+  proposal: FleetProposal | null
+  undoFleetState: FleetState | null
 }
 
 interface FleetPageLike {
@@ -167,6 +178,8 @@ const emptyPageData: FleetPageData = {
   pendingAction: null,
   configLimitReached: false,
   showConflictDialog: false,
+  proposalPreview: null,
+  canUndoProposal: false,
 }
 
 const showError = (message: string): void => {
@@ -219,6 +232,9 @@ const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: str
   }
   const state = getState(page)
   state.fleet = next.state
+  state.proposal = null
+  state.undoFleetState = null
+  page.setData({ proposalPreview: null, canUndoProposal: false })
   updateDirty(page, state)
 }
 
@@ -246,6 +262,10 @@ const render = (page: FleetPageLike, startAssetLoading = true): Promise<void> =>
     assetReady: true,
     failedPortraitImages: page.data.failedPortraitImages ?? {},
     failedSkillImages: page.data.failedSkillImages ?? {},
+    proposalPreview: state.proposal
+      ? buildFleetProposalPreview(state.fleet, state.proposal, state.officers, state.skills)
+      : null,
+    canUndoProposal: state.undoFleetState !== null,
     configStatus: state.isDirty ? 'unsaved' : state.activeConfigId ? 'saved' : 'new',
   })
 
@@ -270,6 +290,8 @@ const resolvePendingAction = (page: FleetPageLike): void => {
   const pending = state.pendingAction
   if (!pending) return
   state.pendingAction = null
+  state.proposal = null
+  state.undoFleetState = null
   page.setData({ pendingAction: null, showUnsavedGuard: false })
 
   switch (pending.type) {
@@ -332,6 +354,8 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
     const record = await state.configService.loadConfig(configId)
     const fleetState = record.fleetState
     state.fleet = fleetState
+    state.proposal = null
+    state.undoFleetState = null
     state.activeConfigId = record.configId
     state.configName = record.name
     state.configVersion = record.version
@@ -351,6 +375,8 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
 const doNewConfig = (page: FleetPageLike): void => {
   const state = getState(page)
   state.fleet = createFleetState()
+  state.proposal = null
+  state.undoFleetState = null
   state.activeConfigId = null
   state.configName = '未命名配置'
   state.configVersion = 0
@@ -464,6 +490,8 @@ const handleConflictReload = async (page: FleetPageLike): Promise<void> => {
   try {
     const record = await state.configService.loadConfig(configId)
     state.fleet = record.fleetState
+    state.proposal = null
+    state.undoFleetState = null
     state.configVersion = record.version
     markClean(page, state)
     page.setData({ configName: record.name })
@@ -541,6 +569,8 @@ Page({
       isDirty: false,
       configService: getFleetConfigService(),
       pendingAction: null,
+      proposal: null,
+      undoFleetState: null,
     }
     pageStateByInstance.set(this, state)
     wx.setNavigationBarTitle({ title: '戰鬥模擬艦隊' })
@@ -1026,10 +1056,51 @@ Page({
       occupiedByOtherShips: otherShipOfficerIds,
       currentOfficerIds: current.officerIds,
       capacity: 11,
+      shipId: current.id,
+      baseStateFingerprint: fleetStateFingerprint(state.fleet),
     })
-    const recommendedIds =
-      result.officerIds.length > 0 ? result.officerIds : current.lockedOfficerIds
-    applyResult(this, recalculateShip(state.fleet, current.id, recommendedIds))
+    state.proposal = result
+    this.setData({
+      proposalPreview: buildFleetProposalPreview(state.fleet, result, state.officers, state.skills),
+    })
+  },
+
+  onProposalCancel() {
+    const state = getState(this)
+    state.proposal = null
+    this.setData({ proposalPreview: null })
+  },
+
+  onProposalApply() {
+    const state = getState(this)
+    const proposal = state.proposal
+    if (!proposal) return
+
+    const snapshot = cloneFleetState(state.fleet)
+    const result = applyBattleProposal(state.fleet, proposal)
+    if (result.error) {
+      showError(
+        result.error === 'invalid-recommendation'
+          ? '目前編隊已變更或方案無法套用，請重新計算方案'
+          : (resultMessage[result.error] ?? '方案套用失敗'),
+      )
+      return
+    }
+
+    state.fleet = result.state
+    state.undoFleetState = snapshot
+    state.proposal = null
+    updateDirty(this, state)
+    render(this)
+  },
+
+  onUndoProposal() {
+    const state = getState(this)
+    if (!state.undoFleetState) return
+    state.fleet = cloneFleetState(state.undoFleetState)
+    state.undoFleetState = null
+    state.proposal = null
+    updateDirty(this, state)
     render(this)
   },
 
