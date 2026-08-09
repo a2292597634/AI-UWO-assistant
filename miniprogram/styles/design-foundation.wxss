@@ -1,0 +1,161 @@
+page {
+  --uwo-color-canvas: #e7deca;
+  --uwo-color-surface: #f5efe0;
+  --uwo-color-surface-muted: #e8dfce;
+  --uwo-color-ink: #26332f;
+  --uwo-color-text-primary: #292a26;
+  --uwo-color-text-secondary: #625947;
+  --uwo-color-accent-brass: #b99552;
+  --uwo-color-accent-text: #76501a;
+  --uwo-color-success: #596257;
+  --uwo-color-warning: #7a541c;
+  --uwo-color-danger: #8b3a3a;
+  --uwo-color-border-subtle: #c8bda4;
+  --uwo-color-border-strong: #8c7e63;
+
+  --uwo-font-family-body:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --uwo-font-family-display: Georgia, 'Times New Roman', 'Noto Serif TC', 'PMingLiU', serif;
+  --uwo-font-size-page-title: 40rpx;
+  --uwo-font-size-section-title: 32rpx;
+  --uwo-font-size-emphasis: 28rpx;
+  --uwo-font-size-body: 26rpx;
+  --uwo-font-size-supporting: 24rpx;
+  --uwo-font-size-minimum-action: 22rpx;
+
+  --uwo-space-1: 4rpx;
+  --uwo-space-2: 8rpx;
+  --uwo-space-3: 12rpx;
+  --uwo-space-4: 16rpx;
+  --uwo-space-6: 24rpx;
+  --uwo-space-8: 32rpx;
+  --uwo-space-12: 48rpx;
+
+  --uwo-radius-control: 10rpx;
+  --uwo-radius-card: 16rpx;
+  --uwo-radius-sheet: 28rpx;
+  --uwo-radius-pill: 999rpx;
+  --uwo-shadow-elevated: 0 12rpx 32rpx rgba(38, 51, 47, 0.18);
+  --uwo-shadow-sheet: 0 -12rpx 32rpx rgba(38, 51, 47, 0.16);
+
+  min-height: 100%;
+  background: var(--uwo-color-canvas);
+  color: var(--uwo-color-text-primary);
+  font-family: var(--uwo-font-family-body);
+}
+
+view,
+text,
+button,
+input,
+textarea,
+image,
+scroll-view {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+.ui-display-title {
+  font-family: var(--uwo-font-family-display);
+}
+
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 0 var(--uwo-space-8);
+  border: 2rpx solid transparent;
+  border-radius: var(--uwo-radius-control);
+  font-family: var(--uwo-font-family-body);
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.ui-button::after {
+  border: 0;
+}
+
+.ui-button--primary {
+  border-color: var(--uwo-color-ink);
+  background: var(--uwo-color-ink);
+  color: var(--uwo-color-surface);
+}
+
+.ui-button--secondary {
+  border-color: var(--uwo-color-border-strong);
+  background: var(--uwo-color-surface);
+  color: var(--uwo-color-text-primary);
+}
+
+.ui-button--danger {
+  border-color: var(--uwo-color-danger);
+  background: var(--uwo-color-danger);
+  color: var(--uwo-color-surface);
+}
+
+.ui-button:active,
+.ui-button--pressed {
+  opacity: 0.88;
+  transform: translateY(2rpx);
+}
+
+.ui-button:focus,
+.ui-button--focused {
+  outline: 4rpx solid var(--uwo-color-accent-brass);
+  outline-offset: 4rpx;
+}
+
+.ui-button[disabled],
+.ui-button--disabled {
+  border-color: var(--uwo-color-border-subtle);
+  background: var(--uwo-color-surface-muted);
+  color: var(--uwo-color-text-secondary);
+  opacity: 1;
+}
+
+.ui-button[disabled]:active,
+.ui-button--disabled.ui-button--pressed {
+  opacity: 1;
+  transform: none;
+}
+
+.ui-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uwo-space-2);
+  min-height: 44rpx;
+  padding: var(--uwo-space-1) var(--uwo-space-3);
+  border: 2rpx solid currentColor;
+  border-radius: var(--uwo-radius-pill);
+  background: var(--uwo-color-surface-muted);
+  font-size: var(--uwo-font-size-minimum-action);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ui-status__label {
+  color: inherit;
+}
+
+.ui-status--achieved {
+  color: var(--uwo-color-success);
+}
+
+.ui-status--unmet,
+.ui-status--review {
+  color: var(--uwo-color-warning);
+}
+
+.ui-status--error {
+  color: var(--uwo-color-danger);
+}

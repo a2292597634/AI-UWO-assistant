@@ -43,3 +43,10 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 ## 4. TDD
 
 數據解析、轉換、校驗、篩選邏輯、索引/分片生成、素材去重和確定性構建必須遵循紅-綠-重構循環。UI 代碼可用 DevTools 驗證代替。
+
+## 5. Design Foundation
+
+涉及 UI、WXML 或 WXSS 的任務，編碼前必須完整閱讀
+`docs/superpowers/specs/2026-08-09-design-foundation-design.md`。
+
+新增或修改樣式必須遵守其中的 Token、字體、間距、圓角、陰影、狀態、按鈕、觸控和安全區規範。

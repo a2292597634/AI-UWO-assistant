@@ -30,6 +30,13 @@ pages → presenters → domain/runtime → contracts → generated
 | 数据审计与 Schema                   | `docs/data-audit/`                                         |
 | 新增航海士                          | `.claude/skills/add-officer.md`                            |
 
+## Design Foundation
+
+涉及 UI、WXML 或 WXSS 的任务，编码前必须完整阅读
+`docs/superpowers/specs/2026-08-09-design-foundation-design.md`。
+
+新增或修改样式必须遵守其中的 Token、字体、间距、圆角、阴影、状态、按钮、触控和安全区规范。
+
 ## 常用命令
 
 | 命令                    | 用途                                                                          |
