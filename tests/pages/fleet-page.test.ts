@@ -409,6 +409,8 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxml).toContain('item.officer.visuals.framePath')
     expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(6,\s*1fr\)/)
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
+    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
+    expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx 72rpx;/)
   })
 
   it('uses direct image loading without a local asset loading route', () => {
@@ -432,6 +434,8 @@ describe('battle fleet shared component wiring', () => {
     expect(fleetWxml).toContain('bind:change="onModeTap"')
     expect(fleetWxml).toContain('bind:kind-change="onSkillKindTap"')
     expect(fleetWxml).toContain('bind:category-change="onSkillCategoryTap"')
+    expect(fleetWxml).toContain('selected-kind-id="{{manualKind}}"')
+    expect(fleetWxml).toContain('selected-category-id="{{manualCategoryId}}"')
     expect(fleetWxml).toContain('bind:skill-tap="onSkillTap"')
     expect(fleetWxml).toContain('bind:select="onSkillSelect"')
     expect(fleetWxml).toContain('bind:cancel="onProposalCancel"')

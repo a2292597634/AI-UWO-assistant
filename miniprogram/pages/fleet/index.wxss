@@ -325,7 +325,7 @@
   position: relative;
   box-sizing: border-box;
   min-height: 180rpx;
-  padding: 10rpx 2rpx 72rpx;
+  padding: 10rpx 2rpx;
   overflow: hidden;
   text-align: center;
   background: #e8dfce;

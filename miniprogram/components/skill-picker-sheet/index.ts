@@ -24,6 +24,14 @@ Component({
       type: Array,
       value: [],
     },
+    selectedKindId: {
+      type: String,
+      value: '',
+    },
+    selectedCategoryId: {
+      type: String,
+      value: '',
+    },
     selectedSkillId: {
       type: String,
       value: '',
@@ -40,6 +48,10 @@ Component({
       type: String,
       value: '選擇',
     },
+  },
+
+  data: {
+    failedIcons: {} as Record<string, boolean>,
   },
 
   methods: {
@@ -70,6 +82,18 @@ Component({
     onSelect(event: WechatMiniprogram.TouchEvent) {
       const skillId = String(event.currentTarget.dataset.id ?? '')
       this.triggerEvent('select', { skillId })
+    },
+
+    onIconError(event: WechatMiniprogram.BaseEvent) {
+      const skillId = String(event.currentTarget.dataset.id ?? '')
+      if (!skillId) return
+
+      this.setData({
+        failedIcons: {
+          ...this.data.failedIcons,
+          [skillId]: true,
+        },
+      })
     },
 
     onReachEnd() {

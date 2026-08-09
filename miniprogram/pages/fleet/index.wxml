@@ -199,6 +199,8 @@
         skill-kinds="{{skillKinds}}"
         skill-categories="{{skillCategories}}"
         skills="{{manualSkills}}"
+        selected-kind-id="{{manualKind}}"
+        selected-category-id="{{manualCategoryId}}"
         selected-skill-id="{{manualSkillId}}"
         search-text="{{skillSearchText}}"
         has-more="{{manualSkillHasMore}}"

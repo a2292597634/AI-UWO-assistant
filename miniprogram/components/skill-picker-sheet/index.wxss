@@ -137,11 +137,26 @@
   gap: var(--uwo-space-3);
 }
 
-.skill-picker-sheet__icon {
+.skill-picker-sheet__icon,
+.skill-picker-sheet__icon-placeholder {
   width: 48rpx;
   height: 48rpx;
   flex: 0 0 auto;
   border-radius: var(--uwo-radius-control);
+}
+
+.skill-picker-sheet__icon-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--uwo-color-text-secondary);
+  background: var(--uwo-color-surface-muted);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+}
+
+.skill-picker-sheet__icon-placeholder-label {
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1;
 }
 
 .skill-picker-sheet__copy {

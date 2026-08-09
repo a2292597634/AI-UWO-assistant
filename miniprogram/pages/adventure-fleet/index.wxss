@@ -393,7 +393,7 @@ button.primary-button[disabled] {
   position: relative;
   box-sizing: border-box;
   min-height: 184rpx;
-  padding: 8rpx 4rpx 68rpx;
+  padding: 8rpx 4rpx;
   overflow: hidden;
   text-align: center;
   background: #e8dfce;

@@ -19,7 +19,7 @@
       <button
         wx:for="{{skillKinds}}"
         wx:key="id"
-        class="skill-picker-sheet__tab {{item.isActive ? 'skill-picker-sheet__tab--active' : ''}}"
+        class="skill-picker-sheet__tab {{item.id === selectedKindId ? 'skill-picker-sheet__tab--active' : ''}}"
         bindtap="onKindChange"
         data-value="{{item.id}}"
       >
@@ -33,7 +33,7 @@
       <button
         wx:for="{{skillCategories}}"
         wx:key="id"
-        class="skill-picker-sheet__tab {{item.isActive ? 'skill-picker-sheet__tab--active' : ''}}"
+        class="skill-picker-sheet__tab {{item.id === selectedCategoryId ? 'skill-picker-sheet__tab--active' : ''}}"
         bindtap="onCategoryChange"
         data-value="{{item.id}}"
       >
@@ -62,7 +62,17 @@
       class="skill-picker-sheet__skill {{selectedSkillId === item.id ? 'skill-picker-sheet__skill--selected' : ''}}"
     >
       <view class="skill-picker-sheet__detail" bindtap="onSkillTap" data-id="{{item.id}}">
-        <image wx:if="{{item.iconPath}}" class="skill-picker-sheet__icon" src="{{item.iconPath}}" mode="aspectFit" />
+        <image
+          wx:if="{{item.iconPath && !failedIcons[item.id]}}"
+          class="skill-picker-sheet__icon"
+          src="{{item.iconPath}}"
+          mode="aspectFit"
+          binderror="onIconError"
+          data-id="{{item.id}}"
+        />
+        <view wx:else class="skill-picker-sheet__icon-placeholder" aria-label="技能圖標無法載入">
+          <text class="skill-picker-sheet__icon-placeholder-label">技能</text>
+        </view>
         <view class="skill-picker-sheet__copy">
           <text class="skill-picker-sheet__name">{{item.name}}</text>
           <text class="skill-picker-sheet__meta">{{item.kindLabel}}{{item.kindLabel && item.categoryName ? ' · ' : ''}}{{item.categoryName}}</text>

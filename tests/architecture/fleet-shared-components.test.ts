@@ -427,6 +427,8 @@ describe('Task 4 技能選擇共享元件契約', () => {
       'skillKinds',
       'skillCategories',
       'skills',
+      'selectedKindId',
+      'selectedCategoryId',
       'selectedSkillId',
       'searchText',
       'hasMore',
@@ -437,6 +439,9 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(wxml).toContain("presentation === 'inline'")
     expect(wxml).toContain("presentation === 'sheet'")
     expect(wxml).toContain('skill-picker-sheet__mask')
+    expect(wxml).toContain('item.id === selectedKindId')
+    expect(wxml).toContain('item.id === selectedCategoryId')
+    expect(wxml).not.toContain('item.isActive')
   })
 
   it('顯示類型、分類、搜尋、技能詳情、選擇與載入入口', () => {
@@ -462,6 +467,20 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(script).toMatch(/triggerEvent\(\s*['"]skill-tap['"]\s*,\s*\{\s*skillId\s*\}\s*\)/)
     expect(script).toMatch(/triggerEvent\(\s*['"]select['"]\s*,\s*\{\s*skillId\s*\}\s*\)/)
     expect(script).toMatch(/triggerEvent\(\s*['"]reach-end['"]\s*\)/)
+  })
+
+  it('技能圖標載入失敗時使用元件本地文字占位', () => {
+    const script = readSkillPickerFile('index.ts')
+    const wxml = readSkillPickerFile('index.wxml')
+    const wxss = readSkillPickerFile('index.wxss')
+
+    expect(script).toMatch(/\bfailedIcons\s*:/)
+    expect(script).toMatch(/\bonIconError\s*\(/)
+    expect(wxml).toContain('!failedIcons[item.id]')
+    expect(wxml).toContain('binderror="onIconError"')
+    expect(wxml).toContain('skill-picker-sheet__icon-placeholder')
+    expect(wxml).toContain('技能圖標無法載入')
+    expect(wxss).toMatch(/\.skill-picker-sheet__icon-placeholder\s*\{/)
   })
 
   it('長文字、安全區與操作熱區符合 Design Foundation', () => {
