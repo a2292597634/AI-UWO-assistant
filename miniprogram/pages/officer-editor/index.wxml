@@ -1,237 +1,248 @@
-<!-- 新增航海士 — 表单页面 -->
+<!-- 新增航海士 — 資料維護表單 -->
 <scroll-view class="editor-page" scroll-y enhanced show-scrollbar="{{false}}">
-  <!-- 页面头部 -->
+  <!-- 頁面頭部 -->
   <view class="editor-header">
     <text class="editor-header__title">新增航海士</text>
-    <text class="editor-header__hint">填寫以下資訊，所有 ID 將自動生成</text>
+    <text class="editor-header__hint">依序完成各段資料，所有 ID 將自動生成</text>
   </view>
 
-  <!-- ═══ 基本資訊 ═══ -->
-  <view class="form-section">
-    <view class="form-section__title">基本資訊</view>
-
-    <!-- 名称 -->
-    <view class="form-field">
-      <view class="form-field__label">名稱 <text class="required">*</text></view>
-      <input class="form-input" placeholder="輸入航海士繁體中文名稱" value="{{name}}" bindinput="onNameInput" maxlength="50" />
-      <text wx:if="{{validationErrors.name}}" class="form-error">{{validationErrors.name}}</text>
-    </view>
-
-    <!-- 稀有度 -->
-    <view class="form-field">
-      <view class="form-field__label">稀有度 <text class="required">*</text></view>
-      <picker mode="selector" range="{{rarityOptions}}" range-key="name" value="{{rarityIndex}}" bindchange="onRarityChange">
-        <view class="form-picker {{rarityId ? '' : 'form-picker--empty'}}">
-          {{rarityId ? rarityOptions[rarityIndex].name : '請選擇稀有度'}}
-        </view>
-      </picker>
-      <text wx:if="{{validationErrors.rarityId}}" class="form-error">{{validationErrors.rarityId}}</text>
-    </view>
-
-    <!-- Boss 角色 -->
-    <view class="form-field form-field--row">
-      <view class="form-field__label">Boss 角色</view>
-      <switch checked="{{isBoss}}" bindchange="onBossToggle" color="#d48c2c" />
-    </view>
-    <view wx:if="{{isBoss}}" class="form-hint">Boss 角色將使用 grade_6 視覺檔位（特殊邊框）</view>
-
-    <!-- 类型 -->
-    <view class="form-field">
-      <view class="form-field__label">類型 <text class="required">*</text></view>
-      <picker mode="selector" range="{{typeOptions}}" range-key="name" value="{{typeIndex}}" bindchange="onTypeChange">
-        <view class="form-picker {{typeId ? '' : 'form-picker--empty'}}">
-          {{typeId ? typeOptions[typeIndex].name : '請選擇類型'}}
-        </view>
-      </picker>
-      <text wx:if="{{validationErrors.typeId}}" class="form-error">{{validationErrors.typeId}}</text>
-    </view>
-
-    <!-- 性别 -->
-    <view class="form-field">
-      <view class="form-field__label">性別 <text class="required">*</text></view>
-      <picker mode="selector" range="{{genderOptions}}" range-key="name" value="{{genderIndex}}" bindchange="onGenderChange">
-        <view class="form-picker {{genderId ? '' : 'form-picker--empty'}}">
-          {{genderId ? genderOptions[genderIndex].name : '請選擇性別'}}
-        </view>
-      </picker>
-      <text wx:if="{{validationErrors.genderId}}" class="form-error">{{validationErrors.genderId}}</text>
-    </view>
-
-    <!-- 职业（可搜索） -->
-    <view class="form-field">
-      <view class="form-field__label">職業 <text class="required">*</text></view>
-      <input class="form-input form-input--search" placeholder="輸入關鍵詞搜尋職業..." value="{{jobSearchText}}" bindinput="onJobSearchInput" />
-      <picker mode="selector" range="{{filteredJobOptions}}" range-key="name" value="{{jobIndex}}" bindchange="onJobChange">
-        <view class="form-picker {{jobId ? '' : 'form-picker--empty'}}">
-          {{jobId ? filteredJobOptions[jobIndex].name : '請選擇職業（點擊展開列表）'}}
-        </view>
-      </picker>
-      <text wx:if="{{validationErrors.jobId}}" class="form-error">{{validationErrors.jobId}}</text>
-    </view>
-
-    <!-- 国籍（可搜索） -->
-    <view class="form-field">
-      <view class="form-field__label">國籍 <text class="required">*</text></view>
-      <input wx:if="{{nationalityOptions.length > 0}}" class="form-input form-input--search" placeholder="輸入關鍵詞搜尋國籍..." value="{{nationalitySearchText}}" bindinput="onNationalitySearchInput" />
-      <picker wx:if="{{nationalityOptions.length > 0}}" mode="selector" range="{{filteredNationalityOptions}}" range-key="name" value="{{nationalityIndex}}" bindchange="onNationalityChange">
-        <view class="form-picker {{nationalityId ? '' : 'form-picker--empty'}}">
-          {{nationalityId ? filteredNationalityOptions[nationalityIndex].name : '請選擇國籍（點擊展開列表）'}}
-        </view>
-      </picker>
-      <input wx:else class="form-input" placeholder="輸入國籍 ID（如 nationality_ctn_swe）" value="{{nationalityId}}" bindinput="onNationalitySearchInput" />
-      <text wx:if="{{validationErrors.nationalityId}}" class="form-error">{{validationErrors.nationalityId}}</text>
-    </view>
-
-    <!-- 头像 -->
-    <view class="form-field">
-      <view class="form-field__label">頭像 <text class="required">*</text></view>
-      <view class="portrait-area" bindtap="onPortraitTap">
-        <image wx:if="{{portraitTempPath}}" class="portrait-preview" src="{{portraitTempPath}}" mode="aspectFill" />
-        <view wx:else class="portrait-placeholder">
-          <text class="portrait-placeholder__icon">📷</text>
-          <text class="portrait-placeholder__text">點擊拍照或從相冊選擇</text>
-        </view>
+  <!-- 基本資料 -->
+  <disclosure-section
+    title="基本資料"
+    hint="名稱、定位與頭像"
+    default-expanded="{{true}}"
+  >
+    <view class="editor-section__content">
+      <view class="form-field">
+        <view class="form-field__label">名稱 <text class="required">*</text></view>
+        <input class="form-input" placeholder="輸入航海士繁體中文名稱" value="{{name}}" bindinput="onNameInput" maxlength="50" />
+        <text wx:if="{{validationErrors.name}}" class="form-error">{{validationErrors.name}}</text>
       </view>
-      <view wx:if="{{portraitTempPath}}" class="portrait-actions">
-        <text class="form-link" bindtap="onPortraitTap">重新選擇</text>
-        <text class="form-link form-link--danger" bindtap="onPortraitRemove">移除</text>
-      </view>
-      <text wx:if="{{validationErrors.portrait}}" class="form-error">{{validationErrors.portrait}}</text>
-    </view>
-  </view>
 
-  <!-- ═══ 語言能力 ═══ -->
-  <view class="form-section">
-    <view class="form-section__title">
-      語言能力
-      <text class="form-section__add" bindtap="onLanguageAdd">+ 新增語言</text>
-    </view>
-    <view wx:if="{{languages.length === 0}}" class="form-empty">尚未添加語言能力</view>
-    <view wx:for="{{languages}}" wx:key="key" class="form-row">
-      <picker mode="selector" range="{{languageOptions}}" range-key="name" value="{{item.languageIndex}}" bindchange="onLanguageChange" data-key="{{item.key}}">
-        <view class="form-picker form-picker--sm {{item.languageId ? '' : 'form-picker--empty'}}">
-          {{item.languageId ? item.languageName : '選擇語言'}}
-        </view>
-      </picker>
-      <view class="form-row__level">
-        <text class="form-row__level-label">Lv.</text>
-        <input class="form-input form-input--num" type="number" value="{{item.level}}" bindinput="onLanguageLevelInput" data-key="{{item.key}}" />
-      </view>
-      <text class="form-row__remove" bindtap="onLanguageRemove" data-key="{{item.key}}">✕</text>
-    </view>
-  </view>
-
-  <!-- ═══ 技能列表 ═══ -->
-  <view class="form-section">
-    <view class="form-section__title">
-      技能列表
-      <text class="form-section__add" bindtap="onSkillAdd">+ 新增技能</text>
-    </view>
-    <view wx:if="{{skills.length === 0}}" class="form-empty">尚未添加技能</view>
-    <view wx:for="{{skills}}" wx:key="key" class="skill-card">
-      <view class="skill-card__header">
-        <text class="skill-card__title">{{item.skillName || '未選擇技能'}}</text>
-        <text class="skill-card__remove" bindtap="onSkillRemove" data-key="{{item.key}}">✕</text>
-      </view>
-      <!-- 技能名称搜索 -->
-      <view class="skill-card__field">
-        <text class="skill-card__label">技能名稱</text>
-        <input class="form-input" placeholder="搜尋技能名稱..." value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
-        <picker mode="selector" range="{{filteredSkillOptions}}" range-key="name" bindchange="onSkillIdChange" data-key="{{item.key}}">
-          <view class="form-picker form-picker--sm {{item.skillId ? '' : 'form-picker--empty'}}">
-            {{item.skillId ? item.skillName : '點擊選擇技能'}}
+      <view class="form-field">
+        <view class="form-field__label">稀有度 <text class="required">*</text></view>
+        <picker mode="selector" range="{{rarityOptions}}" range-key="name" value="{{rarityIndex}}" bindchange="onRarityChange">
+          <view class="form-picker {{rarityId ? '' : 'form-picker--empty'}}">
+            {{rarityId ? rarityOptions[rarityIndex].name : '請選擇稀有度'}}
           </view>
         </picker>
+        <text wx:if="{{validationErrors.rarityId}}" class="form-error">{{validationErrors.rarityId}}</text>
       </view>
-      <!-- 技能组别 -->
-      <view class="skill-card__row">
-        <view class="skill-card__field skill-card__field--half">
-          <text class="skill-card__label">組別</text>
-          <picker mode="selector" range="{{['被動組0','被動組1','主動組0','主動組1','主動組2','被動組2']}}" value="{{item.groupIndex}}" bindchange="onSkillGroupChange" data-key="{{item.key}}">
-            <view class="form-picker form-picker--sm">{{item.groupLabel}}</view>
+
+      <view class="form-field form-field--row">
+        <view class="form-field__label">Boss 角色</view>
+        <switch checked="{{isBoss}}" bindchange="onBossToggle" color="#b99552" />
+      </view>
+      <view wx:if="{{isBoss}}" class="form-hint">Boss 角色將使用 grade_6 視覺檔位（特殊邊框）</view>
+
+      <view class="form-field">
+        <view class="form-field__label">類型 <text class="required">*</text></view>
+        <picker mode="selector" range="{{typeOptions}}" range-key="name" value="{{typeIndex}}" bindchange="onTypeChange">
+          <view class="form-picker {{typeId ? '' : 'form-picker--empty'}}">
+            {{typeId ? typeOptions[typeIndex].name : '請選擇類型'}}
+          </view>
+        </picker>
+        <text wx:if="{{validationErrors.typeId}}" class="form-error">{{validationErrors.typeId}}</text>
+      </view>
+
+      <view class="form-field">
+        <view class="form-field__label">性別 <text class="required">*</text></view>
+        <picker mode="selector" range="{{genderOptions}}" range-key="name" value="{{genderIndex}}" bindchange="onGenderChange">
+          <view class="form-picker {{genderId ? '' : 'form-picker--empty'}}">
+            {{genderId ? genderOptions[genderIndex].name : '請選擇性別'}}
+          </view>
+        </picker>
+        <text wx:if="{{validationErrors.genderId}}" class="form-error">{{validationErrors.genderId}}</text>
+      </view>
+
+      <view class="form-field">
+        <view class="form-field__label">職業 <text class="required">*</text></view>
+        <input class="form-input form-input--search" placeholder="輸入關鍵詞搜尋職業..." value="{{jobSearchText}}" bindinput="onJobSearchInput" />
+        <picker mode="selector" range="{{filteredJobOptions}}" range-key="name" value="{{jobIndex}}" bindchange="onJobChange">
+          <view class="form-picker {{jobId ? '' : 'form-picker--empty'}}">
+            {{jobId ? filteredJobOptions[jobIndex].name : '請選擇職業（點擊展開列表）'}}
+          </view>
+        </picker>
+        <text wx:if="{{validationErrors.jobId}}" class="form-error">{{validationErrors.jobId}}</text>
+      </view>
+
+      <view class="form-field">
+        <view class="form-field__label">國籍 <text class="required">*</text></view>
+        <input wx:if="{{nationalityOptions.length > 0}}" class="form-input form-input--search" placeholder="輸入關鍵詞搜尋國籍..." value="{{nationalitySearchText}}" bindinput="onNationalitySearchInput" />
+        <picker wx:if="{{nationalityOptions.length > 0}}" mode="selector" range="{{filteredNationalityOptions}}" range-key="name" value="{{nationalityIndex}}" bindchange="onNationalityChange">
+          <view class="form-picker {{nationalityId ? '' : 'form-picker--empty'}}">
+            {{nationalityId ? filteredNationalityOptions[nationalityIndex].name : '請選擇國籍（點擊展開列表）'}}
+          </view>
+        </picker>
+        <input wx:else class="form-input" placeholder="輸入國籍 ID（如 nationality_ctn_swe）" value="{{nationalityId}}" bindinput="onNationalitySearchInput" />
+        <text wx:if="{{validationErrors.nationalityId}}" class="form-error">{{validationErrors.nationalityId}}</text>
+      </view>
+
+      <view class="form-field">
+        <view class="form-field__label">頭像 <text class="required">*</text></view>
+        <view class="portrait-area" bindtap="onPortraitTap">
+          <image wx:if="{{portraitTempPath}}" class="portrait-preview" src="{{portraitTempPath}}" mode="aspectFill" />
+          <view wx:else class="portrait-placeholder">
+            <text class="portrait-placeholder__text">點擊選擇頭像</text>
+          </view>
+        </view>
+        <view wx:if="{{portraitTempPath}}" class="portrait-actions">
+          <button class="form-link" bindtap="onPortraitTap">重新選擇</button>
+          <button class="form-link form-link--danger" bindtap="onPortraitRemove">移除</button>
+        </view>
+        <text wx:if="{{validationErrors.portrait}}" class="form-error">{{validationErrors.portrait}}</text>
+      </view>
+    </view>
+  </disclosure-section>
+
+  <!-- 能力與語言 -->
+  <disclosure-section
+    title="能力與語言"
+    hint="語言能力等級"
+    count-label="{{languages.length}}"
+    default-expanded="{{false}}"
+  >
+    <view class="editor-section__content">
+      <view class="editor-section__toolbar">
+        <text class="editor-section__toolbar-label">語言能力</text>
+        <button class="editor-section__action" bindtap="onLanguageAdd">新增語言</button>
+      </view>
+      <view wx:if="{{languages.length === 0}}" class="form-empty">尚未添加語言能力</view>
+      <view wx:for="{{languages}}" wx:key="key" class="form-row">
+        <picker mode="selector" range="{{languageOptions}}" range-key="name" value="{{item.languageIndex}}" bindchange="onLanguageChange" data-key="{{item.key}}">
+          <view class="form-picker form-picker--sm {{item.languageId ? '' : 'form-picker--empty'}}">
+            {{item.languageId ? item.languageName : '選擇語言'}}
+          </view>
+        </picker>
+        <view class="form-row__level">
+          <text class="form-row__level-label">Lv.</text>
+          <input class="form-input form-input--num" type="number" value="{{item.level}}" bindinput="onLanguageLevelInput" data-key="{{item.key}}" />
+        </view>
+        <button class="form-row__remove" bindtap="onLanguageRemove" data-key="{{item.key}}">移除</button>
+      </view>
+    </view>
+  </disclosure-section>
+
+  <!-- 技能 -->
+  <disclosure-section
+    title="技能"
+    hint="技能組別與等級"
+    count-label="{{skills.length}}"
+    default-expanded="{{false}}"
+  >
+    <view class="editor-section__content">
+      <view class="editor-section__toolbar">
+        <text class="editor-section__toolbar-label">技能列表</text>
+        <button class="editor-section__action" bindtap="onSkillAdd">新增技能</button>
+      </view>
+      <view wx:if="{{skills.length === 0}}" class="form-empty">尚未添加技能</view>
+      <view wx:for="{{skills}}" wx:key="key" class="skill-card">
+        <view class="skill-card__header">
+          <text class="skill-card__title">{{item.skillName || '未選擇技能'}}</text>
+          <button class="skill-card__remove" bindtap="onSkillRemove" data-key="{{item.key}}">移除</button>
+        </view>
+        <view class="skill-card__field">
+          <text class="skill-card__label">技能名稱</text>
+          <input class="form-input" placeholder="搜尋技能名稱..." value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
+          <picker mode="selector" range="{{filteredSkillOptions}}" range-key="name" bindchange="onSkillIdChange" data-key="{{item.key}}">
+            <view class="form-picker form-picker--sm {{item.skillId ? '' : 'form-picker--empty'}}">
+              {{item.skillId ? item.skillName : '點擊選擇技能'}}
+            </view>
           </picker>
         </view>
-        <view class="skill-card__field skill-card__field--half">
-          <text class="skill-card__label">解鎖等級</text>
-          <input class="form-input form-input--num" type="number" value="{{item.unlockLevel}}" bindinput="onSkillUnlockLevelInput" data-key="{{item.key}}" />
+        <view class="skill-card__row">
+          <view class="skill-card__field skill-card__field--half">
+            <text class="skill-card__label">組別</text>
+            <picker mode="selector" range="{{['被動組0','被動組1','主動組0','主動組1','主動組2','被動組2']}}" value="{{item.groupIndex}}" bindchange="onSkillGroupChange" data-key="{{item.key}}">
+              <view class="form-picker form-picker--sm">{{item.groupLabel}}</view>
+            </picker>
+          </view>
+          <view class="skill-card__field skill-card__field--half">
+            <text class="skill-card__label">解鎖等級</text>
+            <input class="form-input form-input--num" type="number" value="{{item.unlockLevel}}" bindinput="onSkillUnlockLevelInput" data-key="{{item.key}}" />
+          </view>
+        </view>
+        <view class="skill-card__field">
+          <text class="skill-card__label">技能等級</text>
+          <input class="form-input form-input--num" type="number" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" />
         </view>
       </view>
-      <view class="skill-card__field">
-        <text class="skill-card__label">技能等級</text>
-        <input class="form-input form-input--num" type="number" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" />
-      </view>
     </view>
-  </view>
+  </disclosure-section>
 
-  <!-- ═══ 招募資訊 ═══ -->
-  <view class="form-section">
-    <view class="form-section__title">招募資訊</view>
-
-    <!-- 招募城市 -->
-    <view class="form-field">
-      <view class="form-field__label">招募城市</view>
-      <view class="tag-list">
-        <view wx:for="{{recruitment.cityNames}}" wx:key="index" class="tag">
-          <text>{{item}}</text>
-          <text class="tag__remove" bindtap="onCityRemove" data-index="{{index}}">✕</text>
+  <!-- 招募資訊 -->
+  <disclosure-section
+    title="招募資訊"
+    hint="城市、條件與前置航海士"
+    default-expanded="{{false}}"
+  >
+    <view class="editor-section__content">
+      <view class="form-field">
+        <view class="form-field__label">招募城市</view>
+        <view class="tag-list">
+          <view wx:for="{{recruitment.cityNames}}" wx:key="index" class="tag">
+            <text class="tag__label">{{item}}</text>
+            <button class="tag__remove" bindtap="onCityRemove" data-index="{{index}}">移除</button>
+          </view>
+        </view>
+        <view class="form-row">
+          <input class="form-input" placeholder="輸入城市名稱後點擊添加" value="{{cityInputValue}}" bindinput="onCityInput" />
+          <button class="form-btn form-btn--sm" bindtap="onCityAdd">添加</button>
         </view>
       </view>
-      <view class="form-row">
-        <input class="form-input" placeholder="輸入城市名稱後點擊添加" value="{{cityInputValue}}" bindinput="onCityInput" />
-        <text class="form-btn form-btn--sm" bindtap="onCityAdd">添加</text>
+
+      <view class="form-field form-field--row">
+        <view class="form-field__label">招募條件</view>
+        <switch checked="{{recruitment.requirementId !== null}}" bindchange="onRequirementToggle" color="#b99552" />
       </view>
-    </view>
+      <view wx:if="{{recruitment.requirementId !== null}}" class="form-field">
+        <input class="form-input" placeholder="輸入招募條件 ID" value="{{recruitment.requirementId}}" bindinput="onRequirementInput" />
+      </view>
 
-    <!-- 招募条件 -->
-    <view class="form-field form-field--row">
-      <view class="form-field__label">招募條件</view>
-      <switch checked="{{recruitment.requirementId !== null}}" bindchange="onRequirementToggle" color="#d48c2c" />
-    </view>
-    <view wx:if="{{recruitment.requirementId !== null}}" class="form-field">
-      <input class="form-input" placeholder="輸入招募條件 ID" value="{{recruitment.requirementId}}" bindinput="onRequirementInput" />
-    </view>
-
-    <!-- 所需航海士 -->
-    <view class="form-field">
-      <view class="form-field__label">所需航海士</view>
-      <view class="tag-list">
-        <view wx:for="{{recruitment.requiredOfficerNames}}" wx:key="index" class="tag">
-          <text>{{item}}</text>
-          <text class="tag__remove" bindtap="onRequiredOfficerRemove" data-index="{{index}}">✕</text>
+      <view class="form-field">
+        <view class="form-field__label">所需航海士</view>
+        <view class="tag-list">
+          <view wx:for="{{recruitment.requiredOfficerNames}}" wx:key="index" class="tag">
+            <text class="tag__label">{{item}}</text>
+            <button class="tag__remove" bindtap="onRequiredOfficerRemove" data-index="{{index}}">移除</button>
+          </view>
+        </view>
+        <view class="form-row">
+          <input class="form-input" placeholder="輸入航海士名稱後點擊添加" value="{{officerSearchText}}" bindinput="onRequiredOfficerInput" />
+          <button class="form-btn form-btn--sm" bindtap="onRequiredOfficerAdd">添加</button>
         </view>
       </view>
-      <view class="form-row">
-        <input class="form-input" placeholder="輸入航海士名稱後點擊添加" value="{{officerSearchText}}" bindinput="onRequiredOfficerInput" />
-        <text class="form-btn form-btn--sm" bindtap="onRequiredOfficerAdd">添加</text>
+
+      <view class="form-field">
+        <view class="form-field__label">招募備註</view>
+        <textarea class="form-textarea" placeholder="如：5000紅鑽購買提督" value="{{recruitment.note}}" bindinput="onRecruitmentNoteInput" maxlength="200" auto-height />
       </view>
     </view>
+  </disclosure-section>
 
-    <!-- 招募备注 -->
-    <view class="form-field">
-      <view class="form-field__label">招募備註</view>
-      <textarea class="form-textarea" placeholder="如：5000紅鑽購買提督" value="{{recruitment.note}}" bindinput="onRecruitmentNoteInput" maxlength="200" auto-height />
+  <!-- 其他與確認 -->
+  <disclosure-section
+    title="其他與確認"
+    hint="來源與維護備註"
+    default-expanded="{{false}}"
+  >
+    <view class="editor-section__content">
+      <view class="form-field">
+        <view class="form-field__label">voyage.tw 來源 ID</view>
+        <input class="form-input" placeholder="如 chasT102（選填，用於自動生成 ID）" value="{{sourceVoyageTw}}" bindinput="onSourceVoyageInput" />
+      </view>
+
+      <view class="form-field">
+        <view class="form-field__label">維護備註</view>
+        <textarea class="form-textarea" placeholder="任何需要記錄的備註..." value="{{maintenanceNote}}" bindinput="onMaintenanceNoteInput" maxlength="500" auto-height />
+      </view>
     </view>
-  </view>
+  </disclosure-section>
 
-  <!-- ═══ 其他資訊 ═══ -->
-  <view class="form-section">
-    <view class="form-section__title">其他資訊</view>
-
-    <!-- 来源 ID -->
-    <view class="form-field">
-      <view class="form-field__label">voyage.tw 來源 ID</view>
-      <input class="form-input" placeholder="如 chasT102（選填，用於自動生成 ID）" value="{{sourceVoyageTw}}" bindinput="onSourceVoyageInput" />
-    </view>
-
-    <!-- 维护备注 -->
-    <view class="form-field">
-      <view class="form-field__label">維護備註</view>
-      <textarea class="form-textarea" placeholder="任何需要記錄的備註..." value="{{maintenanceNote}}" bindinput="onMaintenanceNoteInput" maxlength="500" auto-height />
-    </view>
-  </view>
-
-  <!-- 提交按钮 -->
+  <!-- 確認提交 -->
   <view class="submit-area">
+    <text class="submit-area__title">確認提交</text>
+    <text class="submit-area__hint">提交前請確認必填資料與技能設定。</text>
     <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting}}" loading="{{submitting}}">
       {{submitting ? '提交中...' : '提交新增航海士'}}
     </button>
@@ -240,6 +251,5 @@
     </text>
   </view>
 
-  <!-- 底部间距 -->
   <view class="page-bottom-spacer"></view>
 </scroll-view>

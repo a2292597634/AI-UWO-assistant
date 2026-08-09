@@ -1,7 +1,9 @@
 {
   "navigationBarTitleText": "新增航海士",
-  "navigationBarBackgroundColor": "#2f302b",
+  "navigationBarBackgroundColor": "#26332f",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#ded7c7",
-  "usingComponents": {}
+  "backgroundColor": "#e7deca",
+  "usingComponents": {
+    "disclosure-section": "../../components/disclosure-section/index"
+  }
 }
