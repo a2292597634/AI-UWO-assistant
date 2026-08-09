@@ -115,9 +115,22 @@ const readTokenReferences = (value: string): string[] =>
 
 const isLocalUrlValue = (value: string): boolean => {
   const match = /^url\(\s*(?:(['"])(.*?)\1|([^'"]+?))\s*\)$/i.exec(value)
-  const path = match?.[2] ?? match?.[3]
-  return path !== undefined && path.trim() !== '' && !/^(?:https?:|\/\/|data:)/i.test(path.trim())
+  const path = (match?.[2] ?? match?.[3])?.trim()
+  return (
+    path !== undefined &&
+    path !== '' &&
+    !/^[a-z][a-z0-9+.-]*:/i.test(path) &&
+    !path.startsWith('//') &&
+    !path.startsWith('#') &&
+    !path.includes('\\')
+  )
 }
+
+const removeTokenReferences = (value: string, tokens: readonly string[]): string =>
+  tokens.reduce(
+    (remaining, token) => remaining.replace(new RegExp(`var\\(\\s*${token}\\s*\\)`, 'gi'), ' '),
+    value,
+  )
 
 describe('配隊共享元件文件架構', () => {
   it('七個共享元件均提供微信原生 Component 的四件必要文件', () => {
@@ -174,16 +187,24 @@ describe('配隊共享元件文件架構', () => {
 
         if (property === 'font') {
           const declarationTokens = readTokenReferences(value)
-          const usesFontFamilyToken = declarationTokens.some((token) =>
+          const fontFamilyTokens = declarationTokens.filter((token) =>
             P3_FONT_TOKENS.slice(0, 2).includes(token as (typeof P3_FONT_TOKENS)[number]),
           )
-          const usesFontSizeToken = declarationTokens.some((token) =>
+          const fontSizeTokens = declarationTokens.filter((token) =>
             P3_FONT_TOKENS.slice(2).includes(token as (typeof P3_FONT_TOKENS)[number]),
           )
+          const unsupportedShorthand = removeTokenReferences(value, P3_FONT_TOKENS)
+            .replace(/\b(?:normal|italic|oblique|small-caps|bold|bolder|lighter|[1-9]00)\b/gi, ' ')
+            .replace(/(?:^|\s|\/)\d+(?:\.\d+)?(?=\s|\/|$)/g, ' ')
+            .replace(/[\s/]+/g, '')
 
-          expect(CSS_WIDE_VALUE.test(value) || (usesFontFamilyToken && usesFontSizeToken)).toBe(
-            true,
-          )
+          expect(
+            CSS_WIDE_VALUE.test(value) ||
+              (fontFamilyTokens.length === 1 &&
+                fontSizeTokens.length === 1 &&
+                unsupportedShorthand === '' &&
+                /var\(\s*--uwo-font-family-(?:body|display)\s*\)\s*$/i.test(value)),
+          ).toBe(true)
         }
 
         if (property === 'font-family') {
@@ -206,10 +227,13 @@ describe('配隊共享元件文件架構', () => {
 
         if (RADIUS_PROPERTIES.test(property)) {
           const declarationTokens = readTokenReferences(value)
+          const unsupportedRadiusValue = removeTokenReferences(value, P3_RADIUS_TOKENS)
+            .replace(/\b0\b/g, ' ')
+            .replace(/[\s/]+/g, '')
           expect(
-            declarationTokens.some((token) =>
+            declarationTokens.every((token) =>
               P3_RADIUS_TOKENS.includes(token as (typeof P3_RADIUS_TOKENS)[number]),
-            ) || /^0$/.test(value),
+            ) && unsupportedRadiusValue === '',
           ).toBe(true)
         }
 
