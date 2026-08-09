@@ -6,6 +6,66 @@ const ROOT = resolve(__dirname, '../..')
 const COMPONENT_ROOT = 'miniprogram/components'
 const COMPONENT_FILES = ['index.ts', 'index.wxml', 'index.wxss', 'index.json'] as const
 
+const P3_COLOR_TOKENS = [
+  '--uwo-color-canvas',
+  '--uwo-color-surface',
+  '--uwo-color-surface-muted',
+  '--uwo-color-ink',
+  '--uwo-color-text-primary',
+  '--uwo-color-text-secondary',
+  '--uwo-color-accent-brass',
+  '--uwo-color-accent-text',
+  '--uwo-color-success',
+  '--uwo-color-warning',
+  '--uwo-color-danger',
+  '--uwo-color-border-subtle',
+  '--uwo-color-border-strong',
+] as const
+
+const P3_FONT_TOKENS = [
+  '--uwo-font-family-body',
+  '--uwo-font-family-display',
+  '--uwo-font-size-page-title',
+  '--uwo-font-size-section-title',
+  '--uwo-font-size-emphasis',
+  '--uwo-font-size-body',
+  '--uwo-font-size-supporting',
+  '--uwo-font-size-minimum-action',
+] as const
+
+const P3_SPACE_TOKENS = [
+  '--uwo-space-1',
+  '--uwo-space-2',
+  '--uwo-space-3',
+  '--uwo-space-4',
+  '--uwo-space-6',
+  '--uwo-space-8',
+  '--uwo-space-12',
+] as const
+
+const P3_RADIUS_TOKENS = [
+  '--uwo-radius-control',
+  '--uwo-radius-card',
+  '--uwo-radius-sheet',
+  '--uwo-radius-pill',
+] as const
+
+const P3_SHADOW_TOKENS = ['--uwo-shadow-elevated', '--uwo-shadow-sheet'] as const
+
+const P3_TOKENS = new Set<string>([
+  ...P3_COLOR_TOKENS,
+  ...P3_FONT_TOKENS,
+  ...P3_SPACE_TOKENS,
+  ...P3_RADIUS_TOKENS,
+  ...P3_SHADOW_TOKENS,
+])
+
+const COLOR_PROPERTIES =
+  /^(?:color|background(?:-color)?|border(?:-(?:top|right|bottom|left))?|border(?:-[a-z]+)?-color|outline|outline-color|fill|stroke)$/
+const SPACE_PROPERTIES =
+  /^(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?$/
+const NON_ZERO_CSS_LENGTH = /(?:^|[\s(,+-])[1-9]\d*(?:\.\d+)?(?:rpx|px|em|rem|vw|vh|%)\b/i
+
 const COMPONENT_CONTRACTS = [
   {
     name: 'config-bar',
@@ -39,6 +99,14 @@ const projectFileExists = (relativePath: string): boolean => existsSync(resolve(
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+const readDeclarations = (wxss: string): Array<{ property: string; value: string }> =>
+  [
+    ...wxss.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(?:^|[;{])\s*([a-z-]+)\s*:\s*([^;{}]+)/gim),
+  ].map(([, property, value]) => ({ property: property.toLowerCase(), value: value.trim() }))
+
+const readTokenReferences = (value: string): string[] =>
+  [...value.matchAll(/var\(\s*(--[a-z0-9-]+)/gi)].map((match) => match[1])
+
 describe('配隊共享元件文件架構', () => {
   it('七個共享元件均提供微信原生 Component 的四件必要文件', () => {
     const missingFiles = COMPONENT_CONTRACTS.flatMap(({ name }) =>
@@ -63,8 +131,66 @@ describe('配隊共享元件文件架構', () => {
       if (!projectFileExists(wxssPath)) return
 
       const wxss = readProjectFile(wxssPath)
-      expect(wxss).toMatch(/var\(--uwo-(?:color|font|space|radius|shadow)-[a-z-]+\)/)
-      expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b/i)
+      const tokenReferences = readTokenReferences(wxss)
+      const unsupportedTokens = tokenReferences.filter((token) => !P3_TOKENS.has(token))
+      const declarations = readDeclarations(wxss)
+
+      expect(tokenReferences.length).toBeGreaterThan(0)
+      expect(unsupportedTokens).toEqual([])
+      expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
+
+      for (const { property, value } of declarations) {
+        if (COLOR_PROPERTIES.test(property)) {
+          const declarationTokens = readTokenReferences(value)
+          const usesColorToken = declarationTokens.some((token) =>
+            P3_COLOR_TOKENS.includes(token as (typeof P3_COLOR_TOKENS)[number]),
+          )
+          expect(
+            usesColorToken ||
+              /^(?:0|none|transparent|currentcolor|inherit|initial|unset)$/i.test(value),
+          ).toBe(true)
+        }
+
+        if (SPACE_PROPERTIES.test(property)) {
+          expect(value).not.toMatch(NON_ZERO_CSS_LENGTH)
+        }
+
+        if (property === 'font-family') {
+          const declarationTokens = readTokenReferences(value)
+          expect(
+            declarationTokens.some((token) =>
+              P3_FONT_TOKENS.slice(0, 2).includes(token as (typeof P3_FONT_TOKENS)[number]),
+            ) || /^(?:inherit|initial|unset)$/i.test(value),
+          ).toBe(true)
+        }
+
+        if (property === 'font-size') {
+          const declarationTokens = readTokenReferences(value)
+          expect(
+            declarationTokens.some((token) =>
+              P3_FONT_TOKENS.slice(2).includes(token as (typeof P3_FONT_TOKENS)[number]),
+            ),
+          ).toBe(true)
+        }
+
+        if (property === 'border-radius') {
+          const declarationTokens = readTokenReferences(value)
+          expect(
+            declarationTokens.some((token) =>
+              P3_RADIUS_TOKENS.includes(token as (typeof P3_RADIUS_TOKENS)[number]),
+            ) || /^0$/.test(value),
+          ).toBe(true)
+        }
+
+        if (property === 'box-shadow' || property === 'text-shadow') {
+          const declarationTokens = readTokenReferences(value)
+          expect(
+            declarationTokens.some((token) =>
+              P3_SHADOW_TOKENS.includes(token as (typeof P3_SHADOW_TOKENS)[number]),
+            ) || /^none$/i.test(value),
+          ).toBe(true)
+        }
+      }
     })
 
     it.each(events)('以 %s 發出規格指定事件', (eventName) => {
