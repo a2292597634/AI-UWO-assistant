@@ -7,38 +7,21 @@
     <text class="fleet-header__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
   </view>
 
-  <!-- Config Management Bar -->
-  <view class="config-bar">
-    <view class="config-bar__info" bindtap="onConfigListOpen">
-      <text class="config-bar__name">{{configName}}</text>
-      <text class="config-bar__status {{configStatus === 'saved' ? 'config-bar__status--saved' : configStatus === 'unsaved' ? 'config-bar__status--unsaved' : ''}}">
-        {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
-      </text>
-    </view>
-    <view class="config-bar__actions">
-      <text wx:if="{{authStatus === 'guest'}}" class="config-bar__login" bindtap="onConfigLogin">登入後保存</text>
-      <text wx:if="{{authStatus !== 'guest'}}" class="config-bar__menu-btn" bindtap="onConfigMenuTap">{{showConfigMenu ? '✕' : '☰'}}</text>
-    </view>
-  </view>
-
-  <!-- Config Management Menu -->
-  <view wx:if="{{showConfigMenu}}" class="config-menu">
-    <view class="config-menu__item" bindtap="onConfigSave">
-      <text>覆蓋保存</text>
-    </view>
-    <view class="config-menu__item" bindtap="onConfigSaveAs">
-      <text>另存為</text>
-    </view>
-    <view wx:if="{{activeConfigId}}" class="config-menu__item" bindtap="onConfigRename">
-      <text>重命名</text>
-    </view>
-    <view wx:if="{{activeConfigId}}" class="config-menu__item config-menu__item--danger" bindtap="onConfigDelete">
-      <text>刪除配置</text>
-    </view>
-    <view class="config-menu__item" bindtap="onConfigNew">
-      <text>新建配置</text>
-    </view>
-  </view>
+  <config-bar
+    config-name="{{configName}}"
+    config-status="{{configStatus}}"
+    auth-status="{{authStatus}}"
+    active-config-id="{{activeConfigId}}"
+    show-menu="{{showConfigMenu}}"
+    bind:info-tap="onConfigListOpen"
+    bind:login-tap="onConfigLogin"
+    bind:menu-tap="onConfigMenuTap"
+    bind:save="onConfigSave"
+    bind:save-as="onConfigSaveAs"
+    bind:rename="onConfigRename"
+    bind:delete="onConfigDelete"
+    bind:new="onConfigNew"
+  />
 
   <!-- Config List Modal -->
   <view wx:if="{{showConfigList}}" class="config-modal-mask" bindtap="onConfigListClose">
@@ -162,40 +145,25 @@
               <image wx:if="{{item.officer.visuals.typeIconPath && !failedPortraitImages[item.officer.id + '_type']}}" class="officer-slot__type-icon" src="{{item.officer.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.officer.id}}_type" />
             </view>
             <text class="officer-slot__name">{{item.officer.name}}</text>
-            <view class="officer-slot__actions">
-              <view
-                class="slot-action slot-action--lock"
-                bindtap="onOfficerLock"
-                data-id="{{item.officer.id}}"
-                aria-label="{{item.officer.status === 'locked' ? '解鎖' : '鎖定'}}"
-              >
-                <text class="slot-action__glyph">{{item.officer.status === 'locked' ? '🔓' : '🔒'}}</text>
-                <text class="slot-action__label">{{item.officer.status === 'locked' ? '解鎖' : '鎖定'}}</text>
-              </view>
-              <view class="slot-action" bindtap="onOfficerRemove" data-id="{{item.officer.id}}" aria-label="移除">
-                <text class="slot-action__glyph">×</text>
-                <text class="slot-action__label">移除</text>
-              </view>
-              <view
-                wx:if="{{mode === 'auto'}}"
-                class="slot-action slot-action--danger"
-                bindtap="onBanOfficer"
-                data-id="{{item.officer.id}}"
-                aria-label="排除"
-              >
-                <text class="slot-action__glyph">⊘</text>
-                <text class="slot-action__label">排除</text>
-              </view>
-            </view>
+            <officer-action-sheet
+              officer-id="{{item.officer.id}}"
+              status="{{item.officer.status}}"
+              variant="slot"
+              allow-ban="{{mode === 'auto'}}"
+              bind:lock="onOfficerLock"
+              bind:remove="onOfficerRemove"
+              bind:ban="onBanOfficer"
+            />
           </block>
           <text wx:else class="officer-slot__empty">空位</text>
         </view>
       </view>
 
-      <view class="mode-tabs">
-        <view class="mode-tab {{mode === 'manual' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="manual">手動配隊</view>
-        <view class="mode-tab {{mode === 'auto' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="auto">自動配隊</view>
-      </view>
+      <mode-tabs
+        value="{{mode}}"
+        options="{{[{ value: 'manual', label: '手動配隊' }, { value: 'auto', label: '自動配隊' }]}}"
+        bind:change="onModeTap"
+      />
 
       <view wx:if="{{mode === 'auto'}}" class="target-panel">
         <view class="panel-heading">
@@ -216,92 +184,32 @@
         </view>
       </view>
 
-      <view wx:if="{{proposalPreview}}" class="proposal-preview-mask" bindtap="onProposalCancel">
-        <view class="proposal-preview-sheet" catchtap="onNoop">
-          <view class="proposal-preview__header">
-            <view>
-              <text class="proposal-preview__title">方案預覽</text>
-              <text class="proposal-preview__scope">{{proposalPreview.scopeLabel}}</text>
-            </view>
-            <text class="proposal-preview__close" bindtap="onProposalCancel">取消</text>
-          </view>
-          <view class="proposal-preview__summary">
-            <text class="proposal-preview__summary-label">目標達成</text>
-            <text class="proposal-preview__summary-value">{{proposalPreview.achievedTargetCount}} / {{proposalPreview.targetCount}}</text>
-          </view>
-          <view class="proposal-preview__target-list">
-            <view wx:for="{{proposalPreview.targetDiffs}}" wx:key="skillId" class="proposal-preview__target-row">
-              <text class="proposal-preview__target-name">{{item.skillName}}</text>
-              <text class="proposal-preview__target-level">Lv.{{item.currentLevel}} → Lv.{{item.proposedLevel}} · 目標 Lv.{{item.targetLevel}}</text>
-              <text class="proposal-preview__target-state">{{item.reached ? '已達成' : '差 Lv.' + item.difference}}</text>
-            </view>
-          </view>
-          <view class="proposal-preview__member-count">
-            <text>保留 {{proposalPreview.keptOfficers.length}} 人</text>
-            <text>新增 {{proposalPreview.addedOfficers.length}} 人</text>
-            <text>移除 {{proposalPreview.removedOfficers.length}} 人</text>
-          </view>
-          <view class="proposal-preview__members">
-            <view class="proposal-preview__member-group">
-              <text class="proposal-preview__group-title">保留</text>
-              <text wx:for="{{proposalPreview.keptOfficers}}" wx:key="id" class="proposal-preview__member proposal-preview__member--kept">{{item.name}}</text>
-            </view>
-            <view class="proposal-preview__member-group">
-              <text class="proposal-preview__group-title">新增</text>
-              <text wx:for="{{proposalPreview.addedOfficers}}" wx:key="id" class="proposal-preview__member proposal-preview__member--added">{{item.name}}</text>
-            </view>
-            <view class="proposal-preview__member-group">
-              <text class="proposal-preview__group-title">移除</text>
-              <text wx:for="{{proposalPreview.removedOfficers}}" wx:key="id" class="proposal-preview__member proposal-preview__member--removed">{{item.name}}</text>
-            </view>
-          </view>
-          <view class="proposal-preview__locked">
-            <text class="proposal-preview__group-title">鎖定成員：{{proposalPreview.lockedAllRetained ? '全部保留' : '有成員未保留'}}</text>
-            <text wx:for="{{proposalPreview.lockedOfficers}}" wx:key="id" class="proposal-preview__member">{{item.name}} · {{item.retained ? '保留' : '未保留'}}</text>
-          </view>
-          <view wx:if="{{proposalPreview.constraints.length > 0}}" class="proposal-preview__constraints">
-            <text class="proposal-preview__group-title">約束與提示</text>
-            <text wx:for="{{proposalPreview.constraints}}" wx:key="code" class="proposal-preview__constraint">{{item.message}}</text>
-          </view>
-          <view class="proposal-preview__actions">
-            <button class="subtle-button" bindtap="onProposalCancel">取消</button>
-            <button class="primary-button" disabled="{{!proposalPreview.canApply}}" bindtap="onProposalApply">應用方案</button>
-          </view>
-        </view>
-      </view>
+      <result-preview-sheet
+        visible="{{proposalPreview !== null}}"
+        preview="{{proposalPreview}}"
+        can-undo="{{canUndoProposal}}"
+        bind:cancel="onProposalCancel"
+        bind:apply="onProposalApply"
+        bind:undo="onUndoProposal"
+      />
 
-      <view class="skill-selector">
-        <view class="panel-heading">
-          <text class="panel-heading__title">選擇戰鬥技能</text>
-          <text class="panel-heading__hint">{{mode === 'auto' ? '點擊技能查看詳情，選擇加入目標' : '點擊技能查看詳情，選擇後篩選可用航海士'}}</text>
-        </view>
-        <scroll-view class="skill-kind-tabs" scroll-x="true" enable-flex>
-          <view class="skill-kind-tabs__content">
-            <view wx:for="{{skillKinds}}" wx:key="id" class="skill-kind {{manualKind === item.id ? 'skill-kind--active' : ''}}" bindtap="onSkillKindTap" data-kind="{{item.id}}">{{item.name}}</view>
-          </view>
-        </scroll-view>
-        <scroll-view class="skill-categories" scroll-x="true" enable-flex>
-          <view class="skill-categories__content">
-            <view class="skill-category {{manualCategoryId === item.id ? 'skill-category--active' : ''}}" wx:for="{{skillCategories}}" wx:key="id" bindtap="onSkillCategoryTap" data-id="{{item.id}}">{{item.name}}</view>
-          </view>
-        </scroll-view>
-        <input class="skill-search" placeholder="在目前分類搜尋技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
-        <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
-          <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option {{manualSkillId === item.id ? 'skill-option--active' : ''}}" bindtap="onSkillTap" data-id="{{item.id}}">
-            <image wx:if="{{assetReady && !failedSkillImages[item.id]}}" class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.id}}" />
-            <view class="skill-option__copy">
-              <text class="skill-option__name">{{item.name}}</text>
-              <text class="skill-option__meta">{{item.kindLabel}} · {{item.categoryName}}</text>
-              <text class="skill-option__description">{{item.description || '暫無技能描述'}}</text>
-            </view>
-            <view class="skill-option__select" catchtap="onSkillSelect" data-id="{{item.id}}">
-              <text>{{mode === 'auto' ? '加入目標' : '選擇'}}</text>
-            </view>
-          </view>
-          <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的戰鬥技能</view>
-          <view wx:if="{{manualSkillHasMore}}" class="inline-empty">繼續上滑載入更多技能</view>
-        </scroll-view>
-      </view>
+      <skill-picker-sheet
+        presentation="inline"
+        visible="{{true}}"
+        skill-kinds="{{skillKinds}}"
+        skill-categories="{{skillCategories}}"
+        skills="{{manualSkills}}"
+        selected-skill-id="{{manualSkillId}}"
+        search-text="{{skillSearchText}}"
+        has-more="{{manualSkillHasMore}}"
+        selection-label="{{mode === 'auto' ? '加入目標' : '選擇'}}"
+        bind:kind-change="onSkillKindTap"
+        bind:category-change="onSkillCategoryTap"
+        bind:search-input="onSkillSearchInput"
+        bind:skill-tap="onSkillTap"
+        bind:select="onSkillSelect"
+        bind:reach-end="onSkillListReachEnd"
+      />
 
       <view wx:if="{{mode === 'manual'}}" class="candidate-panel">
         <view class="panel-heading">
@@ -321,7 +229,11 @@
           </view>
           <text class="candidate-row__status">{{item.statusLabel}}{{item.ownerShipLabel ? ' · ' + item.ownerShipLabel : ''}}</text>
         </view>
-        <view wx:if="{{manualSkillId && manualCandidates.length === 0}}" class="inline-empty">沒有可用航海士</view>
+        <empty-state
+          wx:if="{{manualSkillId && manualCandidates.length === 0}}"
+          title="沒有可用航海士"
+          description="目前條件下沒有可加入目前船的航海士"
+        />
       </view>
 
       <view wx:if="{{mode === 'auto'}}" class="ban-panel">
@@ -343,7 +255,11 @@
             </view>
           </view>
         </scroll-view>
-        <view wx:if="{{bannedOfficers.length === 0}}" class="inline-empty">目前沒有排除航海士</view>
+        <empty-state
+          wx:if="{{bannedOfficers.length === 0}}"
+          title="目前沒有排除航海士"
+          description="排除後的航海士會顯示在此處"
+        />
       </view>
 
       <view class="summary-panel">
@@ -357,7 +273,10 @@
             <text class="summary-row__name">{{item.skillName}}</text>
             <text class="summary-row__level">Lv.{{item.totalLevel}}{{item.targetLevel !== null ? ' / 目標 Lv.' + item.targetLevel : ''}}</text>
           </view>
-          <text class="summary-row__state {{item.isReached === true ? 'summary-row__state--ok' : ''}}">{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}</text>
+          <status-badge
+            status="{{item.targetLevel === null ? 'review' : item.isReached ? 'achieved' : 'unmet'}}"
+            label="{{item.targetLevel === null ? '未設目標' : item.isReached ? '已達成' : '差 ' + item.difference}}"
+          />
           <scroll-view class="summary-row__contributors" scroll-x="true" enable-flex>
             <view class="summary-row__contributors-content">
               <image wx:if="{{assetReady && !failedPortraitImages[item.officerId]}}" wx:for="{{item.contributors}}" wx:key="officerId" class="contributor-avatar" src="{{item.portraitPath}}" mode="aspectFill" binderror="onImageError" data-kind="portrait" data-id="{{item.officerId}}" />
@@ -365,7 +284,11 @@
             </view>
           </scroll-view>
         </view>
-        <view wx:if="{{skillSummary.length === 0}}" class="inline-empty">目前船尚未配置戰鬥技能</view>
+        <empty-state
+          wx:if="{{skillSummary.length === 0}}"
+          title="尚未配置戰鬥技能"
+          description="選擇技能與航海士後，此處會顯示目前船的技能累計"
+        />
       </view>
 
       <view class="overview-panel">
@@ -381,11 +304,6 @@
       </view>
     </view>
    </scroll-view>
-
-   <view wx:if="{{canUndoProposal}}" class="proposal-undo-bar">
-     <text class="proposal-undo-bar__text">已應用本次配隊</text>
-     <button class="subtle-button" bindtap="onUndoProposal">撤銷本次配隊</button>
-   </view>
 
    <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
 </view>

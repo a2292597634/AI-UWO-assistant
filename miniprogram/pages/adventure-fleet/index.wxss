@@ -1,92 +1,3 @@
-/* ── 配置管理栏（复用战斗舰队样式） ── */
-
-.config-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12rpx 24rpx;
-  background: #2a2b25;
-  border-bottom: 1rpx solid #3d3e38;
-  flex: 0 0 auto;
-}
-
-.config-bar__info {
-  display: flex;
-  flex-direction: column;
-  gap: 2rpx;
-  flex: 1;
-  overflow: hidden;
-}
-
-.config-bar__name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #e0d8c0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.config-bar__status {
-  font-size: 20rpx;
-  color: #7a7a6e;
-}
-
-.config-bar__status--saved {
-  color: #5b8c3e;
-}
-.config-bar__status--unsaved {
-  color: #d48c2c;
-}
-
-.config-bar__actions {
-  flex: 0 0 auto;
-  margin-left: 16rpx;
-}
-
-.config-bar__login {
-  font-size: 24rpx;
-  color: #d48c2c;
-  padding: 8rpx 16rpx;
-  border: 1rpx solid #d48c2c;
-  border-radius: 8rpx;
-}
-
-.config-bar__menu-btn {
-  font-size: 32rpx;
-  padding: 8rpx 12rpx;
-  color: #e0d8c0;
-}
-
-/* ── 配置管理菜单 ── */
-
-.config-menu {
-  position: absolute;
-  top: 160rpx;
-  right: 16rpx;
-  z-index: 100;
-  background: #2f302b;
-  border: 1rpx solid #4a4b45;
-  border-radius: 12rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.4);
-  padding: 8rpx 0;
-  min-width: 200rpx;
-}
-
-.config-menu__item {
-  padding: 16rpx 24rpx;
-  font-size: 26rpx;
-  color: #d0c8b0;
-  border-bottom: 1rpx solid #3a3b35;
-}
-
-.config-menu__item:last-child {
-  border-bottom: none;
-}
-.config-menu__item--danger {
-  color: #e07060;
-}
-
 /* ── 弹窗（复用战斗舰队样式） ── */
 
 .config-modal-mask {
@@ -320,7 +231,6 @@
 }
 
 .target-panel,
-.skill-selector,
 .candidate-panel,
 .ban-panel,
 .summary-panel {
@@ -341,7 +251,6 @@
 }
 
 .target-row__icon,
-.skill-option__icon,
 .summary-row__icon {
   width: 42rpx;
   height: 42rpx;
@@ -563,64 +472,6 @@ button.primary-button[disabled] {
   margin-top: 1rpx;
 }
 
-.officer-card__actions {
-  position: absolute;
-  right: 3rpx;
-  bottom: 3rpx;
-  left: 3rpx;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rpx;
-  min-height: 56rpx;
-}
-
-.card-action {
-  box-sizing: border-box;
-  display: flex;
-  min-width: 0;
-  min-height: 56rpx;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rpx 0;
-  overflow: hidden;
-  color: #596257;
-  background: #e8dfce;
-  border-radius: 5rpx;
-  font-size: 12rpx;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.card-action:active {
-  background: #c4b99a;
-}
-
-.card-action--danger {
-  color: #8b3a3a;
-  background: #ead2c8;
-}
-
-.card-action--danger:active {
-  background: #d7b5a9;
-}
-
-.card-action__glyph,
-.card-action__label {
-  display: block;
-}
-
-.card-action__glyph {
-  font-size: 22rpx;
-  line-height: 1;
-}
-
-.card-action__label {
-  margin-top: 2rpx;
-  font-size: 12rpx;
-  line-height: 1.1;
-}
-
 /* ── 排除名单 ── */
 
 .ban-grid {
@@ -705,149 +556,6 @@ button.primary-button[disabled] {
   margin-top: 2rpx;
 }
 
-/* ── 技能选择器 ── */
-
-.skill-search {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 12rpx 0;
-  padding: 10rpx 14rpx;
-  color: #292a26;
-  background: #f5efe0;
-  border: 1rpx solid #c4b99a;
-  border-radius: 6rpx;
-  font-size: 23rpx;
-}
-
-.skill-options {
-  max-height: 330rpx;
-}
-
-.skill-option {
-  display: flex;
-  align-items: center;
-  padding: 10rpx 0;
-  border-bottom: 1rpx solid #d4cbb4;
-}
-
-.skill-option--active {
-  color: #8b3a3a;
-}
-
-.skill-option__copy {
-  min-width: 0;
-  flex: 1;
-}
-
-.skill-option__name {
-  overflow: hidden;
-  font-size: 23rpx;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.skill-option__meta {
-  display: block;
-  margin-top: 3rpx;
-  color: #756b59;
-  font-size: 19rpx;
-}
-
-.skill-option__description {
-  display: -webkit-box;
-  overflow: hidden;
-  margin-top: 4rpx;
-  color: #9b8b6d;
-  font-size: 18rpx;
-  line-height: 1.3;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.skill-option__select {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  min-width: 88rpx;
-  margin-left: 10rpx;
-  padding: 8rpx 10rpx;
-  color: #f0e4c4;
-  background: #596257;
-  border-radius: 6rpx;
-  font-size: 19rpx;
-  line-height: 1.1;
-}
-
-.skill-option__select:active {
-  background: #2f302b;
-}
-
-/* ── 新增目標技能選擇器 ── */
-
-.target-picker-mask {
-  position: fixed;
-  inset: 0;
-  z-index: 220;
-  background: rgba(0, 0, 0, 0.55);
-}
-
-.skill-selector--sheet {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 221;
-  box-sizing: border-box;
-  width: 100%;
-  max-height: 82vh;
-  padding: 24rpx 20rpx calc(24rpx + env(safe-area-inset-bottom));
-  overflow: hidden;
-  background: #f5efe0;
-  border-radius: 24rpx 24rpx 0 0;
-}
-
-.skill-selector--sheet .skill-options {
-  max-height: 48vh;
-}
-
-.target-picker__hint {
-  display: block;
-  margin-top: 6rpx;
-  color: #625947;
-  font-size: 21rpx;
-}
-
-.target-picker__close {
-  flex: 0 0 auto;
-  min-height: 88rpx;
-  padding: 30rpx 8rpx 0;
-  color: #76501a;
-  font-size: 22rpx;
-}
-
-.target-picker__cancel {
-  box-sizing: border-box;
-  min-height: 88rpx;
-  margin: 0;
-  padding: 0 18rpx;
-  line-height: 88rpx;
-  border: 0;
-  border-radius: 8rpx;
-  font-size: 24rpx;
-}
-
-.target-picker__cancel::after {
-  border: 0;
-}
-
-.target-picker__cancel {
-  width: 100%;
-  margin-top: 12rpx;
-  color: #292a26;
-  background: #e8dfce;
-}
-
 /* ── 技能累计 ── */
 
 .summary-row {
@@ -882,15 +590,6 @@ button.primary-button[disabled] {
   font-size: 19rpx;
 }
 
-.summary-row__state {
-  color: #8b3a3a;
-  font-size: 19rpx;
-}
-
-.summary-row__state--ok {
-  color: #596257;
-}
-
 .summary-row__contributors {
   grid-column: 2 / 4;
   height: 62rpx;
@@ -910,15 +609,9 @@ button.primary-button[disabled] {
   margin-right: 6rpx;
 }
 
-.contributors-empty,
-.inline-empty {
+.contributors-empty {
   color: #9b8b6d;
   font-size: 20rpx;
-}
-
-.inline-empty {
-  padding: 18rpx 0 6rpx;
-  text-align: center;
 }
 
 /* ── 船标签页 ── */
@@ -1155,29 +848,6 @@ button.primary-button[disabled] {
   line-height: 1.1;
 }
 
-/* ── 模式切换标签 ── */
-
-.mode-tabs {
-  display: flex;
-  margin: 0 20rpx 18rpx;
-  background: #c4b99a;
-  border-radius: 8rpx;
-}
-
-.mode-tab {
-  flex: 1;
-  padding: 14rpx;
-  color: #5a5a4e;
-  font-size: 25rpx;
-  text-align: center;
-}
-
-.mode-tab--active {
-  color: #f0e4c4;
-  background: #2f302b;
-  border-radius: 8rpx;
-}
-
 /* ── 候选航海士面板 ── */
 
 .candidate-row {
@@ -1263,151 +933,4 @@ button.primary-button[disabled] {
 .candidate-row__status {
   margin-left: 10rpx;
   text-align: right;
-}
-
-.proposal-preview-mask {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
-  background: rgba(38, 51, 47, 0.45);
-}
-
-.proposal-preview-sheet {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  max-height: 82vh;
-  overflow-y: auto;
-  padding: 28rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
-  border-radius: 28rpx 28rpx 0 0;
-  background: #f5efe0;
-}
-
-.proposal-preview__header,
-.proposal-preview__summary,
-.proposal-preview__member-count,
-.proposal-preview__actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.proposal-preview__title,
-.proposal-preview__summary-value {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.proposal-preview__scope,
-.proposal-preview__group-title,
-.proposal-preview__constraint {
-  display: block;
-  margin-top: 8rpx;
-  color: #756b59;
-  font-size: 21rpx;
-}
-
-.proposal-preview__close {
-  min-width: 88rpx;
-  padding: 18rpx 0;
-  color: #76501a;
-  text-align: right;
-}
-
-.proposal-preview__summary,
-.proposal-preview__constraints {
-  margin-top: 16rpx;
-  padding: 18rpx;
-  background: #e8dfce;
-}
-
-.proposal-preview__target-list,
-.proposal-preview__members,
-.proposal-preview__locked {
-  margin-top: 16rpx;
-}
-
-.proposal-preview__target-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4rpx 12rpx;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #c8bda4;
-}
-
-.proposal-preview__target-name,
-.proposal-preview__target-level,
-.proposal-preview__target-state {
-  font-size: 22rpx;
-}
-
-.proposal-preview__target-level {
-  color: #625947;
-}
-
-.proposal-preview__target-state {
-  color: #7a541c;
-  text-align: right;
-}
-
-.proposal-preview__member-count {
-  gap: 12rpx;
-  margin-top: 16rpx;
-  color: #625947;
-  font-size: 21rpx;
-}
-
-.proposal-preview__members {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12rpx;
-}
-
-.proposal-preview__member {
-  display: block;
-  margin-top: 6rpx;
-  overflow: hidden;
-  font-size: 21rpx;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.proposal-preview__member--added {
-  color: #596257;
-}
-
-.proposal-preview__member--removed {
-  color: #8b3a3a;
-}
-
-.proposal-preview__actions {
-  gap: 16rpx;
-  margin-top: 24rpx;
-}
-
-.proposal-preview__actions button {
-  flex: 1;
-}
-
-.proposal-undo-bar {
-  position: fixed;
-  right: 20rpx;
-  bottom: calc(20rpx + env(safe-area-inset-bottom));
-  left: 20rpx;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12rpx 16rpx;
-  border: 1rpx solid #c8bda4;
-  background: #f5efe0;
-}
-
-.proposal-undo-bar__text {
-  color: #596257;
-  font-size: 21rpx;
 }

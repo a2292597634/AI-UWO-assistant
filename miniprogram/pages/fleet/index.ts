@@ -113,8 +113,22 @@ interface FleetPageLike {
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
 const MANUAL_SKILL_WINDOW_SIZE = 40
 
-const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
-  (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
+const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> => {
+  const dataset = (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
+  const rawDetail = (event as unknown as { detail?: unknown }).detail
+  const detail =
+    rawDetail && typeof rawDetail === 'object' ? (rawDetail as Record<string, unknown>) : {}
+  const value = detail.value
+
+  return {
+    ...detail,
+    ...dataset,
+    mode: dataset.mode ?? detail.mode ?? value,
+    kind: dataset.kind ?? detail.kind ?? value,
+    id: dataset.id ?? detail.id ?? detail.skillId ?? detail.officerId ?? value,
+    skillId: dataset.skillId ?? detail.skillId,
+  }
+}
 
 const getState = (page: object): FleetPageState => {
   const state = pageStateByInstance.get(page)

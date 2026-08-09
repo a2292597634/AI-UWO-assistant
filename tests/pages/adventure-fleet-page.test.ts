@@ -23,6 +23,7 @@ interface AdventurePageConfig {
   data: AdventurePageData
   onLoad(): void
   onSkillSelect(event: WechatMiniprogram.BaseEvent): void
+  onModeTap(event: WechatMiniprogram.BaseEvent): void
   onAddTarget(): void
   onTargetPickerClose(): void
   onRecalculate(): void
@@ -107,6 +108,26 @@ describe('adventure fleet page safety guard', () => {
     )
     expect(page.data.targets.every((item) => item.skillId !== null)).toBe(true)
     expect(page.data.showTargetPicker).toBe(false)
+  })
+
+  it('accepts mode and skill values emitted by shared components', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const target = page.data.targets[0]!
+
+    page.onModeTap({ detail: { value: 'auto' }, currentTarget: { dataset: {} } } as never)
+    expect(page.data.mode).toBe('auto')
+
+    page.onAddTarget()
+    page.onSkillSelect({
+      detail: { skillId: target.skillId },
+      currentTarget: { dataset: {} },
+    } as never)
+    expect(page.data.targets).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ skillId: target.skillId, targetLevel: 1 }),
+      ]),
+    )
   })
 
   it('does not change configured officers when recalculating without a positive target', () => {
@@ -214,6 +235,22 @@ const adventureWxss = fs.readFileSync(
   path.resolve(__dirname, '../../miniprogram/pages/adventure-fleet/index.wxss'),
   'utf8',
 )
+const adventureJson = JSON.parse(
+  fs.readFileSync(
+    path.resolve(__dirname, '../../miniprogram/pages/adventure-fleet/index.json'),
+    'utf8',
+  ),
+) as { usingComponents?: Record<string, string> }
+
+const sharedComponentNames = [
+  'config-bar',
+  'mode-tabs',
+  'officer-action-sheet',
+  'skill-picker-sheet',
+  'result-preview-sheet',
+  'status-badge',
+  'empty-state',
+] as const
 
 describe('adventure fleet page layout hooks', () => {
   it('loads the changed page files for structural assertions', () => {
@@ -230,6 +267,28 @@ describe('adventure fleet page layout hooks', () => {
     expect(adventureWxml).toContain('onUndoProposal')
     expect(adventureWxml).toContain('proposalPreview')
     expect(adventureWxml).toContain('請先設定至少一個 Lv.1 以上的優化目標')
-    expect(adventureWxss).toMatch(/env\(safe-area-inset-bottom\)/)
+  })
+})
+
+describe('adventure fleet shared component wiring', () => {
+  it('registers and renders all seven shared components', () => {
+    for (const name of sharedComponentNames) {
+      expect(adventureJson.usingComponents?.[name]).toBe(`../../components/${name}/index`)
+      expect(adventureWxml).toMatch(new RegExp(`<${name}(?:\\s|/?>)`))
+    }
+  })
+
+  it('keeps existing handlers for inline and sheet skill pickers and proposal actions', () => {
+    expect(adventureWxml).toContain('bind:change="onModeTap"')
+    expect(adventureWxml).toContain('presentation="inline"')
+    expect(adventureWxml).toContain('presentation="sheet"')
+    expect(adventureWxml).toContain('bind:dismiss="onTargetPickerClose"')
+    expect(adventureWxml).toContain('bind:skill-tap="onSkillTap"')
+    expect(adventureWxml).toContain('bind:select="onSkillSelect"')
+    expect(adventureWxml).toContain('bind:cancel="onProposalCancel"')
+    expect(adventureWxml).toContain('bind:apply="onProposalApply"')
+    expect(adventureWxml).toContain('bind:undo="onUndoProposal"')
+    expect(adventureWxml).not.toContain('class="proposal-preview-sheet"')
+    expect(adventureWxml).not.toContain('class="officer-card__actions"')
   })
 })

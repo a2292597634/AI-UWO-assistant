@@ -213,6 +213,33 @@ describe('battle fleet page', () => {
     expect(page.data.targets[0]).toMatchObject({ skillId: 'skill-cannon', targetLevel: 1 })
   })
 
+  it('accepts shared component event details without changing existing handlers', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onModeTap({ detail: { value: 'auto' }, currentTarget: { dataset: {} } } as never)
+    expect(page.data.mode).toBe('auto')
+
+    page.onSkillSelect({
+      detail: { skillId: 'skill-cannon' },
+      currentTarget: { dataset: {} },
+    } as never)
+    expect(page.data.targets[0]).toMatchObject({ skillId: 'skill-cannon', targetLevel: 1 })
+
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    page.onOfficerLock({
+      detail: { officerId: 'officer_chast089' },
+      currentTarget: { dataset: {} },
+    } as never)
+    expect(
+      page.data.currentShip.slots.find(
+        (slot: unknown) =>
+          (slot as { officer: { id: string; status: string } | null }).officer?.id ===
+          'officer_chast089',
+      ),
+    ).toMatchObject({ officer: { status: 'locked' } })
+  })
+
   it('opens the skill sheet on single tap and sets manualSkillId on select in manual mode', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -353,20 +380,27 @@ const fleetWxss = fs.readFileSync(
   path.resolve(__dirname, '../../miniprogram/pages/fleet/index.wxss'),
   'utf8',
 )
+const fleetJson = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../miniprogram/pages/fleet/index.json'), 'utf8'),
+) as { usingComponents?: Record<string, string> }
+
+const sharedComponentNames = [
+  'config-bar',
+  'mode-tabs',
+  'officer-action-sheet',
+  'skill-picker-sheet',
+  'result-preview-sheet',
+  'status-badge',
+  'empty-state',
+] as const
 
 describe('fleet slot action touch targets', () => {
-  it('keeps six columns and gives each fleet action a large bottom icon tile', () => {
-    expect(fleetWxml).toMatch(/<view class="officer-slot__actions">/)
-    expect(fleetWxml).toMatch(
-      /<view\s+class="slot-action[^"]*"[\s\S]*?bindtap="onOfficerLock"[\s\S]*?class="slot-action__glyph"/,
-    )
-    expect(fleetWxml).toMatch(
-      /<view\s+class="slot-action[^"]*"[\s\S]*?bindtap="onOfficerRemove"[\s\S]*?class="slot-action__glyph"/,
-    )
-    expect(fleetWxml).toMatch(
-      /<view\s+class="slot-action[^"]*"[\s\S]*?bindtap="onBanOfficer"[\s\S]*?class="slot-action__glyph"/,
-    )
-    expect(fleetWxml).toMatch(/class="slot-action__label"/)
+  it('keeps six columns and delegates slot actions to the shared component', () => {
+    expect(fleetWxml).toMatch(/<officer-action-sheet[\s\S]*?variant="slot"/)
+    expect(fleetWxml).toContain('bind:lock="onOfficerLock"')
+    expect(fleetWxml).toContain('bind:remove="onOfficerRemove"')
+    expect(fleetWxml).toContain('bind:ban="onBanOfficer"')
+    expect(fleetWxml).not.toContain('class="officer-slot__actions"')
     // Visual layers
     expect(fleetWxml).toContain('officer-slot__visuals')
     expect(fleetWxml).toContain('officer-slot__frame')
@@ -375,33 +409,47 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxml).toContain('item.officer.visuals.framePath')
     expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(6,\s*1fr\)/)
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
-    expect(fleetWxss).toMatch(
-      /\.officer-slot__actions\s*\{[\s\S]*position:\s*absolute[\s\S]*bottom:/,
-    )
-    expect(fleetWxss).toMatch(
-      /\.officer-slot__actions\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*1fr\)/,
-    )
-    expect(fleetWxss).toMatch(/\.slot-action\s*\{[\s\S]*min-height:\s*64rpx/)
   })
 
   it('uses direct image loading without a local asset loading route', () => {
     expect(fleetWxml).not.toContain('asset-loading-state')
     expect(fleetWxml).not.toContain('lazy-load="true"')
     expect(fleetWxml).toContain('binderror="onImageError"')
-    expect(fleetWxml).toContain('bindscrolltolower="onSkillListReachEnd"')
+    expect(fleetWxml).toContain('bind:reach-end="onSkillListReachEnd"')
+  })
+})
+
+describe('battle fleet shared component wiring', () => {
+  it('registers and renders all seven shared components', () => {
+    for (const name of sharedComponentNames) {
+      expect(fleetJson.usingComponents?.[name]).toBe(`../../components/${name}/index`)
+      expect(fleetWxml).toMatch(new RegExp(`<${name}(?:\\s|/?>)`))
+    }
+  })
+
+  it('keeps the existing page handlers while removing duplicated shared markup', () => {
+    expect(fleetWxml).toContain('bind:info-tap="onConfigListOpen"')
+    expect(fleetWxml).toContain('bind:change="onModeTap"')
+    expect(fleetWxml).toContain('bind:kind-change="onSkillKindTap"')
+    expect(fleetWxml).toContain('bind:category-change="onSkillCategoryTap"')
+    expect(fleetWxml).toContain('bind:skill-tap="onSkillTap"')
+    expect(fleetWxml).toContain('bind:select="onSkillSelect"')
+    expect(fleetWxml).toContain('bind:cancel="onProposalCancel"')
+    expect(fleetWxml).toContain('bind:apply="onProposalApply"')
+    expect(fleetWxml).toContain('bind:undo="onUndoProposal"')
+    expect(fleetWxml).not.toContain('class="proposal-preview-sheet"')
+    expect(fleetWxml).not.toContain('class="skill-options"')
   })
 })
 
 describe('battle fleet proposal preview layout', () => {
-  it('contains the shared preview actions and safe-area padding hook', () => {
+  it('contains the shared preview actions and undo state binding', () => {
     expect(fleetWxml).toContain('proposalPreview')
     expect(fleetWxml).toContain('onProposalCancel')
     expect(fleetWxml).toContain('onProposalApply')
     expect(fleetWxml).toContain('onUndoProposal')
-    expect(fleetWxml).toContain('保留')
-    expect(fleetWxml).toContain('新增')
-    expect(fleetWxml).toContain('移除')
-    expect(fleetWxss).toMatch(/env\(safe-area-inset-bottom\)/)
+    expect(fleetWxml).toContain('<result-preview-sheet')
+    expect(fleetWxml).toContain('can-undo="{{canUndoProposal}}"')
   })
 })
 
