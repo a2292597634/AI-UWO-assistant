@@ -11,8 +11,11 @@
     data-action="lock"
     data-id="{{officerId}}"
   >
-    <text class="officer-action-sheet__label">{{status === 'locked' ? '解鎖' : '鎖定'}}</text>
-    <text wx:if="{{lockDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    <view class="officer-action-sheet__visual">
+      <text class="officer-action-sheet__icon officer-action-sheet__icon--lock" aria-hidden="true"></text>
+      <text class="officer-action-sheet__label">{{status === 'locked' ? '解鎖' : '鎖定'}}</text>
+      <text wx:if="{{lockDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    </view>
   </button>
   <button
     class="officer-action-sheet__action"
@@ -23,8 +26,11 @@
     data-action="remove"
     data-id="{{officerId}}"
   >
-    <text class="officer-action-sheet__label">移除</text>
-    <text wx:if="{{removeDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    <view class="officer-action-sheet__visual">
+      <text class="officer-action-sheet__icon officer-action-sheet__icon--remove" aria-hidden="true"></text>
+      <text class="officer-action-sheet__label">移除</text>
+      <text wx:if="{{removeDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    </view>
   </button>
   <button
     wx:if="{{allowBan}}"
@@ -36,7 +42,10 @@
     data-action="ban"
     data-id="{{officerId}}"
   >
-    <text class="officer-action-sheet__label">排除</text>
-    <text wx:if="{{banDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    <view class="officer-action-sheet__visual">
+      <text class="officer-action-sheet__icon officer-action-sheet__icon--ban" aria-hidden="true"></text>
+      <text class="officer-action-sheet__label">排除</text>
+      <text wx:if="{{banDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    </view>
   </button>
 </view>

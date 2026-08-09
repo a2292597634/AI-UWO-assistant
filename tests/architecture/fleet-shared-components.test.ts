@@ -408,6 +408,22 @@ describe('Task 3 航海士操作共享元件契約', () => {
     expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
   })
+
+  it('以緊湊視覺層提供三種操作圖標並保留文字語義', () => {
+    const wxml = readOfficerActionFile('index.wxml')
+    const wxss = readOfficerActionFile('index.wxss')
+
+    expect(wxml.match(/class="officer-action-sheet__visual"/g)).toHaveLength(3)
+    for (const icon of ['lock', 'remove', 'ban']) {
+      expect(wxml).toContain(`officer-action-sheet__icon--${icon}`)
+      expect(wxss).toContain(`.officer-action-sheet__icon--${icon}`)
+    }
+    expect(wxml).toContain('aria-hidden="true"')
+    expect(wxss).toMatch(
+      /\.officer-action-sheet--slot\s+\.officer-action-sheet__label\s*\{[\s\S]*position:\s*absolute[\s\S]*width:\s*1rpx[\s\S]*height:\s*1rpx/,
+    )
+    expect(wxss).toMatch(/\.officer-action-sheet__visual\s*\{[\s\S]*min-height\s*:\s*56rpx/)
+  })
 })
 
 describe('Task 4 技能選擇共享元件契約', () => {
@@ -509,6 +525,23 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(wxss).toMatch(/padding(?:-bottom)?\s*:\s*calc\([^;]*env\(safe-area-inset-bottom\)\)/)
     expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
+  })
+
+  it('戰鬥頁 inline 模式使用緊湊篩選、圖標與加入目標控件', () => {
+    const wxss = readSkillPickerFile('index.wxss')
+
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*min-height:\s*56rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-3\)/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__icon(?:,|\s*\{)[\s\S]*width:\s*40rpx[\s\S]*height:\s*40rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__detail\s*\{[\s\S]*min-height:\s*64rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__select\s*\{[\s\S]*min-height:\s*64rpx/,
+    )
   })
 })
 
