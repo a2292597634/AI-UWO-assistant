@@ -50,6 +50,30 @@ describe('adventure fleet presenter target state', () => {
     expect(page.canRecalculate).toBe(true)
     expect(page.targets[0]).toMatchObject({ skillId: 'skill-goal', isTracking: false })
   })
+
+  it('分離優化目標與技能追蹤', () => {
+    const page = buildAdventureFleetPageData(
+      buildStateWithTargets([
+        { id: 'goal', skillId: 'skill-goal', targetLevel: 2 },
+        { id: 'tracking', skillId: 'skill-track', targetLevel: 0 },
+        { id: 'empty', skillId: null, targetLevel: 1 },
+      ]),
+      [],
+      {
+        'skill-goal': skill('skill-goal'),
+        'skill-track': skill('skill-track'),
+      },
+      '',
+    )
+
+    expect(page.optimizationTargets).toEqual([
+      expect.objectContaining({ id: 'goal', targetLevel: 2, isTracking: false }),
+    ])
+    expect(page.trackingTargets).toEqual([
+      expect.objectContaining({ id: 'tracking', targetLevel: 0, isTracking: true }),
+    ])
+    expect(page.targets).toHaveLength(2)
+  })
 })
 
 type FleetState = ReturnType<typeof createFleetState>

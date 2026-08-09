@@ -305,4 +305,42 @@ describe('adventure fleet shared component wiring', () => {
     expect(adventureWxml.match(/search-placeholder="搜尋冒險技能名稱"/g)).toHaveLength(2)
     expect(adventureWxml.match(/empty-label="沒有符合的冒險技能"/g)).toHaveLength(2)
   })
+
+  it('整理冒險目標與低頻摘要區塊', () => {
+    expect(adventureJson.usingComponents?.['disclosure-section']).toBe(
+      '../../components/disclosure-section/index',
+    )
+    expect(adventureWxml).not.toContain('class="fleet-header"')
+    expect(adventureWxml).toContain('class="fleet-context"')
+    expect(adventureWxml).toContain('optimizationTargets')
+    expect(adventureWxml).toContain('trackingTargets')
+    expect(adventureWxml).toContain('title="技能追蹤"')
+    expect(adventureWxml).toContain('title="全艦隊排除名單"')
+    expect(adventureWxml).toContain('title="全艦隊冒險技能累計"')
+    expect(adventureWxml.match(/default-expanded="\{\{false\}\}"/g)?.length).toBeGreaterThanOrEqual(
+      3,
+    )
+
+    for (const handler of [
+      'onAddTarget',
+      'onRemoveTarget',
+      'onTargetLevelBlur',
+      'onRecalculate',
+      'onProposalCancel',
+      'onProposalApply',
+      'onUndoProposal',
+      'onUnbanOfficer',
+    ]) {
+      expect(adventureWxml).toContain(handler)
+    }
+  })
+
+  it('使用 Token 上下文與可讀操作文字', () => {
+    expect(adventureWxss).toMatch(/\.fleet-context\s*\{[\s\S]*var\(--uwo-/)
+    expect(adventureWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(adventureWxss).toMatch(/\.candidate-row\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(adventureWxss).toContain('overflow-wrap: anywhere')
+    expect(adventureWxss).not.toMatch(/\.candidate-row--disabled\s*\{[\s\S]*opacity\s*:/)
+    expect(adventureWxml).not.toContain('candidate-row--disabled')
+  })
 })

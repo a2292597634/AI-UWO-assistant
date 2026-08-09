@@ -84,6 +84,8 @@ export interface AdventureFleetPageData {
   manualCandidates: AdventureFleetOfficerView[]
   // 自动模式目标
   targets: AdventureFleetTargetView[]
+  optimizationTargets?: AdventureFleetTargetView[]
+  trackingTargets?: AdventureFleetTargetView[]
   optimizationTargetCount: number
   canRecalculate: boolean
   // 舰队技能累计
@@ -200,7 +202,7 @@ export const buildAdventureFleetPageData = (
   // 从第一艘船取目标（舰队级目标）
   const fleetTargets = state.ships[0]?.targets ?? []
   const targetMap = targetsToMap(fleetTargets)
-  const optimizationTargets = getAdventureOptimizationTargets(fleetTargets)
+  const optimizationTargetsForSolver = getAdventureOptimizationTargets(fleetTargets)
 
   // 取全局模式：所有船的模式应一致（页面保证），取第一艘
   const globalMode = state.ships[0]?.mode ?? 'manual'
@@ -261,6 +263,8 @@ export const buildAdventureFleetPageData = (
         isTracking: t.targetLevel === 0,
       }
     })
+  const optimizationTargets = targetViews.filter((target) => target.targetLevel > 0)
+  const trackingTargets = targetViews.filter((target) => target.targetLevel === 0)
 
   // ── 舰队技能累计 ──
   const skillSummary = buildSummaryViews(state, adventureOfficers, skillRecord, targetMap)
@@ -275,8 +279,10 @@ export const buildAdventureFleetPageData = (
     skillSearchText: manualSearchText,
     manualCandidates,
     targets: targetViews,
-    optimizationTargetCount: optimizationTargets.length,
-    canRecalculate: optimizationTargets.length > 0,
+    optimizationTargets,
+    trackingTargets,
+    optimizationTargetCount: optimizationTargetsForSolver.length,
+    canRecalculate: optimizationTargetsForSolver.length > 0,
     skillSummary,
     bannedOfficers,
     sheetSkill: null,

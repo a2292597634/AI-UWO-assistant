@@ -11,6 +11,7 @@
     "result-preview-sheet": "../../components/result-preview-sheet/index",
     "status-badge": "../../components/status-badge/index",
     "empty-state": "../../components/empty-state/index",
+    "disclosure-section": "../../components/disclosure-section/index",
     "skill-sheet": "../../components/skill-sheet/index"
   }
 }
