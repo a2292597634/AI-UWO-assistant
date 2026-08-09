@@ -1,0 +1,83 @@
+.officer-action-sheet {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--uwo-space-1);
+  width: 100%;
+  font-family: var(--uwo-font-family-body);
+}
+
+.officer-action-sheet--without-ban {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.officer-action-sheet--slot {
+  align-items: stretch;
+}
+
+.officer-action-sheet--card {
+  align-items: end;
+}
+
+.officer-action-sheet__action {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  min-height: 88rpx;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: var(--uwo-space-2) var(--uwo-space-1);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+  color: var(--uwo-color-text-primary);
+  font-family: var(--uwo-font-family-body);
+  font-size: var(--uwo-font-size-minimum-action);
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.officer-action-sheet__action::after {
+  border: 0;
+}
+
+.officer-action-sheet__action--lock {
+  color: var(--uwo-color-success);
+}
+
+.officer-action-sheet__action--danger {
+  border-color: var(--uwo-color-danger);
+  background: var(--uwo-color-danger);
+  color: var(--uwo-color-surface);
+}
+
+.officer-action-sheet__action:active {
+  opacity: 0.88;
+  transform: translateY(2rpx);
+}
+
+.officer-action-sheet__action:focus {
+  outline: 4rpx solid var(--uwo-color-accent-brass);
+  outline-offset: 4rpx;
+}
+
+.officer-action-sheet__action[disabled] {
+  border-color: var(--uwo-color-border-subtle);
+  background: var(--uwo-color-surface-muted);
+  color: var(--uwo-color-text-secondary);
+  opacity: 1;
+  transform: none;
+}
+
+.officer-action-sheet__label,
+.officer-action-sheet__disabled-label {
+  display: block;
+}
+
+.officer-action-sheet__disabled-label {
+  margin-top: var(--uwo-space-1);
+  font-size: var(--uwo-font-size-supporting);
+  font-weight: 400;
+}

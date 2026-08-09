@@ -1,0 +1,42 @@
+<view
+  class="officer-action-sheet officer-action-sheet--{{variant}} {{allowBan ? '' : 'officer-action-sheet--without-ban'}}"
+  aria-label="航海士操作"
+>
+  <button
+    class="officer-action-sheet__action officer-action-sheet__action--lock"
+    disabled="{{lockDisabled}}"
+    aria-disabled="{{lockDisabled}}"
+    aria-label="{{status === 'locked' ? '解鎖' : '鎖定'}}{{lockDisabled ? '，目前不可用' : ''}}"
+    bindtap="onLock"
+    data-action="lock"
+    data-id="{{officerId}}"
+  >
+    <text class="officer-action-sheet__label">{{status === 'locked' ? '解鎖' : '鎖定'}}</text>
+    <text wx:if="{{lockDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+  </button>
+  <button
+    class="officer-action-sheet__action"
+    disabled="{{removeDisabled}}"
+    aria-disabled="{{removeDisabled}}"
+    aria-label="移除{{removeDisabled ? '，目前不可用' : ''}}"
+    bindtap="onRemove"
+    data-action="remove"
+    data-id="{{officerId}}"
+  >
+    <text class="officer-action-sheet__label">移除</text>
+    <text wx:if="{{removeDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+  </button>
+  <button
+    wx:if="{{allowBan}}"
+    class="officer-action-sheet__action officer-action-sheet__action--danger"
+    disabled="{{banDisabled}}"
+    aria-disabled="{{banDisabled}}"
+    aria-label="排除{{banDisabled ? '，目前不可用' : ''}}"
+    bindtap="onBan"
+    data-action="ban"
+    data-id="{{officerId}}"
+  >
+    <text class="officer-action-sheet__label">排除</text>
+    <text wx:if="{{banDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+  </button>
+</view>

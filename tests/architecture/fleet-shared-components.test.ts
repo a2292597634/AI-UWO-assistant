@@ -355,3 +355,57 @@ describe('Task 2 基礎共享元件契約', () => {
     }
   })
 })
+
+describe('Task 3 航海士操作共享元件契約', () => {
+  const readOfficerActionFile = (file: (typeof COMPONENT_FILES)[number]): string => {
+    const relativePath = `${COMPONENT_ROOT}/officer-action-sheet/${file}`
+    expect(projectFileExists(relativePath), `${relativePath} 應存在`).toBe(true)
+    return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
+  }
+
+  it('依狀態與權限顯示鎖定、解鎖、移除和排除操作', () => {
+    const script = readOfficerActionFile('index.ts')
+    const wxml = readOfficerActionFile('index.wxml')
+
+    for (const property of ['officerId', 'status', 'variant', 'allowBan', 'disabledActions']) {
+      expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
+    }
+    expect(wxml).toContain("status === 'locked' ? '解鎖' : '鎖定'")
+    expect(wxml).toContain('移除')
+    expect(wxml).toMatch(/wx:if="\{\{allowBan\}\}"[\s\S]*?>[\s\S]*?排除/)
+  })
+
+  it('每個操作攜帶 action 與航海士 ID，並以一致 detail 轉發事件', () => {
+    const script = readOfficerActionFile('index.ts')
+    const wxml = readOfficerActionFile('index.wxml')
+
+    for (const action of ['lock', 'remove', 'ban']) {
+      expect(wxml).toContain(`data-action="${action}"`)
+    }
+    expect(wxml.match(/data-id="\{\{officerId\}\}"/g)).toHaveLength(3)
+    expect(script).toMatch(/currentTarget\.dataset\.id/)
+    for (const eventName of ['lock', 'remove', 'ban']) {
+      expect(script).toMatch(
+        new RegExp(`triggerEvent\\(\\s*['"]${eventName}['"]\\s*,\\s*\\{\\s*officerId\\s*\\}`),
+      )
+    }
+  })
+
+  it('禁用操作同時提供原生 disabled 與 aria-disabled 語義', () => {
+    const script = readOfficerActionFile('index.ts')
+    const wxml = readOfficerActionFile('index.wxml')
+
+    for (const state of ['lockDisabled', 'removeDisabled', 'banDisabled']) {
+      expect(script).toContain(state)
+      expect(wxml).toContain(`disabled="{{${state}}}"`)
+      expect(wxml).toContain(`aria-disabled="{{${state}}}"`)
+    }
+  })
+
+  it('操作文字與熱區符合 Design Foundation 下限', () => {
+    const wxss = readOfficerActionFile('index.wxss')
+
+    expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
+  })
+})
