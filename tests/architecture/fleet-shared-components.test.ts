@@ -62,9 +62,15 @@ const P3_TOKENS = new Set<string>([
 
 const COLOR_PROPERTIES =
   /^(?:color|background(?:-color)?|border(?:-(?:top|right|bottom|left))?|border(?:-[a-z]+)?-color|outline|outline-color|fill|stroke)$/
+const IMAGE_PROPERTIES = /^(?:background-image|mask-image|-webkit-mask-image)$/
 const SPACE_PROPERTIES =
   /^(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?$/
+const RADIUS_PROPERTIES =
+  /^border-(?:radius|(?:top|bottom)-(?:left|right)-radius|(?:start|end)-(?:start|end)-radius)$/
+const FILTER_PROPERTIES = /^(?:-webkit-)?(?:backdrop-)?filter$/
 const NON_ZERO_CSS_LENGTH = /(?:^|[\s(,+-])[1-9]\d*(?:\.\d+)?(?:rpx|px|em|rem|vw|vh|%)\b/i
+const CSS_WIDE_VALUE = /^(?:inherit|initial|revert|revert-layer|unset)$/i
+const NO_VISUAL_VALUE = /^(?:none|inherit|initial|revert|revert-layer|unset)$/i
 
 const COMPONENT_CONTRACTS = [
   {
@@ -107,6 +113,12 @@ const readDeclarations = (wxss: string): Array<{ property: string; value: string
 const readTokenReferences = (value: string): string[] =>
   [...value.matchAll(/var\(\s*(--[a-z0-9-]+)/gi)].map((match) => match[1])
 
+const isLocalUrlValue = (value: string): boolean => {
+  const match = /^url\(\s*(?:(['"])(.*?)\1|([^'"]+?))\s*\)$/i.exec(value)
+  const path = match?.[2] ?? match?.[3]
+  return path !== undefined && path.trim() !== '' && !/^(?:https?:|\/\/|data:)/i.test(path.trim())
+}
+
 describe('配隊共享元件文件架構', () => {
   it('七個共享元件均提供微信原生 Component 的四件必要文件', () => {
     const missingFiles = COMPONENT_CONTRACTS.flatMap(({ name }) =>
@@ -138,6 +150,7 @@ describe('配隊共享元件文件架構', () => {
       expect(tokenReferences.length).toBeGreaterThan(0)
       expect(unsupportedTokens).toEqual([])
       expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
+      expect(wxss).not.toMatch(/(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/i)
 
       for (const { property, value } of declarations) {
         if (COLOR_PROPERTIES.test(property)) {
@@ -151,8 +164,26 @@ describe('配隊共享元件文件架構', () => {
           ).toBe(true)
         }
 
+        if (IMAGE_PROPERTIES.test(property)) {
+          expect(NO_VISUAL_VALUE.test(value) || isLocalUrlValue(value)).toBe(true)
+        }
+
         if (SPACE_PROPERTIES.test(property)) {
           expect(value).not.toMatch(NON_ZERO_CSS_LENGTH)
+        }
+
+        if (property === 'font') {
+          const declarationTokens = readTokenReferences(value)
+          const usesFontFamilyToken = declarationTokens.some((token) =>
+            P3_FONT_TOKENS.slice(0, 2).includes(token as (typeof P3_FONT_TOKENS)[number]),
+          )
+          const usesFontSizeToken = declarationTokens.some((token) =>
+            P3_FONT_TOKENS.slice(2).includes(token as (typeof P3_FONT_TOKENS)[number]),
+          )
+
+          expect(CSS_WIDE_VALUE.test(value) || (usesFontFamilyToken && usesFontSizeToken)).toBe(
+            true,
+          )
         }
 
         if (property === 'font-family') {
@@ -173,7 +204,7 @@ describe('配隊共享元件文件架構', () => {
           ).toBe(true)
         }
 
-        if (property === 'border-radius') {
+        if (RADIUS_PROPERTIES.test(property)) {
           const declarationTokens = readTokenReferences(value)
           expect(
             declarationTokens.some((token) =>
@@ -189,6 +220,10 @@ describe('配隊共享元件文件架構', () => {
               P3_SHADOW_TOKENS.includes(token as (typeof P3_SHADOW_TOKENS)[number]),
             ) || /^none$/i.test(value),
           ).toBe(true)
+        }
+
+        if (FILTER_PROPERTIES.test(property)) {
+          expect(NO_VISUAL_VALUE.test(value)).toBe(true)
         }
       }
     })
