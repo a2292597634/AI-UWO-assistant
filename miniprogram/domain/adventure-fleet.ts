@@ -1,4 +1,9 @@
-import type { FleetSkillMap, FleetState, ShipSkillSummary } from '../contracts/battle-fleet'
+import type {
+  FleetSkillMap,
+  FleetState,
+  FleetTarget,
+  ShipSkillSummary,
+} from '../contracts/battle-fleet'
 import { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY } from '../contracts/battle-fleet'
 import type {
   RuntimeCatalogEntry,
@@ -320,6 +325,23 @@ export const collectAllOfficerIds = (state: FleetState): string[] =>
 /** 从 FleetState 中收集全部锁定航海士 */
 export const collectAllLockedIds = (state: FleetState): string[] =>
   state.ships.flatMap((ship) => ship.lockedOfficerIds)
+
+// ── 冒險最佳化目標 ──
+
+export interface AdventureOptimizationTarget {
+  skillId: string
+  targetLevel: number
+}
+
+/** 只提取參與 Solver 的 Lv.1 以上目標，保留 Lv.0 追蹤目標在配置中。 */
+export const getAdventureOptimizationTargets = (
+  targets: readonly FleetTarget[],
+): AdventureOptimizationTarget[] =>
+  targets.flatMap((target) =>
+    target.skillId !== null && target.targetLevel > 0
+      ? [{ skillId: target.skillId, targetLevel: target.targetLevel }]
+      : [],
+  )
 
 // ── 重新导出 battle-fleet 的状态操作函数 ──
 

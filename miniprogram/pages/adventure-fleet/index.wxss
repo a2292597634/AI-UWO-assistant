@@ -374,6 +374,13 @@
   -webkit-line-clamp: 2;
 }
 
+.target-row__state {
+  display: block;
+  margin-top: 4rpx;
+  color: #76501a;
+  font-size: 19rpx;
+}
+
 .target-row__right {
   display: flex;
   align-items: center;
@@ -424,6 +431,19 @@ button.subtle-button {
 button.primary-button {
   color: #f0e4c4;
   background: #2f302b;
+}
+
+button.primary-button[disabled] {
+  color: #918a7a;
+  background: #c4b99a;
+}
+
+.target-panel__notice {
+  display: block;
+  margin-top: 12rpx;
+  color: #76501a;
+  font-size: 20rpx;
+  line-height: 1.4;
 }
 
 /* ── 类型分区 ── */
@@ -761,6 +781,71 @@ button.primary-button {
 
 .skill-option__select:active {
   background: #2f302b;
+}
+
+/* ── 新增目標技能選擇器 ── */
+
+.target-picker-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.skill-selector--sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 221;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 82vh;
+  padding: 24rpx 20rpx calc(24rpx + env(safe-area-inset-bottom));
+  overflow: hidden;
+  background: #f5efe0;
+  border-radius: 24rpx 24rpx 0 0;
+}
+
+.skill-selector--sheet .skill-options {
+  max-height: 48vh;
+}
+
+.target-picker__hint {
+  display: block;
+  margin-top: 6rpx;
+  color: #625947;
+  font-size: 21rpx;
+}
+
+.target-picker__close {
+  flex: 0 0 auto;
+  min-height: 88rpx;
+  padding: 30rpx 8rpx 0;
+  color: #76501a;
+  font-size: 22rpx;
+}
+
+.target-picker__cancel {
+  box-sizing: border-box;
+  min-height: 88rpx;
+  margin: 0;
+  padding: 0 18rpx;
+  line-height: 88rpx;
+  border: 0;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
+.target-picker__cancel::after {
+  border: 0;
+}
+
+.target-picker__cancel {
+  width: 100%;
+  margin-top: 12rpx;
+  color: #292a26;
+  background: #e8dfce;
 }
 
 /* ── 技能累计 ── */

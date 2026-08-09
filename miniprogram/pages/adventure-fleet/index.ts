@@ -5,6 +5,7 @@ import {
   createFleetState,
   deriveAdventureOfficers,
   excludeOfficerFromShip,
+  getAdventureOptimizationTargets,
   getAdventureSkillIdSet,
   getDefaultAdventureTargetSkillIds,
   lockOfficer,
@@ -52,6 +53,7 @@ interface FleetPageData extends AdventureFleetPageData {
   // 技能选择器
   manualSkillHasMore: boolean
   skillSearchText: string
+  showTargetPicker: boolean
   sheetSkill: SkillSheetView | null
   // 配置管理
   authStatus: 'guest' | 'authenticated' | 'loading'
@@ -122,6 +124,8 @@ const emptyPageData: FleetPageData = {
   targets: [],
   skillSummary: [],
   bannedOfficers: [],
+  optimizationTargetCount: 0,
+  canRecalculate: false,
   sheetSkill: null,
   assetLoading: false,
   assetLoadError: null,
@@ -129,6 +133,7 @@ const emptyPageData: FleetPageData = {
   failedPortraitImages: {},
   failedSkillImages: {},
   manualSkillHasMore: false,
+  showTargetPicker: false,
   authStatus: 'guest',
   configName: '未命名配置',
   configStatus: 'new',
@@ -159,6 +164,7 @@ const resultMessage: Record<string, string> = {
   'duplicate-target': '該技能已在目標列表中',
   'invalid-recommendation': '自動配隊結果無效',
   'ship-slot-full': '目前船已滿 (11人)',
+  'no-optimization-target': '請先設定至少一個 Lv.1 以上的優化目標',
 }
 
 // ── 脏数据追踪 ──
@@ -234,6 +240,26 @@ const syncAllShipsMode = (state: FleetPageState, mode: FleetShipState['mode']): 
     if (!result.error) fleet = result.state
   }
   state.fleet = fleet
+}
+
+const clearEmptyTargets = (state: FleetPageState): void => {
+  let fleet = state.fleet
+  for (const ship of fleet.ships) {
+    const result = updateShipTargets(
+      fleet,
+      ship.id,
+      ship.targets.filter((target) => target.skillId !== null),
+    )
+    if (!result.error) fleet = result.state
+  }
+  state.fleet = fleet
+}
+
+const nextAdventureTargetId = (ship: FleetShipState): string => {
+  const existingIds = new Set(ship.targets.map((target) => target.id))
+  let index = ship.targets.length + 1
+  while (existingIds.has(`adventure-target-${index}`)) index += 1
+  return `adventure-target-${index}`
 }
 
 // ── 查找有空位的船 ──
@@ -532,6 +558,7 @@ Page({
     }
     // 所有船设为自动模式 + 自动填充默认冒险技能目标
     syncAllShipsMode(state, 'auto')
+    clearEmptyTargets(state)
     initDefaultTargets(state)
     pageStateByInstance.set(this, state)
     wx.setNavigationBarTitle({ title: '冒險模擬艦隊' })
@@ -581,6 +608,7 @@ Page({
     if (mode !== 'manual' && mode !== 'auto') return
     const state = getState(this)
     syncAllShipsMode(state, mode)
+    clearEmptyTargets(state)
     state.manualSkillId = null
     updateDirty(this, state)
     render(this)
@@ -636,18 +664,26 @@ Page({
       return
     }
 
-    // 自动模式：将技能加入舰队目标
-    if (ship.targets.some((t) => t.skillId === skillId)) {
+    // 自动模式：将技能加入舰队目标；默认 Lv.0 目标直接提升为 Lv.1
+    const configuredTargets = ship.targets.filter((target) => target.skillId !== null)
+    const existingTarget = configuredTargets.find((target) => target.skillId === skillId)
+    if (existingTarget && existingTarget.targetLevel > 0) {
       showError(resultMessage['duplicate-target'])
       return
     }
-    const newTarget = {
-      id: `adventure-target-${ship.targets.length + 1}`,
-      skillId,
-      targetLevel: 1,
+
+    const targets = existingTarget
+      ? configuredTargets.map((target) =>
+          target.id === existingTarget.id ? { ...target, targetLevel: 1 } : { ...target },
+        )
+      : [...configuredTargets, { id: nextAdventureTargetId(ship), skillId, targetLevel: 1 }]
+    const result = updateShipTargets(state.fleet, ship.id, targets)
+    if (result.error) {
+      applyResult(this, result)
+      return
     }
-    const result = updateShipTargets(state.fleet, ship.id, [...ship.targets, newTarget])
     applyResult(this, result)
+    this.setData({ showTargetPicker: false })
     render(this)
   },
 
@@ -683,18 +719,11 @@ Page({
   },
 
   onAddTarget() {
-    const state = getState(this)
-    const ship = state.fleet.ships[0]!
-    const result = updateShipTargets(state.fleet, ship.id, [
-      ...ship.targets,
-      {
-        id: `adventure-target-${ship.targets.length + 1}`,
-        skillId: null,
-        targetLevel: 1,
-      },
-    ])
-    applyResult(this, result)
-    render(this)
+    this.setData({ showTargetPicker: true })
+  },
+
+  onTargetPickerClose() {
+    this.setData({ showTargetPicker: false })
   },
 
   onRemoveTarget(event: WechatMiniprogram.BaseEvent) {
@@ -720,27 +749,23 @@ Page({
       ...state.fleet.ships.flatMap((s) => s.removedOfficerIds),
     ])
 
-    // 只对等级 > 0 的目标求解，Lv.0 仅追踪不参与优化
-    const activeTargets = ship.targets.flatMap((t) =>
-      t.skillId !== null && t.targetLevel > 0
-        ? [{ skillId: t.skillId, targetLevel: t.targetLevel }]
-        : [],
-    )
+    const activeTargets = getAdventureOptimizationTargets(ship.targets)
+    if (activeTargets.length === 0) {
+      showError(resultMessage['no-optimization-target'])
+      return
+    }
 
-    const result =
-      activeTargets.length > 0
-        ? solveAdventureTargets({
-            officers: state.adventureOfficers,
-            targets: activeTargets,
-            lockedOfficerIds: allLockedIds,
-            excludedOfficerIds: [...excludedIds],
-            currentOfficerIds: state.fleet.ships.flatMap((s) => s.officerIds),
-            capacity: 77,
-          })
-        : null
+    const result = solveAdventureTargets({
+      officers: state.adventureOfficers,
+      targets: activeTargets,
+      lockedOfficerIds: allLockedIds,
+      excludedOfficerIds: [...excludedIds],
+      currentOfficerIds: state.fleet.ships.flatMap((s) => s.officerIds),
+      capacity: 77,
+    })
 
     // 结果：只保留锁定 + 求解出的最少人选
-    const recommendedIds = result ? result.officerIds : allLockedIds
+    const recommendedIds = result.officerIds
 
     let fleet = state.fleet
     // 先清空所有非锁定航海士

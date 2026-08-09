@@ -186,6 +186,18 @@ describe('battle fleet state', () => {
     ).toBe('duplicate-target')
   })
 
+  it('allows Lv.0 configured targets but rejects Lv.0 empty placeholders', () => {
+    const state = createFleetState()
+
+    expect(
+      updateShipTargets(state, 'ship-1', [{ id: 'tracking', skillId: 'skill-a', targetLevel: 0 }])
+        .error,
+    ).toBeUndefined()
+    expect(
+      updateShipTargets(state, 'ship-1', [{ id: 'empty', skillId: null, targetLevel: 0 }]).error,
+    ).toBe('invalid-target-level')
+  })
+
   it('assigns a selected skill to the first empty target or appends a target', () => {
     const auto = setShipMode(createFleetState(), 'ship-1', 'auto').state
 

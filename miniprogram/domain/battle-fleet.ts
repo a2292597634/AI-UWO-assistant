@@ -384,10 +384,14 @@ export const updateShipTargets = (
 ): FleetTransitionResult => {
   const ship = findShip(state, shipId)
   if (!ship) return { state, error: 'unknown-ship' }
-  const valid = targets.filter((target) => target.skillId !== null)
-  if (valid.some((target) => target.targetLevel < 0 || target.targetLevel > 10)) {
+  if (
+    targets.some(
+      (target) => target.targetLevel < (target.skillId === null ? 1 : 0) || target.targetLevel > 10,
+    )
+  ) {
     return { state, error: 'invalid-target-level' }
   }
+  const valid = targets.filter((target) => target.skillId !== null)
   const ids = valid.map((target) => target.skillId!)
   if (new Set(ids).size !== ids.length) return { state, error: 'duplicate-target' }
   return {

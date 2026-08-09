@@ -270,7 +270,8 @@ const isValidTarget = (value: unknown): boolean => {
   if (!isValidIdentifier(target.id)) return false
   if (target.skillId !== null && !isValidIdentifier(target.skillId)) return false
   if (typeof target.targetLevel !== 'number' || !Number.isInteger(target.targetLevel)) return false
-  if (target.targetLevel < 1 || target.targetLevel > 10) return false
+  const minimumLevel = target.skillId === null ? 1 : 0
+  if (target.targetLevel < minimumLevel || target.targetLevel > 10) return false
 
   return true
 }

@@ -275,14 +275,14 @@ const runGreedy = (
 const validateTargets = (
   targets: readonly AdventureAutoTargetInput[],
 ): AdventureAutoTargetInput[] => {
-  const valid = targets.filter((target) => target.skillId.trim() !== '')
-  if (valid.some((target) => target.targetLevel < 0 || target.targetLevel > 10)) {
+  const configured = targets.filter((target) => target.skillId.trim() !== '')
+  if (configured.some((target) => target.targetLevel < 0 || target.targetLevel > 10)) {
     throw new Error('target-level')
   }
-  if (new Set(valid.map((target) => target.skillId)).size !== valid.length) {
+  if (new Set(configured.map((target) => target.skillId)).size !== configured.length) {
     throw new Error('duplicate-target')
   }
-  return valid.map((target) => ({ ...target }))
+  return configured.filter((target) => target.targetLevel > 0).map((target) => ({ ...target }))
 }
 
 // ── 主入口 ──

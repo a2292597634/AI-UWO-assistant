@@ -116,11 +116,11 @@
       <view class="mode-tab {{mode === 'auto' ? 'mode-tab--active' : ''}}" bindtap="onModeTap" data-mode="auto">自動配隊</view>
     </view>
 
-    <!-- 技能选择器（手动模式） -->
+    <!-- 技能選擇器（手動模式） -->
     <view wx:if="{{mode === 'manual'}}" class="skill-selector">
       <view class="panel-heading">
         <text class="panel-heading__title">冒險技能列表</text>
-        <text class="panel-heading__hint">{{mode === 'auto' ? '點擊「加入目標」或直接點技能行查看詳情' : '點擊「選擇」篩選候選航海士'}}</text>
+        <text class="panel-heading__hint">點擊「選擇」篩選候選航海士</text>
       </view>
       <input class="skill-search" placeholder="搜尋冒險技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
       <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
@@ -151,6 +151,7 @@
         <view class="target-row__copy">
           <text class="target-row__name">{{item.configured ? item.skillName : '尚未選擇技能'}}</text>
           <text wx:if="{{item.skillDescription}}" class="target-row__desc">{{item.skillDescription}}</text>
+          <text wx:if="{{item.isTracking}}" class="target-row__state">技能追蹤 · 不參與計算</text>
         </view>
         <view class="target-row__right">
           <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" catchtap="onNoop" data-id="{{item.id}}" />
@@ -159,8 +160,9 @@
       </view>
       <view class="target-actions">
         <button class="subtle-button" bindtap="onAddTarget">新增目標</button>
-        <button class="primary-button" bindtap="onRecalculate">重新計算</button>
+        <button class="primary-button" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>
       </view>
+      <text wx:if="{{!canRecalculate}}" class="target-panel__notice">請先設定至少一個 Lv.1 以上的優化目標</text>
     </view>
 
     <!-- 候选航海士面板（手动模式） -->
@@ -268,6 +270,35 @@
     </view>
 
   </scroll-view>
+
+  <!-- 自動配隊新增目標的技能選擇器，置於頁面根節點以避免被 scroll-view 裁切 -->
+  <view wx:if="{{showTargetPicker}}" class="target-picker-mask" bindtap="onTargetPickerClose"></view>
+  <view wx:if="{{showTargetPicker}}" class="skill-selector skill-selector--sheet">
+    <view class="panel-heading">
+      <view>
+        <text class="panel-heading__title">選擇新增目標技能</text>
+        <text class="target-picker__hint">選擇後會建立 Lv.1 優化目標</text>
+      </view>
+      <text class="target-picker__close" bindtap="onTargetPickerClose">關閉</text>
+    </view>
+    <input class="skill-search" placeholder="搜尋冒險技能名稱" value="{{skillSearchText}}" bindinput="onSkillSearchInput" />
+    <scroll-view class="skill-options" scroll-y="true" bindscrolltolower="onSkillListReachEnd" lower-threshold="200">
+      <view wx:for="{{manualSkills}}" wx:key="id" class="skill-option" bindtap="onSkillTap" data-id="{{item.id}}">
+        <image wx:if="{{assetReady && !failedSkillImages[item.id]}}" class="skill-option__icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onImageError" data-kind="skill" data-id="{{item.id}}" />
+        <view class="skill-option__copy">
+          <text class="skill-option__name">{{item.name}}</text>
+          <text class="skill-option__meta">冒險技能 · {{item.categoryName}} · {{item.officerCount}} 人擁有</text>
+          <text class="skill-option__description">{{item.description || '暫無技能描述'}}</text>
+        </view>
+        <view class="skill-option__select" catchtap="onSkillSelect" data-id="{{item.id}}">
+          <text>選擇</text>
+        </view>
+      </view>
+      <view wx:if="{{manualSkills.length === 0}}" class="inline-empty">沒有符合的冒險技能</view>
+      <view wx:if="{{manualSkillHasMore}}" class="inline-empty">繼續上滑載入更多技能</view>
+    </scroll-view>
+    <button class="target-picker__cancel" bindtap="onTargetPickerClose">取消</button>
+  </view>
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
 </view>

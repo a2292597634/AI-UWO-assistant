@@ -139,26 +139,25 @@ describe('FleetState validation', () => {
     expect(isValidFleetState({ ...state, ships: [...state.ships, ...state.ships] })).toBe(false)
   })
 
-  it('rejects invalid target levels', () => {
+  it('accepts a configured Lv.0 tracking target but rejects a Lv.0 empty target', () => {
     // 用序列化的原始数据作为测试输入（包含 schemaVersion）
     const raw = JSON.parse(serializeFleetState(createFleetState())) as Record<string, unknown>
+    const ships = raw.ships as Array<Record<string, unknown>>
 
-    // 儲存契約中的目標等級必須是 1 至 10。
-    ;(raw.ships as Array<Record<string, unknown>>)[0]!.targets = [
-      { id: 't0', skillId: 'skill_abc', targetLevel: 0 },
-    ]
+    // 已配置技能的 Lv.0 是可保存的追蹤目標。
+    ships[0]!.targets = [{ id: 'tracking', skillId: 'skill_abc', targetLevel: 0 }]
+    expect(isValidSerializedFleetState(raw)).toBe(true)
+
+    // 空占位不允許使用 Lv.0，避免產生不可配置的空白目標。
+    ships[0]!.targets = [{ id: 'empty', skillId: null, targetLevel: 0 }]
     expect(isValidSerializedFleetState(raw)).toBe(false)
 
     // 等级 -1 非法
-    ;(raw.ships as Array<Record<string, unknown>>)[0]!.targets = [
-      { id: 't1', skillId: 'skill_abc', targetLevel: -1 },
-    ]
+    ships[0]!.targets = [{ id: 't1', skillId: 'skill_abc', targetLevel: -1 }]
     expect(isValidSerializedFleetState(raw)).toBe(false)
 
     // 等级 11 非法
-    ;(raw.ships as Array<Record<string, unknown>>)[0]!.targets = [
-      { id: 't2', skillId: 'skill_abc', targetLevel: 11 },
-    ]
+    ships[0]!.targets = [{ id: 't2', skillId: 'skill_abc', targetLevel: 11 }]
     expect(isValidSerializedFleetState(raw)).toBe(false)
   })
 

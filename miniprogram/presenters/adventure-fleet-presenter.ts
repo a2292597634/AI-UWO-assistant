@@ -7,6 +7,7 @@ import {
   collectAllOfficerIds,
   collectAllLockedIds,
   filterAdventureSkills,
+  getAdventureOptimizationTargets,
   getZoneLabel,
   groupOfficersByType,
   summarizeFleetAdventureSkills,
@@ -58,6 +59,7 @@ export interface AdventureFleetTargetView {
   skillDescription: string
   targetLevel: number
   configured: boolean
+  isTracking: boolean
 }
 
 export interface AdventureTypeZoneView {
@@ -82,6 +84,8 @@ export interface AdventureFleetPageData {
   manualCandidates: AdventureFleetOfficerView[]
   // 自动模式目标
   targets: AdventureFleetTargetView[]
+  optimizationTargetCount: number
+  canRecalculate: boolean
   // 舰队技能累计
   skillSummary: AdventureFleetSkillSummaryView[]
   // 排除名单
@@ -196,6 +200,7 @@ export const buildAdventureFleetPageData = (
   // 从第一艘船取目标（舰队级目标）
   const fleetTargets = state.ships[0]?.targets ?? []
   const targetMap = targetsToMap(fleetTargets)
+  const optimizationTargets = getAdventureOptimizationTargets(fleetTargets)
 
   // 取全局模式：所有船的模式应一致（页面保证），取第一艘
   const globalMode = state.ships[0]?.mode ?? 'manual'
@@ -241,18 +246,21 @@ export const buildAdventureFleetPageData = (
     .map((o) => buildOfficerView(state, o, lockedIds, bannedIds))
 
   // ── 自动模式目标视图 ──
-  const targetViews: AdventureFleetTargetView[] = fleetTargets.map((t) => {
-    const skill = t.skillId ? skillRecord[t.skillId] : undefined
-    return {
-      id: t.id,
-      skillId: t.skillId,
-      skillName: skill?.n ?? '尚未選擇技能',
-      skillIconPath: skill?.ip ?? '',
-      skillDescription: skill?.d ?? '',
-      targetLevel: t.targetLevel,
-      configured: t.skillId !== null,
-    }
-  })
+  const targetViews: AdventureFleetTargetView[] = fleetTargets
+    .filter((t): t is typeof t & { skillId: string } => t.skillId !== null)
+    .map((t) => {
+      const skill = skillRecord[t.skillId]
+      return {
+        id: t.id,
+        skillId: t.skillId,
+        skillName: skill?.n ?? '尚未選擇技能',
+        skillIconPath: skill?.ip ?? '',
+        skillDescription: skill?.d ?? '',
+        targetLevel: t.targetLevel,
+        configured: true,
+        isTracking: t.targetLevel === 0,
+      }
+    })
 
   // ── 舰队技能累计 ──
   const skillSummary = buildSummaryViews(state, adventureOfficers, skillRecord, targetMap)
@@ -267,6 +275,8 @@ export const buildAdventureFleetPageData = (
     skillSearchText: manualSearchText,
     manualCandidates,
     targets: targetViews,
+    optimizationTargetCount: optimizationTargets.length,
+    canRecalculate: optimizationTargets.length > 0,
     skillSummary,
     bannedOfficers,
     sheetSkill: null,
