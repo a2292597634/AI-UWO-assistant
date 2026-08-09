@@ -128,14 +128,6 @@
   text-align: right;
 }
 
-.result-preview-sheet__target-state--achieved {
-  color: var(--uwo-color-success);
-}
-
-.result-preview-sheet__target-state--unmet {
-  color: var(--uwo-color-warning);
-}
-
 .result-preview-sheet__member-count {
   gap: var(--uwo-space-3);
   margin-top: var(--uwo-space-4);

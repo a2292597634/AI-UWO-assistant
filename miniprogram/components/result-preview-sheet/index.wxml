@@ -18,7 +18,9 @@
       <view wx:for="{{preview.targetDiffs}}" wx:key="skillId" class="result-preview-sheet__target-row">
         <text class="result-preview-sheet__target-name">{{item.skillName}}</text>
         <text class="result-preview-sheet__target-level">目前 Lv.{{item.currentLevel}} → 預期 Lv.{{item.proposedLevel}} · 目標 Lv.{{item.targetLevel}}</text>
-        <text class="result-preview-sheet__target-state {{item.reached ? 'result-preview-sheet__target-state--achieved' : 'result-preview-sheet__target-state--unmet'}}">{{item.reached ? '已達成' : '差 Lv.' + item.difference}}</text>
+        <view class="result-preview-sheet__target-state ui-status {{item.reached ? 'ui-status--achieved' : 'ui-status--unmet'}}">
+          <text class="ui-status__label">{{item.reached ? '已達成' : '差 Lv.' + item.difference}}</text>
+        </view>
       </view>
     </view>
 

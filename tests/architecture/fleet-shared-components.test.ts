@@ -501,6 +501,7 @@ describe('Task 5 方案預覽共享元件契約', () => {
 
   it('顯示目標進度、成員差異、鎖定保留與約束語義', () => {
     const wxml = readResultPreviewFile('index.wxml')
+    const wxss = readResultPreviewFile('index.wxss')
 
     expect(wxml).toContain('目標達成')
     expect(wxml).toContain('目前 Lv.')
@@ -512,6 +513,12 @@ describe('Task 5 方案預覽共享元件契約', () => {
     expect(wxml).toContain('有成員未保留')
     expect(wxml).toContain('約束與提示')
     expect(wxml).toContain("item.reached ? '已達成' : '差 Lv.' + item.difference")
+    expect(wxml).toContain('ui-status__label')
+    expect(wxml).toContain('ui-status--achieved')
+    expect(wxml).toContain('ui-status--unmet')
+    expect(wxss).not.toMatch(
+      /\.result-preview-sheet__target-state--(?:achieved|unmet)\s*\{[^}]*\bcolor\s*:/,
+    )
   })
 
   it('不可應用時保留原生禁用、無障礙語義與可見原因', () => {
