@@ -130,7 +130,6 @@
           <view class="tracking-row__copy">
             <text class="tracking-row__name">{{item.skillName}}</text>
             <text wx:if="{{item.skillDescription}}" class="tracking-row__desc">{{item.skillDescription}}</text>
-            <text class="tracking-row__state">技能追蹤 · 不參與計算</text>
           </view>
           <view class="tracking-row__right">
             <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" catchtap="onNoop" data-id="{{item.id}}" />
