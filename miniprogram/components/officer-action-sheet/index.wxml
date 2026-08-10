@@ -1,51 +1,71 @@
-<view
-  class="officer-action-sheet officer-action-sheet--{{variant}} {{allowBan ? '' : 'officer-action-sheet--without-ban'}}"
-  aria-label="航海士操作"
->
+<block wx:if="{{presentation === 'trigger'}}">
   <button
-    class="officer-action-sheet__action officer-action-sheet__action--lock"
-    disabled="{{lockDisabled}}"
-    aria-disabled="{{lockDisabled}}"
-    aria-label="{{status === 'locked' ? '解鎖' : '鎖定'}}{{lockDisabled ? '，目前不可用' : ''}}"
-    bindtap="onLock"
-    data-action="lock"
+    class="ui-button ui-button--secondary officer-action-sheet__trigger officer-action-sheet__trigger--{{variant}}"
+    bindtap="onOpen"
     data-id="{{officerId}}"
+    aria-label="更多操作：{{officerName}}"
   >
-    <view class="officer-action-sheet__visual">
-      <text class="officer-action-sheet__icon officer-action-sheet__icon--lock" aria-hidden="true"></text>
-      <text class="officer-action-sheet__label">{{status === 'locked' ? '解鎖' : '鎖定'}}</text>
-      <text wx:if="{{lockDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
-    </view>
+    更多操作
   </button>
-  <button
-    class="officer-action-sheet__action"
-    disabled="{{removeDisabled}}"
-    aria-disabled="{{removeDisabled}}"
-    aria-label="移除{{removeDisabled ? '，目前不可用' : ''}}"
-    bindtap="onRemove"
-    data-action="remove"
-    data-id="{{officerId}}"
+</block>
+
+<block wx:if="{{presentation === 'sheet' && visible}}">
+  <view class="officer-action-sheet__mask" bindtap="onDismiss"></view>
+  <view
+    class="officer-action-sheet__panel"
+    catchtap="onNoop"
+    role="dialog"
+    aria-label="航海士操作"
   >
-    <view class="officer-action-sheet__visual">
-      <text class="officer-action-sheet__icon officer-action-sheet__icon--remove" aria-hidden="true"></text>
-      <text class="officer-action-sheet__label">移除</text>
-      <text wx:if="{{removeDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+    <view class="officer-action-sheet__header">
+      <view class="officer-action-sheet__heading">
+        <text class="officer-action-sheet__name">{{officerName}}</text>
+        <text class="officer-action-sheet__status">{{statusLabel}}</text>
+      </view>
+      <button
+        class="ui-button ui-button--secondary officer-action-sheet__close"
+        bindtap="onDismiss"
+        aria-label="取消航海士操作"
+      >取消</button>
     </view>
-  </button>
-  <button
-    wx:if="{{allowBan}}"
-    class="officer-action-sheet__action officer-action-sheet__action--danger"
-    disabled="{{banDisabled}}"
-    aria-disabled="{{banDisabled}}"
-    aria-label="排除{{banDisabled ? '，目前不可用' : ''}}"
-    bindtap="onBan"
-    data-action="ban"
-    data-id="{{officerId}}"
-  >
-    <view class="officer-action-sheet__visual">
-      <text class="officer-action-sheet__icon officer-action-sheet__icon--ban" aria-hidden="true"></text>
-      <text class="officer-action-sheet__label">排除</text>
-      <text wx:if="{{banDisabled}}" class="officer-action-sheet__disabled-label">不可用</text>
+
+    <view class="officer-action-sheet__actions">
+      <button
+        class="ui-button ui-button--secondary officer-action-sheet__action"
+        disabled="{{lockDisabled}}"
+        aria-disabled="{{lockDisabled}}"
+        aria-label="{{status === 'locked' ? '解鎖' : '鎖定'}}{{lockDisabled ? '，目前不可用' : ''}}"
+        bindtap="onLock"
+        data-id="{{officerId}}"
+      >
+        <text class="officer-action-sheet__action-label">{{status === 'locked' ? '解鎖' : '鎖定'}}</text>
+        <text wx:if="{{lockDisabled}}" class="officer-action-sheet__disabled-reason">{{lockDisabledReason}}</text>
+      </button>
+      <button
+        class="ui-button ui-button--secondary officer-action-sheet__action"
+        disabled="{{removeDisabled}}"
+        aria-disabled="{{removeDisabled}}"
+        aria-label="移除{{removeDisabled ? '，目前不可用' : ''}}"
+        bindtap="onRemove"
+        data-id="{{officerId}}"
+      >
+        <text class="officer-action-sheet__action-label">移除</text>
+        <text wx:if="{{removeDisabled}}" class="officer-action-sheet__disabled-reason">{{removeDisabledReason}}</text>
+      </button>
+      <button
+        wx:if="{{allowBan}}"
+        class="ui-button ui-button--danger officer-action-sheet__action"
+        disabled="{{banDisabled}}"
+        aria-disabled="{{banDisabled}}"
+        aria-label="排除{{banDisabled ? '，目前不可用' : ''}}"
+        bindtap="onBan"
+        data-id="{{officerId}}"
+      >
+        <text class="officer-action-sheet__action-label">排除</text>
+        <text wx:if="{{banDisabled}}" class="officer-action-sheet__disabled-reason">{{banDisabledReason}}</text>
+      </button>
     </view>
-  </button>
-</view>
+
+    <text class="officer-action-sheet__hint">點擊遮罩或取消關閉面板</text>
+  </view>
+</block>

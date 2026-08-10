@@ -2,6 +2,19 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
+interface OfficerActionSheetTestData {
+  visible: boolean
+  officerId: string
+  officerName: string
+  status: string
+  statusLabel: string
+  allowBan: boolean
+  disabledActions: string[]
+  lockDisabledReason: string
+  removeDisabledReason: string
+  banDisabledReason: string
+}
+
 interface AdventureTargetView {
   id: string
   skillId: string | null
@@ -16,6 +29,7 @@ interface AdventurePageData {
   configStatus: string
   proposalPreview: Record<string, unknown> | null
   canUndoProposal: boolean
+  officerActionSheet: OfficerActionSheetTestData
   [key: string]: unknown
 }
 
@@ -31,6 +45,8 @@ interface AdventurePageConfig {
   onProposalApply(): void
   onUndoProposal(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
+  onOfficerActionOpen(event: WechatMiniprogram.BaseEvent): void
+  onOfficerActionDismiss(): void
 }
 
 interface AdventurePageInstance extends AdventurePageConfig {
@@ -282,6 +298,53 @@ describe('adventure fleet preview layout', () => {
         fleetScrollEnd,
       ),
     ).not.toContain('<result-preview-sheet')
+  })
+})
+
+describe('adventure fleet officer action surface', () => {
+  it('uses one trigger per officer card and one page-level sheet', () => {
+    expect(adventureWxml.match(/<officer-action-sheet\b/g)).toHaveLength(2)
+    expect(adventureWxml).toMatch(
+      /<officer-action-sheet[\s\S]*?presentation="trigger"[\s\S]*?variant="card"/,
+    )
+    expect(adventureWxml).toMatch(/<officer-action-sheet[\s\S]*?presentation="sheet"/)
+    expect(adventureWxml).toContain('bind:open="onOfficerActionOpen"')
+    expect(adventureWxml).toContain('bind:dismiss="onOfficerActionDismiss"')
+    expect(adventureWxml).toContain('officerActionSheet.visible')
+    expect(adventureWxml.match(/bind:lock="onOfficerLock"/g)).toHaveLength(1)
+    expect(adventureWxml.match(/bind:remove="onOfficerRemove"/g)).toHaveLength(1)
+    expect(adventureWxml.match(/bind:ban="onBanOfficer"/g)).toHaveLength(1)
+  })
+
+  it('mounts the single action sheet outside the main fleet scroll container', () => {
+    const fleetScrollEnd = adventureWxml.lastIndexOf('</scroll-view>')
+    const sheetIndex = adventureWxml.indexOf('presentation="sheet"')
+
+    expect(sheetIndex).toBeGreaterThan(fleetScrollEnd)
+    expect(adventureWxml).toContain('officerActionSheet.officerName')
+    expect(adventureWxss).not.toContain('.officer-slot__actions')
+    expect(adventureWxss).not.toContain('.slot-action')
+  })
+
+  it('opens the sheet with current officer context and closes after dismissal', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onOfficerActionOpen({
+      currentTarget: { dataset: {} },
+      detail: { officerId: 'officer_chast089' },
+    } as never)
+
+    expect(page.data.officerActionSheet).toMatchObject({
+      visible: true,
+      officerId: 'officer_chast089',
+      allowBan: true,
+    })
+
+    page.onOfficerActionDismiss()
+
+    expect(page.data.officerActionSheet.visible).toBe(false)
   })
 })
 

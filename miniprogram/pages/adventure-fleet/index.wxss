@@ -545,6 +545,10 @@
   margin-top: 1rpx;
 }
 
+.officer-card .officer-action-sheet__trigger {
+  margin-top: var(--uwo-space-2);
+}
+
 /* ── 排除名单 ── */
 
 .ban-grid {
@@ -783,7 +787,7 @@
   position: relative;
   box-sizing: border-box;
   min-height: 180rpx;
-  padding: 10rpx 2rpx 72rpx;
+  padding: 10rpx 2rpx;
   overflow: hidden;
   text-align: center;
   background: #e8dfce;
@@ -864,66 +868,6 @@
 .officer-slot__empty {
   padding-top: 33rpx;
   color: #a2967d;
-}
-
-/* ── 船位操作按钮 ── */
-
-.officer-slot__actions {
-  position: absolute;
-  right: 4rpx;
-  bottom: 4rpx;
-  left: 4rpx;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3rpx;
-  min-height: 64rpx;
-}
-
-.slot-action {
-  box-sizing: border-box;
-  display: flex;
-  min-width: 0;
-  min-height: 64rpx;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rpx 0;
-  overflow: hidden;
-  color: #596257;
-  background: #e8dfce;
-  border-radius: 5rpx;
-  font-size: 12rpx;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.slot-action:active {
-  background: #c4b99a;
-}
-
-.slot-action--danger {
-  color: #8b3a3a;
-  background: #ead2c8;
-}
-
-.slot-action--danger:active {
-  background: #d7b5a9;
-}
-
-.slot-action__glyph,
-.slot-action__label {
-  display: block;
-}
-
-.slot-action__glyph {
-  font-size: 24rpx;
-  line-height: 1;
-}
-
-.slot-action__label {
-  margin-top: 2rpx;
-  font-size: 12rpx;
-  line-height: 1.1;
 }
 
 /* ── 候选航海士面板 ── */

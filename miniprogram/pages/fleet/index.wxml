@@ -144,13 +144,12 @@
             </view>
             <text class="officer-slot__name">{{item.officer.name}}</text>
             <officer-action-sheet
+              presentation="trigger"
               officer-id="{{item.officer.id}}"
+              officer-name="{{item.officer.name}}"
               status="{{item.officer.status}}"
               variant="slot"
-              allow-ban="{{mode === 'auto'}}"
-              bind:lock="onOfficerLock"
-              bind:remove="onOfficerRemove"
-              bind:ban="onBanOfficer"
+              bind:open="onOfficerActionOpen"
             />
           </block>
           <text wx:else class="officer-slot__empty">空位</text>
@@ -324,6 +323,24 @@
       </disclosure-section>
     </view>
    </scroll-view>
+
+   <officer-action-sheet
+     presentation="sheet"
+     visible="{{officerActionSheet.visible}}"
+     officer-id="{{officerActionSheet.officerId}}"
+     officer-name="{{officerActionSheet.officerName}}"
+     status="{{officerActionSheet.status}}"
+     status-label="{{officerActionSheet.statusLabel}}"
+     allow-ban="{{officerActionSheet.allowBan}}"
+     disabled-actions="{{officerActionSheet.disabledActions}}"
+     lock-disabled-reason="{{officerActionSheet.lockDisabledReason}}"
+     remove-disabled-reason="{{officerActionSheet.removeDisabledReason}}"
+     ban-disabled-reason="{{officerActionSheet.banDisabledReason}}"
+     bind:dismiss="onOfficerActionDismiss"
+     bind:lock="onOfficerLock"
+     bind:remove="onOfficerRemove"
+     bind:ban="onBanOfficer"
+   />
 
    <result-preview-sheet
      visible="{{proposalPreview !== null}}"

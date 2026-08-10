@@ -3,6 +3,19 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { createFleetState } from '../../miniprogram/domain/battle-fleet'
 
+interface OfficerActionSheetTestData {
+  visible: boolean
+  officerId: string
+  officerName: string
+  status: string
+  statusLabel: string
+  allowBan: boolean
+  disabledActions: string[]
+  lockDisabledReason: string
+  removeDisabledReason: string
+  banDisabledReason: string
+}
+
 interface FleetTestData {
   shipTabs: unknown[]
   mode: string
@@ -32,6 +45,7 @@ interface FleetTestData {
   pendingAction: unknown
   configLimitReached: boolean
   showConflictDialog: boolean
+  officerActionSheet: OfficerActionSheetTestData
   [key: string]: unknown
 }
 
@@ -64,6 +78,8 @@ interface FleetPageConfig {
   onOfficerRemove(event: WechatMiniprogram.BaseEvent): void
   onOfficerLock(event: WechatMiniprogram.BaseEvent): void
   onBanOfficer(event: WechatMiniprogram.BaseEvent): void
+  onOfficerActionOpen(event: WechatMiniprogram.BaseEvent): void
+  onOfficerActionDismiss(): void
   onUnbanOfficer(event: WechatMiniprogram.BaseEvent): void
   // Config management handlers
   onConfigLogin(): Promise<void>
@@ -404,11 +420,18 @@ const sharedComponentNames = [
 ] as const
 
 describe('fleet slot action touch targets', () => {
-  it('keeps five columns and delegates slot actions to the shared component', () => {
-    expect(fleetWxml).toMatch(/<officer-action-sheet[\s\S]*?variant="slot"/)
+  it('keeps five columns with one trigger per slot and one page-level sheet', () => {
+    expect(fleetWxml.match(/<officer-action-sheet\b/g)).toHaveLength(2)
+    expect(fleetWxml).toMatch(
+      /<officer-action-sheet[\s\S]*?presentation="trigger"[\s\S]*?variant="slot"/,
+    )
+    expect(fleetWxml).toMatch(/<officer-action-sheet[\s\S]*?presentation="sheet"/)
+    expect(fleetWxml).toContain('bind:open="onOfficerActionOpen"')
+    expect(fleetWxml).toContain('bind:dismiss="onOfficerActionDismiss"')
     expect(fleetWxml).toContain('bind:lock="onOfficerLock"')
     expect(fleetWxml).toContain('bind:remove="onOfficerRemove"')
     expect(fleetWxml).toContain('bind:ban="onBanOfficer"')
+    expect(fleetWxml).toContain('officerActionSheet.visible')
     expect(fleetWxml).not.toContain('class="officer-slot__actions"')
     // Visual layers
     expect(fleetWxml).toContain('officer-slot__visuals')
@@ -422,6 +445,35 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
     expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx 72rpx;/)
+  })
+
+  it('mounts the single action sheet outside the main fleet scroll container', () => {
+    const fleetScrollEnd = fleetWxml.lastIndexOf('</scroll-view>')
+    const sheetIndex = fleetWxml.indexOf('presentation="sheet"')
+
+    expect(sheetIndex).toBeGreaterThan(fleetScrollEnd)
+    expect(fleetWxml).toContain('officerActionSheet.officerName')
+  })
+
+  it('opens the sheet with current officer context and closes after dismissal', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onOfficerActionOpen({
+      currentTarget: { dataset: {} },
+      detail: { officerId: 'officer_chast089' },
+    } as never)
+
+    expect(page.data.officerActionSheet).toMatchObject({
+      visible: true,
+      officerId: 'officer_chast089',
+      allowBan: false,
+    })
+
+    page.onOfficerActionDismiss()
+
+    expect(page.data.officerActionSheet.visible).toBe(false)
   })
 
   it('uses direct image loading without a local asset loading route', () => {

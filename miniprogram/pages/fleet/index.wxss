@@ -384,6 +384,10 @@
   color: #a2967d;
 }
 
+.officer-slot .officer-action-sheet__trigger {
+  margin-top: var(--uwo-space-2);
+}
+
 .ban-chip__remove {
   color: var(--uwo-color-danger);
 }

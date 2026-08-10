@@ -78,7 +78,7 @@ const COMPONENT_CONTRACTS = [
     events: ['info-tap', 'login-tap', 'menu-tap', 'save', 'save-as', 'rename', 'delete', 'new'],
   },
   { name: 'mode-tabs', events: ['change'] },
-  { name: 'officer-action-sheet', events: ['lock', 'remove', 'ban'] },
+  { name: 'officer-action-sheet', events: ['open', 'dismiss'] },
   {
     name: 'skill-picker-sheet',
     events: [
@@ -356,42 +356,60 @@ describe('Task 2 基礎共享元件契約', () => {
   })
 })
 
-describe('Task 3 航海士操作共享元件契約', () => {
+describe('Task 4 航海士操作共享元件契約', () => {
   const readOfficerActionFile = (file: (typeof COMPONENT_FILES)[number]): string => {
     const relativePath = `${COMPONENT_ROOT}/officer-action-sheet/${file}`
     expect(projectFileExists(relativePath), `${relativePath} 應存在`).toBe(true)
     return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
   }
 
-  it('依狀態與權限顯示鎖定、解鎖、移除和排除操作', () => {
+  it('提供單一入口與頁面級 Bottom Sheet 模式', () => {
     const script = readOfficerActionFile('index.ts')
     const wxml = readOfficerActionFile('index.wxml')
 
-    for (const property of ['officerId', 'status', 'variant', 'allowBan', 'disabledActions']) {
+    for (const property of [
+      'officerId',
+      'officerName',
+      'status',
+      'statusLabel',
+      'variant',
+      'presentation',
+      'visible',
+      'allowBan',
+      'disabledActions',
+      'lockDisabledReason',
+      'removeDisabledReason',
+      'banDisabledReason',
+    ]) {
       expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
     }
-    expect(wxml).toContain("status === 'locked' ? '解鎖' : '鎖定'")
-    expect(wxml).toContain('移除')
-    expect(wxml).toMatch(/wx:if="\{\{allowBan\}\}"[\s\S]*?>[\s\S]*?排除/)
+    expect(wxml).toContain("presentation === 'trigger'")
+    expect(wxml).toContain("presentation === 'sheet'")
+    expect(wxml).toContain('更多操作')
+    expect(wxml).toContain('officer-action-sheet__mask')
+    expect(wxml).toContain('officer-action-sheet__panel')
+    expect(wxml).toContain('bindtap="onDismiss"')
   })
 
-  it('每個操作攜帶 action 與航海士 ID，並以一致 detail 轉發事件', () => {
+  it('從入口與面板以一致 detail 轉發操作事件', () => {
     const script = readOfficerActionFile('index.ts')
     const wxml = readOfficerActionFile('index.wxml')
 
+    expect(wxml).toContain('bindtap="onOpen"')
+    expect(wxml.match(/data-id="\{\{officerId\}\}"/g)).toHaveLength(4)
     for (const action of ['lock', 'remove', 'ban']) {
-      expect(wxml).toContain(`data-action="${action}"`)
+      expect(wxml).toContain(`bindtap="on${action[0]!.toUpperCase()}${action.slice(1)}"`)
     }
-    expect(wxml.match(/data-id="\{\{officerId\}\}"/g)).toHaveLength(3)
     expect(script).toMatch(/currentTarget\.dataset\.id/)
-    for (const eventName of ['lock', 'remove', 'ban']) {
+    for (const eventName of ['open', 'lock', 'remove', 'ban']) {
       expect(script).toMatch(
         new RegExp(`triggerEvent\\(\\s*['"]${eventName}['"]\\s*,\\s*\\{\\s*officerId\\s*\\}`),
       )
     }
+    expect(script).toMatch(/triggerEvent\(\s*['"]dismiss['"]\s*\)/)
   })
 
-  it('禁用操作同時提供原生 disabled 與 aria-disabled 語義', () => {
+  it('禁用操作同時提供原生 disabled、原因與 aria-disabled 語義', () => {
     const script = readOfficerActionFile('index.ts')
     const wxml = readOfficerActionFile('index.wxml')
 
@@ -400,29 +418,34 @@ describe('Task 3 航海士操作共享元件契約', () => {
       expect(wxml).toContain(`disabled="{{${state}}}"`)
       expect(wxml).toContain(`aria-disabled="{{${state}}}"`)
     }
+    for (const reason of ['lockDisabledReason', 'removeDisabledReason', 'banDisabledReason']) {
+      expect(wxml).toContain(reason)
+    }
   })
 
-  it('操作文字與熱區符合 Design Foundation 下限', () => {
+  it('操作文字與頁面級 Bottom Sheet 符合 Design Foundation', () => {
     const wxss = readOfficerActionFile('index.wxss')
 
-    expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(/\.officer-action-sheet__trigger\s*\{[\s\S]*min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(/\.officer-action-sheet__mask\s*\{[\s\S]*position\s*:\s*fixed/)
+    expect(wxss).toMatch(
+      /\.officer-action-sheet__panel\s*\{[\s\S]*max-height\s*:\s*82vh[\s\S]*overflow\s*:\s*hidden/,
+    )
+    expect(wxss).toMatch(/padding-bottom\s*:\s*calc\([^;]*env\(safe-area-inset-bottom\)\)/)
+    expect(wxss).toContain('var(--uwo-shadow-sheet)')
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
   })
 
-  it('以緊湊視覺層提供三種操作圖標並保留文字語義', () => {
+  it('入口與操作保留可見文字語義，不再隱藏槽位操作文字', () => {
     const wxml = readOfficerActionFile('index.wxml')
     const wxss = readOfficerActionFile('index.wxss')
 
-    expect(wxml.match(/class="officer-action-sheet__visual"/g)).toHaveLength(3)
-    for (const icon of ['lock', 'remove', 'ban']) {
-      expect(wxml).toContain(`officer-action-sheet__icon--${icon}`)
-      expect(wxss).toContain(`.officer-action-sheet__icon--${icon}`)
-    }
-    expect(wxml).toContain('aria-hidden="true"')
-    expect(wxss).toMatch(
-      /\.officer-action-sheet--slot\s+\.officer-action-sheet__label\s*\{[\s\S]*position:\s*absolute[\s\S]*width:\s*1rpx[\s\S]*height:\s*1rpx/,
-    )
-    expect(wxss).toMatch(/\.officer-action-sheet__visual\s*\{[\s\S]*min-height\s*:\s*56rpx/)
+    expect(wxml.match(/officer-action-sheet__trigger/g)).toHaveLength(2)
+    expect(wxml).toContain('鎖定')
+    expect(wxml).toContain('移除')
+    expect(wxml).toContain('排除')
+    expect(wxml).not.toContain('width: 1rpx')
+    expect(wxss).toContain('overflow-wrap: anywhere')
   })
 })
 
