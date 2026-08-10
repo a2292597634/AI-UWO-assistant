@@ -447,8 +447,8 @@ describe('fleet slot action touch targets', () => {
       /\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/,
     )
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
-    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
-    expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx 72rpx;/)
+    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*var\(--uwo-space-2\)\s+0;/)
+    expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
   })
 
   it('mounts the single action sheet outside the main fleet scroll container', () => {

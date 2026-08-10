@@ -378,8 +378,10 @@ describe('adventure fleet shared component wiring', () => {
     expect(adventureWxml).not.toContain('class="proposal-preview-sheet"')
     expect(adventureWxml).not.toContain('class="officer-card__actions"')
     expect(adventureWxml).toContain('selected-skill-id="{{selectedSkillId}}"')
-    expect(adventureWxss).toMatch(/\.officer-card\s*\{[\s\S]*padding:\s*8rpx 4rpx;/)
-    expect(adventureWxss).not.toMatch(/\.officer-card\s*\{[\s\S]*padding:\s*8rpx 4rpx 68rpx;/)
+    expect(adventureWxss).toMatch(
+      /\.officer-card\s*\{[\s\S]*padding:\s*var\(--uwo-space-2\)\s+var\(--uwo-space-1\);/,
+    )
+    expect(adventureWxss).not.toMatch(/\.officer-card\s*\{[\s\S]*padding:\s*8rpx 4rpx;/)
   })
 
   it('keeps distinct inline and sheet copy plus adventure skill ownership meta', () => {

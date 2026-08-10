@@ -4,6 +4,13 @@ import { describe, expect, it } from 'vitest'
 
 const ROOT = resolve(__dirname, '../..')
 const SPEC_PATH = 'docs/superpowers/specs/2026-08-09-design-foundation-design.md'
+const TASK_7_WXSS_PATHS = [
+  'miniprogram/pages/fleet/index.wxss',
+  'miniprogram/pages/adventure-fleet/index.wxss',
+  'miniprogram/components/officer-action-sheet/index.wxss',
+  'miniprogram/components/result-preview-sheet/index.wxss',
+  'miniprogram/components/config-bar/index.wxss',
+] as const
 
 const readProjectFile = (relativePath: string): string => {
   const target = resolve(ROOT, relativePath)
@@ -111,6 +118,16 @@ describe('Design Foundation 基礎按鈕', () => {
     expect(foundation).toMatch(/\.ui-button\s*{[^}]*font-size:\s*var\(--uwo-font-size-body\)/s)
     for (const selector of selectors) {
       expect(foundation).toContain(selector)
+    }
+  })
+})
+
+describe('Task 7 高频样式 Token 收敛', () => {
+  it('受影响页面与共享浮层不新增局部色值', () => {
+    for (const path of TASK_7_WXSS_PATHS) {
+      const wxss = readProjectFile(path)
+      expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
+      expect(wxss).toMatch(/var\(--uwo-color-[a-z-]+\)/)
     }
   })
 })

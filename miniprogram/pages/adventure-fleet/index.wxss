@@ -30,7 +30,7 @@
 
 .config-unsaved-guard__title {
   color: var(--uwo-color-text-primary);
-  font-size: var(--uwo-font-size-heading);
+  font-size: var(--uwo-font-size-section-title);
   font-weight: 700;
 }
 
@@ -175,8 +175,8 @@
 .summary-row__icon {
   width: 42rpx;
   height: 42rpx;
-  margin-right: 10rpx;
-  margin-top: 2rpx;
+  margin-right: var(--uwo-space-2);
+  margin-top: var(--uwo-space-1);
   flex: 0 0 auto;
 }
 
@@ -334,19 +334,19 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 14rpx 8rpx 10rpx;
-  border-bottom: 2rpx solid #c4b99a;
+  padding: var(--uwo-space-3) var(--uwo-space-2) var(--uwo-space-2);
+  border-bottom: 2rpx solid var(--uwo-color-border-subtle);
 }
 
 .zone-section__title {
-  font-size: 28rpx;
+  font-size: var(--uwo-font-size-emphasis);
   font-weight: 700;
-  color: #3d3d35;
+  color: var(--uwo-color-text-primary);
 }
 
 .zone-section__meta {
-  font-size: 20rpx;
-  color: #756b59;
+  font-size: var(--uwo-font-size-supporting);
+  color: var(--uwo-color-text-secondary);
 }
 
 /* ── 航海士头像网格 ── */
@@ -354,26 +354,26 @@
 .officer-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8rpx;
-  padding: 10rpx 0;
+  gap: var(--uwo-space-2);
+  padding: var(--uwo-space-2) 0;
 }
 
 .officer-card {
   position: relative;
   box-sizing: border-box;
   min-height: 184rpx;
-  padding: 8rpx 4rpx;
+  padding: var(--uwo-space-2) var(--uwo-space-1);
   overflow: hidden;
   text-align: center;
-  background: #e8dfce;
-  border: 1rpx solid #c4b99a;
-  border-radius: 8rpx;
+  background: var(--uwo-color-surface-muted);
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-card--locked {
-  background: #f0e8c8;
-  border-color: #b99552;
-  box-shadow: inset 0 0 0 2rpx #b99552;
+  background: var(--uwo-color-surface-muted);
+  border-color: var(--uwo-color-accent-brass);
+  box-shadow: inset 0 0 0 2rpx var(--uwo-color-accent-brass);
 }
 
 .officer-card__visuals {
@@ -381,8 +381,8 @@
   display: inline-block;
   width: 80rpx;
   height: 80rpx;
-  background: #2f302b;
-  border-radius: 8rpx;
+  background: var(--uwo-color-ink);
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-card__frame {
@@ -392,7 +392,7 @@
   z-index: 1;
   width: 80rpx;
   height: 80rpx;
-  border-radius: 8rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-card__portrait {
@@ -402,7 +402,7 @@
   z-index: 2;
   width: 80rpx;
   height: 80rpx;
-  border-radius: 8rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-card__rarity-icon {
@@ -426,19 +426,19 @@
 .officer-card__name {
   display: block;
   overflow: hidden;
-  margin-top: 4rpx;
-  font-size: 18rpx;
+  margin-top: var(--uwo-space-1);
+  font-size: var(--uwo-font-size-supporting);
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #3d3d35;
+  color: var(--uwo-color-text-primary);
 }
 
 .officer-card__ship {
   display: block;
-  font-size: 14rpx;
-  color: #756b59;
-  margin-top: 1rpx;
+  font-size: var(--uwo-font-size-minimum-action);
+  color: var(--uwo-color-text-secondary);
+  margin-top: var(--uwo-space-1);
 }
 
 .officer-card .officer-action-sheet__trigger {
@@ -450,18 +450,18 @@
 .ban-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8rpx;
-  margin-top: 8rpx;
+  gap: var(--uwo-space-2);
+  margin-top: var(--uwo-space-2);
 }
 
 .ban-card {
   position: relative;
   box-sizing: border-box;
-  padding: 8rpx 4rpx;
+  padding: var(--uwo-space-2) var(--uwo-space-1);
   text-align: center;
-  background: #d4cbb4;
-  border: 1rpx solid #c4b99a;
-  border-radius: 8rpx;
+  background: var(--uwo-color-surface-muted);
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
 }
 
 .ban-card__visuals {
@@ -469,8 +469,8 @@
   display: inline-block;
   width: 64rpx;
   height: 64rpx;
-  background: #2f302b;
-  border-radius: 7rpx;
+  background: var(--uwo-color-ink);
+  border-radius: var(--uwo-radius-control);
 }
 
 .ban-card__frame {
@@ -480,7 +480,7 @@
   z-index: 1;
   width: 64rpx;
   height: 64rpx;
-  border-radius: 7rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .ban-card__portrait {
@@ -490,7 +490,7 @@
   z-index: 2;
   width: 64rpx;
   height: 64rpx;
-  border-radius: 7rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .ban-card__rarity-icon {
@@ -539,10 +539,10 @@
 .summary-row {
   display: grid;
   grid-template-columns: 42rpx minmax(0, 1fr) auto;
-  gap: 6rpx 8rpx;
+  gap: var(--uwo-space-2);
   align-items: center;
-  padding: 7rpx 0;
-  border-bottom: 1rpx solid #d4cbb4;
+  padding: var(--uwo-space-2) 0;
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
 .summary-row__icon {
@@ -563,9 +563,9 @@
 
 .summary-row__level {
   display: block;
-  margin-top: 3rpx;
-  color: #756b59;
-  font-size: 19rpx;
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 .summary-row__contributors {
@@ -584,20 +584,20 @@
 .contributor-avatar {
   width: 48rpx;
   height: 48rpx;
-  margin-right: 6rpx;
+  margin-right: var(--uwo-space-1);
 }
 
 .contributors-empty {
-  color: #9b8b6d;
-  font-size: 20rpx;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 /* ── 船标签页 ── */
 
 .ship-tabs {
   width: 100%;
-  background: #e8dfce;
-  border-bottom: 1rpx solid #c4b99a;
+  background: var(--uwo-color-surface-muted);
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
 .ship-tabs__content {
@@ -609,15 +609,15 @@
 .ship-tab {
   box-sizing: border-box;
   width: 160rpx;
-  padding: 16rpx 8rpx 14rpx;
-  color: #756b59;
+  padding: var(--uwo-space-4) var(--uwo-space-2) var(--uwo-space-3);
+  color: var(--uwo-color-text-secondary);
   text-align: center;
 }
 
 .ship-tab--active {
-  color: #292a26;
-  background: #d4cbb4;
-  border-bottom: 5rpx solid #b99552;
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-surface);
+  border-bottom: 5rpx solid var(--uwo-color-accent-brass);
 }
 
 .ship-tab__label,
@@ -626,48 +626,48 @@
 }
 
 .ship-tab__label {
-  font-size: 25rpx;
+  font-size: var(--uwo-font-size-body);
   font-weight: 700;
 }
 
 .ship-tab__meta {
-  margin-top: 4rpx;
-  font-size: 18rpx;
+  margin-top: var(--uwo-space-1);
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 /* ── 船编辑区 ── */
 
 .ship-editor {
-  padding-bottom: 48rpx;
+  padding-bottom: var(--uwo-space-12);
 }
 
 .section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 24rpx 16rpx;
+  padding: var(--uwo-space-6) var(--uwo-space-6) var(--uwo-space-4);
 }
 
 .section-heading__title {
   display: block;
-  font-size: 32rpx;
+  font-size: var(--uwo-font-size-section-title);
   font-weight: 700;
 }
 
 .section-heading__meta {
   display: block;
-  margin-top: 5rpx;
-  color: #756b59;
-  font-size: 21rpx;
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 .section-heading__status {
   display: block;
-  padding: 8rpx 12rpx;
-  color: #f0e4c4;
-  background: #596257;
-  border-radius: 6rpx;
-  font-size: 21rpx;
+  padding: var(--uwo-space-2) var(--uwo-space-3);
+  color: var(--uwo-color-surface);
+  background: var(--uwo-color-success);
+  border-radius: var(--uwo-radius-control);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 /* ── 船位网格 ── */
@@ -675,32 +675,32 @@
 .slot-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 6rpx;
-  padding: 0 14rpx 10rpx;
+  gap: var(--uwo-space-2);
+  padding: 0 var(--uwo-space-4) var(--uwo-space-2);
 }
 
 .officer-slot {
   position: relative;
   box-sizing: border-box;
   min-height: 180rpx;
-  padding: 10rpx 2rpx;
+  padding: var(--uwo-space-2) 0;
   overflow: hidden;
   text-align: center;
-  background: #e8dfce;
-  border: 1rpx solid #c4b99a;
-  border-radius: 8rpx;
+  background: var(--uwo-color-surface-muted);
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot--filled {
-  background: #d4cbb4;
+  background: var(--uwo-color-surface);
 }
 
 .officer-slot__number {
   position: absolute;
   top: 3rpx;
   left: 4rpx;
-  color: #9b8b6d;
-  font-size: 12rpx;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 .officer-slot__visuals {
@@ -708,8 +708,8 @@
   display: inline-block;
   width: 64rpx;
   height: 64rpx;
-  background: #2f302b;
-  border-radius: 8rpx;
+  background: var(--uwo-color-ink);
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot__frame {
@@ -719,7 +719,7 @@
   z-index: 1;
   width: 64rpx;
   height: 64rpx;
-  border-radius: 8rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot__portrait {
@@ -729,7 +729,7 @@
   z-index: 2;
   width: 64rpx;
   height: 64rpx;
-  border-radius: 8rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot__rarity-icon {
@@ -754,8 +754,8 @@
 .officer-slot__empty {
   display: block;
   overflow: hidden;
-  margin-top: 2rpx;
-  font-size: 14rpx;
+  margin-top: var(--uwo-space-1);
+  font-size: var(--uwo-font-size-minimum-action);
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -763,7 +763,7 @@
 
 .officer-slot__empty {
   padding-top: 33rpx;
-  color: #a2967d;
+  color: var(--uwo-color-text-secondary);
 }
 
 /* ── 候选航海士面板 ── */
@@ -783,9 +783,9 @@
   flex: 0 0 auto;
   width: 54rpx;
   height: 54rpx;
-  margin-right: 12rpx;
-  background: #2f302b;
-  border-radius: 7rpx;
+  margin-right: var(--uwo-space-3);
+  background: var(--uwo-color-ink);
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__frame {
@@ -795,7 +795,7 @@
   z-index: 1;
   width: 54rpx;
   height: 54rpx;
-  border-radius: 7rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__portrait {
@@ -805,7 +805,7 @@
   z-index: 2;
   width: 54rpx;
   height: 54rpx;
-  border-radius: 7rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__rarity-icon {

@@ -28,7 +28,7 @@
 
 .config-unsaved-guard__title {
   color: var(--uwo-color-text-primary);
-  font-size: var(--uwo-font-size-heading);
+  font-size: var(--uwo-font-size-section-title);
   font-weight: 700;
 }
 
@@ -61,8 +61,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  padding: 16rpx 32rpx;
-  color: #5a5a4e;
+  padding: var(--uwo-space-4) var(--uwo-space-8);
+  color: var(--uwo-color-text-secondary);
   text-align: center;
 }
 
@@ -75,8 +75,8 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  color: #292a26;
-  background: #ded7c7;
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-canvas);
 }
 
 .fleet-context {
@@ -122,8 +122,8 @@
 
 .ship-tabs {
   width: 100%;
-  background: #e8dfce;
-  border-bottom: 1rpx solid #c4b99a;
+  background: var(--uwo-color-surface-muted);
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
 .ship-tabs__content {
@@ -135,15 +135,15 @@
 .ship-tab {
   box-sizing: border-box;
   width: 160rpx;
-  padding: 16rpx 8rpx 14rpx;
-  color: #756b59;
+  padding: var(--uwo-space-4) var(--uwo-space-2) var(--uwo-space-3);
+  color: var(--uwo-color-text-secondary);
   text-align: center;
 }
 
 .ship-tab--active {
-  color: #292a26;
-  background: #d4cbb4;
-  border-bottom: 5rpx solid #b99552;
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-surface);
+  border-bottom: 5rpx solid var(--uwo-color-accent-brass);
 }
 
 .ship-tab__label,
@@ -152,17 +152,17 @@
 }
 
 .ship-tab__label {
-  font-size: 25rpx;
+  font-size: var(--uwo-font-size-body);
   font-weight: 700;
 }
 
 .ship-tab__meta {
-  margin-top: 4rpx;
-  font-size: 18rpx;
+  margin-top: var(--uwo-space-1);
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 .ship-editor {
-  padding-bottom: 48rpx;
+  padding-bottom: var(--uwo-space-12);
 }
 
 .panel-heading {
@@ -177,39 +177,39 @@
 }
 
 .panel-heading__hint {
-  color: #756b59;
-  font-size: 21rpx;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 .slot-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6rpx;
-  padding: 0 14rpx 10rpx;
+  gap: var(--uwo-space-2);
+  padding: 0 var(--uwo-space-4) var(--uwo-space-2);
 }
 
 .officer-slot {
   position: relative;
   box-sizing: border-box;
   min-height: 180rpx;
-  padding: 10rpx 2rpx;
+  padding: var(--uwo-space-2) 0;
   overflow: hidden;
   text-align: center;
-  background: #e8dfce;
-  border: 1rpx solid #c4b99a;
-  border-radius: 8rpx;
+  background: var(--uwo-color-surface-muted);
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot--filled {
-  background: #d4cbb4;
+  background: var(--uwo-color-surface);
 }
 
 .officer-slot__number {
   position: absolute;
   top: 3rpx;
   left: 4rpx;
-  color: #9b8b6d;
-  font-size: 12rpx;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 .officer-slot__visuals {
@@ -217,8 +217,8 @@
   display: inline-block;
   width: 64rpx;
   height: 64rpx;
-  background: #2f302b;
-  border-radius: 8rpx;
+  background: var(--uwo-color-ink);
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot__frame {
@@ -228,7 +228,7 @@
   z-index: 1;
   width: 64rpx;
   height: 64rpx;
-  border-radius: 8rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot__portrait {
@@ -238,7 +238,7 @@
   z-index: 2;
   width: 64rpx;
   height: 64rpx;
-  border-radius: 8rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .officer-slot__rarity-icon {
@@ -263,8 +263,8 @@
 .officer-slot__empty {
   display: block;
   overflow: hidden;
-  margin-top: 2rpx;
-  font-size: 14rpx;
+  margin-top: var(--uwo-space-1);
+  font-size: var(--uwo-font-size-minimum-action);
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -272,7 +272,7 @@
 
 .officer-slot__empty {
   padding-top: 33rpx;
-  color: #a2967d;
+  color: var(--uwo-color-text-secondary);
 }
 
 .officer-slot .officer-action-sheet__trigger {
@@ -288,19 +288,19 @@
 .ban-panel,
 .summary-panel,
 .overview-panel {
-  margin: 0 20rpx 18rpx;
-  padding: 18rpx;
-  background: #e8dfce;
-  border: 1rpx solid #c4b99a;
-  border-radius: 8rpx;
+  margin: 0 var(--uwo-space-4) var(--uwo-space-4);
+  padding: var(--uwo-space-4);
+  background: var(--uwo-color-surface-muted);
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
 }
 
 .panel-heading {
-  margin-bottom: 12rpx;
+  margin-bottom: var(--uwo-space-3);
 }
 
 .panel-heading__title {
-  font-size: 26rpx;
+  font-size: var(--uwo-font-size-body);
   font-weight: 700;
 }
 
@@ -323,7 +323,7 @@
 .summary-row__icon {
   width: 42rpx;
   height: 42rpx;
-  margin-right: 10rpx;
+  margin-right: var(--uwo-space-2);
 }
 
 .target-row__name {
@@ -402,7 +402,7 @@
 .overview-row {
   display: flex;
   align-items: center;
-  border-bottom: 1rpx solid #d4cbb4;
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
 .candidate-row__copy,
@@ -422,7 +422,7 @@
 .candidate-row__name,
 .summary-row__name {
   overflow: hidden;
-  font-size: 23rpx;
+  font-size: var(--uwo-font-size-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -430,9 +430,9 @@
 .candidate-row__meta,
 .candidate-row__status,
 .summary-row__level {
-  margin-top: 3rpx;
-  color: #756b59;
-  font-size: 19rpx;
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 .candidate-row {
@@ -448,9 +448,9 @@
   flex: 0 0 auto;
   width: 54rpx;
   height: 54rpx;
-  margin-right: 12rpx;
-  background: #2f302b;
-  border-radius: 7rpx;
+  margin-right: var(--uwo-space-3);
+  background: var(--uwo-color-ink);
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__frame,
@@ -461,7 +461,7 @@
   z-index: 1;
   width: 54rpx;
   height: 54rpx;
-  border-radius: 7rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__portrait,
@@ -472,7 +472,7 @@
   z-index: 2;
   width: 54rpx;
   height: 54rpx;
-  border-radius: 7rpx;
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__rarity-icon,
@@ -498,13 +498,13 @@
 .contributor-avatar {
   width: 54rpx;
   height: 54rpx;
-  margin-right: 12rpx;
-  border-radius: 7rpx;
+  margin-right: var(--uwo-space-3);
+  border-radius: var(--uwo-radius-control);
 }
 
 .candidate-row__status {
   max-width: 180rpx;
-  margin-left: 10rpx;
+  margin-left: var(--uwo-space-2);
   color: var(--uwo-color-accent-text);
   font-size: var(--uwo-font-size-minimum-action);
   overflow-wrap: anywhere;
@@ -521,38 +521,38 @@
 }
 
 .ban-list__content {
-  gap: 10rpx;
+  gap: var(--uwo-space-2);
   min-width: max-content;
 }
 
 .ban-chip {
   display: flex;
   align-items: center;
-  padding: 7rpx 9rpx;
-  background: #d4cbb4;
-  border-radius: 7rpx;
+  padding: var(--uwo-space-2);
+  background: var(--uwo-color-surface-muted);
+  border-radius: var(--uwo-radius-control);
 }
 
 .ban-chip__portrait {
-  margin-right: 6rpx;
+  margin-right: var(--uwo-space-1);
 }
 
 .ban-chip__name,
 .ban-chip__remove {
-  font-size: 19rpx;
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 .ban-chip__remove {
-  margin-left: 7rpx;
+  margin-left: var(--uwo-space-2);
 }
 
 .summary-row {
   display: grid;
   grid-template-columns: 42rpx minmax(0, 1fr) auto;
-  gap: 6rpx 8rpx;
+  gap: var(--uwo-space-2);
   align-items: center;
-  padding: 7rpx 0;
-  border-bottom: 1rpx solid #d4cbb4;
+  padding: var(--uwo-space-2) 0;
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
 .summary-row__icon {
@@ -572,33 +572,33 @@
 .contributor-avatar {
   width: 48rpx;
   height: 48rpx;
-  margin-right: 6rpx;
+  margin-right: var(--uwo-space-1);
 }
 
 .contributors-empty {
-  color: #9b8b6d;
-  font-size: 20rpx;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 .overview-row {
-  padding: 11rpx 0;
+  padding: var(--uwo-space-3) 0;
 }
 
 .overview-row__name {
   width: 120rpx;
-  font-size: 23rpx;
+  font-size: var(--uwo-font-size-body);
   font-weight: 700;
 }
 
 .overview-row__count {
   width: 110rpx;
-  color: #756b59;
-  font-size: 21rpx;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 .overview-row__status {
-  color: #596257;
-  font-size: 20rpx;
+  color: var(--uwo-color-success);
+  font-size: var(--uwo-font-size-supporting);
 }
 
 .ban-panel,
