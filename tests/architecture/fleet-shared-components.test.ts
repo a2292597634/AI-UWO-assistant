@@ -609,7 +609,7 @@ describe('Task 4 技能選擇共享元件契約', () => {
     const wxss = readSkillPickerFile('index.wxss')
 
     expect(wxss).toMatch(
-      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*min-height:\s*56rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-3\)/,
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-2\)/,
     )
     expect(wxss).toMatch(
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__icon(?:,|\s*\{)[\s\S]*width:\s*40rpx[\s\S]*height:\s*40rpx/,
@@ -618,7 +618,13 @@ describe('Task 4 技能選擇共享元件契約', () => {
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__detail\s*\{[\s\S]*min-height:\s*64rpx/,
     )
     expect(wxss).toMatch(
-      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__select\s*\{[\s\S]*min-height:\s*64rpx/,
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__select\s*\{[\s\S]*min-height:\s*56rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tabs-content\s*\{[\s\S]*gap:\s*var\(--uwo-space-1\)/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet__tabs-content\s*\{[\s\S]*gap:\s*var\(--uwo-space-2\)/,
     )
   })
 })

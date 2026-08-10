@@ -23,8 +23,8 @@
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__tab {
-  min-height: 56rpx;
-  padding: 0 var(--uwo-space-3);
+  min-height: 48rpx;
+  padding: 0 var(--uwo-space-2);
   white-space: nowrap;
 }
 
@@ -43,7 +43,7 @@
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__select {
-  min-height: 64rpx;
+  min-height: 56rpx;
   padding: 0 var(--uwo-space-2);
 }
 
@@ -123,6 +123,10 @@
   display: flex;
   align-items: stretch;
   gap: var(--uwo-space-2);
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__tabs-content {
+  gap: var(--uwo-space-1);
 }
 
 .skill-picker-sheet__tab {

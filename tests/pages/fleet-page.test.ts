@@ -398,6 +398,10 @@ const fleetWxss = fs.readFileSync(
   path.resolve(__dirname, '../../miniprogram/pages/fleet/index.wxss'),
   'utf8',
 )
+const skillPickerWxss = fs.readFileSync(
+  path.resolve(__dirname, '../../miniprogram/components/skill-picker-sheet/index.wxss'),
+  'utf8',
+)
 const resultPreviewWxml = fs.readFileSync(
   path.resolve(__dirname, '../../miniprogram/components/result-preview-sheet/index.wxml'),
   'utf8',
@@ -640,15 +644,21 @@ describe('battle fleet proposal preview layout', () => {
 })
 
 describe('battle fleet target controls', () => {
-  it('uses guarded recalculation and full-size target controls', () => {
+  it('uses guarded recalculation and compact target controls', () => {
     expect(fleetWxml).toContain('disabled="{{!canRecalculate}}"')
     expect(fleetWxml).toContain('請先設定至少一個有效的戰鬥技能目標')
     expect(fleetWxml).toMatch(
       /<button class="ui-button ui-button--secondary target-row__remove"[^>]*bindtap="onRemoveTarget"[^>]*>刪除目標<\/button>/,
     )
-    expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*88rpx/)
-    expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*88rpx/)
-    expect(fleetWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*64rpx/)
+    expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
+    expect(fleetWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*56rpx/)
+    expect(skillPickerWxss).toMatch(
+      /\.skill-picker-sheet--inline \.skill-picker-sheet__tab\s*\{[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0 var\(--uwo-space-2\);/,
+    )
+    expect(skillPickerWxss).toMatch(
+      /\.skill-picker-sheet--inline \.skill-picker-sheet__select\s*\{[\s\S]*min-height:\s*56rpx/,
+    )
   })
 })
 

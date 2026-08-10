@@ -306,9 +306,9 @@
 
 .target-row {
   display: flex;
-  min-height: 88rpx;
+  min-height: 64rpx;
   align-items: center;
-  padding: var(--uwo-space-3) 0;
+  padding: var(--uwo-space-2) 0;
   border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
@@ -335,10 +335,10 @@
 
 .level-input {
   box-sizing: border-box;
-  width: 88rpx;
-  min-height: 88rpx;
-  margin: 0 var(--uwo-space-2);
-  padding: var(--uwo-space-2);
+  width: 64rpx;
+  min-height: 56rpx;
+  margin: 0 var(--uwo-space-1);
+  padding: var(--uwo-space-1);
   color: var(--uwo-color-surface);
   background: var(--uwo-color-success);
   border: 0;
@@ -349,11 +349,11 @@
 
 .target-row__remove {
   display: flex;
-  min-height: 88rpx;
+  min-height: 56rpx;
   flex: 0 0 auto;
   align-items: center;
   margin: 0;
-  padding: 0 var(--uwo-space-2);
+  padding: 0 var(--uwo-space-1);
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-minimum-action);
   overflow-wrap: anywhere;

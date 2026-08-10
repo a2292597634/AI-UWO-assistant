@@ -427,13 +427,19 @@ describe('adventure fleet shared component wiring', () => {
 
   it('使用 Token 上下文與可讀操作文字', () => {
     expect(adventureWxss).toMatch(/\.fleet-context\s*\{[\s\S]*var\(--uwo-/)
-    expect(adventureWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*88rpx/)
-    expect(adventureWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*88rpx/)
-    expect(adventureWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(adventureWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*64rpx/)
+    expect(adventureWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
+    expect(adventureWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*56rpx/)
     expect(adventureWxss).toMatch(/\.candidate-row\s*\{[\s\S]*min-height:\s*88rpx/)
     expect(adventureWxss).toContain('overflow-wrap: anywhere')
     expect(adventureWxss).not.toMatch(/\.candidate-row--disabled\s*\{[\s\S]*opacity\s*:/)
     expect(adventureWxml).not.toContain('candidate-row--disabled')
+  })
+
+  it('移除追蹤目標內重複的狀態文字', () => {
+    expect(adventureWxml).not.toContain('class="tracking-row__state"')
+    expect(adventureWxml).not.toContain('技能追蹤 · 不參與計算')
+    expect(adventureWxml).toContain('hint="Lv.0 僅供查看，不參與計算"')
   })
 
   it('uses real buttons for target deletion and standard target actions', () => {
