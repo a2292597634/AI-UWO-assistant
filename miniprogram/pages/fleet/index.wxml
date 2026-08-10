@@ -176,12 +176,13 @@
             <text class="target-row__name">{{item.configured ? item.skillName : '選擇戰鬥技能'}}</text>
           </view>
           <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" data-id="{{item.id}}" />
-          <text class="target-row__remove" bindtap="onRemoveTarget" data-id="{{item.id}}">刪除目標</text>
+          <button class="ui-button ui-button--secondary target-row__remove" bindtap="onRemoveTarget" data-id="{{item.id}}">刪除目標</button>
         </view>
         <view class="target-actions">
-          <button class="subtle-button" bindtap="onAddTarget">新增目標</button>
-          <button class="primary-button" bindtap="onRecalculate">重新計算</button>
+          <button class="ui-button ui-button--secondary" bindtap="onAddTarget">新增目標</button>
+          <button class="ui-button ui-button--primary" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>
         </view>
+        <text wx:if="{{!canRecalculate}}" class="target-panel__notice">請先設定至少一個有效的戰鬥技能目標</text>
       </view>
 
       <result-preview-sheet

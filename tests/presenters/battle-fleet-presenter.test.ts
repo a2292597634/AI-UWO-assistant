@@ -116,6 +116,36 @@ const stateWithCurrentShip = (): FleetState => {
 }
 
 describe('battle fleet presenter', () => {
+  it('only allows recalculation when at least one target has a skill', () => {
+    const emptyTargetState = updateShipTargets(createFleetState(), 'ship-1', [
+      { id: 'target-empty', skillId: null, targetLevel: 1 },
+    ]).state
+    const emptyTargetView = buildBattleFleetPageData(
+      emptyTargetState,
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+    )
+
+    expect(emptyTargetView.canRecalculate).toBe(false)
+
+    const configuredTargetState = updateShipTargets(emptyTargetState, 'ship-1', [
+      { id: 'target-empty', skillId: 'skill-main', targetLevel: 1 },
+    ]).state
+    const configuredTargetView = buildBattleFleetPageData(
+      configuredTargetState,
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+    )
+
+    expect(configuredTargetView.canRecalculate).toBe(true)
+  })
+
   it('projects contributors as portrait-ready rows and preserves zero target rows', () => {
     const view = buildBattleFleetPageData(
       stateWithCurrentShip(),

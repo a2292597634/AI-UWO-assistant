@@ -142,7 +142,7 @@
           </view>
           <view class="target-row__right">
             <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" catchtap="onNoop" data-id="{{item.id}}" />
-            <text class="target-row__remove" catchtap="onRemoveTarget" data-id="{{item.id}}">刪除目標</text>
+            <button class="ui-button ui-button--secondary target-row__remove" catchtap="onRemoveTarget" data-id="{{item.id}}">刪除目標</button>
           </view>
         </view>
         <empty-state
@@ -151,8 +151,8 @@
           description="新增技能後即可設定 Lv.1 以上的自動配隊目標"
         />
         <view class="target-actions">
-          <button class="subtle-button" bindtap="onAddTarget">新增目標</button>
-          <button class="primary-button" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>
+          <button class="ui-button ui-button--secondary" bindtap="onAddTarget">新增目標</button>
+          <button class="ui-button ui-button--primary" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>
         </view>
         <text wx:if="{{!canRecalculate}}" class="target-panel__notice">請先設定至少一個 Lv.1 以上的優化目標</text>
       </view>
@@ -172,7 +172,7 @@
           </view>
           <view class="tracking-row__right">
             <input class="level-input" type="number" maxlength="2" value="{{item.targetLevel}}" bindblur="onTargetLevelBlur" catchtap="onNoop" data-id="{{item.id}}" />
-            <text class="target-row__remove" catchtap="onRemoveTarget" data-id="{{item.id}}">刪除追蹤</text>
+            <button class="ui-button ui-button--secondary target-row__remove" catchtap="onRemoveTarget" data-id="{{item.id}}">刪除追蹤</button>
           </view>
         </view>
         <empty-state

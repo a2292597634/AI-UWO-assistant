@@ -108,6 +108,7 @@ export interface BattleFleetPageData {
   skillKinds: Array<{ id: BattleSkillFilter['kind']; name: string }>
   skillCategories: BattleFleetCategoryView[]
   targets: BattleFleetTargetView[]
+  canRecalculate: boolean
   bannedOfficers: BattleFleetOfficerView[]
   currentShipExcludedOfficers?: BattleFleetExcludedOfficerView[]
   skillSummary: BattleFleetSkillSummaryView[]
@@ -328,6 +329,7 @@ export const buildBattleFleetPageData = (
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
     targets: targetViews,
+    canRecalculate: targetViews.some((target) => target.skillId !== null),
     bannedOfficers,
     currentShipExcludedOfficers,
     skillSummary: buildSummaryViews(currentSummary, officers),

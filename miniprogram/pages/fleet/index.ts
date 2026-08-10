@@ -164,6 +164,7 @@ const emptyPageData: FleetPageData = {
   ],
   skillCategories: [],
   targets: [],
+  canRecalculate: false,
   bannedOfficers: [],
   skillSummary: [],
   manualKind: 'all',
@@ -1055,6 +1056,10 @@ Page({
   onRecalculate() {
     const state = getState(this)
     const current = state.fleet.ships.find((ship) => ship.id === state.currentShipId)!
+    if (!current.targets.some((target) => target.skillId !== null)) {
+      showError('請先設定至少一個有效的戰鬥技能目標')
+      return
+    }
     const otherShipOfficerIds = state.fleet.ships
       .filter((ship) => ship.id !== current.id)
       .flatMap((ship) => ship.officerIds)

@@ -325,22 +325,24 @@
 .level-input {
   box-sizing: border-box;
   width: 84rpx;
-  min-height: 56rpx;
+  min-height: 88rpx;
   padding: var(--uwo-space-2);
   color: var(--uwo-color-surface);
   background: var(--uwo-color-success);
   border: 0;
   border-radius: var(--uwo-radius-control);
-  font-size: var(--uwo-font-size-supporting);
+  font-size: var(--uwo-font-size-body);
   text-align: center;
 }
 
 .target-row__remove {
   display: flex;
   min-height: 88rpx;
+  flex: 0 0 auto;
   align-items: center;
+  margin: 0;
   padding: 0 var(--uwo-space-2);
-  color: var(--uwo-color-danger);
+  color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-minimum-action);
   overflow-wrap: anywhere;
   white-space: normal;
@@ -352,33 +354,16 @@
   margin-top: var(--uwo-space-3);
 }
 
-button.subtle-button,
-button.primary-button {
+.target-actions .ui-button {
+  min-width: 0;
+  flex: 1;
   min-height: 88rpx;
   height: auto;
   margin: 0;
-  padding: var(--uwo-space-3) var(--uwo-space-8);
+  padding: var(--uwo-space-3) var(--uwo-space-4);
   line-height: 1.3;
   font-size: var(--uwo-font-size-body);
   overflow-wrap: anywhere;
-}
-
-button.subtle-button {
-  color: var(--uwo-color-text-primary);
-  background: var(--uwo-color-surface);
-  border: 1rpx solid var(--uwo-color-border-strong);
-}
-
-button.primary-button {
-  color: var(--uwo-color-surface);
-  background: var(--uwo-color-ink);
-  border: 1rpx solid var(--uwo-color-ink);
-}
-
-button.primary-button[disabled] {
-  color: var(--uwo-color-text-secondary);
-  background: var(--uwo-color-surface-muted);
-  border-color: var(--uwo-color-border-subtle);
 }
 
 .target-panel__notice {

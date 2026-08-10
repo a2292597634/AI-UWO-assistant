@@ -8,6 +8,7 @@ interface FleetTestData {
   mode: string
   currentShip: { slots: unknown[] }
   targets: unknown[]
+  canRecalculate: boolean
   fleetOverview: unknown[]
   assetLoading: boolean
   assetLoadError: string | null
@@ -423,6 +424,35 @@ describe('fleet slot action touch targets', () => {
   })
 })
 
+describe('battle fleet target safety', () => {
+  it('blocks recalculation when every target is missing a skill', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+    page.onAddTarget()
+
+    expect(page.data.canRecalculate).toBe(false)
+
+    page.onRecalculate()
+
+    expect(page.data.proposalPreview).toBeNull()
+    expect(wxStub.showToast).toHaveBeenCalledWith({
+      title: '請先設定至少一個有效的戰鬥技能目標',
+      icon: 'none',
+    })
+  })
+
+  it('enables recalculation after a target skill is selected', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill-cannon' } } } as never)
+
+    expect(page.data.canRecalculate).toBe(true)
+  })
+})
+
 describe('battle fleet shared component wiring', () => {
   it('registers and renders all seven shared components', () => {
     for (const name of sharedComponentNames) {
@@ -497,6 +527,19 @@ describe('battle fleet proposal preview layout', () => {
     expect(fleetWxml).toContain('onUndoProposal')
     expect(fleetWxml).toContain('<result-preview-sheet')
     expect(fleetWxml).toContain('can-undo="{{canUndoProposal}}"')
+  })
+})
+
+describe('battle fleet target controls', () => {
+  it('uses guarded recalculation and full-size target controls', () => {
+    expect(fleetWxml).toContain('disabled="{{!canRecalculate}}"')
+    expect(fleetWxml).toContain('請先設定至少一個有效的戰鬥技能目標')
+    expect(fleetWxml).toMatch(
+      /<button class="ui-button ui-button--secondary target-row__remove"[^>]*bindtap="onRemoveTarget"[^>]*>刪除目標<\/button>/,
+    )
+    expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(fleetWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*88rpx/)
   })
 })
 
