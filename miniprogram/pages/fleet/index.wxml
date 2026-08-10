@@ -177,15 +177,6 @@
         <text wx:if="{{!canRecalculate}}" class="target-panel__notice">請先設定至少一個有效的戰鬥技能目標</text>
       </view>
 
-      <result-preview-sheet
-        visible="{{proposalPreview !== null}}"
-        preview="{{proposalPreview}}"
-        can-undo="{{canUndoProposal}}"
-        bind:cancel="onProposalCancel"
-        bind:apply="onProposalApply"
-        bind:undo="onUndoProposal"
-      />
-
       <skill-picker-sheet
         presentation="inline"
         visible="{{true}}"
@@ -333,6 +324,15 @@
       </disclosure-section>
     </view>
    </scroll-view>
+
+   <result-preview-sheet
+     visible="{{proposalPreview !== null}}"
+     preview="{{proposalPreview}}"
+     can-undo="{{canUndoProposal}}"
+     bind:cancel="onProposalCancel"
+     bind:apply="onProposalApply"
+     bind:undo="onUndoProposal"
+   />
 
    <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
 </view>

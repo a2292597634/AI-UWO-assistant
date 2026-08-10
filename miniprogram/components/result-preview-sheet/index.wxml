@@ -9,53 +9,55 @@
       <button class="result-preview-sheet__close" bindtap="onCancel" aria-label="取消方案預覽">取消</button>
     </view>
 
-    <view class="result-preview-sheet__summary">
-      <text class="result-preview-sheet__summary-label">目標達成</text>
-      <text class="result-preview-sheet__summary-value">{{preview.achievedTargetCount}} / {{preview.targetCount}}</text>
-    </view>
+    <scroll-view class="result-preview-sheet__content" scroll-y>
+      <view class="result-preview-sheet__summary">
+        <text class="result-preview-sheet__summary-label">目標達成</text>
+        <text class="result-preview-sheet__summary-value">{{preview.achievedTargetCount}} / {{preview.targetCount}}</text>
+      </view>
 
-    <view class="result-preview-sheet__target-list">
-      <view wx:for="{{preview.targetDiffs}}" wx:key="skillId" class="result-preview-sheet__target-row">
-        <text class="result-preview-sheet__target-name">{{item.skillName}}</text>
-        <text class="result-preview-sheet__target-level">目前 Lv.{{item.currentLevel}} → 預期 Lv.{{item.proposedLevel}} · 目標 Lv.{{item.targetLevel}}</text>
-        <view class="result-preview-sheet__target-state ui-status {{item.reached ? 'ui-status--achieved' : 'ui-status--unmet'}}">
-          <text class="ui-status__label">{{item.reached ? '已達成' : '差 Lv.' + item.difference}}</text>
+      <view class="result-preview-sheet__target-list">
+        <view wx:for="{{preview.targetDiffs}}" wx:key="skillId" class="result-preview-sheet__target-row">
+          <text class="result-preview-sheet__target-name">{{item.skillName}}</text>
+          <text class="result-preview-sheet__target-level">目前 Lv.{{item.currentLevel}} → 預期 Lv.{{item.proposedLevel}} · 目標 Lv.{{item.targetLevel}}</text>
+          <view class="result-preview-sheet__target-state ui-status {{item.reached ? 'ui-status--achieved' : 'ui-status--unmet'}}">
+            <text class="ui-status__label">{{item.reached ? '已達成' : '差 Lv.' + item.difference}}</text>
+          </view>
         </view>
       </view>
-    </view>
 
-    <view class="result-preview-sheet__member-count">
-      <text>保留 {{preview.keptOfficers.length}} 人</text>
-      <text>新增 {{preview.addedOfficers.length}} 人</text>
-      <text>移除 {{preview.removedOfficers.length}} 人</text>
-    </view>
-
-    <view class="result-preview-sheet__members">
-      <view class="result-preview-sheet__member-group">
-        <text class="result-preview-sheet__group-title">保留</text>
-        <text wx:for="{{preview.keptOfficers}}" wx:key="id" class="result-preview-sheet__member">{{item.name}}</text>
+      <view class="result-preview-sheet__member-count">
+        <text>保留 {{preview.keptOfficers.length}} 人</text>
+        <text>新增 {{preview.addedOfficers.length}} 人</text>
+        <text>移除 {{preview.removedOfficers.length}} 人</text>
       </view>
-      <view class="result-preview-sheet__member-group">
-        <text class="result-preview-sheet__group-title">新增</text>
-        <text wx:for="{{preview.addedOfficers}}" wx:key="id" class="result-preview-sheet__member result-preview-sheet__member--added">{{item.name}}</text>
+
+      <view class="result-preview-sheet__members">
+        <view class="result-preview-sheet__member-group">
+          <text class="result-preview-sheet__group-title">保留</text>
+          <text wx:for="{{preview.keptOfficers}}" wx:key="id" class="result-preview-sheet__member">{{item.name}}</text>
+        </view>
+        <view class="result-preview-sheet__member-group">
+          <text class="result-preview-sheet__group-title">新增</text>
+          <text wx:for="{{preview.addedOfficers}}" wx:key="id" class="result-preview-sheet__member result-preview-sheet__member--added">{{item.name}}</text>
+        </view>
+        <view class="result-preview-sheet__member-group">
+          <text class="result-preview-sheet__group-title">移除</text>
+          <text wx:for="{{preview.removedOfficers}}" wx:key="id" class="result-preview-sheet__member result-preview-sheet__member--removed">{{item.name}}</text>
+        </view>
       </view>
-      <view class="result-preview-sheet__member-group">
-        <text class="result-preview-sheet__group-title">移除</text>
-        <text wx:for="{{preview.removedOfficers}}" wx:key="id" class="result-preview-sheet__member result-preview-sheet__member--removed">{{item.name}}</text>
+
+      <view class="result-preview-sheet__locked">
+        <text class="result-preview-sheet__group-title">鎖定成員：{{preview.lockedAllRetained ? '全部保留' : '有成員未保留'}}</text>
+        <text wx:for="{{preview.lockedOfficers}}" wx:key="id" class="result-preview-sheet__member">{{item.name}} · {{item.retained ? '保留' : '未保留'}}</text>
       </view>
-    </view>
 
-    <view class="result-preview-sheet__locked">
-      <text class="result-preview-sheet__group-title">鎖定成員：{{preview.lockedAllRetained ? '全部保留' : '有成員未保留'}}</text>
-      <text wx:for="{{preview.lockedOfficers}}" wx:key="id" class="result-preview-sheet__member">{{item.name}} · {{item.retained ? '保留' : '未保留'}}</text>
-    </view>
+      <view wx:if="{{preview.constraints.length > 0}}" class="result-preview-sheet__constraints">
+        <text class="result-preview-sheet__group-title">約束與提示</text>
+        <text wx:for="{{preview.constraints}}" wx:key="code" class="result-preview-sheet__constraint">{{item.message}}</text>
+      </view>
 
-    <view wx:if="{{preview.constraints.length > 0}}" class="result-preview-sheet__constraints">
-      <text class="result-preview-sheet__group-title">約束與提示</text>
-      <text wx:for="{{preview.constraints}}" wx:key="code" class="result-preview-sheet__constraint">{{item.message}}</text>
-    </view>
-
-    <text wx:if="{{!preview.canApply}}" class="result-preview-sheet__disabled-reason">方案目前不可應用，請查看約束與提示。</text>
+      <text wx:if="{{!preview.canApply}}" class="result-preview-sheet__disabled-reason">方案目前不可應用，請查看約束與提示。</text>
+    </scroll-view>
 
     <view class="result-preview-sheet__actions">
       <button class="ui-button ui-button--secondary result-preview-sheet__action" bindtap="onCancel">取消</button>

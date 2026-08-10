@@ -270,6 +270,21 @@ describe('adventure fleet page layout hooks', () => {
   })
 })
 
+describe('adventure fleet preview layout', () => {
+  it('keeps the adventure preview outside the main fleet scroll container', () => {
+    const fleetScrollEnd = adventureWxml.lastIndexOf('</scroll-view>')
+    const previewIndex = adventureWxml.indexOf('<result-preview-sheet')
+
+    expect(previewIndex).toBeGreaterThan(fleetScrollEnd)
+    expect(
+      adventureWxml.slice(
+        adventureWxml.indexOf('<scroll-view class="fleet-scroll"'),
+        fleetScrollEnd,
+      ),
+    ).not.toContain('<result-preview-sheet')
+  })
+})
+
 describe('adventure fleet shared component wiring', () => {
   it('registers and renders all seven shared components', () => {
     for (const name of sharedComponentNames) {

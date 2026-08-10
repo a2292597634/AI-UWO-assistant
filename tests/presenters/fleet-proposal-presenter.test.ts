@@ -92,4 +92,41 @@ describe('fleet proposal presenter', () => {
     expect(preview.removedOfficers.map((item) => item.id)).toEqual(['officer-old'])
     expect(preview.lockedAllRetained).toBe(true)
   })
+
+  it('preserves every target difference for a long preview list', () => {
+    const targetProgress = Array.from({ length: 24 }, (_, index) => ({
+      skillId: `skill-${index}`,
+      targetLevel: index + 1,
+      currentLevel: index,
+      difference: 1,
+      reached: false,
+    }))
+    const proposal = createFleetProposal({
+      source: 'battle',
+      shipId: 'ship-1',
+      baseStateFingerprint: fleetStateFingerprint(createFleetState()),
+      officerIds: [],
+      beforeTargetLevels: Object.fromEntries(
+        targetProgress.map((item) => [item.skillId, item.currentLevel]),
+      ),
+      targetProgress,
+      achievedTargetCount: 0,
+      allTargetsComplete: false,
+      overageTotal: 0,
+      constraints: [],
+      canApply: true,
+    })
+
+    const preview = buildFleetProposalPreview(createFleetState(), proposal, officers, skills)
+
+    expect(preview.targetDiffs).toHaveLength(24)
+    expect(preview.targetDiffs[23]).toEqual(
+      expect.objectContaining({
+        skillId: 'skill-23',
+        currentLevel: 23,
+        proposedLevel: 23,
+        targetLevel: 24,
+      }),
+    )
+  })
 })

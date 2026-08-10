@@ -381,6 +381,14 @@ const fleetWxss = fs.readFileSync(
   path.resolve(__dirname, '../../miniprogram/pages/fleet/index.wxss'),
   'utf8',
 )
+const resultPreviewWxml = fs.readFileSync(
+  path.resolve(__dirname, '../../miniprogram/components/result-preview-sheet/index.wxml'),
+  'utf8',
+)
+const resultPreviewWxss = fs.readFileSync(
+  path.resolve(__dirname, '../../miniprogram/components/result-preview-sheet/index.wxss'),
+  'utf8',
+)
 const fleetJson = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../../miniprogram/pages/fleet/index.json'), 'utf8'),
 ) as { usingComponents?: Record<string, string> }
@@ -543,6 +551,29 @@ describe('battle fleet proposal preview layout', () => {
     expect(fleetWxml).toContain('onUndoProposal')
     expect(fleetWxml).toContain('<result-preview-sheet')
     expect(fleetWxml).toContain('can-undo="{{canUndoProposal}}"')
+  })
+
+  it('mounts the battle preview outside the main fleet scroll container', () => {
+    const fleetScrollStart = fleetWxml.indexOf('<scroll-view class="fleet-scroll"')
+    const fleetScrollEnd = fleetWxml.lastIndexOf('</scroll-view>')
+    const previewIndex = fleetWxml.indexOf('<result-preview-sheet')
+
+    expect(fleetScrollStart).toBeGreaterThanOrEqual(0)
+    expect(previewIndex).toBeGreaterThan(fleetScrollEnd)
+    expect(fleetWxml.slice(fleetScrollStart, fleetScrollEnd)).not.toContain('<result-preview-sheet')
+  })
+
+  it('keeps long preview content in an independent scroll area with a fixed action footer', () => {
+    expect(resultPreviewWxml).toMatch(
+      /<view class="result-preview-sheet__header">[\s\S]*<scroll-view class="result-preview-sheet__content" scroll-y>[\s\S]*<view class="result-preview-sheet__actions">/,
+    )
+    expect(resultPreviewWxss).toMatch(
+      /\.result-preview-sheet\s*\{[\s\S]*overflow:\s*hidden[\s\S]*\}/,
+    )
+    expect(resultPreviewWxss).toMatch(
+      /\.result-preview-sheet__content\s*\{[\s\S]*flex:\s*1[\s\S]*\}/,
+    )
+    expect(resultPreviewWxss).toContain('env(safe-area-inset-bottom)')
   })
 })
 
