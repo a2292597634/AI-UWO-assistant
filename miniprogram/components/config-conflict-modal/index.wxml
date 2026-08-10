@@ -1,0 +1,16 @@
+<block wx:if="{{visible}}">
+  <view class="config-conflict-modal__mask" bindtap="onCancel"></view>
+  <view class="config-conflict-modal__dialog" catchtap="onNoop" role="dialog" aria-label="配置衝突">
+    <view class="config-conflict-modal__header">
+      <text class="config-conflict-modal__title">配置衝突</text>
+    </view>
+    <view class="config-conflict-modal__body">
+      <text class="config-conflict-modal__text">雲端配置已被其他裝置更新，請選擇如何處理。</text>
+    </view>
+    <view class="config-conflict-modal__actions">
+      <button class="ui-button ui-button--secondary config-conflict-modal__button" bindtap="onCancel">取消</button>
+      <button class="ui-button ui-button--secondary config-conflict-modal__button" bindtap="onReload">重新載入</button>
+      <button class="ui-button ui-button--danger config-conflict-modal__button" bindtap="onForce">覆蓋雲端</button>
+    </view>
+  </view>
+</block>

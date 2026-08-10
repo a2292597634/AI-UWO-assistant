@@ -92,6 +92,7 @@ interface FleetPageConfig {
   onConfigSaveAs(): Promise<void>
   onConfigRename(): void
   onConfigDelete(): void
+  onConfigExit(): void
   onConfigNameInput(event: WechatMiniprogram.Input): void
   onConfigModalConfirm(): Promise<void>
   onConfigModalCancel(): void
@@ -411,6 +412,9 @@ const fleetJson = JSON.parse(
 
 const sharedComponentNames = [
   'config-bar',
+  'config-list-modal',
+  'config-name-modal',
+  'config-conflict-modal',
   'mode-tabs',
   'officer-action-sheet',
   'skill-picker-sheet',
@@ -523,6 +527,12 @@ describe('battle fleet shared component wiring', () => {
 
   it('keeps the existing page handlers while removing duplicated shared markup', () => {
     expect(fleetWxml).toContain('bind:info-tap="onConfigListOpen"')
+    expect(fleetWxml).toContain('bind:exit="onConfigExit"')
+    expect(fleetWxml).toContain('<config-list-modal')
+    expect(fleetWxml).toContain('<config-name-modal')
+    expect(fleetWxml).toContain('<config-conflict-modal')
+    expect(fleetWxml).not.toContain('class="config-item')
+    expect(fleetWxml).not.toContain('class="config-modal__input"')
     expect(fleetWxml).toContain('bind:change="onModeTap"')
     expect(fleetWxml).toContain('bind:kind-change="onSkillKindTap"')
     expect(fleetWxml).toContain('bind:category-change="onSkillCategoryTap"')

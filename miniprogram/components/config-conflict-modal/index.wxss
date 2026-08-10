@@ -1,0 +1,56 @@
+.config-conflict-modal__mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 212;
+  background: var(--uwo-color-ink);
+  opacity: 0.36;
+}
+
+.config-conflict-modal__dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 213;
+  width: 640rpx;
+  max-width: calc(100vw - var(--uwo-space-8));
+  transform: translate(-50%, -50%);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  box-shadow: var(--uwo-shadow-elevated);
+}
+
+.config-conflict-modal__header {
+  padding: var(--uwo-space-4) var(--uwo-space-4) var(--uwo-space-3);
+}
+
+.config-conflict-modal__title {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-section-title);
+  font-weight: 700;
+}
+
+.config-conflict-modal__body {
+  padding: 0 var(--uwo-space-4) var(--uwo-space-4);
+}
+
+.config-conflict-modal__text {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-body);
+  line-height: 1.6;
+}
+
+.config-conflict-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uwo-space-2);
+  padding: 0 var(--uwo-space-4) calc(var(--uwo-space-4) + env(safe-area-inset-bottom));
+}
+
+.config-conflict-modal__button {
+  width: 100%;
+  min-height: 88rpx;
+}

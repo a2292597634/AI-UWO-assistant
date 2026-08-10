@@ -1,0 +1,23 @@
+<block wx:if="{{visible}}">
+  <view class="config-name-modal__mask" bindtap="onCancel"></view>
+  <view class="config-name-modal__dialog" catchtap="onNoop" role="dialog" aria-label="{{title}}">
+    <view class="config-name-modal__header">
+      <text class="config-name-modal__title">{{title}}</text>
+    </view>
+    <view class="config-name-modal__body">
+      <input
+        class="config-name-modal__input"
+        value="{{value}}"
+        maxlength="30"
+        confirm-type="done"
+        placeholder="請輸入配置名稱"
+        bindinput="onInput"
+        bindconfirm="onConfirm"
+      />
+    </view>
+    <view class="config-name-modal__actions">
+      <button class="ui-button ui-button--secondary config-name-modal__button" bindtap="onCancel">取消</button>
+      <button class="ui-button ui-button--primary config-name-modal__button" bindtap="onConfirm">確認</button>
+    </view>
+  </view>
+</block>

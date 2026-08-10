@@ -5,6 +5,9 @@
   "backgroundColor": "#ded7c7",
   "usingComponents": {
     "config-bar": "../../components/config-bar/index",
+    "config-list-modal": "../../components/config-list-modal/index",
+    "config-name-modal": "../../components/config-name-modal/index",
+    "config-conflict-modal": "../../components/config-conflict-modal/index",
     "mode-tabs": "../../components/mode-tabs/index",
     "officer-action-sheet": "../../components/officer-action-sheet/index",
     "skill-picker-sheet": "../../components/skill-picker-sheet/index",

@@ -1,0 +1,61 @@
+.config-name-modal__mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 210;
+  background: var(--uwo-color-ink);
+  opacity: 0.36;
+}
+
+.config-name-modal__dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 211;
+  width: 640rpx;
+  max-width: calc(100vw - var(--uwo-space-8));
+  transform: translate(-50%, -50%);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  box-shadow: var(--uwo-shadow-elevated);
+}
+
+.config-name-modal__header {
+  padding: var(--uwo-space-4) var(--uwo-space-4) var(--uwo-space-3);
+}
+
+.config-name-modal__title {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-section-title);
+  font-weight: 700;
+}
+
+.config-name-modal__body {
+  padding: 0 var(--uwo-space-4) var(--uwo-space-4);
+}
+
+.config-name-modal__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 88rpx;
+  padding: 0 var(--uwo-space-3);
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-body);
+  background: var(--uwo-color-surface-muted);
+  border: 2rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-control);
+}
+
+.config-name-modal__actions {
+  display: flex;
+  gap: var(--uwo-space-3);
+  padding: 0 var(--uwo-space-4) calc(var(--uwo-space-4) + env(safe-area-inset-bottom));
+}
+
+.config-name-modal__button {
+  flex: 1;
+  min-height: 88rpx;
+}

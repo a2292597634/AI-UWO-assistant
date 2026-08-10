@@ -27,6 +27,17 @@ import { getCatalog, getSkills } from '../../runtime/main-data-store'
 import { buildAdventureFleetPageData } from '../../presenters/adventure-fleet-presenter'
 import { buildFleetProposalPreview } from '../../presenters/fleet-proposal-presenter'
 import { buildSkillSheet } from '../../presenters/skill-sheet'
+import {
+  buildConfigModalData,
+  DEFAULT_CONFIG_NAME,
+  deriveConfigStatus,
+  resolveConfigAction,
+  validateConfigName,
+} from '../../presenters/config-management-presenter'
+import type {
+  ConfigModalAction,
+  PendingConfigAction,
+} from '../../presenters/config-management-presenter'
 import { serializeFleetState } from '../../contracts/fleet-config'
 import { getFleetConfigService, FleetConfigError } from '../../runtime/fleet-config-service'
 import type { FleetConfigService } from '../../runtime/fleet-config-service'
@@ -37,10 +48,6 @@ import type { AdventureFleetPageData } from '../../presenters/adventure-fleet-pr
 import type { FleetProposal } from '../../contracts/fleet-proposal'
 import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../presenters/skill-sheet'
-
-// ── 配置操作类型 ──
-
-type ConfigModalAction = 'save' | 'saveAs' | 'rename' | 'none'
 
 interface OfficerActionSheetData {
   visible: boolean
@@ -53,12 +60,6 @@ interface OfficerActionSheetData {
   lockDisabledReason: string
   removeDisabledReason: string
   banDisabledReason: string
-}
-
-interface PendingConfigAction {
-  type: 'load' | 'new' | 'saveAs' | 'rename' | 'delete' | 'exit'
-  targetConfigId?: string
-  targetName?: string
 }
 
 // ── 页面数据 ──
@@ -212,7 +213,7 @@ const emptyPageData: FleetPageData = {
   manualSkillHasMore: false,
   showTargetPicker: false,
   authStatus: 'guest',
-  configName: '未命名配置',
+  configName: DEFAULT_CONFIG_NAME,
   configStatus: 'new',
   activeConfigId: null,
   configList: [],
@@ -260,13 +261,7 @@ const computeDirty = (state: FleetPageState): boolean => {
 const updateDirty = (page: FleetPageLike, state: FleetPageState): void => {
   const isDirty = computeDirty(state)
   state.isDirty = isDirty
-  if (isDirty) {
-    page.setData({ configStatus: 'unsaved' })
-  } else if (state.activeConfigId) {
-    page.setData({ configStatus: 'saved' })
-  } else {
-    page.setData({ configStatus: 'new' })
-  }
+  page.setData({ configStatus: deriveConfigStatus(isDirty, state.activeConfigId ?? '') })
 }
 
 const markClean = (page: FleetPageLike, state: FleetPageState): void => {
@@ -319,7 +314,7 @@ const render = (page: FleetPageLike): void => {
         )
       : null,
     canUndoProposal: state.undoFleetState !== null,
-    configStatus: state.isDirty ? 'unsaved' : state.activeConfigId ? 'saved' : 'new',
+    configStatus: deriveConfigStatus(state.isDirty, state.activeConfigId ?? ''),
   })
 }
 
@@ -398,17 +393,13 @@ const resolvePendingAction = (page: FleetPageLike): void => {
 
 const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingConfigAction): void => {
   const state = getState(page)
-  if (!state.isDirty) {
-    state.pendingAction = action
-    resolvePendingAction(page)
-    return
-  }
-
-  state.pendingAction = action
+  const decision = resolveConfigAction(action, state.isDirty)
+  state.pendingAction = decision.pendingAction
   page.setData({
-    pendingAction: action,
-    showUnsavedGuard: true,
+    pendingAction: decision.pendingAction,
+    showUnsavedGuard: decision.showUnsavedGuard,
   })
+  if (!decision.showUnsavedGuard) resolvePendingAction(page)
 }
 
 // ── 配置操作 ──
@@ -457,7 +448,7 @@ const doNewConfig = (page: FleetPageLike): void => {
   state.proposal = null
   state.undoFleetState = null
   state.activeConfigId = null
-  state.configName = '未命名配置'
+  state.configName = DEFAULT_CONFIG_NAME
   state.configVersion = 0
   state.savedFleetState = null
   state.isDirty = false
@@ -466,7 +457,7 @@ const doNewConfig = (page: FleetPageLike): void => {
   state.manualSkillLimit = MANUAL_SKILL_WINDOW_SIZE
   page.setData({
     activeConfigId: null,
-    configName: '未命名配置',
+    configName: DEFAULT_CONFIG_NAME,
     configStatus: 'new',
     showConfigList: false,
     showConfigMenu: false,
@@ -501,15 +492,10 @@ const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Pr
 
 const openNameModal = (
   page: FleetPageLike,
-  action: ConfigModalAction,
+  action: Exclude<ConfigModalAction, 'none'>,
   prefillName?: string,
 ): void => {
-  page.setData({
-    showNameModal: true,
-    modalAction: action,
-    modalInputValue: prefillName ?? page.data.configName,
-    modalTitle: action === 'saveAs' ? '另存為' : action === 'rename' ? '重命名' : '保存配置',
-  })
+  page.setData({ ...buildConfigModalData(action, prefillName ?? page.data.configName) })
 }
 
 // ── 认证 ──
@@ -648,7 +634,7 @@ Page({
       assetRetryCount: 0,
       authStatus: 'guest',
       activeConfigId: null,
-      configName: '未命名配置',
+      configName: DEFAULT_CONFIG_NAME,
       configVersion: 0,
       configList: [],
       savedFleetState: null,
@@ -1043,6 +1029,11 @@ Page({
     this.setData({ showConfigMenu: show })
   },
 
+  onConfigExit() {
+    this.setData({ showConfigMenu: false })
+    checkUnsavedAndProceed(this, { type: 'exit' })
+  },
+
   async onConfigListOpen() {
     const state = getState(this)
     if (state.authStatus !== 'authenticated') {
@@ -1163,20 +1154,16 @@ Page({
     this.setData({ modalInputValue: event.detail.value ?? '' })
   },
 
-  async onConfigModalConfirm() {
+  async onConfigModalConfirm(event?: WechatMiniprogram.BaseEvent) {
     const state = getState(this)
     const action = this.data.modalAction
-    const name = (this.data.modalInputValue ?? '').trim()
-
-    if (!name || name.length === 0) {
-      showError('請輸入配置名稱')
+    const inputValue = event ? eventDataset(event).value : this.data.modalInputValue
+    const nameResult = validateConfigName(typeof inputValue === 'string' ? inputValue : '')
+    if (!nameResult.ok || !nameResult.name) {
+      showError(nameResult.message ?? '請輸入配置名稱')
       return
     }
-
-    if ([...name].length > 30) {
-      showError('配置名稱不可超過 30 個字元')
-      return
-    }
+    const name = nameResult.name
 
     this.setData({ showNameModal: false })
 

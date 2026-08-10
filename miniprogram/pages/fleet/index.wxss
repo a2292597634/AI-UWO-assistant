@@ -1,167 +1,58 @@
-/* ── Config Modal (shared) ── */
-
-.config-modal-mask {
+.config-unsaved-guard__mask {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.55);
+  left: 0;
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--uwo-color-ink);
+  opacity: 0.36;
 }
 
-.config-modal {
-  background: #2f302b;
-  border-radius: 16rpx;
-  width: 600rpx;
-  max-height: 80vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.config-modal--small {
+.config-unsaved-guard__dialog {
   width: 520rpx;
+  max-width: calc(100vw - var(--uwo-space-8));
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  box-shadow: var(--uwo-shadow-elevated);
 }
 
-.config-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20rpx 24rpx;
-  border-bottom: 1rpx solid #3d3e38;
-  flex: 0 0 auto;
+.config-unsaved-guard__header {
+  padding: var(--uwo-space-4) var(--uwo-space-4) var(--uwo-space-3);
+  border-bottom: 2rpx solid var(--uwo-color-border-subtle);
 }
 
-.config-modal__title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #e0d8c0;
+.config-unsaved-guard__title {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-heading);
+  font-weight: 700;
 }
 
-.config-modal__close {
-  font-size: 28rpx;
-  color: #8a8a7e;
-  padding: 4rpx;
+.config-unsaved-guard__body {
+  padding: var(--uwo-space-4);
 }
 
-.config-modal__body {
-  padding: 24rpx;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.config-modal__text {
-  font-size: 26rpx;
-  color: #c0b890;
+.config-unsaved-guard__text {
+  display: block;
+  margin-bottom: var(--uwo-space-4);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-body);
   line-height: 1.6;
-  margin-bottom: 24rpx;
 }
 
-.config-modal__input {
+.config-unsaved-guard__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uwo-space-2);
+}
+
+.config-unsaved-guard__button {
   width: 100%;
-  padding: 16rpx;
-  background: #3a3b35;
-  border: 1rpx solid #4a4b45;
-  border-radius: 8rpx;
-  color: #e0d8c0;
-  font-size: 28rpx;
-  box-sizing: border-box;
-  margin-bottom: 24rpx;
-}
-
-.config-modal__actions {
-  display: flex;
-  gap: 16rpx;
-}
-
-.config-modal__actions--stack {
-  flex-direction: column;
-}
-
-.config-modal__btn {
-  flex: 1;
-  padding: 16rpx;
-  border-radius: 8rpx;
-  font-size: 26rpx;
-  text-align: center;
-  border: none;
-}
-
-.config-modal__btn--confirm {
-  background: #4a6b2e;
-  color: #e0d8c0;
-}
-
-.config-modal__btn--cancel {
-  background: #3a3b35;
-  color: #a0a090;
-}
-
-.config-modal__btn--danger {
-  background: #6b3a2e;
-  color: #e0c8c0;
-}
-
-/* ── Config List ── */
-
-.config-modal__list {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.config-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20rpx 24rpx;
-  border-bottom: 1rpx solid #3a3b35;
-}
-
-.config-item:last-child {
-  border-bottom: none;
-}
-
-.config-item--active {
-  background: #3a3b35;
-}
-
-.config-item__info {
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-  flex: 1;
-  overflow: hidden;
-}
-
-.config-item__name {
-  font-size: 28rpx;
-  color: #e0d8c0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.config-item__meta {
-  font-size: 20rpx;
-  color: #7a7a6e;
-}
-
-.config-item__current {
-  font-size: 22rpx;
-  color: #5b8c3e;
-  flex: 0 0 auto;
-  margin-left: 16rpx;
-}
-
-.config-modal__empty {
-  padding: 40rpx;
-  text-align: center;
-  font-size: 26rpx;
-  color: #7a7a6e;
+  min-height: 88rpx;
 }
 
 .asset-loading-state,

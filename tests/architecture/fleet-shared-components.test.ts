@@ -75,8 +75,21 @@ const NO_VISUAL_VALUE = /^(?:none|inherit|initial|revert|revert-layer|unset)$/i
 const COMPONENT_CONTRACTS = [
   {
     name: 'config-bar',
-    events: ['info-tap', 'login-tap', 'menu-tap', 'save', 'save-as', 'rename', 'delete', 'new'],
+    events: [
+      'info-tap',
+      'login-tap',
+      'menu-tap',
+      'save',
+      'save-as',
+      'rename',
+      'delete',
+      'new',
+      'exit',
+    ],
   },
+  { name: 'config-list-modal', events: ['close', 'select'] },
+  { name: 'config-name-modal', events: ['cancel', 'confirm', 'input'] },
+  { name: 'config-conflict-modal', events: ['reload', 'force', 'cancel'] },
   { name: 'mode-tabs', events: ['change'] },
   { name: 'officer-action-sheet', events: ['open', 'dismiss'] },
   {
@@ -133,7 +146,7 @@ const removeTokenReferences = (value: string, tokens: readonly string[]): string
   )
 
 describe('配隊共享元件文件架構', () => {
-  it('七個共享元件均提供微信原生 Component 的四件必要文件', () => {
+  it('共享元件均提供微信原生 Component 的四件必要文件', () => {
     const missingFiles = COMPONENT_CONTRACTS.flatMap(({ name }) =>
       COMPONENT_FILES.map((file) => `${COMPONENT_ROOT}/${name}/${file}`),
     ).filter((relativePath) => !projectFileExists(relativePath))
@@ -309,6 +322,8 @@ describe('Task 2 基礎共享元件契約', () => {
     expect(wxml).toContain('已保存')
     expect(wxml).toContain('尚未保存')
     expect(wxml).toContain('未命名配置')
+    expect(wxml).toMatch(/bindtap="onExit"/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]exit['"]\s*\)/)
   })
 
   it('ModeTabs 以選項值發出 change 並提供可見選中語義', () => {
@@ -353,6 +368,46 @@ describe('Task 2 基礎共享元件契約', () => {
       const wxss = readComponentFile(component, 'index.wxss')
       expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
     }
+  })
+})
+
+describe('Task 6 配置管理共享契約', () => {
+  it('共享 Presenter 覆蓋完整配置動作與共用狀態決策', () => {
+    const presenterPath = 'miniprogram/presenters/config-management-presenter.ts'
+    expect(projectFileExists(presenterPath)).toBe(true)
+    const presenter = projectFileExists(presenterPath) ? readProjectFile(presenterPath) : ''
+
+    for (const action of [
+      'load',
+      'new',
+      'save',
+      'saveAs',
+      'rename',
+      'delete',
+      'exit',
+      'conflict',
+    ]) {
+      expect(presenter).toContain(`'${action}'`)
+    }
+    expect(presenter).toContain('validateConfigName')
+    expect(presenter).toContain('buildConfigModalData')
+    expect(presenter).toContain('resolveConfigAction')
+  })
+
+  it('共享 Modal 提供列表、命名與衝突操作語義', () => {
+    const readOrEmpty = (relativePath: string): string =>
+      projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
+    const listWxml = readOrEmpty('miniprogram/components/config-list-modal/index.wxml')
+    const nameWxml = readOrEmpty('miniprogram/components/config-name-modal/index.wxml')
+    const conflictWxml = readOrEmpty('miniprogram/components/config-conflict-modal/index.wxml')
+
+    expect(listWxml).toContain('config-list-modal__mask')
+    expect(listWxml).toContain('bindtap="onSelect"')
+    expect(nameWxml).toContain('bindinput="onInput"')
+    expect(nameWxml).toContain('bindtap="onConfirm"')
+    expect(conflictWxml).toContain('bindtap="onReload"')
+    expect(conflictWxml).toContain('bindtap="onForce"')
+    expect(conflictWxml).toContain('bindtap="onCancel"')
   })
 })
 

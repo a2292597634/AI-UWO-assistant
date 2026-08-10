@@ -9,25 +9,26 @@
   <view class="config-bar__actions">
     <button
       wx:if="{{authStatus === 'guest'}}"
-      class="config-bar__action config-bar__login"
+      class="ui-button ui-button--primary config-bar__action config-bar__login"
       bindtap="onLoginTap"
     >登入後保存</button>
     <button
       wx:else
-      class="config-bar__action config-bar__menu"
+      class="ui-button ui-button--secondary config-bar__action config-bar__menu"
       bindtap="onMenuTap"
     >{{showMenu ? '關閉配置選單' : '開啟配置選單'}}</button>
   </view>
 </view>
 
 <view wx:if="{{showMenu && authStatus !== 'guest'}}" class="config-bar__menu-panel">
-  <button class="config-bar__menu-item" bindtap="onSave">覆蓋保存</button>
-  <button class="config-bar__menu-item" bindtap="onSaveAs">另存為</button>
-  <button wx:if="{{activeConfigId}}" class="config-bar__menu-item" bindtap="onRename">重新命名</button>
+  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onSave">覆蓋保存</button>
+  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onSaveAs">另存為</button>
+  <button wx:if="{{activeConfigId}}" class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onRename">重新命名</button>
   <button
     wx:if="{{activeConfigId}}"
-    class="config-bar__menu-item config-bar__menu-item--danger"
+    class="ui-button ui-button--danger config-bar__menu-item config-bar__menu-item--danger"
     bindtap="onDelete"
   >刪除配置</button>
-  <button class="config-bar__menu-item" bindtap="onNew">新建配置</button>
+  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onNew">新建配置</button>
+  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onExit">離開配置</button>
 </view>

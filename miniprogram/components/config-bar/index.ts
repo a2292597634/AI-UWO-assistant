@@ -58,5 +58,9 @@ Component({
     onNew() {
       this.triggerEvent('new')
     },
+
+    onExit() {
+      this.triggerEvent('exit')
+    },
   },
 })

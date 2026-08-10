@@ -1,0 +1,106 @@
+.config-list-modal__mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 210;
+  background: var(--uwo-color-ink);
+  opacity: 0.36;
+}
+
+.config-list-modal__dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 211;
+  display: flex;
+  width: 680rpx;
+  max-width: calc(100vw - var(--uwo-space-8));
+  max-height: 78vh;
+  flex-direction: column;
+  transform: translate(-50%, -50%);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  box-shadow: var(--uwo-shadow-elevated);
+}
+
+.config-list-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uwo-space-3);
+  padding: var(--uwo-space-4);
+  border-bottom: 2rpx solid var(--uwo-color-border-subtle);
+}
+
+.config-list-modal__title {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-section-title);
+  font-weight: 700;
+}
+
+.config-list-modal__close {
+  min-width: 144rpx;
+  min-height: 88rpx;
+  padding: 0 var(--uwo-space-3);
+  font-size: var(--uwo-font-size-body);
+}
+
+.config-list-modal__body {
+  box-sizing: border-box;
+  min-height: 160rpx;
+  max-height: 58vh;
+  padding: var(--uwo-space-4);
+}
+
+.config-list-modal__item {
+  display: flex;
+  width: 100%;
+  min-height: 88rpx;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 var(--uwo-space-2);
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  text-align: left;
+}
+
+.config-list-modal__item--active {
+  border-color: var(--uwo-color-accent-brass);
+}
+
+.config-list-modal__item-content {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uwo-space-1);
+}
+
+.config-list-modal__item-name {
+  overflow: hidden;
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-body);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.config-list-modal__item-meta,
+.config-list-modal__empty {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+}
+
+.config-list-modal__active {
+  flex: 0 0 auto;
+  margin-left: var(--uwo-space-3);
+  color: var(--uwo-color-accent-brass);
+  font-size: var(--uwo-font-size-supporting);
+  font-weight: 700;
+}
+
+.config-list-modal__empty {
+  padding: var(--uwo-space-6) 0;
+  text-align: center;
+}

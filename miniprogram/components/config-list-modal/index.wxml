@@ -1,0 +1,28 @@
+<block wx:if="{{visible}}">
+  <view class="config-list-modal__mask" bindtap="onClose"></view>
+  <view class="config-list-modal__dialog" catchtap="onNoop" role="dialog" aria-label="我的配置">
+    <view class="config-list-modal__header">
+      <text class="config-list-modal__title">我的配置</text>
+      <button class="ui-button ui-button--secondary config-list-modal__close" bindtap="onClose">取消</button>
+    </view>
+
+    <scroll-view class="config-list-modal__body" scroll-y="true">
+      <button
+        wx:for="{{configs}}"
+        wx:key="configId"
+        class="ui-button ui-button--secondary config-list-modal__item {{item.configId === activeConfigId ? 'config-list-modal__item--active' : ''}}"
+        data-id="{{item.configId}}"
+        bindtap="onSelect"
+      >
+        <view class="config-list-modal__item-content">
+          <text class="config-list-modal__item-name">{{item.name}}</text>
+          <text class="config-list-modal__item-meta">最後修改：{{item.updatedAt}}</text>
+        </view>
+        <text wx:if="{{item.configId === activeConfigId}}" class="config-list-modal__active">使用中</text>
+      </button>
+      <view wx:if="{{!configs.length}}" class="config-list-modal__empty">
+        <text>尚無已保存配置</text>
+      </view>
+    </scroll-view>
+  </view>
+</block>

@@ -260,6 +260,9 @@ const adventureJson = JSON.parse(
 
 const sharedComponentNames = [
   'config-bar',
+  'config-list-modal',
+  'config-name-modal',
+  'config-conflict-modal',
   'mode-tabs',
   'officer-action-sheet',
   'skill-picker-sheet',
@@ -357,6 +360,12 @@ describe('adventure fleet shared component wiring', () => {
   })
 
   it('keeps existing handlers for inline and sheet skill pickers and proposal actions', () => {
+    expect(adventureWxml).toContain('bind:exit="onConfigExit"')
+    expect(adventureWxml).toContain('<config-list-modal')
+    expect(adventureWxml).toContain('<config-name-modal')
+    expect(adventureWxml).toContain('<config-conflict-modal')
+    expect(adventureWxml).not.toContain('class="config-item')
+    expect(adventureWxml).not.toContain('class="config-modal__input"')
     expect(adventureWxml).toContain('bind:change="onModeTap"')
     expect(adventureWxml).toContain('presentation="inline"')
     expect(adventureWxml).toContain('presentation="sheet"')
