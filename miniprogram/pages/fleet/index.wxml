@@ -126,14 +126,6 @@
     </scroll-view>
 
     <view class="ship-editor">
-      <view class="section-heading">
-        <view>
-          <text class="section-heading__title">{{currentShip.label}}</text>
-          <text class="section-heading__meta">{{currentShip.count}} / 11 位航海士 · {{currentShip.statusLabel}}</text>
-        </view>
-        <text class="section-heading__status">{{currentShip.statusLabel}}</text>
-      </view>
-
       <mode-tabs
         value="{{mode}}"
         options="{{[{ value: 'manual', label: '手動配隊' }, { value: 'auto', label: '自動配隊' } ]}}"

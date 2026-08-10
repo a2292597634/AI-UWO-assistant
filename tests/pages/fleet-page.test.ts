@@ -509,6 +509,22 @@ describe('battle fleet P5 workbench structure', () => {
   })
 })
 
+describe('battle fleet context density', () => {
+  it('keeps one global ship context and removes the editor duplicate', () => {
+    expect(fleetWxml.match(/class="fleet-context"/g)).toHaveLength(1)
+    expect(fleetWxml).toContain('{{currentShip.label}} · {{currentShip.statusLabel}}')
+    expect(fleetWxml).toContain('已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置')
+    expect(fleetWxml).not.toContain('class="section-heading"')
+  })
+
+  it('keeps ship switching, mode switching, and both editor modes wired', () => {
+    expect(fleetWxml).toContain('bindtap="onShipTabTap"')
+    expect(fleetWxml).toContain('bind:change="onModeTap"')
+    expect(fleetWxml).toContain('class="candidate-panel"')
+    expect(fleetWxml).toContain('class="target-panel"')
+  })
+})
+
 describe('battle fleet P5 layout rules', () => {
   it('uses five columns and tokenized P5 page rules', () => {
     expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*repeat\(5,\s*minmax\(0,\s*1fr\)\)/)

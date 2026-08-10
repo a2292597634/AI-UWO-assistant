@@ -274,46 +274,20 @@
   padding-bottom: 48rpx;
 }
 
-.section-heading,
 .panel-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.section-heading {
-  padding: 24rpx 24rpx 16rpx;
-}
-
-.section-heading__title,
-.section-heading__meta,
-.section-heading__status,
 .panel-heading__title,
 .panel-heading__hint {
   display: block;
 }
 
-.section-heading__title {
-  font-size: 32rpx;
-  font-weight: 700;
-}
-
-.section-heading__meta,
-.section-heading__status,
 .panel-heading__hint {
   color: #756b59;
   font-size: 21rpx;
-}
-
-.section-heading__meta {
-  margin-top: 5rpx;
-}
-
-.section-heading__status {
-  padding: 8rpx 12rpx;
-  color: #f0e4c4;
-  background: #596257;
-  border-radius: 6rpx;
 }
 
 .slot-grid {
