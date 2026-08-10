@@ -365,7 +365,27 @@ describe('catalog touch target markup contracts', () => {
     expect(sheetRule).toMatch(/env\(safe-area-inset-bottom\)/)
     expect(sheetRule).toMatch(/var\(--uwo-shadow-sheet\)/)
     expect(cssRule('.catalog-page__filter-action--apply')).toMatch(/min-height:\s*88rpx;/)
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/width:\s*52rpx;/)
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*52rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-height:\s*88rpx;/)
+  })
+
+  it('keeps skill icons inside an 88rpx catchtap target without changing the visual icon size', () => {
+    expect(catalogWxml).toMatch(
+      /class="catalog-page__skill-hit-target"[^>]*catchtap="onSkillIconTap"/,
+    )
+    expect(catalogWxml).toContain('role="button" aria-label="查看技能詳情"')
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-width:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/width:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-icon')).toMatch(/width:\s*44rpx;/)
+    expect(cssRule('.catalog-page__skill-icon')).toMatch(/height:\s*44rpx;/)
+  })
+
+  it('uses Design Foundation tokens for the touched skill badge metrics', () => {
+    const badgeRule = cssRule('.catalog-page__skill-level-badge')
+    expect(badgeRule).toMatch(/right:\s*calc\(-1\s*\*\s*var\(--uwo-space-2\)\);/)
+    expect(badgeRule).toMatch(/bottom:\s*calc\(-1\s*\*\s*var\(--uwo-space-2\)\);/)
+    expect(badgeRule).toMatch(/min-width:\s*var\(--uwo-space-8\);/)
+    expect(badgeRule).toMatch(/font-size:\s*var\(--uwo-font-size-minimum-action\);/)
+    expect(badgeRule).toMatch(/line-height:\s*var\(--uwo-space-6\);/)
   })
 })

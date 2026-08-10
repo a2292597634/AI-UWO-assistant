@@ -40,7 +40,7 @@
           <scroll-view class="catalog-page__officer-skills" scroll-x="true" enable-flex>
             <view class="catalog-page__officer-skills-content">
               <view class="catalog-page__skill-group" wx:if="{{item.activeSkills.length > 0}}">
-                <view wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="catalog-page__skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="active">
+                <view wx:for="{{item.activeSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="catalog-page__skill-hit-target" wx:if="{{si < 3}}" role="button" aria-label="查看技能詳情" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="active">
                   <view class="catalog-page__skill-icon-wrapper">
                     <image wx:if="{{item.assetReady && item.activeSkillIcons[sid]}}" src="{{item.activeSkillIcons[sid]}}" mode="aspectFit" class="catalog-page__skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
                     <text wx:else class="catalog-page__skill-fallback">技</text>
@@ -51,7 +51,7 @@
               </view>
               <view class="catalog-page__skill-group" wx:if="{{item.passiveSkills.length > 0}}">
                 <view class="catalog-page__skill-divider" wx:if="{{item.activeSkills.length > 0}}"></view>
-                <view wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="catalog-page__skill-hit-target" wx:if="{{si < 3}}" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="passive">
+                <view wx:for="{{item.passiveSkills}}" wx:key="*this" wx:for-item="sid" wx:for-index="si" class="catalog-page__skill-hit-target" wx:if="{{si < 3}}" role="button" aria-label="查看技能詳情" catchtap="onSkillIconTap" data-skill-id="{{sid}}" data-kind="passive">
                   <view class="catalog-page__skill-icon-wrapper">
                     <image wx:if="{{item.assetReady && item.passiveSkillIcons[sid]}}" src="{{item.passiveSkillIcons[sid]}}" mode="aspectFit" class="catalog-page__skill-icon" binderror="onSkillIconError" data-index="{{index}}" data-skill-id="{{sid}}" />
                     <text wx:else class="catalog-page__skill-fallback">技</text>

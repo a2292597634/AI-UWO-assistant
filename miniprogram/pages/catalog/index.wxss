@@ -216,7 +216,7 @@
 
 .catalog-page__officer-skills {
   width: 100%;
-  height: 64rpx;
+  height: 88rpx;
   margin-top: var(--uwo-space-2);
   white-space: nowrap;
 }
@@ -225,7 +225,7 @@
   display: flex;
   align-items: center;
   min-width: max-content;
-  height: 64rpx;
+  height: 88rpx;
 }
 
 .catalog-page__skill-group {
@@ -238,9 +238,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 52rpx;
-  width: 52rpx;
-  height: 52rpx;
+  min-width: 88rpx;
+  flex: 0 0 88rpx;
+  width: 88rpx;
+  min-height: 88rpx;
+  height: 88rpx;
   margin-right: var(--uwo-space-2);
 }
 
@@ -273,15 +275,15 @@
 
 .catalog-page__skill-level-badge {
   position: absolute;
-  right: -8rpx;
-  bottom: -8rpx;
-  min-width: 34rpx;
+  right: calc(-1 * var(--uwo-space-2));
+  bottom: calc(-1 * var(--uwo-space-2));
+  min-width: var(--uwo-space-8);
   padding: 0 var(--uwo-space-1);
   border-radius: var(--uwo-radius-pill);
   background: var(--uwo-color-ink);
   color: var(--uwo-color-surface);
-  font-size: 16rpx;
-  line-height: 24rpx;
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: var(--uwo-space-6);
   text-align: center;
 }
 
