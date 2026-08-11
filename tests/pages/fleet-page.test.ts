@@ -3,19 +3,6 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { createFleetState } from '../../miniprogram/domain/battle-fleet'
 
-interface OfficerActionSheetTestData {
-  visible: boolean
-  officerId: string
-  officerName: string
-  status: string
-  statusLabel: string
-  allowBan: boolean
-  disabledActions: string[]
-  lockDisabledReason: string
-  removeDisabledReason: string
-  banDisabledReason: string
-}
-
 interface FleetTestData {
   shipTabs: unknown[]
   mode: string
@@ -45,7 +32,6 @@ interface FleetTestData {
   pendingAction: unknown
   configLimitReached: boolean
   showConflictDialog: boolean
-  officerActionSheet: OfficerActionSheetTestData
   [key: string]: unknown
 }
 
@@ -74,12 +60,11 @@ interface FleetPageConfig {
   onProposalCancel(): void
   onProposalApply(): void
   onUndoProposal(): void
+  onUndoDismiss(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
   onOfficerRemove(event: WechatMiniprogram.BaseEvent): void
   onOfficerLock(event: WechatMiniprogram.BaseEvent): void
   onBanOfficer(event: WechatMiniprogram.BaseEvent): void
-  onOfficerActionOpen(event: WechatMiniprogram.BaseEvent): void
-  onOfficerActionDismiss(): void
   onUnbanOfficer(event: WechatMiniprogram.BaseEvent): void
   // Config management handlers
   onConfigLogin(): Promise<void>
@@ -388,6 +373,24 @@ describe('battle fleet page', () => {
     page.onUndoProposal()
     expect(page.data.currentShip).toEqual(before.currentShip)
   })
+
+  it('closes the undo notice without reverting the applied fleet', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill_skill400591' } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onRecalculate()
+    page.onProposalApply()
+    const applied = structuredClone(page.data.currentShip)
+
+    page.onUndoDismiss()
+
+    expect(page.data.canUndoProposal).toBe(false)
+    expect(page.data.currentShip).toEqual(applied)
+  })
 })
 
 const fleetWxml = fs.readFileSync(
@@ -428,18 +431,17 @@ const sharedComponentNames = [
 ] as const
 
 describe('fleet slot action touch targets', () => {
-  it('keeps five columns with one trigger per slot and one page-level sheet', () => {
-    expect(fleetWxml.match(/<officer-action-sheet\b/g)).toHaveLength(2)
-    expect(fleetWxml).toMatch(
-      /<officer-action-sheet[\s\S]*?presentation="trigger"[\s\S]*?variant="slot"/,
-    )
-    expect(fleetWxml).toMatch(/<officer-action-sheet[\s\S]*?presentation="sheet"/)
-    expect(fleetWxml).toContain('bind:open="onOfficerActionOpen"')
-    expect(fleetWxml).toContain('bind:dismiss="onOfficerActionDismiss"')
+  it('keeps five columns with compact direct actions per slot', () => {
+    const actionTag = fleetWxml.match(/<officer-action-sheet[\s\S]*?\/>/)?.[0] ?? ''
+    expect(fleetWxml.match(/<officer-action-sheet\b/g)).toHaveLength(1)
+    expect(actionTag).toMatch(/presentation="trigger"[\s\S]*?variant="slot"/)
+    expect(actionTag).not.toContain('presentation="sheet"')
+    expect(fleetWxml).not.toContain('bind:open="onOfficerActionOpen"')
     expect(fleetWxml).toContain('bind:lock="onOfficerLock"')
     expect(fleetWxml).toContain('bind:remove="onOfficerRemove"')
     expect(fleetWxml).toContain('bind:ban="onBanOfficer"')
-    expect(fleetWxml).toContain('officerActionSheet.visible')
+    expect(fleetWxml).toContain('allow-ban="{{true}}"')
+    expect(fleetWxml).toContain('officer-slot--locked')
     expect(fleetWxml).not.toContain('class="officer-slot__actions"')
     // Visual layers
     expect(fleetWxml).toContain('officer-slot__visuals')
@@ -453,35 +455,6 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
     expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*var\(--uwo-space-2\)\s+0;/)
     expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
-  })
-
-  it('mounts the single action sheet outside the main fleet scroll container', () => {
-    const fleetScrollEnd = fleetWxml.lastIndexOf('</scroll-view>')
-    const sheetIndex = fleetWxml.indexOf('presentation="sheet"')
-
-    expect(sheetIndex).toBeGreaterThan(fleetScrollEnd)
-    expect(fleetWxml).toContain('officerActionSheet.officerName')
-  })
-
-  it('opens the sheet with current officer context and closes after dismissal', () => {
-    const page = createPageInstance()
-    page.onLoad()
-    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
-
-    page.onOfficerActionOpen({
-      currentTarget: { dataset: {} },
-      detail: { officerId: 'officer_chast089' },
-    } as never)
-
-    expect(page.data.officerActionSheet).toMatchObject({
-      visible: true,
-      officerId: 'officer_chast089',
-      allowBan: false,
-    })
-
-    page.onOfficerActionDismiss()
-
-    expect(page.data.officerActionSheet.visible).toBe(false)
   })
 
   it('uses direct image loading without a local asset loading route', () => {
@@ -615,6 +588,7 @@ describe('battle fleet proposal preview layout', () => {
     expect(fleetWxml).toContain('onProposalCancel')
     expect(fleetWxml).toContain('onProposalApply')
     expect(fleetWxml).toContain('onUndoProposal')
+    expect(fleetWxml).toContain('bind:dismiss-undo="onUndoDismiss"')
     expect(fleetWxml).toContain('<result-preview-sheet')
     expect(fleetWxml).toContain('can-undo="{{canUndoProposal}}"')
   })
@@ -652,12 +626,14 @@ describe('battle fleet target controls', () => {
     )
     expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*64rpx/)
     expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
-    expect(fleetWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*56rpx/)
-    expect(skillPickerWxss).toMatch(
-      /\.skill-picker-sheet--inline \.skill-picker-sheet__tab\s*\{[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0 var\(--uwo-space-2\);/,
+    expect(fleetWxss).toMatch(
+      /\.target-row__remove\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*56rpx/,
     )
     expect(skillPickerWxss).toMatch(
-      /\.skill-picker-sheet--inline \.skill-picker-sheet__select\s*\{[\s\S]*min-height:\s*56rpx/,
+      /\.skill-picker-sheet--inline \.skill-picker-sheet__tab\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0 var\(--uwo-space-1\);/,
+    )
+    expect(skillPickerWxss).toMatch(
+      /\.skill-picker-sheet--inline \.skill-picker-sheet__select\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*56rpx[\s\S]*padding:\s*0 var\(--uwo-space-1\);/,
     )
   })
 })

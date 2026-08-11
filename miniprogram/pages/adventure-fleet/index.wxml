@@ -121,7 +121,6 @@
 
       <disclosure-section
         title="技能追蹤"
-        hint="Lv.0 僅供查看，不參與計算"
         count-label="{{trackingTargets ? trackingTargets.length : 0}}"
         default-expanded="{{true}}"
       >
@@ -191,14 +190,16 @@
             <image wx:if="{{item.visuals.typeIconPath && !failedPortraitImages[item.id + '_type']}}" class="officer-card__type-icon" src="{{item.visuals.typeIconPath}}" mode="aspectFit" binderror="onImageError" data-kind="portrait" data-id="{{item.id}}_type" />
           </view>
           <text class="officer-card__name">{{item.name}}</text>
-          <text wx:if="{{item.shipLabel}}" class="officer-card__ship">{{item.shipLabel}}</text>
           <officer-action-sheet
             presentation="trigger"
             officer-id="{{item.id}}"
             officer-name="{{item.name}}"
             status="{{item.status}}"
             variant="card"
-            bind:open="onOfficerActionOpen"
+            allow-ban="{{true}}"
+            bind:lock="onOfficerLock"
+            bind:remove="onOfficerRemove"
+            bind:ban="onBanOfficer"
           />
         </view>
       </view>
@@ -264,24 +265,6 @@
     </disclosure-section>
   </scroll-view>
 
-  <officer-action-sheet
-    presentation="sheet"
-    visible="{{officerActionSheet.visible}}"
-    officer-id="{{officerActionSheet.officerId}}"
-    officer-name="{{officerActionSheet.officerName}}"
-    status="{{officerActionSheet.status}}"
-    status-label="{{officerActionSheet.statusLabel}}"
-    allow-ban="{{officerActionSheet.allowBan}}"
-    disabled-actions="{{officerActionSheet.disabledActions}}"
-    lock-disabled-reason="{{officerActionSheet.lockDisabledReason}}"
-    remove-disabled-reason="{{officerActionSheet.removeDisabledReason}}"
-    ban-disabled-reason="{{officerActionSheet.banDisabledReason}}"
-    bind:dismiss="onOfficerActionDismiss"
-    bind:lock="onOfficerLock"
-    bind:remove="onOfficerRemove"
-    bind:ban="onBanOfficer"
-  />
-
   <result-preview-sheet
     visible="{{proposalPreview !== null}}"
     preview="{{proposalPreview}}"
@@ -289,6 +272,7 @@
     bind:cancel="onProposalCancel"
     bind:apply="onProposalApply"
     bind:undo="onUndoProposal"
+    bind:dismiss-undo="onUndoDismiss"
   />
 
   <skill-picker-sheet

@@ -74,4 +74,9 @@
 <view wx:if="{{canUndo}}" class="result-preview-sheet__undo-bar">
   <text class="result-preview-sheet__undo-text">已應用本次配隊</text>
   <button class="ui-button ui-button--secondary result-preview-sheet__undo-action" bindtap="onUndo">撤銷本次配隊</button>
+  <button
+    class="ui-button ui-button--secondary result-preview-sheet__undo-close"
+    bindtap="onDismissUndo"
+    aria-label="關閉撤銷提示"
+  >×</button>
 </view>

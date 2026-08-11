@@ -49,19 +49,6 @@ import type { FleetProposal } from '../../contracts/fleet-proposal'
 import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../presenters/skill-sheet'
 
-interface OfficerActionSheetData {
-  visible: boolean
-  officerId: string
-  officerName: string
-  status: string
-  statusLabel: string
-  allowBan: boolean
-  disabledActions: string[]
-  lockDisabledReason: string
-  removeDisabledReason: string
-  banDisabledReason: string
-}
-
 // ── 页面数据 ──
 
 interface FleetPageData extends AdventureFleetPageData {
@@ -94,7 +81,6 @@ interface FleetPageData extends AdventureFleetPageData {
   showConflictDialog: boolean
   proposalPreview: FleetProposalPreviewView | null
   canUndoProposal: boolean
-  officerActionSheet: OfficerActionSheetData
 }
 
 // ── 页面状态 ──
@@ -128,44 +114,6 @@ interface FleetPageLike {
 
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
 const MANUAL_SKILL_WINDOW_SIZE = 40
-
-const emptyOfficerActionSheet: OfficerActionSheetData = {
-  visible: false,
-  officerId: '',
-  officerName: '',
-  status: '',
-  statusLabel: '',
-  allowBan: true,
-  disabledActions: [],
-  lockDisabledReason: '',
-  removeDisabledReason: '',
-  banDisabledReason: '',
-}
-
-const buildOfficerActionSheet = (officer: {
-  id: string
-  name: string
-  status: string
-  statusLabel: string
-}): OfficerActionSheetData => {
-  const isLocked = officer.status === 'locked'
-  return {
-    visible: true,
-    officerId: officer.id,
-    officerName: officer.name,
-    status: officer.status,
-    statusLabel: officer.statusLabel,
-    allowBan: true,
-    disabledActions: isLocked ? ['remove', 'ban'] : [],
-    lockDisabledReason: '',
-    removeDisabledReason: isLocked ? '鎖定成員不可移除，請先解鎖' : '',
-    banDisabledReason: isLocked ? '鎖定成員不可排除，請先解鎖' : '',
-  }
-}
-
-const closeOfficerActionSheet = (page: FleetPageLike): void => {
-  page.setData({ officerActionSheet: { ...emptyOfficerActionSheet, disabledActions: [] } })
-}
 
 const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> => {
   const dataset = (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
@@ -229,7 +177,6 @@ const emptyPageData: FleetPageData = {
   showConflictDialog: false,
   proposalPreview: null,
   canUndoProposal: false,
-  officerActionSheet: { ...emptyOfficerActionSheet, disabledActions: [] },
 }
 
 const showError = (message: string): void => {
@@ -695,7 +642,6 @@ Page({
     const mode = eventDataset(event).mode
     if (mode !== 'manual' && mode !== 'auto') return
     const state = getState(this)
-    closeOfficerActionSheet(this)
     syncAllShipsMode(state, mode)
     clearEmptyTargets(state)
     state.manualSkillId = null
@@ -905,21 +851,10 @@ Page({
     render(this)
   },
 
-  // ── 航海士操作 ──
-
-  onOfficerActionOpen(event: WechatMiniprogram.BaseEvent) {
-    const officerId = eventDataset(event).id
-    if (typeof officerId !== 'string') return
-    const officer = this.data.typeZones
-      .flatMap((zone) => zone.officers)
-      .find((item) => item.id === officerId)
-    if (!officer) return
-
-    this.setData({ officerActionSheet: buildOfficerActionSheet(officer) })
-  },
-
-  onOfficerActionDismiss() {
-    closeOfficerActionSheet(this)
+  onUndoDismiss() {
+    const state = getState(this)
+    state.undoFleetState = null
+    this.setData({ canUndoProposal: false })
   },
 
   onOfficerSelect(event: WechatMiniprogram.BaseEvent) {
@@ -962,7 +897,6 @@ Page({
   onOfficerRemove(event: WechatMiniprogram.BaseEvent) {
     const officerId = eventDataset(event).id
     if (typeof officerId !== 'string') return
-    closeOfficerActionSheet(this)
     const state = getState(this)
     // 找到该航海士所在的船
     const ship = state.fleet.ships.find((s) => s.officerIds.includes(officerId))
@@ -974,7 +908,6 @@ Page({
   onOfficerLock(event: WechatMiniprogram.BaseEvent) {
     const officerId = eventDataset(event).id
     if (typeof officerId !== 'string') return
-    closeOfficerActionSheet(this)
     const state = getState(this)
     const ship = state.fleet.ships.find((s) => s.officerIds.includes(officerId))
     if (!ship) {
@@ -991,7 +924,6 @@ Page({
   onBanOfficer(event: WechatMiniprogram.BaseEvent) {
     const officerId = eventDataset(event).id
     if (typeof officerId !== 'string') return
-    closeOfficerActionSheet(this)
     const state = getState(this)
     const ship = state.fleet.ships.find((s) => s.officerIds.includes(officerId))
     if (ship) {

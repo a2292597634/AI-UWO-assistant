@@ -31,6 +31,10 @@ Component({
       this.triggerEvent('undo')
     },
 
+    onDismissUndo() {
+      this.triggerEvent('dismiss-undo')
+    },
+
     onNoop() {},
   },
 })

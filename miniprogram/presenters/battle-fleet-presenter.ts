@@ -294,6 +294,11 @@ export const buildBattleFleetPageData = (
       : []
   })
   const targetViews = buildTargetViews(currentShip, skills)
+  const lockedIds = new Set(currentShip.lockedOfficerIds)
+  const displayOfficerIds = [
+    ...currentShip.officerIds.filter((officerId) => lockedIds.has(officerId)),
+    ...currentShip.officerIds.filter((officerId) => !lockedIds.has(officerId)),
+  ]
 
   return {
     occupiedCount: state.ships.reduce((count, ship) => count + ship.officerIds.length, 0),
@@ -304,7 +309,7 @@ export const buildBattleFleetPageData = (
       ...shipTabs.find((tab) => tab.id === currentShip.id)!,
       mode: currentShip.mode,
       slots: Array.from({ length: 11 }, (_, index) => {
-        const officerId = currentShip.officerIds[index]
+        const officerId = displayOfficerIds[index]
         return {
           position: index + 1,
           officer:
