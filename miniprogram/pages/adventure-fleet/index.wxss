@@ -233,15 +233,18 @@
 
 .target-row__remove {
   display: flex;
+  width: 112rpx;
+  min-width: 112rpx;
+  max-width: 112rpx;
   min-height: 56rpx;
   flex: 0 0 auto;
   align-items: center;
   margin: 0;
-  padding: 0 var(--uwo-space-1);
+  padding: 0;
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-minimum-action);
-  overflow-wrap: anywhere;
-  white-space: normal;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .target-actions {
@@ -426,17 +429,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--uwo-color-text-primary);
-}
-
-.officer-card__ship {
-  display: block;
-  font-size: var(--uwo-font-size-minimum-action);
-  color: var(--uwo-color-text-secondary);
-  margin-top: var(--uwo-space-1);
-}
-
-.officer-card .officer-action-sheet__trigger {
-  margin-top: var(--uwo-space-2);
 }
 
 /* ── 排除名单 ── */

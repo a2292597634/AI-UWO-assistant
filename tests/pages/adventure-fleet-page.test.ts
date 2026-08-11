@@ -2,19 +2,6 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-interface OfficerActionSheetTestData {
-  visible: boolean
-  officerId: string
-  officerName: string
-  status: string
-  statusLabel: string
-  allowBan: boolean
-  disabledActions: string[]
-  lockDisabledReason: string
-  removeDisabledReason: string
-  banDisabledReason: string
-}
-
 interface AdventureTargetView {
   id: string
   skillId: string | null
@@ -29,7 +16,6 @@ interface AdventurePageData {
   configStatus: string
   proposalPreview: Record<string, unknown> | null
   canUndoProposal: boolean
-  officerActionSheet: OfficerActionSheetTestData
   [key: string]: unknown
 }
 
@@ -44,9 +30,8 @@ interface AdventurePageConfig {
   onProposalCancel(): void
   onProposalApply(): void
   onUndoProposal(): void
+  onUndoDismiss(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
-  onOfficerActionOpen(event: WechatMiniprogram.BaseEvent): void
-  onOfficerActionDismiss(): void
 }
 
 interface AdventurePageInstance extends AdventurePageConfig {
@@ -241,6 +226,24 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.targets).toEqual(before.targets)
     expect(page.data.canUndoProposal).toBe(false)
   })
+
+  it('closes the undo notice without reverting the applied fleet', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const target = page.data.targets[0]!
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: target.skillId } } } as never)
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onRecalculate()
+    page.onProposalApply()
+    const applied = structuredClone(page.data.typeZones)
+
+    page.onUndoDismiss()
+
+    expect(page.data.canUndoProposal).toBe(false)
+    expect(page.data.typeZones).toEqual(applied)
+  })
 })
 
 const adventureWxml = fs.readFileSync(
@@ -284,6 +287,7 @@ describe('adventure fleet page layout hooks', () => {
     expect(adventureWxml).toContain('onProposalCancel')
     expect(adventureWxml).toContain('onProposalApply')
     expect(adventureWxml).toContain('onUndoProposal')
+    expect(adventureWxml).toContain('bind:dismiss-undo="onUndoDismiss"')
     expect(adventureWxml).toContain('proposalPreview')
     expect(adventureWxml).toContain('請先設定至少一個 Lv.1 以上的優化目標')
   })
@@ -305,49 +309,18 @@ describe('adventure fleet preview layout', () => {
 })
 
 describe('adventure fleet officer action surface', () => {
-  it('uses one trigger per officer card and one page-level sheet', () => {
-    expect(adventureWxml.match(/<officer-action-sheet\b/g)).toHaveLength(2)
-    expect(adventureWxml).toMatch(
-      /<officer-action-sheet[\s\S]*?presentation="trigger"[\s\S]*?variant="card"/,
-    )
-    expect(adventureWxml).toMatch(/<officer-action-sheet[\s\S]*?presentation="sheet"/)
-    expect(adventureWxml).toContain('bind:open="onOfficerActionOpen"')
-    expect(adventureWxml).toContain('bind:dismiss="onOfficerActionDismiss"')
-    expect(adventureWxml).toContain('officerActionSheet.visible')
+  it('uses compact direct actions per officer card', () => {
+    const actionTag = adventureWxml.match(/<officer-action-sheet[\s\S]*?\/>/)?.[0] ?? ''
+    expect(adventureWxml.match(/<officer-action-sheet\b/g)).toHaveLength(1)
+    expect(actionTag).toMatch(/presentation="trigger"[\s\S]*?variant="card"/)
+    expect(actionTag).not.toContain('presentation="sheet"')
+    expect(adventureWxml).not.toContain('bind:open="onOfficerActionOpen"')
+    expect(adventureWxml).toContain('allow-ban="{{true}}"')
     expect(adventureWxml.match(/bind:lock="onOfficerLock"/g)).toHaveLength(1)
     expect(adventureWxml.match(/bind:remove="onOfficerRemove"/g)).toHaveLength(1)
     expect(adventureWxml.match(/bind:ban="onBanOfficer"/g)).toHaveLength(1)
-  })
-
-  it('mounts the single action sheet outside the main fleet scroll container', () => {
-    const fleetScrollEnd = adventureWxml.lastIndexOf('</scroll-view>')
-    const sheetIndex = adventureWxml.indexOf('presentation="sheet"')
-
-    expect(sheetIndex).toBeGreaterThan(fleetScrollEnd)
-    expect(adventureWxml).toContain('officerActionSheet.officerName')
     expect(adventureWxss).not.toContain('.officer-slot__actions')
     expect(adventureWxss).not.toContain('.slot-action')
-  })
-
-  it('opens the sheet with current officer context and closes after dismissal', () => {
-    const page = createPageInstance()
-    page.onLoad()
-    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
-
-    page.onOfficerActionOpen({
-      currentTarget: { dataset: {} },
-      detail: { officerId: 'officer_chast089' },
-    } as never)
-
-    expect(page.data.officerActionSheet).toMatchObject({
-      visible: true,
-      officerId: 'officer_chast089',
-      allowBan: true,
-    })
-
-    page.onOfficerActionDismiss()
-
-    expect(page.data.officerActionSheet.visible).toBe(false)
   })
 })
 
@@ -429,7 +402,9 @@ describe('adventure fleet shared component wiring', () => {
     expect(adventureWxss).toMatch(/\.fleet-context\s*\{[\s\S]*var\(--uwo-/)
     expect(adventureWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*64rpx/)
     expect(adventureWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
-    expect(adventureWxss).toMatch(/\.target-row__remove\s*\{[\s\S]*min-height:\s*56rpx/)
+    expect(adventureWxss).toMatch(
+      /\.target-row__remove\s*\{[\s\S]*width:\s*112rpx[\s\S]*min-width:\s*112rpx[\s\S]*min-height:\s*56rpx/,
+    )
     expect(adventureWxss).toMatch(/\.candidate-row\s*\{[\s\S]*min-height:\s*88rpx/)
     expect(adventureWxss).toContain('overflow-wrap: anywhere')
     expect(adventureWxss).not.toMatch(/\.candidate-row--disabled\s*\{[\s\S]*opacity\s*:/)
@@ -439,7 +414,11 @@ describe('adventure fleet shared component wiring', () => {
   it('移除追蹤目標內重複的狀態文字', () => {
     expect(adventureWxml).not.toContain('class="tracking-row__state"')
     expect(adventureWxml).not.toContain('技能追蹤 · 不參與計算')
-    expect(adventureWxml).toContain('hint="Lv.0 僅供查看，不參與計算"')
+    expect(adventureWxml).not.toContain('hint="Lv.0 僅供查看，不參與計算"')
+  })
+
+  it('不在冒險士頭像下顯示所在船名', () => {
+    expect(adventureWxml).not.toContain('class="officer-card__ship"')
   })
 
   it('uses real buttons for target deletion and standard target actions', () => {

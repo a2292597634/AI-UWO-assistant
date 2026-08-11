@@ -91,7 +91,7 @@ const COMPONENT_CONTRACTS = [
   { name: 'config-name-modal', events: ['cancel', 'confirm', 'input'] },
   { name: 'config-conflict-modal', events: ['reload', 'force', 'cancel'] },
   { name: 'mode-tabs', events: ['change'] },
-  { name: 'officer-action-sheet', events: ['open', 'dismiss'] },
+  { name: 'officer-action-sheet', events: ['dismiss', 'lock', 'remove', 'ban'] },
   {
     name: 'skill-picker-sheet',
     events: [
@@ -104,7 +104,7 @@ const COMPONENT_CONTRACTS = [
       'reach-end',
     ],
   },
-  { name: 'result-preview-sheet', events: ['cancel', 'apply', 'undo'] },
+  { name: 'result-preview-sheet', events: ['cancel', 'apply', 'undo', 'dismiss-undo'] },
   { name: 'status-badge', events: [] },
   { name: 'empty-state', events: ['action'] },
 ] as const
@@ -440,7 +440,8 @@ describe('Task 4 航海士操作共享元件契約', () => {
     }
     expect(wxml).toContain("presentation === 'trigger'")
     expect(wxml).toContain("presentation === 'sheet'")
-    expect(wxml).toContain('更多操作')
+    expect(wxml).toContain('officer-action-sheet__trigger-actions')
+    expect(wxml).toContain('officer-action-sheet__icon-button')
     expect(wxml).toContain('officer-action-sheet__mask')
     expect(wxml).toContain('officer-action-sheet__panel')
     expect(wxml).toContain('bindtap="onDismiss"')
@@ -450,18 +451,19 @@ describe('Task 4 航海士操作共享元件契約', () => {
     const script = readOfficerActionFile('index.ts')
     const wxml = readOfficerActionFile('index.wxml')
 
-    expect(wxml).toContain('bindtap="onOpen"')
-    expect(wxml.match(/data-id="\{\{officerId\}\}"/g)).toHaveLength(4)
+    expect(wxml).not.toContain('bindtap="onOpen"')
+    expect(wxml.match(/data-id="\{\{officerId\}\}"/g)).toHaveLength(6)
     for (const action of ['lock', 'remove', 'ban']) {
       expect(wxml).toContain(`bindtap="on${action[0]!.toUpperCase()}${action.slice(1)}"`)
     }
     expect(script).toMatch(/currentTarget\.dataset\.id/)
-    for (const eventName of ['open', 'lock', 'remove', 'ban']) {
+    for (const eventName of ['lock', 'remove', 'ban']) {
       expect(script).toMatch(
         new RegExp(`triggerEvent\\(\\s*['"]${eventName}['"]\\s*,\\s*\\{\\s*officerId\\s*\\}`),
       )
     }
     expect(script).toMatch(/triggerEvent\(\s*['"]dismiss['"]\s*\)/)
+    expect(script).not.toMatch(/triggerEvent\(\s*['"]open['"]\s*,/)
   })
 
   it('禁用操作同時提供原生 disabled、原因與 aria-disabled 語義', () => {
@@ -470,8 +472,10 @@ describe('Task 4 航海士操作共享元件契約', () => {
 
     for (const state of ['lockDisabled', 'removeDisabled', 'banDisabled']) {
       expect(script).toContain(state)
-      expect(wxml).toContain(`disabled="{{${state}}}"`)
-      expect(wxml).toContain(`aria-disabled="{{${state}}}"`)
+      const disabledExpression =
+        state === 'lockDisabled' ? state : `${state} || status === 'locked'`
+      expect(wxml).toContain(`disabled="{{${disabledExpression}}}"`)
+      expect(wxml).toContain(`aria-disabled="{{${disabledExpression}}}"`)
     }
     for (const reason of ['lockDisabledReason', 'removeDisabledReason', 'banDisabledReason']) {
       expect(wxml).toContain(reason)
@@ -481,7 +485,12 @@ describe('Task 4 航海士操作共享元件契約', () => {
   it('操作文字與頁面級 Bottom Sheet 符合 Design Foundation', () => {
     const wxss = readOfficerActionFile('index.wxss')
 
-    expect(wxss).toMatch(/\.officer-action-sheet__trigger\s*\{[\s\S]*min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(
+      /\.officer-action-sheet__trigger-actions\s*\{[\s\S]*display\s*:\s*flex[\s\S]*gap\s*:/,
+    )
+    expect(wxss).toMatch(
+      /\.officer-action-sheet__icon-button\s*\{[\s\S]*min-width\s*:\s*0[\s\S]*min-height\s*:/,
+    )
     expect(wxss).toMatch(/\.officer-action-sheet__mask\s*\{[\s\S]*position\s*:\s*fixed/)
     expect(wxss).toMatch(
       /\.officer-action-sheet__panel\s*\{[\s\S]*max-height\s*:\s*82vh[\s\S]*overflow\s*:\s*hidden/,
@@ -495,7 +504,7 @@ describe('Task 4 航海士操作共享元件契約', () => {
     const wxml = readOfficerActionFile('index.wxml')
     const wxss = readOfficerActionFile('index.wxss')
 
-    expect(wxml.match(/officer-action-sheet__trigger/g)).toHaveLength(2)
+    expect(wxml.match(/officer-action-sheet__icon-button/g)).toHaveLength(6)
     expect(wxml).toContain('鎖定')
     expect(wxml).toContain('移除')
     expect(wxml).toContain('排除')
@@ -609,7 +618,7 @@ describe('Task 4 技能選擇共享元件契約', () => {
     const wxss = readSkillPickerFile('index.wxss')
 
     expect(wxss).toMatch(
-      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-2\)/,
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-1\)/,
     )
     expect(wxss).toMatch(
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__icon(?:,|\s*\{)[\s\S]*width:\s*40rpx[\s\S]*height:\s*40rpx/,
@@ -618,7 +627,7 @@ describe('Task 4 技能選擇共享元件契約', () => {
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__detail\s*\{[\s\S]*min-height:\s*64rpx/,
     )
     expect(wxss).toMatch(
-      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__select\s*\{[\s\S]*min-height:\s*56rpx/,
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__select\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*56rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-1\)/,
     )
     expect(wxss).toMatch(
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tabs-content\s*\{[\s\S]*gap:\s*var\(--uwo-space-1\)/,
@@ -636,13 +645,13 @@ describe('Task 5 方案預覽共享元件契約', () => {
     return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
   }
 
-  it('接收預覽與撤銷狀態，且只將三種操作交回頁面', () => {
+  it('接收預覽與撤銷狀態，且只將四種操作交回頁面', () => {
     const script = readResultPreviewFile('index.ts')
 
     for (const property of ['visible', 'preview', 'canUndo']) {
       expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
     }
-    for (const eventName of ['cancel', 'apply', 'undo']) {
+    for (const eventName of ['cancel', 'apply', 'undo', 'dismiss-undo']) {
       expect(script).toMatch(new RegExp(`triggerEvent\\(\\s*['"]${eventName}['"]\\s*\\)`))
     }
     expect(script).not.toMatch(/buildFleetProposalPreview|FleetProposal|domain|solver/i)
@@ -687,6 +696,8 @@ describe('Task 5 方案預覽共享元件契約', () => {
     expect(wxml).toContain('wx:if="{{canUndo}}"')
     expect(wxml.match(/bindtap="onUndo"/g)).toHaveLength(1)
     expect(wxml).toContain('撤銷本次配隊')
+    expect(wxml).toContain('bindtap="onDismissUndo"')
+    expect(wxml).toContain('關閉撤銷提示')
   })
 
   it('使用 P3 Sheet、按鈕、長文字與安全區規範', () => {
@@ -696,6 +707,9 @@ describe('Task 5 方案預覽共享元件契約', () => {
     expect(wxss).toContain('var(--uwo-shadow-sheet)')
     expect(wxss).toMatch(/padding(?:-bottom)?\s*:\s*calc\([^;]*env\(safe-area-inset-bottom\)\)/)
     expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(
+      /\.result-preview-sheet__undo-close\s*\{[\s\S]*width:\s*56rpx[\s\S]*min-height:\s*56rpx/,
+    )
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
     expect(wxss).toMatch(/overflow-wrap\s*:\s*anywhere/)
   })

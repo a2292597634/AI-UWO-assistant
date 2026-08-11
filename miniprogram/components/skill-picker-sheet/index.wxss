@@ -23,8 +23,10 @@
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__tab {
+  width: auto;
+  min-width: 0;
   min-height: 48rpx;
-  padding: 0 var(--uwo-space-2);
+  padding: 0 var(--uwo-space-1);
   white-space: nowrap;
 }
 
@@ -43,8 +45,10 @@
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__select {
+  width: auto;
+  min-width: 0;
   min-height: 56rpx;
-  padding: 0 var(--uwo-space-2);
+  padding: 0 var(--uwo-space-1);
 }
 
 .skill-picker-sheet__mask {

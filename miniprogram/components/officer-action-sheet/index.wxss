@@ -1,22 +1,49 @@
-.officer-action-sheet__trigger {
-  box-sizing: border-box;
+.officer-action-sheet__trigger-actions {
   display: flex;
-  width: 100%;
-  min-width: 88rpx;
-  min-height: 88rpx;
   align-items: center;
   justify-content: center;
-  padding: 0 var(--uwo-space-2);
-  font-size: var(--uwo-font-size-minimum-action);
-  line-height: 1.3;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  gap: var(--uwo-space-1);
+  width: 100%;
+  margin-top: var(--uwo-space-2);
 }
 
-.officer-action-sheet__trigger--slot {
+.officer-action-sheet__icon-button {
+  box-sizing: border-box;
+  display: flex;
+  width: 36rpx;
   min-width: 0;
-  padding-right: var(--uwo-space-1);
-  padding-left: var(--uwo-space-1);
+  height: 40rpx;
+  min-height: 40rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1;
+  text-align: center;
+}
+
+.officer-action-sheet__icon-button::after {
+  border: 0;
+}
+
+.officer-action-sheet__icon-button--lock {
+  color: var(--uwo-color-accent-brass);
+}
+
+.officer-action-sheet__icon-button--ban {
+  color: var(--uwo-color-danger);
+}
+
+.officer-action-sheet__icon-button[disabled] {
+  opacity: 0.42;
+}
+
+.officer-action-sheet__icon-button:active {
+  background: var(--uwo-color-surface-muted);
 }
 
 .officer-action-sheet__mask {

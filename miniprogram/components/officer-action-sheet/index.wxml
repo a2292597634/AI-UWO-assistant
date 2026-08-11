@@ -1,12 +1,31 @@
 <block wx:if="{{presentation === 'trigger'}}">
-  <button
-    class="ui-button ui-button--secondary officer-action-sheet__trigger officer-action-sheet__trigger--{{variant}}"
-    bindtap="onOpen"
-    data-id="{{officerId}}"
-    aria-label="更多操作：{{officerName}}"
-  >
-    更多操作
-  </button>
+  <view class="officer-action-sheet__trigger-actions">
+    <button
+      class="officer-action-sheet__icon-button officer-action-sheet__icon-button--lock"
+      bindtap="onLock"
+      data-id="{{officerId}}"
+      disabled="{{lockDisabled}}"
+      aria-disabled="{{lockDisabled}}"
+      aria-label="{{status === 'locked' ? '解鎖' : '鎖定'}}{{officerName}}"
+    >{{status === 'locked' ? '解' : '鎖'}}</button>
+    <button
+      class="officer-action-sheet__icon-button officer-action-sheet__icon-button--remove"
+      bindtap="onRemove"
+      data-id="{{officerId}}"
+      disabled="{{removeDisabled || status === 'locked'}}"
+      aria-disabled="{{removeDisabled || status === 'locked'}}"
+      aria-label="移除{{officerName}}"
+    >移</button>
+    <button
+      wx:if="{{allowBan}}"
+      class="officer-action-sheet__icon-button officer-action-sheet__icon-button--ban"
+      bindtap="onBan"
+      data-id="{{officerId}}"
+      disabled="{{banDisabled || status === 'locked'}}"
+      aria-disabled="{{banDisabled || status === 'locked'}}"
+      aria-label="排除{{officerName}}"
+    >排</button>
+  </view>
 </block>
 
 <block wx:if="{{presentation === 'sheet' && visible}}">

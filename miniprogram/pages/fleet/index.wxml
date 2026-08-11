@@ -87,7 +87,7 @@
       />
 
       <view class="slot-grid">
-        <view wx:for="{{currentShip.slots}}" wx:key="position" class="officer-slot {{item.officer ? 'officer-slot--filled' : ''}}">
+        <view wx:for="{{currentShip.slots}}" wx:key="position" class="officer-slot {{item.officer ? 'officer-slot--filled' : ''}} {{item.officer && item.officer.status === 'locked' ? 'officer-slot--locked' : ''}}">
           <text class="officer-slot__number">{{item.position}}</text>
           <block wx:if="{{item.officer}}">
             <view class="officer-slot__visuals">
@@ -103,7 +103,10 @@
               officer-name="{{item.officer.name}}"
               status="{{item.officer.status}}"
               variant="slot"
-              bind:open="onOfficerActionOpen"
+              allow-ban="{{true}}"
+              bind:lock="onOfficerLock"
+              bind:remove="onOfficerRemove"
+              bind:ban="onBanOfficer"
             />
           </block>
           <text wx:else class="officer-slot__empty">空位</text>
@@ -278,24 +281,6 @@
     </view>
    </scroll-view>
 
-   <officer-action-sheet
-     presentation="sheet"
-     visible="{{officerActionSheet.visible}}"
-     officer-id="{{officerActionSheet.officerId}}"
-     officer-name="{{officerActionSheet.officerName}}"
-     status="{{officerActionSheet.status}}"
-     status-label="{{officerActionSheet.statusLabel}}"
-     allow-ban="{{officerActionSheet.allowBan}}"
-     disabled-actions="{{officerActionSheet.disabledActions}}"
-     lock-disabled-reason="{{officerActionSheet.lockDisabledReason}}"
-     remove-disabled-reason="{{officerActionSheet.removeDisabledReason}}"
-     ban-disabled-reason="{{officerActionSheet.banDisabledReason}}"
-     bind:dismiss="onOfficerActionDismiss"
-     bind:lock="onOfficerLock"
-     bind:remove="onOfficerRemove"
-     bind:ban="onBanOfficer"
-   />
-
    <result-preview-sheet
      visible="{{proposalPreview !== null}}"
      preview="{{proposalPreview}}"
@@ -303,6 +288,7 @@
      bind:cancel="onProposalCancel"
      bind:apply="onProposalApply"
      bind:undo="onUndoProposal"
+     bind:dismiss-undo="onUndoDismiss"
    />
 
    <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />

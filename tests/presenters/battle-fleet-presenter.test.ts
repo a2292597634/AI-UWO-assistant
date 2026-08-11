@@ -4,6 +4,7 @@ import type { FleetState } from '../../miniprogram/contracts/battle-fleet'
 import {
   addOfficerToShip,
   createFleetState,
+  lockOfficer,
   removeOfficerFromShip,
   updateShipTargets,
 } from '../../miniprogram/domain/battle-fleet'
@@ -178,6 +179,28 @@ describe('battle fleet presenter', () => {
     expect(view.currentShip.id).toBe('ship-3')
     expect(view.currentShip.slots).toHaveLength(11)
     expect(view.fleetOverview).toHaveLength(7)
+  })
+
+  it('shows locked officers first without changing the ship officer order', () => {
+    const originalState = stateWithCurrentShip()
+    const lockedState = lockOfficer(originalState, 'ship-1', 'officer-c').state
+    const view = buildBattleFleetPageData(
+      lockedState,
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+    )
+
+    expect(view.currentShip.slots.slice(0, 2).map((slot) => slot.officer?.id)).toEqual([
+      'officer-c',
+      'officer-a',
+    ])
+    expect(lockedState.ships.find((ship) => ship.id === 'ship-1')?.officerIds).toEqual([
+      'officer-a',
+      'officer-c',
+    ])
   })
 
   it('narrows the second skill-filter level to the selected skill type', () => {

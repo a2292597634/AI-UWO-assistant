@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { updateShipTargets, createFleetState } from '../../miniprogram/domain/battle-fleet'
+import { addOfficerToShip, lockOfficer } from '../../miniprogram/domain/adventure-fleet'
 import { buildAdventureFleetPageData } from '../../miniprogram/presenters/adventure-fleet-presenter'
 import type { RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
+import type { AdventureFleetOfficer } from '../../miniprogram/domain/adventure-fleet'
 
 const skill = (id: string): RuntimeSkill => ({
   id,
@@ -18,6 +20,20 @@ const buildStateWithTargets = (targets: FleetState['ships'][number]['targets']) 
   if (result.error) throw new Error(result.error)
   return result.state
 }
+
+const adventureOfficers: AdventureFleetOfficer[] = ['officer-a', 'officer-c'].map((id) => ({
+  id,
+  name: id,
+  jobName: '冒險家',
+  rarityName: 'A',
+  portraitPath: `/${id}.png`,
+  visualGradeId: 'grade_4',
+  typeId: 'type_class_1',
+  typeName: '冒險',
+  genderId: 'gender_f',
+  adventureSkills: [],
+  zone: 'adventure',
+}))
 
 describe('adventure fleet presenter target state', () => {
   it('keeps Lv.0 tracking targets, hides empty placeholders, and disables calculation', () => {
@@ -49,6 +65,20 @@ describe('adventure fleet presenter target state', () => {
     expect(page.optimizationTargetCount).toBe(1)
     expect(page.canRecalculate).toBe(true)
     expect(page.targets[0]).toMatchObject({ skillId: 'skill-goal', isTracking: false })
+  })
+
+  it('shows locked officers first in each type zone', () => {
+    let state = addOfficerToShip(createFleetState(), 'ship-1', 'officer-a').state
+    state = addOfficerToShip(state, 'ship-1', 'officer-c').state
+    state = lockOfficer(state, 'ship-1', 'officer-c').state
+
+    const page = buildAdventureFleetPageData(state, adventureOfficers, {}, '')
+
+    expect(page.typeZones[0]?.officers.map((officer) => officer.id)).toEqual([
+      'officer-c',
+      'officer-a',
+    ])
+    expect(page.typeZones[0]?.officers[0]?.status).toBe('locked')
   })
 
   it('分離優化目標與技能追蹤', () => {

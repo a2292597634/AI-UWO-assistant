@@ -69,13 +69,6 @@ Component({
   },
 
   methods: {
-    onOpen() {
-      const officerId = String(this.data.officerId ?? '')
-      if (!officerId) return
-
-      this.triggerEvent('open', { officerId })
-    },
-
     onDismiss() {
       this.triggerEvent('dismiss')
     },
