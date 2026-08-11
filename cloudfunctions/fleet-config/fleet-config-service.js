@@ -173,7 +173,12 @@ function isValidTarget(value) {
   if (!isValidIdentifier(value.id)) return false
   if (value.skillId !== null && !isValidIdentifier(value.skillId)) return false
   if (typeof value.targetLevel !== 'number') return false
-  if (!Number.isInteger(value.targetLevel) || value.targetLevel < 1 || value.targetLevel > 10) {
+  const minimumLevel = value.skillId === null ? 1 : 0
+  if (
+    !Number.isInteger(value.targetLevel) ||
+    value.targetLevel < minimumLevel ||
+    value.targetLevel > 10
+  ) {
     return false
   }
   return true

@@ -419,6 +419,50 @@ describe('FleetConfigService dispatch', () => {
     }
   })
 
+  it('accepts configured Lv.0 tracking targets on every save action', async () => {
+    const baseline = await createViaService('追蹤目標基準')
+    expect(baseline.ok).toBe(true)
+    const configId = baseline.ok ? ((baseline.data.configId as string) ?? '') : ''
+
+    const trackedState = createFleetState()
+    trackedState.ships[0]!.mode = 'auto'
+    trackedState.ships[0]!.targets = [
+      { id: 'tracking-target', skillId: 'skill-adventure', targetLevel: 0 },
+    ]
+
+    const createResult = await dispatch('createConfig', {
+      name: 'Lv0追蹤新配置',
+      fleetState: trackedState,
+    })
+    const updateResult = await dispatch('updateConfig', {
+      configId,
+      expectedVersion: 1,
+      fleetState: trackedState,
+    })
+    const saveAsResult = await dispatch('saveAsConfig', {
+      name: 'Lv0追蹤副本',
+      fleetState: trackedState,
+    })
+
+    expect(createResult.ok, 'createConfig 應接受 Lv.0 追蹤目標').toBe(true)
+    expect(updateResult.ok, 'updateConfig 應接受 Lv.0 追蹤目標').toBe(true)
+    expect(saveAsResult.ok, 'saveAsConfig 應接受 Lv.0 追蹤目標').toBe(true)
+  })
+
+  it('rejects Lv.0 empty targets at the server boundary', async () => {
+    const invalidState = createFleetState()
+    invalidState.ships[0]!.mode = 'auto'
+    invalidState.ships[0]!.targets = [{ id: 'empty-target', skillId: null, targetLevel: 0 }]
+
+    const result = await dispatch('createConfig', {
+      name: '非法空目標',
+      fleetState: invalidState,
+    })
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.code).toBe('invalid-state')
+  })
+
   it('loadConfig returns the full record and updates lastUsedAt', async () => {
     const created = await createViaService('載入測試')
     expect(created.ok).toBe(true)
