@@ -60,7 +60,7 @@
         <input class="form-input form-input--search" placeholder="輸入關鍵詞搜尋職業..." value="{{jobSearchText}}" bindinput="onJobSearchInput" />
         <picker mode="selector" range="{{filteredJobOptions}}" range-key="name" value="{{jobIndex}}" bindchange="onJobChange">
           <view class="form-picker {{jobId ? '' : 'form-picker--empty'}}">
-            {{jobId ? filteredJobOptions[jobIndex].name : '請選擇職業（點擊展開列表）'}}
+            {{jobId ? jobName : '請選擇職業（點擊展開列表）'}}
           </view>
         </picker>
         <text wx:if="{{validationErrors.jobId}}" class="form-error">{{validationErrors.jobId}}</text>
@@ -71,7 +71,7 @@
         <input wx:if="{{nationalityOptions.length > 0}}" class="form-input form-input--search" placeholder="輸入關鍵詞搜尋國籍..." value="{{nationalitySearchText}}" bindinput="onNationalitySearchInput" />
         <picker wx:if="{{nationalityOptions.length > 0}}" mode="selector" range="{{filteredNationalityOptions}}" range-key="name" value="{{nationalityIndex}}" bindchange="onNationalityChange">
           <view class="form-picker {{nationalityId ? '' : 'form-picker--empty'}}">
-            {{nationalityId ? filteredNationalityOptions[nationalityIndex].name : '請選擇國籍（點擊展開列表）'}}
+            {{nationalityId ? nationalityName : '請選擇國籍（點擊展開列表）'}}
           </view>
         </picker>
         <input wx:else class="form-input" placeholder="輸入國籍 ID（如 nationality_ctn_swe）" value="{{nationalityId}}" bindinput="onNationalitySearchInput" />

@@ -64,8 +64,9 @@ function createMemoryRepo() {
       return count
     },
     async insert(record: FleetConfigRecord) {
-      records.set(key(record.ownerUid, record.configId), { ...record })
-      return record
+      const saved = { ...record, _id: `internal_${record.configId}` }
+      records.set(key(record.ownerUid, record.configId), saved)
+      return saved
     },
     async insertWithConstraints(record: FleetConfigRecord, maxConfigsPerOwner: number) {
       return withOwnerLock(async () => {
@@ -82,7 +83,7 @@ function createMemoryRepo() {
         ) {
           return { ok: false as const, code: 'duplicate-name' as const }
         }
-        const saved = { ...record }
+        const saved = { ...record, _id: `internal_${record.configId}` }
         records.set(key(record.ownerUid, record.configId), saved)
         return { ok: true as const, data: saved }
       })
@@ -171,6 +172,12 @@ describe('FleetConfigService dispatch', () => {
     return dispatch('createConfig', { name, fleetState: state }, ownerUid)
   }
 
+  const expectPublicRecord = (record: Record<string, unknown>) => {
+    expect(record).not.toHaveProperty('normalizedName')
+    expect(record).not.toHaveProperty('ownerUid')
+    expect(record).not.toHaveProperty('_id')
+  }
+
   beforeEach(() => {
     repo = createMemoryRepo()
     svc = serviceMod.createFleetConfigService(repo)
@@ -241,10 +248,54 @@ describe('FleetConfigService dispatch', () => {
     if (!r.ok) expect(r.code).toBe('duplicate-name')
   })
 
-  it('persists the normalized name used for uniqueness checks', async () => {
+  it('keeps the normalized name in repository storage for uniqueness checks', async () => {
     const r = await createViaService('  主力艦隊  ')
     expect(r.ok).toBe(true)
-    if (r.ok) expect((r.data as Record<string, unknown>).normalizedName).toBe('主力艦隊')
+    if (!r.ok) return
+
+    const configId = r.data.configId as string
+    await expect(repo.findByOwnerAndId(ownerA, configId)).resolves.toMatchObject({
+      normalizedName: '主力艦隊',
+    })
+  })
+
+  it('does not expose persistence-only fields from full-record actions', async () => {
+    const created = await createViaService('公開契約')
+    expect(created.ok).toBe(true)
+    if (!created.ok) return
+    expectPublicRecord(created.data)
+
+    const configId = created.data.configId as string
+    const loaded = await dispatch('loadConfig', { configId })
+    expect(loaded.ok).toBe(true)
+    if (!loaded.ok) return
+    expectPublicRecord(loaded.data)
+
+    const updated = await dispatch('updateConfig', {
+      configId,
+      expectedVersion: 1,
+      fleetState: createFleetState(),
+    })
+    expect(updated.ok).toBe(true)
+    if (!updated.ok) return
+    expectPublicRecord(updated.data)
+
+    const copied = await dispatch('saveAsConfig', {
+      name: '公開契約副本',
+      fleetState: createFleetState(),
+    })
+    expect(copied.ok).toBe(true)
+    if (!copied.ok) return
+    expectPublicRecord(copied.data)
+
+    const renamed = await dispatch('renameConfig', {
+      configId,
+      expectedVersion: 2,
+      name: '公開契約改名',
+    })
+    expect(renamed.ok).toBe(true)
+    if (!renamed.ok) return
+    expectPublicRecord(renamed.data)
   })
 
   it('allows only one concurrent create with the same owner and name', async () => {
@@ -447,6 +498,38 @@ describe('FleetConfigService dispatch', () => {
     expect(createResult.ok, 'createConfig 應接受 Lv.0 追蹤目標').toBe(true)
     expect(updateResult.ok, 'updateConfig 應接受 Lv.0 追蹤目標').toBe(true)
     expect(saveAsResult.ok, 'saveAsConfig 應接受 Lv.0 追蹤目標').toBe(true)
+  })
+
+  it('accepts the 25 default adventure targets on every save action', async () => {
+    const baseline = await createViaService('adventure target baseline')
+    expect(baseline.ok).toBe(true)
+    const configId = baseline.ok ? ((baseline.data.configId as string) ?? '') : ''
+
+    const adventureState = createFleetState()
+    adventureState.ships[0]!.mode = 'auto'
+    adventureState.ships[0]!.targets = Array.from({ length: 25 }, (_, index) => ({
+      id: `adventure-target-${index + 1}`,
+      skillId: `skill-adventure-${index + 1}`,
+      targetLevel: 0,
+    }))
+
+    const createResult = await dispatch('createConfig', {
+      name: '25 adventure targets',
+      fleetState: adventureState,
+    })
+    const updateResult = await dispatch('updateConfig', {
+      configId,
+      expectedVersion: 1,
+      fleetState: adventureState,
+    })
+    const saveAsResult = await dispatch('saveAsConfig', {
+      name: '25 adventure targets copy',
+      fleetState: adventureState,
+    })
+
+    expect(createResult.ok, 'createConfig 應接受 25 個冒險目標').toBe(true)
+    expect(updateResult.ok, 'updateConfig 應接受 25 個冒險目標').toBe(true)
+    expect(saveAsResult.ok, 'saveAsConfig 應接受 25 個冒險目標').toBe(true)
   })
 
   it('rejects Lv.0 empty targets at the server boundary', async () => {

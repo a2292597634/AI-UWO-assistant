@@ -36,7 +36,9 @@ function getOwnerLockId(ownerUid) {
 function isCollectionAlreadyExistsError(error) {
   const code = error && typeof error === 'object' ? (error.errCode ?? error.code) : undefined
   return (
-    code === 'DATABASE_COLLECTION_ALREADY_EXIST' || code === 'DATABASE_COLLECTION_ALREADY_EXISTS'
+    code === 'DATABASE_COLLECTION_ALREADY_EXIST' ||
+    code === 'DATABASE_COLLECTION_ALREADY_EXISTS' ||
+    code === 'ResourceUnavailable.ResourceExist'
   )
 }
 

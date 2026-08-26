@@ -158,7 +158,8 @@ const ALLOWED_TARGET_KEYS = new Set(['id', 'skillId', 'targetLevel'])
 const VALID_MODES = new Set(['manual', 'auto'])
 const MAX_IDENTIFIER_LENGTH = 100
 const MAX_LABEL_LENGTH = 30
-const MAX_TARGETS_PER_SHIP = 20
+// 冒險頁面的預設目標目前超過 20 個，保留足夠空間容納完整冒險技能清單。
+const MAX_TARGETS_PER_SHIP = 50
 const MAX_OFFICER_ID_LIST_LENGTH = 1000
 
 /**

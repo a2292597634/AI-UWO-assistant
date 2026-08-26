@@ -13,7 +13,8 @@ const FLEET_SHIP_COUNT = 7
 const SHIP_OFFICER_CAPACITY = 11
 const MAX_IDENTIFIER_LENGTH = 100
 const MAX_LABEL_LENGTH = 30
-const MAX_TARGETS_PER_SHIP = 20
+// 冒險頁面的預設目標目前超過 20 個，保留足夠空間容納完整冒險技能清單。
+const MAX_TARGETS_PER_SHIP = 50
 const MAX_OFFICER_ID_LIST_LENGTH = 1000
 const VALID_ACTIONS = new Set([
   'authenticate',
@@ -293,7 +294,7 @@ function toSummary(record) {
  * @returns {object}
  */
 function toClientRecord(record) {
-  const { ownerUid: _ownerUid, _id: _recordId, ...rest } = record
+  const { ownerUid: _ownerUid, _id: _recordId, normalizedName: _normalizedName, ...rest } = record
   return rest
 }
 

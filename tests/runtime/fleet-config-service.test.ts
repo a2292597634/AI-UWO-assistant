@@ -156,6 +156,30 @@ describe('FleetConfigService adapter contract', () => {
     })
   })
 
+  it('rejects a successful record payload that exposes persistence-only fields', async () => {
+    const state = createFleetState()
+    mockCallFunction.mockResolvedValue({
+      result: {
+        ok: true,
+        data: {
+          configId: 'cfg-1',
+          name: '我的配置',
+          normalizedName: '我的配置',
+          fleetState: state,
+          schemaVersion: 1,
+          version: 1,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          lastUsedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    })
+
+    await expect(createFleetConfigService().loadConfig('cfg-1')).rejects.toMatchObject({
+      code: 'network',
+    })
+  })
+
   it('sends the expected version when deleting a config', async () => {
     mockSuccess({ deleted: true })
 

@@ -16,12 +16,18 @@ interface AdventurePageData {
   configStatus: string
   proposalPreview: Record<string, unknown> | null
   canUndoProposal: boolean
+  activeConfigId: string | null
+  configList: unknown[]
+  showConfigList: boolean
+  showNameModal: boolean
+  modalAction: string
   [key: string]: unknown
 }
 
 interface AdventurePageConfig {
   data: AdventurePageData
   onLoad(): void
+  onUnload(): void
   onSkillSelect(event: WechatMiniprogram.BaseEvent): void
   onModeTap(event: WechatMiniprogram.BaseEvent): void
   onAddTarget(): void
@@ -32,6 +38,10 @@ interface AdventurePageConfig {
   onUndoProposal(): void
   onUndoDismiss(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
+  onConfigLogin(): Promise<void>
+  onConfigListOpen(): Promise<void>
+  onConfigSave(): Promise<void>
+  onUnsavedGuardDiscard(): void
 }
 
 interface AdventurePageInstance extends AdventurePageConfig {
@@ -46,6 +56,8 @@ const wxStub = {
   setNavigationBarTitle: vi.fn(),
   navigateTo: vi.fn(),
   navigateBack: vi.fn(),
+  enableAlertBeforeUnload: vi.fn(),
+  disableAlertBeforeUnload: vi.fn(),
   cloud: {
     callFunction: vi.fn(),
   },
@@ -69,9 +81,28 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  wxStub.cloud.callFunction.mockReset()
 })
 
 describe('adventure fleet page safety guard', () => {
+  it('enables the native unload alert for the initialized unsaved adventure draft', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    expect(wxStub.enableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+    page.onUnsavedGuardDiscard()
+    expect(wxStub.disableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+  })
+
+  it('cleans up the native unload alert when the page unloads', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onUnload()
+
+    expect(wxStub.disableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps preconfigured Lv.0 targets without showing an empty target row', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -80,6 +111,7 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.targets.every((target) => target.skillId !== null)).toBe(true)
     expect(page.data.targets.every((target) => target.targetLevel === 0)).toBe(true)
     expect(page.data.canRecalculate).toBe(false)
+    expect(page.data.configStatus).toBe('unsaved')
   })
 
   it('opens target picker without adding a blank target', () => {
@@ -155,7 +187,7 @@ describe('adventure fleet page safety guard', () => {
 
     expect(page.data.showTargetPicker).toBe(false)
     expect(page.data.targets).toEqual(before)
-    expect(page.data.configStatus).toBe('new')
+    expect(page.data.configStatus).toBe('unsaved')
   })
 
   it('opens a proposal preview without changing the current adventure fleet', () => {
@@ -243,6 +275,53 @@ describe('adventure fleet page safety guard', () => {
 
     expect(page.data.canUndoProposal).toBe(false)
     expect(page.data.typeZones).toEqual(applied)
+  })
+})
+
+describe('adventure fleet config list loading', () => {
+  it('does not open the config list when loading it fails after login', async () => {
+    wxStub.cloud.callFunction
+      .mockResolvedValueOnce({ result: { ok: true, data: { authenticated: true } } })
+      .mockRejectedValue(new Error('offline'))
+
+    const page = createPageInstance()
+    page.onLoad()
+
+    await page.onConfigListOpen()
+
+    expect(page.data.showConfigList).toBe(false)
+    expect(page.data.activeConfigId).toBeNull()
+  })
+
+  it('treats a successfully loaded empty config list as a new configuration', async () => {
+    wxStub.cloud.callFunction
+      .mockResolvedValueOnce({ result: { ok: true, data: { authenticated: true } } })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+
+    const page = createPageInstance()
+    page.onLoad()
+
+    await page.onConfigLogin()
+
+    expect(page.data.configStatus).toBe('unsaved')
+    expect(page.data.activeConfigId).toBeNull()
+  })
+})
+
+describe('adventure fleet draft preservation', () => {
+  it('keeps the initialized adventure targets and opens save-as after guest login', async () => {
+    wxStub.cloud.callFunction.mockResolvedValueOnce({
+      result: { ok: true, data: { authenticated: true } },
+    })
+    const page = createPageInstance()
+    page.onLoad()
+    const targetsBeforeLogin = structuredClone(page.data.targets)
+
+    await page.onConfigSave()
+
+    expect(page.data.targets).toEqual(targetsBeforeLogin)
+    expect(page.data.showNameModal).toBe(true)
+    expect(page.data.modalAction).toBe('saveAs')
   })
 })
 

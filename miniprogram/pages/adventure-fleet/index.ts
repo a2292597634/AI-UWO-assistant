@@ -101,6 +101,7 @@ interface FleetPageState {
   configList: FleetConfigSummary[]
   savedFleetState: string | null
   isDirty: boolean
+  nativeUnloadGuardEnabled: boolean
   configService: FleetConfigService
   pendingAction: PendingConfigAction | null
   proposal: FleetProposal | null
@@ -208,13 +209,25 @@ const computeDirty = (state: FleetPageState): boolean => {
 const updateDirty = (page: FleetPageLike, state: FleetPageState): void => {
   const isDirty = computeDirty(state)
   state.isDirty = isDirty
+  syncNativeUnloadGuard(state)
   page.setData({ configStatus: deriveConfigStatus(isDirty, state.activeConfigId ?? '') })
 }
 
 const markClean = (page: FleetPageLike, state: FleetPageState): void => {
   state.savedFleetState = serializeFleetState(state.fleet)
   state.isDirty = false
+  syncNativeUnloadGuard(state)
   page.setData({ configStatus: 'saved' })
+}
+
+const syncNativeUnloadGuard = (state: FleetPageState): void => {
+  if (state.isDirty === state.nativeUnloadGuardEnabled) return
+  if (state.isDirty) {
+    wx.enableAlertBeforeUnload({ message: '目前配置尚未保存，確定要離開嗎？' })
+  } else {
+    wx.disableAlertBeforeUnload()
+  }
+  state.nativeUnloadGuardEnabled = state.isDirty
 }
 
 const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: string }): void => {
@@ -391,21 +404,18 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
 
 const doNewConfig = (page: FleetPageLike): void => {
   const state = getState(page)
-  state.fleet = createFleetState()
   state.proposal = null
   state.undoFleetState = null
   state.activeConfigId = null
   state.configName = DEFAULT_CONFIG_NAME
   state.configVersion = 0
-  state.savedFleetState = null
-  state.isDirty = false
   state.manualSkillId = null
   state.manualSearchText = ''
   state.manualSkillLimit = MANUAL_SKILL_WINDOW_SIZE
+  createAdventureDraft(page, state)
   page.setData({
     activeConfigId: null,
     configName: DEFAULT_CONFIG_NAME,
-    configStatus: 'new',
     showConfigList: false,
     showConfigMenu: false,
   })
@@ -426,14 +436,16 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
   }
 }
 
-const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Promise<void> => {
+const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Promise<boolean> => {
   try {
     const list = await state.configService.listMyConfigs()
     state.configList = [...list]
     page.setData({ configList: [...list] })
+    return true
   } catch (e) {
     console.error('listMyConfigs failed:', e)
     showError('載入配置列表失敗')
+    return false
   }
 }
 
@@ -468,23 +480,24 @@ const performLogin = async (page: FleetPageLike): Promise<boolean> => {
   }
 }
 
-const onAfterLogin = async (page: FleetPageLike): Promise<void> => {
+const onAfterLogin = async (page: FleetPageLike): Promise<boolean> => {
   const state = getState(page)
 
   if (state.isDirty) {
     openNameModal(page, 'saveAs')
-    return
+    return true
   }
 
-  await refreshConfigList(state, page)
+  if (!(await refreshConfigList(state, page))) return false
   const list = state.configList
   if (list.length === 0) {
     doNewConfig(page)
-    return
+    return true
   }
 
   const latest = list.reduce((a, b) => (a.lastUsedAt > b.lastUsedAt ? a : b))
   await doLoadConfig(page, latest.configId)
+  return true
 }
 
 // ── 冲突处理 ──
@@ -557,6 +570,15 @@ const initDefaultTargets = (state: FleetPageState): void => {
   if (!result.error) state.fleet = result.state
 }
 
+const createAdventureDraft = (page: FleetPageLike, state: FleetPageState): void => {
+  state.fleet = createFleetState()
+  syncAllShipsMode(state, 'auto')
+  clearEmptyTargets(state)
+  initDefaultTargets(state)
+  state.savedFleetState = null
+  updateDirty(page, state)
+}
+
 // ── 页面定义 ──
 
 Page({
@@ -586,22 +608,27 @@ Page({
       configList: [],
       savedFleetState: null,
       isDirty: false,
+      nativeUnloadGuardEnabled: false,
       configService: getFleetConfigService(),
       pendingAction: null,
       proposal: null,
       undoFleetState: null,
     }
-    // 所有船设为自动模式 + 自动填充默认冒险技能目标
-    syncAllShipsMode(state, 'auto')
-    clearEmptyTargets(state)
-    initDefaultTargets(state)
     pageStateByInstance.set(this, state)
+    createAdventureDraft(this, state)
     wx.setNavigationBarTitle({ title: '冒險模擬艦隊' })
     render(this)
   },
 
   onReady() {
     render(this)
+  },
+
+  onUnload() {
+    const state = getState(this)
+    if (!state.nativeUnloadGuardEnabled) return
+    wx.disableAlertBeforeUnload()
+    state.nativeUnloadGuardEnabled = false
   },
 
   // ── 素材 ──
@@ -971,9 +998,9 @@ Page({
     if (state.authStatus !== 'authenticated') {
       const ok = await performLogin(this)
       if (!ok) return
-      await onAfterLogin(this)
+      if (!(await onAfterLogin(this))) return
     }
-    await refreshConfigList(state, this)
+    if (!(await refreshConfigList(state, this))) return
     this.setData({ showConfigList: true, showConfigMenu: false })
   },
 
@@ -1177,6 +1204,7 @@ Page({
   onUnsavedGuardDiscard() {
     const state = getState(this)
     state.isDirty = false
+    syncNativeUnloadGuard(state)
     resolvePendingAction(this)
   },
 

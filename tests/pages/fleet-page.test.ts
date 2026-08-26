@@ -41,6 +41,7 @@ interface FleetPageConfig {
   data: FleetTestData
   onLoad(): Promise<void>
   onReady(): Promise<void>
+  onUnload(): void
   retryAssetLoading(): Promise<void>
   onImageError(event: WechatMiniprogram.BaseEvent): void
   onSkillListReachEnd(): void
@@ -101,6 +102,8 @@ const wxStub = {
   setNavigationBarTitle: vi.fn(),
   navigateTo: vi.fn(),
   navigateBack: vi.fn((options: { success?: () => void }) => options.success?.()),
+  enableAlertBeforeUnload: vi.fn(),
+  disableAlertBeforeUnload: vi.fn(),
   cloud: {
     callFunction: mockCallFunction,
   },
@@ -663,6 +666,31 @@ describe('fleet config lifecycle', () => {
     expect(page.data.configStatus).toBe('unsaved')
   })
 
+  it('enables the native unload alert only while the fleet draft is dirty', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    expect(wxStub.enableAlertBeforeUnload).not.toHaveBeenCalled()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    expect(wxStub.enableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+
+    page.onShipTabTap({ currentTarget: { dataset: { id: 'ship-2' } } } as never)
+    expect(wxStub.enableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+
+    page.onUnsavedGuardDiscard()
+    expect(wxStub.disableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+  })
+
+  it('cleans up the native unload alert when the page unloads', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onUnload()
+
+    expect(wxStub.disableAlertBeforeUnload).toHaveBeenCalledTimes(1)
+  })
+
   it('does not mark UI-only changes dirty', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -690,6 +718,34 @@ describe('fleet config lifecycle', () => {
     expect(mockCallFunction).toHaveBeenCalledWith(
       expect.objectContaining({ data: { action: 'authenticate' } }),
     )
+  })
+
+  it('does not open the config list when loading it fails after login', async () => {
+    mockCallFunction
+      .mockResolvedValueOnce({ result: { ok: true, data: { authenticated: true } } })
+      .mockRejectedValue(new Error('offline'))
+
+    const page = createPageInstance()
+    page.onLoad()
+
+    await page.onConfigListOpen()
+
+    expect(page.data.showConfigList).toBe(false)
+    expect(page.data.activeConfigId).toBeNull()
+  })
+
+  it('treats a successfully loaded empty config list as a new configuration', async () => {
+    mockCallFunction
+      .mockResolvedValueOnce({ result: { ok: true, data: { authenticated: true } } })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+
+    const page = createPageInstance()
+    page.onLoad()
+
+    await page.onConfigLogin()
+
+    expect(page.data.configStatus).toBe('new')
+    expect(page.data.activeConfigId).toBeNull()
   })
 
   it('does not repeat the last-used update after loading a config', async () => {

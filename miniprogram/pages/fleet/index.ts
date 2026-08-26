@@ -100,6 +100,7 @@ interface FleetPageState {
   configList: FleetConfigSummary[]
   savedFleetState: string | null
   isDirty: boolean
+  nativeUnloadGuardEnabled: boolean
   configService: FleetConfigService
   pendingAction: PendingConfigAction | null
   proposal: FleetProposal | null
@@ -226,13 +227,25 @@ const computeDirty = (state: FleetPageState): boolean => {
 const updateDirty = (page: FleetPageLike, state: FleetPageState): void => {
   const isDirty = computeDirty(state)
   state.isDirty = isDirty
+  syncNativeUnloadGuard(state)
   page.setData({ configStatus: deriveConfigStatus(isDirty, state.activeConfigId ?? '') })
 }
 
 const markClean = (page: FleetPageLike, state: FleetPageState): void => {
   state.savedFleetState = serializeFleetState(state.fleet)
   state.isDirty = false
+  syncNativeUnloadGuard(state)
   page.setData({ configStatus: 'saved' })
+}
+
+const syncNativeUnloadGuard = (state: FleetPageState): void => {
+  if (state.isDirty === state.nativeUnloadGuardEnabled) return
+  if (state.isDirty) {
+    wx.enableAlertBeforeUnload({ message: '目前配置尚未保存，確定要離開嗎？' })
+  } else {
+    wx.disableAlertBeforeUnload()
+  }
+  state.nativeUnloadGuardEnabled = state.isDirty
 }
 
 const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: string }): void => {
@@ -388,6 +401,7 @@ const doNewConfig = (page: FleetPageLike): void => {
   state.configVersion = 0
   state.savedFleetState = null
   state.isDirty = false
+  syncNativeUnloadGuard(state)
   state.currentShipId = 'ship-1'
   state.manualSkillId = null
   state.manualFilters = { kind: 'all', categoryId: null, searchText: '' }
@@ -416,14 +430,16 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
   }
 }
 
-const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Promise<void> => {
+const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Promise<boolean> => {
   try {
     const list = await state.configService.listMyConfigs()
     state.configList = [...list]
     page.setData({ configList: [...list] })
+    return true
   } catch (e) {
     console.error('listMyConfigs failed:', e)
     showError('載入配置列表失敗')
+    return false
   }
 }
 
@@ -458,27 +474,28 @@ const performLogin = async (page: FleetPageLike): Promise<boolean> => {
   }
 }
 
-const onAfterLogin = async (page: FleetPageLike): Promise<void> => {
+const onAfterLogin = async (page: FleetPageLike): Promise<boolean> => {
   const state = getState(page)
 
   // If user has a dirty guest draft, go straight to save-as flow
   if (state.isDirty) {
     openNameModal(page, 'saveAs')
-    return
+    return true
   }
 
   // Otherwise load the last-used config
-  await refreshConfigList(state, page)
+  if (!(await refreshConfigList(state, page))) return false
   const list = state.configList
   if (list.length === 0) {
     // No saved configs
     doNewConfig(page)
-    return
+    return true
   }
 
   // Load the one with newest lastUsedAt
   const latest = list.reduce((a, b) => (a.lastUsedAt > b.lastUsedAt ? a : b))
   await doLoadConfig(page, latest.configId)
+  return true
 }
 
 // ── Conflict handling ──
@@ -568,6 +585,7 @@ Page({
       configList: [],
       savedFleetState: null,
       isDirty: false,
+      nativeUnloadGuardEnabled: false,
       configService: getFleetConfigService(),
       pendingAction: null,
       proposal: null,
@@ -580,6 +598,13 @@ Page({
 
   onReady() {
     return render(this)
+  },
+
+  onUnload() {
+    const state = getState(this)
+    if (!state.nativeUnloadGuardEnabled) return
+    wx.disableAlertBeforeUnload()
+    state.nativeUnloadGuardEnabled = false
   },
 
   // ── Config: Login ──
@@ -614,9 +639,9 @@ Page({
       // Trigger login first
       const ok = await performLogin(this)
       if (!ok) return
-      await onAfterLogin(this)
+      if (!(await onAfterLogin(this))) return
     }
-    await refreshConfigList(state, this)
+    if (!(await refreshConfigList(state, this))) return
     this.setData({ showConfigList: true, showConfigMenu: false })
   },
 
@@ -852,6 +877,7 @@ Page({
   onUnsavedGuardDiscard() {
     const state = getState(this)
     state.isDirty = false
+    syncNativeUnloadGuard(state)
     resolvePendingAction(this)
   },
 

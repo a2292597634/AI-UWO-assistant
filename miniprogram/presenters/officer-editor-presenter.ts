@@ -171,10 +171,12 @@ export interface OfficerEditorPageData {
   genderId: string
   genderIndex: number
   jobId: string
+  jobName: string
   jobIndex: number
   jobSearchText: string
   filteredJobOptions: DropdownOption[]
   nationalityId: string
+  nationalityName: string
   nationalityIndex: number
   nationalitySearchText: string
   filteredNationalityOptions: DropdownOption[]
@@ -216,8 +218,6 @@ export const buildOfficerEditorPageData = (
   const rarityIndex = options.rarityOptions.findIndex((o) => o.id === form.rarityId)
   const typeIndex = options.typeOptions.findIndex((o) => o.id === form.typeId)
   const genderIndex = options.genderOptions.findIndex((o) => o.id === form.genderId)
-  const jobIndex = options.jobOptions.findIndex((o) => o.id === form.jobId)
-  const nationalityIndex = options.nationalityOptions.findIndex((o) => o.id === form.nationalityId)
 
   // 语言视图
   const languageViews: LanguageRowView[] = form.languages.map((l) => ({
@@ -247,6 +247,14 @@ export const buildOfficerEditorPageData = (
     options.nationalityOptions,
     nationalitySearchText,
   )
+  const selectedJob = options.jobOptions.find((option) => option.id === form.jobId)
+  const selectedNationality = options.nationalityOptions.find(
+    (option) => option.id === form.nationalityId,
+  )
+  const jobIndex = filteredJobOptions.findIndex((option) => option.id === form.jobId)
+  const nationalityIndex = filteredNationalityOptions.findIndex(
+    (option) => option.id === form.nationalityId,
+  )
 
   return {
     name: form.name,
@@ -259,10 +267,12 @@ export const buildOfficerEditorPageData = (
     genderIndex: genderIndex >= 0 ? genderIndex : 0,
     jobId: form.jobId,
     jobIndex: jobIndex >= 0 ? jobIndex : 0,
+    jobName: selectedJob?.name ?? '',
     jobSearchText,
     filteredJobOptions,
     nationalityId: form.nationalityId,
     nationalityIndex: nationalityIndex >= 0 ? nationalityIndex : 0,
+    nationalityName: selectedNationality?.name ?? '',
     nationalitySearchText,
     filteredNationalityOptions,
     portraitTempPath: form.portraitTempPath,

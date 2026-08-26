@@ -45,6 +45,7 @@ interface FakeDatabase {
 }
 
 interface FleetConfigRepository {
+  listByOwner(ownerUid: string): Promise<StoredRecord[]>
   insertWithConstraints(
     record: StoredRecord,
     maxConfigsPerOwner: number,
@@ -70,7 +71,7 @@ interface FleetConfigRepository {
   deleteByOwnerAndId(ownerUid: string, configId: string, expectedVersion: number): Promise<boolean>
 }
 
-function createFakeDatabase(): FakeDatabase {
+function createFakeDatabase(createCollectionError?: unknown): FakeDatabase {
   const collections = new Map<string, Map<string, StoredRecord>>()
   let nextId = 0
   let transactionTail = Promise.resolve()
@@ -142,7 +143,9 @@ function createFakeDatabase(): FakeDatabase {
     collection(name) {
       return createCollection(name)
     },
-    async createCollection() {},
+    async createCollection() {
+      if (createCollectionError) throw createCollectionError
+    },
     async runTransaction<T>(callback: (transaction: FakeTransaction) => Promise<T>): Promise<T> {
       const previous = transactionTail
       let release!: () => void
@@ -172,6 +175,14 @@ function makeRecord(ownerUid: string, configId: string, name: string): StoredRec
 }
 
 describe('Fleet config repository atomic constraints', () => {
+  it('treats an existing collection as ready when CloudBase uses ResourceUnavailable.ResourceExist', async () => {
+    const repo = createRepository(
+      createFakeDatabase({ errCode: 'ResourceUnavailable.ResourceExist' }),
+    )
+
+    await expect(repo.listByOwner('owner_a')).resolves.toEqual([])
+  })
+
   it('allows only one concurrent insert with the same owner and name', async () => {
     const repo = createRepository(createFakeDatabase())
 
@@ -200,6 +211,16 @@ describe('Fleet config repository atomic constraints', () => {
     expect(first.ok).toBe(true)
     expect(duplicate).toEqual({ ok: false, code: 'duplicate-name' })
     expect(otherOwner.ok).toBe(true)
+  })
+
+  it('persists normalizedName for the repository uniqueness constraint', async () => {
+    const repo = createRepository(createFakeDatabase())
+
+    await repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '  主力艦隊  '), 20)
+
+    await expect(repo.listByOwner('owner_a')).resolves.toEqual([
+      expect.objectContaining({ normalizedName: '主力艦隊' }),
+    ])
   })
 
   it('enforces the 20-record limit across concurrent inserts', async () => {

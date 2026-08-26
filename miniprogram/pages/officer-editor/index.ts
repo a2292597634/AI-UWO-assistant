@@ -27,6 +27,7 @@ import {
   buildInitialFormWithOptions,
   buildOfficerEditorPageData,
   GROUP_LABEL_OPTIONS,
+  filterJobOptions,
   filterSkillOptions,
   type OfficerEditorPageData,
 } from '../../presenters/officer-editor-presenter'
@@ -108,10 +109,12 @@ Page({
     genderId: '',
     genderIndex: 0,
     jobId: '',
+    jobName: '',
     jobIndex: 0,
     jobSearchText: '',
     filteredJobOptions: [],
     nationalityId: '',
+    nationalityName: '',
     nationalityIndex: 0,
     nationalitySearchText: '',
     filteredNationalityOptions: [],
@@ -229,8 +232,8 @@ Page({
     const state = getState(this)
     const index = Number(event.detail.value)
     const options = buildInitialFormWithOptions(state.dictionaries, state.skills)
-    const filtered = options.jobOptions
-    state.form.jobId = filtered[index]?.id ?? ''
+    const filtered = filterJobOptions(options.jobOptions, this.data.jobSearchText ?? '')
+    state.form.jobId = filtered[index]?.id ?? state.form.jobId
     this.setData({ jobSearchText: '' })
     render(this)
   },
@@ -246,8 +249,11 @@ Page({
     const state = getState(this)
     const index = Number(event.detail.value)
     const options = buildInitialFormWithOptions(state.dictionaries, state.skills)
-    const filtered = options.nationalityOptions
-    state.form.nationalityId = filtered[index]?.id ?? ''
+    const filtered = filterJobOptions(
+      options.nationalityOptions,
+      this.data.nationalitySearchText ?? '',
+    )
+    state.form.nationalityId = filtered[index]?.id ?? state.form.nationalityId
     this.setData({ nationalitySearchText: '' })
     render(this)
   },
