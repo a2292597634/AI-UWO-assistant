@@ -20,23 +20,35 @@ Component({
       type: String,
       value: '',
     },
-    showMenu: {
+    configList: {
+      type: Array,
+      value: [],
+    },
+    unclassifiedConfigs: {
+      type: Array,
+      value: [],
+    },
+    listState: {
+      type: String,
+      value: 'idle',
+    },
+    listError: {
+      type: String,
+      value: '',
+    },
+    expanded: {
       type: Boolean,
       value: false,
     },
   },
 
   methods: {
-    onInfoTap() {
-      this.triggerEvent('info-tap')
+    onToggle() {
+      this.triggerEvent('toggle')
     },
 
-    onLoginTap() {
-      this.triggerEvent('login-tap')
-    },
-
-    onMenuTap() {
-      this.triggerEvent('menu-tap')
+    onLogin() {
+      this.triggerEvent('login')
     },
 
     onSave() {
@@ -61,6 +73,20 @@ Component({
 
     onExit() {
       this.triggerEvent('exit')
+    },
+
+    onLoad(event: WechatMiniprogram.BaseEvent) {
+      const id = event.currentTarget.dataset.id
+      this.triggerEvent('load', { id })
+    },
+
+    onClassify(event: WechatMiniprogram.BaseEvent) {
+      const { id, scope } = event.currentTarget.dataset
+      this.triggerEvent('classify', { id, scope })
+    },
+
+    onRetry() {
+      this.triggerEvent('retry')
     },
   },
 })

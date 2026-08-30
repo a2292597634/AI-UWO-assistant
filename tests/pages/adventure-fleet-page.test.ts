@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { createFleetState } from '../../miniprogram/domain/battle-fleet'
 
 interface AdventureTargetView {
   id: string
@@ -32,6 +33,10 @@ interface AdventurePageConfig {
   onUndoProposal(): void
   onUndoDismiss(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
+  onConfigLogin(): Promise<void>
+  onConfigToggle(): void
+  onConfigClassify(event: WechatMiniprogram.BaseEvent): Promise<void>
+  onConfigRetry(): Promise<void>
 }
 
 interface AdventurePageInstance extends AdventurePageConfig {
@@ -40,6 +45,7 @@ interface AdventurePageInstance extends AdventurePageConfig {
 }
 
 let adventurePage: AdventurePageConfig
+const adventureMockCallFunction = vi.fn()
 const wxStub = {
   showToast: vi.fn(),
   showModal: vi.fn(),
@@ -47,7 +53,7 @@ const wxStub = {
   navigateTo: vi.fn(),
   navigateBack: vi.fn(),
   cloud: {
-    callFunction: vi.fn(),
+    callFunction: adventureMockCallFunction,
   },
 }
 
@@ -69,6 +75,169 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  adventureMockCallFunction.mockReset()
+})
+
+describe('adventure fleet config lifecycle', () => {
+  it('冒險頁只傳 adventure scope，載入成功後自動收起', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const fleetState = createFleetState()
+    adventureMockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'adventure-1',
+                  name: '冒險配置',
+                  scope: 'adventure',
+                  version: 1,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              ],
+            },
+          }
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'loadConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'adventure-1',
+                name: '冒險配置',
+                scope: 'adventure',
+                fleetState,
+                schemaVersion: 1,
+                version: 1,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    page.onLoad()
+    page.onConfigToggle()
+    expect(page.data.expanded).toBe(true)
+
+    await page.onConfigLogin()
+
+    expect(adventureMockCallFunction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ action: 'listMyConfigs', scope: 'adventure' }),
+      }),
+    )
+    expect(adventureMockCallFunction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ action: 'loadConfig', scope: 'adventure' }),
+      }),
+    )
+    expect(page.data.expanded).toBe(false)
+  })
+
+  it('列表載入錯誤時保持配置模組展開', async () => {
+    adventureMockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate') {
+        return { result: { ok: true, data: { authenticated: true } } }
+      }
+      if (data.action === 'listMyConfigs') {
+        return {
+          result: {
+            ok: false,
+            code: 'network',
+            message: '暫時無法載入',
+          },
+        }
+      }
+      throw new Error(`unexpected action: ${data.action}`)
+    })
+
+    const page = createPageInstance()
+    page.onLoad()
+    page.onConfigToggle()
+    await page.onConfigLogin()
+
+    expect(page.data.expanded).toBe(true)
+    expect(page.data.configListState).toBe('error')
+    expect(page.data.configListError).toBe('載入配置列表失敗')
+  })
+
+  it('待分類 action 傳遞 targetScope 並保留版本', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const fleetState = createFleetState()
+    adventureMockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'listUnclassifiedConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'legacy-1',
+                  name: '舊配置',
+                  scope: 'unclassified',
+                  version: 4,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              ],
+            },
+          }
+        case 'classifyConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'legacy-1',
+                name: '舊配置',
+                scope: 'battle',
+                fleetState,
+                schemaVersion: 1,
+                version: 5,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    page.onLoad()
+    await page.onConfigLogin()
+    await page.onConfigClassify({
+      currentTarget: { dataset: { id: 'legacy-1', scope: 'battle' } },
+    } as never)
+
+    expect(adventureMockCallFunction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'classifyConfig',
+          configId: 'legacy-1',
+          expectedVersion: 4,
+          targetScope: 'battle',
+        }),
+      }),
+    )
+  })
 })
 
 describe('adventure fleet page safety guard', () => {
@@ -263,7 +432,6 @@ const adventureJson = JSON.parse(
 
 const sharedComponentNames = [
   'config-bar',
-  'config-list-modal',
   'config-name-modal',
   'config-conflict-modal',
   'mode-tabs',
@@ -325,7 +493,7 @@ describe('adventure fleet officer action surface', () => {
 })
 
 describe('adventure fleet shared component wiring', () => {
-  it('registers and renders all seven shared components', () => {
+  it('registers and renders the page shared components', () => {
     for (const name of sharedComponentNames) {
       expect(adventureJson.usingComponents?.[name]).toBe(`../../components/${name}/index`)
       expect(adventureWxml).toMatch(new RegExp(`<${name}(?:\\s|/?>)`))
@@ -333,8 +501,12 @@ describe('adventure fleet shared component wiring', () => {
   })
 
   it('keeps existing handlers for inline and sheet skill pickers and proposal actions', () => {
+    expect(adventureWxml).toContain('bind:toggle="onConfigToggle"')
+    expect(adventureWxml).toContain('bind:load="onConfigLoad"')
+    expect(adventureWxml).toContain('bind:classify="onConfigClassify"')
+    expect(adventureWxml).toContain('bind:retry="onConfigRetry"')
     expect(adventureWxml).toContain('bind:exit="onConfigExit"')
-    expect(adventureWxml).toContain('<config-list-modal')
+    expect(adventureWxml).not.toContain('<config-list-modal')
     expect(adventureWxml).toContain('<config-name-modal')
     expect(adventureWxml).toContain('<config-conflict-modal')
     expect(adventureWxml).not.toContain('class="config-item')

@@ -4,16 +4,22 @@
     config-status="{{configStatus}}"
     auth-status="{{authStatus}}"
     active-config-id="{{activeConfigId}}"
-    show-menu="{{showConfigMenu}}"
-    bind:info-tap="onConfigListOpen"
-    bind:login-tap="onConfigLogin"
-    bind:menu-tap="onConfigMenuTap"
+    config-list="{{configList}}"
+    unclassified-configs="{{unclassifiedConfigs}}"
+    list-state="{{configListState}}"
+    list-error="{{configListError}}"
+    expanded="{{expanded}}"
+    bind:toggle="onConfigToggle"
+    bind:login="onConfigLogin"
     bind:save="onConfigSave"
     bind:save-as="onConfigSaveAs"
     bind:rename="onConfigRename"
     bind:delete="onConfigDelete"
     bind:new="onConfigNew"
     bind:exit="onConfigExit"
+    bind:load="onConfigLoad"
+    bind:classify="onConfigClassify"
+    bind:retry="onConfigRetry"
   />
 
   <view class="fleet-context">
@@ -23,14 +29,6 @@
     </view>
     <text class="fleet-context__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
   </view>
-
-  <config-list-modal
-    visible="{{showConfigList}}"
-    configs="{{configList}}"
-    active-config-id="{{activeConfigId}}"
-    bind:close="onConfigListClose"
-    bind:select="onConfigSelect"
-  />
 
   <config-name-modal
     visible="{{showNameModal}}"

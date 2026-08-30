@@ -7,11 +7,21 @@
   z-index: 200;
   display: flex;
   align-items: flex-end;
-  background: rgba(38, 51, 47, 0.58);
+  background: transparent;
+}
+
+.skill-sheet-mask::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: var(--uwo-color-ink);
+  opacity: 0.58;
 }
 
 .skill-sheet {
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-height: 84vh;
   padding: var(--uwo-space-2) var(--uwo-space-8)

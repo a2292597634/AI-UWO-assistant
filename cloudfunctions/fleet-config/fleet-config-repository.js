@@ -25,6 +25,14 @@ function getStoredNormalizedName(record) {
 }
 
 /**
+ * @param {object} record
+ * @returns {'battle' | 'adventure' | 'unclassified'}
+ */
+function getStoredScope(record) {
+  return record.scope === 'battle' || record.scope === 'adventure' ? record.scope : 'unclassified'
+}
+
+/**
  * 使用穩定文件 ID 建立 owner 範圍的交易鎖。
  * @param {string} ownerUid
  * @returns {string}
@@ -34,7 +42,14 @@ function getOwnerLockId(ownerUid) {
 }
 
 function isCollectionAlreadyExistsError(error) {
-  const code = error && typeof error === 'object' ? (error.errCode ?? error.code) : undefined
+  const code =
+    error && typeof error === 'object'
+      ? typeof error.code === 'string'
+        ? error.code
+        : typeof error.errCode === 'string'
+          ? error.errCode
+          : undefined
+      : undefined
   return (
     code === 'DATABASE_COLLECTION_ALREADY_EXIST' || code === 'DATABASE_COLLECTION_ALREADY_EXISTS'
   )
@@ -83,12 +98,17 @@ function createRepository(db) {
   /**
    * List all configs for an owner, newest first.
    * @param {string} ownerUid
+   * @param {'battle' | 'adventure' | 'unclassified'} [scope]
    * @returns {Promise<object[]>}
    */
-  async function listByOwner(ownerUid) {
+  async function listByOwner(ownerUid, scope) {
     await ensureCollection()
     const result = await collection.where({ ownerUid }).get()
-    return result.data.sort((a, b) => {
+    const records =
+      scope === undefined
+        ? result.data
+        : result.data.filter((item) => getStoredScope(item) === scope)
+    return records.sort((a, b) => {
       const aTime = a.updatedAt ?? ''
       const bTime = b.updatedAt ?? ''
       return bTime.localeCompare(aTime)
@@ -99,23 +119,28 @@ function createRepository(db) {
    * Find a single config by owner and configId.
    * @param {string} ownerUid
    * @param {string} configId
+   * @param {'battle' | 'adventure' | 'unclassified'} [scope]
    * @returns {Promise<object|null>}
    */
-  async function findByOwnerAndId(ownerUid, configId) {
+  async function findByOwnerAndId(ownerUid, configId, scope) {
     await ensureCollection()
     const result = await collection.where({ ownerUid, configId }).limit(1).get()
-    return result.data.length > 0 ? result.data[0] : null
+    const record = result.data[0]
+    return record && (scope === undefined || getStoredScope(record) === scope) ? record : null
   }
 
   /**
    * Count configs for an owner.
    * @param {string} ownerUid
+   * @param {'battle' | 'adventure' | 'unclassified'} [scope]
    * @returns {Promise<number>}
    */
-  async function countByOwner(ownerUid) {
+  async function countByOwner(ownerUid, scope) {
     await ensureCollection()
     const result = await collection.where({ ownerUid }).count()
-    return result.total
+    if (scope === undefined) return result.total
+    const records = await collection.where({ ownerUid }).get()
+    return records.data.filter((item) => getStoredScope(item) === scope).length
   }
 
   /**
@@ -142,10 +167,10 @@ function createRepository(db) {
    * 在交易內完成名稱唯一性、數量上限與新增，避免 count/list 後再 insert 的
    * TOCTOU 競態。CloudBase 交易會在 owner lock 文件發生寫衝突時自動重試。
    * @param {object} record
-   * @param {number} maxConfigsPerOwner
+   * @param {number} maxConfigsPerScope
    * @returns {Promise<{ok: true, data: object} | {ok: false, code: 'duplicate-name' | 'limit-reached'}>}
    */
-  async function insertWithConstraints(record, maxConfigsPerOwner) {
+  async function insertWithConstraints(record, maxConfigsPerScope) {
     await ensureCollection()
     await ensureCollection(OWNER_LOCK_COLLECTION)
 
@@ -156,12 +181,15 @@ function createRepository(db) {
         .where({ ownerUid: record.ownerUid })
         .get()
 
-      if (existing.data.length >= maxConfigsPerOwner) {
+      const recordScope = getStoredScope(record)
+      const sameScopeRecords = existing.data.filter((item) => getStoredScope(item) === recordScope)
+
+      if (sameScopeRecords.length >= maxConfigsPerScope) {
         return { ok: false, code: 'limit-reached' }
       }
 
       const normalizedName = normalizeStoredName(record.normalizedName ?? record.name)
-      if (existing.data.some((item) => getStoredNormalizedName(item) === normalizedName)) {
+      if (sameScopeRecords.some((item) => getStoredNormalizedName(item) === normalizedName)) {
         return { ok: false, code: 'duplicate-name' }
       }
 
@@ -216,6 +244,7 @@ function createRepository(db) {
    * @param {number} expectedVersion
    * @param {string} name
    * @param {string} normalizedName
+   * @param {'battle' | 'adventure'} scope
    * @returns {Promise<{ok: true, data: object} | {ok: false, code: 'not-found' | 'conflict' | 'duplicate-name'}>}
    */
   async function renameIfVersionAndNameAvailable(
@@ -224,6 +253,7 @@ function createRepository(db) {
     expectedVersion,
     name,
     normalizedName,
+    scope,
   ) {
     await ensureCollection()
     await ensureCollection(OWNER_LOCK_COLLECTION)
@@ -235,11 +265,15 @@ function createRepository(db) {
       const existing = result.data[0]
 
       if (!existing) return { ok: false, code: 'not-found' }
+      if (getStoredScope(existing) !== scope) return { ok: false, code: 'not-found' }
       if (existing.version !== expectedVersion) return { ok: false, code: 'conflict' }
 
       const allConfigs = await configCollection.where({ ownerUid }).get()
       const taken = allConfigs.data.some(
-        (item) => item.configId !== configId && getStoredNormalizedName(item) === normalizedName,
+        (item) =>
+          item.configId !== configId &&
+          getStoredScope(item) === scope &&
+          getStoredNormalizedName(item) === normalizedName,
       )
       if (taken) return { ok: false, code: 'duplicate-name' }
 
@@ -254,6 +288,65 @@ function createRepository(db) {
       await configCollection
         .where({ ownerUid, configId, version: expectedVersion })
         .update({ data: { name, normalizedName, version: updated.version, updatedAt: now } })
+
+      return { ok: true, data: updated }
+    })
+  }
+
+  /**
+   * 在 owner 交易鎖內將舊的未分類記錄歸入指定 scope。
+   * @param {string} ownerUid
+   * @param {string} configId
+   * @param {number} expectedVersion
+   * @param {'battle' | 'adventure'} targetScope
+   * @param {number} maxConfigsPerScope
+   * @returns {Promise<{ok: true, data: object} | {ok: false, code: 'not-found' | 'conflict' | 'invalid-state' | 'duplicate-name' | 'limit-reached'}>}
+   */
+  async function classifyIfVersionAndConstraints(
+    ownerUid,
+    configId,
+    expectedVersion,
+    targetScope,
+    maxConfigsPerScope,
+  ) {
+    await ensureCollection()
+    await ensureCollection(OWNER_LOCK_COLLECTION)
+
+    return db.runTransaction(async (transaction) => {
+      await touchOwnerLock(transaction, ownerUid)
+      const configCollection = transaction.collection(COLLECTION)
+      const result = await configCollection.where({ ownerUid, configId }).limit(1).get()
+      const existing = result.data[0]
+
+      if (!existing) return { ok: false, code: 'not-found' }
+      if (existing.version !== expectedVersion) return { ok: false, code: 'conflict' }
+      if (getStoredScope(existing) !== 'unclassified') {
+        return { ok: false, code: 'invalid-state' }
+      }
+
+      const allConfigs = await configCollection.where({ ownerUid }).get()
+      const sameScopeRecords = allConfigs.data.filter(
+        (item) => item.configId !== configId && getStoredScope(item) === targetScope,
+      )
+      if (sameScopeRecords.length >= maxConfigsPerScope) {
+        return { ok: false, code: 'limit-reached' }
+      }
+
+      const normalizedName = getStoredNormalizedName(existing)
+      if (sameScopeRecords.some((item) => getStoredNormalizedName(item) === normalizedName)) {
+        return { ok: false, code: 'duplicate-name' }
+      }
+
+      const now = new Date().toISOString()
+      const updated = {
+        ...existing,
+        scope: targetScope,
+        version: existing.version + 1,
+        updatedAt: now,
+      }
+      await configCollection
+        .where({ ownerUid, configId, version: expectedVersion })
+        .update({ data: { scope: targetScope, version: updated.version, updatedAt: now } })
 
       return { ok: true, data: updated }
     })
@@ -293,9 +386,10 @@ function createRepository(db) {
     insertWithConstraints,
     updateIfVersion,
     renameIfVersionAndNameAvailable,
+    classifyIfVersionAndConstraints,
     deleteByOwnerAndId,
     touchLastUsed,
   }
 }
 
-module.exports = { createRepository, getOwnerLockId }
+module.exports = { createRepository, getOwnerLockId, getStoredScope }

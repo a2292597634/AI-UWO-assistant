@@ -7,9 +7,19 @@ const SPEC_PATH = 'docs/superpowers/specs/2026-08-09-design-foundation-design.md
 const TASK_7_WXSS_PATHS = [
   'miniprogram/pages/fleet/index.wxss',
   'miniprogram/pages/adventure-fleet/index.wxss',
+  'miniprogram/pages/officer-editor/index.wxss',
+  'miniprogram/pages/catalog/index.wxss',
+  'miniprogram/subpkg-detail/pages/detail/index.wxss',
+  'miniprogram/components/config-conflict-modal/index.wxss',
+  'miniprogram/components/config-name-modal/index.wxss',
+  'miniprogram/components/mode-tabs/index.wxss',
+  'miniprogram/components/skill-picker-sheet/index.wxss',
   'miniprogram/components/officer-action-sheet/index.wxss',
   'miniprogram/components/result-preview-sheet/index.wxss',
   'miniprogram/components/config-bar/index.wxss',
+  'miniprogram/components/empty-state/index.wxss',
+  'miniprogram/components/disclosure-section/index.wxss',
+  'miniprogram/components/skill-sheet/index.wxss',
 ] as const
 
 const readProjectFile = (relativePath: string): string => {
@@ -119,6 +129,16 @@ describe('Design Foundation 基礎按鈕', () => {
     for (const selector of selectors) {
       expect(foundation).toContain(selector)
     }
+  })
+
+  it('全局原生 button 內容上下左右置中', () => {
+    const foundation = readProjectFile('miniprogram/styles/design-foundation.wxss')
+
+    expect(foundation).toMatch(/button\s*\{[^}]*display:\s*flex/s)
+    expect(foundation).toMatch(/button\s*\{[^}]*align-items:\s*center/s)
+    expect(foundation).toMatch(/button\s*\{[^}]*justify-content:\s*center/s)
+    expect(foundation).toMatch(/button\s*\{[^}]*text-align:\s*center/s)
+    expect(foundation).toContain('button::after')
   })
 })
 

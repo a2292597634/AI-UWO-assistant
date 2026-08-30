@@ -56,6 +56,10 @@
 }
 
 .config-name-modal__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 1;
   min-height: 88rpx;
+  text-align: center;
 }

@@ -12,7 +12,7 @@
   display: flex;
   min-height: 88rpx;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   gap: var(--uwo-space-3);
   padding: 0 var(--uwo-space-4);
@@ -22,7 +22,7 @@
   color: var(--uwo-color-text-primary);
   font-family: var(--uwo-font-family-body);
   font-size: var(--uwo-font-size-body);
-  text-align: left;
+  text-align: center;
   white-space: normal;
 }
 
@@ -45,7 +45,7 @@
 .disclosure-section__copy {
   flex: 1;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--uwo-space-1);
 }
 
@@ -56,8 +56,7 @@
 
 .disclosure-section__title,
 .disclosure-section__hint,
-.disclosure-section__count,
-.disclosure-section__action {
+.disclosure-section__count {
   display: block;
   overflow-wrap: anywhere;
 }
@@ -75,9 +74,13 @@
 }
 
 .disclosure-section__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--uwo-color-accent-text);
   font-size: var(--uwo-font-size-minimum-action);
   font-weight: 600;
+  text-align: center;
 }
 
 .disclosure-section__body {

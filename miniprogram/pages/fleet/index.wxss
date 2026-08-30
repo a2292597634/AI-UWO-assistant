@@ -51,8 +51,12 @@
 }
 
 .config-unsaved-guard__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 88rpx;
+  text-align: center;
 }
 
 .asset-loading-state,
@@ -355,10 +359,12 @@
   min-height: 56rpx;
   flex: 0 0 auto;
   align-items: center;
+  justify-content: center;
   margin: 0;
   padding: 0 var(--uwo-space-1);
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-minimum-action);
+  text-align: center;
   overflow-wrap: anywhere;
   white-space: normal;
 }
@@ -637,8 +643,11 @@
 }
 
 .excluded-row__remove {
+  display: flex;
   flex: 0 0 auto;
   min-height: 88rpx;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   padding: 0 var(--uwo-space-3);
   border-radius: var(--uwo-radius-control);
@@ -646,6 +655,7 @@
   color: var(--uwo-color-danger);
   font-family: var(--uwo-font-family-body);
   font-size: var(--uwo-font-size-minimum-action);
+  text-align: center;
   white-space: normal;
   overflow-wrap: anywhere;
 }

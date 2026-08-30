@@ -53,8 +53,12 @@
 }
 
 .config-unsaved-guard__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 88rpx;
+  text-align: center;
 }
 
 /* ── 页面容器 ── */
@@ -239,11 +243,13 @@
   min-height: 56rpx;
   flex: 0 0 auto;
   align-items: center;
+  justify-content: center;
   margin: 0;
   padding: 0;
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-minimum-action);
-  line-height: 1;
+  line-height: 1.35;
+  text-align: center;
   white-space: nowrap;
 }
 

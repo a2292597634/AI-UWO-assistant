@@ -105,6 +105,7 @@
   font-family: var(--uwo-font-family-body);
   font-size: var(--uwo-font-size-minimum-action);
   line-height: 1.25;
+  text-align: center;
   overflow-wrap: anywhere;
 }
 

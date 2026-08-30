@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildConfigModalData,
+  buildConfigManagerView,
+  collapseAfterSuccessfulLoad,
   deriveConfigStatus,
   resolveConfigAction,
   validateConfigName,
@@ -42,5 +44,67 @@ describe('配置管理 Presenter', () => {
       pendingAction: action,
       showUnsavedGuard: false,
     })
+  })
+
+  it('收起狀態只保留核心配置摘要', () => {
+    const view = buildConfigManagerView({
+      configName: '遠洋火力',
+      configStatus: 'saved',
+      configList: [],
+      unclassifiedConfigs: [],
+      listState: 'ready',
+      listError: null,
+      expanded: false,
+      authStatus: 'authenticated',
+      activeConfigId: 'cfg-1',
+    })
+
+    expect(view.expanded).toBe(false)
+    expect(view.showConfigList).toBe(false)
+    expect(view.showActionRow).toBe(false)
+    expect(view.summary.name).toBe('遠洋火力')
+  })
+
+  it('載入成功後狀態決策為收起', () => {
+    expect(collapseAfterSuccessfulLoad()).toEqual({ expanded: false })
+  })
+
+  it('列表錯誤不誤顯示為空列表，待分類資料才顯示分類入口', () => {
+    const errorView = buildConfigManagerView({
+      configName: '未命名配置',
+      configStatus: 'new',
+      configList: [],
+      unclassifiedConfigs: [],
+      listState: 'error',
+      listError: '列表載入失敗',
+      expanded: true,
+      authStatus: 'authenticated',
+      activeConfigId: null,
+    })
+
+    expect(errorView.emptyState).toBe(false)
+    expect(errorView.errorMessage).toBe('列表載入失敗')
+
+    const unclassifiedView = buildConfigManagerView({
+      configName: '未命名配置',
+      configStatus: 'new',
+      configList: [],
+      unclassifiedConfigs: [
+        {
+          configId: 'legacy-1',
+          name: '舊配置',
+          scope: 'unclassified',
+          version: 1,
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          lastUsedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      listState: 'empty',
+      listError: null,
+      expanded: true,
+      authStatus: 'authenticated',
+      activeConfigId: null,
+    })
+    expect(unclassifiedView.showUnclassified).toBe(true)
   })
 })

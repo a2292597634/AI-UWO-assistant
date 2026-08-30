@@ -60,6 +60,18 @@ textarea {
   font-family: inherit;
 }
 
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.35;
+}
+
+button::after {
+  border: 0;
+}
+
 .ui-display-title {
   font-family: var(--uwo-font-family-display);
 }
@@ -81,8 +93,10 @@ textarea {
   overflow-wrap: anywhere;
 }
 
-.ui-button::after {
-  border: 0;
+.ui-button--compact {
+  min-height: 64rpx;
+  padding: var(--uwo-space-1) var(--uwo-space-3);
+  font-size: var(--uwo-font-size-minimum-action);
 }
 
 .ui-button--primary {

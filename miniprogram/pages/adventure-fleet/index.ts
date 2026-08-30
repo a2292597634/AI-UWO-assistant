@@ -35,10 +35,11 @@ import {
   validateConfigName,
 } from '../../presenters/config-management-presenter'
 import type {
+  ConfigListState,
   ConfigModalAction,
   PendingConfigAction,
 } from '../../presenters/config-management-presenter'
-import { serializeFleetState } from '../../contracts/fleet-config'
+import { MAX_CONFIGS_PER_SCOPE, serializeFleetState } from '../../contracts/fleet-config'
 import { getFleetConfigService, FleetConfigError } from '../../runtime/fleet-config-service'
 import type { FleetConfigService } from '../../runtime/fleet-config-service'
 import type { FleetConfigSummary } from '../../contracts/fleet-config'
@@ -69,8 +70,10 @@ interface FleetPageData extends AdventureFleetPageData {
   configStatus: 'saved' | 'unsaved' | 'new'
   activeConfigId: string | null
   configList: FleetConfigSummary[]
-  showConfigMenu: boolean
-  showConfigList: boolean
+  unclassifiedConfigs: FleetConfigSummary[]
+  configListState: ConfigListState
+  configListError: string | null
+  expanded: boolean
   showNameModal: boolean
   showUnsavedGuard: boolean
   modalAction: ConfigModalAction
@@ -99,6 +102,7 @@ interface FleetPageState {
   configName: string
   configVersion: number
   configList: FleetConfigSummary[]
+  unclassifiedConfigs: FleetConfigSummary[]
   savedFleetState: string | null
   isDirty: boolean
   configService: FleetConfigService
@@ -114,6 +118,7 @@ interface FleetPageLike {
 
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
 const MANUAL_SKILL_WINDOW_SIZE = 40
+const CONFIG_SCOPE = 'adventure' as const
 
 const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> => {
   const dataset = (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
@@ -165,8 +170,10 @@ const emptyPageData: FleetPageData = {
   configStatus: 'new',
   activeConfigId: null,
   configList: [],
-  showConfigMenu: false,
-  showConfigList: false,
+  unclassifiedConfigs: [],
+  configListState: 'idle',
+  configListError: null,
+  expanded: false,
   showNameModal: false,
   showUnsavedGuard: false,
   modalAction: 'none',
@@ -369,7 +376,7 @@ const handleConfigError = (page: FleetPageLike, error: unknown): void => {
 const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void> => {
   const state = getState(page)
   try {
-    const record = await state.configService.loadConfig(configId)
+    const record = await state.configService.loadConfig(CONFIG_SCOPE, configId)
     state.fleet = record.fleetState
     state.proposal = null
     state.undoFleetState = null
@@ -381,10 +388,11 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
       activeConfigId: record.configId,
       configName: record.name,
       configStatus: 'saved',
-      showConfigList: false,
+      expanded: false,
     })
     render(page)
   } catch (e) {
+    page.setData({ configListState: 'error', configListError: '載入配置失敗' })
     handleConfigError(page, e)
   }
 }
@@ -406,8 +414,6 @@ const doNewConfig = (page: FleetPageLike): void => {
     activeConfigId: null,
     configName: DEFAULT_CONFIG_NAME,
     configStatus: 'new',
-    showConfigList: false,
-    showConfigMenu: false,
   })
   render(page)
 }
@@ -417,7 +423,7 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
   const configId = state.activeConfigId
   if (!configId) return
   try {
-    await state.configService.deleteConfig(configId, state.configVersion)
+    await state.configService.deleteConfig(CONFIG_SCOPE, configId, state.configVersion)
     showError('配置已刪除')
     doNewConfig(page)
     await refreshConfigList(state, page)
@@ -426,14 +432,27 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
   }
 }
 
-const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Promise<void> => {
+const refreshConfigList = async (state: FleetPageState, page: FleetPageLike): Promise<boolean> => {
+  page.setData({ configListState: 'loading', configListError: null })
   try {
-    const list = await state.configService.listMyConfigs()
+    const [list, unclassifiedConfigs] = await Promise.all([
+      state.configService.listMyConfigs(CONFIG_SCOPE),
+      state.configService.listUnclassifiedConfigs(),
+    ])
     state.configList = [...list]
-    page.setData({ configList: [...list] })
+    state.unclassifiedConfigs = [...unclassifiedConfigs]
+    page.setData({
+      configList: [...list],
+      unclassifiedConfigs: [...unclassifiedConfigs],
+      configListState: list.length === 0 ? 'empty' : 'ready',
+      configListError: null,
+    })
+    return true
   } catch (e) {
     console.error('listMyConfigs failed:', e)
     showError('載入配置列表失敗')
+    page.setData({ configListState: 'error', configListError: '載入配置列表失敗' })
+    return false
   }
 }
 
@@ -476,7 +495,8 @@ const onAfterLogin = async (page: FleetPageLike): Promise<void> => {
     return
   }
 
-  await refreshConfigList(state, page)
+  const refreshed = await refreshConfigList(state, page)
+  if (!refreshed) return
   const list = state.configList
   if (list.length === 0) {
     doNewConfig(page)
@@ -495,13 +515,20 @@ const handleConflictReload = async (page: FleetPageLike): Promise<void> => {
   if (!configId) return
   page.setData({ showConflictDialog: false })
   try {
-    const record = await state.configService.loadConfig(configId)
+    const record = await state.configService.loadConfig(CONFIG_SCOPE, configId)
     state.fleet = record.fleetState
     state.proposal = null
     state.undoFleetState = null
     state.configVersion = record.version
     markClean(page, state)
-    page.setData({ configName: record.name })
+    state.activeConfigId = record.configId
+    state.configName = record.name
+    page.setData({
+      activeConfigId: record.configId,
+      configName: record.name,
+      configStatus: 'saved',
+      expanded: false,
+    })
     showError('已重新載入雲端版本（本地修改已放棄）')
     render(page)
   } catch (e) {
@@ -522,6 +549,7 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
       if (!res.confirm) return
       try {
         const record = await state.configService.updateConfig({
+          scope: CONFIG_SCOPE,
           configId,
           expectedVersion: state.configVersion,
           fleetState: state.fleet,
@@ -535,6 +563,7 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
           activeConfigId: record.configId,
           configName: record.name,
           configStatus: 'saved',
+          expanded: false,
         })
         showError('已強制覆蓋保存')
       } catch (e) {
@@ -584,6 +613,7 @@ Page({
       configName: DEFAULT_CONFIG_NAME,
       configVersion: 0,
       configList: [],
+      unclassifiedConfigs: [],
       savedFleetState: null,
       isDirty: false,
       configService: getFleetConfigService(),
@@ -954,47 +984,61 @@ Page({
     }
   },
 
-  // ── 配置：菜单 ──
+  // ── 配置：折叠模块 ──
 
-  onConfigMenuTap() {
-    const show = !this.data.showConfigMenu
-    this.setData({ showConfigMenu: show })
+  onConfigToggle() {
+    this.setData({ expanded: !this.data.expanded })
   },
 
   onConfigExit() {
-    this.setData({ showConfigMenu: false })
     checkUnsavedAndProceed(this, { type: 'exit' })
   },
 
-  async onConfigListOpen() {
-    const state = getState(this)
-    if (state.authStatus !== 'authenticated') {
-      const ok = await performLogin(this)
-      if (!ok) return
-      await onAfterLogin(this)
-    }
-    await refreshConfigList(state, this)
-    this.setData({ showConfigList: true, showConfigMenu: false })
-  },
-
-  onConfigListClose() {
-    this.setData({ showConfigList: false })
-  },
-
-  onConfigSelect(event: WechatMiniprogram.BaseEvent) {
+  onConfigLoad(event: WechatMiniprogram.BaseEvent) {
     const configId = eventDataset(event).id
     if (typeof configId !== 'string') return
-    this.setData({ showConfigMenu: false })
     checkUnsavedAndProceed(this, { type: 'load', targetConfigId: configId })
   },
 
+  async onConfigClassify(event: WechatMiniprogram.BaseEvent) {
+    const dataset = eventDataset(event)
+    const configId = dataset.id
+    const targetScope = dataset.scope
+    if (typeof configId !== 'string' || (targetScope !== 'battle' && targetScope !== 'adventure')) {
+      return
+    }
+
+    const state = getState(this)
+    if (state.isDirty) {
+      showError('請先保存或放棄目前修改，再分類舊配置')
+      return
+    }
+    const config = state.unclassifiedConfigs.find((item) => item.configId === configId)
+    if (!config) {
+      showError('舊配置不存在或已完成分類')
+      return
+    }
+
+    try {
+      await state.configService.classifyConfig(config.configId, config.version, targetScope)
+      const refreshed = await refreshConfigList(state, this)
+      if (refreshed) showError('配置已分類')
+    } catch (e) {
+      handleConfigError(this, e)
+    }
+  },
+
+  async onConfigRetry() {
+    const state = getState(this)
+    if (state.authStatus !== 'authenticated') return
+    await refreshConfigList(state, this)
+  },
+
   onConfigNew() {
-    this.setData({ showConfigMenu: false })
     checkUnsavedAndProceed(this, { type: 'new' })
   },
 
   async onConfigSave() {
-    this.setData({ showConfigMenu: false })
     const state = getState(this)
 
     if (state.authStatus === 'guest') {
@@ -1015,6 +1059,7 @@ Page({
 
     try {
       const record = await state.configService.updateConfig({
+        scope: CONFIG_SCOPE,
         configId: state.activeConfigId,
         expectedVersion: state.configVersion,
         fleetState: state.fleet,
@@ -1032,7 +1077,6 @@ Page({
   },
 
   onConfigSaveAs() {
-    this.setData({ showConfigMenu: false })
     const state = getState(this)
     if (state.authStatus === 'guest') {
       void (async () => {
@@ -1048,7 +1092,6 @@ Page({
   },
 
   onConfigRename() {
-    this.setData({ showConfigMenu: false })
     const state = getState(this)
     if (!state.activeConfigId) {
       showError('請先保存配置')
@@ -1058,7 +1101,6 @@ Page({
   },
 
   onConfigDelete() {
-    this.setData({ showConfigMenu: false })
     const state = getState(this)
     if (!state.activeConfigId) {
       showError('沒有可刪除的配置')
@@ -1101,11 +1143,11 @@ Page({
 
     try {
       if (action === 'saveAs') {
-        if (state.configList.length >= 20) {
-          showError('已達 20 套配置上限')
+        if (state.configList.length >= MAX_CONFIGS_PER_SCOPE) {
+          showError(`此類型已達 ${MAX_CONFIGS_PER_SCOPE} 套配置上限`)
           return
         }
-        const record = await state.configService.saveAsConfig(name, state.fleet)
+        const record = await state.configService.saveAsConfig(CONFIG_SCOPE, name, state.fleet)
         state.activeConfigId = record.configId
         state.configName = record.name
         state.configVersion = record.version
@@ -1121,6 +1163,7 @@ Page({
       } else if (action === 'rename') {
         if (!state.activeConfigId) return
         const record = await state.configService.renameConfig(
+          CONFIG_SCOPE,
           state.activeConfigId,
           state.configVersion,
           name,
@@ -1154,6 +1197,7 @@ Page({
       try {
         if (state.activeConfigId) {
           await state.configService.updateConfig({
+            scope: CONFIG_SCOPE,
             configId: state.activeConfigId,
             expectedVersion: state.configVersion,
             fleetState: state.fleet,

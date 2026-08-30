@@ -76,15 +76,17 @@ const COMPONENT_CONTRACTS = [
   {
     name: 'config-bar',
     events: [
-      'info-tap',
-      'login-tap',
-      'menu-tap',
+      'toggle',
+      'login',
       'save',
       'save-as',
       'rename',
       'delete',
       'new',
       'exit',
+      'load',
+      'classify',
+      'retry',
     ],
   },
   { name: 'config-list-modal', events: ['close', 'select'] },
@@ -110,6 +112,9 @@ const COMPONENT_CONTRACTS = [
 ] as const
 
 const PAGE_PATHS = ['miniprogram/pages/fleet', 'miniprogram/pages/adventure-fleet'] as const
+const PAGE_COMPONENT_CONTRACTS = COMPONENT_CONTRACTS.filter(
+  ({ name }) => name !== 'config-list-modal',
+)
 
 const readProjectFile = (relativePath: string): string =>
   readFileSync(resolve(ROOT, relativePath), 'utf8')
@@ -276,35 +281,35 @@ describe('配隊共享元件文件架構', () => {
 })
 
 describe.each(PAGE_PATHS)('%s 共享元件接線', (pagePath) => {
-  it('以固定路徑註冊七個共享元件', () => {
+  it('以固定路徑註冊頁面使用的共享元件', () => {
     const pageConfig = JSON.parse(readProjectFile(`${pagePath}/index.json`)) as {
       usingComponents?: Record<string, string>
     }
 
     const expectedRegistrations = Object.fromEntries(
-      COMPONENT_CONTRACTS.map(({ name }) => [name, `../../components/${name}/index`]),
+      PAGE_COMPONENT_CONTRACTS.map(({ name }) => [name, `../../components/${name}/index`]),
     )
 
     expect(pageConfig.usingComponents).toMatchObject(expectedRegistrations)
   })
 
-  it('WXML 使用七個共享元件標籤', () => {
+  it('WXML 使用頁面需要的共享元件標籤', () => {
     const wxml = readProjectFile(`${pagePath}/index.wxml`)
 
-    for (const { name } of COMPONENT_CONTRACTS) {
+    for (const { name } of PAGE_COMPONENT_CONTRACTS) {
       expect(wxml).toMatch(new RegExp(`<${escapeRegExp(name)}(?:\\s|/?>)`))
     }
   })
 })
 
-describe('Task 2 基礎共享元件契約', () => {
+describe('Task 5 單一配置管理共享元件契約', () => {
   const readComponentFile = (component: string, file: (typeof COMPONENT_FILES)[number]): string => {
     const relativePath = `${COMPONENT_ROOT}/${component}/${file}`
     expect(projectFileExists(relativePath), `${relativePath} 應存在`).toBe(true)
     return projectFileExists(relativePath) ? readProjectFile(relativePath) : ''
   }
 
-  it('ConfigBar 顯示配置狀態並提供完整配置操作入口', () => {
+  it('ConfigBar 顯示折疊配置管理模組並提供完整事件入口', () => {
     const script = readComponentFile('config-bar', 'index.ts')
     const wxml = readComponentFile('config-bar', 'index.wxml')
 
@@ -313,17 +318,29 @@ describe('Task 2 基礎共享元件契約', () => {
       'configStatus',
       'authStatus',
       'activeConfigId',
-      'showMenu',
+      'configList',
+      'unclassifiedConfigs',
+      'listState',
+      'listError',
+      'expanded',
     ]) {
       expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
     }
+    expect(wxml).toContain('我的配置')
+    expect(wxml).toContain('config-bar--expanded')
     expect(wxml).toContain('config-bar__status')
     expect(wxml).toMatch(/bindtap="onSave"/)
+    expect(wxml).toMatch(/bindtap="onToggle"/)
+    expect(wxml).toMatch(/bindtap="onLoad"/)
+    expect(wxml).toMatch(/bindtap="onClassify"/)
+    expect(wxml).toContain('待分類舊配置')
     expect(wxml).toContain('已保存')
     expect(wxml).toContain('尚未保存')
     expect(wxml).toContain('未命名配置')
     expect(wxml).toMatch(/bindtap="onExit"/)
     expect(script).toMatch(/triggerEvent\(\s*['"]exit['"]\s*\)/)
+    expect(wxml).not.toContain('配置類型')
+    expect(wxml).not.toContain('戰鬥配置</button>')
   })
 
   it('ModeTabs 以選項值發出 change 並提供可見選中語義', () => {

@@ -22,8 +22,10 @@ interface FleetTestData {
   configStatus: string
   activeConfigId: string | null
   configList: unknown[]
-  showConfigMenu: boolean
-  showConfigList: boolean
+  unclassifiedConfigs: unknown[]
+  configListState: string
+  configListError: string | null
+  expanded: boolean
   showNameModal: boolean
   showUnsavedGuard: boolean
   modalAction: string
@@ -68,10 +70,10 @@ interface FleetPageConfig {
   onUnbanOfficer(event: WechatMiniprogram.BaseEvent): void
   // Config management handlers
   onConfigLogin(): Promise<void>
-  onConfigMenuTap(): void
-  onConfigListOpen(): Promise<void>
-  onConfigListClose(): void
-  onConfigSelect(event: WechatMiniprogram.BaseEvent): void
+  onConfigToggle(): void
+  onConfigLoad(event: WechatMiniprogram.BaseEvent): void
+  onConfigClassify(event: WechatMiniprogram.BaseEvent): Promise<void>
+  onConfigRetry(): Promise<void>
   onConfigNew(): void
   onConfigSave(): Promise<void>
   onConfigSaveAs(): Promise<void>
@@ -419,7 +421,6 @@ const fleetJson = JSON.parse(
 
 const sharedComponentNames = [
   'config-bar',
-  'config-list-modal',
   'config-name-modal',
   'config-conflict-modal',
   'mode-tabs',
@@ -495,7 +496,7 @@ describe('battle fleet target safety', () => {
 })
 
 describe('battle fleet shared component wiring', () => {
-  it('registers and renders all seven shared components', () => {
+  it('registers and renders the page shared components', () => {
     for (const name of sharedComponentNames) {
       expect(fleetJson.usingComponents?.[name]).toBe(`../../components/${name}/index`)
       expect(fleetWxml).toMatch(new RegExp(`<${name}(?:\\s|/?>)`))
@@ -503,9 +504,12 @@ describe('battle fleet shared component wiring', () => {
   })
 
   it('keeps the existing page handlers while removing duplicated shared markup', () => {
-    expect(fleetWxml).toContain('bind:info-tap="onConfigListOpen"')
+    expect(fleetWxml).toContain('bind:toggle="onConfigToggle"')
+    expect(fleetWxml).toContain('bind:load="onConfigLoad"')
+    expect(fleetWxml).toContain('bind:classify="onConfigClassify"')
+    expect(fleetWxml).toContain('bind:retry="onConfigRetry"')
     expect(fleetWxml).toContain('bind:exit="onConfigExit"')
-    expect(fleetWxml).toContain('<config-list-modal')
+    expect(fleetWxml).not.toContain('<config-list-modal')
     expect(fleetWxml).toContain('<config-name-modal')
     expect(fleetWxml).toContain('<config-conflict-modal')
     expect(fleetWxml).not.toContain('class="config-item')
@@ -681,6 +685,9 @@ describe('fleet config lifecycle', () => {
       .mockResolvedValueOnce({
         result: { ok: true, data: [] },
       })
+      .mockResolvedValueOnce({
+        result: { ok: true, data: [] },
+      })
 
     const page = createPageInstance()
     page.onLoad()
@@ -707,6 +714,7 @@ describe('fleet config lifecycle', () => {
                 {
                   configId: 'cfg-1',
                   name: '測試配置',
+                  scope: 'battle',
                   version: 1,
                   updatedAt: now,
                   lastUsedAt: now,
@@ -714,6 +722,8 @@ describe('fleet config lifecycle', () => {
               ],
             },
           }
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
         case 'loadConfig':
           return {
             result: {
@@ -721,6 +731,7 @@ describe('fleet config lifecycle', () => {
               data: {
                 configId: 'cfg-1',
                 name: '測試配置',
+                scope: 'battle',
                 fleetState,
                 schemaVersion: 1,
                 version: 1,
@@ -739,13 +750,108 @@ describe('fleet config lifecycle', () => {
 
     const page = createPageInstance()
     await page.onLoad()
-    await page.onConfigListOpen()
+    await page.onConfigLogin()
 
     const actions = mockCallFunction.mock.calls.map(
       ([request]) => (request as { data: { action: string } }).data.action,
     )
     expect(actions).not.toContain('setLastUsedConfig')
     expect(page.data.activeConfigId).toBe('cfg-1')
+    expect(page.data.expanded).toBe(false)
+  })
+
+  it('戰鬥頁只傳 battle scope，載入成功後自動收起', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const fleetState = createFleetState()
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'battle-1',
+                  name: '戰鬥配置',
+                  scope: 'battle',
+                  version: 1,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              ],
+            },
+          }
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'loadConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'battle-1',
+                name: '戰鬥配置',
+                scope: 'battle',
+                fleetState,
+                schemaVersion: 1,
+                version: 1,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    await page.onLoad()
+    page.onConfigToggle()
+    expect(page.data.expanded).toBe(true)
+
+    await page.onConfigLogin()
+
+    expect(mockCallFunction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ action: 'listMyConfigs', scope: 'battle' }),
+      }),
+    )
+    expect(mockCallFunction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ action: 'loadConfig', scope: 'battle' }),
+      }),
+    )
+    expect(page.data.expanded).toBe(false)
+  })
+
+  it('列表載入錯誤時保持配置模組展開', async () => {
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate') {
+        return { result: { ok: true, data: { authenticated: true } } }
+      }
+      if (data.action === 'listMyConfigs') {
+        return {
+          result: {
+            ok: false,
+            code: 'network',
+            message: '暫時無法載入',
+          },
+        }
+      }
+      throw new Error(`unexpected action: ${data.action}`)
+    })
+
+    const page = createPageInstance()
+    await page.onLoad()
+    page.onConfigToggle()
+    await page.onConfigLogin()
+
+    expect(page.data.expanded).toBe(true)
+    expect(page.data.configListState).toBe('error')
+    expect(page.data.configListError).toBe('載入配置列表失敗')
   })
 
   it('shows guest save prompt when not logged in', () => {
@@ -802,6 +908,7 @@ describe('fleet config lifecycle', () => {
           data: {
             configId: 'cfg-1',
             name: '保存後配置',
+            scope: 'battle',
             fleetState: createFleetState(),
             schemaVersion: 1,
             version: 1,
@@ -811,6 +918,7 @@ describe('fleet config lifecycle', () => {
           },
         },
       })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
       .mockResolvedValueOnce({ result: { ok: true, data: [] } })
     page.setData({ modalInputValue: '保存後配置' })
 
@@ -846,15 +954,15 @@ describe('fleet config lifecycle', () => {
     // The exact flow depends on auth state
   })
 
-  it('closes config menu after menu tap', () => {
+  it('toggles the single config management module', () => {
     const page = createPageInstance()
     page.onLoad()
 
-    expect(page.data.showConfigMenu).toBe(false)
-    page.onConfigMenuTap()
-    expect(page.data.showConfigMenu).toBe(true)
-    page.onConfigMenuTap()
-    expect(page.data.showConfigMenu).toBe(false)
+    expect(page.data.expanded).toBe(false)
+    page.onConfigToggle()
+    expect(page.data.expanded).toBe(true)
+    page.onConfigToggle()
+    expect(page.data.expanded).toBe(false)
   })
 
   it('closes name modal on cancel', () => {

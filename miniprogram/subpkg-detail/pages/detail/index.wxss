@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 16rpx 32rpx;
-  color: #5a5a4e;
+  color: var(--uwo-color-text-secondary);
   text-align: center;
 }
 
@@ -239,9 +239,9 @@
   min-width: 32rpx;
   height: 24rpx;
   padding: 0 4rpx;
-  color: #f0e4c4;
-  background: #8b3a3a;
-  border: 1rpx solid #f0e4c4;
+  color: var(--uwo-color-surface);
+  background: var(--uwo-color-danger);
+  border: 1rpx solid var(--uwo-color-surface);
   border-radius: 10rpx;
   font-size: 16rpx;
   font-weight: 700;
@@ -283,13 +283,17 @@
 }
 
 .skill-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 96rpx;
+  min-height: 88rpx;
   margin-left: var(--uwo-space-3);
   flex-shrink: 0;
   color: var(--uwo-color-accent-text);
   font-size: var(--uwo-font-size-minimum-action);
   line-height: 1.4;
-  text-align: right;
+  text-align: center;
   overflow-wrap: anywhere;
 }
 

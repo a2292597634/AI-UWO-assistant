@@ -11,7 +11,9 @@ import {
   normalizeConfigName,
   isConfigNameAvailable,
   MAX_CONFIG_NAME_LENGTH,
-  MAX_CONFIGS_PER_USER,
+  MAX_CONFIGS_PER_SCOPE,
+  CLASSIFIED_CONFIG_SCOPES,
+  resolveConfigScope,
   SCHEMA_VERSION,
 } from '../../miniprogram/contracts/fleet-config'
 import type { FleetConfigSummary } from '../../miniprogram/contracts/fleet-config'
@@ -274,6 +276,7 @@ describe('Config name helpers', () => {
       {
         configId: 'cfg_1',
         name: '我的主力艦隊',
+        scope: 'battle',
         version: 1,
         updatedAt: '2026-01-01T00:00:00Z',
         lastUsedAt: '2026-01-02T00:00:00Z',
@@ -288,6 +291,7 @@ describe('Config name helpers', () => {
       {
         configId: 'cfg_1',
         name: '我的主力艦隊',
+        scope: 'battle',
         version: 1,
         updatedAt: '2026-01-01T00:00:00Z',
         lastUsedAt: '2026-01-02T00:00:00Z',
@@ -298,13 +302,23 @@ describe('Config name helpers', () => {
   })
 })
 
+describe('Configuration scope contract', () => {
+  it('缺少或未知 scope 的舊記錄解析為 unclassified', () => {
+    expect(resolveConfigScope(undefined)).toBe('unclassified')
+    expect(resolveConfigScope('legacy')).toBe('unclassified')
+    expect(resolveConfigScope('battle')).toBe('battle')
+    expect(resolveConfigScope('adventure')).toBe('adventure')
+  })
+
+  it('戰鬥與冒險各自使用 10 套上限', () => {
+    expect(MAX_CONFIGS_PER_SCOPE).toBe(10)
+    expect(CLASSIFIED_CONFIG_SCOPES).toEqual(['battle', 'adventure'])
+  })
+})
+
 describe('Constants', () => {
   it('MAX_CONFIG_NAME_LENGTH is 30', () => {
     expect(MAX_CONFIG_NAME_LENGTH).toBe(30)
-  })
-
-  it('MAX_CONFIGS_PER_USER is 20', () => {
-    expect(MAX_CONFIGS_PER_USER).toBe(20)
   })
 
   it('SCHEMA_VERSION is 1', () => {

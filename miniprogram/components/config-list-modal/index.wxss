@@ -60,10 +60,10 @@
   width: 100%;
   min-height: 88rpx;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin: 0 0 var(--uwo-space-2);
   padding: var(--uwo-space-3) var(--uwo-space-4);
-  text-align: left;
+  text-align: center;
 }
 
 .config-list-modal__item--active {
@@ -74,6 +74,7 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
+  align-items: center;
   gap: var(--uwo-space-1);
 }
 

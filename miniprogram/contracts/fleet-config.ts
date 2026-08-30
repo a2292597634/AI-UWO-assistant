@@ -13,7 +13,15 @@ import { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY } from './battle-fleet'
 
 export const SCHEMA_VERSION = 1
 export const MAX_CONFIG_NAME_LENGTH = 30
-export const MAX_CONFIGS_PER_USER = 20
+
+export type ConfigScope = 'battle' | 'adventure' | 'unclassified'
+export type ClassifiedConfigScope = Exclude<ConfigScope, 'unclassified'>
+
+export const CLASSIFIED_CONFIG_SCOPES = ['battle', 'adventure'] as const
+export const MAX_CONFIGS_PER_SCOPE = 10
+
+export const resolveConfigScope = (value: unknown): ConfigScope =>
+  value === 'battle' || value === 'adventure' ? value : 'unclassified'
 
 // ── Summary & Record types ──
 
@@ -21,6 +29,7 @@ export const MAX_CONFIGS_PER_USER = 20
 export interface FleetConfigSummary {
   configId: string
   name: string
+  scope: ConfigScope
   version: number
   updatedAt: string
   lastUsedAt: string
@@ -30,6 +39,9 @@ export interface FleetConfigSummary {
 export interface FleetConfigRecord {
   configId: string
   name: string
+  /** 服務端用於名稱唯一性檢查的 metadata；舊記錄可能缺少此欄位。 */
+  normalizedName?: string
+  scope: ConfigScope
   fleetState: FleetState
   schemaVersion: number
   version: number
@@ -57,6 +69,8 @@ export type FleetConfigErrorCode =
 export type FleetConfigAction =
   | 'authenticate'
   | 'listMyConfigs'
+  | 'listUnclassifiedConfigs'
+  | 'classifyConfig'
   | 'loadConfig'
   | 'createConfig'
   | 'updateConfig'

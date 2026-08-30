@@ -28,8 +28,12 @@
 }
 
 .empty-state__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 88rpx;
   margin-top: var(--uwo-space-2);
   font-family: var(--uwo-font-family-body);
   font-size: var(--uwo-font-size-body);
+  text-align: center;
 }

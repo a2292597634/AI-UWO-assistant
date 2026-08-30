@@ -1,12 +1,12 @@
 /**
  * Fleet Config Service
  *
- * Pure business rules: ownership, name uniqueness, 20-record limit,
+ * Pure business rules: ownership, name uniqueness, per-scope 10-record limit,
  * schema validation, version conflict detection. All ownerUid values
  * come from the function entry (server context), never from client event.
  */
 
-const MAX_CONFIGS_PER_USER = 20
+const MAX_CONFIGS_PER_SCOPE = 10
 const MAX_CONFIG_NAME_LENGTH = 30
 const SCHEMA_VERSION = 1
 const FLEET_SHIP_COUNT = 7
@@ -15,9 +15,12 @@ const MAX_IDENTIFIER_LENGTH = 100
 const MAX_LABEL_LENGTH = 30
 const MAX_TARGETS_PER_SHIP = 20
 const MAX_OFFICER_ID_LIST_LENGTH = 1000
+const CLASSIFIED_CONFIG_SCOPES = new Set(['battle', 'adventure'])
 const VALID_ACTIONS = new Set([
   'authenticate',
   'listMyConfigs',
+  'listUnclassifiedConfigs',
+  'classifyConfig',
   'loadConfig',
   'createConfig',
   'updateConfig',
@@ -35,6 +38,31 @@ const VALID_ACTIONS = new Set([
  */
 function normalizeConfigName(value) {
   return (value ?? '').trim()
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is 'battle' | 'adventure'}
+ */
+function isClassifiedScope(value) {
+  return CLASSIFIED_CONFIG_SCOPES.has(value)
+}
+
+/**
+ * @param {object} record
+ * @returns {'battle' | 'adventure' | 'unclassified'}
+ */
+function getStoredScope(record) {
+  return isClassifiedScope(record.scope) ? record.scope : 'unclassified'
+}
+
+/**
+ * @param {unknown} scope
+ * @returns {{ ok: true, scope: 'battle' | 'adventure' } | { ok: false, code: string, message: string }}
+ */
+function validateClassifiedScope(scope) {
+  if (isClassifiedScope(scope)) return { ok: true, scope }
+  return { ok: false, code: 'invalid-state', message: '配置範圍必須是戰鬥或冒險' }
 }
 
 /**
@@ -246,9 +274,9 @@ function isNameTaken(name, existing, ignoredConfigId) {
  */
 function getConstraintFailure(code) {
   if (code === 'limit-reached') {
-    return { code, message: `Maximum ${MAX_CONFIGS_PER_USER} configs per user` }
+    return { code, message: '此類型已達 10 套配置上限' }
   }
-  return { code: 'duplicate-name', message: 'A config with this name already exists' }
+  return { code: 'duplicate-name', message: '同一類型已有相同名稱的配置' }
 }
 
 // ── Result envelopes ──
@@ -275,12 +303,13 @@ function fail(code, message) {
 
 /**
  * @param {object} record
- * @returns {{ configId: string, name: string, version: number, updatedAt: string, lastUsedAt: string }}
+ * @returns {{ configId: string, name: string, scope: 'battle' | 'adventure' | 'unclassified', version: number, updatedAt: string, lastUsedAt: string }}
  */
 function toSummary(record) {
   return {
     configId: record.configId,
     name: record.name,
+    scope: getStoredScope(record),
     version: record.version,
     updatedAt: record.updatedAt,
     lastUsedAt: record.lastUsedAt,
@@ -294,7 +323,7 @@ function toSummary(record) {
  */
 function toClientRecord(record) {
   const { ownerUid: _ownerUid, _id: _recordId, ...rest } = record
-  return rest
+  return { ...rest, scope: getStoredScope(record) }
 }
 
 // ── Service factory ──
@@ -324,7 +353,11 @@ function createFleetConfigService(repo) {
       case 'authenticate':
         return handleAuthenticate(ownerUid)
       case 'listMyConfigs':
-        return handleListMyConfigs(ownerUid)
+        return handleListMyConfigs(ownerUid, payload)
+      case 'listUnclassifiedConfigs':
+        return handleListUnclassifiedConfigs(ownerUid)
+      case 'classifyConfig':
+        return handleClassifyConfig(ownerUid, payload)
       case 'loadConfig':
         return handleLoadConfig(ownerUid, payload)
       case 'createConfig':
@@ -350,24 +383,69 @@ function createFleetConfigService(repo) {
     return ok({ authenticated: Boolean(ownerUid) })
   }
 
-  async function handleListMyConfigs(ownerUid) {
-    const records = await repo.listByOwner(ownerUid)
+  async function handleListMyConfigs(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
+
+    const records = await repo.listByOwner(ownerUid, scopeResult.scope)
     console.log(
-      `[fleet-config] listMyConfigs: owner=${ownerUid.slice(0, 8)}... count=${records.length}`,
+      `[fleet-config] listMyConfigs: owner=${ownerUid.slice(0, 8)}... scope=${scopeResult.scope} count=${records.length}`,
     )
     return ok(records.map(toSummary))
   }
 
+  async function handleListUnclassifiedConfigs(ownerUid) {
+    const records = await repo.listByOwner(ownerUid, 'unclassified')
+    return ok(records.map(toSummary))
+  }
+
+  async function handleClassifyConfig(ownerUid, payload) {
+    const configId = payload?.configId
+    const expectedVersion = payload?.expectedVersion
+    const scopeResult = validateClassifiedScope(payload?.targetScope)
+
+    if (!configId || typeof configId !== 'string') {
+      return fail('not-found', '需要配置 ID')
+    }
+    if (typeof expectedVersion !== 'number') {
+      return fail('conflict', '需要配置版本')
+    }
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
+
+    const result = await repo.classifyIfVersionAndConstraints(
+      ownerUid,
+      configId,
+      expectedVersion,
+      scopeResult.scope,
+      MAX_CONFIGS_PER_SCOPE,
+    )
+    if (result.ok) return ok(toClientRecord(result.data))
+    if (result.code === 'duplicate-name' || result.code === 'limit-reached') {
+      const constraintFailure = getConstraintFailure(result.code)
+      return fail(constraintFailure.code, constraintFailure.message)
+    }
+    if (result.code === 'invalid-state') {
+      return fail('invalid-state', '此配置已完成分類，無法重複分類')
+    }
+    if (result.code === 'conflict') {
+      return fail('conflict', '配置已被其他裝置修改，請重新載入')
+    }
+    return fail('not-found', '找不到配置')
+  }
+
   async function handleLoadConfig(ownerUid, payload) {
     const configId = payload?.configId
+    const scopeResult = validateClassifiedScope(payload?.scope)
     if (!configId || typeof configId !== 'string') {
-      return fail('not-found', 'Config ID is required')
+      return fail('not-found', '需要配置 ID')
     }
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
     const record = await repo.findByOwnerAndId(ownerUid, configId)
     if (!record) return fail('not-found', 'Config not found')
+    if (getStoredScope(record) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     // Update lastUsedAt
-    await repo.touchLastUsed(ownerUid, configId, new Date().toISOString())
+    await repo.touchLastUsed(ownerUid, configId, new Date().toISOString(), scopeResult.scope)
 
     if (!isSchemaCompatible(record.schemaVersion)) {
       return fail('invalid-state', `Unsupported schema version: ${record.schemaVersion}`)
@@ -380,8 +458,11 @@ function createFleetConfigService(repo) {
   }
 
   async function handleCreateConfig(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
     const name = payload?.name
     const fleetState = payload?.fleetState
+
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     // Validate name
     if (!name || !isValidConfigName(name)) {
@@ -400,6 +481,7 @@ function createFleetConfigService(repo) {
       ownerUid,
       name: normalizedName,
       normalizedName,
+      scope: scopeResult.scope,
       fleetState,
       schemaVersion: SCHEMA_VERSION,
       version: 1,
@@ -408,7 +490,7 @@ function createFleetConfigService(repo) {
       lastUsedAt: new Date().toISOString(),
     }
 
-    const result = await repo.insertWithConstraints(record, MAX_CONFIGS_PER_USER)
+    const result = await repo.insertWithConstraints(record, MAX_CONFIGS_PER_SCOPE)
     if (!result.ok) {
       const constraintFailure = getConstraintFailure(result.code)
       return fail(constraintFailure.code, constraintFailure.message)
@@ -418,10 +500,13 @@ function createFleetConfigService(repo) {
   }
 
   async function handleUpdateConfig(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
     const configId = payload?.configId
     const expectedVersion = payload?.expectedVersion
     const fleetState = payload?.fleetState
     const force = payload?.force === true
+
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     if (!configId || typeof configId !== 'string') {
       return fail('not-found', 'Config ID is required')
@@ -433,6 +518,7 @@ function createFleetConfigService(repo) {
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
     if (!existing) return fail('not-found', 'Config not found')
+    if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     if (!isSchemaCompatible(existing.schemaVersion)) {
       return fail('invalid-state', `Unsupported schema version: ${existing.schemaVersion}`)
@@ -458,8 +544,11 @@ function createFleetConfigService(repo) {
   }
 
   async function handleSaveAsConfig(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
     const name = payload?.name
     const fleetState = payload?.fleetState
+
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     if (!name || !isValidConfigName(name)) {
       return fail('name-required', 'Please enter a config name (1-30 characters)')
@@ -476,6 +565,7 @@ function createFleetConfigService(repo) {
       ownerUid,
       name: normalizedName,
       normalizedName,
+      scope: scopeResult.scope,
       fleetState,
       schemaVersion: SCHEMA_VERSION,
       version: 1,
@@ -484,7 +574,7 @@ function createFleetConfigService(repo) {
       lastUsedAt: new Date().toISOString(),
     }
 
-    const result = await repo.insertWithConstraints(record, MAX_CONFIGS_PER_USER)
+    const result = await repo.insertWithConstraints(record, MAX_CONFIGS_PER_SCOPE)
     if (!result.ok) {
       const constraintFailure = getConstraintFailure(result.code)
       return fail(constraintFailure.code, constraintFailure.message)
@@ -497,9 +587,12 @@ function createFleetConfigService(repo) {
   }
 
   async function handleRenameConfig(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
     const configId = payload?.configId
     const expectedVersion = payload?.expectedVersion
     const name = payload?.name
+
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     if (!configId || typeof configId !== 'string') {
       return fail('not-found', 'Config ID is required')
@@ -511,6 +604,7 @@ function createFleetConfigService(repo) {
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
     if (!existing) return fail('not-found', 'Config not found')
+    if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     if (typeof expectedVersion !== 'number') {
       return fail('conflict', 'Version is required')
@@ -523,11 +617,12 @@ function createFleetConfigService(repo) {
       expectedVersion,
       normalizedName,
       normalizedName,
+      scopeResult.scope,
     )
 
     if (!result.ok) {
       if (result.code === 'duplicate-name') {
-        return fail('duplicate-name', 'A config with this name already exists')
+        return fail('duplicate-name', '同一類型已有相同名稱的配置')
       }
       if (result.code === 'not-found') {
         return fail('not-found', 'Config not found')
@@ -539,8 +634,10 @@ function createFleetConfigService(repo) {
   }
 
   async function handleDeleteConfig(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
     const configId = payload?.configId
     const expectedVersion = payload?.expectedVersion
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
     if (!configId || typeof configId !== 'string') {
       return fail('not-found', 'Config ID is required')
     }
@@ -551,8 +648,14 @@ function createFleetConfigService(repo) {
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
     if (!existing) return fail('not-found', 'Config not found')
+    if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
-    const deleted = await repo.deleteByOwnerAndId(ownerUid, configId, expectedVersion)
+    const deleted = await repo.deleteByOwnerAndId(
+      ownerUid,
+      configId,
+      expectedVersion,
+      scopeResult.scope,
+    )
     if (!deleted) {
       return fail('conflict', 'Config was modified by another device')
     }
@@ -561,15 +664,18 @@ function createFleetConfigService(repo) {
   }
 
   async function handleSetLastUsedConfig(ownerUid, payload) {
+    const scopeResult = validateClassifiedScope(payload?.scope)
     const configId = payload?.configId
+    if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
     if (!configId || typeof configId !== 'string') {
       return fail('not-found', 'Config ID is required')
     }
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
     if (!existing) return fail('not-found', 'Config not found')
+    if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
-    await repo.touchLastUsed(ownerUid, configId, new Date().toISOString())
+    await repo.touchLastUsed(ownerUid, configId, new Date().toISOString(), scopeResult.scope)
     return ok({ updated: true })
   }
 
@@ -578,7 +684,7 @@ function createFleetConfigService(repo) {
 
 module.exports = {
   createFleetConfigService,
-  MAX_CONFIGS_PER_USER,
+  MAX_CONFIGS_PER_SCOPE,
   MAX_CONFIG_NAME_LENGTH,
   SCHEMA_VERSION,
   VALID_ACTIONS,

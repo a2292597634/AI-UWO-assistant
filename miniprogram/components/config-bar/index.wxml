@@ -1,34 +1,107 @@
-<view class="config-bar">
-  <view class="config-bar__info" bindtap="onInfoTap" aria-label="開啟配置列表">
+<view class="config-bar {{expanded ? 'config-bar--expanded' : ''}}">
+  <view
+    class="config-bar__summary"
+    bindtap="onToggle"
+    aria-label="{{expanded ? '收起我的配置' : '展開我的配置'}}"
+    aria-expanded="{{expanded}}"
+  >
+    <text class="config-bar__title">我的配置</text>
     <text class="config-bar__name">{{configName || '未命名配置'}}</text>
-    <text
-      class="config-bar__status config-bar__status--{{configStatus}}"
-    >{{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}</text>
+    <text class="config-bar__status config-bar__status--{{configStatus}}">
+      {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
+    </text>
+    <text class="config-bar__count">{{configList.length}} 套</text>
+    <text class="config-bar__toggle">{{expanded ? '收起' : '展開'}}</text>
   </view>
 
-  <view class="config-bar__actions">
-    <button
-      wx:if="{{authStatus === 'guest'}}"
-      class="ui-button ui-button--primary config-bar__action config-bar__login"
-      bindtap="onLoginTap"
-    >登入後保存</button>
-    <button
-      wx:else
-      class="ui-button ui-button--secondary config-bar__action config-bar__menu"
-      bindtap="onMenuTap"
-    >{{showMenu ? '關閉配置選單' : '開啟配置選單'}}</button>
-  </view>
-</view>
+  <view wx:if="{{expanded}}" class="config-bar__content">
+    <view wx:if="{{authStatus === 'loading'}}" class="config-bar__message">
+      <text>正在確認登入狀態</text>
+    </view>
 
-<view wx:if="{{showMenu && authStatus !== 'guest'}}" class="config-bar__menu-panel">
-  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onSave">覆蓋保存</button>
-  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onSaveAs">另存為</button>
-  <button wx:if="{{activeConfigId}}" class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onRename">重新命名</button>
-  <button
-    wx:if="{{activeConfigId}}"
-    class="ui-button ui-button--danger config-bar__menu-item config-bar__menu-item--danger"
-    bindtap="onDelete"
-  >刪除配置</button>
-  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onNew">新建配置</button>
-  <button class="ui-button ui-button--secondary config-bar__menu-item" bindtap="onExit">離開配置</button>
+    <view wx:elif="{{authStatus === 'guest'}}" class="config-bar__message">
+      <text>登入後可使用雲端配置</text>
+    </view>
+
+    <view wx:else class="config-bar__list" aria-label="目前配置列表">
+      <view wx:if="{{listState === 'loading'}}" class="config-bar__message">
+        <text>配置載入中</text>
+      </view>
+      <view wx:elif="{{listState === 'error'}}" class="config-bar__message config-bar__message--error">
+        <text>{{listError || '配置列表載入失敗'}}</text>
+        <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onRetry">
+          重試
+        </button>
+      </view>
+      <view wx:elif="{{listState === 'empty'}}" class="config-bar__message">
+        <text>尚未保存配置</text>
+      </view>
+      <block wx:else>
+        <view wx:for="{{configList}}" wx:key="configId" class="config-bar__list-row">
+          <view class="config-bar__list-copy">
+            <text class="config-bar__list-name">{{item.name}}</text>
+            <text wx:if="{{item.configId === activeConfigId}}" class="config-bar__active-label">目前使用</text>
+          </view>
+          <button
+            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+            data-id="{{item.configId}}"
+            bindtap="onLoad"
+          >載入</button>
+        </view>
+      </block>
+    </view>
+
+    <view class="config-bar__action-row">
+      <button
+        wx:if="{{authStatus === 'guest'}}"
+        class="ui-button ui-button--primary config-bar__button"
+        bindtap="onLogin"
+      >登入後保存</button>
+      <block wx:else>
+        <button
+          wx:if="{{configStatus === 'unsaved'}}"
+          class="ui-button ui-button--primary config-bar__button"
+          bindtap="onSave"
+        >覆蓋保存</button>
+        <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onSaveAs">另存為</button>
+        <button
+          wx:if="{{activeConfigId}}"
+          class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+          bindtap="onRename"
+        >重新命名</button>
+        <button
+          wx:if="{{activeConfigId}}"
+          class="ui-button ui-button--compact ui-button--danger config-bar__button config-bar__button--compact"
+          bindtap="onDelete"
+        >刪除配置</button>
+        <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onNew">新建配置</button>
+        <button
+          wx:if="{{activeConfigId}}"
+          class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+          bindtap="onExit"
+        >離開配置</button>
+      </block>
+    </view>
+
+    <view wx:if="{{unclassifiedConfigs.length > 0}}" class="config-bar__unclassified">
+      <text class="config-bar__unclassified-title">待分類舊配置</text>
+      <view wx:for="{{unclassifiedConfigs}}" wx:key="configId" class="config-bar__unclassified-row">
+        <text class="config-bar__list-name">{{item.name}}</text>
+        <view class="config-bar__classify-actions">
+          <button
+            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+            data-id="{{item.configId}}"
+            data-scope="battle"
+            bindtap="onClassify"
+          >歸入戰鬥</button>
+          <button
+            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+            data-id="{{item.configId}}"
+            data-scope="adventure"
+            bindtap="onClassify"
+          >歸入冒險</button>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

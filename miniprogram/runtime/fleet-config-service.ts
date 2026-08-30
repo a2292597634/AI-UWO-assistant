@@ -8,6 +8,7 @@
 
 import { FLEET_CONFIG_FUNCTION_NAME } from './cloudbase-config'
 import type {
+  ConfigScope,
   FleetConfigRecord,
   FleetConfigSummary,
   FleetConfigErrorCode,
@@ -31,6 +32,8 @@ export class FleetConfigError extends Error {
   }
 }
 
+export type ClassifiedConfigScope = Exclude<ConfigScope, 'unclassified'>
+
 // ── Result types ──
 
 interface FleetConfigFunctionFailure {
@@ -42,6 +45,7 @@ interface FleetConfigFunctionFailure {
 // ── Service interface ──
 
 export interface UpdateConfigInput {
+  scope: ClassifiedConfigScope
   configId: string
   expectedVersion: number
   fleetState: FleetState
@@ -50,14 +54,37 @@ export interface UpdateConfigInput {
 
 export interface FleetConfigService {
   authenticate(): Promise<void>
-  listMyConfigs(): Promise<readonly FleetConfigSummary[]>
-  loadConfig(configId: string): Promise<FleetConfigRecord>
-  createConfig(name: string, fleetState: FleetState): Promise<FleetConfigRecord>
+  listMyConfigs(scope: ClassifiedConfigScope): Promise<readonly FleetConfigSummary[]>
+  listUnclassifiedConfigs(): Promise<readonly FleetConfigSummary[]>
+  loadConfig(scope: ClassifiedConfigScope, configId: string): Promise<FleetConfigRecord>
+  createConfig(
+    scope: ClassifiedConfigScope,
+    name: string,
+    fleetState: FleetState,
+  ): Promise<FleetConfigRecord>
   updateConfig(input: UpdateConfigInput): Promise<FleetConfigRecord>
-  saveAsConfig(name: string, fleetState: FleetState): Promise<FleetConfigRecord>
-  renameConfig(configId: string, version: number, name: string): Promise<FleetConfigRecord>
-  deleteConfig(configId: string, expectedVersion: number): Promise<void>
-  setLastUsedConfig(configId: string): Promise<void>
+  saveAsConfig(
+    scope: ClassifiedConfigScope,
+    name: string,
+    fleetState: FleetState,
+  ): Promise<FleetConfigRecord>
+  renameConfig(
+    scope: ClassifiedConfigScope,
+    configId: string,
+    version: number,
+    name: string,
+  ): Promise<FleetConfigRecord>
+  deleteConfig(
+    scope: ClassifiedConfigScope,
+    configId: string,
+    expectedVersion: number,
+  ): Promise<void>
+  setLastUsedConfig(scope: ClassifiedConfigScope, configId: string): Promise<void>
+  classifyConfig(
+    configId: string,
+    expectedVersion: number,
+    targetScope: ClassifiedConfigScope,
+  ): Promise<FleetConfigRecord>
 }
 
 // ── Internal: call the cloud function ──
@@ -86,6 +113,9 @@ const hasOnlyKeys = (value: Record<string, unknown>, allowed: readonly string[])
 const isNonEmptyString = (value: unknown, maxLength = 100): value is string =>
   typeof value === 'string' && value.length > 0 && [...value].length <= maxLength
 
+const isConfigScope = (value: unknown): value is ConfigScope =>
+  value === 'battle' || value === 'adventure' || value === 'unclassified'
+
 const isValidTimestamp = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && !Number.isNaN(Date.parse(value))
 
@@ -94,10 +124,13 @@ const isValidVersion = (value: unknown): value is number =>
 
 const isValidFleetConfigSummary = (value: unknown): value is FleetConfigSummary => {
   if (!isRecord(value)) return false
-  if (!hasOnlyKeys(value, ['configId', 'name', 'version', 'updatedAt', 'lastUsedAt'])) return false
+  if (!hasOnlyKeys(value, ['configId', 'name', 'scope', 'version', 'updatedAt', 'lastUsedAt'])) {
+    return false
+  }
   return (
     isNonEmptyString(value.configId) &&
     isNonEmptyString(value.name, MAX_CONFIG_NAME_LENGTH) &&
+    isConfigScope(value.scope) &&
     isValidVersion(value.version) &&
     isValidTimestamp(value.updatedAt) &&
     isValidTimestamp(value.lastUsedAt)
@@ -106,10 +139,14 @@ const isValidFleetConfigSummary = (value: unknown): value is FleetConfigSummary 
 
 const isValidFleetConfigRecord = (value: unknown): value is FleetConfigRecord => {
   if (!isRecord(value)) return false
+  const name = value.name
+  const normalizedName = value.normalizedName
   if (
     !hasOnlyKeys(value, [
       'configId',
       'name',
+      'normalizedName',
+      'scope',
       'fleetState',
       'schemaVersion',
       'version',
@@ -120,9 +157,18 @@ const isValidFleetConfigRecord = (value: unknown): value is FleetConfigRecord =>
   ) {
     return false
   }
+  if (
+    normalizedName !== undefined &&
+    (!isNonEmptyString(normalizedName, MAX_CONFIG_NAME_LENGTH) ||
+      !isNonEmptyString(name, MAX_CONFIG_NAME_LENGTH) ||
+      normalizedName !== name.trim())
+  ) {
+    return false
+  }
   return (
     isNonEmptyString(value.configId) &&
-    isNonEmptyString(value.name, MAX_CONFIG_NAME_LENGTH) &&
+    isNonEmptyString(name, MAX_CONFIG_NAME_LENGTH) &&
+    isConfigScope(value.scope) &&
     isValidFleetState(value.fleetState) &&
     value.schemaVersion === SCHEMA_VERSION &&
     isValidVersion(value.version) &&
@@ -141,12 +187,14 @@ const isValidActionData = (action: FleetConfigAction, value: unknown): boolean =
         typeof value.authenticated === 'boolean'
       )
     case 'listMyConfigs':
+    case 'listUnclassifiedConfigs':
       return Array.isArray(value) && value.every(isValidFleetConfigSummary)
     case 'loadConfig':
     case 'createConfig':
     case 'updateConfig':
     case 'saveAsConfig':
     case 'renameConfig':
+    case 'classifyConfig':
       return isValidFleetConfigRecord(value)
     case 'deleteConfig':
       return isRecord(value) && hasOnlyKeys(value, ['deleted']) && value.deleted === true
@@ -218,20 +266,21 @@ export function createFleetConfigService(): FleetConfigService {
       }
     },
 
-    async listMyConfigs(): Promise<readonly FleetConfigSummary[]> {
-      return callFunction<FleetConfigSummary[]>('listMyConfigs')
+    async listMyConfigs(scope: ClassifiedConfigScope): Promise<readonly FleetConfigSummary[]> {
+      return callFunction<FleetConfigSummary[]>('listMyConfigs', { scope })
     },
 
-    async loadConfig(configId: string): Promise<FleetConfigRecord> {
-      return callFunction<FleetConfigRecord>('loadConfig', { configId })
+    async listUnclassifiedConfigs(): Promise<readonly FleetConfigSummary[]> {
+      return callFunction<FleetConfigSummary[]>('listUnclassifiedConfigs')
     },
 
-    async createConfig(name: string, fleetState: FleetState): Promise<FleetConfigRecord> {
-      return callFunction<FleetConfigRecord>('createConfig', { name, fleetState })
+    async loadConfig(scope: ClassifiedConfigScope, configId: string): Promise<FleetConfigRecord> {
+      return callFunction<FleetConfigRecord>('loadConfig', { scope, configId })
     },
 
     async updateConfig(input: UpdateConfigInput): Promise<FleetConfigRecord> {
       return callFunction<FleetConfigRecord>('updateConfig', {
+        scope: input.scope,
         configId: input.configId,
         expectedVersion: input.expectedVersion,
         fleetState: input.fleetState,
@@ -239,28 +288,62 @@ export function createFleetConfigService(): FleetConfigService {
       })
     },
 
-    async saveAsConfig(name: string, fleetState: FleetState): Promise<FleetConfigRecord> {
-      return callFunction<FleetConfigRecord>('saveAsConfig', { name, fleetState })
+    async createConfig(
+      scope: ClassifiedConfigScope,
+      name: string,
+      fleetState: FleetState,
+    ): Promise<FleetConfigRecord> {
+      return callFunction<FleetConfigRecord>('createConfig', { scope, name, fleetState })
+    },
+
+    async saveAsConfig(
+      scope: ClassifiedConfigScope,
+      name: string,
+      fleetState: FleetState,
+    ): Promise<FleetConfigRecord> {
+      return callFunction<FleetConfigRecord>('saveAsConfig', { scope, name, fleetState })
     },
 
     async renameConfig(
+      scope: ClassifiedConfigScope,
       configId: string,
       version: number,
       name: string,
     ): Promise<FleetConfigRecord> {
       return callFunction<FleetConfigRecord>('renameConfig', {
+        scope,
         configId,
         expectedVersion: version,
         name,
       })
     },
 
-    async deleteConfig(configId: string, expectedVersion: number): Promise<void> {
-      await callFunction<{ deleted: boolean }>('deleteConfig', { configId, expectedVersion })
+    async deleteConfig(
+      scope: ClassifiedConfigScope,
+      configId: string,
+      expectedVersion: number,
+    ): Promise<void> {
+      await callFunction<{ deleted: boolean }>('deleteConfig', {
+        scope,
+        configId,
+        expectedVersion,
+      })
     },
 
-    async setLastUsedConfig(configId: string): Promise<void> {
-      await callFunction<{ updated: boolean }>('setLastUsedConfig', { configId })
+    async setLastUsedConfig(scope: ClassifiedConfigScope, configId: string): Promise<void> {
+      await callFunction<{ updated: boolean }>('setLastUsedConfig', { scope, configId })
+    },
+
+    async classifyConfig(
+      configId: string,
+      expectedVersion: number,
+      targetScope: ClassifiedConfigScope,
+    ): Promise<FleetConfigRecord> {
+      return callFunction<FleetConfigRecord>('classifyConfig', {
+        configId,
+        expectedVersion,
+        targetScope,
+      })
     },
   }
 }

@@ -51,6 +51,10 @@
 }
 
 .config-conflict-modal__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 88rpx;
+  text-align: center;
 }
