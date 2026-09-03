@@ -40,6 +40,10 @@ Component({
       type: String,
       value: '',
     },
+    showSearch: {
+      type: Boolean,
+      value: true,
+    },
     hasMore: {
       type: Boolean,
       value: false,

@@ -142,6 +142,14 @@ const getState = (page: object): FleetPageState => {
   return state
 }
 
+const createDefaultBattleFleetState = (): FleetState => {
+  let state = createFleetState()
+  for (const ship of state.ships) {
+    state = setShipMode(state, ship.id, 'auto').state
+  }
+  return state
+}
+
 const emptyPageData: FleetPageData = {
   occupiedCount: 0,
   fleetCapacity: 77,
@@ -154,12 +162,12 @@ const emptyPageData: FleetPageData = {
     status: 'empty',
     statusLabel: '未配置',
     isCurrent: true,
-    mode: 'manual',
+    mode: 'auto',
     slots: [],
     targets: [],
   },
   currentShipId: 'ship-1',
-  mode: 'manual',
+  mode: 'auto',
   manualSkillId: null,
   manualSkills: [],
   manualCandidates: [],
@@ -224,7 +232,7 @@ const resultMessage: Record<string, string> = {
 const computeDirty = (state: FleetPageState): boolean => {
   if (state.savedFleetState === null) {
     // No baseline — check if fleet is non-empty
-    const empty = createFleetState()
+    const empty = createDefaultBattleFleetState()
     return serializeFleetState(state.fleet) !== serializeFleetState(empty)
   }
   return serializeFleetState(state.fleet) !== state.savedFleetState
@@ -388,7 +396,7 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
 
 const doNewConfig = (page: FleetPageLike): void => {
   const state = getState(page)
-  state.fleet = createFleetState()
+  state.fleet = createDefaultBattleFleetState()
   state.proposal = null
   state.undoFleetState = null
   state.activeConfigId = null
@@ -580,7 +588,7 @@ Page({
 
   onLoad() {
     const state: FleetPageState = {
-      fleet: createFleetState(),
+      fleet: createDefaultBattleFleetState(),
       officers: getFleetOfficers(),
       skills: getSkills(),
       dictionaries: getDictionaries(),
@@ -988,7 +996,7 @@ Page({
     const categoryId = eventDataset(event).id
     if (typeof categoryId !== 'string') return
     const state = getState(this)
-    state.manualFilters = { ...state.manualFilters, categoryId }
+    state.manualFilters = { ...state.manualFilters, categoryId: categoryId || null }
     state.manualSkillLimit = MANUAL_SKILL_WINDOW_SIZE
     render(this)
   },

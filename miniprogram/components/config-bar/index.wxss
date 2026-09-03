@@ -20,11 +20,28 @@
   white-space: nowrap;
 }
 
+.config-bar__summary-copy,
+.config-bar__summary-meta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.config-bar__summary-copy {
+  flex: 1 1 auto;
+  gap: var(--uwo-space-2);
+}
+
+.config-bar__summary-meta {
+  flex: 0 0 auto;
+  gap: var(--uwo-space-2);
+  margin-left: auto;
+}
+
 .config-bar__title,
 .config-bar__name,
 .config-bar__status,
 .config-bar__count,
-.config-bar__toggle,
 .config-bar__list-name,
 .config-bar__active-label,
 .config-bar__unclassified-title,
@@ -48,8 +65,7 @@
 }
 
 .config-bar__status,
-.config-bar__count,
-.config-bar__toggle {
+.config-bar__count {
   flex: 0 0 auto;
   font-size: var(--uwo-font-size-minimum-action);
 }
@@ -67,14 +83,41 @@
   color: var(--uwo-color-warning);
 }
 
-.config-bar__count,
-.config-bar__toggle {
+.config-bar__count {
   color: var(--uwo-color-text-secondary);
 }
 
 .config-bar__toggle {
-  flex-basis: 72rpx;
-  text-align: right;
+  box-sizing: border-box;
+  display: flex;
+  width: 64rpx;
+  min-width: 64rpx;
+  min-height: 64rpx;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--uwo-color-text-secondary);
+  overflow: visible;
+}
+
+.config-bar__toggle::after {
+  border: 0;
+}
+
+.config-bar__toggle-icon {
+  width: 64rpx;
+  height: 64rpx;
+  flex: 0 0 auto;
+  transform-origin: center;
+  transform: scale(3);
+}
+
+.config-bar__toggle-icon--expanded {
+  transform: scaleX(2.85) scaleY(2.82);
 }
 
 .config-bar__content {
@@ -199,6 +242,11 @@
 
 .config-bar__summary:active {
   opacity: 0.88;
+}
+
+.config-bar__toggle:active {
+  opacity: 0.88;
+  transform: translateY(2rpx);
 }
 
 .config-bar__summary:focus {

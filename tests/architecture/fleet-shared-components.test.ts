@@ -115,6 +115,12 @@ const PAGE_PATHS = ['miniprogram/pages/fleet', 'miniprogram/pages/adventure-flee
 const PAGE_COMPONENT_CONTRACTS = COMPONENT_CONTRACTS.filter(
   ({ name }) => name !== 'config-list-modal',
 )
+const PAGE_COMPONENT_OMISSIONS: Partial<Record<(typeof PAGE_PATHS)[number], Set<string>>> = {
+  'miniprogram/pages/fleet': new Set(['status-badge']),
+}
+
+const pageComponentContracts = (pagePath: (typeof PAGE_PATHS)[number]) =>
+  PAGE_COMPONENT_CONTRACTS.filter(({ name }) => !PAGE_COMPONENT_OMISSIONS[pagePath]?.has(name))
 
 const readProjectFile = (relativePath: string): string =>
   readFileSync(resolve(ROOT, relativePath), 'utf8')
@@ -287,7 +293,7 @@ describe.each(PAGE_PATHS)('%s 共享元件接線', (pagePath) => {
     }
 
     const expectedRegistrations = Object.fromEntries(
-      PAGE_COMPONENT_CONTRACTS.map(({ name }) => [name, `../../components/${name}/index`]),
+      pageComponentContracts(pagePath).map(({ name }) => [name, `../../components/${name}/index`]),
     )
 
     expect(pageConfig.usingComponents).toMatchObject(expectedRegistrations)
@@ -296,7 +302,7 @@ describe.each(PAGE_PATHS)('%s 共享元件接線', (pagePath) => {
   it('WXML 使用頁面需要的共享元件標籤', () => {
     const wxml = readProjectFile(`${pagePath}/index.wxml`)
 
-    for (const { name } of PAGE_COMPONENT_CONTRACTS) {
+    for (const { name } of pageComponentContracts(pagePath)) {
       expect(wxml).toMatch(new RegExp(`<${escapeRegExp(name)}(?:\\s|/?>)`))
     }
   })
@@ -312,6 +318,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
   it('ConfigBar 顯示折疊配置管理模組並提供完整事件入口', () => {
     const script = readComponentFile('config-bar', 'index.ts')
     const wxml = readComponentFile('config-bar', 'index.wxml')
+    const wxss = readComponentFile('config-bar', 'index.wxss')
 
     for (const property of [
       'configName',
@@ -330,7 +337,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxml).toContain('config-bar--expanded')
     expect(wxml).toContain('config-bar__status')
     expect(wxml).toMatch(/bindtap="onSave"/)
-    expect(wxml).toMatch(/bindtap="onToggle"/)
+    expect(wxml).toMatch(/catchtap="onToggle"/)
     expect(wxml).toMatch(/bindtap="onLoad"/)
     expect(wxml).toMatch(/bindtap="onClassify"/)
     expect(wxml).toContain('待分類舊配置')
@@ -341,6 +348,29 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(script).toMatch(/triggerEvent\(\s*['"]exit['"]\s*\)/)
     expect(wxml).not.toContain('配置類型')
     expect(wxml).not.toContain('戰鬥配置</button>')
+    expect(wxml).toContain('config-bar__summary-copy')
+    expect(wxml).toContain('config-bar__summary-meta')
+    expect(wxml).toContain('config-bar__toggle-icon')
+    expect(wxml).toContain('src="/assets/ui/uwo-disclosure-chevron-up.png"')
+    expect(wxml).toContain('src="/assets/ui/uwo-disclosure-chevron-down.png"')
+    expect(wxml).not.toMatch(/class="config-bar__summary"[\s\S]*bindtap="onToggle"/)
+    expect(wxml).toMatch(/class="config-bar__toggle"[\s\S]*catchtap="onToggle"/)
+    expect(wxml).not.toContain("{{expanded ? '收起' : '展開'}}")
+    expect(wxss).toMatch(
+      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar__summary-copy\s*\{[\s\S]*min-width:\s*0[\s\S]*flex:\s*1\s+1\s+auto/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar__summary-meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar__toggle-icon\s*\{[\s\S]*width:\s*64rpx[\s\S]*height:\s*64rpx[\s\S]*transform:\s*scale\(3\)/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar__toggle-icon--expanded\s*\{[\s\S]*transform:\s*scaleX\(2\.85\)\s+scaleY\(2\.82\)/,
+    )
   })
 
   it('ModeTabs 以選項值發出 change 並提供可見選中語義', () => {
@@ -366,6 +396,54 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     for (const status of ['achieved', 'unmet', 'review', 'error']) {
       expect(wxss).toContain(`ui-status--${status}`)
     }
+  })
+
+  it('DisclosureSection 支援頁面局部緊湊內距並保留標題列高度', () => {
+    const script = readComponentFile('disclosure-section', 'index.ts')
+    const wxml = readComponentFile('disclosure-section', 'index.wxml')
+    const wxss = readComponentFile('disclosure-section', 'index.wxss')
+
+    expect(script).toMatch(/\bcompact\s*:/)
+    expect(wxml).toContain('disclosure-section--compact')
+    expect(wxss).toMatch(
+      /\.disclosure-section--compact\s+\.disclosure-section__body\s*\{[\s\S]*padding-right:\s*var\(--uwo-space-2\)[\s\S]*padding-bottom:\s*var\(--uwo-space-2\)[\s\S]*padding-left:\s*var\(--uwo-space-2\)/,
+    )
+    expect(wxss).toMatch(/\.disclosure-section__header\s*\{[\s\S]*min-height:\s*88rpx/)
+  })
+
+  it('DisclosureSection 將標題左對齊並把展開控制獨立為生圖箭頭圖標按鈕', () => {
+    const wxml = readComponentFile('disclosure-section', 'index.wxml')
+    const wxss = readComponentFile('disclosure-section', 'index.wxss')
+
+    expect(wxml).toContain('disclosure-section__header')
+    expect(wxml).toContain('src="/assets/ui/uwo-disclosure-chevron-up.png"')
+    expect(wxml).toContain('src="/assets/ui/uwo-disclosure-chevron-down.png"')
+    expect(wxml).toContain('aria-hidden="true"')
+    expect(wxml).toMatch(
+      /class="disclosure-section__toggle"[\s\S]*aria-expanded="\{\{expanded\}\}"/,
+    )
+    expect(wxml).not.toContain('disclosure-section__action')
+    expect(wxml).not.toContain('disclosure-section__chevron')
+    expect(projectFileExists('miniprogram/assets/ui/uwo-disclosure-chevron-up.png')).toBe(true)
+    expect(projectFileExists('miniprogram/assets/ui/uwo-disclosure-chevron-down.png')).toBe(true)
+    expect(wxss).toMatch(
+      /\.disclosure-section__header\s*\{[\s\S]*display:\s*flex[\s\S]*padding:\s*0\s+var\(--uwo-space-4\)/,
+    )
+    expect(wxss).toMatch(
+      /\.disclosure-section__copy\s*\{[\s\S]*align-items:\s*flex-start[\s\S]*text-align:\s*left/,
+    )
+    expect(wxss).toMatch(
+      /\.disclosure-section__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*border-radius:\s*0[\s\S]*background:\s*transparent/,
+    )
+    expect(wxss).toMatch(
+      /\.disclosure-section__meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
+    )
+    expect(wxss).toMatch(
+      /\.disclosure-section__icon\s*\{[\s\S]*width:\s*64rpx[\s\S]*height:\s*64rpx[\s\S]*transform:\s*scale\(3\)/,
+    )
+    expect(wxss).toMatch(
+      /\.disclosure-section__icon--expanded\s*\{[\s\S]*transform:\s*scaleX\(2\.85\)\s+scaleY\(2\.82\)/,
+    )
   })
 
   it('EmptyState 顯示標題與說明並以 action 交回操作', () => {
@@ -551,6 +629,7 @@ describe('Task 4 技能選擇共享元件契約', () => {
       'selectedCategoryId',
       'selectedSkillId',
       'searchText',
+      'showSearch',
       'hasMore',
       'selectionLabel',
       'title',
@@ -569,6 +648,7 @@ describe('Task 4 技能選擇共享元件契約', () => {
     expect(wxml).not.toContain('item.isActive')
     expect(wxml).toContain('{{title}}')
     expect(wxml).toContain('{{hint}}')
+    expect(wxml).toContain('wx:if="{{showSearch}}"')
     expect(wxml).toContain('placeholder="{{searchPlaceholder}}"')
     expect(wxml).toContain('{{emptyLabel}}')
     expect(wxml).toContain('{{loadMoreLabel}}')
@@ -579,6 +659,11 @@ describe('Task 4 技能選擇共享元件契約', () => {
 
     expect(wxml).toContain('skill-picker-sheet__kind-tabs')
     expect(wxml).toContain('skill-picker-sheet__category-tabs')
+    expect(wxml).toContain(
+      "selectedCategoryId === '' || selectedCategoryId === null ? 'skill-picker-sheet__tab--active' : ''",
+    )
+    expect(wxml).toContain('data-value=""')
+    expect(wxml).toContain('全部分類')
     expect(wxml).toMatch(/<input[\s\S]*?bindinput="onSearchInput"/)
     expect(wxml).toMatch(/wx:for="\{\{skills\}\}"/)
     expect(wxml).toMatch(/bindtap="onSkillTap"/)
@@ -641,7 +726,7 @@ describe('Task 4 技能選擇共享元件契約', () => {
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__icon(?:,|\s*\{)[\s\S]*width:\s*40rpx[\s\S]*height:\s*40rpx/,
     )
     expect(wxss).toMatch(
-      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__detail\s*\{[\s\S]*min-height:\s*64rpx/,
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__detail\s*\{[\s\S]*min-height:\s*56rpx/,
     )
     expect(wxss).toMatch(
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__select\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*56rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-1\)/,
@@ -651,6 +736,29 @@ describe('Task 4 技能選擇共享元件契約', () => {
     )
     expect(wxss).toMatch(
       /\.skill-picker-sheet__tabs-content\s*\{[\s\S]*gap:\s*var\(--uwo-space-2\)/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*color:\s*var\(--uwo-color-text-secondary\)[\s\S]*background:\s*var\(--uwo-color-surface\)[\s\S]*border-color:\s*var\(--uwo-color-border-subtle\)/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab--active\s*\{[\s\S]*color:\s*var\(--uwo-color-surface\)[\s\S]*background:\s*var\(--uwo-color-ink\)[\s\S]*border-color:\s*var\(--uwo-color-ink\)/,
+    )
+  })
+
+  it('10A inline 技能行隱藏重複描述並收緊行內高度', () => {
+    const wxss = readSkillPickerFile('index.wxss')
+
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__description\s*\{[\s\S]*display:\s*none/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__skill\s*\{[\s\S]*gap:\s*var\(--uwo-space-2\)/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__detail\s*\{[\s\S]*min-height:\s*56rpx[\s\S]*gap:\s*var\(--uwo-space-2\)/,
+    )
+    expect(wxss).toMatch(
+      /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__meta\s*\{[\s\S]*margin-top:\s*0/,
     )
   })
 })

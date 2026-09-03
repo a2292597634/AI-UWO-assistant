@@ -148,12 +148,13 @@ describe('battle fleet page', () => {
     expect(wxStub.navigateTo).not.toHaveBeenCalled()
   })
 
-  it('registers with seven ship tabs, eleven slots, and manual mode', () => {
+  it('registers with seven ship tabs, eleven slots, and auto mode', () => {
     const page = createPageInstance()
     page.onLoad()
 
     expect(page.data.shipTabs).toHaveLength(7)
-    expect(page.data.mode).toBe('manual')
+    expect(page.data.mode).toBe('auto')
+    expect(page.data.targets).toHaveLength(1)
     expect(page.data.currentShip.slots).toHaveLength(11)
   })
 
@@ -245,9 +246,24 @@ describe('battle fleet page', () => {
     ).toMatchObject({ officer: { status: 'locked' } })
   })
 
+  it('allows the DEMO 全部分類 chip to clear the active category filter', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onSkillCategoryTap({
+      detail: { value: 'skill_category_naval_active_cannon' },
+      currentTarget: { dataset: {} },
+    } as never)
+    expect(page.data.manualCategoryId).toBe('skill_category_naval_active_cannon')
+
+    page.onSkillCategoryTap({ detail: { value: '' }, currentTarget: { dataset: {} } } as never)
+    expect(page.data.manualCategoryId).toBeNull()
+  })
+
   it('opens the skill sheet on single tap and sets manualSkillId on select in manual mode', () => {
     const page = createPageInstance()
     page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'manual' } } } as never)
 
     page.onSkillTap({ currentTarget: { dataset: { id: 'skill_skill200681' } } } as never)
     expect(page.data.sheetSkill).toBeDefined()
@@ -427,12 +443,11 @@ const sharedComponentNames = [
   'officer-action-sheet',
   'skill-picker-sheet',
   'result-preview-sheet',
-  'status-badge',
   'empty-state',
 ] as const
 
 describe('fleet slot action touch targets', () => {
-  it('keeps five columns with compact direct actions per slot', () => {
+  it('keeps six columns with compact direct actions per slot', () => {
     const actionTag = fleetWxml.match(/<officer-action-sheet[\s\S]*?\/>/)?.[0] ?? ''
     expect(fleetWxml.match(/<officer-action-sheet\b/g)).toHaveLength(1)
     expect(actionTag).toMatch(/presentation="trigger"[\s\S]*?variant="slot"/)
@@ -451,10 +466,10 @@ describe('fleet slot action touch targets', () => {
     expect(fleetWxml).toContain('officer-slot__type-icon')
     expect(fleetWxml).toContain('item.officer.visuals.framePath')
     expect(fleetWxss).toMatch(
-      /\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/,
+      /\.slot-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)/,
     )
-    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*180rpx/)
-    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*var\(--uwo-space-2\)\s+0;/)
+    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*min-height:\s*152rpx/)
+    expect(fleetWxss).toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*var\(--uwo-space-1\)\s+0;/)
     expect(fleetWxss).not.toMatch(/\.officer-slot\s*\{[\s\S]*padding:\s*10rpx 2rpx;/)
   })
 
@@ -528,12 +543,15 @@ describe('battle fleet shared component wiring', () => {
     expect(fleetWxml).not.toContain('class="skill-options"')
   })
 
-  it('keeps the battle skill picker title, guidance, search, empty state and meta semantics', () => {
-    expect(fleetWxml).toContain('title="選擇戰鬥技能"')
+  it('keeps the battle skill picker title, guidance and filter semantics without manual search', () => {
+    expect(fleetWxml).toContain("title=\"{{mode === 'auto' ? '技能篩選' : '選擇戰鬥技能'}}\"")
     expect(fleetWxml).toContain(
-      "hint=\"{{mode === 'auto' ? '點擊技能查看詳情，選擇加入目標' : '點擊技能查看詳情，選擇後篩選可用航海士'}}\"",
+      "hint=\"{{mode === 'auto' ? '選擇後加入目標' : '點擊技能查看詳情，選擇後篩選可用航海士'}}\"",
     )
-    expect(fleetWxml).toContain('search-placeholder="在目前分類搜尋技能名稱"')
+    expect(fleetWxml).toContain('show-search="{{false}}"')
+    expect(fleetWxml).not.toContain('search-text="{{skillSearchText}}"')
+    expect(fleetWxml).not.toContain('search-placeholder="在目前分類搜尋技能名稱"')
+    expect(fleetWxml).not.toContain('bind:search-input="onSkillSearchInput"')
     expect(fleetWxml).toContain('empty-label="沒有符合的戰鬥技能"')
   })
 
@@ -546,11 +564,11 @@ describe('battle fleet shared component wiring', () => {
 })
 
 describe('battle fleet P5 workbench structure', () => {
-  it('registers the disclosure component and uses the five-column workbench structure', () => {
+  it('registers the disclosure component and uses the six-column workbench structure', () => {
     expect(fleetJson.usingComponents?.['disclosure-section']).toBe(
       '../../components/disclosure-section/index',
     )
-    expect(fleetWxml.match(/<disclosure-section\b/g)).toHaveLength(4)
+    expect(fleetWxml.match(/<disclosure-section\b/g)).toHaveLength(3)
     expect(fleetWxml).not.toContain('class="fleet-header"')
     expect(fleetWxml.indexOf('<mode-tabs')).toBeLessThan(fleetWxml.indexOf('class="slot-grid"'))
     expect(fleetWxml).toContain('skillContributionLabel')
@@ -563,7 +581,8 @@ describe('battle fleet P5 workbench structure', () => {
 describe('battle fleet context density', () => {
   it('keeps one global ship context and removes the editor duplicate', () => {
     expect(fleetWxml.match(/class="fleet-context"/g)).toHaveLength(1)
-    expect(fleetWxml).toContain('{{currentShip.label}} · {{currentShip.statusLabel}}')
+    expect(fleetWxml).toContain('{{currentShip.label}}')
+    expect(fleetWxml).not.toContain('currentShip.statusLabel')
     expect(fleetWxml).toContain('已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置')
     expect(fleetWxml).not.toContain('class="section-heading"')
   })
@@ -577,12 +596,59 @@ describe('battle fleet context density', () => {
 })
 
 describe('battle fleet P5 layout rules', () => {
-  it('uses five columns and tokenized P5 page rules', () => {
-    expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*repeat\(5,\s*minmax\(0,\s*1fr\)\)/)
+  it('uses six columns and tokenized P5 page rules', () => {
+    expect(fleetWxss).toMatch(/\.slot-grid\s*\{[\s\S]*repeat\(6,\s*minmax\(0,\s*1fr\)\)/)
     expect(fleetWxss).toMatch(/\.fleet-context\s*\{[\s\S]*var\(--uwo-/)
     expect(fleetWxss).toMatch(/\.candidate-row\s*\{[\s\S]*min-height:\s*88rpx/)
     expect(fleetWxss).toContain('overflow-wrap: anywhere')
     expect(fleetWxss).not.toMatch(/\.candidate-row--disabled\s*\{[\s\S]*opacity\s*:/)
+  })
+})
+
+describe('battle fleet skill summary compact rows', () => {
+  it('uses the skill-picker row language without fleet overview or status badges', () => {
+    expect(fleetWxml).toContain('class="summary-row__contributors-count"')
+    expect(fleetWxml).not.toContain('<status-badge')
+    expect(fleetWxml).not.toContain('全艦隊摘要')
+    expect(fleetWxml).not.toContain('class="overview-panel"')
+  })
+
+  it('keeps the summary row compact and places contributors on the right', () => {
+    expect(fleetWxss).toMatch(
+      /\.summary-row\s*\{[\s\S]*display:\s*flex[\s\S]*min-height:\s*56rpx[\s\S]*gap:\s*var\(--uwo-space-2\)[\s\S]*padding:\s*var\(--uwo-space-1\)\s+0;/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.summary-row__contributors\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*height:\s*48rpx/,
+    )
+    expect(fleetWxss).toMatch(/\.summary-row__contributors-content\s*\{[\s\S]*height:\s*48rpx/)
+    expect(fleetWxss).toMatch(/\.summary-row__level\s*\{[\s\S]*margin-top:\s*0;/)
+  })
+})
+
+describe('battle fleet exclusion compact cards', () => {
+  it('uses two four-column exclusion grids with an accessible red X action', () => {
+    expect(fleetWxml.match(/class="officer-exclusion-grid"/g)).toHaveLength(2)
+    expect(fleetWxml.match(/class="officer-exclusion-card"/g)).toHaveLength(2)
+    expect(fleetWxml.match(/class="officer-exclusion-card__remove"/g)).toHaveLength(2)
+    expect(fleetWxml.match(/compact="\{\{true\}\}"/g)).toHaveLength(3)
+    expect(fleetWxml).toContain('officer-exclusion-card__remove-icon')
+    expect(fleetWxml).not.toContain('解除本船排除')
+    expect(fleetWxml).not.toContain('解除</text>')
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-card__name\s*\{[\s\S]*-webkit-line-clamp:\s*2[\s\S]*overflow-wrap:\s*anywhere/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-card__visuals\s*\{[\s\S]*width:\s*88rpx[\s\S]*height:\s*88rpx/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-card__portrait-wrap\s*\{[\s\S]*width:\s*54rpx[\s\S]*height:\s*54rpx/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-card__remove\s*\{[\s\S]*top:\s*0[\s\S]*right:\s*0[\s\S]*width:\s*88rpx[\s\S]*height:\s*88rpx/,
+    )
   })
 })
 
@@ -622,16 +688,27 @@ describe('battle fleet proposal preview layout', () => {
 })
 
 describe('battle fleet target controls', () => {
-  it('uses guarded recalculation and compact target controls', () => {
+  it('uses the skill picker as the only add entry and keeps target controls compact', () => {
     expect(fleetWxml).toContain('disabled="{{!canRecalculate}}"')
-    expect(fleetWxml).toContain('請先設定至少一個有效的戰鬥技能目標')
+    expect(fleetWxml).toContain('<text class="panel-heading__hint">僅計算目前船</text>')
+    expect(fleetWxml).toContain('尚未設定目標')
+    expect(fleetWxml).toContain('請從下方技能篩選選擇技能加入目標')
+    expect(fleetWxml).not.toContain('bindtap="onAddTarget"')
     expect(fleetWxml).toMatch(
-      /<button class="ui-button ui-button--secondary target-row__remove"[^>]*bindtap="onRemoveTarget"[^>]*>刪除目標<\/button>/,
+      /<block wx:for="\{\{targets\}\}" wx:key="id">\s*<view wx:if="\{\{item\.configured\}\}" class="target-row">/,
+    )
+    expect(fleetWxml).toContain('class="target-row__controls"')
+    expect(fleetWxml).toMatch(
+      /<button class="target-row__remove"[^>]*bindtap="onRemoveTarget"[^>]*aria-label="刪除\{\{item\.skillName\}\}目標"[^>]*>\s*<text aria-hidden="true">×<\/text>/,
     )
     expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*64rpx/)
     expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
+    expect(fleetWxss).toMatch(/\.target-row__controls\s*\{[\s\S]*gap:\s*var\(--uwo-space-1\)/)
     expect(fleetWxss).toMatch(
-      /\.target-row__remove\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*56rpx/,
+      /\.target-row__controls\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.target-row__remove\s*\{[\s\S]*width:\s*48rpx[\s\S]*height:\s*48rpx[\s\S]*min-width:\s*48rpx[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent[\s\S]*color:\s*var\(--uwo-color-danger\)/,
     )
     expect(skillPickerWxss).toMatch(
       /\.skill-picker-sheet--inline \.skill-picker-sheet__tab\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0 var\(--uwo-space-1\);/,

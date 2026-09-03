@@ -2,6 +2,50 @@
   "processingRuleVersion": "1",
   "files": [
     {
+      "id": "disclosure-chevron-down",
+      "output": "uwo-disclosure-chevron-down.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 1254,
+      "height": 1254,
+      "byteSize": 14052,
+      "sha256": "c826517e0b3749e1393fd4b6399b3f5015ca36b1b69976c8b868f638910ec3ee",
+      "sourceTransparentBounds": {
+        "left": 218,
+        "top": 409,
+        "width": 508,
+        "height": 279
+      },
+      "outputTransparentBounds": {
+        "left": 218,
+        "top": 409,
+        "width": 508,
+        "height": 279
+      }
+    },
+    {
+      "id": "disclosure-chevron-up",
+      "output": "uwo-disclosure-chevron-up.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 1254,
+      "height": 1254,
+      "byteSize": 20478,
+      "sha256": "6bcb4ffd2d4a54cce0eb7f0e146e95082295ba4542e5f5c3d4f57fe32ed9f648",
+      "sourceTransparentBounds": {
+        "left": 218,
+        "top": 409,
+        "width": 534,
+        "height": 297
+      },
+      "outputTransparentBounds": {
+        "left": 218,
+        "top": 409,
+        "width": 534,
+        "height": 297
+      }
+    },
+    {
       "id": "feature-adventure-fleet",
       "output": "feature-adventure-fleet.png",
       "group": "feature",
@@ -551,7 +595,7 @@
   "groupBytes": {
     "banner": 32507,
     "feature": 19809,
-    "original-ui": 40210
+    "original-ui": 74740
   },
-  "totalBytes": 92526
+  "totalBytes": 127056
 }

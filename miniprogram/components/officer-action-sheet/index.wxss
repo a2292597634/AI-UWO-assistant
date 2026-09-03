@@ -7,6 +7,10 @@
   margin-top: var(--uwo-space-2);
 }
 
+.officer-action-sheet__trigger-actions--slot {
+  margin-top: var(--uwo-space-1);
+}
+
 .officer-action-sheet__icon-button {
   box-sizing: border-box;
   display: flex;

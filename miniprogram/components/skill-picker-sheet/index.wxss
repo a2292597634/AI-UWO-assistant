@@ -27,15 +27,21 @@
   min-width: 0;
   min-height: 48rpx;
   padding: 0 var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  background: var(--uwo-color-surface);
+  border-color: var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-pill);
   white-space: nowrap;
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__skill {
+  gap: var(--uwo-space-2);
   padding: var(--uwo-space-1) 0;
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__detail {
-  min-height: 64rpx;
+  min-height: 56rpx;
+  gap: var(--uwo-space-2);
 }
 
 .skill-picker-sheet--inline .skill-picker-sheet__icon,
@@ -44,11 +50,25 @@
   height: 40rpx;
 }
 
+.skill-picker-sheet--inline .skill-picker-sheet__meta {
+  margin-top: 0;
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__description {
+  display: none;
+}
+
 .skill-picker-sheet--inline .skill-picker-sheet__select {
   width: auto;
   min-width: 0;
   min-height: 56rpx;
   padding: 0 var(--uwo-space-1);
+}
+
+.skill-picker-sheet--inline .skill-picker-sheet__tab--active {
+  color: var(--uwo-color-surface);
+  background: var(--uwo-color-ink);
+  border-color: var(--uwo-color-ink);
 }
 
 .skill-picker-sheet__mask {

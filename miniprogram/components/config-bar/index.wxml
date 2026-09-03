@@ -1,17 +1,38 @@
 <view class="config-bar {{expanded ? 'config-bar--expanded' : ''}}">
   <view
     class="config-bar__summary"
-    bindtap="onToggle"
-    aria-label="{{expanded ? '收起我的配置' : '展開我的配置'}}"
-    aria-expanded="{{expanded}}"
   >
-    <text class="config-bar__title">我的配置</text>
-    <text class="config-bar__name">{{configName || '未命名配置'}}</text>
-    <text class="config-bar__status config-bar__status--{{configStatus}}">
-      {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
-    </text>
-    <text class="config-bar__count">{{configList.length}} 套</text>
-    <text class="config-bar__toggle">{{expanded ? '收起' : '展開'}}</text>
+    <view class="config-bar__summary-copy">
+      <text class="config-bar__title">我的配置</text>
+      <text class="config-bar__name">{{configName || '未命名配置'}}</text>
+      <text class="config-bar__status config-bar__status--{{configStatus}}">
+        {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
+      </text>
+    </view>
+    <view class="config-bar__summary-meta">
+      <text class="config-bar__count">{{configList.length}} 套</text>
+      <button
+        class="config-bar__toggle"
+        catchtap="onToggle"
+        aria-expanded="{{expanded}}"
+        aria-label="{{expanded ? '收起我的配置' : '展開我的配置'}}"
+      >
+        <image
+          wx:if="{{expanded}}"
+          class="config-bar__toggle-icon config-bar__toggle-icon--expanded"
+          src="/assets/ui/uwo-disclosure-chevron-up.png"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
+        <image
+          wx:else
+          class="config-bar__toggle-icon"
+          src="/assets/ui/uwo-disclosure-chevron-down.png"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
+      </button>
+    </view>
   </view>
 
   <view wx:if="{{expanded}}" class="config-bar__content">

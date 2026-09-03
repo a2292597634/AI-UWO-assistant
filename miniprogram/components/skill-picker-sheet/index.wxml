@@ -34,6 +34,13 @@
   <scroll-view wx:if="{{skillCategories.length > 0}}" class="skill-picker-sheet__category-tabs" scroll-x enable-flex>
     <view class="skill-picker-sheet__tabs-content">
       <button
+        class="skill-picker-sheet__tab {{selectedCategoryId === '' || selectedCategoryId === null ? 'skill-picker-sheet__tab--active' : ''}}"
+        bindtap="onCategoryChange"
+        data-value=""
+      >
+        全部分類
+      </button>
+      <button
         wx:for="{{skillCategories}}"
         wx:key="id"
         class="skill-picker-sheet__tab {{item.id === selectedCategoryId ? 'skill-picker-sheet__tab--active' : ''}}"
@@ -46,6 +53,7 @@
   </scroll-view>
 
   <input
+    wx:if="{{showSearch}}"
     class="skill-picker-sheet__search"
     type="text"
     placeholder="{{searchPlaceholder}}"

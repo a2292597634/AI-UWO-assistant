@@ -1,5 +1,5 @@
 <block wx:if="{{presentation === 'trigger'}}">
-  <view class="officer-action-sheet__trigger-actions">
+  <view class="officer-action-sheet__trigger-actions officer-action-sheet__trigger-actions--{{variant}}">
     <button
       class="officer-action-sheet__icon-button officer-action-sheet__icon-button--lock"
       bindtap="onLock"

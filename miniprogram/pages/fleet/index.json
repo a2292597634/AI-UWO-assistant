@@ -11,7 +11,6 @@
     "officer-action-sheet": "../../components/officer-action-sheet/index",
     "skill-picker-sheet": "../../components/skill-picker-sheet/index",
     "result-preview-sheet": "../../components/result-preview-sheet/index",
-    "status-badge": "../../components/status-badge/index",
     "empty-state": "../../components/empty-state/index",
     "disclosure-section": "../../components/disclosure-section/index",
     "skill-sheet": "../../components/skill-sheet/index"

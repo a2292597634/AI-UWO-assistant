@@ -33,14 +33,14 @@ describe('DisclosureSection 元件契約', () => {
     expect(wxml).toContain('wx:if="{{expanded}}"')
   })
 
-  it('只使用 P3 Token 且標題列熱區至少 88rpx', () => {
+  it('只使用 P3 Token 且標題列保持至少 88rpx 高度', () => {
     const json = JSON.parse(readComponentFile('index.json')) as { component?: boolean }
     const wxss = readComponentFile('index.wxss')
 
     expect(json.component).toBe(true)
     expect(wxss).toContain('var(--uwo-')
     expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
-    expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
+    expect(wxss).toMatch(/\.disclosure-section__header\s*\{[\s\S]*min-height\s*:\s*88rpx/)
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
   })
 })

@@ -99,6 +99,14 @@ const createFixtureSources = async (sourceRoot: string) => {
     ...[1, 2, 3].map((kind) => writePng(join(original, `uwo_icon_class_${kind}.png`))),
     writePng(join(original, 'gender_f.png')),
     writePng(join(original, 'gender_m.png')),
+    ...['down', 'up'].map((direction) =>
+      writePng(join(original, `uwo_disclosure_chevron_${direction}.png`), 60, 60, {
+        left: 12,
+        top: 20,
+        width: 36,
+        height: 20,
+      }),
+    ),
     sharp({ create: { width: 1500, height: 640, channels: 3, background: '#193d44' } })
       .png()
       .toFile(join(sourceRoot, 'home-harbor-source.png')),

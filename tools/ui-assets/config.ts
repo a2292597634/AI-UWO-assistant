@@ -96,6 +96,16 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
   ),
   originalUi('gender-f', 'gender_f.png', 'gender-f.png'),
   originalUi('gender-m', 'gender_m.png', 'gender-m.png'),
+  originalUi(
+    'disclosure-chevron-down',
+    'uwo_disclosure_chevron_down.png',
+    'uwo-disclosure-chevron-down.png',
+  ),
+  originalUi(
+    'disclosure-chevron-up',
+    'uwo_disclosure_chevron_up.png',
+    'uwo-disclosure-chevron-up.png',
+  ),
 ]
 
 export const UI_ASSET_GROUP_BUDGETS: Readonly<Record<UiAssetRecipe['group'], number>> = {
