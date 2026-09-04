@@ -1,0 +1,85 @@
+<view class="trade-detail">
+  <view wx:if="{{loading}}" class="trade-detail__state">
+    <text class="trade-detail__state-title">正在載入貿易品資料…</text>
+  </view>
+
+  <view wx:elif="{{pageError}}" class="trade-detail__state trade-detail__state--error">
+    <text class="trade-detail__state-title">{{pageError}}</text>
+    <view wx:if="{{retryAvailable}}" class="trade-detail__retry" bindtap="retryLoad" role="button">重試</view>
+  </view>
+
+  <block wx:else>
+    <view class="trade-detail__header">
+      <text class="trade-detail__eyebrow">貿易品詳情</text>
+      <text class="trade-detail__title">{{title.name}}</text>
+      <view class="trade-detail__meta">
+        <text>{{title.categoryName}}</text>
+        <text class="trade-detail__separator">·</text>
+        <text>{{title.rankLabel}}</text>
+      </view>
+      <view class="trade-detail__summary">
+        <text class="trade-detail__summary-item trade-detail__summary-item--peak">旺 {{title.peakLabel}}</text>
+        <text class="trade-detail__summary-item trade-detail__summary-item--low">淡 {{title.lowLabel}}</text>
+      </view>
+    </view>
+
+    <view class="trade-detail__current">
+      <text>目前遊戲月份：{{currentMonthLabel}}</text>
+      <text class="trade-detail__current-note">以 2026 年 9 月 4 日（日本時區）為 12 月基準</text>
+    </view>
+
+    <view class="trade-legend">
+      <view class="trade-legend__heading">
+        <text class="trade-legend__title">季節／天候</text>
+        <view class="trade-legend__status">
+          <text>▲旺</text>
+          <text>▼淡</text>
+          <text>🅞一般</text>
+        </view>
+      </view>
+      <view class="trade-legend__seasons">
+        <view wx:for="{{legend.season}}" wx:key="id" class="trade-legend__season">
+          <text class="trade-legend__glyph">{{item.glyph}}</text>
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{hasPorts}}" class="trade-matrix">
+      <view class="trade-matrix__heading">
+        <text class="trade-matrix__title">各港口 1–12 月完整資料</text>
+        <text class="trade-matrix__hint">第 {{currentMonthLabel}} 已標示目前月份</text>
+      </view>
+      <view class="trade-month-grid trade-month-grid--header">
+        <view
+          wx:for="{{monthLabels}}"
+          wx:key="*this"
+          class="trade-month-heading {{item === currentMonthLabel ? 'trade-month-heading--current' : ''}}"
+        >{{item}}</view>
+      </view>
+
+      <view wx:for="{{ports}}" wx:key="portId" class="trade-port-card">
+        <view class="trade-port-card__header">
+          <text>{{item.portName}}</text>
+          <text wx:if="{{item.regionName}}" class="trade-port-card__region"> · {{item.regionName}}</text>
+        </view>
+        <view class="trade-month-grid">
+          <view
+            wx:for="{{item.months}}"
+            wx:key="month"
+            class="trade-month-cell trade-month-cell--{{item.status}} {{item.currentClass}}"
+            aria-label="{{item.accessibleLabel}}"
+          >
+            <text class="trade-month-cell__season">{{item.seasonGlyph}}</text>
+            <text class="trade-month-cell__status">{{item.statusGlyph}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!hasPorts}}" class="trade-detail__empty">
+      <text class="trade-detail__empty-title">{{emptyMessage}}</text>
+      <text class="trade-detail__empty-hint">此貿易品沒有可對應的固定銷售港口。</text>
+    </view>
+  </block>
+</view>

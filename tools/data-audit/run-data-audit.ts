@@ -9,6 +9,8 @@ import { validateSkillMappings } from './validate-skill-mappings'
 import { validateCanonicalDataset } from './validate-canonical-dataset'
 import { createSchemaValidator } from './create-schema-validator'
 import { renderAuditDocs } from './render-audit-docs'
+import { validateTradeDataset } from '../import/validate-trades'
+import type { CanonicalTradeDataset } from '../import/types'
 
 const outputDir = 'docs/data-audit'
 
@@ -75,6 +77,10 @@ const audit = (): {
     }
     allFindings.push(...schemaValidator.validate(name, payloads[name]))
   }
+
+  const tradeDataset = readJson<CanonicalTradeDataset>('data/master/trade-goods.json')
+  allFindings.push(...schemaValidator.validate('trade-goods', tradeDataset))
+  allFindings.push(...validateTradeDataset(tradeDataset))
 
   const canonicalFindings = validateCanonicalDataset(canonicalDataset)
   allFindings.push(...canonicalFindings)

@@ -49,6 +49,7 @@ const JS_ALLOWED_PATTERNS = [
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]details-\d+\.js$/, // detail shards
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-index\.js$/, // generated index
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-loaders\.js$/, // generated loader
+  /[\\/]miniprogram[\\/]subpkg-trade[\\/]trade-(details-\d+|detail-index|detail-loaders|goods|reference)\.js$/, // 貿易品生成資料
   /[\\/]miniprogram[\\/]data[\\/]/, // legacy data directory
   /[\\/]miniprogram[\\/]typings[\\/]/, // type declarations
   /[\\/]miniprogram[\\/]pages[\\/]test[\\/]/, // dev-only test page (pending removal)

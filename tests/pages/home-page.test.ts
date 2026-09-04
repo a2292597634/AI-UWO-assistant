@@ -74,18 +74,24 @@ describe('首頁功能入口', () => {
     expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/pages/fleet/index' })
   })
 
-  it('保留三個主要模組並將資料維護降級為次級入口', () => {
+  it('顯示四個主要模組並將資料維護降級為次級入口', () => {
     expect(homePage.data.modules.map((module) => module.id)).toEqual([
       'officer-catalog',
+      'trade-goods',
       'battle-fleet',
       'adventure-fleet',
       'data-maintenance',
     ])
     expect(homePage.data.modules[1]).toMatchObject({
+      name: '貿易品',
+      iconPath: '/assets/ui/feature-trade-goods.png',
+      route: '/subpkg-trade/pages/index/index',
+    })
+    expect(homePage.data.modules[2]).toMatchObject({
       name: '戰鬥模擬艦隊',
       iconPath: '/assets/ui/feature-battle-fleet.png',
     })
-    expect(homePage.data.modules[2]).toMatchObject({
+    expect(homePage.data.modules[3]).toMatchObject({
       name: '冒險模擬艦隊',
       iconPath: '/assets/ui/feature-adventure-fleet.png',
     })
@@ -94,6 +100,9 @@ describe('首頁功能入口', () => {
       route: '/pages/officer-editor/index',
       iconPath: '/assets/ui/feature-data-maintenance.png',
     })
+    expect(homeWxml).toContain('index < 4')
+    expect(homeWxml).toContain('index === 4')
+    expect(homeWxss).toMatch(/width:\s*25%/)
   })
 
   it('不以 Emoji、Unicode 或首字作為正式圖標回退', () => {

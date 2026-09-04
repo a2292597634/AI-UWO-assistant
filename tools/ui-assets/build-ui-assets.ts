@@ -90,10 +90,21 @@ const alphaBounds = async (
   return { left, top, width: right - left + 1, height: bottom - top + 1 }
 }
 
-const png = (input: string, width: number, height: number): Promise<Buffer> =>
+const png = (
+  input: string,
+  width: number,
+  height: number,
+  paletteColors?: number,
+): Promise<Buffer> =>
   sharp(input)
     .resize(width, height, { fit: 'contain', background: '#00000000' })
-    .png({ palette: true, compressionLevel: 9, quality: 100, effort: 10 })
+    .png({
+      palette: true,
+      ...(paletteColors === undefined ? {} : { colours: paletteColors }),
+      compressionLevel: 9,
+      quality: 100,
+      effort: 10,
+    })
     .toBuffer()
 
 const optimizedPng = (input: string): Promise<Buffer> =>
@@ -119,7 +130,7 @@ const buildOne = async (recipe: UiAssetRecipe, sourceRoot: string): Promise<Buil
       : recipe.mode === 'banner-jpeg'
         ? await jpeg(sourcePath, recipe.maxBytes)
         : recipe.mode === 'resize-png'
-          ? await png(sourcePath, recipe.width ?? 0, recipe.height ?? 0)
+          ? await png(sourcePath, recipe.width ?? 0, recipe.height ?? 0, recipe.paletteColors)
           : await sharp(sourcePath)
               .extract(sourceTransparentBounds)
               .resize(recipe.width ?? 0, recipe.height ?? 0, {

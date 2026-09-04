@@ -9,6 +9,9 @@
     "officers": 627,
     "skills": 1203,
     "assets": 0,
-    "dictionaryItems": 600
+    "dictionaryItems": 600,
+    "tradeGoods": 656,
+    "tradePorts": 224,
+    "tradeSeasonProfiles": 10
   }
 }

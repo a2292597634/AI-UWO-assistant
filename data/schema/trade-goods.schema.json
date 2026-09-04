@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sourceSnapshot", "tradeGoods", "tradeTypes", "ports", "seasonProfiles", "glyphs"],
+  "properties": {
+    "sourceSnapshot": { "type": "string", "minLength": 1 },
+    "tradeGoods": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tradeGood" }
+    },
+    "tradeTypes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tradeType" }
+    },
+    "ports": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/port" }
+    },
+    "seasonProfiles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/seasonProfile" }
+    },
+    "seasonNames": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "glyphs": { "$ref": "#/$defs/glyphs" }
+  },
+  "$defs": {
+    "sourceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voyageTw"],
+      "properties": {
+        "voyageTw": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tradeGood": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "categoryId",
+        "categoryName",
+        "rank",
+        "salesMode",
+        "salesPortIds",
+        "peakSeasonIds",
+        "lowSeasonIds",
+        "iconId",
+        "sourceRefs"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "categoryId": { "type": "string", "minLength": 1 },
+        "categoryName": { "type": "string", "minLength": 1 },
+        "rank": { "type": ["integer", "null"] },
+        "salesMode": { "enum": ["fixed-port", "barter", "special"] },
+        "salesPortIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "peakSeasonIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "lowSeasonIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "iconId": { "type": ["string", "null"], "minLength": 1 },
+        "searchAliases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "tradeType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "peakSeasonIds", "lowSeasonIds"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "peakSeasonIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "lowSeasonIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "port": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "regionName", "seasonProfileId", "sourceRefs"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "regionName": { "type": ["string", "null"], "minLength": 1 },
+        "seasonProfileId": { "type": "string", "minLength": 1 },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "seasonProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "monthSeasonIds"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "monthSeasonIds": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "glyphs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["season", "status"],
+      "properties": {
+        "season": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["peak", "low", "normal"],
+          "properties": {
+            "peak": { "type": "string", "minLength": 1 },
+            "low": { "type": "string", "minLength": 1 },
+            "normal": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

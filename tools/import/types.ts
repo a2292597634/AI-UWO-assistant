@@ -144,6 +144,66 @@ export interface DictionaryItem {
   sourceRefs: { voyageTw: string }
 }
 
+export type CanonicalTradeSalesMode = 'fixed-port' | 'barter' | 'special'
+
+export interface CanonicalTradeGood {
+  id: string
+  name: string
+  categoryId: string
+  categoryName: string
+  rank: number | null
+  salesMode: CanonicalTradeSalesMode
+  salesPortIds: string[]
+  peakSeasonIds: string[]
+  lowSeasonIds: string[]
+  iconId: string | null
+  searchAliases?: string[]
+  sourceRefs: { voyageTw: string }
+}
+
+export interface CanonicalTradePort {
+  id: string
+  name: string
+  regionName: string | null
+  seasonProfileId: string
+  sourceRefs: { voyageTw: string }
+}
+
+export interface CanonicalTradeSeasonProfile {
+  id: string
+  monthSeasonIds: string[]
+}
+
+export interface CanonicalTradeType {
+  id: string
+  name: string
+  peakSeasonIds: string[]
+  lowSeasonIds: string[]
+}
+
+export interface CanonicalTradeGlyphs {
+  season: Record<string, string>
+  status: { peak: string; low: string; normal: string }
+}
+
+export interface CanonicalTradeDataset {
+  sourceSnapshot: string
+  tradeGoods: CanonicalTradeGood[]
+  tradeTypes: CanonicalTradeType[]
+  ports: CanonicalTradePort[]
+  seasonProfiles: CanonicalTradeSeasonProfile[]
+  seasonNames: Record<string, string>
+  glyphs: CanonicalTradeGlyphs
+}
+
+export interface TradeTransformAnomaly {
+  entityId: string
+  field: string
+  value: string
+  disposition: 'warning'
+  reason: string
+}
+
 export interface CanonicalDatasetHeader {
   schemaVersion: string
   contentVersion: string
@@ -154,6 +214,9 @@ export interface CanonicalDatasetHeader {
     skills: number
     assets: number
     dictionaryItems: number
+    tradeGoods?: number
+    tradePorts?: number
+    tradeSeasonProfiles?: number
   }
 }
 

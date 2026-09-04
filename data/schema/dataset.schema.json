@@ -16,7 +16,10 @@
         "officers": { "type": "integer", "minimum": 0 },
         "skills": { "type": "integer", "minimum": 0 },
         "assets": { "type": "integer", "minimum": 0 },
-        "dictionaryItems": { "type": "integer", "minimum": 0 }
+        "dictionaryItems": { "type": "integer", "minimum": 0 },
+        "tradeGoods": { "type": "integer", "minimum": 0 },
+        "tradePorts": { "type": "integer", "minimum": 0 },
+        "tradeSeasonProfiles": { "type": "integer", "minimum": 0 }
       }
     }
   }

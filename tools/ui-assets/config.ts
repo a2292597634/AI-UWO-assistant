@@ -5,6 +5,7 @@ export interface UiAssetRecipe {
   mode: 'copy-png' | 'trim-rarity' | 'resize-png' | 'banner-jpeg'
   width?: number
   height?: number
+  paletteColors?: number
   maxBytes: number
   group: 'banner' | 'feature' | 'original-ui'
 }
@@ -26,6 +27,17 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     mode: 'resize-png',
     width: 96,
     height: 96,
+    maxBytes: 12 * 1024,
+    group: 'feature',
+  },
+  {
+    id: 'feature-trade-goods',
+    source: 'feature-trade-goods-source.png',
+    output: 'feature-trade-goods.png',
+    mode: 'resize-png',
+    width: 96,
+    height: 96,
+    paletteColors: 16,
     maxBytes: 12 * 1024,
     group: 'feature',
   },

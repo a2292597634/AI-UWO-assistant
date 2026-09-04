@@ -1,0 +1,83 @@
+<view class="trade-page">
+  <view class="trade-page__header">
+    <text class="trade-page__eyebrow">貿易品資料館</text>
+    <text class="trade-page__title">淡旺季查詢</text>
+    <text class="trade-page__description">查看各港口全年 1–12 月的季節與行情狀態</text>
+  </view>
+
+  <view class="trade-page__search-wrap">
+    <input
+      class="trade-search"
+      value="{{searchText}}"
+      placeholder="搜尋貿易品"
+      confirm-type="search"
+      bindinput="onSearchInput"
+    />
+    <text wx:if="{{searchText.length > 0}}" class="trade-search__clear" bindtap="onSearchClear">清除</text>
+  </view>
+
+  <scroll-view class="trade-page__content" scroll-y>
+    <view class="trade-page__section-heading">
+      <text class="trade-page__section-title">分類</text>
+      <text class="trade-page__result-count">{{resultCount}} 項貿易品</text>
+    </view>
+
+    <view class="trade-filters">
+      <view
+        class="trade-filter {{activeCategoryId === null ? 'trade-filter--active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category-id=""
+        role="button"
+        aria-label="全部貿易品"
+      >全部</view>
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="trade-filter {{item.id === activeCategoryId ? 'trade-filter--active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category-id="{{item.id}}"
+        role="button"
+        aria-label="{{item.name}}"
+      >{{item.name}}</view>
+    </view>
+
+    <view class="trade-results" aria-live="polite">
+      <view class="trade-results__heading">
+        <text class="trade-results__title">貿易品清單</text>
+        <text class="trade-results__hint">點選查看完整矩陣</text>
+      </view>
+
+      <view
+        wx:for="{{visibleGoods}}"
+        wx:key="id"
+        class="trade-result"
+        bindtap="onTradeTap"
+        data-trade-id="{{item.id}}"
+        role="button"
+        aria-label="查看{{item.name}}淡旺季資料"
+      >
+        <view class="trade-result__heading">
+          <text class="trade-result__name">{{item.name}}</text>
+          <text class="trade-result__rank">{{item.rankLabel}}</text>
+        </view>
+        <view class="trade-result__meta">
+          <text>{{item.categoryName}}</text>
+          <text class="trade-result__separator">·</text>
+          <text>{{item.salesLabel}}</text>
+        </view>
+        <view class="trade-result__seasons">
+          <text class="trade-result__season trade-result__season--peak">旺 {{item.peakLabel}}</text>
+          <text class="trade-result__season trade-result__season--low">淡 {{item.lowLabel}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{pageError}}" class="trade-empty trade-empty--error">
+        <text class="trade-empty__title">{{pageError}}</text>
+      </view>
+      <view wx:elif="{{visibleGoods.length === 0}}" class="trade-empty">
+        <text class="trade-empty__title">無結果</text>
+        <text class="trade-empty__hint">請調整搜尋文字或分類條件。</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

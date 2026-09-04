@@ -11,11 +11,14 @@ import {
   buildAssetDependencyIndex,
   writeAssetDependencyIndex,
 } from './asset-dependencies'
+import { writeTradeRuntimeData } from './build-trade-runtime-data'
+import type { CanonicalTradeDataset } from '../import/types'
 import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
 const SUBPKG_DIR = 'miniprogram/subpkg-detail'
+const TRADE_SUBPKG_DIR = 'miniprogram/subpkg-trade'
 const DATA_ASSETS_DIR = 'data/assets'
 const ASSET_DEPENDENCY_PATH = `${DATA_ASSETS_DIR}/asset-dependencies.json`
 const LEGACY_DEPENDENCY_PATH = 'miniprogram/generated/asset-dependencies.js'
@@ -40,11 +43,13 @@ const generate = (): void => {
   const dictionaries = readJson<Record<string, DictionaryItem[]>>(
     `${CANONICAL_DIR}/dictionaries.json`,
   )
+  const tradeDataset = readJson<CanonicalTradeDataset>(`${CANONICAL_DIR}/trade-goods.json`)
   const publishedManifest = loadPublishedAssetManifest(PUBLISHED_MANIFEST_PATH)
 
   console.log(`  Officers: ${officers.length}`)
   console.log(`  Skills: ${skills.length}`)
   console.log(`  Dictionary groups: ${Object.keys(dictionaries).length}`)
+  console.log(`  Trade goods: ${tradeDataset.tradeGoods.length}`)
 
   const iconSet = new Set(publishedManifest.assets.map((asset) => asset.filename))
   console.log(`  Icon files found: ${iconSet.size}`)
@@ -56,6 +61,7 @@ const generate = (): void => {
 
   mkdirSync(OUTPUT_DIR, { recursive: true })
   mkdirSync(SUBPKG_DIR, { recursive: true })
+  mkdirSync(TRADE_SUBPKG_DIR, { recursive: true })
   mkdirSync(DATA_ASSETS_DIR, { recursive: true })
 
   // Generate main package data (catalog, skills, dictionaries)
@@ -94,6 +100,7 @@ const generate = (): void => {
   // Write detail lookup index and static loaders
   writeDetailIndex(officers, SUBPKG_DIR)
   writeDetailLoaders(SUBPKG_DIR)
+  writeTradeRuntimeData(tradeDataset, OUTPUT_DIR, TRADE_SUBPKG_DIR)
 
   console.log(`\nDone. Generated CDN release ${publishedManifest.releaseId}.`)
 }

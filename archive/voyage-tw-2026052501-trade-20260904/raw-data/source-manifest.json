@@ -1,0 +1,32 @@
+{
+  "snapshotDate": "2026-09-03T23:20:19.750Z",
+  "sourceOrigin": "https://voyage.tw",
+  "dataVersion": "2026052501",
+  "languageVersion": "1779690379",
+  "files": [
+    {
+      "path": "json.js",
+      "url": "https://voyage.tw/js/json.js?v=2026052501",
+      "byteSize": 646663,
+      "sha256": "75212ee21939fb253ffa082332fdbba4747923f8a6dd1f46d7a2af8637b42b99",
+      "downloadedAt": "2026-09-03T23:20:19.750Z",
+      "lastModified": "Mon, 25 May 2026 06:26:35 GMT"
+    },
+    {
+      "path": "lang_1.js",
+      "url": "https://voyage.tw/js/lang_1.js?v=1779690379",
+      "byteSize": 337759,
+      "sha256": "2758a686b20eae70ada0ec5a5a682ff722b55caa63b669a59bf25a15e3b286ef",
+      "downloadedAt": "2026-09-03T23:20:19.750Z",
+      "lastModified": "Mon, 25 May 2026 06:35:21 GMT"
+    },
+    {
+      "path": "map.js",
+      "url": "https://voyage.tw/js/map.js?v=2026052501",
+      "byteSize": 270890,
+      "sha256": "f32cfbd39e23f5107134a2c8c55f5011303b0e68eea7b3dd1c3693c25d4a0ef8",
+      "downloadedAt": "2026-09-03T23:20:19.750Z",
+      "lastModified": "Tue, 23 Dec 2025 20:12:17 GMT"
+    }
+  ]
+}

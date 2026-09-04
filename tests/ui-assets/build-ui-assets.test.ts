@@ -122,6 +122,9 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-data-maintenance-source.png')),
+    sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
+      .png()
+      .toFile(join(sourceRoot, 'feature-trade-goods-source.png')),
   ])
 }
 
@@ -138,6 +141,7 @@ describe('buildUiAssets', () => {
     const grade = files.find((file) => file.id === 'rarity-filter-grade-5')
     const banner = files.find((file) => file.id === 'home-harbor')
     const featureIds = [
+      'feature-trade-goods',
       'feature-battle-fleet',
       'feature-adventure-fleet',
       'feature-data-maintenance',

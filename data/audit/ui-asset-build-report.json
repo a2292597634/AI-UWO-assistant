@@ -134,6 +134,28 @@
       }
     },
     {
+      "id": "feature-trade-goods",
+      "output": "feature-trade-goods.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 1463,
+      "sha256": "677099038e8d2fd71799d878d5b43952acaf3ac4027f0f4f81ca688267e3d385",
+      "sourceTransparentBounds": {
+        "left": 19,
+        "top": 19,
+        "width": 282,
+        "height": 282
+      },
+      "outputTransparentBounds": {
+        "left": 5,
+        "top": 5,
+        "width": 86,
+        "height": 86
+      }
+    },
+    {
       "id": "gender-f",
       "output": "gender-f.png",
       "group": "original-ui",
@@ -594,8 +616,8 @@
   ],
   "groupBytes": {
     "banner": 32507,
-    "feature": 19809,
+    "feature": 21272,
     "original-ui": 74740
   },
-  "totalBytes": 127056
+  "totalBytes": 128519
 }

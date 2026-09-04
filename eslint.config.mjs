@@ -12,6 +12,7 @@ export default tseslint.config(
       'miniprogram/subpkg-detail/details-*.js',
       'miniprogram/subpkg-detail/detail-index.js',
       'miniprogram/subpkg-detail/detail-loaders.js',
+      'miniprogram/subpkg-trade/trade-*.js',
       'node_modules/**',
     ],
   },

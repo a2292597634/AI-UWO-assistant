@@ -76,9 +76,9 @@
 
 | 來源資料 | 用途 |
 | --- | --- |
-| trades | 656 筆貿易品、分類、名產等級、固定銷售港口、特殊／交換品標記與圖片覆寫 |
+| trades | 656 筆貿易品、分類、名產等級、固定銷售港口、`v`／`vc` 交換資料、`nlp` 無淡旺季標記、特殊／交換品標記與圖片覆寫 |
 | city_trades | 港口與可銷售貿易品的關係，用來反向建立貿易品的銷售港口 |
-| json_city | 港口名稱、港口 ID 與港口季節配置索引 |
+| json_city | 港口名稱、港口 ID 與 `ss` 港口季節配置索引（`s` 不作季節索引） |
 | tradetype_pm | 20 個貿易品分類的旺季／淡季季節規則 |
 | seasons | 10 組港口季節配置，每組包含 1–12 月的季節 ID |
 | emoji_ss | 季節／天候圖示：春、夏、秋、冬、旱季、雨季、熱帶、寒帶、聖誕 |
@@ -124,9 +124,9 @@ map.js 僅作為來源行為證據與匯入測試 fixture，不進入小程序 r
 
 由 npm run data:generate 產生，不手動修改：
 
-- miniprogram/generated/trade-goods.js：搜尋索引與貿易品摘要；
-- miniprogram/generated/trade-reference.js：分類、港口、季節配置與圖示字元；
-- miniprogram/subpkg-trade/ 下的貿易品詳情分片與索引：按既有詳情資料模式分片，避免主包重複載入完整港口關係；
+- miniprogram/subpkg-trade/trade-goods.js：搜尋索引與貿易品摘要；
+- miniprogram/subpkg-trade/trade-reference.js：分類、港口、季節配置與圖示字元；
+- miniprogram/subpkg-trade/ 下的搜尋頁、貿易品參照資料、詳情分片與索引：貿易品完整資料放在同一分包，避免接近微信主包 2 MiB 限制；
 - miniprogram/contracts/runtime-data.ts 的貿易品 runtime contract 對應上述輸出。
 
 小程序 runtime 只透過貿易品 Data Store 讀取生成資料，頁面與 presenter 不直接 require generated 資料。
@@ -144,7 +144,7 @@ map.js 僅作為來源行為證據與匯入測試 fixture，不進入小程序 r
       categoryName: string
       rank: number | null
       salesMode: 'fixed-port' | 'barter' | 'special'
-      portCount: number
+      salesPortCount: number
       searchAliases: string[]
     }
 
@@ -154,14 +154,14 @@ map.js 僅作為來源行為證據與匯入測試 fixture，不進入小程序 r
       categoryId: string
       categoryName: string
       rank: number | null
-      iconPath: string | null
+      iconId: string | null
       salesMode: 'fixed-port' | 'barter' | 'special'
       salesPortIds: string[]
       peakSeasonIds: string[]
       lowSeasonIds: string[]
     }
 
-    interface RuntimeTradePort {
+    interface RuntimeTradePortReference {
       id: string
       name: string
       regionName: string | null
@@ -188,9 +188,7 @@ monthSeasonIds 必須恰好包含 12 個元素，索引 0 對應遊戲 1 月。�
     trade presenter / trade query
       ↓
     trade data store
-      ├─ generated/trade-goods.js
-      ├─ generated/trade-reference.js
-      └─ subpkg-trade 詳情分片
+      └─ subpkg-trade 搜尋頁、索引、參照資料與詳情分片
       ↓
     純函式建立 12 個月份矩陣
 
@@ -200,13 +198,13 @@ monthSeasonIds 必須恰好包含 12 個元素，索引 0 對應遊戲 1 月。�
 
 ### 6.1 頁面範圍
 
-- miniprogram/pages/trade/index：貿易品搜尋與清單；
+- miniprogram/subpkg-trade/pages/index/index：貿易品搜尋與清單；
 - miniprogram/subpkg-trade/pages/detail/index：貿易品詳情與港口矩陣；
 - miniprogram/app.json：新增頁面與貿易品分包；
 - miniprogram/pages/home/index.ts：在首頁主要功能資料中新增「貿易品」模組；
 - miniprogram/pages/home/index.wxml：讓「貿易品」以主要功能卡形式顯示，不放在「資料維護」次要區域；
 - data/master/ui-assets/feature-trade-goods-source.png：新增首頁入口圖示來源，透過既有 UI 素材流程生成本地 feature-trade-goods.png；
-- 首頁「啟航港口」功能區：與航海士名鑑、戰鬥模擬艦隊、冒險模擬艦隊並列顯示「貿易品」卡片，點擊後進入 miniprogram/pages/trade/index。
+- 首頁「啟航港口」功能區：與航海士名鑑、戰鬥模擬艦隊、冒險模擬艦隊並列顯示「貿易品」卡片，點擊後進入貿易品分包搜尋頁。
 
 頁面全部使用繁體中文，樣式類名使用英文 BEM 命名。
 
@@ -348,10 +346,10 @@ generate:check 必須確認所有生成檔由 data/master/ 可重現，且不手
 - tools/import/：貿易品來源解析與轉換；
 - tools/data-pipeline/：貿易品 runtime 生成與確定性檢查；
 - miniprogram/contracts/runtime-data.ts；
-- miniprogram/runtime/trade-data-store.ts；
+- miniprogram/subpkg-trade/runtime/trade-data-store.ts；
 - miniprogram/domain/：貿易品搜尋、淡旺季與遊戲月份純函式；
 - miniprogram/generated/ 與 miniprogram/subpkg-trade/：自動生成輸出與詳情分片；
-- miniprogram/pages/trade/、miniprogram/subpkg-trade/pages/detail/；
+- miniprogram/subpkg-trade/pages/index/、miniprogram/subpkg-trade/pages/detail/；
 - miniprogram/app.json、miniprogram/pages/home/index.ts、miniprogram/pages/home/index.wxml、首頁入口相關素材設定；
 - data/master/ui-assets/feature-trade-goods-source.png 與 miniprogram/assets/ui/feature-trade-goods.png；
 - 對應 tests/ 測試檔。

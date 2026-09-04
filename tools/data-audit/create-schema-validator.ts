@@ -3,7 +3,14 @@ import Ajv2020 from 'ajv/dist/2020'
 import addFormats from 'ajv-formats'
 import type { AuditFinding } from './types'
 
-const schemaNames = ['dataset', 'officers', 'skills', 'dictionaries', 'assets'] as const
+const schemaNames = [
+  'dataset',
+  'officers',
+  'skills',
+  'dictionaries',
+  'assets',
+  'trade-goods',
+] as const
 type SchemaName = (typeof schemaNames)[number]
 
 const findingCodeForKeyword = (keyword: string): string =>

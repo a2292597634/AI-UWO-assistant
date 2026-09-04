@@ -11,6 +11,11 @@
       "root": "subpkg-detail",
       "name": "detail",
       "pages": ["pages/detail/index"]
+    },
+    {
+      "root": "subpkg-trade",
+      "name": "trade",
+      "pages": ["pages/index/index", "pages/detail/index"]
     }
   ],
   "window": {

@@ -198,11 +198,62 @@ export const downloadAll = async (
   return manifest
 }
 
+/** 下載貿易品功能所需的完整靜態來源檔案。 */
+export const downloadTradeSnapshot = async (
+  outputDir: string,
+  fetcher: typeof fetch = globalThis.fetch,
+): Promise<SourceManifest> => {
+  const now = new Date().toISOString()
+  const files = [
+    {
+      path: 'json.js',
+      url: sourceConfig.origin + sourceConfig.tradeDataScript,
+    },
+    {
+      path: 'lang_1.js',
+      url: sourceConfig.origin + sourceConfig.tradeLanguageScript,
+    },
+    {
+      path: 'map.js',
+      url: sourceConfig.origin + sourceConfig.tradeMapScript,
+    },
+  ]
+
+  const manifestFiles: SourceManifestFile[] = []
+  for (const file of files) {
+    const result = await downloadFullFile(file.url, outputDir + '/' + file.path, fetcher)
+    manifestFiles.push({
+      path: file.path,
+      url: file.url,
+      byteSize: result.byteCount,
+      sha256: result.sha256,
+      downloadedAt: now,
+      lastModified: result.lastModified,
+    })
+  }
+
+  const manifest: SourceManifest = {
+    snapshotDate: now,
+    sourceOrigin: sourceConfig.origin,
+    dataVersion: sourceConfig.dataVersion,
+    languageVersion: sourceConfig.languageVersion,
+    files: manifestFiles,
+  }
+  await mkdir(outputDir, { recursive: true })
+  await writeFile(outputDir + '/source-manifest.json', JSON.stringify(manifest, null, 2) + '\n')
+
+  return manifest
+}
+
 // ── CLI entry ──
 
 if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/import/download-source.ts')) {
-  const archiveDir = 'archive/voyage-tw-2026052501/raw-data'
-  downloadAll(archiveDir)
+  const isTradeDownload = process.argv.includes('--trade')
+  const archiveDir = isTradeDownload
+    ? 'archive/voyage-tw-2026052501-trade-20260904/raw-data'
+    : 'archive/voyage-tw-2026052501/raw-data'
+  const download = isTradeDownload ? downloadTradeSnapshot : downloadAll
+  download(archiveDir)
     .then((manifest) => {
       console.log(
         `Downloaded ${manifest.files.length} files (${manifest.files.reduce((sum, f) => sum + f.byteSize, 0)} bytes total)`,

@@ -4,6 +4,9 @@ export const sourceConfig = {
   languageVersion: '1779690379',
   officerScript: '/js/json_char.js?v=2026052501',
   languageScript: '/js/lang_1.js?v=1779690379',
+  tradeDataScript: '/js/json.js?v=2026052501',
+  tradeLanguageScript: '/js/lang_1.js?v=1779690379',
+  tradeMapScript: '/js/map.js?v=2026052501',
   officerRanges: [[0, 32767]],
   languageRanges: [
     [0, 47237],

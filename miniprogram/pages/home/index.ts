@@ -14,6 +14,13 @@ Page({
         iconFailed: false,
       },
       {
+        id: 'trade-goods',
+        name: '貿易品',
+        iconPath: '/assets/ui/feature-trade-goods.png',
+        route: '/subpkg-trade/pages/index/index',
+        iconFailed: false,
+      },
+      {
         id: 'battle-fleet',
         name: '戰鬥模擬艦隊',
         iconPath: '/assets/ui/feature-battle-fleet.png',

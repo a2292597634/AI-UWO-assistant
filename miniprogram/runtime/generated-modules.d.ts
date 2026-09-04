@@ -80,6 +80,48 @@ declare module '../../generated/fleet-officers' {
   export = officers
 }
 
+declare module '../trade-goods' {
+  interface TradeGoodIndexEntry {
+    id: string
+    name: string
+    categoryId: string
+    categoryName: string
+    rank: number | null
+    salesMode: 'fixed-port' | 'barter' | 'special'
+    salesPortCount: number
+    peakSeasonIds: string[]
+    lowSeasonIds: string[]
+    searchAliases: string[]
+  }
+  const tradeGoods: TradeGoodIndexEntry[]
+  export = tradeGoods
+}
+
+declare module '../trade-reference' {
+  interface TradeReference {
+    tradeTypes: Array<{
+      id: string
+      name: string
+      peakSeasonIds: string[]
+      lowSeasonIds: string[]
+    }>
+    ports: Array<{
+      id: string
+      name: string
+      regionName: string | null
+      seasonProfileId: string
+    }>
+    seasonProfiles: Array<{ id: string; monthSeasonIds: string[] }>
+    seasonNames: Record<string, string>
+    glyphs: {
+      season: Record<string, string>
+      status: { peak: string; low: string; normal: string }
+    }
+  }
+  const reference: TradeReference
+  export = reference
+}
+
 declare module '../../generated/dictionaries' {
   interface DictItem {
     id: string
@@ -103,6 +145,16 @@ declare module '../detail-index' {
 }
 
 declare module '../detail-loaders' {
+  function loadDetail(id: string, index: Record<string, number>): Record<string, unknown> | null
+  export = loadDetail
+}
+
+declare module '../trade-detail-index' {
+  const index: Record<string, number>
+  export = index
+}
+
+declare module '../trade-detail-loaders' {
   function loadDetail(id: string, index: Record<string, number>): Record<string, unknown> | null
   export = loadDetail
 }

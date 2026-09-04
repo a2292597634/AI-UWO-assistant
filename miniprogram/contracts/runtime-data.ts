@@ -94,6 +94,68 @@ export interface RuntimeDatasetMeta {
   contentVersion: string
 }
 
+// ── 貿易品索引與參照資料 ──
+
+export type RuntimeTradeSalesMode = 'fixed-port' | 'barter' | 'special'
+
+export interface RuntimeTradeGoodIndexEntry {
+  id: string
+  name: string
+  categoryId: string
+  categoryName: string
+  rank: number | null
+  salesMode: RuntimeTradeSalesMode
+  salesPortCount: number
+  peakSeasonIds: string[]
+  lowSeasonIds: string[]
+  searchAliases: string[]
+}
+
+export interface RuntimeTradeGoodDetail {
+  id: string
+  name: string
+  categoryId: string
+  categoryName: string
+  rank: number | null
+  salesMode: RuntimeTradeSalesMode
+  salesPortIds: string[]
+  peakSeasonIds: string[]
+  lowSeasonIds: string[]
+  iconId: string | null
+}
+
+export interface RuntimeTradeType {
+  id: string
+  name: string
+  peakSeasonIds: string[]
+  lowSeasonIds: string[]
+}
+
+export interface RuntimeTradePortReference {
+  id: string
+  name: string
+  regionName: string | null
+  seasonProfileId: string
+}
+
+export interface RuntimeTradeSeasonProfile {
+  id: string
+  monthSeasonIds: string[]
+}
+
+export interface RuntimeTradeGlyphs {
+  season: Record<string, string>
+  status: { peak: string; low: string; normal: string }
+}
+
+export interface RuntimeTradeReference {
+  tradeTypes: RuntimeTradeType[]
+  ports: RuntimeTradePortReference[]
+  seasonProfiles: RuntimeTradeSeasonProfile[]
+  seasonNames: Record<string, string>
+  glyphs: RuntimeTradeGlyphs
+}
+
 // ── Asset dependencies (miniprogram/generated/asset-dependencies.js) ──
 
 export interface RuntimeAssetRootDependency {
