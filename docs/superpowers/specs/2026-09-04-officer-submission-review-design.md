@@ -262,7 +262,6 @@ interface OfficerSubmissionRecord {
       cityIds: string[]
       requirementId: string | null
       requiredOfficerIds: string[]
-      note: string | null
     }
     portraitFileId: string
   }
@@ -287,6 +286,7 @@ interface OfficerSubmissionRecord {
 - `ownerUid` 只使用 Cloud Function 的 `OPENID`，不信任客戶端傳值。
 - 使用者提交時只接受白名單內的字典 ID、技能 ID、等級與頭像檔案資訊；未知欄位丟棄或拒絕。
 - `canonicalData` 由服務端／審核流程依 `formData` 建構或重建，不接受使用者直接覆蓋。
+- 正式資料的招募備註固定為 `null`；投稿表單與審核表單都不收集招募備註。
 - `submissionId` 建立後固定；航海士內部 ID 由系統根據 submission 建立並保持穩定，不因管理員修正名稱而變更。
 - `visualGradeId` 預設由稀有度推導；特殊資料由管理員在審核端確認。
 - `displayOrder` 不在使用者投稿階段分配，發布同步時依正式資料規則計算。
