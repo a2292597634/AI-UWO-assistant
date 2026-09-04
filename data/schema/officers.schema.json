@@ -75,10 +75,20 @@
     "sourceRefs": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["voyageTw"],
       "properties": {
-        "voyageTw": { "type": "string", "minLength": 1 }
-      }
+        "voyageTw": { "type": "string", "minLength": 1 },
+        "submissionId": { "type": "string", "minLength": 1 }
+      },
+      "oneOf": [
+        {
+          "required": ["voyageTw"],
+          "properties": { "voyageTw": { "type": "string", "minLength": 1 } }
+        },
+        {
+          "required": ["submissionId"],
+          "properties": { "submissionId": { "type": "string", "minLength": 1 } }
+        }
+      ]
     },
     "maintenanceNote": { "type": "string", "minLength": 1 }
   }

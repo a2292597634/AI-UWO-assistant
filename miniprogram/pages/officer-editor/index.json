@@ -1,9 +1,7 @@
 {
-  "navigationBarTitleText": "新增航海士",
+  "navigationBarTitleText": "資料投稿",
   "navigationBarBackgroundColor": "#26332f",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#e7deca",
-  "usingComponents": {
-    "disclosure-section": "../../components/disclosure-section/index"
-  }
+  "usingComponents": {}
 }

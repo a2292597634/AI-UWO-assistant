@@ -2,7 +2,7 @@
 
 - 日期：2026-09-04
 - 分支：`codex/phase-11-資料投稿審核`
-- 設計狀態：已完成需求確認與設計確認，等待實作計畫
+- 設計狀態：已完成需求確認、設計確認與實作
 
 ## 1. 背景
 
@@ -65,9 +65,9 @@
 
 新增頁可拆出以下頁面以隔離責任：
 
-- `pages/officer-submissions/index`：使用者自己的投稿列表。
-- `pages/officer-review/index`：管理員待審核列表。
-- `pages/officer-review-detail/index`：管理員單筆投稿詳情與編輯。
+- `subpkg-submission/pages/officer-submissions/index`：使用者自己的投稿列表，放在低頻功能分包。
+- `subpkg-submission/pages/officer-review/index`：管理員待審核列表，放在低頻功能分包。
+- `subpkg-submission/pages/officer-review-detail/index`：管理員單筆投稿詳情與編輯，放在低頻功能分包。
 
 實作可以保留現有投稿頁路徑，降低首頁與既有導航變更；投稿列表和審核工作台不與原長表單共用不必要的頁面狀態。
 

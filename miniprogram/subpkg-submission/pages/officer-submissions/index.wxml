@@ -1,0 +1,49 @@
+<!-- 我的投稿：狀態、駁回原因與最新版本 -->
+<scroll-view class="submissions-page" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="submissions-header">
+    <view class="submissions-header__copy">
+      <text class="submissions-header__eyebrow">資料維護</text>
+      <text class="submissions-header__title ui-display-title">我的投稿</text>
+      <text class="submissions-header__hint">這裡只會顯示你提交的資料。審核通過後，還需要完成資料發布才會進入名鑑。</text>
+    </view>
+    <button class="ui-button ui-button--primary header-action" bindtap="onNewSubmission">新增投稿</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="submissions-message">正在載入投稿…</view>
+
+  <view wx:elif="{{loadError}}" class="message-panel message-panel--error">
+    <view class="ui-status ui-status--error"><text class="ui-status__label">錯誤</text></view>
+    <text class="message-panel__text">{{loadError}}</text>
+    <button class="ui-button ui-button--secondary message-panel__action" bindtap="onRetry">重新載入</button>
+  </view>
+
+  <view wx:elif="{{!hasRows}}" class="message-panel">
+    <text class="message-panel__title">尚未提交投稿</text>
+    <text class="message-panel__text">如果你發現資料需要補充，可以從這裡開始提交。</text>
+    <button class="ui-button ui-button--primary message-panel__action" bindtap="onNewSubmission">開始提交</button>
+  </view>
+
+  <view wx:else class="submission-list">
+    <view wx:for="{{rows}}" wx:key="submissionId" class="submission-card" bindtap="onRowTap" data-submission-id="{{item.submissionId}}" data-revision="{{item.revision}}">
+      <view class="submission-card__heading">
+        <view class="submission-card__title-wrap">
+          <text class="submission-card__title">{{item.name}}</text>
+          <text class="submission-card__revision">版本 {{item.revision}}</text>
+        </view>
+        <view class="ui-status ui-status--{{item.statusClass}}"><text class="ui-status__label">{{item.statusLabel}}</text></view>
+      </view>
+      <view class="submission-card__meta">
+        <text>{{item.skillCount}} 項技能</text>
+        <text>{{item.hasRecruitment ? '有招募資料' : '未填招募資料'}}</text>
+        <text>更新於 {{item.updatedAtLabel}}</text>
+      </view>
+      <view wx:if="{{item.statusReason}}" class="submission-card__reason">
+        <text class="submission-card__reason-label">駁回原因</text>
+        <text class="submission-card__reason-text">{{item.statusReason}}</text>
+      </view>
+      <text class="submission-card__next">查看詳情／{{item.status === 'rejected' ? '修改後重提' : '查看審核進度'}}</text>
+    </view>
+  </view>
+
+  <view class="page-bottom-spacer"></view>
+</scroll-view>

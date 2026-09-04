@@ -1,0 +1,136 @@
+import { describe, expect, it } from 'vitest'
+
+/* eslint-disable @typescript-eslint/no-require-imports */
+const repositoryModule =
+  require('../../cloudfunctions/officer-custom/officer-custom-repository') as {
+    createRepository: (db: FakeDatabase) => OfficerRepository
+  }
+/* eslint-enable @typescript-eslint/no-require-imports */
+
+interface StoredRecord {
+  _id?: string
+  submissionId: string
+  ownerUid: string
+  status: string
+  revision: number
+  updatedAt: string
+  [key: string]: unknown
+}
+
+interface Query {
+  get(): Promise<{ data: StoredRecord[] }>
+  count(): Promise<{ total: number }>
+  update(options: { data: Record<string, unknown> }): Promise<{ stats: { updated: number } }>
+}
+
+interface Collection {
+  where(filter: Record<string, unknown>): Query
+  add(options: { data: StoredRecord }): Promise<{ _id: string }>
+}
+
+interface FakeDatabase {
+  collection(name: string): Collection
+  createCollection(name: string): Promise<void>
+}
+
+interface OfficerRepository {
+  listByOwner(ownerUid: string): Promise<StoredRecord[]>
+  listLatestByStatus(status: string): Promise<StoredRecord[]>
+  findBySubmissionIdAndRevision(
+    submissionId: string,
+    revision: number,
+  ): Promise<StoredRecord | null>
+  findLatestBySubmissionId(submissionId: string): Promise<StoredRecord | null>
+  countLatestByOwner(ownerUid: string): Promise<number>
+  insert(record: StoredRecord): Promise<StoredRecord>
+  updateIfRevision(
+    submissionId: string,
+    revision: number,
+    updatedAt: string,
+    patch: Record<string, unknown>,
+  ): Promise<StoredRecord | null>
+}
+
+function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
+  const records = new Map<string, StoredRecord>(seed.map((record) => [record._id!, { ...record }]))
+  let nextId = records.size
+  const collection: Collection = {
+    where(filter) {
+      const matches = () =>
+        [...records.values()].filter((record) =>
+          Object.entries(filter).every(([key, value]) => record[key] === value),
+        )
+      return {
+        async get() {
+          return { data: matches() }
+        },
+        async count() {
+          return { total: matches().length }
+        },
+        async update({ data }) {
+          const found = matches()
+          for (const record of found) Object.assign(record, data)
+          return { stats: { updated: found.length } }
+        },
+      }
+    },
+    async add({ data }) {
+      const _id = `doc_${nextId++}`
+      records.set(_id, { ...data, _id })
+      return { _id }
+    },
+  }
+  return {
+    collection: () => collection,
+    createCollection: async () => undefined,
+  }
+}
+
+const record = (overrides: Partial<StoredRecord> = {}): StoredRecord => ({
+  _id: overrides._id ?? 'doc_1',
+  submissionId: overrides.submissionId ?? 'sub_1',
+  ownerUid: overrides.ownerUid ?? 'openid_user',
+  status: overrides.status ?? 'pending',
+  revision: overrides.revision ?? 1,
+  updatedAt: overrides.updatedAt ?? '2026-09-04T00:00:00.000Z',
+  ...overrides,
+})
+
+describe('Officer custom repository', () => {
+  it('按 submissionId 只返回最新 revision', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([
+        record({ _id: 'doc_1', revision: 1 }),
+        record({ _id: 'doc_2', revision: 2, status: 'rejected' }),
+      ]),
+    )
+
+    await expect(repo.listByOwner('openid_user')).resolves.toMatchObject([
+      { submissionId: 'sub_1', revision: 2, status: 'rejected' },
+    ])
+  })
+
+  it('revision 或 updatedAt 不匹配时不更新记录', async () => {
+    const repo = repositoryModule.createRepository(createFakeDatabase([record()]))
+
+    await expect(
+      repo.updateIfRevision('sub_1', 1, '2026-09-04T00:00:00.000Z', { status: 'approved' }),
+    ).resolves.toMatchObject({ status: 'approved' })
+    await expect(
+      repo.updateIfRevision('sub_1', 1, '旧时间', { status: 'published' }),
+    ).resolves.toBeNull()
+  })
+
+  it('按状态筛选不把 pending 混入 approved 列表', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([
+        record({ _id: 'doc_1', status: 'pending' }),
+        record({ _id: 'doc_2', submissionId: 'sub_2', status: 'approved' }),
+      ]),
+    )
+
+    await expect(repo.listLatestByStatus('approved')).resolves.toMatchObject([
+      { submissionId: 'sub_2', status: 'approved' },
+    ])
+  })
+})

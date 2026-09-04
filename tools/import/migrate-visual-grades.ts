@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { parseOfficers } from './parse-officers'
+import { isVoyageTwOfficerSourceRefs } from './types'
 import type { CanonicalOfficer, SourceOfficer } from './types'
 import { deriveVisualGradeId } from './visual-grade'
 
@@ -17,6 +18,9 @@ export const migrateVisualGrades = (
   source: Record<string, SourceOfficer>,
 ): CanonicalOfficer[] =>
   canonical.map((officer) => {
+    if (!isVoyageTwOfficerSourceRefs(officer.sourceRefs)) {
+      throw new Error(`VISUAL_GRADE_SOURCE_MISSING: ${officer.id} has no voyage.tw source`)
+    }
     const sourceId = officer.sourceRefs.voyageTw
     const sourceOfficer = source[sourceId]
     if (!sourceOfficer) throw new Error(`VISUAL_GRADE_SOURCE_MISSING: ${sourceId}`)

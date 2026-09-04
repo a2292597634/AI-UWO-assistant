@@ -67,6 +67,13 @@ export interface CanonicalRecruitment {
   note: string | null
 }
 
+export type CanonicalOfficerSourceRefs =
+  { voyageTw: string; submissionId?: never } | { voyageTw?: never; submissionId: string }
+
+export const isVoyageTwOfficerSourceRefs = (
+  sourceRefs: CanonicalOfficerSourceRefs,
+): sourceRefs is { voyageTw: string } => 'voyageTw' in sourceRefs
+
 export interface CanonicalOfficer {
   id: string
   name: string
@@ -81,7 +88,7 @@ export interface CanonicalOfficer {
   recruitment: CanonicalRecruitment
   portraitId: string | null
   displayOrder: number
-  sourceRefs: { voyageTw: string }
+  sourceRefs: CanonicalOfficerSourceRefs
   maintenanceNote?: string
 }
 

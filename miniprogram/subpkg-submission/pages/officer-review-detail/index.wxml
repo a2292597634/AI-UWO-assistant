@@ -1,0 +1,223 @@
+<!-- 投稿詳情：管理員可直接修正，普通使用者只能查看自己的記錄 -->
+<scroll-view class="detail-page" scroll-y enhanced show-scrollbar="{{false}}">
+  <view wx:if="{{loading}}" class="detail-message">正在載入投稿詳情…</view>
+
+  <view wx:elif="{{loadError}}" class="message-panel message-panel--error">
+    <view class="ui-status ui-status--error"><text class="ui-status__label">載入失敗</text></view>
+    <text class="message-panel__text">{{loadError}}</text>
+    <button class="ui-button ui-button--secondary message-panel__action" bindtap="onRetry">重新載入</button>
+  </view>
+
+  <block wx:else>
+    <view class="detail-header">
+      <view class="detail-header__copy">
+        <text class="detail-header__eyebrow">{{mode === 'admin' ? '審核工作台' : '我的投稿'}}</text>
+        <text class="detail-header__title ui-display-title">{{name}}</text>
+        <text class="detail-header__meta">投稿 {{submissionId}} · 版本 {{revision}}</text>
+      </view>
+      <view class="ui-status ui-status--{{statusClass}}"><text class="ui-status__label">{{statusLabel}}</text></view>
+    </view>
+
+    <view wx:if="{{rejectReason}}" class="detail-notice detail-notice--error">
+      <text class="detail-notice__title">駁回原因</text>
+      <text class="detail-notice__text">{{rejectReason}}</text>
+    </view>
+    <view wx:elif="{{status === 'pending'}}" class="detail-notice detail-notice--review">
+      <text class="detail-notice__title">待審核</text>
+      <text class="detail-notice__text">資料已提交，管理員會檢查欄位、技能組別與正式版頭像。</text>
+    </view>
+    <view wx:elif="{{status === 'approved'}}" class="detail-notice detail-notice--review">
+      <text class="detail-notice__title">已審核，待發布</text>
+      <text class="detail-notice__text">資料已通過審核，完成資料同步與小程序發布後才會進入正式名鑑。</text>
+    </view>
+
+    <view wx:if="{{mode === 'admin'}}" class="detail-panel detail-panel--internal">
+      <view class="detail-panel__heading">
+        <text class="detail-panel__title">發布前檢查</text>
+        <text class="detail-panel__hint">以下是系統生成欄位，普通投稿者不會看到。</text>
+      </view>
+      <view class="form-field">
+        <view class="form-field__label">視覺檔位</view>
+        <picker mode="selector" range="{{visualGradeOptions}}" range-key="name" value="{{visualGradeIndex}}" bindchange="onVisualGradeChange" disabled="{{!canEdit}}">
+          <view class="form-picker">{{visualGradeName}}</view>
+        </picker>
+        <text class="form-hint">預設依稀有度推導；特殊資料可在此調整。</text>
+      </view>
+      <view class="read-grid detail-panel__internal-meta">
+        <view class="read-item read-item--wide"><text class="read-item__label">系統航海士 ID</text><text class="read-item__value">{{officerId}}</text></view>
+      </view>
+      <view class="canonical-preview">
+        <text class="canonical-preview__title">Canonical 預覽</text>
+        <text class="canonical-preview__text" selectable="true">{{canonicalPreviewText}}</text>
+      </view>
+    </view>
+
+    <block wx:if="{{canEdit}}">
+      <view class="detail-panel">
+        <view class="detail-panel__heading">
+          <text class="detail-panel__title">修改投稿資料</text>
+          <text class="detail-panel__hint">保存修改只更新目前版本；服務端會重新驗證所有字典與技能關係。</text>
+        </view>
+
+        <view class="form-field">
+          <view class="form-field__label">名稱</view>
+          <input class="form-input" value="{{name}}" maxlength="50" bindinput="onNameInput" />
+        </view>
+
+        <view class="form-grid">
+          <view class="form-field">
+            <view class="form-field__label">稀有度</view>
+            <picker mode="selector" range="{{rarityOptions}}" range-key="name" value="{{rarityIndex}}" bindchange="onBasicPickerChange" data-field="rarity">
+              <view class="form-picker">{{rarityName}}</view>
+            </picker>
+          </view>
+          <view class="form-field">
+            <view class="form-field__label">類型</view>
+            <picker mode="selector" range="{{typeOptions}}" range-key="name" value="{{typeIndex}}" bindchange="onBasicPickerChange" data-field="type">
+              <view class="form-picker">{{typeName}}</view>
+            </picker>
+          </view>
+        </view>
+
+        <view class="form-grid">
+          <view class="form-field">
+            <view class="form-field__label">性別</view>
+            <picker mode="selector" range="{{genderOptions}}" range-key="name" value="{{genderIndex}}" bindchange="onBasicPickerChange" data-field="gender">
+              <view class="form-picker">{{genderName}}</view>
+            </picker>
+          </view>
+          <view class="form-field">
+            <view class="form-field__label">職業</view>
+            <picker mode="selector" range="{{jobOptions}}" range-key="name" value="{{jobIndex}}" bindchange="onBasicPickerChange" data-field="job">
+              <view class="form-picker">{{jobName}}</view>
+            </picker>
+          </view>
+        </view>
+
+        <view class="form-field">
+          <view class="form-field__label">國籍</view>
+          <picker mode="selector" range="{{nationalityOptions}}" range-key="name" value="{{nationalityIndex}}" bindchange="onBasicPickerChange" data-field="nationality">
+            <view class="form-picker">{{nationalityName}}</view>
+          </picker>
+        </view>
+
+        <view class="form-field">
+          <view class="form-field__label">正式版頭像</view>
+          <view class="portrait-upload">
+            <image wx:if="{{portraitTempPath}}" class="portrait-upload__image" src="{{portraitTempPath}}" mode="aspectFill" />
+            <image wx:elif="{{portraitFileId}}" class="portrait-upload__image" src="{{portraitFileId}}" mode="aspectFill" />
+            <text wx:else class="portrait-upload__label">尚未提供頭像</text>
+          </view>
+          <view class="portrait-upload__actions">
+            <text class="text-action" bindtap="onPortraitTap">重新選擇</text>
+            <text class="portrait-upload__meta">{{portraitMetaText}}</text>
+          </view>
+          <text class="form-hint">PNG、JPG 或 JPEG；檔案不超過 512 KB，最長邊不超過 512 px。</text>
+        </view>
+      </view>
+
+      <view class="detail-panel">
+        <view class="detail-panel__heading detail-panel__heading--row">
+          <view class="detail-panel__copy">
+            <text class="detail-panel__title">語言能力</text>
+            <text class="detail-panel__hint">可直接修正語言與等級。</text>
+          </view>
+          <button class="ui-button ui-button--secondary compact-button" bindtap="onLanguageAdd">新增語言</button>
+        </view>
+        <view wx:for="{{languages}}" wx:key="key" class="entry-row">
+          <picker class="entry-row__picker" mode="selector" range="{{languageOptions}}" range-key="name" value="{{item.languageIndex}}" bindchange="onLanguageChange" data-key="{{item.key}}">
+            <view class="form-picker">{{item.languageName}}</view>
+          </picker>
+          <view class="level-control"><text class="level-control__label">Lv.</text><input class="form-input form-input--number" type="number" value="{{item.level}}" bindinput="onLanguageLevelInput" data-key="{{item.key}}" /></view>
+          <text class="text-action text-action--danger entry-row__remove" bindtap="onLanguageRemove" data-key="{{item.key}}">移除</text>
+        </view>
+      </view>
+
+      <view class="detail-panel">
+        <view class="detail-panel__heading detail-panel__heading--row">
+          <view class="detail-panel__copy">
+            <text class="detail-panel__title">技能與組別</text>
+            <text class="detail-panel__hint">技能名稱仍需從篩選結果選取；管理員另外確認主動／被動組別與槽位。</text>
+          </view>
+          <button class="ui-button ui-button--secondary compact-button" bindtap="onSkillAdd">新增技能</button>
+        </view>
+        <view wx:for="{{skills}}" wx:key="key" class="skill-entry">
+          <view class="skill-entry__topline">
+            <text class="skill-entry__title">{{item.skillName || '待選擇技能'}}</text>
+            <text class="text-action text-action--danger" bindtap="onSkillRemove" data-key="{{item.key}}">移除</text>
+          </view>
+          <input class="form-input form-input--search" placeholder="搜尋技能名稱" value="{{item.searchText}}" bindinput="onSkillSearchInput" data-key="{{item.key}}" />
+          <picker mode="selector" range="{{item.filteredOptions}}" range-key="name" value="{{item.skillIndex}}" bindchange="onSkillChange" data-key="{{item.key}}">
+            <view class="form-picker {{item.skillId ? '' : 'form-picker--empty'}}">{{item.skillName || '從篩選結果選擇技能'}}</view>
+          </picker>
+          <view class="skill-entry__levels">
+            <view class="skill-entry__level-field"><text class="form-field__label">解鎖等級</text><input class="form-input form-input--number" type="number" value="{{item.unlockLevel}}" bindinput="onSkillUnlockLevelInput" data-key="{{item.key}}" /></view>
+            <view class="skill-entry__level-field"><text class="form-field__label">技能等級</text><input class="form-input form-input--number" type="number" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" /></view>
+          </view>
+          <view class="skill-entry__levels skill-entry__levels--review">
+            <view class="skill-entry__level-field"><text class="form-field__label">技能組別</text><picker mode="selector" range="{{skillGroupOptions}}" range-key="name" value="{{item.groupIndex}}" bindchange="onSkillGroupChange" data-key="{{item.key}}"><view class="form-picker">{{item.groupName}}</view></picker></view>
+            <view class="skill-entry__level-field"><text class="form-field__label">槽位</text><input class="form-input form-input--number" type="number" value="{{item.slot}}" bindinput="onSkillSlotInput" data-key="{{item.key}}" /></view>
+          </view>
+          <text class="skill-entry__kind">{{item.kind === 'active' ? '主動技能' : '被動技能'}}</text>
+        </view>
+      </view>
+
+      <view class="detail-panel detail-panel--optional">
+        <view class="detail-panel__heading">
+          <text class="detail-panel__title">招募資料（選填）</text>
+          <text class="detail-panel__hint">若投稿者有提供，可在這裡補正；招募備註不屬於本流程。</text>
+        </view>
+        <view class="form-field">
+          <view class="form-field__label">招募城市</view>
+          <view wx:if="{{recruitment.cityNames.length > 0}}" class="chip-list"><view wx:for="{{recruitment.cityNames}}" wx:key="index" class="chip"><text class="chip__label">{{item}}</text><text class="chip__remove" bindtap="onCityRemove" data-index="{{index}}">移除</text></view></view>
+          <view class="picker-action-row"><picker class="picker-action-row__picker" mode="selector" range="{{cityPickerOptions}}" range-key="name" value="{{cityPickerIndex}}" bindchange="onCityChange"><view class="form-picker form-picker--empty">{{pendingCityName || '選擇城市'}}</view></picker><button class="ui-button ui-button--secondary compact-button" bindtap="onCityAdd">加入</button></view>
+        </view>
+        <view class="form-field"><view class="form-field__label">招募條件</view><picker mode="selector" range="{{requirementPickerOptions}}" range-key="name" value="{{requirementIndex}}" bindchange="onRequirementChange"><view class="form-picker {{recruitment.requirementId ? '' : 'form-picker--empty'}}">{{recruitment.requirementName || '不設定招募條件'}}</view></picker></view>
+        <view class="form-field"><view class="form-field__label">前置航海士</view><view wx:if="{{recruitment.requiredOfficerNames.length > 0}}" class="chip-list"><view wx:for="{{recruitment.requiredOfficerNames}}" wx:key="index" class="chip"><text class="chip__label">{{item}}</text><text class="chip__remove" bindtap="onRequiredOfficerRemove" data-index="{{index}}">移除</text></view></view><view class="picker-action-row"><picker class="picker-action-row__picker" mode="selector" range="{{officerPickerOptions}}" range-key="name" value="{{officerPickerIndex}}" bindchange="onOfficerChange"><view class="form-picker form-picker--empty">{{pendingOfficerName || '選擇前置航海士'}}</view></picker><button class="ui-button ui-button--secondary compact-button" bindtap="onRequiredOfficerAdd">加入</button></view></view>
+      </view>
+
+      <view class="detail-action-panel">
+        <textarea class="form-textarea" placeholder="駁回時填寫原因（例如：請補充正式版頭像）" value="{{rejectReasonInput}}" maxlength="500" bindinput="onRejectReasonInput"></textarea>
+        <view class="detail-action-panel__buttons">
+          <button class="ui-button ui-button--secondary" bindtap="onSave" disabled="{{saving}}">保存修改</button>
+          <button wx:if="{{canReject}}" class="ui-button ui-button--danger" bindtap="onReject" disabled="{{saving}}">駁回投稿</button>
+          <button wx:if="{{canApprove}}" class="ui-button ui-button--primary" bindtap="onApprove" disabled="{{saving}}">通過，等待發布</button>
+        </view>
+        <text class="detail-action-panel__hint">保存後狀態不會自動通過；通過前請確認所有技能組別與槽位。</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="detail-panel">
+        <view class="detail-panel__heading"><text class="detail-panel__title">基本資料</text></view>
+        <view class="read-grid">
+          <view class="read-item read-item--wide"><text class="read-item__label">名稱</text><text class="read-item__value">{{name}}</text></view>
+          <view class="read-item"><text class="read-item__label">稀有度</text><text class="read-item__value">{{rarityName}}</text></view>
+          <view class="read-item"><text class="read-item__label">類型</text><text class="read-item__value">{{typeName}}</text></view>
+          <view class="read-item"><text class="read-item__label">性別</text><text class="read-item__value">{{genderName}}</text></view>
+          <view class="read-item"><text class="read-item__label">職業</text><text class="read-item__value">{{jobName}}</text></view>
+          <view class="read-item"><text class="read-item__label">國籍</text><text class="read-item__value">{{nationalityName}}</text></view>
+        </view>
+        <view class="portrait-upload portrait-upload--readonly"><image wx:if="{{portraitFileId}}" class="portrait-upload__image" src="{{portraitFileId}}" mode="aspectFill" /><text wx:else class="portrait-upload__label">未提供頭像</text></view>
+      </view>
+
+      <view class="detail-panel">
+        <view class="detail-panel__heading"><text class="detail-panel__title">語言能力</text></view>
+        <view wx:for="{{languages}}" wx:key="key" class="read-line"><text class="read-line__name">{{item.languageName}}</text><text class="read-line__value">Lv.{{item.level}}</text></view>
+      </view>
+
+      <view class="detail-panel">
+        <view class="detail-panel__heading"><text class="detail-panel__title">技能</text></view>
+        <view wx:for="{{skills}}" wx:key="key" class="read-skill"><view class="read-skill__heading"><text class="read-skill__name">{{item.skillName}}</text><text class="read-skill__level">Lv.{{item.level}}</text></view><text class="read-skill__meta">解鎖 Lv.{{item.unlockLevel}} · {{item.kind === 'active' ? '主動' : '被動'}} · {{item.sourceGroup}} / 槽位 {{item.slot}}</text></view>
+      </view>
+
+      <view class="detail-panel detail-panel--optional"><view class="detail-panel__heading"><text class="detail-panel__title">招募資料</text></view><text class="read-paragraph">{{recruitmentCityText}}</text><text class="read-paragraph">{{recruitment.requirementName || '未設定招募條件'}}</text><text class="read-paragraph">{{requiredOfficerText}}</text></view>
+
+      <button wx:if="{{canResubmit}}" class="ui-button ui-button--primary detail-resubmit" bindtap="onResubmit">修改後重新提交</button>
+    </block>
+
+    <button class="ui-button ui-button--secondary detail-back" bindtap="onBack">返回列表</button>
+  </block>
+
+  <view class="page-bottom-spacer"></view>
+</scroll-view>

@@ -61,4 +61,21 @@ describe('canonical collection schema validation', () => {
     expect(validator.validate('officers', { ...officer, portraitId: null })).toEqual([])
     expect(validator.validate('skills', { ...skill, iconId: null })).toEqual([])
   })
+
+  it('validates custom master records with submission source references', () => {
+    const custom = readJson<unknown>('data/master/custom-officers.json')
+    expect(validator.validate('officers', custom)).toEqual([])
+
+    const officers = readJson<Array<Record<string, unknown>>>(
+      'tests/fixtures/canonical/officers.json',
+    )
+    const officer = officers[0]
+    if (officer === undefined) throw new Error('fixture requires an officer')
+    expect(
+      validator.validate('officers', {
+        ...officer,
+        sourceRefs: { manual: true },
+      }),
+    ).toContainEqual(expect.objectContaining({ code: 'SCHEMA_ADDITIONAL_PROPERTY' }))
+  })
 })

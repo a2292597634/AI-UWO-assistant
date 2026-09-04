@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import sharp from 'sharp'
 import type { CanonicalOfficer, CanonicalSkill } from '../import/types'
 import { buildAssetDependencyIndex } from '../data-pipeline/asset-dependencies'
+import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { planAssetPackageLayout } from './asset-package-builder'
 
 export const ASSET_STAGING_DIR = 'data/assets/staging'
@@ -41,7 +42,7 @@ const canonicalData = (): {
   officers: CanonicalOfficer[]
   skills: CanonicalSkill[]
 } => ({
-  officers: readJson<CanonicalOfficer[]>('data/master/officers.json'),
+  officers: loadCanonicalOfficers('data/master'),
   skills: readJson<CanonicalSkill[]>('data/master/skills.json'),
 })
 

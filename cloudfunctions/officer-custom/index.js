@@ -1,10 +1,11 @@
 /**
- * Custom Officer Cloud Function Entry Point
+ * 航海士资料投稿 Cloud Function 入口。
  *
- * 处理自定义航海士提交（新增/列表）。
- * ownerUid 从 wxContext.OPENID 获取，不信任客户端传入。
+ * 投稿者与小程序管理员的身份均来自 wxContext.OPENID；客户端传入的
+ * ownerUid、isAdmin、reviewerUid 等字段不会参与权限判断。
  */
 
+const referenceData = require('./reference-data.json')
 const cloud = require('wx-server-sdk')
 const { createOfficerCustomService } = require('./officer-custom-service')
 const { createRepository } = require('./officer-custom-repository')
@@ -13,7 +14,24 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const db = cloud.database()
 const repo = createRepository(db)
-const service = createOfficerCustomService(repo, cloud)
+
+const parseOpenIds = (value) =>
+  new Set(
+    (typeof value === 'string' ? value : '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  )
+
+const adminOpenIds = parseOpenIds(process.env.OFFICER_ADMIN_OPENIDS)
+const syncToken =
+  typeof process.env.OFFICER_SYNC_TOKEN === 'string' ? process.env.OFFICER_SYNC_TOKEN.trim() : ''
+
+const service = createOfficerCustomService(repo, cloud, {
+  adminOpenIds,
+  syncToken,
+  referenceData,
+})
 
 exports.main = async (event, _context) => {
   const { action, ...payload } = event ?? {}

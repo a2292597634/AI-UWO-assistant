@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { isVoyageTwOfficerSourceRefs, type CanonicalOfficer } from '../import/types'
+import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 
 // ── Types ──
 
@@ -207,7 +209,7 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   const limit = parseInt(process.argv[2] ?? '20', 10)
 
   // Read canonical data to build asset list
-  const officers = JSON.parse(readFileSync('data/master/officers.json', 'utf8'))
+  const officers = loadCanonicalOfficers('data/master')
   const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8'))
   const rawJsonChar = readFileSync('archive/voyage-tw-2026052501/raw-data/json_char.js', 'utf8')
 
@@ -222,12 +224,14 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   console.log(`=== Asset Downloader (batch size: ${BATCH_SIZE}, limit: ${limit ?? 'all'}) ===\n`)
   console.log(`Building asset list...`)
 
-  const officerData: Array<{ canonicalId: string; sourceId: string }> = officers.map(
-    (o: { id: string; sourceRefs: { voyageTw: string } }) => ({
+  const officerData: Array<{ canonicalId: string; sourceId: string }> = officers
+    .filter((o): o is CanonicalOfficer & { sourceRefs: { voyageTw: string } } =>
+      isVoyageTwOfficerSourceRefs(o.sourceRefs),
+    )
+    .map((o) => ({
       canonicalId: o.id,
       sourceId: o.sourceRefs.voyageTw,
-    }),
-  )
+    }))
   const skillList: Array<{ id: string; imageOverrideId: string | null }> = skills.map(
     (s: { sourceRefs: { voyageTw: string }; iconId: string | null }) => ({
       id: s.sourceRefs.voyageTw,

@@ -1,0 +1,64 @@
+<!-- 小程序管理員審核工作台 -->
+<scroll-view class="review-page" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="review-header">
+    <view class="review-header__copy">
+      <text class="review-header__eyebrow">小程序管理員</text>
+      <text class="review-header__title ui-display-title">審核工作台</text>
+      <text class="review-header__hint">修改會保留在投稿版本內；通過後仍需同步資料、發布小程序，才會進入正式名鑑。</text>
+      <text wx:if="{{pendingCount > 0}}" class="review-header__count">待審核 {{pendingCount}} 筆</text>
+    </view>
+  </view>
+
+  <view wx:if="{{checkingPermission}}" class="review-message">正在確認管理員權限…</view>
+
+  <view wx:elif="{{!isAdmin}}" class="message-panel message-panel--error">
+    <view class="ui-status ui-status--error"><text class="ui-status__label">無審核權限</text></view>
+    <text class="message-panel__text">審核權限只開放給小程序管理員微信帳號。</text>
+    <button class="ui-button ui-button--secondary message-panel__action" bindtap="onRetry">重新確認</button>
+  </view>
+
+  <block wx:else>
+    <scroll-view class="review-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="review-tabs__content">
+        <view wx:for="{{statusTabs}}" wx:key="id" class="review-tab {{item.id === activeStatus ? 'review-tab--active' : ''}}" bindtap="onStatusTab" data-status="{{item.id}}">{{item.label}}</view>
+      </view>
+    </scroll-view>
+
+    <view wx:if="{{loading}}" class="review-message">正在載入投稿…</view>
+
+    <view wx:elif="{{loadError}}" class="message-panel message-panel--error">
+      <view class="ui-status ui-status--error"><text class="ui-status__label">錯誤</text></view>
+      <text class="message-panel__text">{{loadError}}</text>
+      <button class="ui-button ui-button--secondary message-panel__action" bindtap="onRetry">重新載入</button>
+    </view>
+
+    <view wx:elif="{{!hasRows}}" class="message-panel">
+      <text class="message-panel__title">目前沒有投稿</text>
+      <text class="message-panel__text">切換其他狀態查看歷史資料。</text>
+    </view>
+
+    <view wx:else class="review-list">
+      <view wx:for="{{rows}}" wx:key="submissionId" class="review-card" bindtap="onRowTap" data-submission-id="{{item.submissionId}}" data-revision="{{item.revision}}">
+        <view class="review-card__heading">
+          <view class="review-card__title-wrap">
+            <text class="review-card__title">{{item.name}}</text>
+            <text class="review-card__revision">版本 {{item.revision}}</text>
+          </view>
+          <view class="ui-status ui-status--{{item.statusClass}}"><text class="ui-status__label">{{item.statusLabel}}</text></view>
+        </view>
+        <view class="review-card__meta">
+          <text>{{item.skillCount}} 項技能</text>
+          <text>{{item.hasRecruitment ? '有招募資料' : '未填招募資料'}}</text>
+          <text>更新於 {{item.updatedAtLabel}}</text>
+        </view>
+        <view wx:if="{{item.statusReason}}" class="review-card__reason">
+          <text class="review-card__reason-label">駁回原因</text>
+          <text class="review-card__reason-text">{{item.statusReason}}</text>
+        </view>
+        <text class="review-card__next">開啟審核詳情</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="page-bottom-spacer"></view>
+</scroll-view>

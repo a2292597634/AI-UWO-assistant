@@ -1,5 +1,5 @@
-import { readFileSync, mkdirSync, existsSync, unlinkSync } from 'node:fs'
-import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
+import { readFileSync, mkdirSync, existsSync, unlinkSync, writeFileSync } from 'node:fs'
+import type { CanonicalSkill, DictionaryItem } from '../import/types'
 import {
   writeRuntimeData,
   writeShardedDetails,
@@ -14,6 +14,8 @@ import {
 import { writeTradeRuntimeData } from './build-trade-runtime-data'
 import type { CanonicalTradeDataset } from '../import/types'
 import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
+import { loadCanonicalOfficers } from './load-officers'
+import { buildOfficerReferenceData } from './build-officer-reference-data'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
@@ -22,6 +24,7 @@ const TRADE_SUBPKG_DIR = 'miniprogram/subpkg-trade'
 const DATA_ASSETS_DIR = 'data/assets'
 const ASSET_DEPENDENCY_PATH = `${DATA_ASSETS_DIR}/asset-dependencies.json`
 const LEGACY_DEPENDENCY_PATH = 'miniprogram/generated/asset-dependencies.js'
+const OFFICER_REFERENCE_DATA_PATH = 'cloudfunctions/officer-custom/reference-data.json'
 const PUBLISHED_MANIFEST_PATH =
   process.env.CLOUDBASE_ASSET_MANIFEST_PATH ?? 'data/assets/cloudbase-manifest.json'
 
@@ -38,18 +41,20 @@ const generate = (): void => {
   }
 
   console.log(`Reading canonical data from ${CANONICAL_DIR}/...`)
-  const officers = readJson<CanonicalOfficer[]>(`${CANONICAL_DIR}/officers.json`)
+  const officers = loadCanonicalOfficers(CANONICAL_DIR)
   const skills = readJson<CanonicalSkill[]>(`${CANONICAL_DIR}/skills.json`)
   const dictionaries = readJson<Record<string, DictionaryItem[]>>(
     `${CANONICAL_DIR}/dictionaries.json`,
   )
   const tradeDataset = readJson<CanonicalTradeDataset>(`${CANONICAL_DIR}/trade-goods.json`)
   const publishedManifest = loadPublishedAssetManifest(PUBLISHED_MANIFEST_PATH)
+  const officerReferenceData = buildOfficerReferenceData(CANONICAL_DIR)
 
   console.log(`  Officers: ${officers.length}`)
   console.log(`  Skills: ${skills.length}`)
   console.log(`  Dictionary groups: ${Object.keys(dictionaries).length}`)
   console.log(`  Trade goods: ${tradeDataset.tradeGoods.length}`)
+  console.log(`  Officer reference IDs: ${officerReferenceData.officerIds.length}`)
 
   const iconSet = new Set(publishedManifest.assets.map((asset) => asset.filename))
   console.log(`  Icon files found: ${iconSet.size}`)
@@ -63,6 +68,8 @@ const generate = (): void => {
   mkdirSync(SUBPKG_DIR, { recursive: true })
   mkdirSync(TRADE_SUBPKG_DIR, { recursive: true })
   mkdirSync(DATA_ASSETS_DIR, { recursive: true })
+  writeFileSync(OFFICER_REFERENCE_DATA_PATH, JSON.stringify(officerReferenceData, null, 2) + '\n')
+  console.log(`  ${OFFICER_REFERENCE_DATA_PATH}: written`)
 
   // Generate main package data (catalog, skills, dictionaries)
   writeRuntimeData(

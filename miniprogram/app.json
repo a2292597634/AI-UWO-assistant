@@ -16,6 +16,15 @@
       "root": "subpkg-trade",
       "name": "trade",
       "pages": ["pages/index/index", "pages/detail/index"]
+    },
+    {
+      "root": "subpkg-submission",
+      "name": "submission",
+      "pages": [
+        "pages/officer-submissions/index",
+        "pages/officer-review/index",
+        "pages/officer-review-detail/index"
+      ]
     }
   ],
   "window": {
