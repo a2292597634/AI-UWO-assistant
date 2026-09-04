@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameMonthAt } from '../../miniprogram/domain/game-month'
+import { gameMonthAt } from '../../miniprogram/subpkg-trade/domain/game-month'
 
 const jst = (year: number, month: number, day: number, hour = 0): number =>
   Date.UTC(year, month - 1, day, hour - 9)

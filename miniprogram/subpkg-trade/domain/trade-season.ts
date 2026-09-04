@@ -1,4 +1,4 @@
-import type { RuntimeTradeGoodDetail, RuntimeTradeReference } from '../contracts/runtime-data'
+import type { RuntimeTradeGoodDetail, RuntimeTradeReference } from '../../contracts/runtime-data'
 
 export type TradeSeasonStatus = 'peak' | 'low' | 'normal' | 'unknown'
 

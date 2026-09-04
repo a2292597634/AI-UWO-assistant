@@ -1,6 +1,6 @@
 import { buildTradePortMatrix } from '../domain/trade-season'
 import type { TradePortMatrixView } from '../domain/trade-season'
-import type { RuntimeTradeGoodDetail, RuntimeTradeReference } from '../contracts/runtime-data'
+import type { RuntimeTradeGoodDetail, RuntimeTradeReference } from '../../contracts/runtime-data'
 
 export interface TradeDetailPageState {
   title: {

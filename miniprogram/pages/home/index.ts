@@ -14,13 +14,6 @@ Page({
         iconFailed: false,
       },
       {
-        id: 'trade-goods',
-        name: '貿易品',
-        iconPath: '/assets/ui/feature-trade-goods.png',
-        route: '/subpkg-trade/pages/index/index',
-        iconFailed: false,
-      },
-      {
         id: 'battle-fleet',
         name: '戰鬥模擬艦隊',
         iconPath: '/assets/ui/feature-battle-fleet.png',
@@ -32,6 +25,13 @@ Page({
         name: '冒險模擬艦隊',
         iconPath: '/assets/ui/feature-adventure-fleet.png',
         route: '/pages/adventure-fleet/index',
+        iconFailed: false,
+      },
+      {
+        id: 'trade-goods',
+        name: '交易品淡旺季查询',
+        iconPath: '/assets/ui/feature-trade-goods.png',
+        route: '/subpkg-trade/pages/index/index',
         iconFailed: false,
       },
       {

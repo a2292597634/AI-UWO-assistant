@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { presentTradeDetail } from '../../miniprogram/presenters/trade-season-presenter'
+import { presentTradeDetail } from '../../miniprogram/subpkg-trade/presenters/trade-season-presenter'
 import type {
   RuntimeTradeGoodDetail,
   RuntimeTradeReference,

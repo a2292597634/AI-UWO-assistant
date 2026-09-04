@@ -1,6 +1,6 @@
-import { gameMonthAt } from '../../../domain/game-month'
-import { presentTradeDetail } from '../../../presenters/trade-season-presenter'
-import type { TradeDetailPageState } from '../../../presenters/trade-season-presenter'
+import { gameMonthAt } from '../../domain/game-month'
+import { presentTradeDetail } from '../../presenters/trade-season-presenter'
+import type { TradeDetailPageState } from '../../presenters/trade-season-presenter'
 import { getTradeReference } from '../../runtime/trade-data-store'
 import { getTradeDetail } from '../../runtime/trade-detail-store'
 

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { buildTradePortMatrix, getTradeSeasonStatus } from '../../miniprogram/domain/trade-season'
+import {
+  buildTradePortMatrix,
+  getTradeSeasonStatus,
+} from '../../miniprogram/subpkg-trade/domain/trade-season'
 import type {
   RuntimeTradeGoodDetail,
   RuntimeTradeReference,

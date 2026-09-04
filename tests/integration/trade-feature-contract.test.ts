@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-import { buildTradePortMatrix } from '../../miniprogram/domain/trade-season'
+import { buildTradePortMatrix } from '../../miniprogram/subpkg-trade/domain/trade-season'
 import { getTradeReference } from '../../miniprogram/subpkg-trade/runtime/trade-data-store'
 import { getTradeDetail } from '../../miniprogram/subpkg-trade/runtime/trade-detail-store'
 
@@ -10,6 +10,20 @@ const readWorkspaceFile = (filePath: string): string =>
   fs.readFileSync(path.resolve(filePath), 'utf8')
 
 describe('trade feature integration contract', () => {
+  it('keeps trade-only runtime sources inside the trade subpackage', () => {
+    const tradeRoot = path.resolve('miniprogram/subpkg-trade')
+    const mainRoot = path.resolve('miniprogram')
+    const tradeSources = [
+      'domain/game-month.ts',
+      'domain/trade-query.ts',
+      'domain/trade-season.ts',
+      'presenters/trade-season-presenter.ts',
+    ]
+
+    expect(tradeSources.every((file) => fs.existsSync(path.join(tradeRoot, file)))).toBe(true)
+    expect(tradeSources.every((file) => !fs.existsSync(path.join(mainRoot, file)))).toBe(true)
+  })
+
   it('connects the homepage entry to the trade page and detail subpackage', () => {
     const appConfig = JSON.parse(readWorkspaceFile('miniprogram/app.json')) as {
       pages: string[]

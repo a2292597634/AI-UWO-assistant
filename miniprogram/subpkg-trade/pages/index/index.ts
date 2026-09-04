@@ -1,4 +1,4 @@
-import { queryTradeGoods } from '../../../domain/trade-query'
+import { queryTradeGoods } from '../../domain/trade-query'
 import { getTradeGoods, getTradeReference } from '../../runtime/trade-data-store'
 import type {
   RuntimeTradeGoodIndexEntry,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { queryTradeGoods } from '../../miniprogram/domain/trade-query'
+import { queryTradeGoods } from '../../miniprogram/subpkg-trade/domain/trade-query'
 import type { RuntimeTradeGoodIndexEntry } from '../../miniprogram/contracts/runtime-data'
 
 const entries: RuntimeTradeGoodIndexEntry[] = [

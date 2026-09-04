@@ -1,4 +1,4 @@
-import type { RuntimeTradeGoodIndexEntry } from '../contracts/runtime-data'
+import type { RuntimeTradeGoodIndexEntry } from '../../contracts/runtime-data'
 
 export interface TradeQueryCriteria {
   searchText: string
