@@ -48,7 +48,7 @@
   - `data/master/ui-assets/feature-trade-goods-source.png`
   - `data/master/ui-assets/feature-data-maintenance-source.png`
 - `tools/ui-assets/config.ts` 繼續作為素材處理配方唯一來源，不新增依賴、不修改輸出尺寸與 feature 單檔 `12KB` 預算。
-- 透過 `npm run assets:ui` 生成 `miniprogram/assets/ui/feature-*.png` 與 `data/audit/ui-asset-build-report.json`；不得手動編輯生成文件。
+- 透過 `npm run assets:ui` 生成 `miniprogram/assets/ui/feature-*.png` 與 `data/audit/ui-asset-build-report.json`；不得手動編輯生成文件。五枚 feature 圖標使用 16 色量化，並在無損輸出前清理近透明像素，避免透明邊緣被誤判為可視內容，同時控制主包體積。
 - `miniprogram/pages/home/index.ts`、路由、WXML 結構與首頁三列布局不變；現有 `.module-grid__icon` 的 `96rpx` 渲染尺寸保留，由主源透明邊界統一視覺大小。
 - 不修改 `archive/`、`data/master/trade-goods.json`、`miniprogram/generated/`、Cloud Function、遠程請求或依賴。
 
@@ -56,7 +56,7 @@
 
 ### 自動化驗證
 
-- 素材測試納入五個 feature 圖標，確認所有輸出為 `96×96`、單檔不超過 `12KB`、透明邊界存在且寬高落在 `84–88px` 目標區間。
+- 素材測試納入五個 feature 圖標，確認所有輸出為 `96×96`、單檔不超過 `12KB`（目前實際輸出目標為 `4KB` 以控制主包體積）、透明邊界存在且寬高落在 `84–88px` 目標區間。
 - 素材輸出需保持 deterministic：相同主源重建的 bytes、報告與總體積一致。
 - 執行 `npm run assets:ui:check`，確認主源、輸出與報告沒有漂移。
 - 執行首頁相關測試、`npm test`、`npm run lint`、`npm run typecheck` 與 `npm run check:runtime-network`。

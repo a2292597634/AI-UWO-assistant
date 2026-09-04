@@ -63,6 +63,8 @@ const hash = (bytes: Buffer): string => createHash('sha256').update(bytes).diges
 
 const budgetError = (message: string): Error => new Error(`UI_ASSET_BUDGET_EXCEEDED: ${message}`)
 
+const NEAR_TRANSPARENT_ALPHA_THRESHOLD = 8
+
 const alphaBounds = async (
   input: string | Buffer,
   imageKind: 'SOURCE' | 'OUTPUT',
@@ -90,22 +92,40 @@ const alphaBounds = async (
   return { left, top, width: right - left + 1, height: bottom - top + 1 }
 }
 
-const png = (
+const png = async (
   input: string,
   width: number,
   height: number,
   paletteColors?: number,
-): Promise<Buffer> =>
-  sharp(input)
-    .resize(width, height, { fit: 'contain', background: '#00000000' })
+): Promise<Buffer> => {
+  const resized = sharp(input).resize(width, height, { fit: 'contain', background: '#00000000' })
+  const options = {
+    palette: true,
+    ...(paletteColors === undefined ? {} : { colours: paletteColors }),
+    compressionLevel: 9,
+    quality: 100,
+    effort: 10,
+  } as const
+  const quantized = await resized.png(options).toBuffer()
+  if (paletteColors === undefined) return quantized
+
+  const { data, info } = await sharp(quantized)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+  for (let index = 3; index < data.length; index += info.channels) {
+    if (data[index] <= NEAR_TRANSPARENT_ALPHA_THRESHOLD) data[index] = 0
+  }
+  return sharp(data, {
+    raw: { width: info.width, height: info.height, channels: 4 },
+  })
     .png({
-      palette: true,
-      ...(paletteColors === undefined ? {} : { colours: paletteColors }),
       compressionLevel: 9,
       quality: 100,
       effort: 10,
     })
     .toBuffer()
+}
 
 const optimizedPng = (input: string): Promise<Buffer> =>
   sharp(input).png({ palette: true, compressionLevel: 9, quality: 100, effort: 10 }).toBuffer()

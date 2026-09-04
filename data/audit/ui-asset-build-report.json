@@ -52,19 +52,19 @@
       "mimeType": "image/png",
       "width": 96,
       "height": 96,
-      "byteSize": 4991,
-      "sha256": "d2b9b2ed19aa09f82175b28c960c54947da6e5f6c8f5412aec466deabfeec02e",
+      "byteSize": 2773,
+      "sha256": "249912c3d5088658638addfd7bdd2be5f84c4aa891f96019c0495255e26b7bde",
       "sourceTransparentBounds": {
-        "left": 96,
-        "top": 82,
-        "width": 1061,
-        "height": 1070
+        "left": 19,
+        "top": 18,
+        "width": 281,
+        "height": 284
       },
       "outputTransparentBounds": {
         "left": 5,
-        "top": 4,
-        "width": 86,
-        "height": 87
+        "top": 5,
+        "width": 85,
+        "height": 86
       }
     },
     {
@@ -74,19 +74,19 @@
       "mimeType": "image/png",
       "width": 96,
       "height": 96,
-      "byteSize": 5011,
-      "sha256": "f447f65a44b63bfee972801ab987a91ec4042d9e8450e503a8411a97a0923dad",
+      "byteSize": 2874,
+      "sha256": "916e2f3dd5c5407275274b326b08256b86910345ee6c9f0ec8a412e98fc98465",
       "sourceTransparentBounds": {
-        "left": 95,
-        "top": 79,
-        "width": 1064,
-        "height": 1075
+        "left": 14,
+        "top": 21,
+        "width": 292,
+        "height": 277
       },
       "outputTransparentBounds": {
-        "left": 5,
-        "top": 3,
-        "width": 86,
-        "height": 88
+        "left": 4,
+        "top": 6,
+        "width": 88,
+        "height": 84
       }
     },
     {
@@ -96,19 +96,19 @@
       "mimeType": "image/png",
       "width": 96,
       "height": 96,
-      "byteSize": 4920,
-      "sha256": "497e1cbcaaaaaa4157ddebfe333b3654f2f7920932e44231f4c06ca0ad222437",
+      "byteSize": 2701,
+      "sha256": "4043c8c6552ae6671e6125c620d1b6ad0badc12fd0d43659edd6c672efb54f65",
       "sourceTransparentBounds": {
-        "left": 96,
-        "top": 81,
-        "width": 1061,
-        "height": 1071
+        "left": 16,
+        "top": 22,
+        "width": 288,
+        "height": 276
       },
       "outputTransparentBounds": {
         "left": 5,
-        "top": 4,
-        "width": 86,
-        "height": 87
+        "top": 6,
+        "width": 87,
+        "height": 84
       }
     },
     {
@@ -118,19 +118,19 @@
       "mimeType": "image/png",
       "width": 96,
       "height": 96,
-      "byteSize": 4887,
-      "sha256": "8e0d3fd2e1ddacdce52a1bd4b8f34467f4aa7da1c071b726070cd42ee0a1b314",
+      "byteSize": 2810,
+      "sha256": "19b5843c1ed07ddf4201a142305c29e41e4018519a4e4f3c8b3ea133e665be1d",
       "sourceTransparentBounds": {
-        "left": 191,
-        "top": 170,
-        "width": 868,
-        "height": 872
+        "left": 17,
+        "top": 21,
+        "width": 285,
+        "height": 278
       },
       "outputTransparentBounds": {
-        "left": 12,
-        "top": 10,
-        "width": 72,
-        "height": 72
+        "left": 5,
+        "top": 6,
+        "width": 86,
+        "height": 84
       }
     },
     {
@@ -140,19 +140,19 @@
       "mimeType": "image/png",
       "width": 96,
       "height": 96,
-      "byteSize": 1463,
-      "sha256": "677099038e8d2fd71799d878d5b43952acaf3ac4027f0f4f81ca688267e3d385",
+      "byteSize": 2789,
+      "sha256": "7c8dd8a81550187410f1eb790682639f0af4854a60d0a87d68054e3cd54a535d",
       "sourceTransparentBounds": {
-        "left": 19,
-        "top": 19,
-        "width": 282,
-        "height": 282
+        "left": 18,
+        "top": 22,
+        "width": 284,
+        "height": 275
       },
       "outputTransparentBounds": {
         "left": 5,
-        "top": 5,
+        "top": 6,
         "width": 86,
-        "height": 86
+        "height": 84
       }
     },
     {
@@ -616,8 +616,8 @@
   ],
   "groupBytes": {
     "banner": 32507,
-    "feature": 21272,
+    "feature": 13947,
     "original-ui": 74740
   },
-  "totalBytes": 128519
+  "totalBytes": 121194
 }

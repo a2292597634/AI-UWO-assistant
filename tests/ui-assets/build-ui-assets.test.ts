@@ -1,7 +1,7 @@
 import { randomFillSync } from 'node:crypto'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import sharp from 'sharp'
 import { afterEach, describe, expect, it } from 'vitest'
 import { buildUiAssets, checkUiAssets } from '../../tools/ui-assets/build-ui-assets'
@@ -141,6 +141,7 @@ describe('buildUiAssets', () => {
     const grade = files.find((file) => file.id === 'rarity-filter-grade-5')
     const banner = files.find((file) => file.id === 'home-harbor')
     const featureIds = [
+      'feature-officer-catalog',
       'feature-trade-goods',
       'feature-battle-fleet',
       'feature-adventure-fleet',
@@ -173,6 +174,37 @@ describe('buildUiAssets', () => {
     expect(readFileSync(join(firstOutput, 'home-harbor.jpg')).byteLength).toBeLessThanOrEqual(
       150 * 1024,
     )
+  })
+
+  it('keeps production feature icons within the same visible size range', () => {
+    const report = JSON.parse(
+      readFileSync(resolve(__dirname, '../../data/audit/ui-asset-build-report.json'), 'utf8'),
+    ) as { files: ReportFileWithTransparency[] }
+    const featureIds = [
+      'feature-officer-catalog',
+      'feature-trade-goods',
+      'feature-battle-fleet',
+      'feature-adventure-fleet',
+      'feature-data-maintenance',
+    ]
+    const featureFiles = report.files.filter((file) => featureIds.includes(file.id))
+
+    expect(featureFiles).toHaveLength(5)
+    expect(
+      featureFiles.every((file) => {
+        const bounds = file.outputTransparentBounds
+        return (
+          file.width === 96 &&
+          file.height === 96 &&
+          file.byteSize <= 4 * 1024 &&
+          bounds !== undefined &&
+          bounds.width >= 84 &&
+          bounds.width <= 88 &&
+          bounds.height >= 84 &&
+          bounds.height <= 88
+        )
+      }),
+    ).toBe(true)
   })
 
   it('rejects a fully transparent PNG source before it can enter the report', async () => {
