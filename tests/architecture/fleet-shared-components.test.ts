@@ -357,7 +357,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxml).toMatch(/class="config-bar__toggle"[\s\S]*catchtap="onToggle"/)
     expect(wxml).not.toContain("{{expanded ? '收起' : '展開'}}")
     expect(wxss).toMatch(
-      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
+      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
     )
     expect(wxss).toMatch(
       /\.config-bar__summary-copy\s*\{[\s\S]*min-width:\s*0[\s\S]*flex:\s*1\s+1\s+auto/,
@@ -365,6 +365,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxss).toMatch(
       /\.config-bar__summary-meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
     )
+    expect(wxss).toMatch(/\.config-bar__button\s*\{[\s\S]*margin:\s*0/)
     expect(wxss).toMatch(
       /\.config-bar__toggle-icon\s*\{[\s\S]*width:\s*64rpx[\s\S]*height:\s*64rpx[\s\S]*transform:\s*scale\(3\)/,
     )
@@ -376,12 +377,14 @@ describe('Task 5 單一配置管理共享元件契約', () => {
   it('ModeTabs 以選項值發出 change 並提供可見選中語義', () => {
     const script = readComponentFile('mode-tabs', 'index.ts')
     const wxml = readComponentFile('mode-tabs', 'index.wxml')
+    const wxss = readComponentFile('mode-tabs', 'index.wxss')
 
     expect(script).toMatch(/\bvalue\s*:/)
     expect(script).toMatch(/\boptions\s*:/)
     expect(script).toMatch(/triggerEvent\(\s*['"]change['"]\s*,\s*\{\s*value\s*\}/)
     expect(wxml).toContain('data-value="{{item.value}}"')
     expect(wxml).toContain('mode-tabs__item--active')
+    expect(wxss).toMatch(/\.mode-tabs__item\s*\{[\s\S]*min-height:\s*88rpx[\s\S]*margin:\s*0/)
   })
 
   it('StatusBadge 以文字區分四種狀態', () => {
@@ -433,7 +436,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       /\.disclosure-section__copy\s*\{[\s\S]*align-items:\s*flex-start[\s\S]*text-align:\s*left/,
     )
     expect(wxss).toMatch(
-      /\.disclosure-section__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*border-radius:\s*0[\s\S]*background:\s*transparent/,
+      /\.disclosure-section__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*border-radius:\s*0[\s\S]*background:\s*transparent/,
     )
     expect(wxss).toMatch(
       /\.disclosure-section__meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
@@ -584,8 +587,10 @@ describe('Task 4 航海士操作共享元件契約', () => {
       /\.officer-action-sheet__trigger-actions\s*\{[\s\S]*display\s*:\s*flex[\s\S]*gap\s*:/,
     )
     expect(wxss).toMatch(
-      /\.officer-action-sheet__icon-button\s*\{[\s\S]*min-width\s*:\s*0[\s\S]*min-height\s*:/,
+      /\.officer-action-sheet__icon-button\s*\{[\s\S]*min-width\s*:\s*0[\s\S]*min-height\s*:[\s\S]*margin\s*:\s*0/,
     )
+    expect(wxss).toMatch(/\.officer-action-sheet__close\s*\{[\s\S]*margin:\s*0/)
+    expect(wxss).toMatch(/\.officer-action-sheet__action\s*\{[\s\S]*margin:\s*0/)
     expect(wxss).toMatch(/\.officer-action-sheet__mask\s*\{[\s\S]*position\s*:\s*fixed/)
     expect(wxss).toMatch(
       /\.officer-action-sheet__panel\s*\{[\s\S]*max-height\s*:\s*82vh[\s\S]*overflow\s*:\s*hidden/,
@@ -720,6 +725,9 @@ describe('Task 4 技能選擇共享元件契約', () => {
     const wxss = readSkillPickerFile('index.wxss')
 
     expect(wxss).toMatch(
+      /\.skill-picker-sheet__dismiss,\s*\.skill-picker-sheet__tab,\s*\.skill-picker-sheet__select\s*\{[\s\S]*margin:\s*0/,
+    )
+    expect(wxss).toMatch(
       /\.skill-picker-sheet--inline\s+\.skill-picker-sheet__tab\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0\s+var\(--uwo-space-1\)/,
     )
     expect(wxss).toMatch(
@@ -828,6 +836,10 @@ describe('Task 5 方案預覽共享元件契約', () => {
   it('使用 P3 Sheet、按鈕、長文字與安全區規範', () => {
     const wxss = readResultPreviewFile('index.wxss')
 
+    expect(wxss).toMatch(/\.result-preview-sheet__close\s*\{[\s\S]*margin:\s*0/)
+    expect(wxss).toMatch(/\.result-preview-sheet__action\s*\{[\s\S]*margin:\s*0/)
+    expect(wxss).toMatch(/\.result-preview-sheet__undo-action\s*\{[\s\S]*margin:\s*0/)
+    expect(wxss).toMatch(/\.result-preview-sheet__undo-close\s*\{[\s\S]*margin:\s*0/)
     expect(wxss).toContain('var(--uwo-radius-sheet)')
     expect(wxss).toContain('var(--uwo-shadow-sheet)')
     expect(wxss).toMatch(/padding(?:-bottom)?\s*:\s*calc\([^;]*env\(safe-area-inset-bottom\)\)/)

@@ -27,6 +27,7 @@
   width: 64rpx;
   min-width: 64rpx;
   min-height: 64rpx;
+  margin: 0;
   align-items: center;
   justify-content: center;
   padding: 0;

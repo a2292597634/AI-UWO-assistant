@@ -701,14 +701,14 @@ describe('battle fleet target controls', () => {
     expect(fleetWxml).toMatch(
       /<button class="target-row__remove"[^>]*bindtap="onRemoveTarget"[^>]*aria-label="刪除\{\{item\.skillName\}\}目標"[^>]*>\s*<text aria-hidden="true">×<\/text>/,
     )
-    expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*min-height:\s*64rpx/)
+    expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*width:\s*100%[\s\S]*min-height:\s*64rpx/)
     expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
     expect(fleetWxss).toMatch(/\.target-row__controls\s*\{[\s\S]*gap:\s*var\(--uwo-space-1\)/)
     expect(fleetWxss).toMatch(
-      /\.target-row__controls\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
+      /\.target-row__controls\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto[\s\S]*margin-right:\s*0/,
     )
     expect(fleetWxss).toMatch(
-      /\.target-row__remove\s*\{[\s\S]*width:\s*48rpx[\s\S]*height:\s*48rpx[\s\S]*min-width:\s*48rpx[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent[\s\S]*color:\s*var\(--uwo-color-danger\)/,
+      /\.target-row__remove\s*\{[\s\S]*width:\s*48rpx[\s\S]*height:\s*48rpx[\s\S]*min-width:\s*48rpx[\s\S]*min-height:\s*48rpx[\s\S]*margin:\s*0[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent[\s\S]*color:\s*var\(--uwo-color-danger\)/,
     )
     expect(skillPickerWxss).toMatch(
       /\.skill-picker-sheet--inline \.skill-picker-sheet__tab\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0 var\(--uwo-space-1\);/,

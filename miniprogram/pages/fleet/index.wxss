@@ -56,6 +56,7 @@
   justify-content: center;
   width: 100%;
   min-height: 88rpx;
+  margin: 0;
   text-align: center;
 }
 
@@ -306,6 +307,7 @@
 
 .target-row {
   display: flex;
+  width: 100%;
   min-height: 64rpx;
   align-items: center;
   padding: var(--uwo-space-2) 0;
@@ -325,6 +327,7 @@
   align-items: center;
   gap: var(--uwo-space-1);
   margin-left: auto;
+  margin-right: 0;
 }
 
 .target-row__icon,

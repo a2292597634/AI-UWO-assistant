@@ -93,6 +93,7 @@
   width: 64rpx;
   min-width: 64rpx;
   min-height: 64rpx;
+  margin: 0;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -192,6 +193,7 @@
   justify-content: center;
   min-width: 0;
   min-height: 88rpx;
+  margin: 0;
   flex: 1 1 auto;
   padding: var(--uwo-space-2) var(--uwo-space-4);
   border: 2rpx solid var(--uwo-color-border-strong);
