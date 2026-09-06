@@ -1,5 +1,3 @@
 interface IAppOption {
-  globalData: {
-    datasetVersion: string | null
-  }
+  globalData: Record<string, unknown>
 }

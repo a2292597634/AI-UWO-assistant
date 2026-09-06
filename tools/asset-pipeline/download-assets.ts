@@ -29,7 +29,18 @@ export const ASSET_STAGING_DIR = 'data/assets/staging'
 const ASSETS_DIR = ASSET_STAGING_DIR
 const SOURCE_MANIFEST_PATH = 'data/assets/source-asset-manifest.json'
 const BATCH_SIZE = 8 // concurrent downloads
-const _BATCH_DELAY_MS = 100 // delay between batches
+const BATCH_DELAY_MS = 100
+const BATCH_DELAY_JITTER_MS = 50
+export const ASSET_DOWNLOAD_USER_AGENT = 'uwo-assistant-asset-pipeline/1.0'
+
+export interface DownloadAssetsOptions {
+  fetcher?: typeof fetch
+  sleep?: (milliseconds: number) => Promise<void>
+  random?: () => number
+  batchDelayMs?: number
+  batchDelayJitterMs?: number
+  userAgent?: string
+}
 
 // ── URL construction ──
 
@@ -70,9 +81,15 @@ interface AssetManifestEntry {
 
 const sha256Hex = (buffer: Buffer): string => createHash('sha256').update(buffer).digest('hex')
 
-const downloadOne = async (entry: AssetEntry): Promise<DownloadResult> => {
+const downloadOne = async (
+  entry: AssetEntry,
+  fetcher: typeof fetch,
+  userAgent: string,
+): Promise<DownloadResult> => {
   try {
-    const response = await fetch(entry.url)
+    const response = await fetcher(entry.url, {
+      headers: { 'user-agent': userAgent },
+    })
     if (response.status !== 200) {
       return {
         sourceId: entry.sourceId,
@@ -110,7 +127,23 @@ const downloadOne = async (entry: AssetEntry): Promise<DownloadResult> => {
 export const downloadAssets = async (
   entries: AssetEntry[],
   existingManifest?: AssetManifestEntry[],
+  options: DownloadAssetsOptions = {},
 ): Promise<AssetManifestEntry[]> => {
+  const fetcher = options.fetcher ?? fetch
+  const sleep =
+    options.sleep ??
+    ((milliseconds: number) =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, milliseconds)
+      }))
+  const random = options.random ?? Math.random
+  const batchDelayMs = Math.max(0, Math.floor(options.batchDelayMs ?? BATCH_DELAY_MS))
+  const batchDelayJitterMs = Math.max(
+    0,
+    Math.floor(options.batchDelayJitterMs ?? BATCH_DELAY_JITTER_MS),
+  )
+  const userAgent = options.userAgent ?? ASSET_DOWNLOAD_USER_AGENT
+
   mkdirSync(ASSETS_DIR, { recursive: true })
 
   const existing = new Map((existingManifest ?? []).map((e) => [e.canonicalId, e]))
@@ -133,7 +166,7 @@ export const downloadAssets = async (
   // Download in batches
   for (let i = 0; i < toDownload.length; i += BATCH_SIZE) {
     const batch = toDownload.slice(i, i + BATCH_SIZE)
-    const results = await Promise.all(batch.map(downloadOne))
+    const results = await Promise.all(batch.map((entry) => downloadOne(entry, fetcher, userAgent)))
 
     for (let j = 0; j < batch.length; j++) {
       const entry = batch[j]!
@@ -158,6 +191,12 @@ export const downloadAssets = async (
 
     const pct = Math.round(((i + batch.length) / toDownload.length) * 100)
     process.stdout.write(`\r  Downloading... ${pct}% (${downloaded} ok, ${skipped} cached)`)
+
+    if (i + batch.length < toDownload.length) {
+      const randomValue = Math.min(Math.max(random(), 0), 1)
+      const jitter = Math.floor(randomValue * (batchDelayJitterMs + 1))
+      await sleep(batchDelayMs + jitter)
+    }
   }
 
   console.log(
