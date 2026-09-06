@@ -1,5 +1,10 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
-import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../import/types'
+import type {
+  CanonicalDatasetHeader,
+  CanonicalOfficer,
+  CanonicalSkill,
+  DictionaryItem,
+} from '../import/types'
 import type { AssetDependencyIndex } from './asset-dependencies'
 import type {
   RuntimeCatalogEntry,
@@ -17,6 +22,11 @@ export interface RuntimeAssetUrlManifest {
   cloudPathPrefix?: string
   assets: Array<{ filename: string; publicUrl: string }>
 }
+
+export type RuntimeDatasetMetaInput = Pick<
+  CanonicalDatasetHeader,
+  'contentVersion' | 'updatedAt' | 'sourceSnapshot'
+>
 
 // ── Helpers ──
 
@@ -531,8 +541,15 @@ export const writeRuntimeData = (
   globalFallback?: string,
   dependencies?: AssetDependencyIndex,
   manifest?: RuntimeAssetUrlManifest,
+  datasetMeta?: RuntimeDatasetMetaInput,
 ): void => {
   mkdirSync(outputDir, { recursive: true })
+
+  const resolvedDatasetMeta = datasetMeta ?? {
+    contentVersion: manifest?.contentVersion ?? '1.0.0',
+    updatedAt: 'unknown',
+    sourceSnapshot: 'unknown',
+  }
 
   const catalog = buildCatalog(officers, skills, dictionaries, dependencies, manifest)
   const fleetOfficers = buildFleetOfficers(officers, skills, dictionaries, dependencies, manifest)
@@ -558,7 +575,9 @@ export const writeRuntimeData = (
   write('dataset-meta', {
     officerCount: catalog.length,
     skillCount: Object.keys(runtimeSkills).length,
-    contentVersion: manifest?.contentVersion ?? '1.0.0',
+    contentVersion: resolvedDatasetMeta.contentVersion,
+    updatedAt: resolvedDatasetMeta.updatedAt,
+    sourceSnapshot: resolvedDatasetMeta.sourceSnapshot,
   })
   // Note: sharded details-*.js files are written separately to the detail subpackage
 

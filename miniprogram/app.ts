@@ -1,9 +1,7 @@
 import { CLOUDBASE_ENV_ID } from './runtime/cloudbase-config'
 
 App({
-  globalData: {
-    datasetVersion: null as string | null,
-  },
+  globalData: {},
 
   onLaunch() {
     if (wx.cloud) {

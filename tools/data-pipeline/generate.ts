@@ -12,7 +12,7 @@ import {
   writeAssetDependencyIndex,
 } from './asset-dependencies'
 import { writeTradeRuntimeData } from './build-trade-runtime-data'
-import type { CanonicalTradeDataset } from '../import/types'
+import type { CanonicalDatasetHeader, CanonicalTradeDataset } from '../import/types'
 import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
 import { loadCanonicalOfficers } from './load-officers'
 import { buildOfficerReferenceData } from './build-officer-reference-data'
@@ -42,6 +42,7 @@ const generate = (): void => {
 
   console.log(`Reading canonical data from ${CANONICAL_DIR}/...`)
   const officers = loadCanonicalOfficers(CANONICAL_DIR)
+  const datasetMeta = readJson<CanonicalDatasetHeader>(`${CANONICAL_DIR}/dataset.json`)
   const skills = readJson<CanonicalSkill[]>(`${CANONICAL_DIR}/skills.json`)
   const dictionaries = readJson<Record<string, DictionaryItem[]>>(
     `${CANONICAL_DIR}/dictionaries.json`,
@@ -82,6 +83,11 @@ const generate = (): void => {
     undefined,
     assetDependencies,
     publishedManifest,
+    {
+      contentVersion: datasetMeta.contentVersion,
+      updatedAt: datasetMeta.updatedAt,
+      sourceSnapshot: datasetMeta.sourceSnapshot,
+    },
   )
   writeAssetDependencyIndex(assetDependencies, ASSET_DEPENDENCY_PATH)
 
