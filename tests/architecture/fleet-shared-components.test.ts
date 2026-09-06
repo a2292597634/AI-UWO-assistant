@@ -360,10 +360,13 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
     )
     expect(wxss).toMatch(
+      /\.config-bar__summary\s*\{[\s\S]*width:\s*100%[\s\S]*justify-content:\s*space-between/,
+    )
+    expect(wxss).toMatch(
       /\.config-bar__summary-copy\s*\{[\s\S]*min-width:\s*0[\s\S]*flex:\s*1\s+1\s+auto/,
     )
     expect(wxss).toMatch(
-      /\.config-bar__summary-meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
+      /\.config-bar__summary-meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*0/,
     )
     expect(wxss).toMatch(/\.config-bar__button\s*\{[\s\S]*margin:\s*0/)
     expect(wxss).toMatch(
@@ -433,13 +436,16 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       /\.disclosure-section__header\s*\{[\s\S]*display:\s*flex[\s\S]*padding:\s*0\s+var\(--uwo-space-4\)/,
     )
     expect(wxss).toMatch(
+      /\.disclosure-section__header\s*\{[\s\S]*width:\s*100%[\s\S]*justify-content:\s*space-between/,
+    )
+    expect(wxss).toMatch(
       /\.disclosure-section__copy\s*\{[\s\S]*align-items:\s*flex-start[\s\S]*text-align:\s*left/,
     )
     expect(wxss).toMatch(
       /\.disclosure-section__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*border-radius:\s*0[\s\S]*background:\s*transparent/,
     )
     expect(wxss).toMatch(
-      /\.disclosure-section__meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto/,
+      /\.disclosure-section__meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*0/,
     )
     expect(wxss).toMatch(
       /\.disclosure-section__icon\s*\{[\s\S]*width:\s*64rpx[\s\S]*height:\s*64rpx[\s\S]*transform:\s*scale\(3\)/,

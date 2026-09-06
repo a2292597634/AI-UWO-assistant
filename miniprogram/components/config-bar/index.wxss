@@ -12,7 +12,9 @@
 
 .config-bar__summary {
   display: flex;
+  width: 100%;
   align-items: center;
+  justify-content: space-between;
   gap: var(--uwo-space-2);
   min-height: 64rpx;
   min-width: 0;
@@ -35,7 +37,7 @@
 .config-bar__summary-meta {
   flex: 0 0 auto;
   gap: var(--uwo-space-2);
-  margin-left: auto;
+  margin-left: 0;
 }
 
 .config-bar__title,

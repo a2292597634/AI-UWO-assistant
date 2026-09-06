@@ -310,6 +310,7 @@
   width: 100%;
   min-height: 64rpx;
   align-items: center;
+  justify-content: space-between;
   padding: var(--uwo-space-2) 0;
   border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
@@ -326,7 +327,7 @@
   flex: 0 0 auto;
   align-items: center;
   gap: var(--uwo-space-1);
-  margin-left: auto;
+  margin-left: 0;
   margin-right: 0;
 }
 
