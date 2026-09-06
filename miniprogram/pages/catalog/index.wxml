@@ -132,7 +132,7 @@
       <view class="catalog-page__filter-section">
         <text class="catalog-page__filter-section-title">稀有度</text>
         <view class="catalog-page__filter-options catalog-page__filter-options--icons">
-          <view wx:for="{{rarities}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedRarityMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleDraftFilter" data-field="selectedRarities" data-id="{{item.id}}">
+          <view wx:for="{{rarities}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedRarityMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" aria-checked="{{draftSelectedRarityMap[item.id] ? 'true' : 'false'}}" bindtap="toggleDraftFilter" data-field="selectedRarities" data-id="{{item.id}}">
             <image class="catalog-page__filter-icon catalog-page__filter-icon--rarity" src="{{item.iconPath}}" mode="aspectFit" />
             <text class="catalog-page__filter-icon-label">{{item.name}}</text>
           </view>
@@ -142,7 +142,7 @@
       <view class="catalog-page__filter-section">
         <text class="catalog-page__filter-section-title">類型</text>
         <view class="catalog-page__filter-options catalog-page__filter-options--icons">
-          <view wx:for="{{types}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedTypeMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleDraftFilter" data-field="selectedTypes" data-id="{{item.id}}">
+          <view wx:for="{{types}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedTypeMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" aria-checked="{{draftSelectedTypeMap[item.id] ? 'true' : 'false'}}" bindtap="toggleDraftFilter" data-field="selectedTypes" data-id="{{item.id}}">
             <image class="catalog-page__filter-icon catalog-page__filter-icon--type" src="{{item.iconPath}}" mode="aspectFit" />
             <text class="catalog-page__filter-icon-label">{{item.name}}</text>
           </view>
@@ -152,7 +152,7 @@
       <view class="catalog-page__filter-section">
         <text class="catalog-page__filter-section-title">性別</text>
         <view class="catalog-page__filter-options catalog-page__filter-options--icons">
-          <view wx:for="{{genders}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedGenderMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" bindtap="toggleDraftFilter" data-field="selectedGenders" data-id="{{item.id}}">
+          <view wx:for="{{genders}}" wx:key="id" class="catalog-page__filter-icon-option {{draftSelectedGenderMap[item.id] ? 'catalog-page__filter-icon-option--active' : ''}}" role="button" aria-label="{{item.accessibilityLabel}}" aria-checked="{{draftSelectedGenderMap[item.id] ? 'true' : 'false'}}" bindtap="toggleDraftFilter" data-field="selectedGenders" data-id="{{item.id}}">
             <image class="catalog-page__filter-icon catalog-page__filter-icon--gender" src="{{item.iconPath}}" mode="aspectFit" />
             <text class="catalog-page__filter-icon-label">{{item.name}}</text>
           </view>
@@ -162,14 +162,7 @@
       <view class="catalog-page__filter-section">
         <text class="catalog-page__filter-section-title">語言</text>
         <view class="catalog-page__filter-options">
-          <view wx:for="{{languages}}" wx:key="id" class="catalog-page__chip {{draftSelectedLanguageMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
-        </view>
-      </view>
-
-      <view class="catalog-page__filter-section">
-        <text class="catalog-page__filter-section-title">職業</text>
-        <view class="catalog-page__filter-options">
-          <view wx:for="{{jobs}}" wx:key="id" class="catalog-page__chip {{draftSelectedJobMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftFilter" data-field="selectedJobs" data-id="{{item.id}}">{{item.name}}</view>
+          <view wx:for="{{languages}}" wx:key="id" class="catalog-page__chip {{draftSelectedLanguageMap[item.id] ? 'catalog-page__chip--active' : ''}}" role="button" aria-label="{{item.name}}" aria-checked="{{draftSelectedLanguageMap[item.id] ? 'true' : 'false'}}" bindtap="toggleDraftFilter" data-field="selectedLanguages" data-id="{{item.id}}">{{item.name}}</view>
         </view>
       </view>
 
@@ -181,7 +174,7 @@
           <view class="catalog-page__skill-kind {{draftActiveFilter === 'passive' ? 'catalog-page__skill-kind--active' : ''}}" bindtap="onDraftSkillKindTap" data-kind="passive">被動</view>
         </view>
         <view class="catalog-page__filter-options">
-          <view wx:for="{{skillCategories}}" wx:key="id" class="catalog-page__chip {{draftSelectedSkillCategoryMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
+          <view wx:for="{{skillCategories}}" wx:key="id" class="catalog-page__chip {{draftSelectedSkillCategoryMap[item.id] ? 'catalog-page__chip--active' : ''}}" role="button" aria-label="{{item.name}}" aria-checked="{{draftSelectedSkillCategoryMap[item.id] ? 'true' : 'false'}}" bindtap="toggleDraftSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
         </view>
       </view>
       </block>
@@ -199,7 +192,7 @@
         <view class="catalog-page__filter-section">
           <text class="catalog-page__filter-section-title">技能分類</text>
           <view class="catalog-page__filter-options">
-            <view wx:for="{{skillCategories}}" wx:key="id" class="catalog-page__chip {{draftSkillCheckCategoryMap[item.id] ? 'catalog-page__chip--active' : ''}}" bindtap="toggleDraftSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
+            <view wx:for="{{skillCategories}}" wx:key="id" class="catalog-page__chip {{draftSkillCheckCategoryMap[item.id] ? 'catalog-page__chip--active' : ''}}" role="button" aria-label="{{item.name}}" aria-checked="{{draftSkillCheckCategoryMap[item.id] ? 'true' : 'false'}}" bindtap="toggleDraftSkillCategory" data-id="{{item.id}}">{{item.name}}</view>
           </view>
         </view>
       </block>

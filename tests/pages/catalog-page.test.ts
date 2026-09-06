@@ -367,13 +367,45 @@ describe('catalog touch target markup contracts', () => {
     expect(catalogWxml).toContain('bindtap="applyDraftFilters"')
     expect(catalogWxml).toContain('bindtap="clearDraftFilters"')
     expect(catalogWxml).toContain('data-field="selectedLanguages"')
-    expect(catalogWxml).toContain('data-field="selectedJobs"')
+    expect(catalogWxml).not.toContain('職業')
+    expect(catalogWxml).not.toContain('selectedJobs')
+    expect(catalogWxml).not.toContain('wx:for="{{jobs}}"')
+    expect(catalogWxml).not.toContain('draftSelectedJob')
     expect(catalogWxml).toContain('data-field="selectedRarities"')
     expect(catalogWxml).toContain('data-field="selectedTypes"')
     expect(catalogWxml).toContain('data-field="selectedGenders"')
     expect(catalogWxml).toContain('bindtap="toggleDraftSkillCategory"')
     expect(catalogWxml).not.toContain('bindtap="onSkillCheckKindTap"')
     expect(catalogWxml).not.toContain('bindtap="onSkillCheckCategoryTap"')
+  })
+
+  it('provides accessible state semantics for retained multi-select filters', () => {
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="{{item.accessibilityLabel}}" aria-checked="{{draftSelectedRarityMap[item.id] ? \'true\' : \'false\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="{{item.accessibilityLabel}}" aria-checked="{{draftSelectedTypeMap[item.id] ? \'true\' : \'false\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="{{item.accessibilityLabel}}" aria-checked="{{draftSelectedGenderMap[item.id] ? \'true\' : \'false\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="{{item.name}}" aria-checked="{{draftSelectedLanguageMap[item.id] ? \'true\' : \'false\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="{{item.name}}" aria-checked="{{draftSelectedSkillCategoryMap[item.id] ? \'true\' : \'false\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="{{item.name}}" aria-checked="{{draftSkillCheckCategoryMap[item.id] ? \'true\' : \'false\'}}"',
+    )
+  })
+
+  it('does not expose the removed occupation options in page data', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+    expect(page.data).not.toHaveProperty('jobs')
+    expect(page.data).not.toHaveProperty('selectedJobs')
+    expect(page.data).not.toHaveProperty('draftSelectedJobMap')
   })
 
   it('keeps officer rows, skill hit targets, image fallbacks and navigation handlers', () => {

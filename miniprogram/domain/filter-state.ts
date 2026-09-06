@@ -16,7 +16,6 @@ export function createEmptyFilterState(): CatalogFilterState {
     selectedTypes: [],
     selectedGenders: [],
     selectedLanguages: [],
-    selectedJobs: [],
     selectedSkillCategories: [],
     activeFilter: 'all',
     selectedSkillId: null,
@@ -32,7 +31,6 @@ export function hasActiveFilters(state: Readonly<CatalogFilterState>): boolean {
     state.selectedTypes.length > 0 ||
     state.selectedGenders.length > 0 ||
     state.selectedLanguages.length > 0 ||
-    state.selectedJobs.length > 0 ||
     state.selectedSkillCategories.length > 0 ||
     state.selectedSkillId !== null ||
     state.activeFilter !== 'all' ||

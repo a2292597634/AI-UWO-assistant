@@ -42,7 +42,6 @@ export type CatalogFilterField =
   | 'selectedTypes'
   | 'selectedGenders'
   | 'selectedLanguages'
-  | 'selectedJobs'
   | 'selectedSkillCategories'
 
 /** Validate that a field name is a known catalog filter field. */
@@ -52,7 +51,6 @@ export function isCatalogFilterField(value: string): value is CatalogFilterField
     'selectedTypes',
     'selectedGenders',
     'selectedLanguages',
-    'selectedJobs',
     'selectedSkillCategories',
   ]
   return known.indexOf(value) >= 0

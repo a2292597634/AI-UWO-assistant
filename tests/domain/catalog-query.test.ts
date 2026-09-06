@@ -77,7 +77,6 @@ const emptyState: CatalogFilterState = {
   selectedTypes: [],
   selectedGenders: [],
   selectedLanguages: [],
-  selectedJobs: [],
   selectedSkillCategories: [],
   activeFilter: 'all',
   selectedSkillId: null,
@@ -189,22 +188,6 @@ describe('queryCatalog', () => {
     const result = queryCatalog(catalog, makeSkills(), state)
     expect(result).toHaveLength(1)
     expect(result[0]!.id).toBe('001')
-  })
-
-  // ── Job (OR) ──
-
-  it('filters by job — OR logic', () => {
-    const catalog = [
-      makeEntry('001', { jobId: 'job_a' }),
-      makeEntry('002', { jobId: 'job_b' }),
-      makeEntry('003', { jobId: 'job_c' }),
-    ]
-    const state: CatalogFilterState = {
-      ...emptyState,
-      selectedJobs: ['job_a', 'job_c'],
-    }
-    const result = queryCatalog(catalog, makeSkills(), state)
-    expect(result).toHaveLength(2)
   })
 
   // ── Cross-filter: AND between different categories ──

@@ -19,9 +19,9 @@ describe('createEmptyFilterState', () => {
     expect(state.selectedTypes).toEqual([])
     expect(state.selectedGenders).toEqual([])
     expect(state.selectedLanguages).toEqual([])
-    expect(state.selectedJobs).toEqual([])
     expect(state.selectedSkillCategories).toEqual([])
     expect(state.activeFilter).toBe('all')
+    expect(state).not.toHaveProperty('selectedJobs')
   })
 })
 
@@ -47,11 +47,6 @@ describe('hasActiveFilters', () => {
 
   it('returns true when language is selected', () => {
     const state = { ...createEmptyFilterState(), selectedLanguages: ['lang10'] }
-    expect(hasActiveFilters(state)).toBe(true)
-  })
-
-  it('returns true when job is selected', () => {
-    const state = { ...createEmptyFilterState(), selectedJobs: ['job_a'] }
     expect(hasActiveFilters(state)).toBe(true)
   })
 

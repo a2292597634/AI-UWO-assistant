@@ -109,7 +109,6 @@ interface PageData extends CatalogViewMaps {
   genders: FilterOption[]
   skillCategories: { id: string; name: string }[]
   languages: { id: string; name: string }[]
-  jobs: { id: string; name: string }[]
   // 篩選狀態欄位
   activeFilter: SkillKindFilter
   selectedRarities: string[]
@@ -117,7 +116,6 @@ interface PageData extends CatalogViewMaps {
   selectedGenders: string[]
   selectedSkillCategories: string[]
   selectedLanguages: string[]
-  selectedJobs: string[]
   selectedSkillId: string | null
   searchText: string
   filterSheetOpen: boolean
@@ -129,13 +127,11 @@ interface PageData extends CatalogViewMaps {
   draftSelectedTypes: string[]
   draftSelectedGenders: string[]
   draftSelectedLanguages: string[]
-  draftSelectedJobs: string[]
   draftSelectedSkillCategories: string[]
   draftSelectedRarityMap: Record<string, boolean>
   draftSelectedTypeMap: Record<string, boolean>
   draftSelectedGenderMap: Record<string, boolean>
   draftSelectedLanguageMap: Record<string, boolean>
-  draftSelectedJobMap: Record<string, boolean>
   draftSelectedSkillCategoryMap: Record<string, boolean>
   draftSkillCheckKind: SkillCheckKind
   draftSkillCheckCategoryMap: Record<string, boolean>
@@ -166,7 +162,6 @@ const cloneFilterState = (state: Readonly<CatalogFilterState>): CatalogFilterSta
   selectedTypes: [...state.selectedTypes],
   selectedGenders: [...state.selectedGenders],
   selectedLanguages: [...state.selectedLanguages],
-  selectedJobs: [...state.selectedJobs],
   selectedSkillCategories: [...state.selectedSkillCategories],
   activeFilter: state.activeFilter,
   selectedSkillId: state.selectedSkillId,
@@ -186,13 +181,11 @@ const buildDraftFilterData = (
     draftSelectedTypes: draft.selectedTypes,
     draftSelectedGenders: draft.selectedGenders,
     draftSelectedLanguages: draft.selectedLanguages,
-    draftSelectedJobs: draft.selectedJobs,
     draftSelectedSkillCategories: draft.selectedSkillCategories,
     draftSelectedRarityMap: maps.selectedRarityMap,
     draftSelectedTypeMap: maps.selectedTypeMap,
     draftSelectedGenderMap: maps.selectedGenderMap,
     draftSelectedLanguageMap: maps.selectedLanguageMap,
-    draftSelectedJobMap: maps.selectedJobMap,
     draftSelectedSkillCategoryMap: maps.selectedSkillCategoryMap,
   }
 }
@@ -281,7 +274,6 @@ const initializeCatalogPage = (
         genders: buildCatalogFilterOptions(dicts.genders, 'gender'),
         skillCategories: dicts.skillCategories,
         languages: dicts.languages,
-        jobs: dicts.jobs,
         activeFilter: state._filterState.activeFilter,
         selectedSkillId: state._filterState.selectedSkillId,
         // 技能清單
@@ -318,7 +310,6 @@ Page({
     genders: [],
     skillCategories: [],
     languages: [],
-    jobs: [],
     sheetSkill: null,
     // 篩選狀態
     activeFilter: 'all',
@@ -327,7 +318,6 @@ Page({
     selectedGenders: [],
     selectedSkillCategories: [],
     selectedLanguages: [],
-    selectedJobs: [],
     selectedSkillId: null,
     searchText: '',
     filterSheetOpen: false,
@@ -339,13 +329,11 @@ Page({
     draftSelectedTypes: [],
     draftSelectedGenders: [],
     draftSelectedLanguages: [],
-    draftSelectedJobs: [],
     draftSelectedSkillCategories: [],
     draftSelectedRarityMap: {},
     draftSelectedTypeMap: {},
     draftSelectedGenderMap: {},
     draftSelectedLanguageMap: {},
-    draftSelectedJobMap: {},
     draftSelectedSkillCategoryMap: {},
     draftSkillCheckKind: 'all' as SkillCheckKind,
     draftSkillCheckCategoryMap: {},
@@ -354,7 +342,6 @@ Page({
     selectedTypeMap: {},
     selectedGenderMap: {},
     selectedLanguageMap: {},
-    selectedJobMap: {},
     selectedSkillCategoryMap: {},
     // 技能清單
     skillCheckRows: [],
@@ -464,7 +451,6 @@ Page({
       selectedTypes: key === 'selectedTypes' ? (value as string[]) : ps.selectedTypes,
       selectedGenders: key === 'selectedGenders' ? (value as string[]) : ps.selectedGenders,
       selectedLanguages: key === 'selectedLanguages' ? (value as string[]) : ps.selectedLanguages,
-      selectedJobs: key === 'selectedJobs' ? (value as string[]) : ps.selectedJobs,
       selectedSkillCategories:
         key === 'selectedSkillCategories' ? (value as string[]) : ps.selectedSkillCategories,
       activeFilter: key === 'activeFilter' ? (value as SkillKindFilter) : ps.activeFilter,
@@ -500,7 +486,6 @@ Page({
       selectedTypes: nextState.selectedTypes,
       selectedGenders: nextState.selectedGenders,
       selectedLanguages: nextState.selectedLanguages,
-      selectedJobs: nextState.selectedJobs,
       selectedSkillCategories: nextState.selectedSkillCategories,
       selectedSkillId: nextState.selectedSkillId,
       searchText: nextState.searchText,
@@ -672,7 +657,6 @@ Page({
       selectedTypes: [],
       selectedGenders: [],
       selectedLanguages: [],
-      selectedJobs: [],
       selectedSkillCategories: [],
       activeFilter: 'all' as SkillKindFilter,
       searchText: '',
@@ -730,7 +714,6 @@ Page({
       selectedTypes: [],
       selectedGenders: [],
       selectedLanguages: [],
-      selectedJobs: [],
       selectedSkillCategories: [],
       activeFilter: 'all' as SkillKindFilter,
       searchText: '',

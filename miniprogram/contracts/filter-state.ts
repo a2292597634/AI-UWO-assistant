@@ -12,7 +12,6 @@ export interface CatalogFilterState {
   selectedTypes: string[]
   selectedGenders: string[]
   selectedLanguages: string[]
-  selectedJobs: string[]
   selectedSkillCategories: string[]
   activeFilter: SkillKindFilter
   /** Single skill ID for reverse lookup — page should clear category/kind filters when set. */

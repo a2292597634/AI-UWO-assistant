@@ -212,7 +212,7 @@ describe('buildViewMaps', () => {
     expect(maps.selectedTypeMap).toEqual({ type_class_1: true })
     expect(maps.selectedGenderMap).toEqual({})
     expect(maps.selectedLanguageMap).toEqual({})
-    expect(maps.selectedJobMap).toEqual({})
+    expect(maps).not.toHaveProperty('selectedJobMap')
     expect(maps.selectedSkillCategoryMap).toEqual({})
   })
 

@@ -37,7 +37,6 @@ export interface CatalogViewMaps {
   selectedTypeMap: Record<string, boolean>
   selectedGenderMap: Record<string, boolean>
   selectedLanguageMap: Record<string, boolean>
-  selectedJobMap: Record<string, boolean>
   selectedSkillCategoryMap: Record<string, boolean>
 }
 
@@ -51,14 +50,12 @@ export interface CatalogPageData {
   selectedTypes: string[]
   selectedGenders: string[]
   selectedLanguages: string[]
-  selectedJobs: string[]
   selectedSkillCategories: string[]
   searchText: string
   selectedRarityMap: Record<string, boolean>
   selectedTypeMap: Record<string, boolean>
   selectedGenderMap: Record<string, boolean>
   selectedLanguageMap: Record<string, boolean>
-  selectedJobMap: Record<string, boolean>
   selectedSkillCategoryMap: Record<string, boolean>
 }
 
@@ -141,7 +138,6 @@ export function buildViewMaps(state: Readonly<CatalogFilterState>): CatalogViewM
     selectedTypeMap: toMap(state.selectedTypes),
     selectedGenderMap: toMap(state.selectedGenders),
     selectedLanguageMap: toMap(state.selectedLanguages),
-    selectedJobMap: toMap(state.selectedJobs),
     selectedSkillCategoryMap: toMap(state.selectedSkillCategories),
   }
 }
@@ -354,7 +350,6 @@ export function createCatalogPageData(
     selectedTypes: [...state.selectedTypes],
     selectedGenders: [...state.selectedGenders],
     selectedLanguages: [...state.selectedLanguages],
-    selectedJobs: [...state.selectedJobs],
     selectedSkillCategories: [...state.selectedSkillCategories],
     searchText: state.searchText,
     ...maps,
