@@ -75,7 +75,15 @@ const createPageInstance = (): CatalogPageInstance => {
   const instance = Object.create(catalogPage) as CatalogPageInstance
   instance.data = structuredClone(catalogPage.data)
   instance.setData = (update) => {
-    Object.assign(instance.data, update)
+    for (const [key, value] of Object.entries(update)) {
+      const match = /^visibleRows\[(\d+)\]$/.exec(key)
+      if (match) {
+        instance.data.visibleRows[Number(match[1])] =
+          value as CatalogPageData['visibleRows'][number]
+      } else {
+        Object.assign(instance.data, { [key]: value })
+      }
+    }
   }
   return instance
 }
@@ -161,6 +169,28 @@ describe('catalog Page instance isolation', () => {
     await loading
     expect(page.data.visibleRows).toHaveLength(120)
     expect(wxStub.navigateTo).not.toHaveBeenCalled()
+  })
+
+  it('keeps each paginated setData payload below the WeChat data limit', async () => {
+    const page = createPageInstance()
+    const payloadSizes: number[] = []
+    page.setData = (update) => {
+      payloadSizes.push(Buffer.byteLength(JSON.stringify(update), 'utf8'))
+      for (const [key, value] of Object.entries(update)) {
+        const match = /^visibleRows\[(\d+)\]$/.exec(key)
+        if (match) {
+          page.data.visibleRows[Number(match[1])] = value as CatalogPageData['visibleRows'][number]
+        } else {
+          Object.assign(page.data, { [key]: value })
+        }
+      }
+    }
+    await loadCatalogPage(page)
+
+    for (let index = 0; index < 11; index += 1) await page.loadMore()
+
+    expect(page.data.visibleRows).toHaveLength(360)
+    expect(Math.max(...payloadSizes)).toBeLessThan(1024 * 1024)
   })
 
   it('updates search results without asset prefetch navigation', async () => {

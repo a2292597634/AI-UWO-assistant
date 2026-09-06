@@ -18,19 +18,30 @@ interface StoredRecord {
 }
 
 interface Query {
+  skip(count: number): Query
+  limit(count: number): Query
   get(): Promise<{ data: StoredRecord[] }>
   count(): Promise<{ total: number }>
   update(options: { data: Record<string, unknown> }): Promise<{ stats: { updated: number } }>
 }
 
+interface Document {
+  get(): Promise<{ data?: StoredRecord }>
+  set(options: { data: StoredRecord }): Promise<void>
+}
+
 interface Collection {
   where(filter: Record<string, unknown>): Query
+  doc(id: string): Document
   add(options: { data: StoredRecord }): Promise<{ _id: string }>
 }
 
 interface FakeDatabase {
   collection(name: string): Collection
   createCollection(name: string): Promise<void>
+  runTransaction<T>(
+    callback: (transaction: { collection(name: string): Collection }) => Promise<T>,
+  ): Promise<T>
 }
 
 interface OfficerRepository {
@@ -49,20 +60,29 @@ interface OfficerRepository {
     updatedAt: string,
     patch: Record<string, unknown>,
   ): Promise<StoredRecord | null>
+  insertRevisionIfAbsent(record: StoredRecord): Promise<StoredRecord | null>
 }
 
 function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
   const records = new Map<string, StoredRecord>(seed.map((record) => [record._id!, { ...record }]))
   let nextId = records.size
+  const providerPageSize = 2
+  let transactionTail = Promise.resolve()
   const collection: Collection = {
     where(filter) {
       const matches = () =>
         [...records.values()].filter((record) =>
           Object.entries(filter).every(([key, value]) => record[key] === value),
         )
-      return {
+      const makeQuery = (offset = 0, pageSize = providerPageSize): Query => ({
+        skip(count) {
+          return makeQuery(offset + count, pageSize)
+        },
+        limit(count) {
+          return makeQuery(offset, count)
+        },
         async get() {
-          return { data: matches() }
+          return { data: matches().slice(offset, offset + pageSize) }
         },
         async count() {
           return { total: matches().length }
@@ -71,6 +91,17 @@ function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
           const found = matches()
           for (const record of found) Object.assign(record, data)
           return { stats: { updated: found.length } }
+        },
+      })
+      return makeQuery()
+    },
+    doc(id) {
+      return {
+        async get() {
+          return { data: records.get(id) }
+        },
+        async set({ data }) {
+          records.set(id, { ...data, _id: id })
         },
       }
     },
@@ -83,6 +114,21 @@ function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
   return {
     collection: () => collection,
     createCollection: async () => undefined,
+    async runTransaction<T>(
+      callback: (transaction: { collection(name: string): Collection }) => Promise<T>,
+    ) {
+      const previous = transactionTail
+      let release!: () => void
+      transactionTail = new Promise<void>((resolve) => {
+        release = resolve
+      })
+      await previous
+      try {
+        return await callback({ collection: () => collection })
+      } finally {
+        release()
+      }
+    },
   }
 }
 
@@ -110,6 +156,18 @@ describe('Officer custom repository', () => {
     ])
   })
 
+  it('跨越 CloudBase 分頁上限仍返回 owner 的全部投稿', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([
+        record({ _id: 'doc_1', submissionId: 'sub_1' }),
+        record({ _id: 'doc_2', submissionId: 'sub_2' }),
+        record({ _id: 'doc_3', submissionId: 'sub_3' }),
+      ]),
+    )
+
+    await expect(repo.listByOwner('openid_user')).resolves.toHaveLength(3)
+  })
+
   it('revision 或 updatedAt 不匹配时不更新记录', async () => {
     const repo = repositoryModule.createRepository(createFakeDatabase([record()]))
 
@@ -119,6 +177,19 @@ describe('Officer custom repository', () => {
     await expect(
       repo.updateIfRevision('sub_1', 1, '旧时间', { status: 'published' }),
     ).resolves.toBeNull()
+  })
+
+  it('同一 submission revision 的并发插入只允许一个成功', async () => {
+    const repo = repositoryModule.createRepository(createFakeDatabase())
+    const candidate = record({ submissionId: 'sub_cas', revision: 2 })
+
+    const results = await Promise.all([
+      repo.insertRevisionIfAbsent(candidate),
+      repo.insertRevisionIfAbsent(candidate),
+    ])
+
+    expect(results.filter((item) => item !== null)).toHaveLength(1)
+    expect(results.filter((item) => item === null)).toHaveLength(1)
   })
 
   it('按状态筛选不把 pending 混入 approved 列表', async () => {

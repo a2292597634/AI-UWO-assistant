@@ -904,6 +904,87 @@ describe('fleet config lifecycle', () => {
     expect(page.data.expanded).toBe(false)
   })
 
+  it('保存後以服務端回應的 fleetState 作為新的頁面基準', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const serverFleetState = createFleetState()
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'battle-1',
+                  name: '戰鬥配置',
+                  scope: 'battle',
+                  version: 1,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              ],
+            },
+          }
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'loadConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'battle-1',
+                name: '戰鬥配置',
+                scope: 'battle',
+                fleetState: serverFleetState,
+                schemaVersion: 1,
+                version: 1,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        case 'updateConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'battle-1',
+                name: '戰鬥配置',
+                scope: 'battle',
+                fleetState: serverFleetState,
+                schemaVersion: 1,
+                version: 2,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    page.onLoad()
+    await page.onConfigLogin()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    expect(page.data.configStatus).toBe('unsaved')
+
+    await page.onConfigSave()
+
+    expect(page.data.configStatus).toBe('saved')
+    expect(
+      page.data.currentShip.slots.some(
+        (slot: unknown) =>
+          (slot as { officer: { id: string } | null }).officer?.id === 'officer_chast089',
+      ),
+    ).toBe(false)
+  })
+
   it('列表載入錯誤時保持配置模組展開', async () => {
     mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
       if (data.action === 'authenticate') {

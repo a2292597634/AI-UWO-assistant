@@ -39,7 +39,11 @@ import type {
   ConfigModalAction,
   PendingConfigAction,
 } from '../../presenters/config-management-presenter'
-import { MAX_CONFIGS_PER_SCOPE, serializeFleetState } from '../../contracts/fleet-config'
+import {
+  MAX_CONFIGS_PER_SCOPE,
+  serializeFleetState,
+  type FleetConfigRecord,
+} from '../../contracts/fleet-config'
 import { getFleetConfigService, FleetConfigError } from '../../runtime/fleet-config-service'
 import type { FleetConfigService } from '../../runtime/fleet-config-service'
 import type { FleetConfigSummary } from '../../contracts/fleet-config'
@@ -270,6 +274,22 @@ const render = (page: FleetPageLike): void => {
     canUndoProposal: state.undoFleetState !== null,
     configStatus: deriveConfigStatus(state.isDirty, state.activeConfigId ?? ''),
   })
+}
+
+const applySavedConfig = (
+  page: FleetPageLike,
+  state: FleetPageState,
+  record: FleetConfigRecord,
+): void => {
+  state.fleet = record.fleetState
+  state.proposal = null
+  state.undoFleetState = null
+  state.activeConfigId = record.configId
+  state.configName = record.name
+  state.configVersion = record.version
+  markClean(page, state)
+  page.setData({ proposalPreview: null, canUndoProposal: false })
+  render(page)
 }
 
 // ── 全队模式同步 ──
@@ -555,10 +575,7 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
           fleetState: state.fleet,
           force: true,
         })
-        state.activeConfigId = record.configId
-        state.configName = record.name
-        state.configVersion = record.version
-        markClean(page, state)
+        applySavedConfig(page, state, record)
         page.setData({
           activeConfigId: record.configId,
           configName: record.name,
@@ -1065,10 +1082,7 @@ Page({
         fleetState: state.fleet,
         force: false,
       })
-      state.activeConfigId = record.configId
-      state.configName = record.name
-      state.configVersion = record.version
-      markClean(this, state)
+      applySavedConfig(this, state, record)
       this.setData({ configName: record.name, configStatus: 'saved' })
       showError('已保存')
     } catch (e) {
@@ -1148,10 +1162,7 @@ Page({
           return
         }
         const record = await state.configService.saveAsConfig(CONFIG_SCOPE, name, state.fleet)
-        state.activeConfigId = record.configId
-        state.configName = record.name
-        state.configVersion = record.version
-        markClean(this, state)
+        applySavedConfig(this, state, record)
         this.setData({
           activeConfigId: record.configId,
           configName: record.name,
@@ -1196,20 +1207,19 @@ Page({
     void (async () => {
       try {
         if (state.activeConfigId) {
-          await state.configService.updateConfig({
+          const record = await state.configService.updateConfig({
             scope: CONFIG_SCOPE,
             configId: state.activeConfigId,
             expectedVersion: state.configVersion,
             fleetState: state.fleet,
             force: false,
           })
-          state.configVersion = (state.configVersion || 0) + 1
+          applySavedConfig(this, state, record)
         } else {
           this.setData({ showUnsavedGuard: false })
           openNameModal(this, 'saveAs')
           return
         }
-        markClean(this, state)
         showError('已保存')
         resolvePendingAction(this)
       } catch (e) {

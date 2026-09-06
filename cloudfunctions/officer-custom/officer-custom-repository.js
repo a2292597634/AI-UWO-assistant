@@ -6,6 +6,10 @@
  */
 
 const COLLECTION = 'custom_officers'
+const QUERY_PAGE_SIZE = 100
+
+const getRevisionDocumentId = (submissionId, revision) =>
+  `revision_${encodeURIComponent(submissionId)}_${revision}`
 
 const sortNewestFirst = (records) =>
   [...records].sort((left, right) => {
@@ -43,8 +47,14 @@ function createRepository(db) {
 
   async function getAll(filter = {}) {
     await ensureCollection()
-    const result = await collection.where(filter).get()
-    return result.data
+    const records = []
+    let offset = 0
+    while (true) {
+      const result = await collection.where(filter).skip(offset).limit(QUERY_PAGE_SIZE).get()
+      records.push(...result.data)
+      if (result.data.length < QUERY_PAGE_SIZE) return records
+      offset += result.data.length
+    }
   }
 
   /** @param {string} ownerUid */
@@ -89,6 +99,30 @@ function createRepository(db) {
   }
 
   /**
+   * 以 deterministic revision 文件 ID 做一次性插入 CAS，避免并发重提产生
+   * 相同 submissionId + revision 的两笔记录。
+   * @param {object} record
+   * @returns {Promise<object | null>}
+   */
+  async function insertRevisionIfAbsent(record) {
+    await ensureCollection()
+    const existing = await findBySubmissionIdAndRevision(record.submissionId, record.revision)
+    if (existing) return null
+
+    const documentId = getRevisionDocumentId(record.submissionId, record.revision)
+    return db.runTransaction(async (transaction) => {
+      const document = transaction.collection(COLLECTION).doc(documentId)
+      const current = await document.get()
+      if (current?.data) return null
+
+      const { _id: _ignoredId, ...data } = record
+      const stored = { ...data, _id: documentId }
+      await document.set({ data })
+      return stored
+    })
+  }
+
+  /**
    * 以 submissionId、revision 和 updatedAt 做条件更新，避免覆盖较新版本。
    * @param {string} submissionId
    * @param {number} revision
@@ -113,6 +147,7 @@ function createRepository(db) {
     findLatestBySubmissionId,
     countLatestByOwner,
     insert,
+    insertRevisionIfAbsent,
     updateIfRevision,
   }
 }

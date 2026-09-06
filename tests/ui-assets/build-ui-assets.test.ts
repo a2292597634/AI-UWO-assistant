@@ -248,6 +248,41 @@ describe('buildUiAssets', () => {
     expect(readFileSync(join(outputRoot, 'gender-f.png')).byteLength).toBeLessThan(1024)
   })
 
+  it('accepts equivalent decoded pixels when a PNG is re-encoded differently', async () => {
+    const sourceRoot = makeTemporaryDirectory()
+    const outputRoot = makeTemporaryDirectory()
+    const reportPath = join(makeTemporaryDirectory(), 'ui-asset-build-report.json')
+    await createFixtureSources(sourceRoot)
+    const report = await buildUiAssets({ sourceRoot, outputRoot })
+    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`)
+
+    const outputPath = join(outputRoot, 'gender-f.png')
+    const { data, info } = await sharp(readFileSync(outputPath))
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+    const reencoded = await sharp(data, {
+      raw: { width: info.width, height: info.height, channels: info.channels },
+    })
+      .png({ compressionLevel: 0 })
+      .toBuffer()
+    expect(reencoded.equals(readFileSync(outputPath))).toBe(false)
+    writeFileSync(outputPath, reencoded)
+
+    await expect(checkUiAssets({ sourceRoot, outputRoot, reportPath })).resolves.toBeUndefined()
+
+    data[0] ^= 1
+    const changedPixels = await sharp(data, {
+      raw: { width: info.width, height: info.height, channels: info.channels },
+    })
+      .png({ compressionLevel: 0 })
+      .toBuffer()
+    writeFileSync(outputPath, changedPixels)
+    await expect(checkUiAssets({ sourceRoot, outputRoot, reportPath })).rejects.toThrow(
+      'UI_ASSET_OUTPUT_DRIFT: gender-f.png',
+    )
+  })
+
   it('rejects a runtime output directory that contains a stale asset outside the recipe set', async () => {
     const sourceRoot = makeTemporaryDirectory()
     const outputRoot = makeTemporaryDirectory()

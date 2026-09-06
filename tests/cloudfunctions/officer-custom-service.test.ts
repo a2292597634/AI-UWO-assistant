@@ -86,6 +86,18 @@ function createMemoryRepo() {
       records.push(saved)
       return saved
     },
+    async insertRevisionIfAbsent(record: Omit<StoredRecord, '_id'>) {
+      if (
+        records.some(
+          (item) => item.submissionId === record.submissionId && item.revision === record.revision,
+        )
+      ) {
+        return null
+      }
+      const saved = { ...record, _id: `doc_${nextId++}` } as unknown as StoredRecord
+      records.push(saved)
+      return saved
+    },
     async listByOwner(ownerUid: string) {
       return latestBySubmission(ownerUid)
     },
@@ -296,6 +308,36 @@ describe('Officer custom submission service', () => {
       'rejected',
       'resubmitted',
     ])
+  })
+
+  it('並發重提只建立一個新 revision，且每次頭像上傳使用獨立路徑', async () => {
+    const first = await dispatchSubmit()
+    const { submissionId, updatedAt } = first.data
+    await service.dispatch(
+      'reject',
+      { submissionId, revision: 1, updatedAt, rejectReason: '請補正資料' },
+      'openid_admin',
+    )
+
+    const [firstRetry, secondRetry] = await Promise.all([
+      service.dispatch(
+        'resubmit',
+        { submissionId, expectedRevision: 1, ...validPayload() },
+        'openid_user',
+      ),
+      service.dispatch(
+        'resubmit',
+        { submissionId, expectedRevision: 1, ...validPayload() },
+        'openid_user',
+      ),
+    ])
+
+    expect([firstRetry, secondRetry].filter((result) => result.ok)).toHaveLength(1)
+    expect([firstRetry, secondRetry].find((result) => !result.ok)).toMatchObject({
+      code: 'conflict',
+    })
+    const retryPaths = cloud.uploads.slice(1).map((upload) => upload.cloudPath)
+    expect(new Set(retryPaths)).toHaveLength(2)
   })
 
   it('返回投稿详情时不泄露 owner 或审核者 OPENID', async () => {

@@ -55,11 +55,123 @@ function isCollectionAlreadyExistsError(error) {
   )
 }
 
+const OWNER_LOCK_SCOPES = ['battle', 'adventure', 'unclassified']
+
+/**
+ * @param {object} record
+ * @returns {string | null}
+ */
+function getStoredDocumentId(record) {
+  return typeof record?._id === 'string' && record._id ? record._id : null
+}
+
+/**
+ * 建立 owner 鎖文件中的輕量索引。未分類舊記錄也保留在索引內，
+ * 讓刪除與分類不會遺留過期項目。
+ * @param {string} ownerUid
+ * @param {object[]} records
+ * @returns {object}
+ */
+function createOwnerLockState(ownerUid, records = []) {
+  const configs = {
+    battle: [],
+    adventure: [],
+    unclassified: [],
+  }
+
+  for (const record of records) {
+    const recordId = getStoredDocumentId(record)
+    if (recordId === null || typeof record.configId !== 'string') continue
+    configs[getStoredScope(record)].push({
+      configId: record.configId,
+      recordId,
+      normalizedName: getStoredNormalizedName(record),
+    })
+  }
+
+  return { ownerUid, revision: 0, configs }
+}
+
+/**
+ * @param {object | undefined} candidate
+ * @param {string} ownerUid
+ * @param {object} fallback
+ * @returns {object}
+ */
+function normalizeOwnerLockState(candidate, ownerUid, fallback) {
+  const source =
+    candidate && candidate.ownerUid === ownerUid && candidate.configs ? candidate : fallback
+  const configs = {}
+
+  for (const scope of OWNER_LOCK_SCOPES) {
+    const entries = Array.isArray(source?.configs?.[scope]) ? source.configs[scope] : []
+    configs[scope] = entries
+      .filter(
+        (entry) =>
+          entry &&
+          typeof entry.configId === 'string' &&
+          typeof entry.recordId === 'string' &&
+          typeof entry.normalizedName === 'string',
+      )
+      .map((entry) => ({
+        configId: entry.configId,
+        recordId: entry.recordId,
+        normalizedName: entry.normalizedName,
+      }))
+  }
+
+  return {
+    ownerUid,
+    revision: Number.isInteger(source?.revision) ? source.revision : 0,
+    configs,
+  }
+}
+
+/**
+ * @param {object} state
+ * @param {'battle' | 'adventure' | 'unclassified'} scope
+ * @returns {object[]}
+ */
+function getOwnerLockEntries(state, scope) {
+  return state.configs[scope]
+}
+
+/**
+ * @param {object} state
+ * @param {object} record
+ * @param {string} recordId
+ * @returns {void}
+ */
+function upsertOwnerLockEntry(state, record, recordId) {
+  const scope = getStoredScope(record)
+  const entries = getOwnerLockEntries(state, scope)
+  const entry = {
+    configId: record.configId,
+    recordId,
+    normalizedName: getStoredNormalizedName(record),
+  }
+  const existingIndex = entries.findIndex((item) => item.configId === record.configId)
+  if (existingIndex === -1) entries.push(entry)
+  else entries[existingIndex] = entry
+}
+
+/**
+ * @param {object} state
+ * @param {string} configId
+ * @returns {void}
+ */
+function removeOwnerLockEntry(state, configId) {
+  for (const scope of OWNER_LOCK_SCOPES) {
+    state.configs[scope] = state.configs[scope].filter((entry) => entry.configId !== configId)
+  }
+}
+
 /**
  * @param {object} db - CloudBase database instance from cloud.database()
  */
 function createRepository(db) {
   const collection = db.collection(COLLECTION)
+  const ownerLockCollection = db.collection(OWNER_LOCK_COLLECTION)
 
   // Lazy-create the collection on first access
   const collectionReady = new Set()
@@ -75,23 +187,55 @@ function createRepository(db) {
   }
 
   /**
-   * 交易內更新 owner lock 文件。所有需要檢查名稱或數量的寫入都必須
-   * 更新同一份文件，讓同一 owner 的交易在提交時產生寫衝突並自動重試。
-   * @param {object} transaction
+   * 取得 owner 鎖的交易外初始化快照。舊版本的鎖文件沒有 configs 欄位，
+   * 因此需要從 fleet_configs 建立一次索引；真正的寫入仍在交易內完成。
    * @param {string} ownerUid
-   * @returns {Promise<void>}
+   * @returns {Promise<object>}
    */
-  async function touchOwnerLock(transaction, ownerUid) {
-    const lockCollection = transaction.collection(OWNER_LOCK_COLLECTION)
+  async function getOwnerLockSeed(ownerUid) {
     const lockId = getOwnerLockId(ownerUid)
-    const current = await lockCollection.where({ ownerUid }).limit(1).get()
-    const currentRevision = current.data[0]?.revision ?? 0
-    await lockCollection.doc(lockId).set({
-      data: {
-        ownerUid,
-        revision: currentRevision + 1,
-        updatedAt: new Date().toISOString(),
-      },
+    const current = await ownerLockCollection.doc(lockId).get()
+    if (current?.data?.ownerUid === ownerUid && current.data.configs) {
+      return normalizeOwnerLockState(current.data, ownerUid, createOwnerLockState(ownerUid))
+    }
+
+    const existing = await collection.where({ ownerUid }).get()
+    const seed = createOwnerLockState(ownerUid, existing.data)
+    if (Number.isInteger(current?.data?.revision)) seed.revision = current.data.revision
+    return seed
+  }
+
+  /**
+   * 在 owner 鎖文件上執行交易。交易回調只使用 doc/add 操作，避免 CloudBase
+   * 不支援的 transaction.collection().where() 查詢。
+   * @param {string} ownerUid
+   * @param {(context: { transaction: object, configCollection: object, state: object }) => Promise<unknown>} operation
+   * @returns {Promise<unknown>}
+   */
+  async function runOwnerTransaction(ownerUid, operation) {
+    await ensureCollection()
+    await ensureCollection(OWNER_LOCK_COLLECTION)
+    const seed = await getOwnerLockSeed(ownerUid)
+    const lockId = getOwnerLockId(ownerUid)
+
+    return db.runTransaction(async (transaction) => {
+      const lockDoc = transaction.collection(OWNER_LOCK_COLLECTION).doc(lockId)
+      const current = await lockDoc.get()
+      const state = normalizeOwnerLockState(current?.data, ownerUid, seed)
+      const result = await operation({
+        transaction,
+        configCollection: transaction.collection(COLLECTION),
+        state,
+      })
+
+      await lockDoc.set({
+        data: {
+          ...state,
+          revision: state.revision + 1,
+          updatedAt: new Date().toISOString(),
+        },
+      })
+      return result
     })
   }
 
@@ -149,18 +293,21 @@ function createRepository(db) {
    * @returns {Promise<object>}
    */
   async function insert(record) {
-    await ensureCollection()
-    const now = new Date().toISOString()
-    const doc = {
-      ...record,
-      normalizedName: record.normalizedName ?? normalizeStoredName(record.name),
-      createdAt: now,
-      updatedAt: now,
-      lastUsedAt: now,
-      version: 1,
-    }
-    const result = await collection.add({ data: doc })
-    return { ...doc, _id: result._id, configId: doc.configId }
+    return runOwnerTransaction(record.ownerUid, async ({ configCollection, state }) => {
+      const now = new Date().toISOString()
+      const doc = {
+        ...record,
+        normalizedName: record.normalizedName ?? normalizeStoredName(record.name),
+        createdAt: now,
+        updatedAt: now,
+        lastUsedAt: now,
+        version: 1,
+      }
+      const result = await configCollection.add({ data: doc })
+      const stored = { ...doc, _id: result._id, configId: doc.configId }
+      upsertOwnerLockEntry(state, stored, result._id)
+      return stored
+    })
   }
 
   /**
@@ -171,18 +318,9 @@ function createRepository(db) {
    * @returns {Promise<{ok: true, data: object} | {ok: false, code: 'duplicate-name' | 'limit-reached'}>}
    */
   async function insertWithConstraints(record, maxConfigsPerScope) {
-    await ensureCollection()
-    await ensureCollection(OWNER_LOCK_COLLECTION)
-
-    return db.runTransaction(async (transaction) => {
-      await touchOwnerLock(transaction, record.ownerUid)
-      const existing = await transaction
-        .collection(COLLECTION)
-        .where({ ownerUid: record.ownerUid })
-        .get()
-
+    return runOwnerTransaction(record.ownerUid, async ({ configCollection, state }) => {
       const recordScope = getStoredScope(record)
-      const sameScopeRecords = existing.data.filter((item) => getStoredScope(item) === recordScope)
+      const sameScopeRecords = getOwnerLockEntries(state, recordScope)
 
       if (sameScopeRecords.length >= maxConfigsPerScope) {
         return { ok: false, code: 'limit-reached' }
@@ -202,8 +340,10 @@ function createRepository(db) {
         lastUsedAt: now,
         version: 1,
       }
-      const result = await transaction.collection(COLLECTION).add({ data: doc })
-      return { ok: true, data: { ...doc, _id: result._id, configId: doc.configId } }
+      const result = await configCollection.add({ data: doc })
+      const stored = { ...doc, _id: result._id, configId: doc.configId }
+      upsertOwnerLockEntry(state, stored, result._id)
+      return { ok: true, data: stored }
     })
   }
 
@@ -255,25 +395,22 @@ function createRepository(db) {
     normalizedName,
     scope,
   ) {
-    await ensureCollection()
-    await ensureCollection(OWNER_LOCK_COLLECTION)
+    const located = await findByOwnerAndId(ownerUid, configId)
+    const recordId = located && getStoredDocumentId(located)
+    if (!recordId) return { ok: false, code: 'not-found' }
 
-    return db.runTransaction(async (transaction) => {
-      await touchOwnerLock(transaction, ownerUid)
-      const configCollection = transaction.collection(COLLECTION)
-      const result = await configCollection.where({ ownerUid, configId }).limit(1).get()
-      const existing = result.data[0]
+    return runOwnerTransaction(ownerUid, async ({ configCollection, state }) => {
+      const result = await configCollection.doc(recordId).get()
+      const existing = result?.data
 
-      if (!existing) return { ok: false, code: 'not-found' }
+      if (!existing || existing.ownerUid !== ownerUid || existing.configId !== configId) {
+        return { ok: false, code: 'not-found' }
+      }
       if (getStoredScope(existing) !== scope) return { ok: false, code: 'not-found' }
       if (existing.version !== expectedVersion) return { ok: false, code: 'conflict' }
 
-      const allConfigs = await configCollection.where({ ownerUid }).get()
-      const taken = allConfigs.data.some(
-        (item) =>
-          item.configId !== configId &&
-          getStoredScope(item) === scope &&
-          getStoredNormalizedName(item) === normalizedName,
+      const taken = getOwnerLockEntries(state, scope).some(
+        (item) => item.configId !== configId && item.normalizedName === normalizedName,
       )
       if (taken) return { ok: false, code: 'duplicate-name' }
 
@@ -285,9 +422,11 @@ function createRepository(db) {
         version: existing.version + 1,
         updatedAt: now,
       }
-      await configCollection
-        .where({ ownerUid, configId, version: expectedVersion })
-        .update({ data: { name, normalizedName, version: updated.version, updatedAt: now } })
+      const updateResult = await configCollection.doc(recordId).update({
+        data: { name, normalizedName, version: updated.version, updatedAt: now },
+      })
+      if (updateResult?.stats?.updated !== 1) return { ok: false, code: 'conflict' }
+      upsertOwnerLockEntry(state, updated, recordId)
 
       return { ok: true, data: updated }
     })
@@ -309,24 +448,24 @@ function createRepository(db) {
     targetScope,
     maxConfigsPerScope,
   ) {
-    await ensureCollection()
-    await ensureCollection(OWNER_LOCK_COLLECTION)
+    const located = await findByOwnerAndId(ownerUid, configId)
+    const recordId = located && getStoredDocumentId(located)
+    if (!recordId) return { ok: false, code: 'not-found' }
 
-    return db.runTransaction(async (transaction) => {
-      await touchOwnerLock(transaction, ownerUid)
-      const configCollection = transaction.collection(COLLECTION)
-      const result = await configCollection.where({ ownerUid, configId }).limit(1).get()
-      const existing = result.data[0]
+    return runOwnerTransaction(ownerUid, async ({ configCollection, state }) => {
+      const result = await configCollection.doc(recordId).get()
+      const existing = result?.data
 
-      if (!existing) return { ok: false, code: 'not-found' }
+      if (!existing || existing.ownerUid !== ownerUid || existing.configId !== configId) {
+        return { ok: false, code: 'not-found' }
+      }
       if (existing.version !== expectedVersion) return { ok: false, code: 'conflict' }
       if (getStoredScope(existing) !== 'unclassified') {
         return { ok: false, code: 'invalid-state' }
       }
 
-      const allConfigs = await configCollection.where({ ownerUid }).get()
-      const sameScopeRecords = allConfigs.data.filter(
-        (item) => item.configId !== configId && getStoredScope(item) === targetScope,
+      const sameScopeRecords = getOwnerLockEntries(state, targetScope).filter(
+        (item) => item.configId !== configId,
       )
       if (sameScopeRecords.length >= maxConfigsPerScope) {
         return { ok: false, code: 'limit-reached' }
@@ -344,9 +483,12 @@ function createRepository(db) {
         version: existing.version + 1,
         updatedAt: now,
       }
-      await configCollection
-        .where({ ownerUid, configId, version: expectedVersion })
-        .update({ data: { scope: targetScope, version: updated.version, updatedAt: now } })
+      const updateResult = await configCollection.doc(recordId).update({
+        data: { scope: targetScope, version: updated.version, updatedAt: now },
+      })
+      if (updateResult?.stats?.updated !== 1) return { ok: false, code: 'conflict' }
+      removeOwnerLockEntry(state, configId)
+      upsertOwnerLockEntry(state, updated, recordId)
 
       return { ok: true, data: updated }
     })
@@ -360,11 +502,29 @@ function createRepository(db) {
    * @returns {Promise<boolean>}
    */
   async function deleteByOwnerAndId(ownerUid, configId, expectedVersion) {
-    await ensureCollection()
     if (typeof expectedVersion !== 'number') return false
 
-    const result = await collection.where({ ownerUid, configId, version: expectedVersion }).remove()
-    return result?.stats?.removed === 1
+    const located = await findByOwnerAndId(ownerUid, configId)
+    const recordId = located && getStoredDocumentId(located)
+    if (!recordId) return false
+
+    return runOwnerTransaction(ownerUid, async ({ configCollection, state }) => {
+      const result = await configCollection.doc(recordId).get()
+      const existing = result?.data
+      if (
+        !existing ||
+        existing.ownerUid !== ownerUid ||
+        existing.configId !== configId ||
+        existing.version !== expectedVersion
+      ) {
+        return false
+      }
+
+      const removeResult = await configCollection.doc(recordId).remove()
+      if (removeResult?.stats?.removed !== 1) return false
+      removeOwnerLockEntry(state, configId)
+      return true
+    })
   }
 
   /**

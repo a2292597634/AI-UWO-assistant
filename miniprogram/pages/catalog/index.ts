@@ -855,14 +855,18 @@ Page({
     const currentLen = this.data.visibleRows.length
     if (currentLen >= state._filteredAll.length) return Promise.resolve()
 
-    const nextBatch = state._filteredAll.slice(currentLen, currentLen + PAGE_SIZE)
-    const nextVisibleRows = this.data.visibleRows.concat(rowsWithAssetState(nextBatch))
-    this.setData({
+    const nextBatch = rowsWithAssetState(
+      state._filteredAll.slice(currentLen, currentLen + PAGE_SIZE),
+    )
+    const update: Record<string, unknown> = {
       assetLoading: false,
       assetLoadError: null,
-      visibleRows: nextVisibleRows,
       hasMore: currentLen + PAGE_SIZE < state._filteredAll.length,
+    }
+    nextBatch.forEach((row, index) => {
+      update[`visibleRows[${currentLen + index}]`] = row
     })
+    this.setData(update)
     return Promise.resolve()
   },
 

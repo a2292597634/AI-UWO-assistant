@@ -22,9 +22,16 @@ interface QueryResult {
   data: StoredRecord[]
 }
 
+interface FakeDocument {
+  get(): Promise<{ data?: StoredRecord }>
+  set(options: { data: StoredRecord }): Promise<void>
+  update(options: { data: Partial<StoredRecord> }): Promise<{ stats: { updated: number } }>
+  remove(): Promise<{ stats: { removed: number } }>
+}
+
 interface FakeCollection {
   where(filter: Record<string, unknown>): FakeQuery
-  doc(id: string): { set(options: { data: StoredRecord }): Promise<void> }
+  doc(id: string): FakeDocument
   add(options: { data: StoredRecord }): Promise<{ _id: string }>
 }
 
@@ -91,7 +98,9 @@ interface FleetConfigRepository {
   >
 }
 
-function createFakeDatabase(options: { createCollectionError?: unknown } = {}): FakeDatabase {
+function createFakeDatabase(
+  options: { createCollectionError?: unknown; documentUpdateNoop?: boolean } = {},
+): FakeDatabase {
   const collections = new Map<string, Map<string, StoredRecord>>()
   let nextId = 0
   let transactionTail = Promise.resolve()
@@ -104,7 +113,7 @@ function createFakeDatabase(options: { createCollectionError?: unknown } = {}): 
     return created
   }
 
-  const createCollection = (name: string): FakeCollection => {
+  const createCollection = (name: string, inTransaction = false): FakeCollection => {
     const collectionData = getCollectionData(name)
     const makeQuery = (filter: Record<string, unknown>, maxResults?: number): FakeQuery => ({
       limit(count) {
@@ -142,12 +151,29 @@ function createFakeDatabase(options: { createCollectionError?: unknown } = {}): 
 
     return {
       where(filter) {
+        if (inTransaction) {
+          throw new Error('CloudBase transaction does not support where()')
+        }
         return makeQuery(filter)
       },
       doc(id) {
         return {
+          async get() {
+            return { data: collectionData.get(id) }
+          },
           async set({ data: record }) {
             collectionData.set(id, { ...record, _id: id })
+          },
+          async update({ data: patch }) {
+            const record = collectionData.get(id)
+            if (!record) return { stats: { updated: 0 } }
+            if (options.documentUpdateNoop) return { stats: { updated: 0 } }
+            Object.assign(record, patch)
+            return { stats: { updated: 1 } }
+          },
+          async remove() {
+            const removed = collectionData.delete(id)
+            return { stats: { removed: removed ? 1 : 0 } }
           },
         }
       },
@@ -175,7 +201,7 @@ function createFakeDatabase(options: { createCollectionError?: unknown } = {}): 
       await previous
       try {
         return await callback({
-          collection: createCollection,
+          collection: (name) => createCollection(name, true),
         })
       } finally {
         release()
@@ -346,6 +372,27 @@ describe('Fleet config repository optimistic locking', () => {
     await repo.updateIfVersion('owner_a', 'cfg_1', 1, { name: '更新后' })
 
     await expect(repo.deleteByOwnerAndId('owner_a', 'cfg_1', 1)).resolves.toBe(false)
+  })
+
+  it('removes deleted names from the owner lock index', async () => {
+    const repo = createRepository(createFakeDatabase())
+    await expect(
+      repo.insertWithConstraints(makeRecord('owner_a', 'cfg_1', '可重用名稱'), 10),
+    ).resolves.toMatchObject({ ok: true })
+
+    await expect(repo.deleteByOwnerAndId('owner_a', 'cfg_1', 1)).resolves.toBe(true)
+    await expect(
+      repo.insertWithConstraints(makeRecord('owner_a', 'cfg_2', '可重用名稱'), 10),
+    ).resolves.toMatchObject({ ok: true })
+  })
+
+  it('條件更新影響零筆時回報 conflict 而不是成功', async () => {
+    const repo = createRepository(createFakeDatabase({ documentUpdateNoop: true }))
+    await repo.insert(makeRecord('owner_a', 'cfg_1', '配置A'))
+
+    await expect(
+      repo.renameIfVersionAndNameAvailable('owner_a', 'cfg_1', 1, '配置B', '配置B', 'battle'),
+    ).resolves.toEqual({ ok: false, code: 'conflict' })
   })
 
   it('分類舊記錄時檢查版本、scope 上限與名稱唯一性', async () => {

@@ -112,6 +112,9 @@ const toSummary = (record) => ({
 const generateSubmissionId = () =>
   `sub_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`
 
+const generateUploadToken = () =>
+  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+
 const isAdmin = (openid, adminOpenIds) => Boolean(openid && adminOpenIds.has(openid))
 
 const isSyncAuthorized = (token, expectedToken) =>
@@ -356,7 +359,7 @@ const uploadPortrait = async (cloud, payload, submissionId, revision) => {
   if (!validation.ok) return validation
   try {
     const result = await cloud.uploadFile({
-      cloudPath: `officer-submissions/${submissionId}/revision-${revision}.${validation.extension}`,
+      cloudPath: `officer-submissions/${submissionId}/revision-${revision}-${generateUploadToken()}.${validation.extension}`,
       fileContent: buffer,
     })
     if (!result?.fileID) return fail('upload-failed', '頭像上傳失敗，請重試')
@@ -411,7 +414,7 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
     }
     if (!normalized.data.portraitFileId) return fail('invalid-portrait', '請上傳正式版頭像')
     const now = new Date().toISOString()
-    const record = await repo.insert({
+    const recordData = {
       submissionId,
       ownerUid,
       status: 'pending',
@@ -432,7 +435,11 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
       ],
       createdAt: previousRecord?.createdAt ?? now,
       updatedAt: now,
-    })
+    }
+    const record = sourceSubmissionId
+      ? await repo.insertRevisionIfAbsent(recordData)
+      : await repo.insert(recordData)
+    if (!record) return fail('conflict', '投稿已被更新，請重新載入')
     return ok({
       submissionId: record.submissionId,
       revision: record.revision,

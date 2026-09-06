@@ -34,6 +34,7 @@ interface AdventurePageConfig {
   onUndoDismiss(): void
   onOfficerSelect(event: WechatMiniprogram.BaseEvent): void
   onConfigLogin(): Promise<void>
+  onConfigSave(): Promise<void>
   onConfigToggle(): void
   onConfigClassify(event: WechatMiniprogram.BaseEvent): Promise<void>
   onConfigRetry(): Promise<void>
@@ -144,6 +145,82 @@ describe('adventure fleet config lifecycle', () => {
       }),
     )
     expect(page.data.expanded).toBe(false)
+  })
+
+  it('保存後以服務端回應的 fleetState 作為新的頁面基準', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const serverFleetState = createFleetState()
+    adventureMockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'adventure-1',
+                  name: '冒險配置',
+                  scope: 'adventure',
+                  version: 1,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              ],
+            },
+          }
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'loadConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'adventure-1',
+                name: '冒險配置',
+                scope: 'adventure',
+                fleetState: serverFleetState,
+                schemaVersion: 1,
+                version: 1,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        case 'updateConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'adventure-1',
+                name: '冒險配置',
+                scope: 'adventure',
+                fleetState: serverFleetState,
+                schemaVersion: 1,
+                version: 2,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    page.onLoad()
+    await page.onConfigLogin()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    expect(page.data.configStatus).toBe('unsaved')
+
+    await page.onConfigSave()
+
+    expect(page.data.configStatus).toBe('saved')
+    expect(page.data.occupiedCount).toBe(0)
   })
 
   it('列表載入錯誤時保持配置模組展開', async () => {

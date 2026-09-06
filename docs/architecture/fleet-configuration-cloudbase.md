@@ -58,11 +58,13 @@ Create the collection `fleet_configs` in the CloudBase console with the followin
 `configId`、`expectedVersion` 和 `targetScope`，並重新檢查目標類型上限與同 scope 名稱衝突。
 
 為了讓「同 scope 名稱檢查、10 筆上限檢查、寫入」具備原子性，另建立
-`fleet_config_owner_locks` 集合；每個 owner 使用一個穩定文件 ID。`createConfig`、
-`saveAsConfig`、`renameConfig` 和 `classifyConfig` 會在 CloudBase server-side transaction
-內更新該文件，
-再讀取並寫入 `fleet_configs`。交易衝突由 `runTransaction` 重試，故不依賴
-`count -> if -> insert` 的非原子流程。唯一索引是資料庫層的第二道防線。
+`fleet_config_owner_locks` 集合；每個 owner 使用 `owner_${encodeURIComponent(ownerUid)}`
+作為穩定文件 ID。鎖文件的 `configs` 欄位按 `battle`、`adventure`、`unclassified` 保存
+`configId`、底層 `recordId` 與 `normalizedName` 的輕量索引。
+`createConfig`、`saveAsConfig`、`renameConfig`、`classifyConfig` 和刪除操作會在
+CloudBase server-side transaction 內以 `doc()`／`add()` 更新鎖文件與 `fleet_configs`；
+交易外才允許使用 `where()` 建立舊資料的首次索引快照。交易衝突由 `runTransaction`
+重試，故不依賴 `count -> if -> insert` 的非原子流程。唯一索引是資料庫層的第二道防線。
 
 ### Security
 

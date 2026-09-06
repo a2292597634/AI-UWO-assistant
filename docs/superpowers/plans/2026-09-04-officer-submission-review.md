@@ -220,7 +220,7 @@ Expected: FAIL，因为现有 service 只支持 `submit`/`listCustom`，且允�
 
 1. `index.js` 从 `cloud.getWXContext().OPENID` 取得 owner，production service 注入 `reference-data.json`、管理员白名单和同步 token；payload 中的 `ownerUid`、`isAdmin`、`reviewerUid`、`status`、`canonicalData`、`publish` 一律忽略。
 2. `image-validation.js` 解析 PNG signature/IHDR 与 JPEG SOF marker，验证 MIME、实际签名、实际宽高和 `Buffer.byteLength <= 512 * 1024`；头像上传失败返回 `upload-failed`，不写入投稿记录。
-3. `submit` 由服务端生成 `submissionId`，上传头像到 `officer-submissions/<submissionId>/revision-1.<ext>`，保存 `pending`、`revision: 1`、空的 `review`/`publish`/`history` 和规范化 `formData`。
+3. `submit` 由服务端生成 `submissionId`，上传头像到 `officer-submissions/<submissionId>/revision-1-<unique-token>.<ext>`，保存 `pending`、`revision: 1`、空的 `review`/`publish`/`history` 和规范化 `formData`。
 4. `listMine` 和 `loadMine` 必须按服务端 owner 过滤，只返回该 owner 每个 `submissionId` 的最新 revision；旧 revision 只从详情历史查看。
 5. 管理 action 先执行 `isOfficerAdmin(openid)`；非管理员统一返回 `forbidden`，不能依赖前端入口隐藏。
 6. `saveAdmin` 接受人类 `formData` 和 `reviewFields`，由服务端重建 `canonicalData`；审核者可修正 `visualGradeId`、技能 `kind/sourceGroup/slot`、技能等级、解锁等级、字典选择和头像，不能传入任意 Canonical 字段。

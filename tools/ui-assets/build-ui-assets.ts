@@ -35,6 +35,7 @@ export interface UiAssetBuildFile {
   width: number
   height: number
   byteSize: number
+  /** 影像尺寸、通道數與解碼後像素的 SHA-256，不依賴容器編碼細節。 */
   sha256: string
   sourceTransparentBounds: UiAssetTransparentBounds
   outputTransparentBounds?: UiAssetTransparentBounds
@@ -59,7 +60,16 @@ export interface CheckUiAssetsOptions extends BuildUiAssetsOptions {
 
 type BuiltAsset = { recipe: UiAssetRecipe; bytes: Buffer; file: UiAssetBuildFile }
 
-const hash = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex')
+const hashBytes = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex')
+
+const hashDecodedPixels = async (bytes: Buffer): Promise<string> => {
+  const { data, info } = await sharp(bytes)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+  const metadata = Buffer.from(`${info.width}x${info.height}x${info.channels}\0`, 'utf8')
+  return hashBytes(Buffer.concat([metadata, data]))
+}
 
 const budgetError = (message: string): Error => new Error(`UI_ASSET_BUDGET_EXCEEDED: ${message}`)
 
@@ -174,7 +184,7 @@ const buildOne = async (recipe: UiAssetRecipe, sourceRoot: string): Promise<Buil
     width: metadata.width,
     height: metadata.height,
     byteSize: bytes.byteLength,
-    sha256: hash(bytes),
+    sha256: await hashDecodedPixels(bytes),
     sourceTransparentBounds,
     ...(outputTransparentBounds === undefined ? {} : { outputTransparentBounds }),
     ...(trimBounds === undefined ? {} : { trimBounds }),
@@ -271,9 +281,14 @@ export const checkUiAssets = async ({
   try {
     const report = await buildUiAssets({ sourceRoot, outputRoot: temporaryRoot })
     for (const file of report.files) {
-      const expected = readFileSync(join(temporaryRoot, file.output))
       const actualPath = join(outputRoot, file.output)
-      if (!expected.equals(readFileSync(actualPath))) {
+      let actualSha256: string
+      try {
+        actualSha256 = await hashDecodedPixels(readFileSync(actualPath))
+      } catch {
+        throw new Error(`UI_ASSET_OUTPUT_DRIFT: ${file.output}`)
+      }
+      if (actualSha256 !== file.sha256) {
         throw new Error(`UI_ASSET_OUTPUT_DRIFT: ${file.output}`)
       }
     }
