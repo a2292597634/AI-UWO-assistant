@@ -1,9 +1,30 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
-import { collectAssetSourceFiles } from '../../tools/asset-pipeline/setup-assets'
+import type { AssetDependencyIndex } from '../../tools/data-pipeline/asset-dependencies'
 import { buildAssetEntries } from '../../tools/asset-pipeline/download-assets'
+import {
+  collectAssetSourceFiles,
+  validateReferencedAssetSources,
+} from '../../tools/asset-pipeline/setup-assets'
+
+const dependencies = (files: string[]): AssetDependencyIndex => ({
+  roots: [
+    {
+      root: 'subpkg-assets-0',
+      name: 'assetsCatalog0',
+      officerIds: [],
+      files,
+    },
+  ],
+  pathToRoot: {},
+  skillIcons: {},
+  officerPortraits: {},
+  officerCatalogRoots: {},
+  officerDetailRoots: {},
+})
 
 describe('asset source collection', () => {
   it('preserves canonical filename casing for generated asset references', () => {
@@ -44,6 +65,57 @@ describe('asset staging directory isolation', () => {
 
     for (const entry of entries) {
       expect(entry.localPath).not.toContain('miniprogram/assets/')
+    }
+  })
+})
+
+describe('素材来源完整性校验', () => {
+  it('缺少依赖文件时失败并指出文件名', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-missing-'))
+    try {
+      await expect(
+        validateReferencedAssetSources(
+          dependencies(['officer_missing.png']),
+          new Map([['officer_missing.png', join(root, 'officer_missing.png')]]),
+        ),
+      ).rejects.toThrow('officer_missing.png')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('PNG 无法被 sharp 解码时失败并指出文件名', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-invalid-'))
+    const filename = 'officer_invalid.png'
+    const filePath = join(root, filename)
+    writeFileSync(filePath, Buffer.from('not a png'))
+
+    try {
+      await expect(
+        validateReferencedAssetSources(dependencies([filename]), new Map([[filename, filePath]])),
+      ).rejects.toThrow(filename)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('所有依赖文件都是可解码 PNG 时通过', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-valid-'))
+    const filename = 'officer_valid.png'
+    const filePath = join(root, filename)
+    const png = await sharp({
+      create: { width: 1, height: 1, channels: 4, background: '#ffffff' },
+    })
+      .png()
+      .toBuffer()
+    writeFileSync(filePath, png)
+
+    try {
+      await expect(
+        validateReferencedAssetSources(dependencies([filename]), new Map([[filename, filePath]])),
+      ).resolves.toBeUndefined()
+    } finally {
+      rmSync(root, { recursive: true, force: true })
     }
   })
 })

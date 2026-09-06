@@ -2,7 +2,7 @@
 
 > 来源：`e:\temp\AI-UWO-assistant-master-code-review-2026-08-02.md`  
 > 日期：2026-08-02  
-> 状态：部分完成，待继续
+> 状态：主要 P1 已完成，仍有 P1-07、P2-04、P2-05 待继续
 
 ---
 
@@ -20,14 +20,15 @@
 
 ## 待完成：P1（中优先级）
 
-### P1-02：下载批次间缺少延迟，可能被源站封
+### [x] P1-02：下载批次间缺少延迟，可能被源站封
 
 - **文件**：`tools/asset-pipeline/download-assets.ts`
 - **现状**：声明了 `_BATCH_DELAY_MS = 100` 常量但未使用，批次之间连续发起请求无间隔
 - **修复**：批次间加真实 sleep，加随机抖动（jitter），设置清晰 User-Agent
+- **状态**：已完成。下载器现在只在非最后批次等待，并为请求设置固定 User-Agent。
 - **工作量**：小
 
-### P1-03：测试只检查路径格式，不检查图片真实存在
+### [x] P1-03：测试只检查路径格式，不检查图片真实存在
 
 - **文件**：`tests/data-pipeline/full-data-integrity.test.ts`
 - **现状**：断言 `expect(s.ip).toMatch(/^\/subpkg-a\d\/imgs\//)` 只验证字符串格式
@@ -36,16 +37,18 @@
   - 验证每个 `skill.ip` 对应文件存在
   - 验证同一素材只存在于一个正确分片
   - 验证图片可被 sharp 解码
+- **状态**：已完成。素材打包前会校验依赖索引引用文件存在并可由 `sharp` 解码；依赖索引测试继续校验单一分片归属。
 - **工作量**：中
 
-### P1-04：缺少 GitHub Actions CI
+### [x] P1-04：缺少 GitHub Actions CI
 
 - **现状**：仓库无 `.github/workflows` 目录，所有门禁依赖本地执行
 - **修复**：新建 `.github/workflows/verify.yml`，PR 和 push 到 master 时跑 `npm ci && npm run verify`
+- **状态**：已完成。当前仓库已有 `.github/workflows/verify.yml`。
 - **注意**：CI 环境不要从 voyage.tw 高频抓取素材，应使用缓存或固定 Manifest
 - **工作量**：中
 
-### P1-07：职业筛选项一次性全传，setData 和渲染开销大
+### [ ] P1-07：职业筛选项一次性全传，setData 和渲染开销大
 
 - **文件**：`miniprogram/pages/catalog/index.ts`
 - **现状**：`onLoad` 时将全部 600 条职业字典一次性 `setData`
@@ -55,7 +58,7 @@
   - 初始只发当前标签所需数据
 - **工作量**：中
 
-### P1-08：运行时数据版本硬编码
+### [x] P1-08：运行时数据版本硬编码
 
 - **文件**：`tools/data-pipeline/build-runtime-data.ts`、`miniprogram/app.ts`
 - **现状**：`dataset.json` 已有 `contentVersion: "1.0.0"`，但运行时写入和 `app.ts` 都硬编码
@@ -63,38 +66,40 @@
   - `generate.ts` 读取 `data/master/dataset.json` 的 `contentVersion`、`sourceSnapshot`、`updatedAt`
   - 传入生成器写入运行时元数据
   - 删除或初始化 `globalData.datasetVersion`
+- **状态**：已完成。生成元数据现在来自 `data/master/dataset.json`。
 - **工作量**：小
 
 ---
 
 ## 待完成：P2（低优先级）
 
-### P2-01：素材缓存不复核 SHA-256
+### [x] P2-01：素材缓存不复核 SHA-256
 
 - **文件**：`tools/asset-pipeline/download-assets.ts`
 - **现状**：`existsSync(prev.localPath)` 判断缓存有效，不重新计算哈希
 - **修复**：全量构建或 `assets:verify` 时重新计算哈希
+- **状态**：已完成。缓存复用前会读取本地文件并比较实际 SHA-256 与清单摘要，不一致时重新下载。
 - **工作量**：中
 
-### P2-02：Node.js 版本未固定
+### [x] P2-02：Node.js 版本未固定
 
 - **现状**：无 `.nvmrc`、`.node-version`、`package.json#engines`
 - **修复**：添加 `"engines": { "node": ">=22 <23", "npm": ">=10" }` 到 `package.json`
 - **工作量**：极小
 
-### P2-03：测试临时目录残留
+### [x] P2-03：测试临时目录残留
 
 - **路径**：`tests/.tmp-ui-assets-2jjjRq/` 等
 - **修复**：删除临时目录，`.gitignore` 加 `tests/.tmp-*/`
 - **工作量**：极小（⚠️ 先确认目录是否仍被使用）
 
-### P2-04：技能图标无统一错误回退组件
+### [ ] P2-04：技能图标无统一错误回退组件
 
 - **现状**：头像和装饰框有 `binderror`，技能图标没有统一处理
 - **修复**：封装 SkillIcon 组件，统一 binderror、分类默认图标、加载占位、无障碍文本
 - **工作量**：中
 
-### P2-05：筛选 Chip 无障碍语义不一致
+### [ ] P2-05：筛选 Chip 无障碍语义不一致
 
 - **文件**：`miniprogram/pages/catalog/index.wxml`
 - **现状**：稀有度/类型/性别 Chip 有 `role="button"` 和 `aria-label`，技能/语言/职业没有
@@ -106,9 +111,8 @@
 ## 推荐执行顺序
 
 ```
-第一轮（扫小活）：P2-02 → P2-03 → P1-08 → P1-02
-第二轮（中等活）：P1-03 → P1-04
-第三轮（锦上添花）：P2-01 → P2-04 → P2-05 → P1-07
+已完成：P2-02 → P2-03 → P1-08 → P1-02 → P1-03 → P1-04 → P2-01
+下一轮：P1-07 → P2-04 → P2-05
 ```
 
 ---
