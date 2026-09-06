@@ -49,6 +49,33 @@ const relation = (
   level: 1,
 })
 
+const navalActiveEnhancementSkillIds = [
+  'skill_skill400591',
+  'skill_skill400581',
+  'skill_skill400711',
+  'skill_skill400471',
+  'skill_skill400631',
+  'skill_skill400861',
+  'skill_skill400082',
+  'skill_skill400701',
+  'skill_skill400521',
+  'skill_skill400481',
+  'skill_skill400641',
+  'skill_skill400601',
+  'skill_skill400611',
+  'skill_skill400541',
+  'skill_skill400621',
+  'skill_skill400651',
+  'skill_skill400661',
+  'skill_skill400501',
+  'skill_skill400491',
+  'skill_skill400551',
+  'skill_skill400531',
+  'skill_skill400571',
+  'skill_skill400561',
+  'skill_skill400511',
+]
+
 describe('asset dependency index', () => {
   it('uses directory order, keeps only the first 3+3 catalog skills, and groups every 100 officers', () => {
     const skills = Array.from({ length: 8 }, (_, index) =>
@@ -115,5 +142,44 @@ describe('asset dependency index', () => {
     const broken = structuredClone(index)
     broken.roots[0]!.files.push('officer_test000.png')
     expect(() => assertAssetDependencyIndex(broken)).toThrow('duplicate asset file')
+  })
+
+  it('rejects a missing regular skill icon instead of borrowing a category icon', () => {
+    const skills = [
+      makeSkill('skill_skill400591', 'skill_category_naval_active_enhancement'),
+      makeSkill('skill_skill400581', 'skill_category_naval_active_enhancement'),
+    ]
+
+    expect(() =>
+      buildAssetDependencyIndex([], skills, {
+        assetFilenames: new Set(['skill_skill400591.png']),
+      }),
+    ).toThrow('skill_skill400581.png')
+  })
+
+  it('keeps category fallback only for skillT variant icons', () => {
+    const skills = [
+      makeSkill('skill_skill400591', 'skill_category_naval_active_enhancement'),
+      makeSkill('skill_skillT0001', 'skill_category_naval_active_enhancement'),
+    ]
+
+    const index = buildAssetDependencyIndex([], skills, {
+      assetFilenames: new Set(['skill_skill400591.png']),
+    })
+
+    expect(index.skillIcons.skill_skillT0001?.path).toContain('skill_skill400591.png')
+  })
+
+  it('keeps every enhancement skill on its own icon filename when all assets exist', () => {
+    const skills = navalActiveEnhancementSkillIds.map((id) =>
+      makeSkill(id, 'skill_category_naval_active_enhancement'),
+    )
+    const filenames = new Set(skills.map((skill) => `${skill.id}.png`))
+
+    const index = buildAssetDependencyIndex([], skills, { assetFilenames: filenames })
+    const paths = skills.map((skill) => index.skillIcons[skill.id]?.path)
+
+    expect(new Set(paths)).toHaveLength(skills.length)
+    expect(paths.every((path, index) => path?.endsWith(`${skills[index]!.id}.png`))).toBe(true)
   })
 })

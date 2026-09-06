@@ -19,6 +19,7 @@ interface AssetDependencyOptions {
 
 const filenameForOfficer = (officerId: string): string => `${officerId}.png`
 const filenameForSkill = (skillId: string): string => `${skillId}.png`
+const isVariantSkill = (skillId: string): boolean => /^skill_skillT\d+$/.test(skillId)
 
 const unique = (values: readonly string[]): string[] => [...new Set(values)]
 
@@ -60,7 +61,8 @@ const resolveSkillFilename = (
 ): string | undefined => {
   const ownFilename = filenameForSkill(skill.id)
   if (assetFilenames.size === 0 || assetFilenames.has(ownFilename)) return ownFilename
-  return categoryFallback.get(skill.categoryId)
+  if (isVariantSkill(skill.id)) return categoryFallback.get(skill.categoryId)
+  throw new Error(`技能圖示資產缺失：${skill.id}（${skill.categoryId}），預期檔案 ${ownFilename}`)
 }
 
 const addRootReference = (
