@@ -666,6 +666,12 @@ describe('battle fleet exclusion compact cards', () => {
     expect(fleetWxss).toMatch(
       /\.officer-exclusion-card__remove\s*\{[\s\S]*top:\s*0[\s\S]*right:\s*0[\s\S]*width:\s*88rpx[\s\S]*height:\s*88rpx/,
     )
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-card__remove\s*\{[\s\S]*width:\s*88rpx\s*!important[\s\S]*max-width:\s*88rpx\s*!important[\s\S]*height:\s*88rpx\s*!important[\s\S]*margin:\s*0\s*!important[\s\S]*padding:\s*0\s*!important/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.officer-exclusion-card__remove\s*\{[\s\S]*width:\s*88rpx\s*!important[\s\S]*min-width:\s*88rpx\s*!important[\s\S]*max-width:\s*88rpx\s*!important[\s\S]*height:\s*88rpx\s*!important[\s\S]*min-height:\s*88rpx\s*!important[\s\S]*flex:\s*0\s+0\s+88rpx\s*!important/,
+    )
   })
 })
 
@@ -728,6 +734,9 @@ describe('battle fleet target controls', () => {
     )
     expect(fleetWxss).toMatch(
       /\.target-row__remove\s*\{[\s\S]*width:\s*48rpx[\s\S]*height:\s*48rpx[\s\S]*min-width:\s*48rpx[\s\S]*min-height:\s*48rpx[\s\S]*margin:\s*0[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent[\s\S]*color:\s*var\(--uwo-color-danger\)/,
+    )
+    expect(fleetWxss).toMatch(
+      /\.target-row__remove\s*\{[\s\S]*width:\s*48rpx\s*!important[\s\S]*height:\s*48rpx\s*!important[\s\S]*min-width:\s*48rpx\s*!important[\s\S]*max-width:\s*48rpx\s*!important[\s\S]*flex:\s*0\s+0\s+48rpx\s*!important[\s\S]*margin:\s*0\s*!important[\s\S]*padding:\s*0\s*!important/,
     )
     expect(skillPickerWxss).toMatch(
       /\.skill-picker-sheet--inline \.skill-picker-sheet__tab\s*\{[\s\S]*width:\s*auto[\s\S]*min-width:\s*0[\s\S]*min-height:\s*48rpx[\s\S]*padding:\s*0 var\(--uwo-space-1\);/,

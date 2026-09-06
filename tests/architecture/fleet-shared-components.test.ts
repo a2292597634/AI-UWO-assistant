@@ -360,6 +360,9 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
     )
     expect(wxss).toMatch(
+      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx\s*!important[\s\S]*min-width:\s*64rpx\s*!important[\s\S]*max-width:\s*64rpx\s*!important[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0\s*!important[\s\S]*flex:\s*0\s+0\s+64rpx\s*!important[\s\S]*padding:\s*0\s*!important/,
+    )
+    expect(wxss).toMatch(
       /\.config-bar__summary\s*\{[\s\S]*width:\s*100%[\s\S]*justify-content:\s*space-between/,
     )
     expect(wxss).toMatch(
@@ -443,6 +446,9 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     )
     expect(wxss).toMatch(
       /\.disclosure-section__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*border-radius:\s*0[\s\S]*background:\s*transparent/,
+    )
+    expect(wxss).toMatch(
+      /\.disclosure-section__toggle\s*\{[\s\S]*width:\s*64rpx\s*!important[\s\S]*min-width:\s*64rpx\s*!important[\s\S]*max-width:\s*64rpx\s*!important[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0\s*!important[\s\S]*padding:\s*0\s*!important[\s\S]*flex:\s*0\s+0\s+64rpx\s*!important/,
     )
     expect(wxss).toMatch(
       /\.disclosure-section__meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*0/,
@@ -593,7 +599,10 @@ describe('Task 4 航海士操作共享元件契約', () => {
       /\.officer-action-sheet__trigger-actions\s*\{[\s\S]*display\s*:\s*flex[\s\S]*gap\s*:/,
     )
     expect(wxss).toMatch(
-      /\.officer-action-sheet__icon-button\s*\{[\s\S]*min-width\s*:\s*0[\s\S]*min-height\s*:[\s\S]*margin\s*:\s*0/,
+      /\.officer-action-sheet__icon-button\s*\{[\s\S]*min-width\s*:\s*36rpx\s*!important[\s\S]*min-height\s*:\s*40rpx\s*!important[\s\S]*margin\s*:\s*0\s*!important/,
+    )
+    expect(wxss).toMatch(
+      /\.officer-action-sheet__icon-button\s*\{[\s\S]*width:\s*36rpx\s*!important[\s\S]*min-width:\s*36rpx\s*!important[\s\S]*max-width:\s*36rpx\s*!important[\s\S]*height:\s*40rpx\s*!important[\s\S]*min-height:\s*40rpx\s*!important[\s\S]*flex:\s*0\s+0\s+36rpx\s*!important[\s\S]*margin:\s*0\s*!important[\s\S]*padding:\s*0\s*!important/,
     )
     expect(wxss).toMatch(/\.officer-action-sheet__close\s*\{[\s\S]*margin:\s*0/)
     expect(wxss).toMatch(/\.officer-action-sheet__action\s*\{[\s\S]*margin:\s*0/)
@@ -852,6 +861,9 @@ describe('Task 5 方案預覽共享元件契約', () => {
     expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
     expect(wxss).toMatch(
       /\.result-preview-sheet__undo-close\s*\{[\s\S]*width:\s*56rpx[\s\S]*min-height:\s*56rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.result-preview-sheet__undo-close\s*\{[\s\S]*width:\s*56rpx\s*!important[\s\S]*min-width:\s*56rpx\s*!important[\s\S]*max-width:\s*56rpx\s*!important[\s\S]*height:\s*56rpx\s*!important[\s\S]*min-height:\s*56rpx\s*!important[\s\S]*flex:\s*0\s+0\s+56rpx\s*!important[\s\S]*margin:\s*0\s*!important[\s\S]*padding:\s*0\s*!important/,
     )
     expect(wxss).toMatch(/font-size\s*:\s*var\(--uwo-font-size-(?:body|minimum-action)\)/)
     expect(wxss).toMatch(/overflow-wrap\s*:\s*anywhere/)

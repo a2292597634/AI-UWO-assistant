@@ -678,6 +678,9 @@ describe('adventure fleet shared component wiring', () => {
     expect(adventureWxss).toMatch(
       /\.target-row__remove\s*\{[\s\S]*width:\s*112rpx[\s\S]*min-width:\s*112rpx[\s\S]*min-height:\s*56rpx/,
     )
+    expect(adventureWxss).toMatch(
+      /\.target-row__remove\s*\{[\s\S]*width:\s*112rpx\s*!important[\s\S]*min-width:\s*112rpx\s*!important[\s\S]*max-width:\s*112rpx\s*!important[\s\S]*flex:\s*0\s+0\s+112rpx\s*!important[\s\S]*margin:\s*0\s*!important[\s\S]*padding:\s*0\s*!important/,
+    )
     expect(adventureWxss).toMatch(/\.candidate-row\s*\{[\s\S]*min-height:\s*88rpx/)
     expect(adventureWxss).toContain('overflow-wrap: anywhere')
     expect(adventureWxss).not.toMatch(/\.candidate-row--disabled\s*\{[\s\S]*opacity\s*:/)

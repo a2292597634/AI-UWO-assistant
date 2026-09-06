@@ -92,14 +92,15 @@
 .config-bar__toggle {
   box-sizing: border-box;
   display: flex;
-  width: 64rpx;
-  min-width: 64rpx;
+  width: 64rpx !important;
+  min-width: 64rpx !important;
+  max-width: 64rpx !important;
   min-height: 64rpx;
-  margin: 0;
-  flex: 0 0 auto;
+  margin: 0 !important;
+  flex: 0 0 64rpx !important;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0 !important;
   border: 0;
   border-radius: 0;
   background: transparent;

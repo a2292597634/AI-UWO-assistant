@@ -227,14 +227,14 @@
 
 .result-preview-sheet__undo-close {
   box-sizing: border-box;
-  width: 56rpx;
-  min-width: 56rpx;
-  max-width: 56rpx;
-  height: 56rpx;
-  min-height: 56rpx;
-  flex: 0 0 auto;
-  margin: 0;
-  padding: 0;
+  width: 56rpx !important;
+  min-width: 56rpx !important;
+  max-width: 56rpx !important;
+  height: 56rpx !important;
+  min-height: 56rpx !important;
+  flex: 0 0 56rpx !important;
+  margin: 0 !important;
+  padding: 0 !important;
   font-size: var(--uwo-font-size-emphasis);
   line-height: 1;
 }

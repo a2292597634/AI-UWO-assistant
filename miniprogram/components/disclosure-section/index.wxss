@@ -26,20 +26,21 @@
 .disclosure-section__toggle {
   box-sizing: border-box;
   display: flex;
-  width: 64rpx;
-  min-width: 64rpx;
+  width: 64rpx !important;
+  min-width: 64rpx !important;
+  max-width: 64rpx !important;
   min-height: 64rpx;
-  margin: 0;
+  margin: 0 !important;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0 !important;
   border: 0;
   border-radius: 0;
   background: transparent;
   color: var(--uwo-color-text-primary);
   font-family: var(--uwo-font-family-body);
   font-size: var(--uwo-font-size-body);
-  flex: 0 0 auto;
+  flex: 0 0 64rpx !important;
   overflow: visible;
 }
 

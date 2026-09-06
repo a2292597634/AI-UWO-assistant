@@ -14,14 +14,16 @@
 .officer-action-sheet__icon-button {
   box-sizing: border-box;
   display: flex;
-  width: 36rpx;
-  min-width: 0;
-  height: 40rpx;
-  min-height: 40rpx;
-  margin: 0;
+  width: 36rpx !important;
+  min-width: 36rpx !important;
+  max-width: 36rpx !important;
+  height: 40rpx !important;
+  min-height: 40rpx !important;
+  flex: 0 0 36rpx !important;
+  margin: 0 !important;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0 !important;
   border: 1rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-control);
   background: var(--uwo-color-surface);
