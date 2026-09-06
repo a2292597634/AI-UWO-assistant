@@ -12,6 +12,8 @@ declare module '../../generated/dataset-meta' {
     officerCount: number
     skillCount: number
     contentVersion: string
+    updatedAt: string
+    sourceSnapshot: string
   }
   const meta: DatasetMeta
   export = meta

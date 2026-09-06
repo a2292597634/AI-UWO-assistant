@@ -92,6 +92,8 @@ export interface RuntimeDatasetMeta {
   officerCount: number
   skillCount: number
   contentVersion: string
+  updatedAt: string
+  sourceSnapshot: string
 }
 
 // ── 貿易品索引與參照資料 ──

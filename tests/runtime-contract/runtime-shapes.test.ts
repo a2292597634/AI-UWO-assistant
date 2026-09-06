@@ -21,6 +21,9 @@ const DETAIL_DIR = path.resolve(__dirname, '../../miniprogram/subpkg-detail')
 const ASSET_MANIFEST = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
 ) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
+const CANONICAL_DATASET = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../data/master/dataset.json'), 'utf8'),
+) as { contentVersion: string; updatedAt: string; sourceSnapshot: string }
 const ASSET_URL_PREFIX = `${ASSET_MANIFEST.cdnOrigin}/${ASSET_MANIFEST.cloudPathPrefix}/${ASSET_MANIFEST.releaseId}/`
 
 // ── Helpers ──
@@ -329,10 +332,13 @@ describe('Runtime Contract: dictionaries.js', () => {
 describe('Runtime Contract: dataset-meta.js', () => {
   const meta = readGenerated('dataset-meta') as Record<string, unknown>
 
-  it('has officerCount, skillCount, contentVersion', () => {
+  it('has counts and the canonical dataset version fields', () => {
     expect(typeof meta.officerCount).toBe('number')
     expect(typeof meta.skillCount).toBe('number')
     expect(typeof meta.contentVersion).toBe('string')
+    expect(meta.contentVersion).toBe(CANONICAL_DATASET.contentVersion)
+    expect(meta.updatedAt).toBe(CANONICAL_DATASET.updatedAt)
+    expect(meta.sourceSnapshot).toBe(CANONICAL_DATASET.sourceSnapshot)
   })
 
   it('officerCount matches catalog length', () => {
