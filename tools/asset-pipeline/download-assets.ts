@@ -81,6 +81,26 @@ interface AssetManifestEntry {
 
 const sha256Hex = (buffer: Buffer): string => createHash('sha256').update(buffer).digest('hex')
 
+const isValidCachedAsset = (entry: AssetManifestEntry | undefined): entry is AssetManifestEntry => {
+  if (
+    !entry ||
+    entry.status !== 200 ||
+    !entry.sha256 ||
+    !entry.localPath ||
+    !existsSync(entry.localPath)
+  ) {
+    return false
+  }
+
+  try {
+    const buffer = readFileSync(entry.localPath)
+    if (entry.byteSize !== null && entry.byteSize !== buffer.length) return false
+    return sha256Hex(buffer) === entry.sha256
+  } catch {
+    return false
+  }
+}
+
 const downloadOne = async (
   entry: AssetEntry,
   fetcher: typeof fetch,
@@ -153,7 +173,7 @@ export const downloadAssets = async (
   // Filter out already-downloaded assets
   for (const entry of entries) {
     const prev = existing.get(entry.ownerCanonicalId)
-    if (prev && prev.status === 200 && prev.sha256 && existsSync(prev.localPath!)) {
+    if (isValidCachedAsset(prev)) {
       manifest.push(prev)
       continue
     }

@@ -2,7 +2,10 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from 'node:path'
 import sharp from 'sharp'
 import type { CanonicalOfficer, CanonicalSkill } from '../import/types'
-import { buildAssetDependencyIndex } from '../data-pipeline/asset-dependencies'
+import {
+  buildAssetDependencyIndex,
+  type AssetDependencyIndex,
+} from '../data-pipeline/asset-dependencies'
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { planAssetPackageLayout } from './asset-package-builder'
 
@@ -36,6 +39,30 @@ export const collectAssetSourceFiles = (sourceDirs: readonly string[]): Map<stri
   return new Map([...files.values()].map(({ filename, path }) => [filename, path]))
 }
 
+/** 校验依赖索引中的每个素材文件都存在且能被 sharp 解码为 PNG。 */
+export const validateReferencedAssetSources = async (
+  dependencies: Pick<AssetDependencyIndex, 'roots'>,
+  sourceFiles: ReadonlyMap<string, string>,
+): Promise<void> => {
+  const referencedFiles = [...new Set(dependencies.roots.flatMap((assetRoot) => assetRoot.files))]
+  const missingFiles = referencedFiles.filter((filename) => !sourceFiles.has(filename))
+  if (missingFiles.length > 0) {
+    throw new Error(`缺少引用素材文件：${missingFiles.join(', ')}`)
+  }
+
+  for (const filename of referencedFiles) {
+    const filePath = sourceFiles.get(filename)!
+    try {
+      const metadata = await sharp(readFileSync(filePath)).metadata()
+      if (metadata.format !== 'png') {
+        throw new Error(`格式为 ${metadata.format ?? 'unknown'}`)
+      }
+    } catch {
+      throw new Error(`素材无法解码或不是 PNG：${filename}`)
+    }
+  }
+}
+
 const sourceFiles = (): Map<string, string> => collectAssetSourceFiles(SRC_DIRS)
 
 const canonicalData = (): {
@@ -55,6 +82,7 @@ export const setupAssets = async (): Promise<void> => {
   const dependencies = buildAssetDependencyIndex(officers, skills, {
     assetFilenames: skillFilenames,
   })
+  await validateReferencedAssetSources(dependencies, sources)
   const existing = existsSync(PUBLISH_DIR)
     ? readdirSync(PUBLISH_DIR).filter((filename) => filename.endsWith('.png'))
     : []
@@ -66,10 +94,6 @@ export const setupAssets = async (): Promise<void> => {
 
   console.log(`Referenced PNG files: ${dependencies.roots.flatMap((root) => root.files).length}`)
   console.log(`Retained source PNG files: ${plan.retainedFiles.length}`)
-  if (plan.missingFiles.length > 0) {
-    throw new Error(`Missing referenced PNG files: ${plan.missingFiles.join(', ')}`)
-  }
-
   let copied = 0
   let compressed = 0
   mkdirSync(PUBLISH_DIR, { recursive: true })
