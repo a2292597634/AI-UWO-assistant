@@ -1,0 +1,36 @@
+.skill-icon {
+  position: relative;
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.skill-icon__image,
+.skill-icon__fallback {
+  width: 44rpx;
+  height: 44rpx;
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+}
+
+.skill-icon__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+}
+
+.skill-icon__level-badge {
+  position: absolute;
+  right: calc(-1 * var(--uwo-space-2));
+  bottom: calc(-1 * var(--uwo-space-2));
+  min-width: var(--uwo-space-8);
+  padding: 0 var(--uwo-space-1);
+  border-radius: var(--uwo-radius-pill);
+  background: var(--uwo-color-ink);
+  color: var(--uwo-color-surface);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: var(--uwo-space-6);
+  text-align: center;
+}

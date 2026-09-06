@@ -1,0 +1,12 @@
+<view class="skill-icon" role="img" aria-label="{{skillName || '技能'}}">
+  <image
+    wx:if="{{assetReady && iconPath && !imageFailed}}"
+    class="skill-icon__image"
+    src="{{iconPath}}"
+    mode="aspectFit"
+    aria-hidden="true"
+    binderror="onImageError"
+  />
+  <text wx:else class="skill-icon__fallback" aria-hidden="true">{{fallbackLabel}}</text>
+  <text wx:if="{{level > 0}}" class="skill-icon__level-badge" aria-hidden="true">Lv.{{level}}</text>
+</view>
