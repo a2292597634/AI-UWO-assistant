@@ -35,6 +35,7 @@ import type {
 } from '../../presenters/config-management-presenter'
 import {
   MAX_CONFIGS_PER_SCOPE,
+  MAX_TARGETS_PER_SHIP,
   serializeFleetState,
   type FleetConfigRecord,
 } from '../../contracts/fleet-config'
@@ -228,6 +229,7 @@ const resultMessage: Record<string, string> = {
   'officer-locked': '航海士已鎖定',
   'invalid-target-level': '目標等級必須是 Lv.1 至 Lv.10',
   'duplicate-target': '同一技能不可重複添加',
+  'target-limit': `每艘船最多設定 ${MAX_TARGETS_PER_SHIP} 個目標`,
   'invalid-recommendation': '自動配隊結果無效',
 }
 

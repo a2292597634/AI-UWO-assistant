@@ -61,58 +61,71 @@ interface OfficerRepository {
     patch: Record<string, unknown>,
   ): Promise<StoredRecord | null>
   insertRevisionIfAbsent(record: StoredRecord): Promise<StoredRecord | null>
+  insertIfOwnerBelowLimit(record: StoredRecord, maxRecords: number): Promise<StoredRecord | null>
 }
 
 function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
-  const records = new Map<string, StoredRecord>(seed.map((record) => [record._id!, { ...record }]))
-  let nextId = records.size
+  const collections = new Map<string, Map<string, StoredRecord>>([
+    ['custom_officers', new Map(seed.map((record) => [record._id!, { ...record }]))],
+  ])
+  let nextId = seed.length
   const providerPageSize = 2
   let transactionTail = Promise.resolve()
-  const collection: Collection = {
-    where(filter) {
-      const matches = () =>
-        [...records.values()].filter((record) =>
-          Object.entries(filter).every(([key, value]) => record[key] === value),
-        )
-      const makeQuery = (offset = 0, pageSize = providerPageSize): Query => ({
-        skip(count) {
-          return makeQuery(offset + count, pageSize)
-        },
-        limit(count) {
-          return makeQuery(offset, count)
-        },
-        async get() {
-          return { data: matches().slice(offset, offset + pageSize) }
-        },
-        async count() {
-          return { total: matches().length }
-        },
-        async update({ data }) {
-          const found = matches()
-          for (const record of found) Object.assign(record, data)
-          return { stats: { updated: found.length } }
-        },
-      })
-      return makeQuery()
-    },
-    doc(id) {
-      return {
-        async get() {
-          return { data: records.get(id) }
-        },
-        async set({ data }) {
-          records.set(id, { ...data, _id: id })
-        },
-      }
-    },
-    async add({ data }) {
-      const _id = `doc_${nextId++}`
-      records.set(_id, { ...data, _id })
-      return { _id }
-    },
+  const getCollectionData = (name: string): Map<string, StoredRecord> => {
+    const existing = collections.get(name)
+    if (existing) return existing
+    const created = new Map<string, StoredRecord>()
+    collections.set(name, created)
+    return created
+  }
+  const makeCollection = (name: string): Collection => {
+    const records = getCollectionData(name)
+    return {
+      where(filter) {
+        const matches = () =>
+          [...records.values()].filter((record) =>
+            Object.entries(filter).every(([key, value]) => record[key] === value),
+          )
+        const makeQuery = (offset = 0, pageSize = providerPageSize): Query => ({
+          skip(count) {
+            return makeQuery(offset + count, pageSize)
+          },
+          limit(count) {
+            return makeQuery(offset, count)
+          },
+          async get() {
+            return { data: matches().slice(offset, offset + pageSize) }
+          },
+          async count() {
+            return { total: matches().length }
+          },
+          async update({ data }) {
+            const found = matches()
+            for (const record of found) Object.assign(record, data)
+            return { stats: { updated: found.length } }
+          },
+        })
+        return makeQuery()
+      },
+      doc(id) {
+        return {
+          async get() {
+            return { data: records.get(id) }
+          },
+          async set({ data }) {
+            records.set(id, { ...data, _id: id })
+          },
+        }
+      },
+      async add({ data }) {
+        const _id = `doc_${nextId++}`
+        records.set(_id, { ...data, _id })
+        return { _id }
+      },
+    }
   }
   return {
-    collection: () => collection,
+    collection: (name) => makeCollection(name),
     createCollection: async () => undefined,
     async runTransaction<T>(
       callback: (transaction: { collection(name: string): Collection }) => Promise<T>,
@@ -124,7 +137,7 @@ function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
       })
       await previous
       try {
-        return await callback({ collection: () => collection })
+        return await callback({ collection: (name) => makeCollection(name) })
       } finally {
         release()
       }
@@ -190,6 +203,22 @@ describe('Officer custom repository', () => {
 
     expect(results.filter((item) => item !== null)).toHaveLength(1)
     expect(results.filter((item) => item === null)).toHaveLength(1)
+  })
+
+  it('同一 owner 的新投稿并发插入不会超过数量上限', async () => {
+    const seed = Array.from({ length: 49 }, (_, index) =>
+      record({ _id: `doc_${index}`, submissionId: `sub_${index}` }),
+    )
+    const repo = repositoryModule.createRepository(createFakeDatabase(seed))
+
+    const results = await Promise.all([
+      repo.insertIfOwnerBelowLimit(record({ submissionId: 'sub_new_a' }), 50),
+      repo.insertIfOwnerBelowLimit(record({ submissionId: 'sub_new_b' }), 50),
+    ])
+
+    expect(results.filter((item) => item !== null)).toHaveLength(1)
+    expect(results.filter((item) => item === null)).toHaveLength(1)
+    await expect(repo.countLatestByOwner('openid_user')).resolves.toBe(50)
   })
 
   it('按状态筛选不把 pending 混入 approved 列表', async () => {

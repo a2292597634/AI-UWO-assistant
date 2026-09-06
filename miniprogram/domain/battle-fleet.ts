@@ -10,7 +10,11 @@ import type {
   FleetTransitionResult,
   ShipSkillSummary,
 } from '../contracts/battle-fleet'
-import { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY } from '../contracts/battle-fleet'
+import {
+  FLEET_SHIP_COUNT,
+  MAX_TARGETS_PER_SHIP,
+  SHIP_OFFICER_CAPACITY,
+} from '../contracts/battle-fleet'
 import type { RuntimeFleetSkillRelation } from '../contracts/runtime-data'
 
 export { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY }
@@ -384,6 +388,7 @@ export const updateShipTargets = (
 ): FleetTransitionResult => {
   const ship = findShip(state, shipId)
   if (!ship) return { state, error: 'unknown-ship' }
+  if (targets.length > MAX_TARGETS_PER_SHIP) return { state, error: 'target-limit' }
   if (
     targets.some(
       (target) => target.targetLevel < (target.skillId === null ? 1 : 0) || target.targetLevel > 10,

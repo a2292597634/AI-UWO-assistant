@@ -328,15 +328,39 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.canRecalculate).toBe(false)
   })
 
-  it('opens target picker without adding a blank target', () => {
+  it('达到默认目标上限时不打开目标选择器', () => {
     const page = createPageInstance()
     page.onLoad()
     const before = structuredClone(page.data.targets)
+    expect(before).toHaveLength(20)
+    wxStub.showToast.mockClear()
 
     page.onAddTarget()
 
-    expect(page.data.showTargetPicker).toBe(true)
+    expect(page.data.showTargetPicker).toBe(false)
     expect(page.data.targets).toEqual(before)
+    expect(wxStub.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ title: '每艘船最多設定 20 個目標' }),
+    )
+  })
+
+  it('stops opening the target picker after the per-ship limit', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    for (let index = page.data.targets.length; index < 20; index += 1) {
+      page.onAddTarget()
+      page.onSkillSelect({ currentTarget: { dataset: { id: `skill-limit-${index}` } } } as never)
+    }
+    expect(page.data.targets).toHaveLength(20)
+    wxStub.showToast.mockClear()
+
+    page.onAddTarget()
+
+    expect(page.data.showTargetPicker).toBe(false)
+    expect(wxStub.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ title: '每艘船最多設定 20 個目標' }),
+    )
   })
 
   it('promotes a preconfigured Lv.0 skill to a Lv.1 target and closes the picker', () => {

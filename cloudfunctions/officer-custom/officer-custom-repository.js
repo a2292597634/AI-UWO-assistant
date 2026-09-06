@@ -6,10 +6,13 @@
  */
 
 const COLLECTION = 'custom_officers'
+const OWNER_LIMIT_COLLECTION = 'custom_officer_owner_locks'
 const QUERY_PAGE_SIZE = 100
 
 const getRevisionDocumentId = (submissionId, revision) =>
   `revision_${encodeURIComponent(submissionId)}_${revision}`
+
+const getOwnerLimitDocumentId = (ownerUid) => `owner_${encodeURIComponent(ownerUid)}`
 
 const sortNewestFirst = (records) =>
   [...records].sort((left, right) => {
@@ -33,16 +36,17 @@ const latestPerSubmission = (records) => {
 /** @param {object} db CloudBase database instance */
 function createRepository(db) {
   const collection = db.collection(COLLECTION)
-  let collectionReady = false
+  const ownerLimitCollection = db.collection(OWNER_LIMIT_COLLECTION)
+  const collectionReady = new Set()
 
-  async function ensureCollection() {
-    if (collectionReady) return
+  async function ensureCollection(name = COLLECTION) {
+    if (collectionReady.has(name)) return
     try {
-      await db.createCollection(COLLECTION)
+      await db.createCollection(name)
     } catch {
       // 集合已存在或正在创建，查询仍可继续。
     }
-    collectionReady = true
+    collectionReady.add(name)
   }
 
   async function getAll(filter = {}) {
@@ -83,6 +87,18 @@ function createRepository(db) {
     return (await listByOwner(ownerUid)).length
   }
 
+  async function getOwnerLimitSeed(ownerUid) {
+    const current = await ownerLimitCollection.doc(getOwnerLimitDocumentId(ownerUid)).get()
+    if (
+      current?.data?.ownerUid === ownerUid &&
+      Number.isInteger(current.data.count) &&
+      current.data.count >= 0
+    ) {
+      return current.data.count
+    }
+    return countLatestByOwner(ownerUid)
+  }
+
   /** @param {object} record */
   async function insert(record) {
     await ensureCollection()
@@ -96,6 +112,40 @@ function createRepository(db) {
     }
     const result = await collection.add({ data: doc })
     return { ...doc, _id: result._id }
+  }
+
+  /**
+   * 在 owner 限額鎖文件上以交易方式插入新投稿，避免 count 後 insert 的 TOCTOU 競態。
+   * @param {object} record
+   * @param {number} maxRecords
+   * @returns {Promise<object | null>}
+   */
+  async function insertIfOwnerBelowLimit(record, maxRecords) {
+    await ensureCollection(COLLECTION)
+    await ensureCollection(OWNER_LIMIT_COLLECTION)
+    const seedCount = await getOwnerLimitSeed(record.ownerUid)
+    const lockId = getOwnerLimitDocumentId(record.ownerUid)
+
+    return db.runTransaction(async (transaction) => {
+      const lock = transaction.collection(OWNER_LIMIT_COLLECTION).doc(lockId)
+      const current = await lock.get()
+      const count =
+        current?.data?.ownerUid === record.ownerUid && Number.isInteger(current.data.count)
+          ? current.data.count
+          : seedCount
+      if (count >= maxRecords) return null
+
+      const { _id: _ignoredId, ...data } = record
+      const result = await transaction.collection(COLLECTION).add({ data })
+      await lock.set({
+        data: {
+          ownerUid: record.ownerUid,
+          count: count + 1,
+          updatedAt: new Date().toISOString(),
+        },
+      })
+      return { ...data, _id: result._id }
+    })
   }
 
   /**
@@ -147,6 +197,7 @@ function createRepository(db) {
     findLatestBySubmissionId,
     countLatestByOwner,
     insert,
+    insertIfOwnerBelowLimit,
     insertRevisionIfAbsent,
     updateIfRevision,
   }

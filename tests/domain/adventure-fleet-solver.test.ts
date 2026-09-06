@@ -16,6 +16,14 @@ const officer = (id: string, skillId: string): AdventureFleetOfficer => ({
   zone: 'adventure',
 })
 
+const multiSkillOfficer = (
+  id: string,
+  skills: Array<{ skillId: string; unlockLevel: number }>,
+): AdventureFleetOfficer => ({
+  ...officer(id, skills[0]!.skillId),
+  adventureSkills: skills,
+})
+
 const baseInput = {
   lockedOfficerIds: [],
   excludedOfficerIds: [],
@@ -79,5 +87,50 @@ describe('adventure fleet solver target semantics', () => {
     expect(result.constraints).toEqual(
       expect.arrayContaining([expect.objectContaining({ code: 'no-candidate' })]),
     )
+  })
+
+  it('按实际返回的航海士计算锁定超容量方案的目标进度', () => {
+    const result = solveAdventureTargets({
+      ...baseInput,
+      officers: [officer('officer-a', 'skill-a'), officer('officer-b', 'skill-b')],
+      targets: [{ skillId: 'skill-b', targetLevel: 1 }],
+      lockedOfficerIds: ['officer-a', 'officer-b'],
+      capacity: 1,
+    })
+
+    expect(result.officerIds).toEqual(['officer-a'])
+    expect(result.targetProgress).toEqual([
+      {
+        skillId: 'skill-b',
+        targetLevel: 1,
+        currentLevel: 0,
+        difference: 1,
+        reached: false,
+      },
+    ])
+    expect(result.canApply).toBe(false)
+  })
+
+  it('大状态空间回退优先选择真正完成目标的候选', () => {
+    const targets = Array.from({ length: 6 }, (_, index) => ({
+      skillId: `skill-${index}`,
+      targetLevel: 10,
+    }))
+    const result = solveAdventureTargets({
+      ...baseInput,
+      officers: [
+        multiSkillOfficer('officer-complete', [{ skillId: 'skill-0', unlockLevel: 10 }]),
+        multiSkillOfficer('officer-broad', [
+          { skillId: 'skill-0', unlockLevel: 1 },
+          { skillId: 'skill-1', unlockLevel: 1 },
+        ]),
+      ],
+      targets,
+      capacity: 1,
+    })
+
+    expect(result.officerIds).toEqual(['officer-complete'])
+    expect(result.achievedTargetCount).toBe(1)
+    expect(result.targetProgress[0]).toMatchObject({ currentLevel: 10, reached: true })
   })
 })

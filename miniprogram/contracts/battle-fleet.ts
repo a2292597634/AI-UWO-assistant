@@ -3,6 +3,7 @@ import type { RuntimeFleetOfficer, RuntimeSkill } from './runtime-data'
 export const FLEET_SHIP_COUNT = 7
 export const SHIP_OFFICER_CAPACITY = 11
 export const FLEET_OFFICER_CAPACITY = FLEET_SHIP_COUNT * SHIP_OFFICER_CAPACITY
+export const MAX_TARGETS_PER_SHIP = 20
 
 export type FleetShipMode = 'manual' | 'auto'
 export type BattleSkillKindFilter = 'all' | 'active' | 'passive'
@@ -71,6 +72,7 @@ export type FleetTransitionError =
   | 'officer-not-found'
   | 'invalid-target-level'
   | 'duplicate-target'
+  | 'target-limit'
   | 'target-not-found'
   | 'invalid-recommendation'
 

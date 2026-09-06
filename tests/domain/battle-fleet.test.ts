@@ -198,6 +198,21 @@ describe('battle fleet state', () => {
     ).toBe('invalid-target-level')
   })
 
+  it('rejects a target list above the persisted per-ship limit', () => {
+    const state = createFleetState()
+    const targets = Array.from({ length: 21 }, (_, index) => ({
+      id: `target-${index}`,
+      skillId: `skill-${index}`,
+      targetLevel: 1,
+    }))
+
+    const result = updateShipTargets(state, 'ship-1', targets)
+
+    expect(result.error).toBe('target-limit')
+    expect(result.state).toBe(state)
+    expect(result.state.ships[0]!.targets).toHaveLength(0)
+  })
+
   it('assigns a selected skill to the first empty target or appends a target', () => {
     const auto = setShipMode(createFleetState(), 'ship-1', 'auto').state
 

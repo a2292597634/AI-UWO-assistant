@@ -86,6 +86,12 @@ function createMemoryRepo() {
       records.push(saved)
       return saved
     },
+    async insertIfOwnerBelowLimit(record: Omit<StoredRecord, '_id'>, maxRecords: number) {
+      if (latestBySubmission(record.ownerUid as string).length >= maxRecords) return null
+      const saved = { ...record, _id: `doc_${nextId++}` } as unknown as StoredRecord
+      records.push(saved)
+      return saved
+    },
     async insertRevisionIfAbsent(record: Omit<StoredRecord, '_id'>) {
       if (
         records.some(
@@ -247,6 +253,32 @@ describe('Officer custom submission service', () => {
       ok: true,
       data: [],
     })
+  })
+
+  it('并发新投稿由 repository 原子限额控制', async () => {
+    for (let index = 0; index < 49; index += 1) {
+      repo.records.push({
+        _id: `doc_seed_${index}`,
+        submissionId: `sub_seed_${index}`,
+        ownerUid: 'openid_user',
+        status: 'pending',
+        revision: 1,
+        updatedAt: `2026-09-04T00:00:${String(index).padStart(2, '0')}.000Z`,
+        formData: validFormData(),
+        canonicalData: null,
+        review: {},
+        publish: {},
+        history: [],
+      })
+    }
+
+    const results = await Promise.all([dispatchSubmit(), dispatchSubmit()])
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1)
+    expect(results.filter((result) => !result.ok)).toMatchObject([
+      expect.objectContaining({ code: 'limit-reached' }),
+    ])
+    expect(repo.records).toHaveLength(50)
   })
 
   it('头像签名不合格时拒绝并不创建投稿', async () => {

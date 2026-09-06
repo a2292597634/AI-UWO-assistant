@@ -7,7 +7,9 @@
  */
 
 import type { FleetState, FleetShipState } from './battle-fleet'
-import { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY } from './battle-fleet'
+import { FLEET_SHIP_COUNT, MAX_TARGETS_PER_SHIP, SHIP_OFFICER_CAPACITY } from './battle-fleet'
+
+export { MAX_TARGETS_PER_SHIP }
 
 // ── Constants ──
 
@@ -172,7 +174,6 @@ const ALLOWED_TARGET_KEYS = new Set(['id', 'skillId', 'targetLevel'])
 const VALID_MODES = new Set(['manual', 'auto'])
 const MAX_IDENTIFIER_LENGTH = 100
 const MAX_LABEL_LENGTH = 30
-const MAX_TARGETS_PER_SHIP = 20
 const MAX_OFFICER_ID_LIST_LENGTH = 1000
 
 /**

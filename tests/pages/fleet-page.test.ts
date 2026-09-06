@@ -210,6 +210,23 @@ describe('battle fleet page', () => {
     expect(page.data.fleetOverview).toHaveLength(7)
   })
 
+  it('stops adding targets after the per-ship limit', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+
+    for (let index = page.data.targets.length; index < 20; index += 1) page.onAddTarget()
+    expect(page.data.targets).toHaveLength(20)
+    wxStub.showToast.mockClear()
+
+    page.onAddTarget()
+
+    expect(page.data.targets).toHaveLength(20)
+    expect(wxStub.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ title: '每艘船最多設定 20 個目標' }),
+    )
+  })
+
   it('assigns a skill to a target via the explicit select action in auto mode', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -701,11 +718,13 @@ describe('battle fleet target controls', () => {
     expect(fleetWxml).toMatch(
       /<button class="target-row__remove"[^>]*bindtap="onRemoveTarget"[^>]*aria-label="刪除\{\{item\.skillName\}\}目標"[^>]*>\s*<text aria-hidden="true">×<\/text>/,
     )
-    expect(fleetWxss).toMatch(/\.target-row\s*\{[\s\S]*width:\s*100%[\s\S]*min-height:\s*64rpx/)
+    expect(fleetWxss).toMatch(
+      /\.target-row\s*\{[\s\S]*display:\s*flex[\s\S]*width:\s*100%[\s\S]*min-height:\s*64rpx[\s\S]*justify-content:\s*space-between/,
+    )
     expect(fleetWxss).toMatch(/\.level-input\s*\{[\s\S]*min-height:\s*56rpx/)
     expect(fleetWxss).toMatch(/\.target-row__controls\s*\{[\s\S]*gap:\s*var\(--uwo-space-1\)/)
     expect(fleetWxss).toMatch(
-      /\.target-row__controls\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*auto[\s\S]*margin-right:\s*0/,
+      /\.target-row__controls\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*0[\s\S]*margin-right:\s*0/,
     )
     expect(fleetWxss).toMatch(
       /\.target-row__remove\s*\{[\s\S]*width:\s*48rpx[\s\S]*height:\s*48rpx[\s\S]*min-width:\s*48rpx[\s\S]*min-height:\s*48rpx[\s\S]*margin:\s*0[\s\S]*padding:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent[\s\S]*color:\s*var\(--uwo-color-danger\)/,

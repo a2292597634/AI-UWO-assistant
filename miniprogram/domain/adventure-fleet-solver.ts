@@ -44,13 +44,21 @@ interface ScoredSelection {
   achievedTargetCount: number
   allTargetsComplete: boolean
   overageTotal: number
+  remainingDeficitTotal: number
+  completionScore: number
 }
 
-interface DpState {
+interface TargetScores {
+  achievedTargetCount: number
+  allTargetsComplete: boolean
+  overageTotal: number
+  remainingDeficitTotal: number
+  completionScore: number
+}
+
+interface DpState extends TargetScores {
   officerIds: string[]
   totals: Record<string, number>
-  achievedCount: number
-  overageTotal: number
 }
 
 /** 状态空间上限：超过此值时跳过 DP */
@@ -83,11 +91,10 @@ const candidateContributions = (
   return result
 }
 
-const scoreSelection = (
-  officerIds: readonly string[],
+const scoreTotals = (
   totals: Readonly<Record<string, number>>,
   targets: readonly AdventureAutoTargetInput[],
-): ScoredSelection => {
+): TargetScores => {
   const achievedTargetCount = targets.reduce(
     (count, target) => count + ((totals[target.skillId] ?? 0) >= target.targetLevel ? 1 : 0),
     0,
@@ -97,14 +104,33 @@ const scoreSelection = (
     (sum, target) => sum + Math.max((totals[target.skillId] ?? 0) - target.targetLevel, 0),
     0,
   )
+  const remainingDeficitTotal = targets.reduce(
+    (sum, target) => sum + Math.max(target.targetLevel - (totals[target.skillId] ?? 0), 0),
+    0,
+  )
+  const completionScore = targets.reduce(
+    (sum, target) =>
+      sum + Math.min(totals[target.skillId] ?? 0, target.targetLevel) / target.targetLevel,
+    0,
+  )
   return {
-    officerIds: sortedIds(officerIds),
-    totals: { ...totals },
     achievedTargetCount,
     allTargetsComplete,
     overageTotal,
+    remainingDeficitTotal,
+    completionScore,
   }
 }
+
+const scoreSelection = (
+  officerIds: readonly string[],
+  totals: Readonly<Record<string, number>>,
+  targets: readonly AdventureAutoTargetInput[],
+): ScoredSelection => ({
+  officerIds: sortedIds(officerIds),
+  totals: { ...totals },
+  ...scoreTotals(totals, targets),
+})
 
 const buildProgress = (
   selection: ScoredSelection,
@@ -152,21 +178,36 @@ const makeStateKey = (
 ): string =>
   targetSkillIds.map((sid, i) => String(Math.min(totals[sid] ?? 0, targetLevels[i]!))).join(',')
 
-const countAchieved = (
-  totals: Readonly<Record<string, number>>,
-  targetSkillIds: readonly string[],
-  targetLevels: readonly number[],
-): number =>
-  targetSkillIds.reduce(
-    (count, sid, i) => count + ((totals[sid] ?? 0) >= targetLevels[i]! ? 1 : 0),
-    0,
-  )
+const compareOfficerIds = (a: readonly string[], b: readonly string[]): number => {
+  const aKey = sortedIds(a).join(',')
+  const bKey = sortedIds(b).join(',')
+  return aKey < bKey ? -1 : aKey > bKey ? 1 : 0
+}
 
 const betterForSameKey = (a: DpState, b: DpState): boolean => {
-  if (a.achievedCount !== b.achievedCount) return a.achievedCount > b.achievedCount
   if (a.officerIds.length !== b.officerIds.length) return a.officerIds.length < b.officerIds.length
   if (a.overageTotal !== b.overageTotal) return a.overageTotal < b.overageTotal
-  return sortedIds(a.officerIds).join(',') < sortedIds(b.officerIds).join(',')
+  return compareOfficerIds(a.officerIds, b.officerIds) < 0
+}
+
+const betterFinalResult = (
+  a: Pick<ScoredSelection, keyof TargetScores | 'officerIds'>,
+  b: Pick<ScoredSelection, keyof TargetScores | 'officerIds'>,
+): boolean => {
+  if (a.achievedTargetCount !== b.achievedTargetCount) {
+    return a.achievedTargetCount > b.achievedTargetCount
+  }
+  if (a.remainingDeficitTotal !== b.remainingDeficitTotal) {
+    return a.remainingDeficitTotal < b.remainingDeficitTotal
+  }
+  if (a.completionScore !== b.completionScore) return a.completionScore > b.completionScore
+  if (a.allTargetsComplete !== b.allTargetsComplete) return a.allTargetsComplete
+  if (a.allTargetsComplete && a.officerIds.length !== b.officerIds.length) {
+    return a.officerIds.length < b.officerIds.length
+  }
+  if (a.overageTotal !== b.overageTotal) return a.overageTotal < b.overageTotal
+  if (a.officerIds.length !== b.officerIds.length) return a.officerIds.length < b.officerIds.length
+  return compareOfficerIds(a.officerIds, b.officerIds) < 0
 }
 
 const runStateDp = (
@@ -182,14 +223,10 @@ const runStateDp = (
   const seedTotals: Record<string, number> = {}
   for (const sid of targetSkillIds) seedTotals[sid] = lockedTotals[sid] ?? 0
 
-  const overage = (totals: Record<string, number>): number =>
-    targets.reduce((sum, t) => sum + Math.max((totals[t.skillId] ?? 0) - t.targetLevel, 0), 0)
-
   const initialState: DpState = {
     officerIds: [...lockedIds],
     totals: { ...seedTotals },
-    achievedCount: countAchieved(seedTotals, targetSkillIds, targetLevels),
-    overageTotal: overage(seedTotals),
+    ...scoreTotals(seedTotals, targets),
   }
 
   const dp = new Map<string, DpState>()
@@ -201,12 +238,10 @@ const runStateDp = (
       if (state.officerIds.length >= capacity) continue
 
       const newTotals = addContribution(state.totals, candidate.contributions)
-      const achievedCount = countAchieved(newTotals, targetSkillIds, targetLevels)
       const newState: DpState = {
         officerIds: [...state.officerIds, candidate.officer.id],
         totals: newTotals,
-        achievedCount,
-        overageTotal: overage(newTotals),
+        ...scoreTotals(newTotals, targets),
       }
 
       const key = makeStateKey(newTotals, targetSkillIds, targetLevels)
@@ -219,7 +254,7 @@ const runStateDp = (
 
   let best: DpState = initialState
   for (const state of dp.values()) {
-    if (betterForSameKey(state, best)) best = state
+    if (betterFinalResult(state, best)) best = state
   }
 
   return scoreSelection(best.officerIds, best.totals, targets)
@@ -227,10 +262,6 @@ const runStateDp = (
 
 // ── 贪心求解（目标数过多导致状态空间超标时使用） ──
 
-/**
- * 贪心算法：每次选择对未达成目标贡献最大的候选航海士。
- * 达标即停，不填充多余人数。
- */
 const runGreedy = (
   lockedIds: readonly string[],
   lockedTotals: Readonly<Record<string, number>>,
@@ -243,32 +274,25 @@ const runGreedy = (
   const remaining = [...candidates]
 
   while (selectedIds.length < capacity && remaining.length > 0) {
-    const unmet = new Set(
-      targets.filter((t) => (totals[t.skillId] ?? 0) < t.targetLevel).map((t) => t.skillId),
-    )
+    const current = scoreSelection(selectedIds, totals, targets)
+    if (current.allTargetsComplete) break
 
-    // 全部达标，立即停止
-    if (unmet.size === 0) break
-
-    let bestIndex = 0
-    let bestScore = -Infinity
+    let bestIndex = -1
+    let bestSelection = current
     for (let i = 0; i < remaining.length; i++) {
-      const c = remaining[i]!
-      let filled = 0
-      for (const sid of Object.keys(c.contributions)) {
-        if (unmet.has(sid)) filled += 1
-      }
-      // 分数 = 填补数 × 100 + 贡献技能总数（同分数时选覆盖面更广的）
-      const score = filled * 100 + Object.keys(c.contributions).length
-      if (score > bestScore) {
-        bestScore = score
+      const candidate = remaining[i]!
+      const candidateSelection = scoreSelection(
+        [...selectedIds, candidate.officer.id],
+        addContribution(totals, candidate.contributions),
+        targets,
+      )
+      if (betterFinalResult(candidateSelection, bestSelection)) {
         bestIndex = i
+        bestSelection = candidateSelection
       }
     }
-    if (bestScore <= 0 && unmet.size === 0) {
-      // 所有目标为 0 且没有候选有贡献：停止
-      break
-    }
+
+    if (bestIndex < 0) break
 
     const best = remaining.splice(bestIndex, 1)[0]!
     selectedIds.push(best.officer.id)
@@ -378,6 +402,8 @@ export const solveAdventureTargets = (input: AdventureAutoSolveInput): Adventure
         achievedTargetCount: 0,
         allTargetsComplete: false,
         overageTotal: 0,
+        remainingDeficitTotal: 0,
+        completionScore: 0,
       },
       [],
       input,
@@ -413,7 +439,13 @@ export const solveAdventureTargets = (input: AdventureAutoSolveInput): Adventure
   const capacity = Math.max(0, input.capacity)
   const beforeTargetLevels = beforeLevelsFor(input, targets, byId)
   if (lockedIds.length > capacity) {
-    const overflowSelection = scoreSelection(lockedIds, lockedTotals, targets)
+    const safeLockedIds = lockedIds.slice(0, capacity)
+    const safeLockedTotals = safeLockedIds.reduce<Record<string, number>>((totals, officerId) => {
+      const officer = byId.get(officerId)
+      if (!officer) return totals
+      return addContribution(totals, candidateContributions(officer, targetIds))
+    }, {})
+    const overflowSelection = scoreSelection(safeLockedIds, safeLockedTotals, targets)
     const constraintResult = buildConstraints(
       overflowSelection,
       candidates.length,

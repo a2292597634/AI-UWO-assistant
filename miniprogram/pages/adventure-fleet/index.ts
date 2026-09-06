@@ -41,6 +41,7 @@ import type {
 } from '../../presenters/config-management-presenter'
 import {
   MAX_CONFIGS_PER_SCOPE,
+  MAX_TARGETS_PER_SHIP,
   serializeFleetState,
   type FleetConfigRecord,
 } from '../../contracts/fleet-config'
@@ -201,6 +202,7 @@ const resultMessage: Record<string, string> = {
   'officer-locked': '航海士已鎖定',
   'invalid-target-level': '目標等級必須是 Lv.0 至 Lv.10',
   'duplicate-target': '該技能已在目標列表中',
+  'target-limit': `每艘船最多設定 ${MAX_TARGETS_PER_SHIP} 個目標`,
   'invalid-recommendation': '自動配隊結果無效',
   'ship-slot-full': '目前船已滿 (11人)',
   'no-optimization-target': '請先設定至少一個 Lv.1 以上的優化目標',
@@ -592,7 +594,10 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
 
 /** 为新舰队自动加入默认冒险技能目标（排除钓鱼/回报资源/回报发现物/村庄相关） */
 const initDefaultTargets = (state: FleetPageState): void => {
-  const defaultSkillIds = getDefaultAdventureTargetSkillIds(state.adventureOfficers)
+  const defaultSkillIds = getDefaultAdventureTargetSkillIds(state.adventureOfficers).slice(
+    0,
+    MAX_TARGETS_PER_SHIP,
+  )
   if (defaultSkillIds.length === 0) return
   const targets = defaultSkillIds.map((skillId, index) => ({
     id: `adventure-target-${index + 1}`,
@@ -801,6 +806,12 @@ Page({
   },
 
   onAddTarget() {
+    const state = getState(this)
+    const ship = state.fleet.ships[0]!
+    if (ship.targets.length >= MAX_TARGETS_PER_SHIP) {
+      showError(resultMessage['target-limit'])
+      return
+    }
     this.setData({ showTargetPicker: true })
   },
 

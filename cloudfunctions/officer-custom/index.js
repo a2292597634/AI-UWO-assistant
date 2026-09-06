@@ -33,8 +33,20 @@ const service = createOfficerCustomService(repo, cloud, {
   referenceData,
 })
 
-exports.main = async (event, _context) => {
+const getRequestId = (context) => {
+  const requestId = context && typeof context.requestId === 'string' ? context.requestId.trim() : ''
+  return requestId || `req-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+const createSafeServerError = () => ({
+  ok: false,
+  code: 'network',
+  message: '伺服器暫時無法處理請求，請稍後再試',
+})
+
+exports.main = async (event, context) => {
   const { action, ...payload } = event ?? {}
+  const requestId = getRequestId(context)
   const wxContext = cloud.getWXContext()
   const ownerUid = wxContext.OPENID || null
 
@@ -44,14 +56,10 @@ exports.main = async (event, _context) => {
 
   try {
     const result = await service.dispatch(action, payload, ownerUid)
-    console.log(`[officer-custom] ${action} result: ok=${result.ok}`)
+    console.log(`[officer-custom] ${action} requestId=${requestId} result: ok=${result.ok}`)
     return result
   } catch (error) {
-    console.error(`[officer-custom] ${action} error:`, error)
-    return {
-      ok: false,
-      code: 'network',
-      message: `伺服器錯誤: ${error instanceof Error ? error.message : String(error)}`,
-    }
+    console.error(`[officer-custom] ${action} error requestId=${requestId}`, error)
+    return createSafeServerError()
   }
 }

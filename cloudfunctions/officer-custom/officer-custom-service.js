@@ -399,10 +399,6 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
       previousRecord?.formData?.portraitFileId ?? '',
     )
     if (!normalized.ok) return normalized
-    const count = await repo.countLatestByOwner(ownerUid)
-    if (!sourceSubmissionId && count >= MAX_CUSTOM_OFFICERS_PER_USER) {
-      return fail('limit-reached', `每位用戶最多提交 ${MAX_CUSTOM_OFFICERS_PER_USER} 位航海士`)
-    }
 
     const submissionId = sourceSubmissionId ?? generateSubmissionId()
     const revision = sourceSubmissionId ? (payload.expectedRevision ?? 0) + 1 : 1
@@ -438,8 +434,12 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
     }
     const record = sourceSubmissionId
       ? await repo.insertRevisionIfAbsent(recordData)
-      : await repo.insert(recordData)
-    if (!record) return fail('conflict', '投稿已被更新，請重新載入')
+      : await repo.insertIfOwnerBelowLimit(recordData, MAX_CUSTOM_OFFICERS_PER_USER)
+    if (!record) {
+      return sourceSubmissionId
+        ? fail('conflict', '投稿已被更新，請重新載入')
+        : fail('limit-reached', `每位用戶最多提交 ${MAX_CUSTOM_OFFICERS_PER_USER} 位航海士`)
+    }
     return ok({
       submissionId: record.submissionId,
       revision: record.revision,
