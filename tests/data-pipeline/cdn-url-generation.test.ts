@@ -148,7 +148,7 @@ describe('generated CDN image URLs', () => {
   })
 
   it('leaves an unavailable skill icon empty so the page fallback can render', () => {
-    const missingSkill = skill('skill_missing')
+    const missingSkill = skill('skill_skillT0001')
     const missingOfficer = officer('officer_missing')
     missingOfficer.skills = [
       {
@@ -193,7 +193,7 @@ describe('generated CDN image URLs', () => {
       missingManifest,
     )
 
-    expect(runtime.skill_missing!.ip).toBe('')
+    expect(runtime[missingSkill.id]!.ip).toBe('')
     expect(details.officer_missing!.ss[0]!.ip).toBe('')
   })
 })
