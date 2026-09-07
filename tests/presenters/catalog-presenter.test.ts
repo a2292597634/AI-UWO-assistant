@@ -69,6 +69,10 @@ const makeRow = (id: string) => ({
   },
   activeSkillIcons: {},
   passiveSkillIcons: {},
+  activeSkillNames: {},
+  passiveSkillNames: {},
+  activeSkillCategories: {},
+  passiveSkillCategories: {},
 })
 
 // ── Tests ──
@@ -96,11 +100,32 @@ describe('enrichCatalogWithIcons', () => {
     expect(result[0]!.passiveSkillIcons).toEqual({ skill_p: '/icons/p.png' })
   })
 
+  it('adds skill names and categories for active and passive skills', () => {
+    const result = enrichCatalogWithIcons([makeEntry('001')], makeSkills())
+
+    expect(result[0]!.activeSkillNames).toEqual({ skill_a: '攻擊' })
+    expect(result[0]!.passiveSkillNames).toEqual({ skill_p: '防禦' })
+    expect(result[0]!.activeSkillCategories).toEqual({ skill_a: '戰鬥' })
+    expect(result[0]!.passiveSkillCategories).toEqual({ skill_p: '防禦' })
+  })
+
   it('handles missing skill references with empty string', () => {
     const catalog = [makeEntry('001', { activeSkills: ['skill_nonexistent'] })]
     const result = enrichCatalogWithIcons(catalog, makeSkills())
 
     expect(result[0]!.activeSkillIcons).toEqual({ skill_nonexistent: '' })
+  })
+
+  it('uses empty metadata for missing skill references', () => {
+    const result = enrichCatalogWithIcons(
+      [makeEntry('001', { activeSkills: ['skill_missing'], passiveSkills: ['skill_missing'] })],
+      makeSkills(),
+    )
+
+    expect(result[0]!.activeSkillNames).toEqual({ skill_missing: '' })
+    expect(result[0]!.activeSkillCategories).toEqual({ skill_missing: '' })
+    expect(result[0]!.passiveSkillNames).toEqual({ skill_missing: '' })
+    expect(result[0]!.passiveSkillCategories).toEqual({ skill_missing: '' })
   })
 
   it('handles empty skill arrays', () => {

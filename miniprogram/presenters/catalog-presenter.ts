@@ -20,6 +20,10 @@ export interface CatalogRowView extends RuntimeCatalogEntry {
   visuals: OfficerVisualPaths
   activeSkillIcons: Record<string, string>
   passiveSkillIcons: Record<string, string>
+  activeSkillNames: Record<string, string>
+  passiveSkillNames: Record<string, string>
+  activeSkillCategories: Record<string, string>
+  passiveSkillCategories: Record<string, string>
   assetReady?: boolean
   portraitFail?: boolean
   frameFail?: boolean
@@ -104,12 +108,22 @@ export function enrichCatalogWithIcons(
   return catalog.map((o) => {
     const activeIcons: Record<string, string> = {}
     const passiveIcons: Record<string, string> = {}
+    const activeSkillNames: Record<string, string> = {}
+    const passiveSkillNames: Record<string, string> = {}
+    const activeSkillCategories: Record<string, string> = {}
+    const passiveSkillCategories: Record<string, string> = {}
 
     for (const sid of o.activeSkills ?? []) {
-      activeIcons[sid] = skills[sid]?.ip ?? ''
+      const skill = skills[sid]
+      activeIcons[sid] = skill?.ip ?? ''
+      activeSkillNames[sid] = skill?.n ?? ''
+      activeSkillCategories[sid] = skill?.cn ?? ''
     }
     for (const sid of o.passiveSkills ?? []) {
-      passiveIcons[sid] = skills[sid]?.ip ?? ''
+      const skill = skills[sid]
+      passiveIcons[sid] = skill?.ip ?? ''
+      passiveSkillNames[sid] = skill?.n ?? ''
+      passiveSkillCategories[sid] = skill?.cn ?? ''
     }
 
     return {
@@ -117,6 +131,10 @@ export function enrichCatalogWithIcons(
       visuals: buildOfficerVisuals(o),
       activeSkillIcons: activeIcons,
       passiveSkillIcons: passiveIcons,
+      activeSkillNames,
+      passiveSkillNames,
+      activeSkillCategories,
+      passiveSkillCategories,
       assetReady: true,
     }
   })
