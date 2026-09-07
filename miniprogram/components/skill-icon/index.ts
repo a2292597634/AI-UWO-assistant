@@ -1,6 +1,6 @@
 const getFallbackLabel = (categoryName: string): string => {
   const normalized = categoryName.trim()
-  return normalized ? Array.from(normalized)[0] ?? '技' : '技'
+  return normalized ? (Array.from(normalized)[0] ?? '技') : '技'
 }
 
 Component({

@@ -39,7 +39,7 @@ const makeRow = (id: string): CatalogRowView => {
     passiveSkills: [],
     searchAliases: [],
   }
-    return {
+  return {
     ...entry,
     visuals: {
       framePath: '/assets/ui/uwo-bg-grade-5.png',
