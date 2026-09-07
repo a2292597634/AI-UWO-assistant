@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 interface SkillIconData {
   imageFailed: boolean
@@ -64,6 +64,10 @@ beforeAll(async () => {
   await import('../../miniprogram/components/skill-icon/index')
 })
 
+afterAll(() => {
+  vi.unstubAllGlobals()
+})
+
 describe('skill icon component contract', () => {
   it('declares a shared custom component', () => {
     expect(skillIconJson).toContain('"component": true')
@@ -125,6 +129,7 @@ describe('skill icon component contract', () => {
 
   it('uses 技 for an empty categoryName and the first character otherwise', () => {
     const emptyCategoryContext = createSkillIconContext()
+    emptyCategoryContext.data.fallbackLabel = '舊'
     skillIconComponent.observers.categoryName.call(emptyCategoryContext, '')
 
     const namedCategoryContext = createSkillIconContext()
