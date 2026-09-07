@@ -250,47 +250,6 @@
   margin-right: var(--uwo-space-2);
 }
 
-.catalog-page__skill-icon-wrapper {
-  position: relative;
-  width: 44rpx;
-  height: 44rpx;
-}
-
-.catalog-page__skill-icon {
-  width: 44rpx;
-  height: 44rpx;
-  border: 2rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-control);
-  background: var(--uwo-color-surface-muted);
-}
-
-.catalog-page__skill-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44rpx;
-  height: 44rpx;
-  border: 2rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-control);
-  background: var(--uwo-color-surface-muted);
-  color: var(--uwo-color-text-secondary);
-  font-size: var(--uwo-font-size-minimum-action);
-}
-
-.catalog-page__skill-level-badge {
-  position: absolute;
-  right: calc(-1 * var(--uwo-space-2));
-  bottom: calc(-1 * var(--uwo-space-2));
-  min-width: var(--uwo-space-8);
-  padding: 0 var(--uwo-space-1);
-  border-radius: var(--uwo-radius-pill);
-  background: var(--uwo-color-ink);
-  color: var(--uwo-color-surface);
-  font-size: var(--uwo-font-size-minimum-action);
-  line-height: var(--uwo-space-6);
-  text-align: center;
-}
-
 .catalog-page__skill-more {
   margin-right: var(--uwo-space-2);
   color: var(--uwo-color-text-secondary);

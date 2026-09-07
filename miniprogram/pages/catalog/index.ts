@@ -869,27 +869,6 @@ Page({
     })
   },
 
-  onSkillIconError(e: WechatMiniprogram.BaseEvent) {
-    const dataset = eventDataset(e)
-    const idx = Number(dataset['index'])
-    const skillId = getDatasetString(dataset, 'skillId')
-    if (isNaN(idx) || !skillId) return
-
-    const item = this.data.visibleRows[idx] as CatalogRowView | undefined
-    if (!item) return
-    if (!item.activeSkillIcons[skillId] && !item.passiveSkillIcons[skillId]) return
-    this.setData({
-      visibleRows: this.data.visibleRows.map((row, rowIndex) => {
-        if (rowIndex !== idx) return row
-        return {
-          ...row,
-          activeSkillIcons: { ...row.activeSkillIcons, [skillId]: '' },
-          passiveSkillIcons: { ...row.passiveSkillIcons, [skillId]: '' },
-        }
-      }),
-    })
-  },
-
   onPortraitLayerError(e: WechatMiniprogram.BaseEvent) {
     const dataset = eventDataset(e)
     const idx = Number(dataset['index'])

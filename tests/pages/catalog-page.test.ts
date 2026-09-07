@@ -344,6 +344,14 @@ const catalogWxss = fs.readFileSync(
   path.resolve(__dirname, '../../miniprogram/pages/catalog/index.wxss'),
   'utf8',
 )
+const catalogJson = fs.readFileSync(
+  path.resolve(__dirname, '../../miniprogram/pages/catalog/index.json'),
+  'utf8',
+)
+const catalogPageSource = fs.readFileSync(
+  path.resolve(__dirname, '../../miniprogram/pages/catalog/index.ts'),
+  'utf8',
+)
 
 const cssRule = (selector: string): string => {
   const match = catalogWxss.match(new RegExp(`\\${selector}\\s*\\{([^}]*)\\}`, 's'))
@@ -408,15 +416,38 @@ describe('catalog touch target markup contracts', () => {
     expect(page.data).not.toHaveProperty('draftSelectedJobMap')
   })
 
-  it('keeps officer rows, skill hit targets, image fallbacks and navigation handlers', () => {
+  it('keeps officer rows, image fallbacks and navigation handlers', () => {
     expect(catalogWxml).not.toContain('asset-loading-state')
     expect(catalogWxml).not.toContain('正在載入本地圖片素材')
     expect(catalogWxml).toMatch(/class="catalog-page__officer-row"[^>]*bindtap="onOfficerTap"/)
     expect(catalogWxml).not.toContain('lazy-load="true"')
     expect(catalogWxml).toContain('binderror="onPortraitError"')
-    expect(catalogWxml).toContain('binderror="onSkillIconError"')
     expect(catalogWxml).toContain('catchtap="onSkillIconTap"')
-    expect(catalogWxml).toContain('class="catalog-page__skill-level-badge"')
+  })
+
+  it('registers and renders the shared skill icon component', () => {
+    expect(catalogJson).toContain('"skill-icon": "/components/skill-icon/index"')
+    expect(catalogWxml).toContain('<skill-icon')
+    expect(catalogWxml).toContain('icon-path="{{item.activeSkillIcons[sid]}}"')
+    expect(catalogWxml).toContain('icon-path="{{item.passiveSkillIcons[sid]}}"')
+    expect(catalogWxml).toContain('skill-name="{{item.activeSkillNames[sid]}}"')
+    expect(catalogWxml).toContain('skill-name="{{item.passiveSkillNames[sid]}}"')
+    expect(catalogWxml).toContain('category-name="{{item.activeSkillCategories[sid]}}"')
+    expect(catalogWxml).toContain('category-name="{{item.passiveSkillCategories[sid]}}"')
+  })
+
+  it('keeps skill navigation in the page and removes page-owned icon failure mutation', () => {
+    expect(catalogWxml).toContain('catchtap="onSkillIconTap"')
+    expect(catalogWxml).toContain(
+      'aria-label="查看技能詳情：{{item.activeSkillNames[sid] || \'技能\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'aria-label="查看技能詳情：{{item.passiveSkillNames[sid] || \'技能\'}}"',
+    )
+    expect(catalogWxml).not.toContain('binderror="onSkillIconError"')
+    expect(catalogWxml).not.toContain('class="catalog-page__skill-icon-wrapper"')
+    expect(catalogWxml).not.toContain('class="catalog-page__skill-level-badge"')
+    expect(catalogPageSource).not.toContain('onSkillIconError')
   })
 
   it('uses Design Foundation tokens and safe-area styling for the filter sheet', () => {
@@ -434,20 +465,15 @@ describe('catalog touch target markup contracts', () => {
     expect(catalogWxml).toMatch(
       /class="catalog-page__skill-hit-target"[^>]*catchtap="onSkillIconTap"/,
     )
-    expect(catalogWxml).toContain('role="button" aria-label="查看技能詳情"')
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="查看技能詳情：{{item.activeSkillNames[sid] || \'技能\'}}"',
+    )
+    expect(catalogWxml).toContain(
+      'role="button" aria-label="查看技能詳情：{{item.passiveSkillNames[sid] || \'技能\'}}"',
+    )
     expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-width:\s*88rpx;/)
     expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/width:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-height:\s*88rpx;/)
     expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*88rpx;/)
-    expect(cssRule('.catalog-page__skill-icon')).toMatch(/width:\s*44rpx;/)
-    expect(cssRule('.catalog-page__skill-icon')).toMatch(/height:\s*44rpx;/)
-  })
-
-  it('uses Design Foundation tokens for the touched skill badge metrics', () => {
-    const badgeRule = cssRule('.catalog-page__skill-level-badge')
-    expect(badgeRule).toMatch(/right:\s*calc\(-1\s*\*\s*var\(--uwo-space-2\)\);/)
-    expect(badgeRule).toMatch(/bottom:\s*calc\(-1\s*\*\s*var\(--uwo-space-2\)\);/)
-    expect(badgeRule).toMatch(/min-width:\s*var\(--uwo-space-8\);/)
-    expect(badgeRule).toMatch(/font-size:\s*var\(--uwo-font-size-minimum-action\);/)
-    expect(badgeRule).toMatch(/line-height:\s*var\(--uwo-space-6\);/)
   })
 })

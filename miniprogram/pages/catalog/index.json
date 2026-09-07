@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "skill-sheet": "/components/skill-sheet/index"
+    "skill-sheet": "/components/skill-sheet/index",
+    "skill-icon": "/components/skill-icon/index"
   },
   "navigationBarTitleText": "航海士名鑑"
 }
