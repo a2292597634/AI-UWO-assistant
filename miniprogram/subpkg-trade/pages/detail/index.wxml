@@ -25,7 +25,7 @@
 
     <view class="trade-detail__current">
       <text>目前遊戲月份：{{currentMonthLabel}}</text>
-      <text class="trade-detail__current-note">以 2026 年 9 月 4 日（日本時區）為 12 月基準</text>
+      <text class="trade-detail__current-note">以 2026 年 9 月 3 日 09:00（中國大陸時間）為 12 月基準</text>
     </view>
 
     <view class="trade-legend">

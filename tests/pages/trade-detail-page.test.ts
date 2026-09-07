@@ -31,7 +31,7 @@ let detailPage: TradeDetailPageConfig
 const wxStub = {
   setNavigationBarTitle: vi.fn(),
 }
-const anchorMs = Date.UTC(2026, 8, 3, 15, 0, 0)
+const anchorMs = Date.UTC(2026, 8, 7, 1, 0, 0)
 const dayMs = 24 * 60 * 60 * 1000
 
 const createPageInstance = (): TradeDetailPageInstance => {
@@ -65,7 +65,7 @@ afterAll(() => {
 })
 
 describe('trade detail page', () => {
-  it('loads the wine detail and marks the calibrated current month', () => {
+  it('loads the wine detail and marks the current April game month', () => {
     const page = createPageInstance()
 
     page.onLoad({ id: 'trade0615' })
@@ -73,10 +73,10 @@ describe('trade detail page', () => {
     expect(page.data.loading).toBe(false)
     expect(page.data.pageError).toBeNull()
     expect(page.data.title.name).toBe('葡萄酒')
-    expect(page.data.currentGameMonth).toBe(12)
+    expect(page.data.currentGameMonth).toBe(4)
     expect(page.data.ports.length).toBeGreaterThan(0)
     expect(page.data.ports.every((port) => port.months.length === 12)).toBe(true)
-    expect(page.data.ports[0]?.months[11]?.isCurrent).toBe(true)
+    expect(page.data.ports[0]?.months[3]?.isCurrent).toBe(true)
     expect(wxStub.setNavigationBarTitle).toHaveBeenCalledWith({ title: '葡萄酒' })
   })
 
@@ -97,9 +97,9 @@ describe('trade detail page', () => {
     vi.setSystemTime(anchorMs + dayMs)
     page.onShow()
 
-    expect(page.data.currentGameMonth).toBe(1)
-    expect(page.data.ports[0]?.months[0]?.isCurrent).toBe(true)
-    expect(page.data.ports[0]?.months[11]?.isCurrent).toBe(false)
+    expect(page.data.currentGameMonth).toBe(5)
+    expect(page.data.ports[0]?.months[4]?.isCurrent).toBe(true)
+    expect(page.data.ports[0]?.months[3]?.isCurrent).toBe(false)
   })
 })
 
@@ -115,6 +115,8 @@ describe('trade detail page markup', () => {
     expect(detailWxml).toContain('淡')
     expect(detailWxml).toContain('一般')
     expect(detailWxml).toContain('第 {{currentMonthLabel}} 已標示目前月份')
+    expect(detailWxml).toContain('中國大陸時間')
+    expect(detailWxml).toContain('09:00')
     expect(detailWxml).not.toContain('scroll-x')
     expect(detailWxml).not.toContain('<scroll-view')
     expect(detailWxss).toMatch(/repeat\(12/)
