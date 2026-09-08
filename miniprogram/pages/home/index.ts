@@ -37,9 +37,9 @@ Page({
       {
         id: 'coupon-redemption',
         name: '兌換碼',
-        iconPath: '',
+        iconPath: '/assets/ui/feature-coupon.png',
         route: '/subpkg-coupon/pages/redemption/index',
-        iconFailed: true,
+        iconFailed: false,
       },
       {
         id: 'data-maintenance',

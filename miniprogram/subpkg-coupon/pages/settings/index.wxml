@@ -18,10 +18,10 @@
           <text class="coupon-settings__profile-meta">{{item.serverName}} ・ {{item.userNo}}</text>
           <text wx:if="{{item.isActive}}" class="coupon-settings__profile-state">目前使用中</text>
         </view>
-        <view class="coupon-settings__profile-actions">
-          <button class="ui-button ui-button--secondary coupon-settings__small-button" bindtap="onUseProfile" data-id="{{item.id}}">使用</button>
-          <button class="ui-button ui-button--secondary coupon-settings__small-button" bindtap="onEditProfile" data-id="{{item.id}}">編輯</button>
-          <button class="ui-button ui-button--danger coupon-settings__small-button" bindtap="onRequestDeleteProfile" data-id="{{item.id}}">刪除</button>
+        <view class="coupon-settings__profile-actions coupon-settings__profile-actions--row">
+          <button class="ui-button ui-button--compact ui-button--secondary coupon-settings__small-button" bindtap="onUseProfile" data-id="{{item.id}}">使用</button>
+          <button class="ui-button ui-button--compact ui-button--secondary coupon-settings__small-button" bindtap="onEditProfile" data-id="{{item.id}}">編輯</button>
+          <button class="ui-button ui-button--compact ui-button--danger coupon-settings__small-button" bindtap="onRequestDeleteProfile" data-id="{{item.id}}">刪除</button>
         </view>
       </view>
     </block>
@@ -30,10 +30,6 @@
   <view class="coupon-settings__form">
     <view class="coupon-settings__section-heading">
       <text class="coupon-settings__section-title">{{editingId ? '編輯玩家設定' : '新增玩家設定'}}</text>
-    </view>
-    <view class="coupon-settings__field">
-      <text class="coupon-settings__label">設定名稱</text>
-      <input class="coupon-settings__input" value="{{form.name}}" placeholder="例如：主力商會" bindinput="onNameInput" maxlength="30" />
     </view>
     <view class="coupon-settings__field">
       <text class="coupon-settings__label">伺服器</text>

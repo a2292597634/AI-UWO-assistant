@@ -1,7 +1,6 @@
 import {
   COUPON_PROFILE_STORAGE_KEY,
   GAME_SERVERS,
-  MAX_COUPON_PROFILE_NAME_LENGTH,
   MAX_COUPON_PROFILES,
   MAX_COUPON_USER_NAME_LENGTH,
   type CouponProfile,
@@ -47,7 +46,6 @@ const isValidProfile = (value: unknown): value is CouponProfile => {
   if (!isRecord(value)) return false
   return (
     isNonEmptyString(value.id, 100) &&
-    isNonEmptyString(value.name, MAX_COUPON_PROFILE_NAME_LENGTH) &&
     isValidServerId(value.gameServerId) &&
     isNonEmptyString(value.userNo, MAX_COUPON_USER_NAME_LENGTH)
   )
@@ -85,7 +83,7 @@ const parseStore = (value: unknown): CouponProfileStore => {
   return {
     profiles: profiles.map((profile) => ({
       id: profile.id,
-      name: profile.name.trim(),
+      name: profile.userNo.trim(),
       gameServerId: profile.gameServerId,
       userNo: profile.userNo.trim(),
     })),
@@ -99,18 +97,14 @@ const isValidProfileStoreId = (value: Record<string, unknown>): boolean =>
 const serialize = (store: CouponProfileStore): string => JSON.stringify(store)
 
 const normalizeInput = (input: CouponProfileInput): CouponProfileInput => {
-  const name = typeof input.name === 'string' ? input.name.trim() : ''
   const userNo = typeof input.userNo === 'string' ? input.userNo.trim() : ''
-  if (!isNonEmptyString(name, MAX_COUPON_PROFILE_NAME_LENGTH)) {
-    throw new CouponProfileStoreError('設定名稱不可為空，且不得超過 30 個字元。')
-  }
   if (!isValidServerId(input.gameServerId)) {
     throw new CouponProfileStoreError('請選擇有效的伺服器。')
   }
   if (!isNonEmptyString(userNo, MAX_COUPON_USER_NAME_LENGTH)) {
     throw new CouponProfileStoreError('遊戲內暱稱不可為空，且不得超過 100 個字元。')
   }
-  return { name, gameServerId: input.gameServerId, userNo }
+  return { gameServerId: input.gameServerId, userNo }
 }
 
 const createProfileId = (): string =>
@@ -132,7 +126,12 @@ export const createCouponProfileStore = (storage: SyncStorage): CouponProfileSto
       if (current.profiles.length >= MAX_COUPON_PROFILES) {
         throw new CouponProfileStoreError('最多保存 10 組玩家設定。')
       }
-      const profile: CouponProfile = { id: createProfileId(), ...normalizeInput(input) }
+      const normalized = normalizeInput(input)
+      const profile: CouponProfile = {
+        id: createProfileId(),
+        name: normalized.userNo,
+        ...normalized,
+      }
       return persist({
         profiles: [...current.profiles, profile],
         activeProfileId: current.activeProfileId ?? profile.id,
@@ -147,7 +146,7 @@ export const createCouponProfileStore = (storage: SyncStorage): CouponProfileSto
       const normalized = normalizeInput(input)
       return persist({
         profiles: current.profiles.map((profile) =>
-          profile.id === id ? { id, ...normalized } : profile,
+          profile.id === id ? { id, name: normalized.userNo, ...normalized } : profile,
         ),
         activeProfileId: current.activeProfileId,
       })

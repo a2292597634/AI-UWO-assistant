@@ -90,6 +90,28 @@
       }
     },
     {
+      "id": "feature-coupon",
+      "output": "feature-coupon.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 2975,
+      "sha256": "29da5be353a0894121250cb3c1ff824d38d8cadbc3d332e150d42a6e9cb482d6",
+      "sourceTransparentBounds": {
+        "left": 13,
+        "top": 8,
+        "width": 294,
+        "height": 301
+      },
+      "outputTransparentBounds": {
+        "left": 4,
+        "top": 3,
+        "width": 87,
+        "height": 86
+      }
+    },
+    {
       "id": "feature-data-maintenance",
       "output": "feature-data-maintenance.png",
       "group": "feature",
@@ -616,8 +638,8 @@
   ],
   "groupBytes": {
     "banner": 32507,
-    "feature": 13947,
+    "feature": 16922,
     "original-ui": 43335
   },
-  "totalBytes": 89789
+  "totalBytes": 92764
 }

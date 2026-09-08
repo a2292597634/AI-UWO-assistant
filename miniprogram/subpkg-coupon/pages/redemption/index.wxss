@@ -100,12 +100,11 @@
   margin-bottom: var(--uwo-space-2);
 }
 
-.coupon-redemption__change,
-.coupon-redemption__button {
-  min-height: 88rpx;
+.coupon-redemption__compact-button {
+  min-height: 64rpx;
   margin: 0;
-  padding: var(--uwo-space-3) var(--uwo-space-4);
-  font-size: var(--uwo-font-size-body);
+  padding: var(--uwo-space-1) var(--uwo-space-3);
+  font-size: var(--uwo-font-size-minimum-action);
   line-height: 1.3;
 }
 

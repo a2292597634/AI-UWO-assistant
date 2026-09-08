@@ -10,7 +10,6 @@ import {
 } from '../../../presenters/coupon-redemption-presenter'
 
 const emptyForm = (): CouponProfileInput => ({
-  name: '',
   gameServerId: GAME_SERVERS[0].id,
   userNo: '',
 })
@@ -63,17 +62,12 @@ Page({
     this.setData({
       editingId: id,
       form: {
-        name: profile.name,
         gameServerId: profile.gameServerId,
         userNo: profile.userNo,
       },
       gameServerName: getServerName(profile.gameServerId),
       gameServerIndex: GAME_SERVERS.findIndex((server) => server.id === profile.gameServerId),
     })
-  },
-
-  onNameInput(event: WechatMiniprogram.Input) {
-    this.setData({ 'form.name': event.detail.value })
   },
 
   onServerChange(event: WechatMiniprogram.PickerChange) {
@@ -136,7 +130,7 @@ Page({
       .load()
       .profiles.find((item) => item.id === id)
     if (!profile) return
-    this.setData({ deleteTargetId: id, deleteTargetName: profile.name })
+    this.setData({ deleteTargetId: id, deleteTargetName: profile.userNo })
   },
 
   onCancelDeleteProfile() {

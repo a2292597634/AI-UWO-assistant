@@ -99,6 +99,8 @@ describe('首頁功能入口', () => {
     expect(homePage.data.modules[4]).toMatchObject({
       id: 'coupon-redemption',
       name: '兌換碼',
+      iconPath: '/assets/ui/feature-coupon.png',
+      iconFailed: false,
       route: '/subpkg-coupon/pages/redemption/index',
     })
     expect(homePage.data.modules[homePage.data.modules.length - 1]).toMatchObject({
