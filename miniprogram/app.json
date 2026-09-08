@@ -25,6 +25,11 @@
         "pages/officer-review/index",
         "pages/officer-review-detail/index"
       ]
+    },
+    {
+      "root": "subpkg-coupon",
+      "name": "coupon",
+      "pages": ["pages/redemption/index", "pages/settings/index"]
     }
   ],
   "window": {

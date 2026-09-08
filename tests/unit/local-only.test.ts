@@ -73,6 +73,24 @@ describe('findRuntimeNetworkReferences', () => {
     ).toEqual([])
   })
 
+  it('allows coupon redemption CloudBase call only in its runtime adapter', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-coupon-allow-'))
+    fixtureRoots.push(root)
+    const runtimeDir = join(root, 'runtime')
+    mkdirSync(runtimeDir, { recursive: true })
+    writeFileSync(
+      join(runtimeDir, 'coupon-redemption-service.ts'),
+      "wx.cloud.callFunction({ name: 'coupon-redemption', data: { couponNo: 'secret' } })",
+      'utf8',
+    )
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudFunctionFiles: ['runtime/coupon-redemption-service.ts'],
+      }),
+    ).toEqual([])
+  })
+
   it('rejects wx.cloud.callFunction in a non-allowed page', () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-local-reject-'))
     fixtureRoots.push(root)

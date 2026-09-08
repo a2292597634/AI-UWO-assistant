@@ -35,6 +35,13 @@ Page({
         iconFailed: false,
       },
       {
+        id: 'coupon-redemption',
+        name: '兌換碼',
+        iconPath: '',
+        route: '/subpkg-coupon/pages/redemption/index',
+        iconFailed: true,
+      },
+      {
         id: 'data-maintenance',
         name: '資料維護',
         iconPath: '/assets/ui/feature-data-maintenance.png',

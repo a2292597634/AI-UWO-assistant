@@ -102,6 +102,10 @@ npm run data:generate     # 從 data/master/ 生成所有運行資料
 
 首次編譯後確認首頁顯示「航海助手」與「航海士名鑑」，且控制台沒有登入、網路、路由或 TypeScript 錯誤。
 
+### 兌換碼
+
+首頁的「兌換碼」入口可保存多組玩家設定。設定只保存於目前裝置的小程序資料；兌換碼不保存，送出時由 `coupon-redemption` 雲函數代理官方網站提交。部署雲函數前請閱讀 [兌換碼 CloudBase 部署](docs/architecture/coupon-redemption-cloudbase.md)。
+
 ## 技術棧
 
 - **框架**：原生微信小程序 + Glass-Easel
