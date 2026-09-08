@@ -19,6 +19,18 @@ const originalUi = (id: string, source: string, output: string): UiAssetRecipe =
   group: 'original-ui',
 })
 
+const compactDisclosureUi = (id: string, source: string, output: string): UiAssetRecipe => ({
+  id,
+  source: `original/${source}`,
+  output,
+  mode: 'resize-png',
+  width: 512,
+  height: 512,
+  paletteColors: 16,
+  maxBytes: 8 * 1024,
+  group: 'original-ui',
+})
+
 export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
   {
     id: 'feature-officer-catalog',
@@ -112,12 +124,12 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
   ),
   originalUi('gender-f', 'gender_f.png', 'gender-f.png'),
   originalUi('gender-m', 'gender_m.png', 'gender-m.png'),
-  originalUi(
+  compactDisclosureUi(
     'disclosure-chevron-down',
     'uwo_disclosure_chevron_down.png',
     'uwo-disclosure-chevron-down.png',
   ),
-  originalUi(
+  compactDisclosureUi(
     'disclosure-chevron-up',
     'uwo_disclosure_chevron_up.png',
     'uwo-disclosure-chevron-up.png',
