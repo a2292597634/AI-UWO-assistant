@@ -6,10 +6,10 @@
       "output": "uwo-disclosure-chevron-down.png",
       "group": "original-ui",
       "mimeType": "image/png",
-      "width": 1254,
-      "height": 1254,
-      "byteSize": 14052,
-      "sha256": "d2c5fecf28e4f6380f6b36bada8c82d51fffc1423386deaccfa0d438abb07cb1",
+      "width": 512,
+      "height": 512,
+      "byteSize": 1243,
+      "sha256": "550355d3467684101bb8823c2d3cff9d52e5557aa278c9275c0c41e387440b29",
       "sourceTransparentBounds": {
         "left": 218,
         "top": 409,
@@ -17,10 +17,10 @@
         "height": 279
       },
       "outputTransparentBounds": {
-        "left": 218,
-        "top": 409,
-        "width": 508,
-        "height": 279
+        "left": 217,
+        "top": 232,
+        "width": 78,
+        "height": 48
       }
     },
     {
@@ -28,10 +28,10 @@
       "output": "uwo-disclosure-chevron-up.png",
       "group": "original-ui",
       "mimeType": "image/png",
-      "width": 1254,
-      "height": 1254,
-      "byteSize": 20478,
-      "sha256": "8d19dcf4205acc6e066265ff6ffbf0db3ece350233503ac8730fc53a4861c940",
+      "width": 512,
+      "height": 512,
+      "byteSize": 1882,
+      "sha256": "986a462669b956ba8de4472613705712a5130e14cf9a9efaa77ff2ea8c7753eb",
       "sourceTransparentBounds": {
         "left": 218,
         "top": 409,
@@ -39,10 +39,10 @@
         "height": 297
       },
       "outputTransparentBounds": {
-        "left": 218,
-        "top": 409,
-        "width": 534,
-        "height": 297
+        "left": 206,
+        "top": 224,
+        "width": 100,
+        "height": 63
       }
     },
     {
@@ -617,7 +617,7 @@
   "groupBytes": {
     "banner": 32507,
     "feature": 13947,
-    "original-ui": 74740
+    "original-ui": 43335
   },
-  "totalBytes": 121194
+  "totalBytes": 89789
 }

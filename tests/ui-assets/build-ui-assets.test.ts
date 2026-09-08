@@ -207,6 +207,20 @@ describe('buildUiAssets', () => {
     ).toBe(true)
   })
 
+  it('keeps shared disclosure chevrons compact for the main package budget', () => {
+    const report = JSON.parse(
+      readFileSync(resolve(__dirname, '../../data/audit/ui-asset-build-report.json'), 'utf8'),
+    ) as {
+      groupBytes: Record<string, number>
+      files: ReportFileWithTransparency[]
+    }
+    const chevrons = report.files.filter((file) => file.id.startsWith('disclosure-chevron-'))
+
+    expect(chevrons).toHaveLength(2)
+    expect(chevrons.every((file) => file.byteSize <= 8 * 1024)).toBe(true)
+    expect(report.groupBytes['original-ui']).toBeLessThanOrEqual(60 * 1024)
+  })
+
   it('rejects a fully transparent PNG source before it can enter the report', async () => {
     const sourceRoot = makeTemporaryDirectory()
     const outputRoot = makeTemporaryDirectory()
