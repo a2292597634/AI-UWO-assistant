@@ -1,0 +1,169 @@
+.coupon-redemption-page {
+  min-height: 100vh;
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-canvas);
+  font-family: var(--uwo-font-family-body);
+}
+
+.coupon-redemption__header {
+  display: flex;
+  flex-direction: column;
+  padding: var(--uwo-space-8) var(--uwo-space-6) var(--uwo-space-6);
+  background: var(--uwo-color-ink);
+}
+
+.coupon-redemption__eyebrow {
+  color: var(--uwo-color-accent-brass);
+  font-size: var(--uwo-font-size-supporting);
+  letter-spacing: 2rpx;
+}
+
+.coupon-redemption__title {
+  margin-top: var(--uwo-space-2);
+  color: var(--uwo-color-surface);
+  font-family: var(--uwo-font-family-display);
+  font-size: var(--uwo-font-size-page-title);
+  font-weight: 700;
+}
+
+.coupon-redemption__intro {
+  margin-top: var(--uwo-space-3);
+  color: var(--uwo-color-surface-muted);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.coupon-redemption__content {
+  padding: var(--uwo-space-6);
+}
+
+.coupon-redemption__profile,
+.coupon-redemption__empty,
+.coupon-redemption__form {
+  margin-bottom: var(--uwo-space-4);
+  padding: var(--uwo-space-4);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+}
+
+.coupon-redemption__profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uwo-space-3);
+}
+
+.coupon-redemption__profile-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--uwo-space-1);
+}
+
+.coupon-redemption__label {
+  display: block;
+  margin-bottom: var(--uwo-space-2);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  font-weight: 600;
+}
+
+.coupon-redemption__profile-name,
+.coupon-redemption__empty-title {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-emphasis);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.coupon-redemption__profile-meta,
+.coupon-redemption__empty-copy,
+.coupon-redemption__hint,
+.coupon-redemption__status-message {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.coupon-redemption__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uwo-space-2);
+}
+
+.coupon-redemption__empty-copy {
+  margin-bottom: var(--uwo-space-2);
+}
+
+.coupon-redemption__change,
+.coupon-redemption__button {
+  min-height: 88rpx;
+  margin: 0;
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  font-size: var(--uwo-font-size-body);
+  line-height: 1.3;
+}
+
+.coupon-redemption__change {
+  flex: 0 0 auto;
+}
+
+.coupon-redemption__form {
+  display: flex;
+  flex-direction: column;
+}
+
+.coupon-redemption__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 88rpx;
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-control);
+  font-size: var(--uwo-font-size-body);
+}
+
+.coupon-redemption__hint {
+  margin-top: var(--uwo-space-2);
+}
+
+.coupon-redemption__status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uwo-space-1);
+  margin: 0 0 var(--uwo-space-4);
+  padding: var(--uwo-space-4);
+  border-radius: var(--uwo-radius-card);
+}
+
+.coupon-redemption__status-message {
+  color: inherit;
+}
+
+.coupon-redemption__actions {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  padding: var(--uwo-space-3) var(--uwo-space-6)
+    calc(var(--uwo-space-3) + env(safe-area-inset-bottom));
+  background: var(--uwo-color-surface);
+  border-top: 2rpx solid var(--uwo-color-border-subtle);
+}
+
+.coupon-redemption__submit {
+  width: 100%;
+  min-height: 88rpx;
+  margin: 0;
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  font-size: var(--uwo-font-size-body);
+  line-height: 1.3;
+}

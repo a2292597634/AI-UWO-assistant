@@ -1,0 +1,62 @@
+<view class="coupon-settings-page">
+  <view class="coupon-settings__header">
+    <text class="coupon-settings__eyebrow">兌換碼</text>
+    <text class="coupon-settings__title">玩家設定</text>
+    <text class="coupon-settings__intro">設定只會保存在此裝置的小程序資料中。</text>
+  </view>
+
+  <view wx:if="{{isEmpty}}" class="coupon-settings__empty">
+    <text class="coupon-settings__empty-title">尚未新增玩家設定</text>
+    <text class="coupon-settings__empty-copy">保存伺服器與遊戲內暱稱，下次兌換時可直接選用。</text>
+  </view>
+
+  <view wx:else class="coupon-settings__list">
+    <block wx:for="{{profiles}}" wx:key="id">
+      <view class="coupon-settings__profile {{item.isActive ? 'coupon-settings__profile--active' : ''}}">
+        <view class="coupon-settings__profile-copy">
+          <text class="coupon-settings__profile-name">{{item.name}}</text>
+          <text class="coupon-settings__profile-meta">{{item.serverName}} ・ {{item.userNo}}</text>
+          <text wx:if="{{item.isActive}}" class="coupon-settings__profile-state">目前使用中</text>
+        </view>
+        <view class="coupon-settings__profile-actions">
+          <button class="ui-button ui-button--secondary coupon-settings__small-button" bindtap="onUseProfile" data-id="{{item.id}}">使用</button>
+          <button class="ui-button ui-button--secondary coupon-settings__small-button" bindtap="onEditProfile" data-id="{{item.id}}">編輯</button>
+          <button class="ui-button ui-button--danger coupon-settings__small-button" bindtap="onRequestDeleteProfile" data-id="{{item.id}}">刪除</button>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="coupon-settings__form">
+    <view class="coupon-settings__section-heading">
+      <text class="coupon-settings__section-title">{{editingId ? '編輯玩家設定' : '新增玩家設定'}}</text>
+    </view>
+    <view class="coupon-settings__field">
+      <text class="coupon-settings__label">設定名稱</text>
+      <input class="coupon-settings__input" value="{{form.name}}" placeholder="例如：主力商會" bindinput="onNameInput" maxlength="30" />
+    </view>
+    <view class="coupon-settings__field">
+      <text class="coupon-settings__label">伺服器</text>
+      <picker mode="selector" range="{{gameServers}}" range-key="name" value="{{gameServerIndex}}" bindchange="onServerChange">
+        <view class="coupon-settings__picker {{form.gameServerId ? '' : 'coupon-settings__picker--empty'}}">{{gameServerName || '選擇伺服器'}}</view>
+      </picker>
+    </view>
+    <view class="coupon-settings__field">
+      <text class="coupon-settings__label">遊戲內暱稱</text>
+      <input class="coupon-settings__input" value="{{form.userNo}}" placeholder="請輸入遊戲內暱稱" bindinput="onUserNoInput" maxlength="100" />
+    </view>
+    <view class="coupon-settings__form-actions">
+      <button class="ui-button ui-button--primary coupon-settings__button" bindtap="onSaveProfile">{{editingId ? '保存修改' : '保存設定'}}</button>
+      <button class="ui-button ui-button--secondary coupon-settings__button" bindtap="onAddProfile">清空表單</button>
+    </view>
+  </view>
+
+  <view wx:if="{{deleteTargetId}}" class="coupon-settings__confirm" role="dialog">
+    <text class="coupon-settings__confirm-title">刪除玩家設定？</text>
+    <text class="coupon-settings__confirm-copy">確定要刪除「{{deleteTargetName}}」嗎？刪除後無法復原。</text>
+    <view class="coupon-settings__confirm-actions">
+      <button class="ui-button ui-button--secondary coupon-settings__button" bindtap="onCancelDeleteProfile">取消</button>
+      <button class="ui-button ui-button--danger coupon-settings__button" bindtap="onConfirmDeleteProfile">確認刪除</button>
+    </view>
+  </view>
+</view>

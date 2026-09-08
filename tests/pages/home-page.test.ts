@@ -80,6 +80,7 @@ describe('首頁功能入口', () => {
       'battle-fleet',
       'adventure-fleet',
       'trade-goods',
+      'coupon-redemption',
       'data-maintenance',
     ])
     expect(homePage.data.modules[3]).toMatchObject({
@@ -95,13 +96,18 @@ describe('首頁功能入口', () => {
       name: '冒險模擬艦隊',
       iconPath: '/assets/ui/feature-adventure-fleet.png',
     })
+    expect(homePage.data.modules[4]).toMatchObject({
+      id: 'coupon-redemption',
+      name: '兌換碼',
+      route: '/subpkg-coupon/pages/redemption/index',
+    })
     expect(homePage.data.modules[homePage.data.modules.length - 1]).toMatchObject({
       name: '資料維護',
       route: '/pages/officer-editor/index',
       iconPath: '/assets/ui/feature-data-maintenance.png',
     })
-    expect(homeWxml).toContain('index < 4')
-    expect(homeWxml).toContain('index === 4')
+    expect(homeWxml).toContain('index < 5')
+    expect(homeWxml).toContain("item.id === 'data-maintenance'")
     expect(homeWxss).toMatch(/width:\s*33\.333333%/)
   })
 

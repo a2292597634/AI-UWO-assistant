@@ -23,7 +23,7 @@
     <view class="module-grid">
       <block wx:for="{{modules}}" wx:key="id">
         <view
-          wx:if="{{index < 4}}"
+          wx:if="{{index < 5}}"
           class="module-grid__item"
           bindtap="onModuleTap"
           data-route="{{item.route}}"
@@ -53,7 +53,7 @@
       <view class="module-grid module-grid--secondary">
         <block wx:for="{{modules}}" wx:key="id">
           <view
-            wx:if="{{index === 4}}"
+            wx:if="{{item.id === 'data-maintenance'}}"
             class="module-grid__item module-grid__item--secondary"
             bindtap="onModuleTap"
             data-route="{{item.route}}"

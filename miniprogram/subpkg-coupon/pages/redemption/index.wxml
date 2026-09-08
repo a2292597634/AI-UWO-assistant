@@ -1,0 +1,50 @@
+<view class="coupon-redemption-page">
+  <view class="coupon-redemption__header">
+    <text class="coupon-redemption__eyebrow">航海助手</text>
+    <text class="coupon-redemption__title">兌換碼</text>
+    <text class="coupon-redemption__intro">由官方服務代為提交兌換碼，獎勵將發送至遊戲內信箱。</text>
+  </view>
+
+  <view class="coupon-redemption__content">
+    <view wx:if="{{activeProfile}}" class="coupon-redemption__profile">
+      <view class="coupon-redemption__profile-copy">
+        <text class="coupon-redemption__label">目前玩家設定</text>
+        <text class="coupon-redemption__profile-name">{{activeProfile.name}}</text>
+        <text class="coupon-redemption__profile-meta">{{activeServerName}} ・ {{activeProfile.userNo}}</text>
+      </view>
+      <button class="ui-button ui-button--secondary coupon-redemption__change" bindtap="onOpenSettings">切換</button>
+    </view>
+
+    <view wx:else class="coupon-redemption__empty">
+      <text class="coupon-redemption__empty-title">尚未選擇玩家設定</text>
+      <text class="coupon-redemption__empty-copy">先保存伺服器與遊戲內暱稱，兌換時即可直接帶入。</text>
+      <button class="ui-button ui-button--secondary coupon-redemption__button" bindtap="onOpenSettings">新增玩家設定</button>
+    </view>
+
+    <view class="coupon-redemption__form">
+      <text class="coupon-redemption__label">兌換碼</text>
+      <input
+        class="coupon-redemption__input"
+        value="{{couponNo}}"
+        placeholder="請輸入含連字號的兌換碼"
+        maxlength="50"
+        bindinput="onCouponInput"
+      />
+      <text class="coupon-redemption__hint">兌換碼只會用於本次提交，不會保存。</text>
+    </view>
+
+    <view wx:if="{{result}}" class="ui-status {{result.statusClass}} coupon-redemption__status">
+      <text class="ui-status__label">{{result.label}}</text>
+      <text class="coupon-redemption__status-message">{{result.message}}</text>
+    </view>
+  </view>
+
+  <view class="coupon-redemption__actions">
+    <button
+      class="ui-button ui-button--primary coupon-redemption__submit"
+      loading="{{isSubmitting}}"
+      disabled="{{submitDisabled}}"
+      bindtap="onSubmit"
+    >{{isSubmitting ? '正在提交…' : '確認並領取'}}</button>
+  </view>
+</view>
