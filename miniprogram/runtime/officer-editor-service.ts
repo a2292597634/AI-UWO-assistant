@@ -135,6 +135,7 @@ export interface OfficerSubmissionService {
   ): Promise<OfficerSubmissionMutationResult>
   listMine(): Promise<readonly OfficerSubmissionSummary[]>
   loadMine(submissionId: string, revision?: number): Promise<OfficerSubmissionRecord>
+  getMyOpenId(): Promise<{ openid: string }>
   getAdminStatus(): Promise<{ isAdmin: boolean }>
   listAdmin(status: SubmissionStatus): Promise<readonly OfficerSubmissionSummary[]>
   loadAdmin(submissionId: string, revision: number): Promise<OfficerSubmissionRecord>
@@ -181,6 +182,10 @@ export function createOfficerSubmissionService(): OfficerSubmissionService {
         submissionId,
         ...(revision === undefined ? {} : { revision }),
       })
+    },
+
+    async getMyOpenId(): Promise<{ openid: string }> {
+      return callOfficerFunction<{ openid: string }>('getMyOpenId')
     },
 
     async getAdminStatus(): Promise<{ isAdmin: boolean }> {

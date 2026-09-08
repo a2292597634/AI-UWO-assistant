@@ -24,6 +24,12 @@ OFFICER_ADMIN_OPENIDS=<OpenID A>,<OpenID B>
 
 真實 OpenID 不寫入程式碼、資料檔、測試、WXML 或版本庫。
 
+### 臨時取得目前帳號 OpenID
+
+若不知道目前微信帳號的 OpenID，可在小程序「資料投稿」頁點擊「查看目前帳號 OpenID（臨時）」，於彈窗中複製完整值，再填入上方的 `OFFICER_ADMIN_OPENIDS`。這個值由 `officer-custom` 雲函數從 `cloud.getWXContext().OPENID` 取得，不接受頁面輸入，也不會寫入資料庫或函數日誌。
+
+完成 CloudBase 白名單配置並重新部署 `officer-custom`、重新編譯小程序後，應移除投稿頁的臨時入口及 `getMyOpenId` action；不要把真實 OpenID 寫入 Git、測試、文件或提交訊息。
+
 ## 同步工具
 
 同步工具使用另一個只供本地/CI 使用的服務端 token：

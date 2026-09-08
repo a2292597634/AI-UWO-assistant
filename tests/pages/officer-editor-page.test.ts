@@ -43,4 +43,14 @@ describe('航海士資料投稿頁契約', () => {
     expect(wxss).toMatch(/overflow-wrap\s*:\s*anywhere/)
     expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
   })
+
+  it('提供臨時 OpenID 顯示與複製入口', () => {
+    const wxml = readPageFile('index.wxml')
+    const ts = readPageFile('index.ts')
+
+    expect(wxml).toContain('查看目前帳號 OpenID（臨時）')
+    expect(ts).toContain('onShowOpenId')
+    expect(ts).toContain('getOfficerSubmissionService().getMyOpenId()')
+    expect(ts).toContain('wx.setClipboardData')
+  })
 })

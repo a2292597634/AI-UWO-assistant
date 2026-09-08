@@ -54,6 +54,7 @@ interface SubmissionPageData {
   editingSubmission: boolean
   isAdmin: boolean
   adminStatusReady: boolean
+  openIdLoading: boolean
   submitting: boolean
   name: string
   rarityOptions: SubmissionOption[]
@@ -120,6 +121,7 @@ interface SubmissionPageState {
   submitting: boolean
   isAdmin: boolean
   adminStatusReady: boolean
+  openIdLoading: boolean
 }
 
 interface PageLike {
@@ -202,6 +204,7 @@ const buildView = (state: SubmissionPageState): SubmissionPageData => {
     editingSubmission: state.editingSubmission,
     isAdmin: state.isAdmin,
     adminStatusReady: state.adminStatusReady,
+    openIdLoading: state.openIdLoading,
     submitting: state.submitting,
     name: form.name,
     rarityOptions: state.options.rarities,
@@ -377,6 +380,7 @@ Page({
     editingSubmission: false,
     isAdmin: false,
     adminStatusReady: false,
+    openIdLoading: false,
     submitting: false,
     name: '',
     rarityOptions: [],
@@ -454,6 +458,7 @@ Page({
       submitting: false,
       isAdmin: false,
       adminStatusReady: false,
+      openIdLoading: false,
     }
     pageStateByInstance.set(this, state)
     wx.setNavigationBarTitle({ title: '資料投稿' })
@@ -816,6 +821,33 @@ Page({
     const state = getState(this)
     if (!state.isAdmin) return
     wx.navigateTo({ url: '/subpkg-submission/pages/officer-review/index' })
+  },
+
+  async onShowOpenId() {
+    const state = getState(this)
+    if (state.openIdLoading) return
+    state.openIdLoading = true
+    render(this)
+    try {
+      const { openid } = await getOfficerSubmissionService().getMyOpenId()
+      wx.showModal({
+        title: '目前帳號 OpenID（臨時）',
+        content: openid,
+        confirmText: '複製',
+        success: (result) => {
+          if (!result.confirm) return
+          wx.setClipboardData({
+            data: openid,
+            success: () => showSuccess('OpenID 已複製'),
+          })
+        },
+      })
+    } catch (error) {
+      showError(error instanceof OfficerSubmissionError ? error.message : 'OpenID 讀取失敗，請重試')
+    } finally {
+      state.openIdLoading = false
+      render(this)
+    }
   },
 
   async onSubmit() {

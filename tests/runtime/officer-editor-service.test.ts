@@ -136,6 +136,20 @@ describe('OfficerSubmissionService adapter contract', () => {
     })
   })
 
+  it('取得目前登入帳號 OpenID 時不向服務端傳入身份欄位', async () => {
+    mockCallFunction.mockResolvedValue({
+      result: { ok: true, data: { openid: 'openid_user' } },
+    })
+
+    await expect(createOfficerSubmissionService().getMyOpenId()).resolves.toEqual({
+      openid: 'openid_user',
+    })
+    expect(mockCallFunction).toHaveBeenLastCalledWith({
+      name: 'officer-custom',
+      data: { action: 'getMyOpenId' },
+    })
+  })
+
   it('将 CloudBase 错误映射成稳定的投稿错误', async () => {
     mockCallFunction.mockResolvedValue({
       result: { ok: false, code: 'forbidden', message: '只有小程序管理員可以執行此操作' },

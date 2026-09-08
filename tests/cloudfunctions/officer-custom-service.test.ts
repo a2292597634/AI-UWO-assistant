@@ -31,7 +31,7 @@ const serviceModule = require('../../cloudfunctions/officer-custom/officer-custo
     dispatch: (
       action: string,
       payload: Record<string, unknown>,
-      ownerUid: string,
+      ownerUid: string | null,
     ) => Promise<ServiceResult>
   }
 }
@@ -213,6 +213,22 @@ describe('Officer custom submission service', () => {
 
   const dispatchSubmit = (payload = validPayload(), ownerUid = 'openid_user') =>
     service.dispatch('submit', payload, ownerUid)
+
+  it('只返回服務端目前呼叫者的 OpenID，忽略 payload 內的偽造值', async () => {
+    await expect(
+      service.dispatch('getMyOpenId', { openid: 'openid_spoofed' }, 'openid_user'),
+    ).resolves.toMatchObject({
+      ok: true,
+      data: { openid: 'openid_user' },
+    })
+  })
+
+  it('未登入時不能取得 OpenID', async () => {
+    await expect(service.dispatch('getMyOpenId', {}, null)).resolves.toMatchObject({
+      ok: false,
+      code: 'unauthenticated',
+    })
+  })
 
   it('非管理员不能列出或修改全部投稿', async () => {
     await expect(

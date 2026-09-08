@@ -31,7 +31,14 @@ const REVIEW_KEYS = new Set(['visualGradeId', 'skills'])
 const REVIEW_SKILL_KEYS = new Set(['skillId', 'kind', 'sourceGroup', 'slot'])
 const ADMIN_ACTIONS = new Set(['listAdmin', 'loadAdmin', 'saveAdmin', 'approve', 'reject'])
 const SYNC_ACTIONS = new Set(['listApprovedForSync', 'getPortraitDownloadUrl', 'markPublished'])
-const USER_ACTIONS = new Set(['submit', 'resubmit', 'listMine', 'loadMine', 'listCustom'])
+const USER_ACTIONS = new Set([
+  'submit',
+  'resubmit',
+  'listMine',
+  'loadMine',
+  'listCustom',
+  'getMyOpenId',
+])
 
 const ok = (data) => ({ ok: true, data })
 const fail = (code, message) => ({ ok: false, code, message })
@@ -465,6 +472,8 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
     switch (action) {
       case 'getAdminStatus':
         return ok({ isAdmin: requireAdmin(ownerUid) })
+      case 'getMyOpenId':
+        return ok({ openid: ownerUid })
       case 'submit':
         return handleSubmit(ownerUid, payload)
       case 'resubmit': {
