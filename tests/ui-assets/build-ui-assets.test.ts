@@ -125,6 +125,9 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-trade-goods-source.png')),
+    sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
+      .png()
+      .toFile(join(sourceRoot, 'feature-coupon-source.png')),
   ])
 }
 
@@ -146,6 +149,7 @@ describe('buildUiAssets', () => {
       'feature-battle-fleet',
       'feature-adventure-fleet',
       'feature-data-maintenance',
+      'feature-coupon',
     ]
 
     expect(grade?.trimBounds).toEqual({ left: 2, top: 0, width: 20, height: 23 })
@@ -186,10 +190,11 @@ describe('buildUiAssets', () => {
       'feature-battle-fleet',
       'feature-adventure-fleet',
       'feature-data-maintenance',
+      'feature-coupon',
     ]
     const featureFiles = report.files.filter((file) => featureIds.includes(file.id))
 
-    expect(featureFiles).toHaveLength(5)
+    expect(featureFiles).toHaveLength(6)
     expect(
       featureFiles.every((file) => {
         const bounds = file.outputTransparentBounds

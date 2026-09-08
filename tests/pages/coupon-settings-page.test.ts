@@ -5,7 +5,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 interface SettingsPageData {
   gameServers: Array<{ id: string; name: string }>
   profiles: unknown[]
-  form: { name: string; gameServerId: string; userNo: string }
+  form: { gameServerId: string; userNo: string }
   editingId: string | null
   deleteTargetId: string | null
   isEmpty: boolean
@@ -80,7 +80,6 @@ describe('兌換設定頁', () => {
   it('保存設定後寫入本機 storage', () => {
     const page = createPageInstance()
     page.data.form = {
-      name: '主力商會',
       gameServerId: 'UWOGL-US-01',
       userNo: '航海家小明',
     }
@@ -90,7 +89,7 @@ describe('兌換設定頁', () => {
     expect(wxStub.setStorageSync).toHaveBeenCalledTimes(1)
     expect(JSON.parse(String(storageValue)).profiles).toEqual([
       expect.objectContaining({
-        name: '主力商會',
+        name: '航海家小明',
         gameServerId: 'UWOGL-US-01',
         userNo: '航海家小明',
       }),
@@ -101,7 +100,14 @@ describe('兌換設定頁', () => {
     expect(settingsWxml).toContain('picker mode="selector"')
     expect(settingsWxml).toContain('range="{{gameServers}}"')
     expect(settingsWxml).toContain('bindtap="onConfirmDeleteProfile"')
+    expect(settingsWxml).not.toContain('設定名稱')
+    expect(settingsWxml).not.toContain('form.name')
+    expect(settingsWxml).toContain('coupon-settings__profile-actions--row')
+    expect(settingsWxml).toContain('ui-button--compact')
     expect(settingsWxss).toContain('var(--uwo-color-canvas)')
     expect(settingsWxss).toContain('min-height: 88rpx')
+    expect(settingsWxss).not.toMatch(
+      /\.coupon-settings__profile-actions\s*\{[^}]*flex-direction:\s*column/s,
+    )
   })
 })

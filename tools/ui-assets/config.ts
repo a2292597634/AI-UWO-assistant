@@ -88,6 +88,17 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     group: 'feature',
   },
   {
+    id: 'feature-coupon',
+    source: 'feature-coupon-source.png',
+    output: 'feature-coupon.png',
+    mode: 'resize-png',
+    width: 96,
+    height: 96,
+    paletteColors: 16,
+    maxBytes: 12 * 1024,
+    group: 'feature',
+  },
+  {
     id: 'home-harbor',
     source: 'home-harbor-source.png',
     output: 'home-harbor.jpg',

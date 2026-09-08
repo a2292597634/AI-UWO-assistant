@@ -11,11 +11,13 @@ import {
 import { createCouponProfileStore } from '../../../runtime/coupon-profile-store'
 import { getCouponResultViewModel } from '../../../presenters/coupon-redemption-presenter'
 
+const DEFAULT_COUPON_CODE = 'FULLMOON2026'
+
 const asProfile = (value: CouponProfile | undefined): CouponProfile | null => value ?? null
 
 Page({
   data: {
-    couponNo: '',
+    couponNo: DEFAULT_COUPON_CODE,
     activeProfile: null as CouponProfile | null,
     activeServerName: '',
     submitDisabled: true,

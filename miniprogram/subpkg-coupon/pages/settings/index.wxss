@@ -74,8 +74,7 @@
 
 .coupon-settings__profile {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: var(--uwo-space-3);
   padding: var(--uwo-space-3) 0;
   border-bottom: 1rpx solid var(--uwo-color-border-subtle);
@@ -113,16 +112,22 @@
 
 .coupon-settings__profile-actions {
   display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  gap: var(--uwo-space-1);
+  width: 100%;
+}
+
+.coupon-settings__profile-actions--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--uwo-space-2);
 }
 
 .coupon-settings__small-button {
-  min-width: 112rpx;
-  min-height: 88rpx;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 64rpx;
+  flex: 1 1 0;
   margin: 0;
-  padding: var(--uwo-space-2) var(--uwo-space-3);
+  padding: var(--uwo-space-1) var(--uwo-space-2);
   font-size: var(--uwo-font-size-minimum-action);
   line-height: 1.3;
 }

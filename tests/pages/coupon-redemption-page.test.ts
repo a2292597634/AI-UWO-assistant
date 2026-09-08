@@ -81,6 +81,10 @@ const redemptionWxss = fs.readFileSync(
 )
 
 describe('兌換碼頁', () => {
+  it('首次進入時預填指定兌換碼', () => {
+    expect(redemptionPage.data.couponNo).toBe('FULLMOON2026')
+  })
+
   it('沒有目前設定時禁用提交並可導向設定頁', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -118,8 +122,10 @@ describe('兌換碼頁', () => {
 
   it('使用 Design Foundation 狀態與主要按鈕結構', () => {
     expect(redemptionWxml).toContain('ui-button ui-button--primary')
+    expect(redemptionWxml).toContain('coupon-redemption__compact-button')
     expect(redemptionWxml).toContain('ui-status')
     expect(redemptionWxss).toContain('var(--uwo-color-canvas)')
     expect(redemptionWxss).toContain('env(safe-area-inset-bottom)')
+    expect(redemptionWxss).toContain('min-height: 88rpx')
   })
 })

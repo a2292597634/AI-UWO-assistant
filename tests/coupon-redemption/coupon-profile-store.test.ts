@@ -4,10 +4,9 @@ import {
   type SyncStorage,
 } from '../../miniprogram/runtime/coupon-profile-store'
 
-const profileInput = (name: string) => ({
-  name,
+const profileInput = (userNo: string) => ({
   gameServerId: 'UWOGL-US-01' as const,
-  userNo: '航海家',
+  userNo,
 })
 
 const createMemoryStorage = (): SyncStorage & { value: unknown } => ({
@@ -49,13 +48,41 @@ describe('本機兌換設定儲存', () => {
 
   it('編輯既有設定時保留 ID 並只更新設定欄位', () => {
     const store = createCouponProfileStore(memoryStorage)
-    const saved = store.saveProfile(profileInput('舊名稱')).profiles[0]!
+    const saved = store.saveProfile(profileInput('舊暱稱')).profiles[0]!
 
-    const updated = store.updateProfile(saved.id, profileInput('新名稱'))
+    const updated = store.updateProfile(saved.id, profileInput('新暱稱'))
 
     expect(updated.profiles).toEqual([
-      expect.objectContaining({ id: saved.id, name: '新名稱', userNo: '航海家' }),
+      expect.objectContaining({ id: saved.id, name: '新暱稱', userNo: '新暱稱' }),
     ])
+  })
+
+  it('保存設定時以修剪後的暱稱作為顯示名稱', () => {
+    const profile = createCouponProfileStore(memoryStorage).saveProfile({
+      gameServerId: 'UWOGL-US-01',
+      userNo: '  航海家小明  ',
+    }).profiles[0]!
+
+    expect(profile).toMatchObject({ name: '航海家小明', userNo: '航海家小明' })
+  })
+
+  it('載入舊資料時忽略舊設定名稱並以暱稱顯示', () => {
+    memoryStorage.value = JSON.stringify({
+      profiles: [
+        {
+          id: 'old',
+          name: '主力商會',
+          gameServerId: 'UWOGL-US-01',
+          userNo: '航海家小明',
+        },
+      ],
+      activeProfileId: 'old',
+    })
+
+    expect(createCouponProfileStore(memoryStorage).load().profiles[0]).toMatchObject({
+      name: '航海家小明',
+      userNo: '航海家小明',
+    })
   })
 
   it('遇到破損的本機資料時回復為空設定', () => {
