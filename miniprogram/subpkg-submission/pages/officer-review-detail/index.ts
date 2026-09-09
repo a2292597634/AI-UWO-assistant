@@ -454,14 +454,21 @@ const chooseImage = (page: PageLike): void => {
     success: (result) => {
       const path = result.tempFilePaths[0]
       if (!path) return
-      wx.compressImage({
+      wx.cropImage({
         src: path,
-        quality: 80,
-        success: (compressed) => loadImageMeta(page, compressed.tempFilePath),
-        fail: () => loadImageMeta(page, path),
+        cropScale: '1:1',
+        success: (cropped) => {
+          wx.compressImage({
+            src: cropped.tempFilePath,
+            quality: 80,
+            success: (compressed) => loadImageMeta(page, compressed.tempFilePath),
+            fail: () => loadImageMeta(page, cropped.tempFilePath),
+          })
+        },
+        fail: () => showError('頭像裁切已取消，請重新選擇'),
       })
     },
-    fail: () => undefined,
+    fail: () => showError('頭像選擇已取消'),
   })
 }
 

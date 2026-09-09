@@ -114,6 +114,27 @@ describe('OfficerMaintenanceService 工單雲函數適配器', () => {
     })
   })
 
+  it('儲存草稿時傳送裁切後頭像附件，不把頭像欄位混入正式資料', async () => {
+    mockCallFunction.mockResolvedValue({
+      result: {
+        ok: true,
+        data: { ...versionInput, status: 'draft', portraitFileId: 'cloud://portrait' },
+      },
+    })
+    const portraitUpload = {
+      base64: 'portrait-base64',
+      meta: { mimeType: 'image/png' as const, byteSize: 128, width: 256, height: 256 },
+    }
+
+    await createOfficerMaintenanceService().saveDraft({ ...draftInput, portraitUpload })
+
+    expect(mockCallFunction).toHaveBeenCalledWith({
+      name: 'officer-maintenance',
+      data: expect.objectContaining({ action: 'saveDraft', portraitUpload }),
+    })
+    expect(mockCallFunction.mock.calls[0]?.[0].data.portraitId).toBeUndefined()
+  })
+
   it('只在所有維護頁面已建立後註冊維護子包', () => {
     const maintenancePackage = maintenanceAppConfig.subpackages.find(
       ({ root }) => root === 'subpkg-maintenance',

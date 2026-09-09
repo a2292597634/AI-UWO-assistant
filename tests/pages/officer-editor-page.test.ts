@@ -31,9 +31,11 @@ describe('航海士資料投稿頁契約', () => {
   it('明確展示正式版頭像限制與審核後發布流程', () => {
     const wxml = readPageFile('index.wxml')
     const wxss = readPageFile('index.wxss')
+    const page = readPageFile('index.ts')
     expect(wxml).toContain('不超過 512 KB')
     expect(wxml).toContain('最長邊不超過 512 px')
-    expect(readPageFile('index.ts')).toContain("imageTypeName === 'jpg'")
+    expect(page).toContain("imageTypeName === 'jpg'")
+    expect(page).toContain("cropScale: '1:1'")
     expect(wxml).toContain('提交後狀態為「待審核」')
     expect(wxml).toContain('portraitFileId')
     expect(wxss).toContain('var(--uwo-color-canvas)')

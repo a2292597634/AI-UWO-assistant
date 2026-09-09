@@ -7,6 +7,7 @@
 
 import type {
   MaintenanceOfficerData,
+  MaintenancePortraitUpload,
   MaintenanceStatus,
   MaintenanceWorkOrderDraft,
   MaintenanceWorkOrderHistoryEntry,
@@ -27,6 +28,8 @@ export type OfficerMaintenanceErrorCode =
   | 'invalid-status'
   | 'reject-reason-required'
   | 'review-reason-required'
+  | 'invalid-portrait'
+  | 'upload-failed'
 
 export class OfficerMaintenanceError extends Error {
   readonly code: OfficerMaintenanceErrorCode
@@ -53,6 +56,7 @@ export type SaveMaintenanceDraftInput = MaintenanceWorkOrderDraft & {
   readonly workOrderId?: string
   readonly revision?: number
   readonly updatedAt?: string
+  readonly portraitUpload?: MaintenancePortraitUpload
 }
 
 export interface SubmitMaintenanceWorkOrderInput {
@@ -103,6 +107,8 @@ const KNOWN_ERROR_CODES = new Set<OfficerMaintenanceErrorCode>([
   'invalid-status',
   'reject-reason-required',
   'review-reason-required',
+  'invalid-portrait',
+  'upload-failed',
 ])
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

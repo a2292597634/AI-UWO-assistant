@@ -12,7 +12,17 @@
       <view wx:for="{{basicFields}}" wx:key="field" class="maintenance-editor__label">{{item.label}}
         <picker range="{{item.options}}" range-key="name" data-field="{{item.field}}" bindchange="onBasicChange" disabled="{{readonly || saving || submitting}}"><view class="maintenance-editor__control">{{item.name}}</view></picker>
       </view>
-      <view class="maintenance-editor__system-hint">視覺等級、頭像與顯示排序由系統依發布規則自動設定。</view>
+      <view class="maintenance-editor__system-hint">視覺等級與顯示排序由系統依發布規則自動設定；新增工單需提供正式版頭像。</view>
+      <view wx:if="{{!modifying}}" class="maintenance-editor__portrait">
+        <view class="maintenance-editor__label">正式版頭像 <text class="required">*</text></view>
+        <view class="maintenance-editor__portrait-picker" bindtap="onPortraitTap">
+          <image wx:if="{{portraitTempPath}}" class="maintenance-editor__portrait-image" src="{{portraitTempPath}}" mode="aspectFill" />
+          <image wx:elif="{{portraitFileId}}" class="maintenance-editor__portrait-image" src="{{portraitFileId}}" mode="aspectFill" />
+          <view wx:else class="maintenance-editor__portrait-empty">＋ 選擇頭像（將先裁切為 1:1）</view>
+        </view>
+        <view wx:if="{{portraitTempPath || portraitFileId}}" class="maintenance-editor__portrait-meta">{{portraitMetaText || '已保留已上傳頭像'}} <text bindtap="onPortraitTap">重新選擇</text></view>
+        <view class="maintenance-editor__hint">PNG、JPG 或 JPEG；不超過 512 KB，最長邊不超過 512 px。</view>
+      </view>
       <entity-search-picker label="職業" options="{{options.job}}" selected-ids="{{selected.job}}" allow-candidate="{{true}}" data-kind="job" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
       <entity-search-picker label="國家" options="{{options.nationality}}" selected-ids="{{selected.nationality}}" allow-candidate="{{true}}" data-kind="nationality" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
     </view>

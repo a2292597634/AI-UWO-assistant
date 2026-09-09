@@ -69,6 +69,20 @@ export interface MaintenanceOfficerData {
   readonly maintenanceNote?: string
 }
 
+/** 已裁切、壓縮後準備送往維護工單服務的頭像檔案資訊。 */
+export interface MaintenancePortraitMeta {
+  readonly mimeType: 'image/png' | 'image/jpeg'
+  readonly byteSize: number
+  readonly width: number
+  readonly height: number
+}
+
+/** 頭像附件只存在請求期間；正式 portraitId 仍由同步工具產生。 */
+export interface MaintenancePortraitUpload {
+  readonly base64: string
+  readonly meta: MaintenancePortraitMeta
+}
+
 /** 使用者儲存或送審的工單草稿。 */
 export interface MaintenanceWorkOrderDraft {
   readonly operation: MaintenanceOperation
@@ -77,6 +91,10 @@ export interface MaintenanceWorkOrderDraft {
   readonly baseSnapshot: MaintenanceOfficerData | null
   readonly proposedData: MaintenanceOfficerData
   readonly referenceCandidates: readonly ReferenceCandidate[]
+  /** 使用者上傳的待審核頭像檔案；正式 portraitId 仍由同步流程產生。 */
+  readonly portraitFileId?: string | null
+  /** 由服務端驗證後保存的附件檢查資訊。 */
+  readonly portraitMeta?: MaintenancePortraitMeta | null
 }
 
 /** 前端校驗所需的正式資料參照。 */

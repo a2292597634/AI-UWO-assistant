@@ -33,12 +33,34 @@ Page({
     rows: [] as WorkOrderRow[],
     loading: false,
     loadError: '',
+    isAdmin: false,
+    adminReviewVisible: false,
+    adminReviewCount: 0,
+    checkingAdmin: false,
   },
   onLoad() {
     wx.setNavigationBarTitle({ title: '我的維護工單' })
   },
   onShow() {
     void this.loadWorkOrders()
+    void this.checkAdminPermission()
+  },
+  async checkAdminPermission() {
+    if (this.data.checkingAdmin) return
+    this.setData({ checkingAdmin: true })
+    try {
+      const records = await getOfficerMaintenanceService().listAdmin('pendingReview')
+      this.setData({
+        isAdmin: true,
+        adminReviewVisible: true,
+        adminReviewCount: records.length,
+      })
+    } catch {
+      // 權限探測失敗時保持一般使用者畫面，不把 forbidden 當成列表錯誤提示。
+      this.setData({ isAdmin: false, adminReviewVisible: false, adminReviewCount: 0 })
+    } finally {
+      this.setData({ checkingAdmin: false })
+    }
   },
   async loadWorkOrders() {
     if (this.data.loading) return
@@ -72,6 +94,10 @@ Page({
   },
   onModifyWorkOrder() {
     wx.navigateTo({ url: '/subpkg-maintenance/pages/modify-officer/index' })
+  },
+  onAdminReview() {
+    if (!this.data.adminReviewVisible) return
+    wx.navigateTo({ url: '/subpkg-maintenance/pages/work-order-review/index' })
   },
   onRowTap(event: WechatMiniprogram.TouchEvent) {
     const id = String(event.currentTarget.dataset.id ?? '')

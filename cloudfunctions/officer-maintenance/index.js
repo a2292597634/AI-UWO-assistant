@@ -3,6 +3,7 @@
 const cloud = require('wx-server-sdk')
 const { createRepository } = require('./repository')
 const { createOfficerMaintenanceService } = require('./service')
+const { uploadPortrait } = require('./portrait-upload')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
@@ -23,11 +24,22 @@ const loadReferenceData = () => {
   }
 }
 
+const configuredAdminOpenIds = new Set([
+  ...parseOpenIds(process.env.OFFICER_MAINTENANCE_ADMIN_OPENIDS),
+  // 舊投稿與維護工作台共用產品管理員白名單，避免既有管理員突然失去審核入口。
+  ...parseOpenIds(process.env.OFFICER_ADMIN_OPENIDS),
+])
+const configuredSyncToken = asTrimmedToken(
+  process.env.OFFICER_MAINTENANCE_SYNC_TOKEN || process.env.OFFICER_SYNC_TOKEN,
+)
+
 const repo = createRepository(cloud.database())
 const service = createOfficerMaintenanceService(repo, {
-  adminOpenIds: parseOpenIds(process.env.OFFICER_MAINTENANCE_ADMIN_OPENIDS),
-  syncToken: asTrimmedToken(process.env.OFFICER_MAINTENANCE_SYNC_TOKEN),
+  adminOpenIds: configuredAdminOpenIds,
+  syncToken: configuredSyncToken,
   referenceData: loadReferenceData(),
+  uploadPortrait,
+  cloud,
 })
 
 function asTrimmedToken(value) {
