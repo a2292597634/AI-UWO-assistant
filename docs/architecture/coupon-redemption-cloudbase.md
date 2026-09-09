@@ -8,7 +8,7 @@
 cloudfunctions/coupon-redemption/
   index.js                       — CloudBase entry、呼叫來源雜湊與安全回應
   coupon-redemption-service.js   — 伺服器白名單、節流、官方結果映射
-  line-games-client.js           — URL encoded POST 與 timeout
+  line-games-client.js           — 官方頁面 session、URL encoded POST 與 timeout
   package.json                   — wx-server-sdk@4.0.2
   cloudbaserc.json                 — CloudBase CLI 部署設定（函數逾時 10 秒）
 ```
@@ -22,10 +22,12 @@ Referer: https://coupon-front.line.games/sbc/UWOGL
 
 請求欄位為 `gameServerId`、`userNo` 與 `couponNo`，並照官方表單帶入空白的 `os`、`appStoreCd` 隱藏欄位。雲函數不將玩家設定或兌換碼寫入 CloudBase Database；日誌只記錄 request ID 與結果代碼，不記錄暱稱、兌換碼、官方原始 body 或完整 OpenID。
 
+提交前會先 GET 官方頁面取得 `Set-Cookie`（例如 `JSESSIONID`），再將 cookie 帶入 `useGameCoupon` 的 POST；POST 同時使用官方 AJAX 的 `charset=UTF-8`、`Origin`、`X-Requested-With` 與瀏覽器 `User-Agent` 標頭。這與官方頁面在同一瀏覽器 session 內提交表單的流程一致，也可避免 CloudFront 將無瀏覽器標頭的請求攔截。
+
 ## 部署
 
 1. 確認 CloudBase 環境為 `cloud1-d7gxfuxfe813b4eaa`，且出站 HTTPS 可連至 `coupon-front.line.games:443`。
-2. `cloudbaserc.json` 將 `coupon-redemption` 的函數逾時設為 10 秒；官方 HTTP client 的逾時為 5 秒，兩者需保持前者較長。
+2. `cloudbaserc.json` 將 `coupon-redemption` 的函數逾時設為 10 秒；官方 HTTP client 的總逾時預算為 5 秒（GET 與 POST 共用），兩者需保持前者較長。
 3. 在微信開發者工具中，右鍵 `cloudfunctions/coupon-redemption/`，選擇「上傳並部署：雲端安裝依賴」後，確認雲函數逾時仍為至少 10 秒。
 4. 如使用 CloudBase CLI，可先執行 `tcb config update fn coupon-redemption --timeout 10 -e cloud1-d7gxfuxfe813b4eaa`，再執行 `tcb fn deploy coupon-redemption`；部署來源必須包含同一目錄的 `package.json`。
 5. 不需設定 AppSecret、API token 或資料庫 collection；不要在環境變量、程式碼、測試或日誌中加入兌換碼。
