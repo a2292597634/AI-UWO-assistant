@@ -127,5 +127,9 @@ describe('兌換碼頁', () => {
     expect(redemptionWxss).toContain('var(--uwo-color-canvas)')
     expect(redemptionWxss).toContain('env(safe-area-inset-bottom)')
     expect(redemptionWxss).toContain('min-height: 88rpx')
+    expect(redemptionWxss).toMatch(
+      /\.coupon-redemption__actions\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*center;/s,
+    )
+    expect(redemptionWxss).toMatch(/\.coupon-redemption__submit\s*\{[^}]*max-width:\s*640rpx;/s)
   })
 })

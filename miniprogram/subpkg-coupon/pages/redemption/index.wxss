@@ -152,6 +152,8 @@
   bottom: 0;
   left: 0;
   z-index: 10;
+  display: flex;
+  justify-content: center;
   padding: var(--uwo-space-3) var(--uwo-space-6)
     calc(var(--uwo-space-3) + env(safe-area-inset-bottom));
   background: var(--uwo-color-surface);
@@ -160,6 +162,7 @@
 
 .coupon-redemption__submit {
   width: 100%;
+  max-width: 640rpx;
   min-height: 88rpx;
   margin: 0;
   padding: var(--uwo-space-3) var(--uwo-space-4);
