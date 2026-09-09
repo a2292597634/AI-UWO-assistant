@@ -226,6 +226,7 @@ describe('Runtime files must remain offline and mini program compatible', () => 
         allowedCloudFunctionFiles: [
           'runtime/fleet-config-service.ts',
           'runtime/officer-editor-service.ts',
+          'runtime/officer-maintenance-service.ts',
           'runtime/main-data-store.ts',
           'runtime/coupon-redemption-service.ts',
         ],

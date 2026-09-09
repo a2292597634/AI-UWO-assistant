@@ -1,0 +1,16 @@
+<view class="work-orders">
+  <view class="work-orders__heading">我的維護工單</view>
+  <view class="work-orders__hint">查看草稿、審核與發布進度。</view>
+  <button class="ui-button ui-button--primary" bindtap="onNewWorkOrder">新增航海士工單</button>
+  <view wx:if="{{loading}}" class="work-orders__hint">正在載入工單…</view>
+  <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
+  <button wx:if="{{loadError}}" class="ui-button ui-button--secondary" bindtap="onRetry" disabled="{{loading}}">重試載入</button>
+  <view wx:if="{{!loading &amp;&amp; !loadError &amp;&amp; !rows.length}}" class="work-orders__empty">目前尚無維護工單。</view>
+  <view wx:for="{{rows}}" wx:key="id" class="work-orders__row">
+    <view class="work-orders__name">{{item.name}}</view>
+    <view class="work-orders__hint">{{item.operationLabel}}・{{item.statusLabel}}</view>
+    <view wx:if="{{item.rejectionReason}}" class="ui-status ui-status--error">駁回原因：{{item.rejectionReason}}。請補正後重新送審。</view>
+    <view class="work-orders__hint">更新時間：{{item.updatedAt}}</view>
+    <button class="ui-button ui-button--secondary" data-id="{{item.id}}" bindtap="onRowTap">{{item.editable ? '繼續編輯' : '查看工單'}}</button>
+  </view>
+</view>

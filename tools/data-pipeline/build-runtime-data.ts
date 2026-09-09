@@ -7,6 +7,10 @@ import type {
 } from '../import/types'
 import type { AssetDependencyIndex } from './asset-dependencies'
 import type {
+  MaintenanceDictionaries,
+  MaintenanceOfficerData,
+} from '../../miniprogram/contracts/officer-maintenance'
+import type {
   RuntimeCatalogEntry,
   RuntimeSkill,
   RuntimeFleetOfficer,
@@ -530,6 +534,61 @@ export const buildDictionaries = (
 }
 
 // ── Write all runtime files ──
+
+/** 將完整維護欄位生成到維護子包，避免有損查詢投影與主包膨脹。 */
+export const writeMaintenanceOfficerIndex = (
+  officers: CanonicalOfficer[],
+  dataVersion: string,
+  outputDir: string,
+  dictionaries: Record<string, DictionaryItem[]>,
+): void => {
+  const groups: readonly (keyof MaintenanceDictionaries)[] = [
+    'rarities',
+    'types',
+    'genders',
+    'jobs',
+    'nationalities',
+    'languages',
+    'cities',
+    'requirements',
+    'skillCategories',
+  ]
+  const maintenanceDictionaries = Object.fromEntries(
+    groups.map((group) => [
+      group,
+      (dictionaries[group] ?? [])
+        .map(({ id, name }) => ({ id, name }))
+        .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
+    ]),
+  )
+  const entries = [...officers]
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .map((officer) => {
+      const data: MaintenanceOfficerData = {
+        name: officer.name,
+        rarityId: officer.rarityId,
+        visualGradeId: officer.visualGradeId,
+        typeId: officer.typeId,
+        genderId: officer.genderId,
+        jobId: officer.jobId,
+        nationalityId: officer.nationalityId,
+        languages: officer.languages,
+        skills: officer.skills,
+        recruitment: officer.recruitment,
+        portraitId: officer.portraitId,
+        displayOrder: officer.displayOrder,
+        ...(officer.maintenanceNote !== undefined
+          ? { maintenanceNote: officer.maintenanceNote }
+          : {}),
+      }
+      return [officer.id, data]
+    })
+  mkdirSync(outputDir, { recursive: true })
+  writeFileSync(
+    `${outputDir}/maintenance-officers.js`,
+    `module.exports = ${JSON.stringify({ dataVersion, dictionaries: maintenanceDictionaries, officers: Object.fromEntries(entries) })}\n`,
+  )
+}
 
 export const writeRuntimeData = (
   officers: CanonicalOfficer[],

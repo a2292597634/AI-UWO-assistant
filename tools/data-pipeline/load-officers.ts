@@ -17,9 +17,12 @@ const parseSourceRefs = (value: unknown, index: number): CanonicalOfficerSourceR
   const keys = Object.keys(value)
   const hasVoyageTw = typeof value.voyageTw === 'string' && value.voyageTw.length > 0
   const hasSubmissionId = typeof value.submissionId === 'string' && value.submissionId.length > 0
+  const hasWorkOrderId = typeof value.workOrderId === 'string' && value.workOrderId.length > 0
   const isValidShape =
     keys.length === 1 &&
-    ((hasVoyageTw && keys[0] === 'voyageTw') || (hasSubmissionId && keys[0] === 'submissionId'))
+    ((hasVoyageTw && keys[0] === 'voyageTw') ||
+      (hasSubmissionId && keys[0] === 'submissionId') ||
+      (hasWorkOrderId && keys[0] === 'workOrderId'))
 
   if (!isValidShape) {
     throw new Error(`Invalid sourceRefs at custom officer index ${index}`)
@@ -27,7 +30,9 @@ const parseSourceRefs = (value: unknown, index: number): CanonicalOfficerSourceR
 
   return hasVoyageTw
     ? { voyageTw: value.voyageTw as string }
-    : { submissionId: value.submissionId as string }
+    : hasSubmissionId
+      ? { submissionId: value.submissionId as string }
+      : { workOrderId: value.workOrderId as string }
 }
 
 const parseOfficerArray = (value: unknown, sourceName: string): CanonicalOfficer[] => {

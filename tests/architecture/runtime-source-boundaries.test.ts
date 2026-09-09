@@ -45,6 +45,7 @@ describe('UI asset output boundary helper', () => {
 // ── Whitelist: directories/files where JS is allowed ──
 
 const JS_ALLOWED_PATTERNS = [
+  /[\\/]miniprogram[\\/]subpkg-maintenance[\\/]maintenance-officers\.js$/, // 完整維護索引生成產物
   /[\\/]miniprogram[\\/]generated[\\/]/, // generated data files
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]details-\d+\.js$/, // detail shards
   /[\\/]miniprogram[\\/]subpkg-detail[\\/]detail-index\.js$/, // generated index

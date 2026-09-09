@@ -5,6 +5,7 @@ import {
   writeShardedDetails,
   writeDetailIndex,
   writeDetailLoaders,
+  writeMaintenanceOfficerIndex,
 } from './build-runtime-data'
 import {
   assertAssetDependencyIndex,
@@ -15,16 +16,21 @@ import { writeTradeRuntimeData } from './build-trade-runtime-data'
 import type { CanonicalDatasetHeader, CanonicalTradeDataset } from '../import/types'
 import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
 import { loadCanonicalOfficers } from './load-officers'
-import { buildOfficerReferenceData } from './build-officer-reference-data'
+import {
+  buildOfficerReferenceData,
+  buildMaintenanceReferenceData,
+} from './build-officer-reference-data'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
 const SUBPKG_DIR = 'miniprogram/subpkg-detail'
 const TRADE_SUBPKG_DIR = 'miniprogram/subpkg-trade'
+const MAINTENANCE_SUBPKG_DIR = 'miniprogram/subpkg-maintenance'
 const DATA_ASSETS_DIR = 'data/assets'
 const ASSET_DEPENDENCY_PATH = `${DATA_ASSETS_DIR}/asset-dependencies.json`
 const LEGACY_DEPENDENCY_PATH = 'miniprogram/generated/asset-dependencies.js'
 const OFFICER_REFERENCE_DATA_PATH = 'cloudfunctions/officer-custom/reference-data.json'
+const MAINTENANCE_REFERENCE_DATA_PATH = 'cloudfunctions/officer-maintenance/reference-data.json'
 const PUBLISHED_MANIFEST_PATH =
   process.env.CLOUDBASE_ASSET_MANIFEST_PATH ?? 'data/assets/cloudbase-manifest.json'
 
@@ -70,6 +76,10 @@ const generate = (): void => {
   mkdirSync(TRADE_SUBPKG_DIR, { recursive: true })
   mkdirSync(DATA_ASSETS_DIR, { recursive: true })
   writeFileSync(OFFICER_REFERENCE_DATA_PATH, JSON.stringify(officerReferenceData, null, 2) + '\n')
+  writeFileSync(
+    MAINTENANCE_REFERENCE_DATA_PATH,
+    JSON.stringify(buildMaintenanceReferenceData(CANONICAL_DIR), null, 2) + '\n',
+  )
   console.log(`  ${OFFICER_REFERENCE_DATA_PATH}: written`)
 
   // Generate main package data (catalog, skills, dictionaries)
@@ -114,6 +124,12 @@ const generate = (): void => {
   writeDetailIndex(officers, SUBPKG_DIR)
   writeDetailLoaders(SUBPKG_DIR)
   writeTradeRuntimeData(tradeDataset, OUTPUT_DIR, TRADE_SUBPKG_DIR)
+  writeMaintenanceOfficerIndex(
+    officers,
+    datasetMeta.contentVersion,
+    MAINTENANCE_SUBPKG_DIR,
+    dictionaries,
+  )
 
   console.log(`\nDone. Generated CDN release ${publishedManifest.releaseId}.`)
 }

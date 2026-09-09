@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "管理員工單審核",
+  "usingComponents": { "entity-search-picker": "/components/entity-search-picker/index" }
+}

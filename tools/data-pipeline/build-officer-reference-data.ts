@@ -42,3 +42,16 @@ export const buildOfficerReferenceData = (masterDir = 'data/master'): OfficerRef
     officerIds: officers.map((officer) => officer.id),
   }
 }
+
+/** 維護工單沿用 canonical 完整 ID，並攜帶審核衝突檢查所需版本。 */
+export const buildMaintenanceReferenceData = (masterDir = 'data/master') => {
+  const reference = buildOfficerReferenceData(masterDir)
+  const dictionaries = readJson<Record<string, DictionaryItem[]>>(`${masterDir}/dictionaries.json`)
+  const dataset = readJson<{ contentVersion: string }>(`${masterDir}/dataset.json`)
+  return {
+    ...reference,
+    languageIds: ids(dictionaries.languages),
+    skillCategoryIds: ids(dictionaries.skillCategories),
+    dataVersion: dataset.contentVersion,
+  }
+}

@@ -14,6 +14,10 @@ import type {
   RuntimeDatasetMeta,
 } from '../contracts/runtime-data'
 import { getOfficerSubmissionService } from './officer-editor-service'
+import type {
+  MaintenanceDictionaries,
+  MaintenanceOfficerData,
+} from '../contracts/officer-maintenance'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const _catalog = require('../generated/catalog') as RuntimeCatalogEntry[]
@@ -44,6 +48,45 @@ export function getFleetOfficers(): readonly RuntimeFleetOfficer[] {
 
 export function getDictionaries(): RuntimeDictionaries {
   return _dicts
+}
+
+interface MaintenanceOfficerIndex {
+  dataVersion: string
+  dictionaries: MaintenanceDictionaries
+  officers: Record<string, MaintenanceOfficerData>
+}
+
+/** 遞迴凍結獨立快照，避免呼叫端改寫修改工單的正式基準。 */
+const freezeMaintenanceSnapshot = <T>(value: T): T => {
+  if (value !== null && typeof value === 'object') {
+    Object.values(value).forEach(freezeMaintenanceSnapshot)
+    Object.freeze(value)
+  }
+  return value
+}
+
+/** 讀取 canonical 正式 ID 字典，供維護選項與校驗共同使用。 */
+export async function getMaintenanceDictionaries(): Promise<MaintenanceDictionaries> {
+  const index = (await require.async(
+    '../subpkg-maintenance/maintenance-officers.js',
+  )) as MaintenanceOfficerIndex
+  return freezeMaintenanceSnapshot(
+    JSON.parse(JSON.stringify(index.dictionaries)) as MaintenanceDictionaries,
+  )
+}
+
+/** 按需讀取維護子包的完整正式資料；分包載入錯誤交由頁面呈現及重試。 */
+export async function getMaintenanceOfficer(
+  targetOfficerId: string,
+): Promise<{ readonly dataVersion: string; readonly data: MaintenanceOfficerData } | null> {
+  const index = (await require.async(
+    '../subpkg-maintenance/maintenance-officers.js',
+  )) as MaintenanceOfficerIndex
+  if (!Object.prototype.hasOwnProperty.call(index.officers, targetOfficerId)) return null
+  return freezeMaintenanceSnapshot({
+    dataVersion: index.dataVersion,
+    data: JSON.parse(JSON.stringify(index.officers[targetOfficerId])) as MaintenanceOfficerData,
+  })
 }
 
 // ── 自定义航海士（从 CloudBase 运行时加载） ──

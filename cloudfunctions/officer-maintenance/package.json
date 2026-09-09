@@ -1,0 +1,10 @@
+{
+  "name": "officer-maintenance",
+  "version": "1.0.0",
+  "private": true,
+  "description": "航海士資料維護工單 CloudBase 雲函數",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  }
+}

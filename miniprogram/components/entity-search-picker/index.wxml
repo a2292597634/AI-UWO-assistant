@@ -1,0 +1,49 @@
+<view class="entity-search-picker">
+  <text class="entity-search-picker__label">{{label}}</text>
+
+  <input
+    class="entity-search-picker__input"
+    type="text"
+    value="{{query}}"
+    placeholder="搜尋{{label}}"
+    bindinput="onQueryInput"
+  />
+
+  <view wx:if="{{selectedOptions.length > 0}}" class="entity-search-picker__selected-list">
+    <view wx:for="{{selectedOptions}}" wx:key="id" class="entity-search-picker__selected-item">
+      <view class="entity-search-picker__copy">
+        <text class="entity-search-picker__name">{{item.name}}</text>
+        <text class="entity-search-picker__meta">{{item.meta}}</text>
+      </view>
+      <button
+        class="entity-search-picker__remove"
+        bindtap="onRemove"
+        data-id="{{item.id}}"
+        aria-label="移除{{item.name}}"
+      >移除</button>
+    </view>
+  </view>
+
+  <view wx:if="{{filteredOptions.length > 0}}" class="entity-search-picker__result-list">
+    <button
+      wx:for="{{filteredOptions}}"
+      wx:key="id"
+      class="entity-search-picker__result"
+      bindtap="onSelect"
+      data-id="{{item.id}}"
+      aria-label="選擇{{item.name}}"
+    >
+      <text class="entity-search-picker__name">{{item.name}}</text>
+      <text class="entity-search-picker__meta">{{item.meta}}</text>
+    </button>
+  </view>
+
+  <view wx:if="{{filteredOptions.length === 0}}" class="entity-search-picker__empty">
+    <text>沒有符合的選項</text>
+    <button
+      wx:if="{{allowCandidate && query}}"
+      class="entity-search-picker__candidate"
+      bindtap="onCreateCandidate"
+    >建立「{{query}}」候選項</button>
+  </view>
+</view>

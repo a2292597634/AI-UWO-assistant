@@ -10,9 +10,19 @@
     "sourceRefs": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["voyageTw"],
+      "oneOf": [
+        {
+          "required": ["voyageTw"],
+          "properties": { "voyageTw": { "type": "string", "minLength": 1 } }
+        },
+        {
+          "required": ["workOrderId"],
+          "properties": { "workOrderId": { "type": "string", "minLength": 1 } }
+        }
+      ],
       "properties": {
-        "voyageTw": { "type": "string", "minLength": 1 }
+        "voyageTw": { "type": "string", "minLength": 1 },
+        "workOrderId": { "type": "string", "minLength": 1 }
       }
     }
   }

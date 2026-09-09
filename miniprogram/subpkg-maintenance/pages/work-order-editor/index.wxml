@@ -1,0 +1,67 @@
+<view class="maintenance-editor">
+  <view class="maintenance-editor__heading">{{reviewMode ? '管理員審核與修訂' : modifying ? '修改航海士資料' : '新增航海士資料'}}</view>
+  <view wx:if="{{modifying}}" class="maintenance-editor__hint">正在修改 {{originalName}}（{{targetOfficerId}}）・基準版本 {{baseDataVersion}}，目標航海士不可更換。</view>
+  <view class="maintenance-editor__hint">工單經審核與發布後才會更新名鑑。候選項由管理員確認，不會直接建立正式資料。</view>
+  <view wx:if="{{rejectionReason}}" class="ui-status ui-status--error">已駁回：{{rejectionReason}}。請依此補正後重新送審。</view>
+  <view wx:if="{{loading}}" class="maintenance-editor__status">正在載入資料…</view>
+  <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
+  <view wx:if="{{!loading &amp;&amp; !loadError}}" class="maintenance-editor__form {{readonly || saving || submitting ? 'maintenance-editor__form--locked' : ''}}">
+    <view class="maintenance-editor__section">
+      <view class="maintenance-editor__title">基本資料</view>
+      <label class="maintenance-editor__label">航海士名稱<input class="maintenance-editor__input" value="{{form.name}}" data-field="name" bindinput="onFieldInput" disabled="{{readonly || saving || submitting}}" /></label>
+      <view wx:for="{{basicFields}}" wx:key="field" class="maintenance-editor__label">{{item.label}}
+        <picker range="{{item.options}}" range-key="name" data-field="{{item.field}}" bindchange="onBasicChange" disabled="{{readonly || saving || submitting}}"><view class="maintenance-editor__control">{{item.name}}</view></picker>
+      </view>
+      <entity-search-picker label="職業" options="{{options.job}}" selected-ids="{{selected.job}}" allow-candidate="{{true}}" data-kind="job" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
+      <entity-search-picker label="國家" options="{{options.nationality}}" selected-ids="{{selected.nationality}}" allow-candidate="{{true}}" data-kind="nationality" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
+      <label class="maintenance-editor__label">頭像 ID（可留白）<input class="maintenance-editor__input" value="{{form.portraitId}}" data-field="portraitId" bindinput="onFieldInput" disabled="{{readonly || saving || submitting}}" /></label>
+      <label class="maintenance-editor__label">顯示排序<input class="maintenance-editor__input" type="number" value="{{form.displayOrder}}" data-field="displayOrder" bindinput="onFieldInput" disabled="{{readonly || saving || submitting}}" /></label>
+    </view>
+    <view class="maintenance-editor__section">
+      <view class="maintenance-editor__title">語言與技能</view>
+      <entity-search-picker label="語言" options="{{options.language}}" selected-ids="{{selected.language}}" allow-candidate="{{true}}" data-kind="language" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
+      <label wx:for="{{languageRows}}" wx:key="id" class="maintenance-editor__label">{{item.name}}・語言等級<input class="maintenance-editor__input" type="number" value="{{item.level}}" data-id="{{item.id}}" data-kind="language" data-field="level" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
+      <entity-search-picker label="技能" options="{{options.skill}}" selected-ids="{{selected.skill}}" allow-candidate="{{true}}" data-kind="skill" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
+      <view wx:for="{{skillRows}}" wx:key="id" class="maintenance-editor__relation">
+        <view class="maintenance-editor__label">{{item.name}}</view>
+        <view class="maintenance-editor__hint">來源組決定主動／被動，同組槽位不可重複。</view>
+        <picker range="{{groups}}" value="{{item.groupIndex}}" data-id="{{item.id}}" bindchange="onSkillGroupChange" disabled="{{readonly || saving || submitting}}"><view class="maintenance-editor__control">{{groups[item.groupIndex]}}</view></picker>
+        <label class="maintenance-editor__label">槽位<input class="maintenance-editor__input" type="number" value="{{item.slot}}" data-id="{{item.id}}" data-kind="skill" data-field="slot" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
+        <label class="maintenance-editor__label">解鎖等級<input class="maintenance-editor__input" type="number" value="{{item.unlockLevel}}" data-id="{{item.id}}" data-kind="skill" data-field="unlockLevel" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
+        <label class="maintenance-editor__label">技能等級<input class="maintenance-editor__input" type="number" value="{{item.level}}" data-id="{{item.id}}" data-kind="skill" data-field="level" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
+      </view>
+    </view>
+    <view class="maintenance-editor__section">
+      <view class="maintenance-editor__title">候選項</view>
+      <view class="maintenance-editor__hint">請補充候選項的資料；候選職業／國家不會取代目前正式選項，請於維護備註說明期望關聯。</view>
+      <view wx:if="{{!candidates.length}}" class="maintenance-editor__hint">尚無候選項，搜尋不到資料時可建立。</view>
+      <view wx:for="{{candidates}}" wx:key="key" class="maintenance-editor__relation">
+        <label class="maintenance-editor__label">候選項名稱<input class="maintenance-editor__input" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="onCandidateInput" disabled="{{readonly || saving || submitting}}" /></label>
+        <label class="maintenance-editor__label">別名（以逗號分隔）<input class="maintenance-editor__input" value="{{item.aliases}}" data-index="{{index}}" data-field="aliases" bindinput="onCandidateInput" disabled="{{readonly || saving || submitting}}" /></label>
+        <block wx:if="{{item.kind === 'skill'}}">
+          <entity-search-picker label="既有技能分類（必填）" options="{{options.skillCategory}}" selected-ids="{{item.selectedCategoryIds}}" allow-candidate="{{false}}" data-index="{{index}}" bindselect="onCandidateCategoryChange" bindremove="onCandidateCategoryRemove" />
+          <label class="maintenance-editor__label">技能說明（必填）<textarea class="maintenance-editor__textarea" value="{{item.description}}" data-index="{{index}}" data-field="description" bindinput="onCandidateInput" disabled="{{readonly || saving || submitting}}" maxlength="2000" /></label>
+          <label class="maintenance-editor__label">各等級效果<textarea class="maintenance-editor__textarea" value="{{item.levelInfo}}" data-index="{{index}}" data-field="levelInfo" bindinput="onCandidateInput" disabled="{{readonly || saving || submitting}}" maxlength="2000" /></label>
+        </block>
+        <button class="ui-button ui-button--secondary" data-index="{{index}}" bindtap="onCandidateRemove" disabled="{{readonly || saving || submitting}}">移除候選項</button>
+        <entity-search-picker wx:if="{{reviewMode}}" label="合併至既有資料（合併後請檢查等級與槽位）" options="{{options[item.kind]}}" allow-candidate="{{false}}" data-key="{{item.key}}" bindselect="onCandidateMerge" />
+      </view>
+    </view>
+    <view class="maintenance-editor__section">
+      <view class="maintenance-editor__title">招募與備註</view>
+      <entity-search-picker label="招募城市" options="{{options.city}}" selected-ids="{{selected.city}}" data-kind="city" bindselect="onEntitySelect" bindremove="onEntityRemove" />
+      <entity-search-picker label="招募條件" options="{{options.requirement}}" selected-ids="{{selected.requirement}}" data-kind="requirement" bindselect="onEntitySelect" bindremove="onEntityRemove" />
+      <entity-search-picker label="前置航海士" options="{{options.officer}}" selected-ids="{{selected.officer}}" data-kind="officer" bindselect="onEntitySelect" bindremove="onEntityRemove" />
+      <label class="maintenance-editor__label">招募備註<textarea class="maintenance-editor__textarea" value="{{form.recruitment.note}}" data-field="recruitmentNote" bindinput="onFieldInput" disabled="{{readonly || saving || submitting}}" maxlength="2000" /></label>
+      <label class="maintenance-editor__label">維護備註<textarea class="maintenance-editor__textarea" value="{{form.maintenanceNote}}" data-field="maintenanceNote" bindinput="onFieldInput" disabled="{{readonly || saving || submitting}}" maxlength="2000" /></label>
+    </view>
+  </view>
+  <view wx:if="{{error}}" class="ui-status ui-status--error">{{error}}</view>
+  <view wx:if="{{notice}}" class="ui-status ui-status--achieved">{{notice}}</view>
+  <view wx:if="{{!reviewMode}}" class="maintenance-editor__actions">
+    <view wx:if="{{saving || submitting}}" class="maintenance-editor__hint">{{submitting ? '正在儲存並送審，請稍候…' : '正在儲存草稿，請稍候…'}}</view>
+    <button class="ui-button ui-button--secondary" loading="{{saving}}" disabled="{{loading || loadError || saving || submitting || readonly}}" bindtap="onSaveDraft">儲存草稿</button>
+    <button class="ui-button ui-button--primary" loading="{{submitting}}" disabled="{{loading || loadError || saving || submitting || readonly}}" bindtap="onSubmit">儲存並送審</button>
+    <button class="ui-button ui-button--secondary" bindtap="onMyWorkOrders">我的工單</button>
+  </view>
+</view>

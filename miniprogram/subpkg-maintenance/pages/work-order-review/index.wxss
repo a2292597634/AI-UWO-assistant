@@ -1,0 +1,14 @@
+@import '../work-order-editor/index.wxss';
+
+.maintenance-review {
+  padding: var(--uwo-space-6);
+  padding-bottom: calc(var(--uwo-space-8) + env(safe-area-inset-bottom));
+  font-size: var(--uwo-font-size-body);
+  overflow-wrap: anywhere;
+}
+.maintenance-review__diff {
+  margin: var(--uwo-space-4) 0;
+  padding: var(--uwo-space-4);
+  border-left: var(--uwo-space-1) solid var(--uwo-color-border-strong);
+  background: var(--uwo-color-surface);
+}

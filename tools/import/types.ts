@@ -67,8 +67,13 @@ export interface CanonicalRecruitment {
   note: string | null
 }
 
+export type CanonicalReferenceSourceRefs =
+  { voyageTw: string; workOrderId?: never } | { voyageTw?: never; workOrderId: string }
+
 export type CanonicalOfficerSourceRefs =
-  { voyageTw: string; submissionId?: never } | { voyageTw?: never; submissionId: string }
+  | { voyageTw: string; submissionId?: never; workOrderId?: never }
+  | { voyageTw?: never; submissionId: string; workOrderId?: never }
+  | { voyageTw?: never; submissionId?: never; workOrderId: string }
 
 export const isVoyageTwOfficerSourceRefs = (
   sourceRefs: CanonicalOfficerSourceRefs,
@@ -100,7 +105,7 @@ export interface CanonicalSkill {
   /** Compact per-level effect summary (e.g. "Lv1: 2.3% | Lv2: 3.5% | ..."). */
   levelInfo: string
   iconId: string | null
-  sourceRefs: { voyageTw: string }
+  sourceRefs: CanonicalReferenceSourceRefs
 }
 
 export interface CanonicalTransparentBounds {
@@ -148,7 +153,7 @@ export interface DictionaryItem {
   id: string
   name: string
   displayOrder: number
-  sourceRefs: { voyageTw: string }
+  sourceRefs: CanonicalReferenceSourceRefs
 }
 
 export type CanonicalTradeSalesMode = 'fixed-port' | 'barter' | 'special'

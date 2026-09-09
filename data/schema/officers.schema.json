@@ -77,7 +77,8 @@
       "additionalProperties": false,
       "properties": {
         "voyageTw": { "type": "string", "minLength": 1 },
-        "submissionId": { "type": "string", "minLength": 1 }
+        "submissionId": { "type": "string", "minLength": 1 },
+        "workOrderId": { "type": "string", "minLength": 1 }
       },
       "oneOf": [
         {
@@ -87,6 +88,10 @@
         {
           "required": ["submissionId"],
           "properties": { "submissionId": { "type": "string", "minLength": 1 } }
+        },
+        {
+          "required": ["workOrderId"],
+          "properties": { "workOrderId": { "type": "string", "minLength": 1 } }
         }
       ]
     },

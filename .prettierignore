@@ -6,8 +6,10 @@ miniprogram/subpkg-detail/details-*.js
 miniprogram/subpkg-detail/detail-index.js
 miniprogram/subpkg-detail/detail-loaders.js
 miniprogram/subpkg-trade/trade-*.js
+miniprogram/subpkg-maintenance/maintenance-officers.js
 data/assets/asset-dependencies.json
 cloudfunctions/officer-custom/reference-data.json
+cloudfunctions/officer-maintenance/reference-data.json
 node_modules/
 package-lock.json
 游戏内被动技能查询截图.png
