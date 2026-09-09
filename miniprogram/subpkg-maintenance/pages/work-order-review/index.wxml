@@ -5,7 +5,7 @@
 </view>
 <block wx:else>
   <include src="../work-order-editor/index.wxml" />
-  <view wx:if="{{!loading &amp;&amp; !loadError}}" class="maintenance-review">
+  <view wx:if="{{!loading && !loadError}}" class="maintenance-review">
     <view class="maintenance-editor__title">基準資料 → 最新修訂</view>
     <view wx:if="{{!reviewDiff.length}}" class="maintenance-editor__hint">航海士欄位無變更。</view>
     <view wx:for="{{reviewDiff}}" wx:key="field" class="maintenance-review__diff"><view>{{item.label}}</view><view>原值：{{item.beforeText}}</view><view>修訂：{{item.afterText}}</view></view>

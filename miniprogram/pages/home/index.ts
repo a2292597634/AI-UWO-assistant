@@ -45,7 +45,7 @@ Page({
         id: 'data-maintenance',
         name: '資料維護',
         iconPath: '/assets/ui/feature-data-maintenance.png',
-        route: '/pages/officer-editor/index',
+        route: '/subpkg-maintenance/pages/work-orders/index',
         iconFailed: false,
       },
     ],

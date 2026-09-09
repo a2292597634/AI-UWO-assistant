@@ -105,7 +105,7 @@ describe('首頁功能入口', () => {
     })
     expect(homePage.data.modules[homePage.data.modules.length - 1]).toMatchObject({
       name: '資料維護',
-      route: '/pages/officer-editor/index',
+      route: '/subpkg-maintenance/pages/work-orders/index',
       iconPath: '/assets/ui/feature-data-maintenance.png',
     })
     expect(homeWxml).toContain('index < 5')

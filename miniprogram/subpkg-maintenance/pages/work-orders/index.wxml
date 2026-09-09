@@ -5,7 +5,7 @@
   <view wx:if="{{loading}}" class="work-orders__hint">正在載入工單…</view>
   <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
   <button wx:if="{{loadError}}" class="ui-button ui-button--secondary" bindtap="onRetry" disabled="{{loading}}">重試載入</button>
-  <view wx:if="{{!loading &amp;&amp; !loadError &amp;&amp; !rows.length}}" class="work-orders__empty">目前尚無維護工單。</view>
+  <view wx:if="{{!loading && !loadError && !rows.length}}" class="work-orders__empty">目前尚無維護工單。</view>
   <view wx:for="{{rows}}" wx:key="id" class="work-orders__row">
     <view class="work-orders__name">{{item.name}}</view>
     <view class="work-orders__hint">{{item.operationLabel}}・{{item.statusLabel}}</view>

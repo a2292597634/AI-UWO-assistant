@@ -5,7 +5,7 @@
   <view wx:if="{{rejectionReason}}" class="ui-status ui-status--error">已駁回：{{rejectionReason}}。請依此補正後重新送審。</view>
   <view wx:if="{{loading}}" class="maintenance-editor__status">正在載入資料…</view>
   <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
-  <view wx:if="{{!loading &amp;&amp; !loadError}}" class="maintenance-editor__form {{readonly || saving || submitting ? 'maintenance-editor__form--locked' : ''}}">
+  <view wx:if="{{!loading && !loadError}}" class="maintenance-editor__form {{readonly || saving || submitting ? 'maintenance-editor__form--locked' : ''}}">
     <view class="maintenance-editor__section">
       <view class="maintenance-editor__title">基本資料</view>
       <label class="maintenance-editor__label">航海士名稱<input class="maintenance-editor__input" value="{{form.name}}" data-field="name" bindinput="onFieldInput" disabled="{{readonly || saving || submitting}}" /></label>
