@@ -111,7 +111,7 @@ const referenceData: ReferenceData = {
   cityIds: ['city_london'],
   requirementIds: ['requirement_none'],
   skillCategoryIds: ['skill_category_navigation', 'skill_category_trade'],
-  skillIds: ['skill_navigation'],
+  skillIds: ['skill_navigation', 'skill_navigation_2'],
   officerIds: ['officer_existing'],
 }
 
@@ -184,6 +184,38 @@ describe('航海士維護工單狀態機', () => {
     return submitted.data
   }
 
+  it('不以來源組推斷主動／被動，允許真實分類造成的混合來源組關聯', async () => {
+    const mixedSkills = [
+      {
+        skillId: 'skill_navigation_2',
+        kind: 'active',
+        sourceGroup: 'sk0',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_navigation',
+        kind: 'passive',
+        sourceGroup: 'sk2',
+        slot: 1,
+        unlockLevel: 1,
+        level: 1,
+      },
+    ]
+    const validMixed = await service.dispatch(
+      'saveDraft',
+      updateDraft({
+        proposedData: {
+          ...officerData('混合來源組'),
+          skills: mixedSkills,
+        },
+      }),
+      'owner-user',
+    )
+    expect(validMixed.ok).toBe(true)
+  })
+
   function saved(result: Result): StoredRecord {
     expect(result.ok).toBe(true)
     if (!result.data || Array.isArray(result.data)) throw new Error('缺少工單資料')
@@ -243,6 +275,39 @@ describe('航海士維護工單狀態機', () => {
     const approved = saved(await service.dispatch('approve', second, 'admin-user'))
     expect(approved.referenceCandidates).toEqual([])
     expect(approved.reviewedData?.name).toBe('合併至正式技能')
+  })
+
+  it('管理員保存與核准時允許 reviewedData 暫時引用候選 key', async () => {
+    const pending = await createPendingWorkOrder({
+      proposedData: {
+        ...officerData('含候選引用'),
+        jobId: 'candidate_job',
+      },
+      referenceCandidates: [
+        {
+          key: 'candidate_job',
+          kind: 'job',
+          name: '候選職業',
+          aliases: [],
+        },
+      ],
+    })
+    const reviewedData = { ...officerData('管理員修訂'), jobId: 'candidate_job' }
+    const savedReview = saved(
+      await service.dispatch(
+        'saveReview',
+        {
+          ...pending,
+          reviewedData,
+          referenceCandidates: pending.referenceCandidates,
+          reason: '保留候選職業引用待同步合併',
+        },
+        'admin-user',
+      ),
+    )
+    expect(savedReview.reviewedData?.jobId).toBe('candidate_job')
+    const approved = saved(await service.dispatch('approve', savedReview, 'admin-user'))
+    expect(approved.status).toBe('approvedPendingPublish')
   })
 
   it('直接駁回後改草稿並重提，仍能完整還原舊提交基準與候選項', async () => {

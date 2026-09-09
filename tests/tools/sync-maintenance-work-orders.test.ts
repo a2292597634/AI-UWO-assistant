@@ -105,6 +105,84 @@ describe('核准工單純轉換', () => {
     expect(input).toEqual(before)
   })
 
+  it('系統欄位由同步工具設定：修改保留既有值，新增分配下一個顯示排序', () => {
+    const input = master()
+    const update = order({
+      reviewedData: {
+        ...structuredClone(data),
+        name: '修訂航海士',
+        visualGradeId: 'grade_2',
+        portraitId: '不應由工單寫入',
+        displayOrder: 999,
+      },
+    })
+    const createOrder = create('wo_system-fields')
+    createOrder.reviewedData = {
+      ...createOrder.reviewedData!,
+      visualGradeId: 'grade_6',
+      portraitId: '不應由工單寫入',
+      displayOrder: 999,
+    }
+    const result = applyApprovedWorkOrders(input, [update, createOrder])
+    expect(result.officers[0]).toMatchObject({
+      visualGradeId: 'grade_6',
+      portraitId: null,
+      displayOrder: 1,
+    })
+    expect(result.officers[1]).toMatchObject({
+      visualGradeId: 'grade_2',
+      portraitId: null,
+      displayOrder: 2,
+    })
+  })
+
+  it('同步允許 kind 與 sourceGroup 依真實分類混合，不把來源組當成主被動規則', () => {
+    const input = master()
+    input.skills.push(
+      {
+        id: 'skill_navigation',
+        name: '航海技能',
+        categoryId: 'skill_category_1',
+        description: '說明',
+        levelInfo: '',
+        iconId: null,
+        sourceRefs: { voyageTw: 'skill-1' },
+      },
+      {
+        id: 'skill_navigation_2',
+        name: '航海技能二',
+        categoryId: 'skill_category_1',
+        description: '說明',
+        levelInfo: '',
+        iconId: null,
+        sourceRefs: { voyageTw: 'skill-2' },
+      },
+    )
+    const mixed = {
+      ...structuredClone(data),
+      skills: [
+        {
+          skillId: 'skill_navigation',
+          kind: 'active' as const,
+          sourceGroup: 'sk0' as const,
+          slot: 0,
+          unlockLevel: 1,
+          level: 1,
+        },
+        {
+          skillId: 'skill_navigation_2',
+          kind: 'passive' as const,
+          sourceGroup: 'sk2' as const,
+          slot: 0,
+          unlockLevel: 1,
+          level: 1,
+        },
+      ],
+    }
+    const result = applyApprovedWorkOrders(input, [order({ reviewedData: mixed })])
+    expect(result.officers[0]!.skills).toEqual(mixed.skills)
+  })
+
   it('同名相同候選技能只產生一次正式 ID 並回填各工單引用，輸入次序不影響輸出', () => {
     const candidate = {
       key: 'candidate_a',
@@ -308,6 +386,7 @@ describe('同步寫入與發布門禁', () => {
       'data:check',
       'data:generate',
       'assets:manifest:check',
+      'verify',
       'publish',
       'markPublished',
     ])
@@ -317,7 +396,7 @@ describe('同步寫入與發布門禁', () => {
     )
   })
 
-  it.each(['data:check', 'data:generate', 'assets:manifest:check', 'publish'])(
+  it.each(['data:check', 'data:generate', 'assets:manifest:check', 'verify', 'publish'])(
     '%s 失敗時不標記發布，門禁失敗回復 master',
     async (failure) => {
       const dir = directory()

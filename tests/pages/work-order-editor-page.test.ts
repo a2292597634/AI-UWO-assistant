@@ -27,13 +27,32 @@ vi.mock('../../miniprogram/runtime/main-data-store', () => ({
     jobs: [{ id: 'job', name: '航海師' }],
     nationalities: [{ id: 'nation', name: '葡萄牙' }],
     languages: [{ id: 'lang', name: '葡萄牙語' }],
-    skillCategories: [{ id: 'category', name: '戰鬥' }],
+    skillCategories: [
+      { id: 'skill_category_naval_active_cannon', name: '海戰主動-砲擊' },
+      { id: 'skill_category_naval_passive_cannon', name: '海戰被動-砲擊' },
+    ],
     cities: [],
     requirements: [],
   }),
   getSkills: () => ({
-    skill: { id: 'skill', n: '砲擊', cat: 'category', cn: '戰鬥', d: '說明', li: '', ip: '' },
-    skill2: { id: 'skill2', n: '砲擊二', cat: 'category', cn: '戰鬥', d: '說明', li: '', ip: '' },
+    skill: {
+      id: 'skill',
+      n: '砲擊',
+      cat: 'skill_category_naval_active_cannon',
+      cn: '海戰主動-砲擊',
+      d: '說明',
+      li: '',
+      ip: '',
+    },
+    skill2: {
+      id: 'skill2',
+      n: '砲擊二',
+      cat: 'skill_category_naval_active_cannon',
+      cn: '海戰主動-砲擊',
+      d: '說明',
+      li: '',
+      ip: '',
+    },
   }),
   getCatalog: () => [{ id: 'officer-1', name: '測試航海士' }],
   getMaintenanceOfficer: (id: string) =>
@@ -45,16 +64,22 @@ vi.mock('../../miniprogram/runtime/officer-maintenance-service', async (original
 }))
 
 interface TestPage {
-  data: Record<string, unknown>
+  data: Record<string, unknown> & {
+    candidates: readonly { key: string }[]
+    form: { skills: readonly unknown[] }
+  }
   setData(update: Record<string, unknown>): void
   onLoad(query?: Record<string, string>): Promise<void>
   onFieldInput(event: unknown): void
   onEntitySelect(event: unknown): void
   onRelationInput(event: unknown): void
+  onSkillTypeChange(event: unknown): void
+  onToggleSkill(event: unknown): void
   onCreateCandidate(event: unknown): void
   onCandidateCategoryChange(event: unknown): void
   onCandidateCategoryRemove(event: unknown): void
   onCandidateInput(event: unknown): void
+  onCandidateRemove(event: unknown): void
   onSaveDraft(): Promise<void>
   onSubmit(): Promise<void>
 }
@@ -90,6 +115,42 @@ describe('維護工單編輯器', () => {
     expect(readFileSync(resolve(root, 'index.wxss'), 'utf8')).toContain(
       'env(safe-area-inset-bottom)',
     )
+    expect(wxml).toContain('bindtap="onToggleSkill"')
+    expect(wxml).toContain('wx:if="{{item.expanded}}"')
+    expect(wxml).not.toContain('data-field="portraitId"')
+    expect(wxml).not.toContain('data-field="displayOrder"')
+    expect(wxml).not.toContain('{{targetOfficerId}}')
+    expect(wxml).not.toContain('{{baseDataVersion}}')
+  })
+
+  it('系統欄位不出現在輸入表單，新增使用系統預設，修改保留既有值', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    expect(page.data.form).toMatchObject({
+      visualGradeId: 'grade_2',
+      portraitId: null,
+      displayOrder: 0,
+    })
+    expect((page.data.basicFields as { field: string }[]).map((item) => item.field)).toEqual([
+      'rarityId',
+      'typeId',
+      'genderId',
+    ])
+    page.onFieldInput(event({ field: 'visualGradeId' }, { value: 'grade_6' }))
+    page.onFieldInput(event({ field: 'portraitId' }, { value: 'portrait-override' }))
+    page.onFieldInput(event({ field: 'displayOrder' }, { value: '88' }))
+    expect(page.data.form).toMatchObject({
+      visualGradeId: 'grade_2',
+      portraitId: null,
+      displayOrder: 0,
+    })
+
+    await page.onLoad({ targetOfficerId: 'officer-1' })
+    expect(page.data.form).toMatchObject({
+      visualGradeId: 'grade_5',
+      portraitId: 'portrait',
+      displayOrder: 42,
+    })
   })
 
   it('修改時鎖定正式 ID 並保存完整且獨立的基準快照', async () => {
@@ -137,7 +198,12 @@ describe('維護工單編輯器', () => {
     await page.onSaveDraft()
     expect(fixtures.saveDraft).not.toHaveBeenCalled()
     expect(page.data.error).toContain('分類')
-    page.onCandidateCategoryChange(event({ index: 0 }, { id: 'category' }))
+    page.onCandidateCategoryChange(
+      event({ index: 0 }, { id: 'skill_category_naval_active_cannon' }),
+    )
+    expect(page.data.form).toMatchObject({
+      skills: [expect.objectContaining({ kind: 'active', sourceGroup: 'sk2', slot: 0 })],
+    })
     page.onCandidateInput(event({ index: 0, field: 'description' }, { value: '新技能說明' }))
     fixtures.saveDraft.mockImplementation(async (input) => ({
       ...input,
@@ -153,7 +219,7 @@ describe('維護工單編輯器', () => {
           expect.objectContaining({
             kind: 'skill',
             name: '新技能',
-            categoryId: 'category',
+            categoryId: 'skill_category_naval_active_cannon',
             description: '新技能說明',
           }),
         ],
@@ -168,7 +234,9 @@ describe('維護工單編輯器', () => {
     await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
     await page.onLoad({ targetOfficerId: 'officer-1' })
     page.onCreateCandidate(event({ kind: 'skill' }, { name: '待審技能' }))
-    page.onCandidateCategoryChange(event({ index: 0 }, { id: 'category' }))
+    page.onCandidateCategoryChange(
+      event({ index: 0 }, { id: 'skill_category_naval_active_cannon' }),
+    )
     page.onCandidateInput(event({ index: 0, field: 'description' }, { value: '待審技能說明' }))
     fixtures.saveDraft.mockImplementation(async (input) => ({
       ...input,
@@ -217,10 +285,48 @@ describe('維護工單編輯器', () => {
     page.onEntitySelect(event({ kind: 'skill' }, { id: 'unknown' }))
     expect(page.data.form).toMatchObject({
       languages: [{ languageId: 'lang', level: 1 }],
-      skills: [{ skillId: 'skill', sourceGroup: 'sk0', kind: 'passive', slot: 0 }],
+      skills: [{ skillId: 'skill', sourceGroup: 'sk2', kind: 'active', slot: 0 }],
     })
     expect(page.data.targetOfficerId).toBe('')
     expect(page.data.modifying).toBe(false)
+  })
+
+  it('技能分類選擇會回寫主被動與來源組，既有來源組不再反推主被動', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onEntitySelect(event({ kind: 'skill' }, { id: 'skill' }))
+    expect((page.data.skillRows as { typeLabel: string; expanded: boolean }[])[0]).toMatchObject({
+      typeLabel: '海戰主動-砲擊',
+      expanded: true,
+    })
+    page.onSkillTypeChange(event({ id: 'skill' }, { value: '1' }))
+    expect(page.data.form).toMatchObject({
+      skills: [expect.objectContaining({ kind: 'passive', sourceGroup: 'sk0', slot: 0 })],
+    })
+  })
+
+  it('技能列預設收合，新增時展開，手動切換可收回且槽位依來源組自動遞增', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad({ targetOfficerId: 'officer-1' })
+    expect((page.data.skillRows as { expanded: boolean }[]).every((item) => !item.expanded)).toBe(
+      true,
+    )
+    page.onEntitySelect(event({ kind: 'skill' }, { id: 'skill' }))
+    page.onEntitySelect(event({ kind: 'skill' }, { id: 'skill2' }))
+    expect(page.data.form).toMatchObject({
+      skills: [
+        expect.objectContaining({ skillId: 'skill', sourceGroup: 'sk2', slot: 0 }),
+        expect.objectContaining({ skillId: 'skill2', sourceGroup: 'sk2', slot: 1 }),
+      ],
+    })
+    expect((page.data.skillRows as { expanded: boolean }[]).every((item) => item.expanded)).toBe(
+      true,
+    )
+    page.onToggleSkill(event({ id: 'skill' }, {}))
+    expect(page.data.skillRows as { id: string; expanded: boolean }[]).toEqual([
+      expect.objectContaining({ id: 'skill', expanded: false }),
+      expect.objectContaining({ id: 'skill2', expanded: true }),
+    ])
   })
 
   it('工單續編沿用原始基準，已送審工單禁止改寫與重送', async () => {
@@ -323,30 +429,58 @@ describe('維護工單編輯器', () => {
     await page.onLoad({ targetOfficerId: 'officer-1' })
     page.onCreateCandidate(event({ kind: 'skill' }, { name: '技能甲' }))
     expect(page.data.options).toMatchObject({
-      skillCategory: [
-        expect.objectContaining({ id: 'category', name: '戰鬥', searchableText: '戰鬥 category' }),
-      ],
+      skillCategory: expect.arrayContaining([
+        expect.objectContaining({
+          id: 'skill_category_naval_active_cannon',
+          name: '海戰主動-砲擊',
+          meta: '',
+          searchableText: '海戰主動-砲擊 skill_category_naval_active_cannon',
+        }),
+      ]),
     })
     page.onCandidateCategoryChange(event({ index: 0 }, { id: 'unknown' }))
     expect(page.data.candidates).toEqual([expect.not.objectContaining({ categoryId: 'unknown' })])
-    page.onCandidateCategoryChange(event({ index: 0 }, { id: 'category' }))
+    page.onCandidateCategoryChange(
+      event({ index: 0 }, { id: 'skill_category_naval_active_cannon' }),
+    )
     expect(page.data.candidates).toEqual([
-      expect.objectContaining({ categoryId: 'category', selectedCategoryIds: ['category'] }),
+      expect.objectContaining({
+        categoryId: 'skill_category_naval_active_cannon',
+        selectedCategoryIds: ['skill_category_naval_active_cannon'],
+      }),
     ])
-    page.onCandidateCategoryRemove(event({ index: 0 }, { id: 'category' }))
+    page.onCandidateCategoryRemove(
+      event({ index: 0 }, { id: 'skill_category_naval_active_cannon' }),
+    )
     expect(page.data.candidates).toEqual([expect.objectContaining({ selectedCategoryIds: [] })])
     await page.onSaveDraft()
     expect(page.data.error).toContain('分類')
     expect(fixtures.saveDraft).not.toHaveBeenCalled()
   })
 
-  it.each(['-1', '1.5'])('顯示排序 %s 在呼叫保存前被拒絕', async (value) => {
+  it('系統欄位不接受表單事件修改', async () => {
     await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
     await page.onLoad({ targetOfficerId: 'officer-1' })
-    page.onFieldInput(event({ field: 'displayOrder' }, { value }))
-    await page.onSubmit()
-    expect(page.data.error).toContain('顯示排序')
-    expect(fixtures.saveDraft).not.toHaveBeenCalled()
+    page.onFieldInput(event({ field: 'visualGradeId' }, { value: 'grade_2' }))
+    page.onFieldInput(event({ field: 'portraitId' }, { value: 'new-portrait' }))
+    page.onFieldInput(event({ field: 'displayOrder' }, { value: '1' }))
+    expect(page.data.form).toMatchObject({
+      visualGradeId: 'grade_5',
+      portraitId: 'portrait',
+      displayOrder: 42,
+    })
+  })
+
+  it('移除候選項時一併移除 proposedData 中的候選引用', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onCreateCandidate(event({ kind: 'skill' }, { name: '待移除技能' }))
+    const candidate = page.data.candidates[0]
+    expect(candidate).toBeDefined()
+    expect(page.data.form.skills).toEqual([expect.objectContaining({ skillId: candidate!.key })])
+    page.onCandidateRemove(event({ index: 0 }, {}))
+    expect(page.data.candidates).toEqual([])
+    expect(page.data.form.skills).toEqual([])
   })
 
   it('同來源組重複槽位在呼叫保存前被拒絕', async () => {

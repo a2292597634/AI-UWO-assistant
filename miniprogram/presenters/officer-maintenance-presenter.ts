@@ -55,26 +55,51 @@ export const mergeMaintenanceCandidate = (
   let reviewedData = data
   if (candidate.kind === 'job') reviewedData = { ...data, jobId: id }
   if (candidate.kind === 'nationality') reviewedData = { ...data, nationalityId: id }
-  if (candidate.kind === 'language' && !data.languages.some((item) => item.languageId === id))
-    reviewedData = { ...data, languages: [...data.languages, { languageId: id, level: 1 }] }
-  if (candidate.kind === 'skill' && !data.skills.some((item) => item.skillId === id))
+  if (candidate.kind === 'language') {
+    const hasCandidate = data.languages.some((item) => item.languageId === key)
+    const hasExisting = data.languages.some((item) => item.languageId === id)
     reviewedData = {
       ...data,
-      skills: [
-        ...data.skills,
-        {
-          skillId: id,
-          kind: 'passive',
-          sourceGroup: 'sk0',
-          slot:
-            Math.max(
-              -1,
-              ...data.skills.filter((item) => item.sourceGroup === 'sk0').map((item) => item.slot),
-            ) + 1,
-          unlockLevel: 1,
-          level: 1,
-        },
-      ],
+      languages: hasCandidate
+        ? hasExisting
+          ? data.languages.filter((item) => item.languageId !== key)
+          : data.languages.map((item) =>
+              item.languageId === key ? { ...item, languageId: id } : item,
+            )
+        : hasExisting
+          ? data.languages
+          : [...data.languages, { languageId: id, level: 1 }],
     }
+  }
+  if (candidate.kind === 'skill') {
+    const hasCandidate = data.skills.some((item) => item.skillId === key)
+    const hasExisting = data.skills.some((item) => item.skillId === id)
+    reviewedData = {
+      ...data,
+      skills: hasCandidate
+        ? hasExisting
+          ? data.skills.filter((item) => item.skillId !== key)
+          : data.skills.map((item) => (item.skillId === key ? { ...item, skillId: id } : item))
+        : hasExisting
+          ? data.skills
+          : [
+              ...data.skills,
+              {
+                skillId: id,
+                kind: 'passive',
+                sourceGroup: 'sk0',
+                slot:
+                  Math.max(
+                    -1,
+                    ...data.skills
+                      .filter((item) => item.sourceGroup === 'sk0')
+                      .map((item) => item.slot),
+                  ) + 1,
+                unlockLevel: 1,
+                level: 1,
+              },
+            ],
+    }
+  }
   return { reviewedData, referenceCandidates: candidates.filter((item) => item.key !== key) }
 }

@@ -45,7 +45,7 @@ export interface ApprovedWorkOrder {
   referenceCandidates: readonly ReferenceCandidate[]
 }
 type Invoker = (payload: Record<string, unknown>) => Promise<unknown> | unknown
-type Gate = 'data:check' | 'data:generate' | 'assets:manifest:check'
+type Gate = 'data:check' | 'data:generate' | 'assets:manifest:check' | 'verify'
 export interface MaintenanceSyncOptions {
   masterDir?: string
   approved?: readonly ApprovedWorkOrder[]
@@ -163,7 +163,7 @@ const validateReviewed = (data: MaintenanceOfficerData): void => {
     if (
       slots.has(slot) ||
       skills.has(item.skillId) ||
-      item.kind !== (['sk2', 'sk3', 'sk4'].includes(item.sourceGroup) ? 'active' : 'passive') ||
+      !['active', 'passive'].includes(item.kind) ||
       !Number.isInteger(item.slot) ||
       item.slot < 0 ||
       !Number.isInteger(item.unlockLevel) ||
@@ -304,8 +304,20 @@ export const applyApprovedWorkOrders = (
     }
     const reviewed = structuredClone(order.reviewedData)
     validateReviewed(reviewed)
+    const systemOfficerFields = existing
+      ? {
+          visualGradeId: existing.visualGradeId,
+          portraitId: existing.portraitId,
+          displayOrder: existing.displayOrder,
+        }
+      : {
+          visualGradeId: 'grade_2' as const,
+          portraitId: null,
+          displayOrder: Math.max(-1, ...output.officers.map((item) => item.displayOrder)) + 1,
+        }
     const officer: CanonicalOfficer = {
       ...reviewed,
+      ...systemOfficerFields,
       jobId: resolveCandidate(reviewed.jobId, 'job'),
       nationalityId: resolveCandidate(reviewed.nationalityId, 'nationality'),
       languages: reviewed.languages.map((item) => ({
@@ -431,6 +443,7 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
     }
     for (const name of ['data:check', 'data:generate', 'assets:manifest:check'] as const)
       await (options.runGate ?? defaultGate)(name)
+    await (options.runGate ?? defaultGate)('verify')
     const published: string[] = []
     if (options.publish) {
       await options.publish(result.dataset.contentVersion)

@@ -83,4 +83,37 @@ describe('維護審核展示', () => {
       ).reviewedData.skills,
     ).toEqual(data.skills)
   })
+
+  it('合併已引用的候選技能時只替換候選 key，保留主被動、來源組、槽位與等級', () => {
+    const data = {
+      ...base,
+      skills: [
+        {
+          skillId: 'candidate-skill',
+          kind: 'active' as const,
+          sourceGroup: 'sk3' as const,
+          slot: 2,
+          level: 4,
+          unlockLevel: 20,
+        },
+      ],
+    }
+    expect(
+      mergeMaintenanceCandidate(
+        data,
+        [{ key: 'candidate-skill', kind: 'skill', name: '候選技能', aliases: [] }],
+        'candidate-skill',
+        'skill-existing',
+      ).reviewedData.skills,
+    ).toEqual([
+      {
+        skillId: 'skill-existing',
+        kind: 'active',
+        sourceGroup: 'sk3',
+        slot: 2,
+        level: 4,
+        unlockLevel: 20,
+      },
+    ])
+  })
 })

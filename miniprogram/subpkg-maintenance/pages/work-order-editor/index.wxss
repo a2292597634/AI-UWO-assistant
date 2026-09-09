@@ -25,6 +25,13 @@
   font-weight: 600;
   margin-bottom: var(--uwo-space-6);
 }
+.maintenance-editor__system-hint {
+  margin-top: var(--uwo-space-3);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 .maintenance-editor__label {
   display: block;
   margin-top: var(--uwo-space-4);
@@ -53,6 +60,76 @@
   border-top: 1rpx solid var(--uwo-color-border-subtle);
   padding-top: var(--uwo-space-4);
   margin-top: var(--uwo-space-6);
+}
+.maintenance-editor__skill-card {
+  margin-top: var(--uwo-space-4);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+  overflow: hidden;
+}
+.maintenance-editor__skill-header {
+  display: flex;
+  min-height: 104rpx;
+  align-items: center;
+  gap: var(--uwo-space-3);
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+}
+.maintenance-editor__skill-copy {
+  min-width: 0;
+  flex: 1;
+}
+.maintenance-editor__skill-name,
+.maintenance-editor__skill-summary {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.maintenance-editor__skill-name {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+}
+.maintenance-editor__skill-summary {
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+}
+.maintenance-editor__skill-toggle {
+  box-sizing: border-box;
+  display: flex;
+  width: 88rpx !important;
+  min-width: 88rpx !important;
+  max-width: 88rpx !important;
+  min-height: 88rpx;
+  margin: 0 !important;
+  flex: 0 0 88rpx !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.maintenance-editor__skill-toggle::after {
+  border: 0;
+}
+.maintenance-editor__skill-toggle:active {
+  opacity: 0.88;
+  transform: translateY(2rpx);
+}
+.maintenance-editor__skill-toggle-icon {
+  width: 64rpx;
+  height: 64rpx;
+  flex: 0 0 auto;
+  transform: scale(2.4);
+}
+.maintenance-editor__skill-toggle-icon--expanded {
+  transform: scaleX(2.3) scaleY(2.25);
+}
+.maintenance-editor__skill-body {
+  padding: 0 var(--uwo-space-4) var(--uwo-space-4);
+  border-top: 1rpx solid var(--uwo-color-border-subtle);
+  background: var(--uwo-color-surface);
 }
 .maintenance-editor__actions {
   display: flex;
