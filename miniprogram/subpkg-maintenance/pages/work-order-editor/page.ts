@@ -396,16 +396,24 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
     }
     page.setData({ readonly: submit, notice: submit ? '工單已送審，等待管理員審核' : '草稿已儲存' })
   } catch (error) {
+    const portraitUploadFailed =
+      error instanceof OfficerMaintenanceError &&
+      ['invalid-portrait', 'upload-failed'].includes(error.code)
     page.setData({
       error: errorMessage(
         error,
         submit ? '送審失敗，草稿內容已保留，請重試' : '草稿儲存失敗，請重試',
       ),
       ...(portraitUploadPending
-        ? {
-            portraitStatusKind: 'error',
-            portraitStatusText: '頭像上傳失敗，請重試保存或送審',
-          }
+        ? portraitUploadFailed
+          ? {
+              portraitStatusKind: 'error',
+              portraitStatusText: '頭像上傳失敗，請重試保存或送審',
+            }
+          : {
+              portraitStatusKind: 'pending',
+              portraitStatusText: '頭像待上傳；儲存草稿或送審時會上傳',
+            }
         : {}),
     })
   } finally {

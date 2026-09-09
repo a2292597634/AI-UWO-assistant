@@ -281,9 +281,54 @@ describe('維護工單編輯器', () => {
       }),
     })
     page.onPortraitTap()
-    fixtures.saveDraft.mockRejectedValue(new Error('portrait-upload-failed'))
+    const { OfficerMaintenanceError } =
+      await import('../../miniprogram/runtime/officer-maintenance-service')
+    fixtures.saveDraft.mockRejectedValue(
+      new OfficerMaintenanceError('upload-failed', '頭像上傳失敗，請重試'),
+    )
     await page.onSaveDraft()
     expect(page.data.portraitStatusText).toContain('上傳失敗')
+  })
+
+  it('資料保存衝突時保留待上傳狀態，不誤報頭像上傳失敗', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onFieldInput(event({ field: 'name' }, { value: '頭像衝突航海士' }))
+    for (const field of ['rarityId', 'typeId', 'genderId']) {
+      page.onBasicChange(event({ field }, { value: '0' }))
+    }
+    page.onEntitySelect(event({ kind: 'job' }, { id: 'job' }))
+    page.onEntitySelect(event({ kind: 'nationality' }, { id: 'nation' }))
+    vi.stubGlobal('wx', {
+      setNavigationBarTitle: vi.fn(),
+      navigateTo: vi.fn(),
+      showToast: vi.fn(),
+      chooseImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePaths: ['/tmp/source.jpg'] }),
+      ),
+      cropImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePath: '/tmp/cropped.jpg' }),
+      ),
+      compressImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePath: '/tmp/compressed.jpg' }),
+      ),
+      getImageInfo: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ type: 'jpg', width: 256, height: 256 }),
+      ),
+      getFileSystemManager: () => ({
+        readFileSync: vi.fn(() => 'portrait-base64'),
+        statSync: vi.fn(() => ({ size: 128 })),
+      }),
+    })
+    page.onPortraitTap()
+    const { OfficerMaintenanceError } =
+      await import('../../miniprogram/runtime/officer-maintenance-service')
+    fixtures.saveDraft.mockRejectedValue(
+      new OfficerMaintenanceError('conflict', '工單已被更新，請重新載入'),
+    )
+    await page.onSaveDraft()
+    expect(page.data.portraitStatusText).toContain('待上傳')
+    expect(page.data.portraitStatusText).not.toContain('上傳失敗')
   })
 
   it('已上傳頭像預覽載入失敗時顯示回退提示', async () => {
