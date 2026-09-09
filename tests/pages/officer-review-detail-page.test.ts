@@ -25,5 +25,6 @@ describe('投稿詳情與審核操作契約', () => {
     expect(wxml).toContain('visualGradeOptions')
     expect(wxml).toContain('sourceGroup')
     expect(wxml).toContain('slot')
+    expect(page).toContain("cropScale: '1:1'")
   })
 })

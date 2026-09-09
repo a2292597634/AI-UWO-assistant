@@ -3,20 +3,26 @@ import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const listMine = vi.hoisted(() => vi.fn())
+const listAdmin = vi.hoisted(() => vi.fn())
 const navigateTo = vi.hoisted(() => vi.fn())
 vi.mock('../../miniprogram/runtime/officer-maintenance-service', async (original) => ({
   ...(await original<object>()),
-  getOfficerMaintenanceService: () => ({ listMine }),
+  getOfficerMaintenanceService: () => ({ listMine, listAdmin }),
 }))
 interface TestPage {
   data: {
     loading: boolean
     loadError: string
     rows: { statusLabel: string; rejectionReason?: string }[]
+    isAdmin: boolean
+    adminReviewVisible: boolean
+    adminReviewCount: number
   }
   setData(update: Record<string, unknown>): void
   loadWorkOrders(): Promise<void>
   onModifyWorkOrder(): void
+  checkAdminPermission(): Promise<void>
+  onAdminReview(): void
 }
 beforeEach(() => {
   vi.resetModules()
@@ -105,5 +111,48 @@ describe('我的維護工單', () => {
     await page!.loadWorkOrders()
     expect(page!.data.loading).toBe(false)
     expect(page!.data.loadError).toContain('重試')
+  })
+
+  it('以服務端 listAdmin 權限探測顯示管理員審核入口，普通使用者不顯示', async () => {
+    let page: TestPage | undefined
+    vi.stubGlobal('wx', { setNavigationBarTitle: vi.fn(), navigateTo })
+    vi.stubGlobal('Page', (definition: TestPage) => {
+      page = {
+        ...definition,
+        data: structuredClone(definition.data),
+        setData(update) {
+          Object.assign(this.data, update)
+        },
+      }
+    })
+    listMine.mockResolvedValue([])
+    listAdmin.mockResolvedValue([{ workOrderId: 'pending', status: 'pendingReview' }])
+    await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
+    await page!.checkAdminPermission()
+    expect(listAdmin).toHaveBeenCalledWith('pendingReview')
+    expect(page!.data.isAdmin).toBe(true)
+    expect(page!.data.adminReviewVisible).toBe(true)
+    expect(page!.data.adminReviewCount).toBe(1)
+    page!.onAdminReview()
+    expect(navigateTo).toHaveBeenCalledWith({
+      url: '/subpkg-maintenance/pages/work-order-review/index',
+    })
+
+    vi.resetModules()
+    vi.clearAllMocks()
+    listAdmin.mockRejectedValue(new Error('forbidden'))
+    let ordinaryPage: TestPage | undefined
+    vi.stubGlobal('Page', (definition: TestPage) => {
+      ordinaryPage = {
+        ...definition,
+        data: structuredClone(definition.data),
+        setData(update) {
+          Object.assign(this.data, update)
+        },
+      }
+    })
+    await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
+    await ordinaryPage!.checkAdminPermission()
+    expect(ordinaryPage!.data.isAdmin).toBe(false)
   })
 })

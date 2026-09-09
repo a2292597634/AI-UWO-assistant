@@ -6,6 +6,8 @@
 
 **Architecture:** 頭像附件與正式 `MaintenanceOfficerData` 分離；小程序以微信原生選圖、1:1 裁切與壓縮取得暫存檔，維護雲函數校驗後上傳 Storage 並只保存檔案參照。維護列表以 `listAdmin('pendingReview')` 的成功回應決定是否顯示管理員入口，審核頁和服務端權限模型保持不變。
 
+既有「資料投稿」與駁回重提頁的頭像選取也套用同一個 1:1 裁切步驟，確保不同投稿入口的圖片規格一致。
+
 **Tech Stack:** 微信小程序 TypeScript/WXML/WXSS、CloudBase `wx-server-sdk`、Vitest、既有 image validation 與資料同步工具；不新增依賴。
 
 ## Global Constraints

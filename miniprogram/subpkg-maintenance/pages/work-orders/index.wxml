@@ -4,6 +4,7 @@
   <view class="work-orders__entry-actions">
     <button class="ui-button ui-button--primary" bindtap="onNewWorkOrder">新增航海士工單</button>
     <button class="ui-button ui-button--secondary" bindtap="onModifyWorkOrder">修改既有航海士</button>
+    <button wx:if="{{adminReviewVisible}}" class="ui-button ui-button--secondary" bindtap="onAdminReview">管理員審核工單（待審 {{adminReviewCount}} 筆）</button>
   </view>
   <view wx:if="{{loading}}" class="work-orders__hint">正在載入工單…</view>
   <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>

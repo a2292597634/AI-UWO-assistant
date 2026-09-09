@@ -1,10 +1,16 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const serviceModule = require('../../cloudfunctions/officer-maintenance/service') as {
   createOfficerMaintenanceService: (
     repo: ReturnType<typeof createMemoryRepo>,
-    options: { adminOpenIds: Set<string>; syncToken: string; referenceData: ReferenceData },
+    options: {
+      adminOpenIds: Set<string>
+      syncToken: string
+      referenceData: ReferenceData
+      cloud?: Record<string, unknown>
+      uploadPortrait?: (...args: unknown[]) => Promise<Record<string, unknown>>
+    },
   ) => {
     dispatch: (
       action: string,
@@ -165,6 +171,73 @@ describe('航海士維護工單狀態機', () => {
       syncToken: 'sync-secret',
       referenceData,
     })
+  })
+
+  it('新增航海士未上傳頭像不可送審', async () => {
+    const draft = await service.dispatch(
+      'saveDraft',
+      {
+        operation: 'createOfficer',
+        targetOfficerId: null,
+        baseDataVersion: null,
+        baseSnapshot: null,
+        proposedData: officerData('新增航海士'),
+        referenceCandidates: [],
+      },
+      'owner-user',
+    )
+    expect(draft.ok).toBe(true)
+    if (!draft.ok || Array.isArray(draft.data) || !draft.data) return
+    await expect(
+      service.dispatch(
+        'submit',
+        {
+          workOrderId: draft.data.workOrderId,
+          revision: draft.data.revision,
+          updatedAt: draft.data.updatedAt,
+        },
+        'owner-user',
+      ),
+    ).resolves.toMatchObject({ ok: false, code: 'invalid-portrait' })
+  })
+
+  it('新增航海士保存裁切後頭像並忽略客戶端偽造的 file ID', async () => {
+    const uploadPortrait = vi.fn(async () => ({
+      ok: true,
+      fileID: 'cloud://uploaded-portrait',
+      meta: { mimeType: 'image/png', byteSize: 128, width: 256, height: 256 },
+    }))
+    const uploadService = serviceModule.createOfficerMaintenanceService(repo, {
+      adminOpenIds: new Set(['admin-user']),
+      syncToken: 'sync-secret',
+      referenceData,
+      cloud: {},
+      uploadPortrait,
+    })
+    const draft = await uploadService.dispatch(
+      'saveDraft',
+      {
+        operation: 'createOfficer',
+        targetOfficerId: null,
+        baseDataVersion: null,
+        baseSnapshot: null,
+        proposedData: officerData('含頭像航海士'),
+        referenceCandidates: [],
+        portraitFileId: 'cloud://偽造檔案',
+        portraitUpload: {
+          base64: 'valid-base64',
+          meta: { mimeType: 'image/png', byteSize: 128, width: 256, height: 256 },
+        },
+      },
+      'owner-user',
+    )
+    expect(draft).toMatchObject({ ok: true, data: { portraitFileId: 'cloud://uploaded-portrait' } })
+    expect(uploadPortrait).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({ portraitUpload: expect.any(Object) }),
+      expect.stringMatching(/^wo_/),
+      1,
+    )
   })
 
   async function createPendingWorkOrder(overrides: Record<string, unknown> = {}) {

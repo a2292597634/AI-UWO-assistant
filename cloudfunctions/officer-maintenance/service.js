@@ -46,6 +46,8 @@ const historyEntry = (record, action, actorUid, reason = null, extra = {}) => ({
     reviewedData: record.reviewedData ?? null,
     referenceCandidates: record.referenceCandidates,
     proposedReferenceCandidates: record.proposedReferenceCandidates ?? record.referenceCandidates,
+    portraitFileId: record.portraitFileId ?? null,
+    portraitMeta: record.portraitMeta ?? null,
   }),
   ...extra,
 })
@@ -259,9 +261,31 @@ function createOfficerMaintenanceService(repo, options = {}) {
   const adminOpenIds = options.adminOpenIds ?? new Set()
   const syncToken = options.syncToken ?? ''
   const referenceData = options.referenceData ?? {}
+  const cloud = options.cloud
+  const uploadPortrait = options.uploadPortrait
   const isAdmin = (openid) => Boolean(openid && adminOpenIds.has(openid))
   const isSyncAuthorized = (payload) =>
     Boolean(syncToken && typeof payload?.syncToken === 'string' && payload.syncToken === syncToken)
+
+  const hasPortraitUpload = (payload) =>
+    Boolean(
+      payload?.portraitUpload ||
+      (typeof payload?.portraitBase64 === 'string' && payload.portraitBase64.trim()),
+    )
+
+  const uploadNewPortrait = async (payload, workOrderId, revision) => {
+    if (!hasPortraitUpload(payload)) return { ok: true, fileID: null, meta: null }
+    if (typeof uploadPortrait !== 'function' || !cloud) {
+      return fail('upload-failed', '頭像上傳服務尚未就緒，請稍後再試')
+    }
+    const uploaded = await uploadPortrait(cloud, payload, workOrderId, revision)
+    if (!uploaded?.ok || !asTrimmedString(uploaded.fileID)) {
+      return uploaded?.ok
+        ? fail('upload-failed', '頭像上傳失敗，請重試')
+        : (uploaded ?? fail('upload-failed', '頭像上傳失敗，請重試'))
+    }
+    return uploaded
+  }
 
   async function getOwned(openid, workOrderId) {
     const record = await repo.findByWorkOrderId(workOrderId)
@@ -271,8 +295,9 @@ function createOfficerMaintenanceService(repo, options = {}) {
   async function saveDraft(payload, openid) {
     const workOrderId = asTrimmedString(payload.workOrderId)
     if (!workOrderId) {
+      const newWorkOrderId = generateWorkOrderId()
       const candidate = {
-        workOrderId: generateWorkOrderId(),
+        workOrderId: newWorkOrderId,
         ownerUid: openid,
         operation: payload.operation,
         targetOfficerId: payload.targetOfficerId ?? null,
@@ -282,12 +307,18 @@ function createOfficerMaintenanceService(repo, options = {}) {
         reviewedData: null,
         referenceCandidates: payload.referenceCandidates ?? [],
         proposedReferenceCandidates: payload.referenceCandidates ?? [],
+        portraitFileId: null,
+        portraitMeta: null,
         status: 'draft',
         revision: 1,
         history: [],
       }
       const content = validateWorkOrderContent(candidate, referenceData)
       if (!content.ok) return content
+      const uploaded = await uploadNewPortrait(payload, newWorkOrderId, 1)
+      if (!uploaded.ok) return uploaded
+      candidate.portraitFileId = uploaded.fileID
+      candidate.portraitMeta = uploaded.meta ?? null
       const now = new Date().toISOString()
       candidate.history = [historyEntry({ ...candidate, revision: 1 }, 'draftSaved', openid)]
       const stored = await repo.insert({ ...candidate, createdAt: now, updatedAt: now })
@@ -314,15 +345,25 @@ function createOfficerMaintenanceService(repo, options = {}) {
       baseSnapshot: payload.baseSnapshot ?? null,
       proposedData: payload.proposedData,
       referenceCandidates: payload.referenceCandidates ?? [],
+      portraitFileId: existing.portraitFileId ?? null,
+      portraitMeta: existing.portraitMeta ?? null,
     }
     const content = validateWorkOrderContent(candidate, referenceData)
     if (!content.ok) return content
+    const uploaded = await uploadNewPortrait(payload, existing.workOrderId, existing.revision + 1)
+    if (!uploaded.ok) return uploaded
+    if (uploaded.fileID) {
+      candidate.portraitFileId = uploaded.fileID
+      candidate.portraitMeta = uploaded.meta ?? null
+    }
     const updated = await repo.updateIfCurrent(workOrderId, payload.revision, payload.updatedAt, {
       status: 'draft',
       baseDataVersion: candidate.baseDataVersion,
       baseSnapshot: clone(candidate.baseSnapshot),
       proposedData: clone(candidate.proposedData),
       referenceCandidates: clone(candidate.referenceCandidates),
+      portraitFileId: candidate.portraitFileId,
+      portraitMeta: candidate.portraitMeta,
       proposedReferenceCandidates: clone(candidate.referenceCandidates),
       reviewedData: null,
       history: appendHistory(existing, historyEntry(existing, 'draftSaved', openid)),
@@ -339,6 +380,9 @@ function createOfficerMaintenanceService(repo, options = {}) {
     }
     if (existing.status !== 'draft' && existing.status !== 'rejected') {
       return fail('invalid-state', '只有草稿或已駁回工單可以送審')
+    }
+    if (existing.operation === 'createOfficer' && !asTrimmedString(existing.portraitFileId)) {
+      return fail('invalid-portrait', '請上傳正式版頭像')
     }
     const content = validateWorkOrderContent(existing, referenceData)
     if (!content.ok) return content
@@ -406,6 +450,9 @@ function createOfficerMaintenanceService(repo, options = {}) {
     }
     if (existing.status !== 'pendingReview' || !existing.reviewedData) {
       return fail('invalid-state', '只有已保存審核資料的待審核工單可以核准')
+    }
+    if (existing.operation === 'createOfficer' && !asTrimmedString(existing.portraitFileId)) {
+      return fail('invalid-portrait', '新增航海士核准前必須有正式版頭像')
     }
     const content = validateWorkOrderContent(existing, referenceData)
     if (!content.ok) return content

@@ -71,6 +71,7 @@ interface TestPage {
   setData(update: Record<string, unknown>): void
   onLoad(query?: Record<string, string>): Promise<void>
   onFieldInput(event: unknown): void
+  onBasicChange(event: unknown): void
   onEntitySelect(event: unknown): void
   onRelationInput(event: unknown): void
   onSkillTypeChange(event: unknown): void
@@ -80,6 +81,8 @@ interface TestPage {
   onCandidateCategoryRemove(event: unknown): void
   onCandidateInput(event: unknown): void
   onCandidateRemove(event: unknown): void
+  onPortraitTap(): void
+  onPortraitRemove(): void
   onSaveDraft(): Promise<void>
   onSubmit(): Promise<void>
 }
@@ -121,6 +124,79 @@ describe('維護工單編輯器', () => {
     expect(wxml).not.toContain('data-field="displayOrder"')
     expect(wxml).not.toContain('{{targetOfficerId}}')
     expect(wxml).not.toContain('{{baseDataVersion}}')
+    expect(wxml).toContain('bindtap="onPortraitTap"')
+    expect(wxml).toContain('portraitTempPath')
+    expect(wxml).toContain('不超過 512 KB')
+  })
+
+  it('新增工單提供頭像裁切入口，修改工單不允許更換既有頭像', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    expect(page.data.portraitTempPath).toBe('')
+    await page.onLoad({ targetOfficerId: 'officer-1' })
+    expect(page.data.portraitTempPath).toBe('')
+  })
+
+  it('草稿可先不附頭像，選圖後以 1:1 裁切結果傳送附件', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onFieldInput(event({ field: 'name' }, { value: '含頭像航海士' }))
+    for (const field of ['rarityId', 'typeId', 'genderId']) {
+      page.onBasicChange(event({ field }, { value: '0' }))
+    }
+    page.onEntitySelect(event({ kind: 'job' }, { id: 'job' }))
+    page.onEntitySelect(event({ kind: 'nationality' }, { id: 'nation' }))
+    fixtures.saveDraft.mockImplementation(async (input) => ({
+      ...input,
+      workOrderId: 'wo-portrait',
+      status: 'draft',
+      revision: 1,
+      updatedAt: 'now',
+      portraitFileId: 'cloud://portrait',
+    }))
+    await page.onSaveDraft()
+    expect(fixtures.saveDraft).toHaveBeenCalledTimes(1)
+    expect(page.data.error).toBe('')
+
+    const chooseImage = vi.fn(({ success }: { success: (result: unknown) => void }) =>
+      success({ tempFilePaths: ['/tmp/source.jpg'] }),
+    )
+    const cropImage = vi.fn(({ success }: { success: (result: unknown) => void }) =>
+      success({ tempFilePath: '/tmp/cropped.jpg' }),
+    )
+    const compressImage = vi.fn(({ success }: { success: (result: unknown) => void }) =>
+      success({ tempFilePath: '/tmp/compressed.jpg' }),
+    )
+    const getImageInfo = vi.fn(({ success }: { success: (result: unknown) => void }) =>
+      success({ type: 'jpg', width: 256, height: 256 }),
+    )
+    const readFileSync = vi.fn(() => 'portrait-base64')
+    const statSync = vi.fn(() => ({ size: 128 }))
+    vi.stubGlobal('wx', {
+      setNavigationBarTitle: vi.fn(),
+      navigateTo: vi.fn(),
+      showToast: vi.fn(),
+      chooseImage,
+      cropImage,
+      compressImage,
+      getImageInfo,
+      getFileSystemManager: () => ({ readFileSync, statSync }),
+    })
+    page.onPortraitTap()
+    expect(cropImage).toHaveBeenCalledWith(
+      expect.objectContaining({ src: '/tmp/source.jpg', cropScale: '1:1' }),
+    )
+    await page.onSaveDraft()
+    expect(fixtures.saveDraft).toHaveBeenCalledTimes(2)
+    expect(fixtures.saveDraft).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        portraitUpload: expect.objectContaining({
+          base64: 'portrait-base64',
+          meta: expect.objectContaining({ mimeType: 'image/jpeg', width: 256, height: 256 }),
+        }),
+      }),
+    )
+    expect(fixtures.saveDraft.mock.calls[1]?.[0]).not.toHaveProperty('portraitId')
   })
 
   it('系統欄位不出現在輸入表單，新增使用系統預設，修改保留既有值', async () => {

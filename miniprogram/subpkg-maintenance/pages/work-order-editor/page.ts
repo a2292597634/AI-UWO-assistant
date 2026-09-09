@@ -1,5 +1,7 @@
 import type {
   MaintenanceOfficerData,
+  MaintenancePortraitMeta,
+  MaintenancePortraitUpload,
   MaintenanceValidationContext,
   MaintenanceWorkOrderDraft,
   ReferenceCandidate,
@@ -33,6 +35,7 @@ interface EditorState {
   draft: MaintenanceWorkOrderDraft
   saved: MaintenanceWorkOrder | null
   context: MaintenanceValidationContext
+  portraitUpload: MaintenancePortraitUpload | null
 }
 interface EditorData {
   reviewMode: boolean
@@ -78,6 +81,9 @@ interface EditorData {
   }[]
   skillTypeOptions: readonly MaintenanceSkillTypeOption[]
   expandedSkillIds: readonly string[]
+  portraitTempPath: string
+  portraitFileId: string
+  portraitMetaText: string
 }
 interface EditorPage {
   data: EditorData
@@ -100,6 +106,87 @@ const emptyForm = (): MaintenanceOfficerData => ({
   displayOrder: 0,
   maintenanceNote: '',
 })
+const MAX_PORTRAIT_BYTES = 512 * 1024
+const MAX_PORTRAIT_EDGE = 512
+
+const readPortrait = (page: EditorPage, tempFilePath: string): void => {
+  wx.getImageInfo({
+    src: tempFilePath,
+    success: (info) => {
+      const imageType = String(info.type)
+      const mimeType: MaintenancePortraitMeta['mimeType'] | '' =
+        imageType === 'png'
+          ? 'image/png'
+          : imageType === 'jpg' || imageType === 'jpeg'
+            ? 'image/jpeg'
+            : ''
+      if (!mimeType) {
+        page.setData({ error: '頭像格式只支援 PNG、JPG 或 JPEG' })
+        return
+      }
+      try {
+        const byteSize = (wx.getFileSystemManager().statSync(tempFilePath) as { size: number }).size
+        if (byteSize > MAX_PORTRAIT_BYTES) {
+          page.setData({ error: '頭像檔案不可超過 512 KB' })
+          return
+        }
+        if (
+          !Number.isInteger(info.width) ||
+          !Number.isInteger(info.height) ||
+          info.width <= 0 ||
+          info.height <= 0 ||
+          Math.max(info.width, info.height) > MAX_PORTRAIT_EDGE
+        ) {
+          page.setData({ error: '頭像最長邊不可超過 512 px' })
+          return
+        }
+        const base64 = wx.getFileSystemManager().readFileSync(tempFilePath, 'base64') as string
+        const state = states.get(page)
+        if (!state) return
+        const meta: MaintenancePortraitMeta = {
+          mimeType,
+          byteSize,
+          width: info.width,
+          height: info.height,
+        }
+        state.portraitUpload = { base64, meta }
+        page.setData({
+          portraitTempPath: tempFilePath,
+          portraitMetaText: `${info.width} × ${info.height} px · ${Math.ceil(byteSize / 1024)} KB`,
+          error: '',
+        })
+      } catch {
+        page.setData({ error: '無法讀取頭像檔案，請重新選擇' })
+      }
+    },
+    fail: () => page.setData({ error: '無法讀取頭像資訊，請重新選擇' }),
+  })
+}
+const choosePortrait = (page: EditorPage): void => {
+  wx.chooseImage({
+    count: 1,
+    sizeType: ['original', 'compressed'],
+    sourceType: ['album', 'camera'],
+    success: (result) => {
+      const source = result.tempFilePaths[0]
+      if (!source) return
+      wx.cropImage({
+        src: source,
+        cropScale: '1:1',
+        success: (result) => {
+          wx.compressImage({
+            src: result.tempFilePath,
+            quality: 80,
+            success: (compressed) => readPortrait(page, compressed.tempFilePath),
+            fail: () => readPortrait(page, result.tempFilePath),
+          })
+        },
+        fail: () => page.setData({ error: '頭像裁切已取消，請重新選擇' }),
+      })
+    },
+    fail: () => page.setData({ error: '頭像選擇已取消' }),
+  })
+}
 const toOptions = (items: readonly RuntimeDictionaryItem[]): MaintenanceEntityOption[] =>
   items.map((item) => ({
     ...item,
@@ -127,6 +214,7 @@ const render = (page: EditorPage): void => {
   if (!state) return
   const form = state.draft.proposedData
   const options = page.data.options
+  const portraitMeta = state.portraitUpload?.meta ?? state.draft.portraitMeta
   const name = (kind: string, id: string) =>
     options[kind]?.find((option) => option.id === id)?.name ?? (id ? '待確認資料' : '請選擇')
   const skillTypeOptions = page.data.skillTypeOptions
@@ -134,6 +222,10 @@ const render = (page: EditorPage): void => {
   const skillById = new Map(state.context.skills.map((skill) => [skill.id, skill]))
   page.setData({
     form,
+    portraitFileId: state.draft.portraitFileId ?? '',
+    portraitMetaText: portraitMeta
+      ? `${portraitMeta.width} × ${portraitMeta.height} px · ${Math.ceil(portraitMeta.byteSize / 1024)} KB`
+      : '',
     ...(page.data.reviewMode
       ? {
           reviewDiff: buildMaintenanceDiff(state.draft.baseSnapshot, form),
@@ -200,7 +292,7 @@ const updateForm = (page: EditorPage, patch: Partial<MaintenanceOfficerData>): v
   page.setData({ error: '', notice: '' })
   render(page)
 }
-const validationError = (state: EditorState): string => {
+const validationError = (state: EditorState, requirePortrait = false): string => {
   const errors = validateMaintenanceDraft(state.draft, state.context)
   const candidateError = state.draft.referenceCandidates.some(
     (candidate) => candidate.kind === 'skill' && !candidate.description?.trim(),
@@ -220,17 +312,25 @@ const validationError = (state: EditorState): string => {
         !Number.isInteger(row.slot) ||
         row.slot < 0,
     )
+  const portraitError =
+    requirePortrait &&
+    state.draft.operation === 'createOfficer' &&
+    !state.draft.portraitFileId &&
+    !state.portraitUpload
+      ? '請上傳正式版頭像'
+      : ''
   return (
     errors[0]?.message ||
     candidateError ||
     (!state.draft.proposedData.name.trim() ? '請輸入航海士名稱' : '') ||
+    portraitError ||
     (invalidNumber ? '語言與技能等級必須為正整數，槽位必須為非負整數' : '')
   )
 }
 const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
   const state = writable(page)
   if (!state || page.data.reviewMode) return
-  const error = validationError(state)
+  const error = validationError(state, submit)
   if (error) {
     page.setData({ error })
     return
@@ -247,7 +347,15 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
             updatedAt: state.saved.updatedAt,
           }
         : {}),
+      ...(state.portraitUpload ? { portraitUpload: state.portraitUpload } : {}),
     })
+    state.draft = {
+      ...state.draft,
+      portraitFileId: state.saved.portraitFileId ?? null,
+      portraitMeta: state.saved.portraitMeta ?? null,
+    }
+    state.portraitUpload = null
+    page.setData({ portraitFileId: state.saved.portraitFileId ?? '' })
     if (submit) {
       const { workOrderId, revision, updatedAt } = state.saved
       state.saved = await service.submit({ workOrderId, revision, updatedAt })
@@ -373,6 +481,9 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       skillRows: [],
       skillTypeOptions: [],
       expandedSkillIds: [],
+      portraitTempPath: '',
+      portraitFileId: '',
+      portraitMetaText: '',
     } as EditorData,
 
     async onLoad(query?: Record<string, string | undefined>) {
@@ -459,7 +570,8 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
             referenceCandidates: [],
           }
         }
-        states.set(this, { draft, saved, context })
+        states.set(this, { draft, saved, context, portraitUpload: null })
+        this.setData({ portraitTempPath: '' })
         render(this)
       } catch (error) {
         this.setData({
@@ -478,6 +590,27 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
         updateForm(this, {
           recruitment: { ...this.data.form.recruitment, note: event.detail.value || null },
         })
+    },
+    onPortraitTap() {
+      if (
+        this.data.modifying ||
+        this.data.reviewMode ||
+        this.data.readonly ||
+        this.data.saving ||
+        this.data.submitting
+      )
+        return
+      choosePortrait(this)
+    },
+    onPortraitRemove() {
+      const state = states.get(this)
+      if (!state || this.data.modifying) return
+      if (state.draft.portraitFileId) {
+        this.setData({ error: '頭像已上傳；如需更換請重新選擇新頭像' })
+        return
+      }
+      state.portraitUpload = null
+      this.setData({ portraitTempPath: '', portraitMetaText: '' })
     },
     onBasicChange(event: WechatMiniprogram.PickerChange) {
       const field = this.data.basicFields.find(
