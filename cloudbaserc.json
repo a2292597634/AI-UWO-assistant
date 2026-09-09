@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "version": "2.1",
+  "envId": "cloud1-d7gxfuxfe813b4eaa",
+  "region": "ap-shanghai",
+  "functionRoot": "cloudfunctions/",
+  "functions": [
+    {
+      "name": "coupon-redemption",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 10,
+      "memorySize": 256,
+      "installDependency": true
+    }
+  ]
+}
