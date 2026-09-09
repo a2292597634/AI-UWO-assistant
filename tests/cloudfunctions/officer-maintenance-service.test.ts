@@ -74,6 +74,12 @@ function createMemoryRepo() {
       const found = records.find((record) => record.workOrderId === workOrderId)
       return found ? structuredClone(found) : null
     },
+    async findByOwnerAndIdempotencyKey(ownerUid: string, idempotencyKey: string) {
+      const found = records.find(
+        (record) => record.ownerUid === ownerUid && record.idempotencyKey === idempotencyKey,
+      )
+      return found ? structuredClone(found) : null
+    },
     async listByOwner(ownerUid: string) {
       return records
         .filter((record) => record.ownerUid === ownerUid)
@@ -157,6 +163,7 @@ const updateDraft = (overrides: Record<string, unknown> = {}) => ({
   baseSnapshot: officerData('原始航海士'),
   proposedData: officerData(),
   referenceCandidates: [],
+  idempotencyKey: 'update-save-1',
   ...overrides,
 })
 
@@ -183,6 +190,7 @@ describe('航海士維護工單狀態機', () => {
         baseSnapshot: null,
         proposedData: officerData('新增航海士'),
         referenceCandidates: [],
+        idempotencyKey: 'create-no-portrait',
       },
       'owner-user',
     )
@@ -223,6 +231,7 @@ describe('航海士維護工單狀態機', () => {
         baseSnapshot: null,
         proposedData: officerData('含頭像航海士'),
         referenceCandidates: [],
+        idempotencyKey: 'create-with-portrait',
         portraitFileId: 'cloud://偽造檔案',
         portraitUpload: {
           base64: 'valid-base64',
@@ -294,6 +303,48 @@ describe('航海士維護工單狀態機', () => {
     if (!result.data || Array.isArray(result.data)) throw new Error('缺少工單資料')
     return result.data
   }
+
+  it('新增工單以 owner 與同一幂等鍵重試時回傳原工單，不重複建立', async () => {
+    const payload = {
+      operation: 'createOfficer',
+      targetOfficerId: null,
+      baseDataVersion: null,
+      baseSnapshot: null,
+      proposedData: officerData('可重試新增航海士'),
+      referenceCandidates: [],
+      idempotencyKey: 'client-save-retry-1',
+    }
+
+    const first = saved(await service.dispatch('saveDraft', payload, 'owner-user'))
+    const retry = saved(await service.dispatch('saveDraft', payload, 'owner-user'))
+
+    expect(retry.workOrderId).toBe(first.workOrderId)
+    expect(repo.records).toHaveLength(1)
+    expect(repo.records[0]).toHaveProperty('idempotencyKey', 'client-save-retry-1')
+    expect(first).not.toHaveProperty('idempotencyKey')
+
+    const otherOwner = saved(await service.dispatch('saveDraft', payload, 'other-user'))
+    expect(otherOwner.workOrderId).not.toBe(first.workOrderId)
+    expect(repo.records).toHaveLength(2)
+  })
+
+  it('新增工單保存缺少幂等鍵時拒絕建立', async () => {
+    const result = await service.dispatch(
+      'saveDraft',
+      {
+        operation: 'createOfficer',
+        targetOfficerId: null,
+        baseDataVersion: null,
+        baseSnapshot: null,
+        proposedData: officerData('缺少幂等鍵航海士'),
+        referenceCandidates: [],
+      },
+      'owner-user',
+    )
+
+    expect(result).toMatchObject({ ok: false, code: 'invalid-data' })
+    expect(repo.records).toHaveLength(0)
+  })
 
   const candidate = (overrides: Record<string, unknown> = {}) => ({
     key: 'candidate_1',
@@ -632,7 +683,11 @@ describe('航海士維護工單狀態機', () => {
 
     const invalidDraft = await service.dispatch(
       'saveDraft',
-      updateDraft({ baseDataVersion: 'dataset-old', proposedData: officerData('過期基準') }),
+      updateDraft({
+        baseDataVersion: 'dataset-old',
+        proposedData: officerData('過期基準'),
+        idempotencyKey: 'update-save-invalid-base',
+      }),
       'owner-user',
     )
     if (!invalidDraft.ok || Array.isArray(invalidDraft.data) || !invalidDraft.data)

@@ -58,10 +58,12 @@ interface TestPage {
     saving: boolean
     reviewDiff: unknown[]
     candidates: unknown[]
+    portraitFileId: string
   }
   setData(update: Record<string, unknown>): void
   onLoad(query?: Record<string, string>): Promise<void>
   onFieldInput(event: unknown): void
+  onPortraitTap(): void
   onCandidateMerge(event: unknown): void
   onRejectReasonInput(event: unknown): void
   onSaveReview(): Promise<void>
@@ -114,6 +116,7 @@ beforeEach(async () => {
     setNavigationBarTitle: vi.fn(),
     navigateTo: vi.fn(),
     showModal: fixtures.showModal,
+    chooseImage: vi.fn(),
   })
   vi.stubGlobal('Page', (definition: TestPage) => {
     page = {
@@ -237,5 +240,34 @@ describe('管理員審核頁', () => {
     )
     expect(wxml).toContain('本次修訂原因')
     expect(wxml).toContain('bindinput="onReviewReasonInput"')
+  })
+
+  it('審核修改既有航海士時顯示現有頭像唯讀預覽', async () => {
+    const portrait = 'asset_portrait_existing'
+    fixtures.listAdmin.mockResolvedValue([
+      {
+        ...record(),
+        baseSnapshot: { ...fixtures.data, portraitId: portrait },
+        proposedData: { ...fixtures.data, name: '投稿名', portraitId: portrait },
+        reviewedData: { ...fixtures.data, name: '已修訂名', portraitId: portrait },
+      },
+    ])
+    await load()
+
+    expect(page.data.portraitFileId).toBe(portrait)
+    page.onPortraitTap()
+    expect(wx.chooseImage).not.toHaveBeenCalled()
+    const wxml = await import('node:fs').then(({ readFileSync }) =>
+      readFileSync(
+        new URL(
+          '../../miniprogram/subpkg-maintenance/pages/work-order-editor/index.wxml',
+          import.meta.url,
+        ),
+        'utf8',
+      ),
+    )
+    expect(wxml).toContain('wx:if="{{!modifying || reviewMode}}"')
+    expect(wxml).toContain('管理員審核模式僅供檢視，不能更換頭像')
+    expect(wxml).toContain('wx:if="{{!reviewMode}}" bindtap="onPortraitTap"')
   })
 })

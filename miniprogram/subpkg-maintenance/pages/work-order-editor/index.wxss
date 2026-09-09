@@ -149,6 +149,14 @@
 .maintenance-editor__portrait {
   margin-top: var(--uwo-space-4);
 }
+.maintenance-editor__portrait--readonly .maintenance-editor__portrait-picker {
+  border-style: solid;
+}
+.maintenance-editor__portrait-readonly-label {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  font-weight: 400;
+}
 .maintenance-editor__portrait-picker {
   display: flex;
   width: 240rpx;

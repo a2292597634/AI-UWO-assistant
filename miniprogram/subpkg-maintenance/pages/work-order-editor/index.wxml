@@ -13,8 +13,8 @@
         <picker range="{{item.options}}" range-key="name" data-field="{{item.field}}" bindchange="onBasicChange" disabled="{{readonly || saving || submitting}}"><view class="maintenance-editor__control">{{item.name}}</view></picker>
       </view>
       <view class="maintenance-editor__system-hint">視覺等級與顯示排序由系統依發布規則自動設定；新增工單需提供正式版頭像。</view>
-      <view wx:if="{{!modifying}}" class="maintenance-editor__portrait">
-        <view class="maintenance-editor__label">正式版頭像 <text class="required">*</text></view>
+      <view wx:if="{{!modifying || reviewMode}}" class="maintenance-editor__portrait {{reviewMode ? 'maintenance-editor__portrait--readonly' : ''}}">
+        <view class="maintenance-editor__label">正式版頭像 <text wx:if="{{reviewMode}}" class="maintenance-editor__portrait-readonly-label">唯讀預覽</text><text wx:else class="required">*</text></view>
         <view class="maintenance-editor__portrait-picker" bindtap="onPortraitTap">
           <image wx:if="{{portraitTempPath && !portraitImageFailed}}" class="maintenance-editor__portrait-image" src="{{portraitTempPath}}" mode="aspectFill" binderror="onPortraitImageError" />
           <image wx:elif="{{portraitFileId && !portraitImageFailed}}" class="maintenance-editor__portrait-image" src="{{portraitFileId}}" mode="aspectFill" binderror="onPortraitImageError" />
@@ -22,11 +22,12 @@
             <text class="maintenance-editor__portrait-fallback-title">頭像預覽載入失敗</text>
             <text>請重新選擇或稍後重試</text>
           </view>
-          <view wx:else class="maintenance-editor__portrait-empty">＋ 選擇頭像（將先裁切為 1:1）</view>
+          <view wx:else class="maintenance-editor__portrait-empty">{{reviewMode ? '目前沒有頭像可供預覽' : '＋ 選擇頭像（將先裁切為 1:1）'}}</view>
         </view>
-        <view wx:if="{{portraitTempPath || portraitFileId}}" class="maintenance-editor__portrait-meta">{{portraitMetaText || '已保留已上傳頭像'}} <text bindtap="onPortraitTap">重新選擇</text></view>
+        <view wx:if="{{portraitTempPath || portraitFileId}}" class="maintenance-editor__portrait-meta">{{portraitMetaText || '已保留已上傳頭像'}} <text wx:if="{{!reviewMode}}" bindtap="onPortraitTap">重新選擇</text></view>
         <view wx:if="{{portraitStatusText}}" class="maintenance-editor__portrait-status maintenance-editor__portrait-status--{{portraitStatusKind}}">{{portraitStatusText}}</view>
-        <view class="maintenance-editor__hint">PNG、JPG 或 JPEG；不超過 512 KB，最長邊不超過 512 px。</view>
+        <view wx:if="{{reviewMode}}" class="maintenance-editor__hint">管理員審核模式僅供檢視，不能更換頭像。</view>
+        <view wx:else class="maintenance-editor__hint">PNG、JPG 或 JPEG；不超過 512 KB，最長邊不超過 512 px。</view>
       </view>
       <entity-search-picker label="職業" options="{{options.job}}" selected-ids="{{selected.job}}" allow-candidate="{{true}}" data-kind="job" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />
       <entity-search-picker label="國家" options="{{options.nationality}}" selected-ids="{{selected.nationality}}" allow-candidate="{{true}}" data-kind="nationality" bindselect="onEntitySelect" bindremove="onEntityRemove" bindcreatecandidate="onCreateCandidate" />

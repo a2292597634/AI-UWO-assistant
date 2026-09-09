@@ -11,6 +11,8 @@ export interface MaintenanceEntityOption {
 }
 
 const EMPTY_QUERY_LIMIT = 80
+const normalizeSearchText = (value: string): string =>
+  value.normalize('NFKC').trim().toLocaleLowerCase()
 
 /**
  * 依名稱、別名或 ID 搜尋維護選項。
@@ -22,14 +24,14 @@ export const searchMaintenanceOptions = (
   options: readonly MaintenanceEntityOption[],
   query: string,
 ): MaintenanceEntityOption[] => {
-  const normalized = query.trim().toLocaleLowerCase()
+  const normalized = normalizeSearchText(query)
   const filtered = options
     .filter(
-      (option) => !normalized || option.searchableText.toLocaleLowerCase().includes(normalized),
+      (option) => !normalized || normalizeSearchText(option.searchableText).includes(normalized),
     )
     .sort((left, right) => {
-      const leftRank = left.name.toLocaleLowerCase().startsWith(normalized) ? 0 : 1
-      const rightRank = right.name.toLocaleLowerCase().startsWith(normalized) ? 0 : 1
+      const leftRank = normalizeSearchText(left.name).startsWith(normalized) ? 0 : 1
+      const rightRank = normalizeSearchText(right.name).startsWith(normalized) ? 0 : 1
       return leftRank - rightRank || left.name.localeCompare(right.name, 'zh-Hant')
     })
 

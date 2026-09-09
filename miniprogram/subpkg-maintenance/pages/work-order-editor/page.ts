@@ -36,6 +36,7 @@ interface EditorState {
   saved: MaintenanceWorkOrder | null
   context: MaintenanceValidationContext
   portraitUpload: MaintenancePortraitUpload | null
+  idempotencyKey: string
 }
 type PortraitStatusKind = 'empty' | 'pending' | 'uploading' | 'uploaded' | 'error'
 interface EditorData {
@@ -112,6 +113,8 @@ const emptyForm = (): MaintenanceOfficerData => ({
 })
 const MAX_PORTRAIT_BYTES = 512 * 1024
 const MAX_PORTRAIT_EDGE = 512
+const generateIdempotencyKey = (): string =>
+  `maintenance-save-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 
 const setPortraitError = (page: EditorPage, message: string, statusText = message): void => {
   page.setData({
@@ -229,6 +232,8 @@ const latestRejectionReason = (record: MaintenanceWorkOrder): string =>
     .reverse()
     .find((entry) => entry.action === 'rejected')
     ?.reason?.trim() ?? ''
+const portraitPreviewId = (draft: MaintenanceWorkOrderDraft, reviewMode: boolean): string =>
+  draft.portraitFileId || (reviewMode ? draft.proposedData.portraitId : null) || ''
 const render = (page: EditorPage): void => {
   const state = states.get(page)
   if (!state) return
@@ -242,7 +247,7 @@ const render = (page: EditorPage): void => {
   const skillById = new Map(state.context.skills.map((skill) => [skill.id, skill]))
   page.setData({
     form,
-    portraitFileId: state.draft.portraitFileId ?? '',
+    portraitFileId: portraitPreviewId(state.draft, page.data.reviewMode),
     portraitMetaText: portraitMeta
       ? `${portraitMeta.width} × ${portraitMeta.height} px · ${Math.ceil(portraitMeta.byteSize / 1024)} KB`
       : '',
@@ -365,6 +370,10 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
   }
   try {
     const service = getOfficerMaintenanceService()
+    const isNewWorkOrder = !state.saved
+    if (isNewWorkOrder && !state.idempotencyKey) {
+      state.idempotencyKey = generateIdempotencyKey()
+    }
     state.saved = await service.saveDraft({
       ...clone(state.draft),
       ...(state.saved
@@ -374,6 +383,7 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
             updatedAt: state.saved.updatedAt,
           }
         : {}),
+      ...(isNewWorkOrder ? { idempotencyKey: state.idempotencyKey } : {}),
       ...(state.portraitUpload ? { portraitUpload: state.portraitUpload } : {}),
     })
     state.draft = {
@@ -631,8 +641,8 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
             referenceCandidates: [],
           }
         }
-        states.set(this, { draft, saved, context, portraitUpload: null })
-        const portraitFileId = draft.portraitFileId ?? ''
+        states.set(this, { draft, saved, context, portraitUpload: null, idempotencyKey: '' })
+        const portraitFileId = portraitPreviewId(draft, reviewMode)
         this.setData({
           portraitTempPath: '',
           portraitImageFailed: false,

@@ -56,6 +56,8 @@ export type SaveMaintenanceDraftInput = MaintenanceWorkOrderDraft & {
   readonly workOrderId?: string
   readonly revision?: number
   readonly updatedAt?: string
+  /** 新增工單首次保存使用；網路逾時重試時必須沿用同一鍵。 */
+  readonly idempotencyKey?: string
   readonly portraitUpload?: MaintenancePortraitUpload
 }
 

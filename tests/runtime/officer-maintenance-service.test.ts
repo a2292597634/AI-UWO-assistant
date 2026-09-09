@@ -40,6 +40,7 @@ const draftInput = {
     displayOrder: 1,
   },
   referenceCandidates: [],
+  idempotencyKey: 'runtime-save-1',
 }
 
 const versionInput = {

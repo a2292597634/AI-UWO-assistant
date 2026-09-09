@@ -46,6 +46,12 @@ describe('航海士維護選項 Presenter', () => {
     )
   })
 
+  it('搜尋查詢以 NFKC 與大小寫不敏感規則比對', () => {
+    expect(searchMaintenanceOptions(options, ' ＮＡＶＩＧＡＴＩＯＮ ')).toContainEqual(
+      expect.objectContaining({ id: 'skill_navigation' }),
+    )
+  })
+
   it('同時命中時將名稱前綴排在別名或 ID 命中之前，並按名稱穩定排序', () => {
     const result = searchMaintenanceOptions(
       [

@@ -92,7 +92,130 @@ const directory = () => {
   return dir
 }
 
+const sourceStyleData: MaintenanceOfficerData = {
+  name: '既有來源航海士',
+  rarityId: 'rarity_5',
+  visualGradeId: 'grade_5',
+  typeId: 'type_class_2',
+  genderId: 'gender_f',
+  jobId: 'job_jobchasT089',
+  nationalityId: 'nationality_ctn_swe',
+  languages: [{ languageId: 'language_lang70', level: 1 }],
+  skills: [],
+  recruitment: { cityIds: [], requirementId: null, requiredOfficerIds: [], note: null },
+  portraitId: null,
+  displayOrder: 1,
+}
+
+const sourceStyleMaster = (): MaintenanceMaster => ({
+  officers: [
+    {
+      ...structuredClone(sourceStyleData),
+      languages: sourceStyleData.languages.map((item) => ({ ...item })),
+      skills: sourceStyleData.skills.map((item) => ({ ...item })),
+      recruitment: {
+        ...sourceStyleData.recruitment,
+        cityIds: [...sourceStyleData.recruitment.cityIds],
+        requiredOfficerIds: [...sourceStyleData.recruitment.requiredOfficerIds],
+      },
+      id: 'officer_chast089',
+      sourceRefs: { voyageTw: 'chasT089' },
+    },
+  ],
+  skills: [],
+  dictionaries: Object.fromEntries(
+    [
+      ['rarities', ['rarity_5', '★★★★★']],
+      ['types', ['type_class_2', '交易']],
+      ['genders', ['gender_f', '女性']],
+      ['jobs', ['job_jobchasT089', '北方的工藝家']],
+      ['nationalities', ['nationality_ctn_swe', '瑞典']],
+      ['languages', ['language_lang70', '瑞典語']],
+      ['skillCategories', ['skill_category_trade', '貿易']],
+    ].map(([group, [id, name]]) => [
+      group,
+      [{ id, name, displayOrder: 0, sourceRefs: { voyageTw: id } }],
+    ]),
+  ),
+  dataset: {
+    schemaVersion: '1.0.0',
+    contentVersion: 'v1',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+    sourceSnapshot: 'fixture',
+    counts: { officers: 1, skills: 0, assets: 0, dictionaryItems: 7 },
+  },
+})
+
 describe('核准工單純轉換', () => {
+  it('新資料 ID 以維護來源前綴追蹤工單，不退化為數字序號', () => {
+    const candidateOrder = create('wo_source_style')
+    candidateOrder.reviewedData = {
+      ...structuredClone(sourceStyleData),
+      name: '新來源航海士',
+      jobId: 'candidate_job',
+      nationalityId: 'candidate_nationality',
+      languages: [{ languageId: 'candidate_language', level: 1 }],
+      skills: [
+        {
+          skillId: 'candidate_skill',
+          kind: 'passive',
+          sourceGroup: 'sk0',
+          slot: 0,
+          unlockLevel: 1,
+          level: 1,
+        },
+      ],
+    }
+    candidateOrder.referenceCandidates = [
+      {
+        key: 'candidate_skill',
+        kind: 'skill',
+        name: '新來源技能',
+        aliases: [],
+        categoryId: 'skill_category_trade',
+        description: '說明',
+      },
+      { key: 'candidate_job', kind: 'job', name: '新來源職業', aliases: [] },
+      { key: 'candidate_language', kind: 'language', name: '新來源語言', aliases: [] },
+      { key: 'candidate_nationality', kind: 'nationality', name: '新來源國籍', aliases: [] },
+    ]
+
+    const result = applyApprovedWorkOrders(sourceStyleMaster(), [candidateOrder])
+
+    expect(result.officers[1]?.id).toBe('officer_maintenance_wo_source_style')
+    expect(result.skills[0]?.id).toBe('skill_maintenance_wo_source_style_candidate_skill')
+    expect(result.dictionaries.jobs?.[1]?.id).toBe('job_maintenance_wo_source_style_candidate_job')
+    expect(result.dictionaries.languages?.[1]?.id).toBe(
+      'language_maintenance_wo_source_style_candidate_language',
+    )
+    expect(result.dictionaries.nationalities?.[1]?.id).toBe(
+      'nationality_maintenance_wo_source_style_candidate_nationality',
+    )
+    expect(result.officers[1]?.id).not.toMatch(/_(?:1|2)$/)
+  })
+
+  it('以真實 data/master 樣本新增資料時保留來源式正式 ID', () => {
+    const realMaster = Object.fromEntries(
+      ['officers', 'skills', 'dictionaries', 'dataset'].map((name) => [
+        name,
+        JSON.parse(readFileSync(`data/master/${name}.json`, 'utf8')),
+      ]),
+    ) as unknown as MaintenanceMaster
+    const sample = realMaster.officers[0]
+    if (!sample) throw new Error('缺少真實航海士樣本')
+    const { id: _id, sourceRefs: _sourceRefs, ...sampleData } = sample
+    const newOrder = create('wo_real_master_sample')
+    newOrder.reviewedData = { ...sampleData, name: '真實資料新增樣本' }
+
+    const result = applyApprovedWorkOrders(realMaster, [newOrder])
+
+    expect(result.officers.map((item) => item.id)).toContain('officer_chast089')
+    expect(result.officers.find((item) => item.name === '真實資料新增樣本')).toMatchObject({
+      id: 'officer_maintenance_wo_real_master_sample',
+      sourceRefs: { workOrderId: 'wo_real_master_sample' },
+    })
+  })
+
   it('修改航海士保留既有 ID 與來源，完整輸入保持不變', () => {
     const input = master()
     const before = structuredClone(input)
@@ -214,7 +337,7 @@ describe('核准工單純轉換', () => {
     const result = applyApprovedWorkOrders(master(), [b, a])
     expect(result.skills).toEqual([
       {
-        id: 'skill_1',
+        id: 'skill_maintenance_wo_a_candidate_a',
         name: '新技能',
         categoryId: 'skill_category_1',
         description: '技能效果',
@@ -224,8 +347,8 @@ describe('核准工單純轉換', () => {
       },
     ])
     expect(result.officers.slice(1).map((item) => [item.id, item.skills[0]?.skillId])).toEqual([
-      ['officer_10', 'skill_1'],
-      ['officer_11', 'skill_1'],
+      ['officer_maintenance_wo_a', 'skill_maintenance_wo_a_candidate_a'],
+      ['officer_maintenance_wo_b', 'skill_maintenance_wo_a_candidate_a'],
     ])
     expect(applyApprovedWorkOrders(master(), [a, b])).toEqual(result)
   })
@@ -245,9 +368,9 @@ describe('核准工單純轉換', () => {
     }
     const result = applyApprovedWorkOrders(master(), [item])
     expect(result.officers[1]).toMatchObject({
-      jobId: 'job_2',
+      jobId: 'job_maintenance_wo_2_job_new',
       nationalityId: 'nationality_1',
-      languages: [{ languageId: 'language_2', level: 1 }],
+      languages: [{ languageId: 'language_maintenance_wo_2_lang_new', level: 1 }],
     })
     expect(result.dictionaries.nationalities).toHaveLength(1)
   })
@@ -462,6 +585,50 @@ describe('同步寫入與發布門禁', () => {
     expect(readFileSync(join(dir, 'officers.json'), 'utf8')).toBe(before)
   })
 
+  it('部分回寫失敗後伺服端只返回剩餘工單時，沿用已寫入版本並只補標記', async () => {
+    const dir = directory()
+    const approved = [order(), create()]
+    const firstEvents: string[] = []
+    await expect(
+      runMaintenanceSync({
+        masterDir: dir,
+        approved,
+        syncToken: 'secret',
+        runGate: async () => {},
+        publish: async () => {
+          firstEvents.push('publish')
+        },
+        invoke: async (payload) => {
+          if (payload.action !== 'markPublished') return { ok: true, data: [] }
+          firstEvents.push(`mark:${payload.workOrderId}`)
+          return payload.workOrderId === 'wo_2'
+            ? { ok: false, code: 'conflict' }
+            : { ok: true, data: { status: 'published' } }
+        },
+      }),
+    ).rejects.toThrow(/雲端同步失敗/)
+    const afterFirstRun = readFileSync(join(dir, 'officers.json'), 'utf8')
+
+    const retryEvents: string[] = []
+    const retried = await runMaintenanceSync({
+      masterDir: dir,
+      syncToken: 'secret',
+      runGate: async () => {},
+      publish: async () => {
+        retryEvents.push('publish')
+      },
+      invoke: async (payload) => {
+        if (payload.action === 'listApprovedForSync') return { ok: true, data: [approved[1]] }
+        retryEvents.push(`mark:${payload.workOrderId}`)
+        return { ok: true, data: { status: 'published' } }
+      },
+    })
+
+    expect(retried.published).toEqual(['wo_2'])
+    expect(retryEvents).toEqual(['mark:wo_2'])
+    expect(readFileSync(join(dir, 'officers.json'), 'utf8')).toBe(afterFirstRun)
+  })
+
   it('實際同步從伺服端核准清單取工單，未核准資料不進入 master', async () => {
     const dir = directory()
     const requests: unknown[] = []
@@ -490,7 +657,7 @@ describe('同步寫入與發布門禁', () => {
       dataVersion: result.master.dataset.contentVersion,
       languageIds: ['language_1'],
       skillCategoryIds: ['skill_category_1'],
-      officerIds: ['officer_9', 'officer_10'],
+      officerIds: ['officer_9', 'officer_maintenance_wo_2'],
     })
   })
 })

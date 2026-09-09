@@ -72,16 +72,33 @@ const candidateGroup = {
   nationality: 'nationalities',
 } as const
 
-/** 只配置新 ID；既有的来源前綴、大小寫和序號完全保留。 */
-const allocateId = (prefix: string, used: Set<string>): string => {
-  const sequence = new RegExp(`^${prefix}_(\\d+)$`)
-  let next = 1
-  for (const id of used) {
-    const match = sequence.exec(id)
-    if (match) next = Math.max(next, Number(match[1]) + 1)
-  }
-  if (!Number.isSafeInteger(next)) throw new Error('正式 ID 序號超出安全範圍')
-  const id = `${prefix}_${next}`
+/** 新資料沿用正式 ID 的類型前綴，並以可追蹤的維護來源值建立穩定 ID。 */
+const maintenanceIdPrefix = {
+  officer: 'officer_maintenance_',
+  skill: 'skill_maintenance_',
+  job: 'job_maintenance_',
+  language: 'language_maintenance_',
+  nationality: 'nationality_maintenance_',
+} as const
+
+const idSegment = (value: string): string => {
+  const segment = label(value)
+    .replace(/[^A-Za-z0-9_-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^[_-]+|[_-]+$/g, '')
+  if (segment) return segment
+  return `key_${createHash('sha256').update(label(value)).digest('hex').slice(0, 12)}`
+}
+
+const allocateId = (
+  kind: keyof typeof maintenanceIdPrefix,
+  sourceValue: string,
+  used: Set<string>,
+): string => {
+  const base = `${maintenanceIdPrefix[kind]}${idSegment(sourceValue)}`
+  let id = base
+  let suffix = 2
+  while (used.has(id)) id = `${base}_${suffix++}`
   used.add(id)
   return id
 }
@@ -272,7 +289,7 @@ export const applyApprovedWorkOrders = (
           )
             throw new Error('同名候選技能內容衝突')
         } else {
-          id = allocateId('skill', used)
+          id = allocateId('skill', `${order.workOrderId}_${candidate.key}`, used)
           output.skills.push({
             id,
             name: candidate.name.trim(),
@@ -284,7 +301,7 @@ export const applyApprovedWorkOrders = (
           })
         }
       } else if (!id) {
-        id = allocateId(candidate.kind, used)
+        id = allocateId(candidate.kind, `${order.workOrderId}_${candidate.key}`, used)
         const group = candidateGroup[candidate.kind]
         const items = output.dictionaries[group] ?? (output.dictionaries[group] = [])
         items.push({
@@ -333,7 +350,7 @@ export const applyApprovedWorkOrders = (
         cityIds: [...reviewed.recruitment.cityIds],
         requiredOfficerIds: [...reviewed.recruitment.requiredOfficerIds],
       },
-      id: existing?.id ?? allocateId('officer', used),
+      id: existing?.id ?? allocateId('officer', order.workOrderId, used),
       sourceRefs: existing?.sourceRefs ?? { workOrderId: order.workOrderId },
     }
     validateReviewed(officer)
@@ -429,6 +446,7 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
     ) as unknown as MaintenanceMaster
     const result = applyApprovedWorkOrders(master, fetched as ApprovedWorkOrder[])
     if (fetched.length === 0) return { master: result, published: [] as string[] }
+    const dataChanged = !isDeepStrictEqual(result, master)
     for (const name of MASTER_NAMES) {
       const path = join(masterDir, `${name}.json`)
       const temp = `${path}.${transaction}.tmp`
@@ -445,9 +463,14 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
       await (options.runGate ?? defaultGate)(name)
     await (options.runGate ?? defaultGate)('verify')
     const published: string[] = []
-    if (options.publish) {
+    if (options.publish && dataChanged) {
       await options.publish(result.dataset.contentVersion)
       publishedSuccessfully = true
+    } else if (options.publish) {
+      // 只返回尚未回寫的剩餘工單時，資料已在前一次發布中完成，不重複發布同一版本。
+      publishedSuccessfully = true
+    }
+    if (options.publish) {
       for (const order of [...(fetched as ApprovedWorkOrder[])].sort((a, b) =>
         compare(a.workOrderId, b.workOrderId),
       )) {

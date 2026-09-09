@@ -9,6 +9,9 @@ import type {
 } from '../contracts/officer-maintenance'
 
 const VISUAL_GRADE_IDS = new Set(['grade_2', 'grade_3', 'grade_4', 'grade_5', 'grade_6'])
+const VALID_CANDIDATE_KINDS = new Set(['skill', 'job', 'language', 'nationality'])
+const VALID_SKILL_KINDS = new Set(['active', 'passive'])
+const VALID_SKILL_SOURCE_GROUPS = new Set(['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'])
 
 const OFFICER_DATA_FIELDS: readonly (keyof MaintenanceOfficerData)[] = [
   'name',
@@ -28,6 +31,8 @@ const OFFICER_DATA_FIELDS: readonly (keyof MaintenanceOfficerData)[] = [
 
 const hasValue = (value: string | null): value is string =>
   value !== null && value.trim().length > 0
+
+const normalizeLabel = (value: string): string => value.normalize('NFKC').trim().toLocaleLowerCase()
 
 const dictionaryIds = (items: readonly { id: string }[]): ReadonlySet<string> =>
   new Set(items.map((item) => item.id))
@@ -49,11 +54,35 @@ const validateReferenceCandidate = (
   skillCategoryIds: ReadonlySet<string>,
   seenNames: Set<string>,
   seenLabels: Set<string>,
+  seenKeys: Set<string>,
   errors: MaintenanceValidationError[],
 ): void => {
   const field = `referenceCandidates[${index}]`
-  const normalizedName = candidate.name.trim()
-  const categoryId = candidate.categoryId?.trim()
+  if (!VALID_CANDIDATE_KINDS.has(candidate.kind)) {
+    errors.push({ field: `${field}.kind`, message: '候選項類型無效' })
+    return
+  }
+
+  if (typeof candidate.key !== 'string' || !normalizeLabel(candidate.key)) {
+    errors.push({ field: `${field}.key`, message: '候選項 key 不可空白' })
+  } else {
+    const normalizedKey = normalizeLabel(candidate.key)
+    if (seenKeys.has(normalizedKey)) {
+      errors.push({ field: `${field}.key`, message: '候選項 key 不可重複' })
+    }
+    seenKeys.add(normalizedKey)
+  }
+
+  if (
+    !Array.isArray(candidate.aliases) ||
+    candidate.aliases.some((label) => typeof label !== 'string')
+  ) {
+    errors.push({ field: `${field}.aliases`, message: '候選項別名格式無效' })
+    return
+  }
+
+  const normalizedName = typeof candidate.name === 'string' ? normalizeLabel(candidate.name) : ''
+  const categoryId = typeof candidate.categoryId === 'string' ? candidate.categoryId.trim() : ''
 
   if (!normalizedName) {
     errors.push({ field: `${field}.name`, message: '請輸入候選項名稱' })
@@ -65,8 +94,11 @@ const validateReferenceCandidate = (
     seenNames.add(duplicateKey)
   }
 
-  for (const [labelIndex, label] of [candidate.name, ...candidate.aliases].entries()) {
-    const normalizedLabel = label.trim()
+  for (const [labelIndex, label] of [
+    typeof candidate.name === 'string' ? candidate.name : '',
+    ...candidate.aliases,
+  ].entries()) {
+    const normalizedLabel = normalizeLabel(label)
     if (!normalizedLabel) continue
     const labelKey = `${candidate.kind}:${normalizedLabel}`
     if (seenLabels.has(labelKey)) {
@@ -111,6 +143,7 @@ export const validateMaintenanceDraft = (
   const data = draft.proposedData
   const candidateIdsByKind = new Map<ReferenceCandidate['kind'], Set<string>>()
   for (const candidate of draft.referenceCandidates) {
+    if (!VALID_CANDIDATE_KINDS.has(candidate.kind) || typeof candidate.key !== 'string') continue
     const ids = candidateIdsByKind.get(candidate.kind) ?? new Set<string>()
     ids.add(candidate.key)
     candidateIdsByKind.set(candidate.kind, ids)
@@ -174,6 +207,15 @@ export const validateMaintenanceDraft = (
   const skillIds = new Set(skills.map((skill) => skill.id))
   const skillSlots = new Set<string>()
   for (const [index, skill] of data.skills.entries()) {
+    if (!VALID_SKILL_SOURCE_GROUPS.has(skill.sourceGroup)) {
+      errors.push({
+        field: `proposedData.skills[${index}].sourceGroup`,
+        message: '技能來源組無效',
+      })
+    }
+    if (!VALID_SKILL_KINDS.has(skill.kind)) {
+      errors.push({ field: `proposedData.skills[${index}].kind`, message: '技能類型無效' })
+    }
     const slotKey = `${skill.sourceGroup}:${skill.slot}`
     if (skillSlots.has(slotKey)) {
       errors.push({
@@ -223,6 +265,7 @@ export const validateMaintenanceDraft = (
 
   const candidateNames = new Set<string>()
   const candidateLabels = new Set<string>()
+  const candidateKeys = new Set<string>()
   const skillCategoryIds = dictionaryIds(dictionaries.skillCategories)
   for (const [index, candidate] of draft.referenceCandidates.entries()) {
     validateReferenceCandidate(
@@ -231,6 +274,7 @@ export const validateMaintenanceDraft = (
       skillCategoryIds,
       candidateNames,
       candidateLabels,
+      candidateKeys,
       errors,
     )
   }

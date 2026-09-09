@@ -233,7 +233,7 @@ function validateWorkOrderContent(workOrder, referenceData) {
 }
 
 function toClientRecord(record) {
-  const { _id: _id, ownerUid: _ownerUid, ...safe } = record
+  const { _id: _id, ownerUid: _ownerUid, idempotencyKey: _idempotencyKey, ...safe } = record
   return {
     ...clone(safe),
     history: (Array.isArray(record.history) ? record.history : []).map((entry) => {
@@ -295,10 +295,19 @@ function createOfficerMaintenanceService(repo, options = {}) {
   async function saveDraft(payload, openid) {
     const workOrderId = asTrimmedString(payload.workOrderId)
     if (!workOrderId) {
+      const idempotencyKey = asTrimmedString(payload.idempotencyKey)
+      if (!idempotencyKey) return fail('invalid-data', '新增工單保存缺少幂等鍵')
+      const existingByIdempotencyKey = await repo.findByOwnerAndIdempotencyKey(
+        openid,
+        idempotencyKey,
+      )
+      if (existingByIdempotencyKey) return ok(toClientRecord(existingByIdempotencyKey))
+
       const newWorkOrderId = generateWorkOrderId()
       const candidate = {
         workOrderId: newWorkOrderId,
         ownerUid: openid,
+        idempotencyKey,
         operation: payload.operation,
         targetOfficerId: payload.targetOfficerId ?? null,
         baseDataVersion: payload.baseDataVersion ?? null,

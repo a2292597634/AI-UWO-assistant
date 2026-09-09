@@ -36,6 +36,10 @@ interface FakeDatabase {
 interface WorkOrderRepository {
   insert(record: WorkOrderRecord): Promise<WorkOrderRecord>
   findByWorkOrderId(workOrderId: string): Promise<WorkOrderRecord | null>
+  findByOwnerAndIdempotencyKey(
+    ownerUid: string,
+    idempotencyKey: string,
+  ): Promise<WorkOrderRecord | null>
   listByOwner(ownerUid: string): Promise<WorkOrderRecord[]>
   listByStatus(status: string): Promise<WorkOrderRecord[]>
   updateIfCurrent(
@@ -114,6 +118,30 @@ describe('航海士維護工單儲存庫', () => {
     ).resolves.toMatchObject({ status: 'pendingReview', revision: 2 })
     await expect(
       repo.updateIfCurrent('wo_1', 1, '2026-09-08T00:00:00.000Z', { status: 'published' }),
+    ).resolves.toBeNull()
+  })
+
+  it('以 owner 與幂等鍵找到同一筆新增工單', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([
+        record({ ownerUid: 'openid_other', idempotencyKey: 'client-save-1' }),
+        record({
+          _id: 'doc_2',
+          workOrderId: 'wo_2',
+          ownerUid: 'openid_owner',
+          idempotencyKey: 'client-save-1',
+        }),
+      ]),
+    )
+
+    await expect(
+      repo.findByOwnerAndIdempotencyKey('openid_owner', 'client-save-1'),
+    ).resolves.toMatchObject({
+      workOrderId: 'wo_2',
+      ownerUid: 'openid_owner',
+    })
+    await expect(
+      repo.findByOwnerAndIdempotencyKey('openid_owner', 'client-save-2'),
     ).resolves.toBeNull()
   })
 

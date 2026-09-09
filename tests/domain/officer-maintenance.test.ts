@@ -221,6 +221,85 @@ describe('航海士維護工單校驗', () => {
     })
   })
 
+  it('候選名稱以 NFKC 與大小寫不敏感規則判斷重複', () => {
+    const result = validateMaintenanceDraft(
+      {
+        ...updateDraft(),
+        targetOfficerId: 'officer_existing',
+        referenceCandidates: [
+          { key: 'candidate-job-1', kind: 'job', name: 'Navigation', aliases: ['航海'] },
+          { key: 'candidate-job-2', kind: 'job', name: ' ｎａｖｉｇａｔｉｏｎ ', aliases: [] },
+        ],
+      },
+      context,
+    )
+
+    expect(result).toContainEqual({
+      field: 'referenceCandidates[1].name',
+      message: '同類候選項名稱不可重複',
+    })
+  })
+
+  it('拒絕無效候選 key、kind 與 aliases 型別', () => {
+    const result = validateMaintenanceDraft(
+      {
+        ...updateDraft(),
+        targetOfficerId: 'officer_existing',
+        referenceCandidates: [
+          { key: ' ', kind: 'job', name: '空白 key', aliases: [] },
+          { key: 'candidate-job-1', kind: 'unknown', name: '無效類型', aliases: [] },
+          {
+            key: 'candidate-job-1',
+            kind: 'job',
+            name: '別名格式錯誤',
+            aliases: '別名' as unknown as readonly string[],
+          },
+        ],
+      } as unknown as MaintenanceWorkOrderDraft,
+      context,
+    )
+
+    expect(result).toEqual(
+      expect.arrayContaining([
+        { field: 'referenceCandidates[0].key', message: '候選項 key 不可空白' },
+        { field: 'referenceCandidates[1].kind', message: '候選項類型無效' },
+        { field: 'referenceCandidates[2].aliases', message: '候選項別名格式無效' },
+      ]),
+    )
+  })
+
+  it('拒絕重複候選 key 與無效技能來源組和類型', () => {
+    const result = validateMaintenanceDraft(
+      {
+        ...updateDraft(),
+        targetOfficerId: 'officer_existing',
+        referenceCandidates: [
+          { key: 'candidate-job-1', kind: 'job', name: '職業甲', aliases: [] },
+          { key: 'candidate-job-1', kind: 'job', name: '職業乙', aliases: [] },
+        ],
+        proposedData: {
+          ...proposedData,
+          skills: [
+            {
+              ...proposedData.skills[0]!,
+              sourceGroup: 'sk9',
+              kind: 'unknown',
+            },
+          ],
+        },
+      } as unknown as MaintenanceWorkOrderDraft,
+      context,
+    )
+
+    expect(result).toEqual(
+      expect.arrayContaining([
+        { field: 'referenceCandidates[1].key', message: '候選項 key 不可重複' },
+        { field: 'proposedData.skills[0].sourceGroup', message: '技能來源組無效' },
+        { field: 'proposedData.skills[0].kind', message: '技能類型無效' },
+      ]),
+    )
+  })
+
   it('不會將形似正式 ID 的候選名稱當成正式引用', () => {
     const result = validateMaintenanceDraft(
       {

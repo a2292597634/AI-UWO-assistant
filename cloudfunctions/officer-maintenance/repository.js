@@ -58,6 +58,11 @@ function createRepository(db) {
     return records[0] ?? null
   }
 
+  async function findByOwnerAndIdempotencyKey(ownerUid, idempotencyKey) {
+    const records = await getAll({ ownerUid, idempotencyKey })
+    return records[0] ?? null
+  }
+
   async function listByOwner(ownerUid) {
     return sortNewestFirst(await getAll({ ownerUid }))
   }
@@ -83,6 +88,7 @@ function createRepository(db) {
   return {
     insert,
     findByWorkOrderId,
+    findByOwnerAndIdempotencyKey,
     listByOwner,
     listByStatus,
     updateIfCurrent,

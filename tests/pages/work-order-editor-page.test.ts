@@ -140,6 +140,37 @@ describe('維護工單編輯器', () => {
     expect(page.data.portraitTempPath).toBe('')
   })
 
+  it('新增工單保存逾時後重試沿用同一幂等鍵', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onFieldInput(event({ field: 'name' }, { value: '可重試新增航海士' }))
+    for (const field of ['rarityId', 'typeId', 'genderId']) {
+      page.onBasicChange(event({ field }, { value: '0' }))
+    }
+    page.onEntitySelect(event({ kind: 'job' }, { id: 'job' }))
+    page.onEntitySelect(event({ kind: 'nationality' }, { id: 'nation' }))
+    fixtures.saveDraft
+      .mockRejectedValueOnce(new Error('網路逾時'))
+      .mockImplementationOnce(async (input) => ({
+        ...input,
+        workOrderId: 'wo-idempotent',
+        status: 'draft',
+        revision: 1,
+        updatedAt: 'now',
+      }))
+
+    await page.onSaveDraft()
+    await page.onSaveDraft()
+
+    expect(fixtures.saveDraft).toHaveBeenCalledTimes(2)
+    const firstInput = fixtures.saveDraft.mock.calls[0]?.[0]
+    const retryInput = fixtures.saveDraft.mock.calls[1]?.[0]
+    expect(firstInput).toEqual(expect.objectContaining({ idempotencyKey: expect.any(String) }))
+    expect(retryInput).toEqual(
+      expect.objectContaining({ idempotencyKey: firstInput.idempotencyKey }),
+    )
+  })
+
   it('草稿可先不附頭像，選圖後以 1:1 裁切結果傳送附件', async () => {
     await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
     await page.onLoad()
