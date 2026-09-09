@@ -1,0 +1,35 @@
+.modify-officer {
+  min-height: 100vh;
+  padding: var(--uwo-space-6);
+  padding-bottom: calc(var(--uwo-space-8) + env(safe-area-inset-bottom));
+  background: var(--uwo-color-canvas);
+  color: var(--uwo-color-text-primary);
+  font-family: var(--uwo-font-family-body);
+}
+
+.modify-officer__heading {
+  color: var(--uwo-color-ink);
+  font-size: var(--uwo-font-size-page-title);
+  font-weight: 700;
+}
+
+.modify-officer__hint {
+  margin-top: var(--uwo-space-4);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.modify-officer__panel {
+  margin-top: var(--uwo-space-8);
+  padding: var(--uwo-space-6);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+}
+
+.modify-officer__button {
+  width: 100%;
+  margin-top: var(--uwo-space-6);
+}

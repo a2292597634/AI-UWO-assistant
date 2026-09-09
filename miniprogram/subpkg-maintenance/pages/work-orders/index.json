@@ -1,4 +1,1 @@
-{
-  "navigationBarTitleText": "我的維護工單",
-  "usingComponents": { "entity-search-picker": "/components/entity-search-picker/index" }
-}
+{ "navigationBarTitleText": "我的維護工單", "usingComponents": {} }

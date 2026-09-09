@@ -1,5 +1,28 @@
 <view class="entity-search-picker">
-  <text class="entity-search-picker__label">{{label}}</text>
+  <view class="entity-search-picker__header">
+    <text class="entity-search-picker__label">{{label}}</text>
+    <button
+      class="entity-search-picker__toggle"
+      bindtap="onToggleResults"
+      aria-expanded="{{resultsExpanded}}"
+      aria-label="{{resultsExpanded ? '收起' : '展開'}}{{label}}搜尋結果"
+    >
+      <image
+        wx:if="{{resultsExpanded}}"
+        class="entity-search-picker__toggle-icon entity-search-picker__toggle-icon--expanded"
+        src="/assets/ui/uwo-disclosure-chevron-up.png"
+        mode="aspectFit"
+        aria-hidden="true"
+      />
+      <image
+        wx:else
+        class="entity-search-picker__toggle-icon"
+        src="/assets/ui/uwo-disclosure-chevron-down.png"
+        mode="aspectFit"
+        aria-hidden="true"
+      />
+    </button>
+  </view>
 
   <input
     class="entity-search-picker__input"
@@ -13,7 +36,7 @@
     <view wx:for="{{selectedOptions}}" wx:key="id" class="entity-search-picker__selected-item">
       <view class="entity-search-picker__copy">
         <text class="entity-search-picker__name">{{item.name}}</text>
-        <text class="entity-search-picker__meta">{{item.meta}}</text>
+        <text wx:if="{{item.meta && item.meta !== item.id}}" class="entity-search-picker__meta">{{item.meta}}</text>
       </view>
       <button
         class="entity-search-picker__remove"
@@ -24,7 +47,7 @@
     </view>
   </view>
 
-  <view wx:if="{{filteredOptions.length > 0}}" class="entity-search-picker__result-list">
+  <view wx:if="{{resultsExpanded && hasQuery && filteredOptions.length > 0}}" class="entity-search-picker__result-list">
     <button
       wx:for="{{filteredOptions}}"
       wx:key="id"
@@ -34,11 +57,11 @@
       aria-label="選擇{{item.name}}"
     >
       <text class="entity-search-picker__name">{{item.name}}</text>
-      <text class="entity-search-picker__meta">{{item.meta}}</text>
+      <text wx:if="{{item.meta && item.meta !== item.id}}" class="entity-search-picker__meta">{{item.meta}}</text>
     </button>
   </view>
 
-  <view wx:if="{{filteredOptions.length === 0}}" class="entity-search-picker__empty">
+  <view wx:if="{{hasQuery && filteredOptions.length === 0}}" class="entity-search-picker__empty">
     <text>沒有符合的選項</text>
     <button
       wx:if="{{allowCandidate && query}}"

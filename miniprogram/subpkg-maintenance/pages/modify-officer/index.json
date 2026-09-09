@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "修改既有航海士",
+  "usingComponents": { "entity-search-picker": "/components/entity-search-picker/index" }
+}

@@ -1,5 +1,3 @@
-import type { MaintenanceEntityOption } from '../../../presenters/maintenance-option-presenter'
-import { getCatalog } from '../../../runtime/main-data-store'
 import type { MaintenanceStatus } from '../../../contracts/officer-maintenance'
 import {
   getOfficerMaintenanceService,
@@ -24,15 +22,6 @@ interface WorkOrderRow {
   updatedAt: string
 }
 
-const buildOfficerOptions = (): MaintenanceEntityOption[] =>
-  getCatalog().map((officer) => ({
-    id: officer.id,
-    name: officer.name,
-    aliases: officer.searchAliases,
-    meta: officer.id,
-    searchableText: [officer.name, officer.id, ...officer.searchAliases].join(' '),
-  }))
-
 const latestRejectionReason = (record: MaintenanceWorkOrder): string =>
   [...record.history]
     .reverse()
@@ -44,13 +33,9 @@ Page({
     rows: [] as WorkOrderRow[],
     loading: false,
     loadError: '',
-    officerOptions: [] as MaintenanceEntityOption[],
-    selectedOfficerIds: [] as string[],
-    selectedOfficerId: '',
   },
   onLoad() {
     wx.setNavigationBarTitle({ title: '我的維護工單' })
-    this.setData({ officerOptions: buildOfficerOptions() })
   },
   onShow() {
     void this.loadWorkOrders()
@@ -85,22 +70,8 @@ Page({
   onNewWorkOrder() {
     wx.navigateTo({ url: '/subpkg-maintenance/pages/work-order-editor/index' })
   },
-  onOfficerSelect(event: WechatMiniprogram.CustomEvent<{ id: string }>) {
-    const id = String(event.detail.id ?? '')
-    if (!this.data.officerOptions.some((option) => option.id === id)) return
-    this.setData({ selectedOfficerIds: [id], selectedOfficerId: id })
-  },
-  onOfficerRemove(event: WechatMiniprogram.CustomEvent<{ id: string }>) {
-    const id = String(event.detail.id ?? '')
-    if (id !== this.data.selectedOfficerId) return
-    this.setData({ selectedOfficerIds: [], selectedOfficerId: '' })
-  },
-  onModifyOfficer() {
-    const id = this.data.selectedOfficerId
-    if (!id) return
-    wx.navigateTo({
-      url: `/subpkg-maintenance/pages/work-order-editor/index?targetOfficerId=${encodeURIComponent(id)}`,
-    })
+  onModifyWorkOrder() {
+    wx.navigateTo({ url: '/subpkg-maintenance/pages/modify-officer/index' })
   },
   onRowTap(event: WechatMiniprogram.TouchEvent) {
     const id = String(event.currentTarget.dataset.id ?? '')

@@ -35,6 +35,8 @@ Component({
 
   data: {
     query: '',
+    hasQuery: false,
+    resultsExpanded: false,
     filteredOptions: [] as MaintenanceEntityOption[],
     selectedOptions: [] as MaintenanceEntityOption[],
   },
@@ -46,19 +48,31 @@ Component({
   },
 
   methods: {
-    refreshOptions(query: string) {
+    refreshOptions(query: string, expandOnQuery = false) {
       const options = toOptions(this.properties.options)
       const selectedIds = new Set(toSelectedIds(this.properties.selectedIds))
       const selectedOptions = options.filter((option) => selectedIds.has(option.id))
       const filteredOptions = searchMaintenanceOptions(options, query).filter(
         (option) => !selectedIds.has(option.id),
       )
+      const hasQuery = query.trim().length > 0
 
-      this.setData({ query, filteredOptions, selectedOptions })
+      this.setData({
+        query,
+        hasQuery,
+        filteredOptions,
+        selectedOptions,
+        resultsExpanded: hasQuery && (expandOnQuery || this.data.resultsExpanded),
+      })
     },
 
     onQueryInput(event: WechatMiniprogram.Input) {
-      this.refreshOptions(String(event.detail.value ?? ''))
+      this.refreshOptions(String(event.detail.value ?? ''), true)
+    },
+
+    onToggleResults() {
+      if (!this.data.hasQuery) return
+      this.setData({ resultsExpanded: !this.data.resultsExpanded })
     },
 
     onSelect(event: WechatMiniprogram.TouchEvent) {

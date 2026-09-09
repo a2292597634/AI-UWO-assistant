@@ -12,6 +12,7 @@
       "name": "maintenance",
       "pages": [
         "pages/work-orders/index",
+        "pages/modify-officer/index",
         "pages/work-order-editor/index",
         "pages/work-order-review/index"
       ]

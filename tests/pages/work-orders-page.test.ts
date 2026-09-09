@@ -8,24 +8,15 @@ vi.mock('../../miniprogram/runtime/officer-maintenance-service', async (original
   ...(await original<object>()),
   getOfficerMaintenanceService: () => ({ listMine }),
 }))
-vi.mock('../../miniprogram/runtime/main-data-store', () => ({
-  getCatalog: () => [{ id: 'officer-1', name: '測試航海士', searchAliases: ['測試'] }],
-}))
 interface TestPage {
   data: {
     loading: boolean
     loadError: string
     rows: { statusLabel: string; rejectionReason?: string }[]
-    officerOptions: { id: string; name: string; meta: string; searchableText: string }[]
-    selectedOfficerIds: string[]
-    selectedOfficerId: string
   }
   setData(update: Record<string, unknown>): void
-  onLoad(): void
   loadWorkOrders(): Promise<void>
-  onOfficerSelect(event: unknown): void
-  onOfficerRemove(event: unknown): void
-  onModifyOfficer(): void
+  onModifyWorkOrder(): void
 }
 beforeEach(() => {
   vi.resetModules()
@@ -43,16 +34,16 @@ describe('我的維護工單', () => {
     expect(wxml).toContain('item.statusLabel')
     expect(wxml).toContain('item.rejectionReason')
   })
-  it('提供搜尋正式航海士並進入修改工單的入口', () => {
+  it('提供新增與修改兩個獨立入口', () => {
     const wxml = readFileSync(
       resolve(__dirname, '../../miniprogram/subpkg-maintenance/pages/work-orders/index.wxml'),
       'utf8',
     )
-    expect(wxml).toContain('entity-search-picker')
-    expect(wxml).toContain('onModifyOfficer')
-    expect(wxml).toContain('selectedOfficerIds')
+    expect(wxml).toContain('onNewWorkOrder')
+    expect(wxml).toContain('onModifyWorkOrder')
+    expect(wxml).not.toContain('entity-search-picker')
   })
-  it('選取正式航海士後導向修改編輯器並保留正式 ID', async () => {
+  it('點擊修改入口導向獨立的航海士選擇頁', async () => {
     let page: TestPage | undefined
     vi.stubGlobal('wx', { setNavigationBarTitle: vi.fn(), navigateTo })
     vi.stubGlobal('Page', (definition: TestPage) => {
@@ -65,17 +56,9 @@ describe('我的維護工單', () => {
       }
     })
     await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
-    page!.onLoad()
-    page!.onOfficerSelect({ detail: { id: 'officer-1' } })
-    expect(page!.data.selectedOfficerIds).toEqual(['officer-1'])
-    expect(page!.data.officerOptions[0]).toMatchObject({
-      id: 'officer-1',
-      name: '測試航海士',
-      meta: 'officer-1',
-    })
-    page!.onModifyOfficer()
+    page!.onModifyWorkOrder()
     expect(navigateTo).toHaveBeenCalledWith({
-      url: '/subpkg-maintenance/pages/work-order-editor/index?targetOfficerId=officer-1',
+      url: '/subpkg-maintenance/pages/modify-officer/index',
     })
   })
   it('將服務端狀態轉為繁體中文，失敗時呈現可重試錯誤', async () => {

@@ -14,21 +14,14 @@
   margin: var(--uwo-space-4) 0;
   overflow-wrap: anywhere;
 }
-.work-orders__modify {
-  margin-top: var(--uwo-space-8);
-  padding: var(--uwo-space-6);
-  background: var(--uwo-color-surface);
-  border: 2rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-card);
+.work-orders__entry-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uwo-space-4);
+  margin-top: var(--uwo-space-6);
 }
-.work-orders__section-title {
-  color: var(--uwo-color-text-primary);
-  font-size: var(--uwo-font-size-emphasis);
-  font-weight: 600;
-}
-.work-orders__modify-button {
+.work-orders__entry-actions button {
   width: 100%;
-  margin-top: var(--uwo-space-4);
 }
 .work-orders__row {
   padding: var(--uwo-space-6);

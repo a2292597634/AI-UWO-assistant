@@ -35,13 +35,25 @@ describe('實體搜尋選擇器元件', () => {
     const wxml = readComponentFile('index.wxml')
 
     expect(wxml).toContain('bindinput="onQueryInput"')
+    expect(wxml).toContain('bindtap="onToggleResults"')
+    expect(wxml).toContain('aria-expanded="{{resultsExpanded}}"')
+    expect(wxml).toContain('/assets/ui/uwo-disclosure-chevron-down.png')
+    expect(wxml).toContain('/assets/ui/uwo-disclosure-chevron-up.png')
     expect(wxml).toContain('bindtap="onSelect"')
     expect(wxml).toContain('bindtap="onRemove"')
     expect(wxml).toContain('bindtap="onCreateCandidate"')
     expect(wxml).toContain('{{item.name}}')
     expect(wxml).toContain('{{item.meta}}')
+    expect(wxml).toContain('item.meta !== item.id')
     expect(wxml).toContain('沒有符合的選項')
     expect(wxml).toContain('allowCandidate')
+  })
+
+  it('搜尋結果只在有關鍵字且展開時顯示，空白查詢不預設展開', () => {
+    const wxml = readComponentFile('index.wxml')
+
+    expect(wxml).toContain('resultsExpanded && hasQuery && filteredOptions.length > 0')
+    expect(wxml).toContain('hasQuery && filteredOptions.length === 0')
   })
 
   it('將選取、移除與候選項草稿事件交回父表單', () => {

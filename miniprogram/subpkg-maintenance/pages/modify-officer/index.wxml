@@ -1,0 +1,18 @@
+<view class="modify-officer">
+  <view class="modify-officer__heading">修改既有航海士</view>
+  <view class="modify-officer__hint">搜尋正式名鑑後選取目標，表單會載入目前資料與基準版本。</view>
+  <view class="modify-officer__panel">
+    <entity-search-picker
+      label="正式航海士"
+      options="{{officerOptions}}"
+      selected-ids="{{selectedOfficerIds}}"
+      bindselect="onOfficerSelect"
+      bindremove="onOfficerRemove"
+    />
+    <button
+      class="ui-button ui-button--primary modify-officer__button"
+      bindtap="onStartModify"
+      disabled="{{!selectedOfficerId}}"
+    >開始修改航海士</button>
+  </view>
+</view>
