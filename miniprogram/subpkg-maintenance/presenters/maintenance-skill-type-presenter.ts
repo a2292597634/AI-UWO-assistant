@@ -1,5 +1,5 @@
-import type { MaintenanceSkillRelation } from '../contracts/officer-maintenance'
-import type { RuntimeDictionaryItem, RuntimeSkill } from '../contracts/runtime-data'
+import type { MaintenanceSkillRelation } from '../../contracts/officer-maintenance'
+import type { RuntimeDictionaryItem, RuntimeSkill } from '../../contracts/runtime-data'
 
 /** 正式資料使用的技能來源組；畫面不直接顯示這些內部代碼。 */
 export type MaintenanceSkillSourceGroup = 'sk0' | 'sk1' | 'sk2' | 'sk3' | 'sk4' | 'sk5'

@@ -27,7 +27,7 @@ import {
   findMaintenanceSkillTypeOption,
   nextMaintenanceSkillSlot,
   type MaintenanceSkillTypeOption,
-} from '../../../presenters/maintenance-skill-type-presenter'
+} from '../../presenters/maintenance-skill-type-presenter'
 
 interface EditorState {
   draft: MaintenanceWorkOrderDraft

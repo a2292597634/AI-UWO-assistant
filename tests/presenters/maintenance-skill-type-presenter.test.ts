@@ -6,7 +6,7 @@ import {
   buildMaintenanceSkillTypeOptions,
   findMaintenanceSkillTypeOption,
   nextMaintenanceSkillSlot,
-} from '../../miniprogram/presenters/maintenance-skill-type-presenter'
+} from '../../miniprogram/subpkg-maintenance/presenters/maintenance-skill-type-presenter'
 
 const categories: RuntimeDictionaryItem[] = [
   { id: 'skill_category_naval_active_cannon', name: '海戰主動-砲擊' },
