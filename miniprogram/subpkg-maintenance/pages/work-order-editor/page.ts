@@ -37,6 +37,7 @@ interface EditorState {
   context: MaintenanceValidationContext
   portraitUpload: MaintenancePortraitUpload | null
 }
+type PortraitStatusKind = 'empty' | 'pending' | 'uploading' | 'uploaded' | 'error'
 interface EditorData {
   reviewMode: boolean
   reviewList: boolean
@@ -84,6 +85,9 @@ interface EditorData {
   portraitTempPath: string
   portraitFileId: string
   portraitMetaText: string
+  portraitStatusKind: PortraitStatusKind
+  portraitStatusText: string
+  portraitImageFailed: boolean
 }
 interface EditorPage {
   data: EditorData
@@ -109,6 +113,15 @@ const emptyForm = (): MaintenanceOfficerData => ({
 const MAX_PORTRAIT_BYTES = 512 * 1024
 const MAX_PORTRAIT_EDGE = 512
 
+const setPortraitError = (page: EditorPage, message: string, statusText = message): void => {
+  page.setData({
+    error: message,
+    notice: '',
+    portraitStatusKind: 'error',
+    portraitStatusText: statusText,
+  })
+}
+
 const readPortrait = (page: EditorPage, tempFilePath: string): void => {
   wx.getImageInfo({
     src: tempFilePath,
@@ -121,13 +134,13 @@ const readPortrait = (page: EditorPage, tempFilePath: string): void => {
             ? 'image/jpeg'
             : ''
       if (!mimeType) {
-        page.setData({ error: '頭像格式只支援 PNG、JPG 或 JPEG' })
+        setPortraitError(page, '頭像格式只支援 PNG、JPG 或 JPEG')
         return
       }
       try {
         const byteSize = (wx.getFileSystemManager().statSync(tempFilePath) as { size: number }).size
         if (byteSize > MAX_PORTRAIT_BYTES) {
-          page.setData({ error: '頭像檔案不可超過 512 KB' })
+          setPortraitError(page, '頭像檔案不可超過 512 KB')
           return
         }
         if (
@@ -137,7 +150,7 @@ const readPortrait = (page: EditorPage, tempFilePath: string): void => {
           info.height <= 0 ||
           Math.max(info.width, info.height) > MAX_PORTRAIT_EDGE
         ) {
-          page.setData({ error: '頭像最長邊不可超過 512 px' })
+          setPortraitError(page, '頭像最長邊不可超過 512 px')
           return
         }
         const base64 = wx.getFileSystemManager().readFileSync(tempFilePath, 'base64') as string
@@ -153,13 +166,17 @@ const readPortrait = (page: EditorPage, tempFilePath: string): void => {
         page.setData({
           portraitTempPath: tempFilePath,
           portraitMetaText: `${info.width} × ${info.height} px · ${Math.ceil(byteSize / 1024)} KB`,
+          portraitStatusKind: 'pending',
+          portraitStatusText: '頭像待上傳；儲存草稿或送審時會上傳',
+          portraitImageFailed: false,
           error: '',
+          notice: '',
         })
       } catch {
-        page.setData({ error: '無法讀取頭像檔案，請重新選擇' })
+        setPortraitError(page, '無法讀取頭像檔案，請重新選擇')
       }
     },
-    fail: () => page.setData({ error: '無法讀取頭像資訊，請重新選擇' }),
+    fail: () => setPortraitError(page, '無法讀取頭像資訊，請重新選擇'),
   })
 }
 const choosePortrait = (page: EditorPage): void => {
@@ -169,7 +186,10 @@ const choosePortrait = (page: EditorPage): void => {
     sourceType: ['album', 'camera'],
     success: (result) => {
       const source = result.tempFilePaths[0]
-      if (!source) return
+      if (!source) {
+        setPortraitError(page, '未選取頭像，請重新選擇')
+        return
+      }
       wx.cropImage({
         src: source,
         cropScale: '1:1',
@@ -181,10 +201,10 @@ const choosePortrait = (page: EditorPage): void => {
             fail: () => readPortrait(page, result.tempFilePath),
           })
         },
-        fail: () => page.setData({ error: '頭像裁切已取消，請重新選擇' }),
+        fail: () => setPortraitError(page, '頭像裁切已取消，請重新選擇'),
       })
     },
-    fail: () => page.setData({ error: '頭像選擇已取消' }),
+    fail: () => setPortraitError(page, '頭像選擇已取消'),
   })
 }
 const toOptions = (items: readonly RuntimeDictionaryItem[]): MaintenanceEntityOption[] =>
@@ -335,7 +355,14 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
     page.setData({ error })
     return
   }
+  let portraitUploadPending = Boolean(state.portraitUpload)
   page.setData({ saving: !submit, submitting: submit, error: '', notice: '' })
+  if (portraitUploadPending) {
+    page.setData({
+      portraitStatusKind: 'uploading',
+      portraitStatusText: '正在上傳頭像，請稍候…',
+    })
+  }
   try {
     const service = getOfficerMaintenanceService()
     state.saved = await service.saveDraft({
@@ -355,7 +382,14 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
       portraitMeta: state.saved.portraitMeta ?? null,
     }
     state.portraitUpload = null
-    page.setData({ portraitFileId: state.saved.portraitFileId ?? '' })
+    portraitUploadPending = false
+    const portraitFileId = state.saved.portraitFileId ?? ''
+    page.setData({
+      portraitFileId,
+      portraitStatusKind: portraitFileId ? 'uploaded' : 'empty',
+      portraitStatusText: portraitFileId ? '頭像已上傳並保留' : '',
+      portraitImageFailed: false,
+    })
     if (submit) {
       const { workOrderId, revision, updatedAt } = state.saved
       state.saved = await service.submit({ workOrderId, revision, updatedAt })
@@ -367,6 +401,12 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
         error,
         submit ? '送審失敗，草稿內容已保留，請重試' : '草稿儲存失敗，請重試',
       ),
+      ...(portraitUploadPending
+        ? {
+            portraitStatusKind: 'error',
+            portraitStatusText: '頭像上傳失敗，請重試保存或送審',
+          }
+        : {}),
     })
   } finally {
     page.setData({ saving: false, submitting: false })
@@ -484,10 +524,23 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       portraitTempPath: '',
       portraitFileId: '',
       portraitMetaText: '',
+      portraitStatusKind: 'empty',
+      portraitStatusText: '',
+      portraitImageFailed: false,
     } as EditorData,
 
     async onLoad(query?: Record<string, string | undefined>) {
-      this.setData({ loading: true, loadError: '', expandedSkillIds: [] })
+      this.setData({
+        loading: true,
+        loadError: '',
+        expandedSkillIds: [],
+        portraitTempPath: '',
+        portraitFileId: '',
+        portraitMetaText: '',
+        portraitStatusKind: 'empty',
+        portraitStatusText: '',
+        portraitImageFailed: false,
+      })
       wx.setNavigationBarTitle({ title: reviewMode ? '管理員工單審核' : '維護工單' })
       try {
         const dictionaries = await getMaintenanceDictionaries()
@@ -571,7 +624,13 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
           }
         }
         states.set(this, { draft, saved, context, portraitUpload: null })
-        this.setData({ portraitTempPath: '' })
+        const portraitFileId = draft.portraitFileId ?? ''
+        this.setData({
+          portraitTempPath: '',
+          portraitImageFailed: false,
+          portraitStatusKind: portraitFileId ? 'uploaded' : 'empty',
+          portraitStatusText: portraitFileId ? '頭像已上傳並保留' : '',
+        })
         render(this)
       } catch (error) {
         this.setData({
@@ -606,11 +665,28 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       const state = states.get(this)
       if (!state || this.data.modifying) return
       if (state.draft.portraitFileId) {
-        this.setData({ error: '頭像已上傳；如需更換請重新選擇新頭像' })
+        setPortraitError(this, '頭像已上傳；如需更換請重新選擇新頭像')
         return
       }
       state.portraitUpload = null
-      this.setData({ portraitTempPath: '', portraitMetaText: '' })
+      this.setData({
+        portraitTempPath: '',
+        portraitMetaText: '',
+        portraitStatusKind: 'empty',
+        portraitStatusText: '',
+        portraitImageFailed: false,
+        error: '',
+      })
+    },
+    onPortraitImageError() {
+      const message = '頭像預覽載入失敗，請重新選擇或稍後重試'
+      this.setData({
+        portraitImageFailed: true,
+        portraitStatusKind: 'error',
+        portraitStatusText: message,
+        error: message,
+        notice: '',
+      })
     },
     onBasicChange(event: WechatMiniprogram.PickerChange) {
       const field = this.data.basicFields.find(

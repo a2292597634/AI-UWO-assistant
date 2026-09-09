@@ -83,6 +83,7 @@ interface TestPage {
   onCandidateRemove(event: unknown): void
   onPortraitTap(): void
   onPortraitRemove(): void
+  onPortraitImageError(): void
   onSaveDraft(): Promise<void>
   onSubmit(): Promise<void>
 }
@@ -125,7 +126,9 @@ describe('維護工單編輯器', () => {
     expect(wxml).not.toContain('{{targetOfficerId}}')
     expect(wxml).not.toContain('{{baseDataVersion}}')
     expect(wxml).toContain('bindtap="onPortraitTap"')
+    expect(wxml).toContain('binderror="onPortraitImageError"')
     expect(wxml).toContain('portraitTempPath')
+    expect(wxml).toContain('portraitStatusText')
     expect(wxml).toContain('不超過 512 KB')
   })
 
@@ -197,6 +200,99 @@ describe('維護工單編輯器', () => {
       }),
     )
     expect(fixtures.saveDraft.mock.calls[1]?.[0]).not.toHaveProperty('portraitId')
+  })
+
+  it('選圖後顯示待上傳狀態，保存成功後顯示頭像已上傳', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onFieldInput(event({ field: 'name' }, { value: '狀態提示航海士' }))
+    for (const field of ['rarityId', 'typeId', 'genderId']) {
+      page.onBasicChange(event({ field }, { value: '0' }))
+    }
+    page.onEntitySelect(event({ kind: 'job' }, { id: 'job' }))
+    page.onEntitySelect(event({ kind: 'nationality' }, { id: 'nation' }))
+
+    vi.stubGlobal('wx', {
+      setNavigationBarTitle: vi.fn(),
+      navigateTo: vi.fn(),
+      showToast: vi.fn(),
+      chooseImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePaths: ['/tmp/source.jpg'] }),
+      ),
+      cropImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePath: '/tmp/cropped.jpg' }),
+      ),
+      compressImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePath: '/tmp/compressed.jpg' }),
+      ),
+      getImageInfo: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ type: 'jpg', width: 256, height: 256 }),
+      ),
+      getFileSystemManager: () => ({
+        readFileSync: vi.fn(() => 'portrait-base64'),
+        statSync: vi.fn(() => ({ size: 128 })),
+      }),
+    })
+    page.onPortraitTap()
+    expect(page.data.portraitStatusText).toContain('待上傳')
+
+    fixtures.saveDraft.mockResolvedValue({
+      workOrderId: 'wo-portrait-status',
+      status: 'draft',
+      revision: 1,
+      updatedAt: 'now',
+      proposedData: page.data.form,
+      referenceCandidates: [],
+      portraitFileId: 'cloud://portrait-status',
+      portraitMeta: { mimeType: 'image/jpeg', byteSize: 128, width: 256, height: 256 },
+    })
+    await page.onSaveDraft()
+    expect(page.data.portraitStatusText).toContain('已上傳')
+  })
+
+  it('頭像上傳失敗時顯示可重試的錯誤狀態', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.onFieldInput(event({ field: 'name' }, { value: '頭像失敗航海士' }))
+    for (const field of ['rarityId', 'typeId', 'genderId']) {
+      page.onBasicChange(event({ field }, { value: '0' }))
+    }
+    page.onEntitySelect(event({ kind: 'job' }, { id: 'job' }))
+    page.onEntitySelect(event({ kind: 'nationality' }, { id: 'nation' }))
+    vi.stubGlobal('wx', {
+      setNavigationBarTitle: vi.fn(),
+      navigateTo: vi.fn(),
+      showToast: vi.fn(),
+      chooseImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePaths: ['/tmp/source.jpg'] }),
+      ),
+      cropImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePath: '/tmp/cropped.jpg' }),
+      ),
+      compressImage: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ tempFilePath: '/tmp/compressed.jpg' }),
+      ),
+      getImageInfo: vi.fn(({ success }: { success: (result: unknown) => void }) =>
+        success({ type: 'jpg', width: 256, height: 256 }),
+      ),
+      getFileSystemManager: () => ({
+        readFileSync: vi.fn(() => 'portrait-base64'),
+        statSync: vi.fn(() => ({ size: 128 })),
+      }),
+    })
+    page.onPortraitTap()
+    fixtures.saveDraft.mockRejectedValue(new Error('portrait-upload-failed'))
+    await page.onSaveDraft()
+    expect(page.data.portraitStatusText).toContain('上傳失敗')
+  })
+
+  it('已上傳頭像預覽載入失敗時顯示回退提示', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad()
+    page.setData({ portraitFileId: 'cloud://portrait-status' })
+    page.onPortraitImageError()
+    expect(page.data.portraitImageFailed).toBe(true)
+    expect(page.data.portraitStatusText).toContain('預覽載入失敗')
   })
 
   it('系統欄位不出現在輸入表單，新增使用系統預設，修改保留既有值', async () => {
