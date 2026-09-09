@@ -2,6 +2,22 @@
   <view class="work-orders__heading">我的維護工單</view>
   <view class="work-orders__hint">查看草稿、審核與發布進度。</view>
   <button class="ui-button ui-button--primary" bindtap="onNewWorkOrder">新增航海士工單</button>
+  <view class="work-orders__modify">
+    <view class="work-orders__section-title">修改既有航海士</view>
+    <view class="work-orders__hint">先搜尋正式名鑑，選取要修改的航海士後再進入編輯。</view>
+    <entity-search-picker
+      label="正式航海士"
+      options="{{officerOptions}}"
+      selected-ids="{{selectedOfficerIds}}"
+      bindselect="onOfficerSelect"
+      bindremove="onOfficerRemove"
+    />
+    <button
+      class="ui-button ui-button--secondary work-orders__modify-button"
+      bindtap="onModifyOfficer"
+      disabled="{{!selectedOfficerId}}"
+    >開始修改航海士</button>
+  </view>
   <view wx:if="{{loading}}" class="work-orders__hint">正在載入工單…</view>
   <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
   <button wx:if="{{loadError}}" class="ui-button ui-button--secondary" bindtap="onRetry" disabled="{{loading}}">重試載入</button>
