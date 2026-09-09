@@ -22,6 +22,12 @@ import {
   OfficerMaintenanceError,
   type MaintenanceWorkOrder,
 } from '../../../runtime/officer-maintenance-service'
+import {
+  buildMaintenanceSkillTypeOptions,
+  findMaintenanceSkillTypeOption,
+  nextMaintenanceSkillSlot,
+  type MaintenanceSkillTypeOption,
+} from '../../../presenters/maintenance-skill-type-presenter'
 
 interface EditorState {
   draft: MaintenanceWorkOrderDraft
@@ -65,10 +71,13 @@ interface EditorData {
     name: string
     level: number
     unlockLevel: number
-    groupIndex: number
     slot: number
+    typeIndex: number
+    typeLabel: string
+    expanded: boolean
   }[]
-  groups: readonly string[]
+  skillTypeOptions: readonly MaintenanceSkillTypeOption[]
+  expandedSkillIds: readonly string[]
 }
 interface EditorPage {
   data: EditorData
@@ -76,8 +85,6 @@ interface EditorPage {
 }
 const states = new WeakMap<object, EditorState>()
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
-const groups = ['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'] as const
-const groupLabels = ['被動・sk0', '被動・sk1', '主動・sk2', '主動・sk3', '主動・sk4', '被動・sk5']
 const emptyForm = (): MaintenanceOfficerData => ({
   name: '',
   rarityId: '',
@@ -97,7 +104,7 @@ const toOptions = (items: readonly RuntimeDictionaryItem[]): MaintenanceEntityOp
   items.map((item) => ({
     ...item,
     aliases: [],
-    meta: item.id,
+    meta: '',
     searchableText: `${item.name} ${item.id}`,
   }))
 const writable = (page: EditorPage): EditorState | undefined =>
@@ -121,7 +128,10 @@ const render = (page: EditorPage): void => {
   const form = state.draft.proposedData
   const options = page.data.options
   const name = (kind: string, id: string) =>
-    options[kind]?.find((option) => option.id === id)?.name ?? id
+    options[kind]?.find((option) => option.id === id)?.name ?? (id ? '待確認資料' : '請選擇')
+  const skillTypeOptions = page.data.skillTypeOptions
+  const expandedSkillIds = new Set(page.data.expandedSkillIds)
+  const skillById = new Map(state.context.skills.map((skill) => [skill.id, skill]))
   page.setData({
     form,
     ...(page.data.reviewMode
@@ -151,7 +161,6 @@ const render = (page: EditorPage): void => {
       { field: 'rarityId', label: '稀有度', kind: 'rarity' },
       { field: 'typeId', label: '類型', kind: 'type' },
       { field: 'genderId', label: '性別', kind: 'gender' },
-      { field: 'visualGradeId', label: '視覺等級', kind: 'grade' },
     ].map((item) => ({
       ...item,
       options: options[item.kind] ?? [],
@@ -162,14 +171,26 @@ const render = (page: EditorPage): void => {
       name: name('language', row.languageId),
       level: row.level,
     })),
-    skillRows: form.skills.map((row) => ({
-      id: row.skillId,
-      name: name('skill', row.skillId),
-      level: row.level,
-      unlockLevel: row.unlockLevel,
-      groupIndex: groups.indexOf(row.sourceGroup),
-      slot: row.slot,
-    })),
+    skillRows: form.skills.map((row) => {
+      const candidate = state.draft.referenceCandidates.find(
+        (item) => item.kind === 'skill' && item.key === row.skillId,
+      )
+      const categoryReference =
+        skillById.get(row.skillId) ??
+        (candidate?.categoryId ? { cat: candidate.categoryId } : undefined)
+      const type = findMaintenanceSkillTypeOption(categoryReference, row, skillTypeOptions)
+      const typeIndex = type ? skillTypeOptions.indexOf(type) : 0
+      return {
+        id: row.skillId,
+        name: name('skill', row.skillId),
+        level: row.level,
+        unlockLevel: row.unlockLevel,
+        slot: row.slot,
+        typeIndex: Math.max(0, typeIndex),
+        typeLabel: type?.label ?? (row.kind === 'active' ? '主動技能' : '被動技能'),
+        expanded: page.data.readonly || expandedSkillIds.has(row.skillId),
+      }
+    }),
   })
 }
 const updateForm = (page: EditorPage, patch: Partial<MaintenanceOfficerData>): void => {
@@ -350,35 +371,36 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       basicFields: [],
       languageRows: [],
       skillRows: [],
-      groups: groupLabels,
+      skillTypeOptions: [],
+      expandedSkillIds: [],
     } as EditorData,
 
     async onLoad(query?: Record<string, string | undefined>) {
-      this.setData({ loading: true, loadError: '' })
+      this.setData({ loading: true, loadError: '', expandedSkillIds: [] })
       wx.setNavigationBarTitle({ title: reviewMode ? '管理員工單審核' : '維護工單' })
       try {
         const dictionaries = await getMaintenanceDictionaries()
+        const skills = Object.values(getSkills())
         const context: MaintenanceValidationContext = {
           dictionaries,
-          skills: Object.values(getSkills()),
+          skills,
           officers: getCatalog(),
         }
+        const skillTypeOptions = buildMaintenanceSkillTypeOptions(dictionaries.skillCategories)
         this.setData({
+          skillTypeOptions,
           options: {
             skillCategory: toOptions(dictionaries.skillCategories),
             rarity: toOptions(dictionaries.rarities),
             type: toOptions(dictionaries.types),
             gender: toOptions(dictionaries.genders),
-            grade: toOptions(
-              [2, 3, 4, 5, 6].map((grade) => ({ id: `grade_${grade}`, name: `等級 ${grade}` })),
-            ),
             job: toOptions(dictionaries.jobs),
             nationality: toOptions(dictionaries.nationalities),
             language: toOptions(dictionaries.languages),
             city: toOptions(dictionaries.cities),
             requirement: toOptions(dictionaries.requirements),
             officer: toOptions(getCatalog()),
-            skill: Object.values(getSkills()).map((skill) => ({
+            skill: skills.map((skill) => ({
               id: skill.id,
               name: skill.n,
               aliases: [],
@@ -452,9 +474,6 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       const field = String(event.currentTarget.dataset.field ?? '')
       if (field === 'name' || field === 'maintenanceNote')
         updateForm(this, { [field]: event.detail.value })
-      if (field === 'portraitId')
-        updateForm(this, { portraitId: event.detail.value.trim() || null })
-      if (field === 'displayOrder') updateForm(this, { displayOrder: Number(event.detail.value) })
       if (field === 'recruitmentNote')
         updateForm(this, {
           recruitment: { ...this.data.form.recruitment, note: event.detail.value || null },
@@ -476,24 +495,26 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       if (kind === 'nationality') updateForm(this, { nationalityId: id })
       if (kind === 'language' && !form.languages.some((row) => row.languageId === id))
         updateForm(this, { languages: [...form.languages, { languageId: id, level: 1 }] })
-      if (kind === 'skill' && !form.skills.some((row) => row.skillId === id))
-        updateForm(this, {
-          skills: [
-            ...form.skills,
-            {
-              skillId: id,
-              kind: 'passive',
-              sourceGroup: 'sk0',
-              slot:
-                Math.max(
-                  -1,
-                  ...form.skills.filter((row) => row.sourceGroup === 'sk0').map((row) => row.slot),
-                ) + 1,
-              unlockLevel: 1,
-              level: 1,
-            },
-          ],
+      if (kind === 'skill' && !form.skills.some((row) => row.skillId === id)) {
+        const skillType = findMaintenanceSkillTypeOption(
+          states.get(this)?.context.skills.find((skill) => skill.id === id),
+          { kind: 'passive' },
+          this.data.skillTypeOptions,
+        )
+        const sourceGroup = skillType?.sourceGroup ?? 'sk0'
+        const nextSkill = {
+          skillId: id,
+          kind: skillType?.kind ?? 'passive',
+          sourceGroup,
+          slot: nextMaintenanceSkillSlot(form.skills, sourceGroup),
+          unlockLevel: 1,
+          level: 1,
+        } as const
+        this.setData({
+          expandedSkillIds: [...new Set([...this.data.expandedSkillIds, id])],
         })
+        updateForm(this, { skills: [...form.skills, nextSkill] })
+      }
       if (kind === 'city' && !form.recruitment.cityIds.includes(id))
         updateForm(this, {
           recruitment: { ...form.recruitment, cityIds: [...form.recruitment.cityIds, id] },
@@ -516,8 +537,12 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
       if (kind === 'nationality') updateForm(this, { nationalityId: '' })
       if (kind === 'language')
         updateForm(this, { languages: form.languages.filter((row) => row.languageId !== id) })
-      if (kind === 'skill')
+      if (kind === 'skill') {
+        this.setData({
+          expandedSkillIds: this.data.expandedSkillIds.filter((value) => value !== id),
+        })
         updateForm(this, { skills: form.skills.filter((row) => row.skillId !== id) })
+      }
       if (kind === 'city')
         updateForm(this, {
           recruitment: {
@@ -551,20 +576,41 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
           ),
         })
     },
-    onSkillGroupChange(event: WechatMiniprogram.PickerChange) {
-      const sourceGroup = groups[Number(event.detail.value)]
-      if (!sourceGroup) return
+    onSkillTypeChange(event: WechatMiniprogram.PickerChange) {
+      const type = this.data.skillTypeOptions[Number(event.detail.value)]
+      const skillId = String(event.currentTarget.dataset.id ?? '')
+      if (!type || !skillId) return
+      const current = this.data.form.skills.find((row) => row.skillId === skillId)
+      if (!current) return
+      const rest = this.data.form.skills.filter((row) => row.skillId !== skillId)
+      const targetSlotTaken = rest.some(
+        (row) => row.sourceGroup === type.sourceGroup && row.slot === current.slot,
+      )
       updateForm(this, {
         skills: this.data.form.skills.map((row) =>
-          row.skillId === event.currentTarget.dataset.id
+          row.skillId === skillId
             ? {
                 ...row,
-                sourceGroup,
-                kind: ['sk2', 'sk3', 'sk4'].includes(sourceGroup) ? 'active' : 'passive',
+                sourceGroup: type.sourceGroup,
+                kind: type.kind,
+                slot: targetSlotTaken
+                  ? nextMaintenanceSkillSlot(rest, type.sourceGroup)
+                  : current.slot,
               }
             : row,
         ),
       })
+    },
+    onToggleSkill(event: WechatMiniprogram.TouchEvent) {
+      const state = writable(this)
+      const skillId = String(event.currentTarget.dataset.id ?? '')
+      if (!state || !skillId || !this.data.form.skills.some((row) => row.skillId === skillId))
+        return
+      const expanded = new Set(this.data.expandedSkillIds)
+      if (expanded.has(skillId)) expanded.delete(skillId)
+      else expanded.add(skillId)
+      this.setData({ expandedSkillIds: [...expanded] })
+      render(this)
     },
     onCreateCandidate(event: WechatMiniprogram.CustomEvent<{ name: string }>) {
       const state = writable(this)
@@ -599,13 +645,7 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
                       skillId: key,
                       kind: 'passive',
                       sourceGroup: 'sk0',
-                      slot:
-                        Math.max(
-                          -1,
-                          ...proposedData.skills
-                            .filter((row) => row.sourceGroup === 'sk0')
-                            .map((row) => row.slot),
-                        ) + 1,
+                      slot: nextMaintenanceSkillSlot(proposedData.skills, 'sk0'),
                       unlockLevel: 1,
                       level: 1,
                     },
@@ -624,6 +664,9 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
           },
         ],
       }
+      this.setData({
+        expandedSkillIds: [...new Set([...this.data.expandedSkillIds, key])],
+      })
       render(this)
     },
     onCandidateCategoryChange(event: WechatMiniprogram.CustomEvent<{ id: string }>) {
@@ -632,8 +675,38 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
         (option) => option.id === event.detail.id,
       )
       if (!state || !category) return
+      const candidate = state.draft.referenceCandidates[Number(event.currentTarget.dataset.index)]
+      const type = this.data.skillTypeOptions.find((item) => item.categoryId === category.id)
+      const currentSkill =
+        candidate?.kind === 'skill'
+          ? state.draft.proposedData.skills.find((item) => item.skillId === candidate.key)
+          : undefined
+      const otherSkills = currentSkill
+        ? state.draft.proposedData.skills.filter((item) => item.skillId !== currentSkill.skillId)
+        : state.draft.proposedData.skills
       state.draft = {
         ...state.draft,
+        proposedData:
+          type && currentSkill
+            ? {
+                ...state.draft.proposedData,
+                skills: state.draft.proposedData.skills.map((item) =>
+                  item.skillId === currentSkill.skillId
+                    ? {
+                        ...item,
+                        kind: type.kind,
+                        sourceGroup: type.sourceGroup,
+                        slot: otherSkills.some(
+                          (other) =>
+                            other.sourceGroup === type.sourceGroup && other.slot === item.slot,
+                        )
+                          ? nextMaintenanceSkillSlot(otherSkills, type.sourceGroup)
+                          : item.slot,
+                      }
+                    : item,
+                ),
+              }
+            : state.draft.proposedData,
         referenceCandidates: state.draft.referenceCandidates.map((candidate, index) =>
           index === Number(event.currentTarget.dataset.index) && candidate.kind === 'skill'
             ? { ...candidate, categoryId: category.id }
@@ -692,10 +765,34 @@ export const createMaintenanceEditorPage = (reviewMode = false) =>
     onCandidateRemove(event: WechatMiniprogram.TouchEvent) {
       const state = writable(this)
       if (!state) return
+      const index = Number(event.currentTarget.dataset.index)
+      const candidate = state.draft.referenceCandidates[index]
+      if (!candidate) return
+      const key = candidate.key
+      const proposedData = state.draft.proposedData
+      const nextProposedData: MaintenanceOfficerData =
+        candidate.kind === 'job'
+          ? proposedData.jobId === key
+            ? { ...proposedData, jobId: '' }
+            : proposedData
+          : candidate.kind === 'nationality'
+            ? proposedData.nationalityId === key
+              ? { ...proposedData, nationalityId: '' }
+              : proposedData
+            : candidate.kind === 'language'
+              ? {
+                  ...proposedData,
+                  languages: proposedData.languages.filter((item) => item.languageId !== key),
+                }
+              : {
+                  ...proposedData,
+                  skills: proposedData.skills.filter((item) => item.skillId !== key),
+                }
       state.draft = {
         ...state.draft,
+        proposedData: nextProposedData,
         referenceCandidates: state.draft.referenceCandidates.filter(
-          (_, index) => index !== Number(event.currentTarget.dataset.index),
+          (_, itemIndex) => itemIndex !== index,
         ),
       }
       render(this)

@@ -15,7 +15,6 @@ const VALID_STATUSES = new Set([
 const VALID_OPERATIONS = new Set(['createOfficer', 'updateOfficer'])
 const VALID_GRADES = new Set(['grade_2', 'grade_3', 'grade_4', 'grade_5', 'grade_6'])
 const VALID_GROUPS = new Set(['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'])
-const ACTIVE_GROUPS = new Set(['sk2', 'sk3', 'sk4'])
 const VALID_CANDIDATE_KINDS = new Set(['skill', 'job', 'language', 'nationality'])
 const USER_ACTIONS = new Set(['saveDraft', 'submit', 'loadMine', 'listMine'])
 const ADMIN_ACTIONS = new Set(['listAdmin', 'saveReview', 'approve', 'reject'])
@@ -93,6 +92,19 @@ function validateCandidates(candidates, referenceData) {
   return ok(clone(candidates))
 }
 
+const candidateReferenceKey = (kind) => (kind === 'skill' ? 'skillIds' : `${kind}Ids`)
+
+const candidateIdsFor = (candidates) => {
+  const candidateIds = {}
+  for (const candidate of candidates) {
+    const key = candidateReferenceKey(candidate.kind)
+    const ids = candidateIds[key] ?? new Set()
+    ids.add(candidate.key)
+    candidateIds[key] = ids
+  }
+  return candidateIds
+}
+
 function validateOfficerData(data, referenceData, candidateIds = {}) {
   if (!isPlainObject(data)) return fail('invalid-data', '航海士資料格式無效')
   const requiredReferences = [
@@ -153,7 +165,6 @@ function validateOfficerData(data, referenceData, candidateIds = {}) {
       skillIds.has(skill.skillId) ||
       !VALID_GROUPS.has(skill.sourceGroup) ||
       (skill.kind !== 'active' && skill.kind !== 'passive') ||
-      skill.kind !== (ACTIVE_GROUPS.has(skill.sourceGroup) ? 'active' : 'passive') ||
       !Number.isInteger(skill.slot) ||
       skill.slot < 0 ||
       !Number.isInteger(skill.unlockLevel) ||
@@ -210,14 +221,11 @@ function validateWorkOrderContent(workOrder, referenceData) {
   }
   const candidates = validateCandidates(workOrder.referenceCandidates, referenceData)
   if (!candidates.ok) return candidates
-  const candidateIds = {}
-  for (const candidate of candidates.data) {
-    const key = `${candidate.kind === 'skill' ? 'skill' : `${candidate.kind}Id`}${candidate.kind === 'skill' ? 'Ids' : 's'}`
-    const ids = candidateIds[key] ?? new Set()
-    ids.add(candidate.key)
-    candidateIds[key] = ids
-  }
-  const data = validateOfficerData(workOrder.proposedData, referenceData, candidateIds)
+  const data = validateOfficerData(
+    workOrder.proposedData,
+    referenceData,
+    candidateIdsFor(candidates.data),
+  )
   if (!data.ok) return data
   return candidates
 }
@@ -352,8 +360,6 @@ function createOfficerMaintenanceService(repo, options = {}) {
     }
     if (existing.status !== 'pendingReview')
       return fail('invalid-state', '只有待審核工單可保存審核')
-    const reviewed = validateOfficerData(payload.reviewedData, referenceData)
-    if (!reviewed.ok) return reviewed
     const candidates = validateCandidates(
       payload.referenceCandidates === undefined
         ? existing.referenceCandidates
@@ -361,6 +367,12 @@ function createOfficerMaintenanceService(repo, options = {}) {
       referenceData,
     )
     if (!candidates.ok) return candidates
+    const reviewed = validateOfficerData(
+      payload.reviewedData,
+      referenceData,
+      candidateIdsFor(candidates.data),
+    )
+    if (!reviewed.ok) return reviewed
     const reason = asTrimmedString(payload.reason)
     if (!reason) return fail('review-reason-required', '請填寫本次修訂原因')
     const updated = await repo.updateIfCurrent(
@@ -403,10 +415,14 @@ function createOfficerMaintenanceService(repo, options = {}) {
     ) {
       return fail('base-version-conflict', '正式資料版本已更新，請重新比對後保存審核')
     }
-    const reviewed = validateOfficerData(existing.reviewedData, referenceData)
-    if (!reviewed.ok) return reviewed
     const candidates = validateCandidates(existing.referenceCandidates, referenceData)
     if (!candidates.ok) return candidates
+    const reviewed = validateOfficerData(
+      existing.reviewedData,
+      referenceData,
+      candidateIdsFor(candidates.data),
+    )
+    if (!reviewed.ok) return reviewed
     const updated = await repo.updateIfCurrent(
       existing.workOrderId,
       payload.revision,
