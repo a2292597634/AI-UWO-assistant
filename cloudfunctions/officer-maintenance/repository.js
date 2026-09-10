@@ -15,12 +15,15 @@ const sortNewestFirst = (records) =>
   })
 
 /**
- * CloudBase 對普通巢狀物件會按子欄位合併；portraitMeta 可從 null 變為物件，
- * 必須用 set 整體替換，否則會嘗試在 null 上建立 portraitMeta.byteSize。
+ * CloudBase 對普通巢狀物件會按子欄位合併；這些欄位可從 null 變為物件，
+ * 必須用 set 整體替換，否則會嘗試在 null 上建立子欄位。
  */
-const withPortraitMetaReplacement = (db, data) => {
-  if (!Object.prototype.hasOwnProperty.call(data, 'portraitMeta')) return data
-  return { ...data, portraitMeta: db.command.set(data.portraitMeta) }
+const withNullableObjectReplacements = (db, data) => {
+  const next = { ...data }
+  for (const key of ['portraitMeta', 'reviewedData']) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) next[key] = db.command.set(data[key])
+  }
+  return next
 }
 
 function createRepository(db) {
@@ -87,7 +90,7 @@ function createRepository(db) {
   async function updateIfCurrent(workOrderId, revision, updatedAt, patch) {
     await ensureCollection()
     const nextUpdatedAt = new Date().toISOString()
-    const data = withPortraitMetaReplacement(db, {
+    const data = withNullableObjectReplacements(db, {
       ...patch,
       revision: revision + 1,
       updatedAt: nextUpdatedAt,

@@ -103,14 +103,16 @@ function createFakeDatabase(seed: WorkOrderRecord[] = [], offsets: number[] = []
                     continue
                   }
                   if (
-                    key === 'portraitMeta' &&
+                    (key === 'portraitMeta' || key === 'reviewedData') &&
                     value &&
                     typeof value === 'object' &&
                     !Array.isArray(value) &&
                     record[key] === null
                   ) {
                     throw new Error(
-                      "Cannot create field 'byteSize' in element {portraitMeta: null}",
+                      key === 'portraitMeta'
+                        ? "Cannot create field 'byteSize' in element {portraitMeta: null}"
+                        : "Cannot create field 'displayOrder' in element {reviewedData: null}",
                     )
                   }
                   record[key] = structuredClone(value)
@@ -172,6 +174,21 @@ describe('航海士維護工單儲存庫', () => {
       }),
     ).resolves.toMatchObject({
       portraitMeta: { mimeType: 'image/png', byteSize: 128, width: 256, height: 256 },
+      revision: 2,
+    })
+  })
+
+  it('reviewedData 從 null 寫入完整修訂資料時整體替換欄位', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([record({ reviewedData: null })]),
+    )
+
+    await expect(
+      repo.updateIfCurrent('wo_1', 1, '2026-09-08T00:00:00.000Z', {
+        reviewedData: { name: '修訂名稱', displayOrder: 1 },
+      }),
+    ).resolves.toMatchObject({
+      reviewedData: { name: '修訂名稱', displayOrder: 1 },
       revision: 2,
     })
   })
