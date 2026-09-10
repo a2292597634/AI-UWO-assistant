@@ -14,6 +14,15 @@ const sortNewestFirst = (records) =>
     return timeComparison || (right.revision ?? 0) - (left.revision ?? 0)
   })
 
+/**
+ * CloudBase 對普通巢狀物件會按子欄位合併；portraitMeta 可從 null 變為物件，
+ * 必須用 set 整體替換，否則會嘗試在 null 上建立 portraitMeta.byteSize。
+ */
+const withPortraitMetaReplacement = (db, data) => {
+  if (!Object.prototype.hasOwnProperty.call(data, 'portraitMeta')) return data
+  return { ...data, portraitMeta: db.command.set(data.portraitMeta) }
+}
+
 function createRepository(db) {
   const collection = db.collection(COLLECTION)
   let collectionReady = false
@@ -78,8 +87,13 @@ function createRepository(db) {
   async function updateIfCurrent(workOrderId, revision, updatedAt, patch) {
     await ensureCollection()
     const nextUpdatedAt = new Date().toISOString()
+    const data = withPortraitMetaReplacement(db, {
+      ...patch,
+      revision: revision + 1,
+      updatedAt: nextUpdatedAt,
+    })
     const result = await collection.where({ workOrderId, revision, updatedAt }).update({
-      data: { ...patch, revision: revision + 1, updatedAt: nextUpdatedAt },
+      data,
     })
     if (!result.stats || result.stats.updated !== 1) return null
     return findByWorkOrderId(workOrderId)

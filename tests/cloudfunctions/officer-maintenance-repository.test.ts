@@ -28,10 +28,26 @@ interface Collection {
   add(options: { data: WorkOrderRecord }): Promise<{ _id: string }>
 }
 
+interface FakeSetOperator {
+  readonly __cloudbaseOperator: 'set'
+  readonly value: unknown
+}
+
 interface FakeDatabase {
+  command: {
+    set(value: unknown): FakeSetOperator
+  }
   collection(name: string): Collection
   createCollection(name: string): Promise<void>
 }
+
+const isFakeSetOperator = (value: unknown): value is FakeSetOperator =>
+  Boolean(
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    (value as { __cloudbaseOperator?: unknown }).__cloudbaseOperator === 'set',
+  )
 
 interface WorkOrderRepository {
   insert(record: WorkOrderRecord): Promise<WorkOrderRecord>
@@ -55,6 +71,11 @@ function createFakeDatabase(seed: WorkOrderRecord[] = [], offsets: number[] = []
   let nextId = seed.length
   const providerPageSize = 2
   return {
+    command: {
+      set(value) {
+        return { __cloudbaseOperator: 'set', value }
+      },
+    },
     collection() {
       return {
         where(filter) {
@@ -75,7 +96,26 @@ function createFakeDatabase(seed: WorkOrderRecord[] = [], offsets: number[] = []
             },
             async update({ data }) {
               const found = matches()
-              for (const record of found) Object.assign(record, data)
+              for (const record of found) {
+                for (const [key, value] of Object.entries(data)) {
+                  if (isFakeSetOperator(value)) {
+                    record[key] = structuredClone(value.value)
+                    continue
+                  }
+                  if (
+                    key === 'portraitMeta' &&
+                    value &&
+                    typeof value === 'object' &&
+                    !Array.isArray(value) &&
+                    record[key] === null
+                  ) {
+                    throw new Error(
+                      "Cannot create field 'byteSize' in element {portraitMeta: null}",
+                    )
+                  }
+                  record[key] = structuredClone(value)
+                }
+              }
               return { stats: { updated: found.length } }
             },
           })
@@ -119,6 +159,21 @@ describe('航海士維護工單儲存庫', () => {
     await expect(
       repo.updateIfCurrent('wo_1', 1, '2026-09-08T00:00:00.000Z', { status: 'published' }),
     ).resolves.toBeNull()
+  })
+
+  it('portraitMeta 從 null 寫入完整 metadata 時整體替換欄位', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([record({ portraitMeta: null })]),
+    )
+
+    await expect(
+      repo.updateIfCurrent('wo_1', 1, '2026-09-08T00:00:00.000Z', {
+        portraitMeta: { mimeType: 'image/png', byteSize: 128, width: 256, height: 256 },
+      }),
+    ).resolves.toMatchObject({
+      portraitMeta: { mimeType: 'image/png', byteSize: 128, width: 256, height: 256 },
+      revision: 2,
+    })
   })
 
   it('以 owner 與幂等鍵找到同一筆新增工單', async () => {
