@@ -1,9 +1,19 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import sharp from 'sharp'
 import {
   applyApprovedWorkOrders,
+  runMaintenanceRelease,
   runMaintenanceSync,
   type MaintenanceMaster,
   type ApprovedWorkOrder,
@@ -82,6 +92,7 @@ const create = (id = 'wo_2'): ApprovedWorkOrder =>
     targetOfficerId: null,
     baseDataVersion: null,
     baseSnapshot: null,
+    portraitFileId: `cloud://portrait/${id}`,
     reviewedData: { ...structuredClone(data), name: `新航海士${id}` },
   })
 const directory = () => {
@@ -91,6 +102,11 @@ const directory = () => {
     writeFileSync(join(dir, `${name}.json`), JSON.stringify(value))
   return dir
 }
+
+const portraitLoader = async (): Promise<Buffer> =>
+  sharp({ create: { width: 32, height: 24, channels: 4, background: '#123456' } })
+    .png()
+    .toBuffer()
 
 const sourceStyleData: MaintenanceOfficerData = {
   name: '既有來源航海士',
@@ -182,14 +198,14 @@ describe('核准工單純轉換', () => {
 
     const result = applyApprovedWorkOrders(sourceStyleMaster(), [candidateOrder])
 
-    expect(result.officers[1]?.id).toBe('officer_maintenance_wo_source_style')
-    expect(result.skills[0]?.id).toBe('skill_maintenance_wo_source_style_candidate_skill')
-    expect(result.dictionaries.jobs?.[1]?.id).toBe('job_maintenance_wo_source_style_candidate_job')
+    expect(result.officers[1]?.id).toBe('officer_wo_source_style')
+    expect(result.skills[0]?.id).toBe('skill_wo_source_style_candidate_skill')
+    expect(result.dictionaries.jobs?.[1]?.id).toBe('job_wo_source_style_candidate_job')
     expect(result.dictionaries.languages?.[1]?.id).toBe(
-      'language_maintenance_wo_source_style_candidate_language',
+      'language_wo_source_style_candidate_language',
     )
     expect(result.dictionaries.nationalities?.[1]?.id).toBe(
-      'nationality_maintenance_wo_source_style_candidate_nationality',
+      'nationality_wo_source_style_candidate_nationality',
     )
     expect(result.officers[1]?.id).not.toMatch(/_(?:1|2)$/)
   })
@@ -211,7 +227,7 @@ describe('核准工單純轉換', () => {
 
     expect(result.officers.map((item) => item.id)).toContain('officer_chast089')
     expect(result.officers.find((item) => item.name === '真實資料新增樣本')).toMatchObject({
-      id: 'officer_maintenance_wo_real_master_sample',
+      id: 'officer_wo_real_master_sample',
       sourceRefs: { workOrderId: 'wo_real_master_sample' },
     })
   })
@@ -337,18 +353,18 @@ describe('核准工單純轉換', () => {
     const result = applyApprovedWorkOrders(master(), [b, a])
     expect(result.skills).toEqual([
       {
-        id: 'skill_maintenance_wo_a_candidate_a',
+        id: 'skill_wo_a_candidate_a',
         name: '新技能',
         categoryId: 'skill_category_1',
         description: '技能效果',
         levelInfo: '等級一',
         iconId: null,
-        sourceRefs: { workOrderId: 'wo_a' },
+        sourceRefs: { workOrderId: 'wo_a:candidate_a' },
       },
     ])
     expect(result.officers.slice(1).map((item) => [item.id, item.skills[0]?.skillId])).toEqual([
-      ['officer_maintenance_wo_a', 'skill_maintenance_wo_a_candidate_a'],
-      ['officer_maintenance_wo_b', 'skill_maintenance_wo_a_candidate_a'],
+      ['officer_wo_a', 'skill_wo_a_candidate_a'],
+      ['officer_wo_b', 'skill_wo_a_candidate_a'],
     ])
     expect(applyApprovedWorkOrders(master(), [a, b])).toEqual(result)
   })
@@ -368,9 +384,9 @@ describe('核准工單純轉換', () => {
     }
     const result = applyApprovedWorkOrders(master(), [item])
     expect(result.officers[1]).toMatchObject({
-      jobId: 'job_maintenance_wo_2_job_new',
+      jobId: 'job_wo_2_job_new',
       nationalityId: 'nationality_1',
-      languages: [{ languageId: 'language_maintenance_wo_2_lang_new', level: 1 }],
+      languages: [{ languageId: 'language_wo_2_lang_new', level: 1 }],
     })
     expect(result.dictionaries.nationalities).toHaveLength(1)
   })
@@ -477,6 +493,37 @@ describe('同步寫入與發布門禁', () => {
     }
   })
 
+  it('生成或資產門禁失敗時回復 staging 與 generated 中間結果', async () => {
+    const dir = directory()
+    const stagingDir = join(dir, 'staging')
+    const generatedDir = join(dir, 'generated')
+    mkdirSync(stagingDir, { recursive: true })
+    mkdirSync(generatedDir, { recursive: true })
+    writeFileSync(join(stagingDir, 'existing.png'), 'before')
+    writeFileSync(join(generatedDir, 'existing.js'), 'before')
+
+    await expect(
+      runMaintenanceSync({
+        masterDir: dir,
+        approved: [order()],
+        runGate: async (name) => {
+          if (name === 'data:generate') writeFileSync(join(generatedDir, 'partial.js'), 'partial')
+          if (name === 'verify') {
+            writeFileSync(join(stagingDir, 'partial.png'), 'partial')
+            throw new Error('門禁失敗')
+          }
+        },
+        assetStagingDir: stagingDir,
+        rollbackPaths: [stagingDir, generatedDir],
+      }),
+    ).rejects.toThrow(/門禁失敗/)
+
+    expect(readdirSync(stagingDir).sort()).toEqual(['existing.png'])
+    expect(readdirSync(generatedDir).sort()).toEqual(['existing.js'])
+    expect(readFileSync(join(stagingDir, 'existing.png'), 'utf8')).toBe('before')
+    expect(readFileSync(join(generatedDir, 'existing.js'), 'utf8')).toBe('before')
+  })
+
   it('依序完成 data:check、生成、資產檢查與發布後，才以相同版本及工單 revision 標記發布', async () => {
     const dir = directory()
     const events: string[] = []
@@ -507,10 +554,9 @@ describe('同步寫入與發布門禁', () => {
     })
     expect(events).toEqual([
       'data:check',
-      'data:generate',
+      'publish',
       'assets:manifest:check',
       'verify',
-      'publish',
       'markPublished',
     ])
     expect(result.published).toEqual(['wo_1'])
@@ -534,6 +580,7 @@ describe('同步寫入與發布門禁', () => {
             if (name === failure) throw new Error('門禁失敗')
           },
           publish: async () => {
+            if (failure === 'data:generate') throw new Error('門禁失敗')
             if (failure === 'publish') throw new Error('發布失敗')
           },
           invoke: async (payload) => {
@@ -568,6 +615,7 @@ describe('同步寫入與發布門禁', () => {
         syncToken: 'secret',
         runGate: async () => {},
         publish: async () => {},
+        portraitLoader,
         invoke: async () => ({ ok: false, code: 'conflict' }),
       }),
     ).rejects.toThrow(/雲端同步失敗/)
@@ -579,6 +627,7 @@ describe('同步寫入與發布門禁', () => {
       syncToken: 'secret',
       runGate: async () => {},
       publish: async () => {},
+      portraitLoader,
       invoke: async () => ({ ok: true }),
     })
     expect(retried.published).toEqual(['wo_1', 'wo_2'])
@@ -598,6 +647,7 @@ describe('同步寫入與發布門禁', () => {
         publish: async () => {
           firstEvents.push('publish')
         },
+        portraitLoader,
         invoke: async (payload) => {
           if (payload.action !== 'markPublished') return { ok: true, data: [] }
           firstEvents.push(`mark:${payload.workOrderId}`)
@@ -617,6 +667,7 @@ describe('同步寫入與發布門禁', () => {
       publish: async () => {
         retryEvents.push('publish')
       },
+      portraitLoader,
       invoke: async (payload) => {
         if (payload.action === 'listApprovedForSync') return { ok: true, data: [approved[1]] }
         retryEvents.push(`mark:${payload.workOrderId}`)
@@ -651,13 +702,50 @@ describe('同步寫入與發布門禁', () => {
       masterDir: dir,
       approved: [create()],
       runGate: async () => {},
+      portraitLoader,
     })
     const reference = buildMaintenanceReferenceData(dir)
     expect(reference).toMatchObject({
       dataVersion: result.master.dataset.contentVersion,
       languageIds: ['language_1'],
       skillCategoryIds: ['skill_category_1'],
-      officerIds: ['officer_9', 'officer_maintenance_wo_2'],
+      officerIds: ['officer_9', 'officer_wo_2'],
     })
+  })
+
+  it('新增工單頭像會轉成正式 officer ID 對應的 PNG 並寫入 staging', async () => {
+    const dir = directory()
+    const stagingDir = join(dir, 'staging')
+    const source = await sharp({
+      create: { width: 32, height: 24, channels: 4, background: '#123456' },
+    })
+      .jpeg()
+      .toBuffer()
+
+    await runMaintenanceSync({
+      masterDir: dir,
+      approved: [create()],
+      syncToken: 'secret',
+      runGate: async () => {},
+      assetStagingDir: stagingDir,
+      rollbackPaths: [stagingDir],
+      portraitLoader: async () => source,
+    })
+
+    const portraitPath = join(stagingDir, 'officer_wo_2.png')
+    expect(existsSync(portraitPath)).toBe(true)
+    await expect(sharp(readFileSync(portraitPath)).metadata()).resolves.toMatchObject({
+      format: 'png',
+      width: 32,
+      height: 24,
+    })
+  })
+
+  it('CLI 發布入口依序執行資產準備、資產發布與資料生成', async () => {
+    const events: string[] = []
+    await runMaintenanceRelease('maintenance-test', async (name) => {
+      events.push(name)
+    })
+    expect(events).toEqual(['assets:setup', 'assets:publish', 'data:generate'])
   })
 })

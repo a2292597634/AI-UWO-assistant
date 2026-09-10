@@ -2,8 +2,14 @@
 import { execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
 import {
+  copyFileSync,
+  cpSync,
   existsSync,
+  mkdirSync,
+  mkdtempSync,
   readFileSync,
+  rmSync,
+  statSync,
   writeFileSync,
   renameSync,
   unlinkSync,
@@ -13,6 +19,8 @@ import {
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
+import { tmpdir } from 'node:os'
+import sharp from 'sharp'
 import type {
   MaintenanceOfficerData,
   ReferenceCandidate,
@@ -43,9 +51,11 @@ export interface ApprovedWorkOrder {
   baseSnapshot: MaintenanceOfficerData | null
   reviewedData: MaintenanceOfficerData | null
   referenceCandidates: readonly ReferenceCandidate[]
+  portraitFileId?: string | null
 }
 type Invoker = (payload: Record<string, unknown>) => Promise<unknown> | unknown
 type Gate = 'data:check' | 'data:generate' | 'assets:manifest:check' | 'verify'
+export type MaintenanceReleaseCommand = 'assets:setup' | 'assets:publish' | 'data:generate'
 export interface MaintenanceSyncOptions {
   masterDir?: string
   approved?: readonly ApprovedWorkOrder[]
@@ -53,6 +63,9 @@ export interface MaintenanceSyncOptions {
   invoke?: Invoker
   runGate?: (name: Gate) => Promise<void> | void
   publish?: (datasetVersion: string) => Promise<void> | void
+  portraitLoader?: (order: ApprovedWorkOrder) => Promise<Buffer>
+  assetStagingDir?: string
+  rollbackPaths?: readonly string[]
 }
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -72,36 +85,44 @@ const candidateGroup = {
   nationality: 'nationalities',
 } as const
 
-/** 新資料沿用正式 ID 的類型前綴，並以可追蹤的維護來源值建立穩定 ID。 */
-const maintenanceIdPrefix = {
-  officer: 'officer_maintenance_',
-  skill: 'skill_maintenance_',
-  job: 'job_maintenance_',
-  language: 'language_maintenance_',
-  nationality: 'nationality_maintenance_',
+/** 新資料沿用匯入器的正式 ID 前綴；來源值則由工單與候選 key 組成。 */
+const canonicalIdPrefix = {
+  officer: 'officer_',
+  skill: 'skill_',
+  job: 'job_',
+  language: 'language_',
+  nationality: 'nationality_',
 } as const
 
-const idSegment = (value: string): string => {
+const idSegment = (value: string, lowercase = false): string => {
   const segment = label(value)
     .replace(/[^A-Za-z0-9_-]+/g, '_')
     .replace(/_+/g, '_')
     .replace(/^[_-]+|[_-]+$/g, '')
-  if (segment) return segment
-  return `key_${createHash('sha256').update(label(value)).digest('hex').slice(0, 12)}`
+  const result =
+    segment || `key_${createHash('sha256').update(label(value)).digest('hex').slice(0, 12)}`
+  return lowercase ? result.toLowerCase() : result
 }
 
 const allocateId = (
-  kind: keyof typeof maintenanceIdPrefix,
+  kind: keyof typeof canonicalIdPrefix,
   sourceValue: string,
   used: Set<string>,
 ): string => {
-  const base = `${maintenanceIdPrefix[kind]}${idSegment(sourceValue)}`
+  const base = `${canonicalIdPrefix[kind]}${idSegment(sourceValue, kind === 'officer')}`
   let id = base
   let suffix = 2
   while (used.has(id)) id = `${base}_${suffix++}`
   used.add(id)
   return id
 }
+
+const sourceRefValue = (order: ApprovedWorkOrder, candidateKey?: string): string =>
+  candidateKey ? `${order.workOrderId}:${candidateKey}` : order.workOrderId
+
+const sourceRefsFor = (order: ApprovedWorkOrder, candidateKey?: string) => ({
+  workOrderId: sourceRefValue(order, candidateKey),
+})
 
 const validateMaster = (master: MaintenanceMaster): void => {
   const validator = createSchemaValidator()
@@ -232,6 +253,8 @@ export const applyApprovedWorkOrders = (
       !order.reviewedData
     )
       throw new Error('工單狀態、版本或審核資料無效')
+    if (order.operation === 'createOfficer' && !order.portraitFileId?.trim())
+      throw new Error('新增航海士缺少已上傳頭像')
     workOrderIds.add(order.workOrderId)
     let existing: CanonicalOfficer | undefined
     let baseConflict = false
@@ -289,7 +312,7 @@ export const applyApprovedWorkOrders = (
           )
             throw new Error('同名候選技能內容衝突')
         } else {
-          id = allocateId('skill', `${order.workOrderId}_${candidate.key}`, used)
+          id = allocateId('skill', sourceRefValue(order, candidate.key), used)
           output.skills.push({
             id,
             name: candidate.name.trim(),
@@ -297,18 +320,18 @@ export const applyApprovedWorkOrders = (
             description: candidate.description,
             levelInfo: candidate.levelInfo ?? '',
             iconId: null,
-            sourceRefs: { workOrderId: order.workOrderId },
+            sourceRefs: sourceRefsFor(order, candidate.key),
           })
         }
       } else if (!id) {
-        id = allocateId(candidate.kind, `${order.workOrderId}_${candidate.key}`, used)
+        id = allocateId(candidate.kind, sourceRefValue(order, candidate.key), used)
         const group = candidateGroup[candidate.kind]
         const items = output.dictionaries[group] ?? (output.dictionaries[group] = [])
         items.push({
           id,
           name: candidate.name.trim(),
           displayOrder: Math.max(-1, ...items.map((item) => item.displayOrder)) + 1,
-          sourceRefs: { workOrderId: order.workOrderId },
+          sourceRefs: sourceRefsFor(order, candidate.key),
         })
       }
       candidateIds.set(candidate.key, { kind: candidate.kind, id: id! })
@@ -350,8 +373,8 @@ export const applyApprovedWorkOrders = (
         cityIds: [...reviewed.recruitment.cityIds],
         requiredOfficerIds: [...reviewed.recruitment.requiredOfficerIds],
       },
-      id: existing?.id ?? allocateId('officer', order.workOrderId, used),
-      sourceRefs: existing?.sourceRefs ?? { workOrderId: order.workOrderId },
+      id: existing?.id ?? allocateId('officer', sourceRefValue(order), used),
+      sourceRefs: existing?.sourceRefs ?? sourceRefsFor(order),
     }
     validateReviewed(officer)
     // 本地生成成功但尚未標記發布時可重跑；只允許結果完全相同的已套用資料。
@@ -423,7 +446,127 @@ const defaultGate = (name: Gate) => {
     shell: process.platform === 'win32',
   })
 }
+type MaintenanceCommand = (
+  name: MaintenanceReleaseCommand,
+  env?: Record<string, string>,
+) => Promise<void> | void
+
+const defaultCommand: MaintenanceCommand = (name, env = {}) => {
+  execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', name], {
+    cwd: ROOT,
+    env: { ...process.env, ...env },
+    stdio: 'inherit',
+    windowsHide: true,
+    shell: process.platform === 'win32',
+  })
+}
+
+/** CLI 真正的資產與資料發布階段；成功返回後才允許同步器回寫 published。 */
+export const runMaintenanceRelease = async (
+  datasetVersion: string,
+  command: MaintenanceCommand = defaultCommand,
+): Promise<void> => {
+  await command('assets:setup')
+  await command('assets:publish', { CLOUDBASE_CONTENT_VERSION: datasetVersion })
+  await command('data:generate')
+}
+
+const portraitFromCloud = async (
+  order: ApprovedWorkOrder,
+  syncToken: string,
+  invoke: Invoker,
+): Promise<Buffer> => {
+  const data = cloudData(
+    await invoke({
+      action: 'getPortraitDownloadUrl',
+      syncToken,
+      workOrderId: order.workOrderId,
+      revision: order.revision,
+      updatedAt: order.updatedAt,
+    }),
+  )
+  const url = plain(data) && typeof data.tempFileURL === 'string' ? data.tempFileURL : ''
+  if (!url) throw new Error(`工單 ${order.workOrderId} 缺少頭像下載地址`)
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`工單 ${order.workOrderId} 頭像下載失敗`)
+  return Buffer.from(await response.arrayBuffer())
+}
+
+const stagePortraits = async (
+  result: MaintenanceMaster,
+  orders: readonly ApprovedWorkOrder[],
+  stagingDir: string,
+  loader: (order: ApprovedWorkOrder) => Promise<Buffer>,
+): Promise<void> => {
+  const portraitOrders = orders.filter(
+    (order) => order.operation === 'createOfficer' || order.portraitFileId,
+  )
+  if (portraitOrders.length === 0) return
+  mkdirSync(stagingDir, { recursive: true })
+  for (const order of portraitOrders) {
+    const officer =
+      result.officers.find((item) => item.sourceRefs.workOrderId === order.workOrderId) ??
+      (order.operation === 'updateOfficer'
+        ? result.officers.find((item) => item.id === order.targetOfficerId)
+        : undefined)
+    if (!officer) throw new Error(`工單 ${order.workOrderId} 找不到正式航海士 ID`)
+    const input = await loader(order)
+    const metadata = await sharp(input).metadata()
+    const width = metadata.width ?? 0
+    const height = metadata.height ?? 0
+    if (!width || !height || Math.max(width, height) > 512)
+      throw new Error(`工單 ${order.workOrderId} 頭像最長邊不可超過 512 px`)
+    const png = await sharp(input).png({ compressionLevel: 9, effort: 10 }).toBuffer()
+    if (png.length > 512 * 1024) throw new Error(`工單 ${order.workOrderId} 頭像不可超過 512 KB`)
+    writeFileSync(join(stagingDir, `${officer.id}.png`), png)
+  }
+}
 const MASTER_NAMES = ['officers', 'skills', 'dictionaries', 'dataset'] as const
+
+const DEFAULT_ROLLBACK_PATHS = [
+  join(ROOT, 'data/assets/staging'),
+  join(ROOT, 'data/assets/cloudbase-manifest.json'),
+  join(ROOT, 'data/assets/asset-dependencies.json'),
+  join(ROOT, 'miniprogram/generated'),
+  join(ROOT, 'miniprogram/subpkg-detail'),
+  join(ROOT, 'miniprogram/subpkg-trade'),
+  join(ROOT, 'miniprogram/subpkg-maintenance/maintenance-officers.js'),
+  join(ROOT, 'cloudfunctions/officer-custom/reference-data.json'),
+  join(ROOT, 'cloudfunctions/officer-maintenance/reference-data.json'),
+] as const
+
+interface RollbackSnapshot {
+  sourcePath: string
+  backupPath: string
+  existed: boolean
+}
+
+const snapshotPaths = (paths: readonly string[]): { root: string; entries: RollbackSnapshot[] } => {
+  const root = mkdtempSync(join(tmpdir(), 'uwo-maintenance-rollback-'))
+  const entries = paths.map((sourcePath, index) => {
+    const backupPath = join(root, String(index))
+    const existed = existsSync(sourcePath)
+    if (existed) {
+      if (statSync(sourcePath).isDirectory()) cpSync(sourcePath, backupPath, { recursive: true })
+      else copyFileSync(sourcePath, backupPath)
+    }
+    return { sourcePath, backupPath, existed }
+  })
+  return { root, entries }
+}
+
+const restorePaths = (snapshot: { entries: readonly RollbackSnapshot[] }): void => {
+  for (const entry of snapshot.entries) {
+    rmSync(entry.sourcePath, { recursive: true, force: true })
+    if (!entry.existed) continue
+    if (statSync(entry.backupPath).isDirectory())
+      cpSync(entry.backupPath, entry.sourcePath, { recursive: true })
+    else {
+      mkdirSync(dirname(entry.sourcePath), { recursive: true })
+      copyFileSync(entry.backupPath, entry.sourcePath)
+    }
+  }
+}
 
 /** 所有暫存檔先寫完才替換；失敗時回復已替換檔案，鎖防止同步器並行覆寫。 */
 export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) => {
@@ -439,6 +582,10 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
   const lock = openSync(lockPath, 'wx')
   const transaction = randomUUID()
   const replacements: { path: string; temp: string; backup: string; replaced: boolean }[] = []
+  const rollbackPaths =
+    options.rollbackPaths ??
+    (masterDir === resolve(join(ROOT, 'data/master')) ? DEFAULT_ROLLBACK_PATHS : [])
+  const workspaceSnapshot = snapshotPaths(rollbackPaths)
   let publishedSuccessfully = false
   try {
     const master = Object.fromEntries(
@@ -447,6 +594,23 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
     const result = applyApprovedWorkOrders(master, fetched as ApprovedWorkOrder[])
     if (fetched.length === 0) return { master: result, published: [] as string[] }
     const dataChanged = !isDeepStrictEqual(result, master)
+    const portraitOrders = (fetched as ApprovedWorkOrder[]).filter(
+      (order) => order.operation === 'createOfficer' || order.portraitFileId,
+    )
+    if (portraitOrders.length > 0) {
+      const loader =
+        options.portraitLoader ??
+        (masterDir === resolve(join(ROOT, 'data/master'))
+          ? (order: ApprovedWorkOrder) => portraitFromCloud(order, options.syncToken!, invoke)
+          : undefined)
+      if (!loader) throw new Error('新增航海士同步缺少頭像下載器')
+      await stagePortraits(
+        result,
+        fetched as ApprovedWorkOrder[],
+        resolve(options.assetStagingDir ?? join(ROOT, 'data/assets/staging')),
+        loader,
+      )
+    }
     for (const name of MASTER_NAMES) {
       const path = join(masterDir, `${name}.json`)
       const temp = `${path}.${transaction}.tmp`
@@ -459,17 +623,24 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
       renameSync(file.temp, file.path)
       file.replaced = true
     }
-    for (const name of ['data:check', 'data:generate', 'assets:manifest:check'] as const)
-      await (options.runGate ?? defaultGate)(name)
-    await (options.runGate ?? defaultGate)('verify')
-    const published: string[] = []
+    const gate = options.runGate ?? defaultGate
+    await gate('data:check')
     if (options.publish && dataChanged) {
       await options.publish(result.dataset.contentVersion)
+      await gate('assets:manifest:check')
+      await gate('verify')
       publishedSuccessfully = true
     } else if (options.publish) {
-      // 只返回尚未回寫的剩餘工單時，資料已在前一次發布中完成，不重複發布同一版本。
+      // 剩餘工單若已在上一輪寫入，重試只需驗證並補回寫，不重複發布資產。
+      await gate('assets:manifest:check')
+      await gate('verify')
       publishedSuccessfully = true
+    } else {
+      await gate('data:generate')
+      await gate('assets:manifest:check')
+      await gate('verify')
     }
+    const published: string[] = []
     if (options.publish) {
       for (const order of [...(fetched as ApprovedWorkOrder[])].sort((a, b) =>
         compare(a.workOrderId, b.workOrderId),
@@ -489,21 +660,27 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
     }
     return { master: result, published }
   } catch (error) {
-    if (!publishedSuccessfully)
+    if (!publishedSuccessfully) {
+      restorePaths(workspaceSnapshot)
       for (const file of [...replacements].reverse())
         if (file.replaced) renameSync(file.backup, file.path)
+    }
     throw error
   } finally {
     for (const file of replacements)
       for (const path of [file.temp, file.backup]) if (existsSync(path)) unlinkSync(path)
     closeSync(lock)
     unlinkSync(lockPath)
+    rmSync(workspaceSnapshot.root, { recursive: true, force: true })
   }
 }
 
-// CLI 預設只同步本地；發布由呼叫方提供完成發布的函數後才能標記。
+// CLI 是正式 maintenance 發布入口：資產、生成與完整門禁成功後才回寫 published。
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  runMaintenanceSync({ syncToken: process.env.OFFICER_SYNC_TOKEN })
+  runMaintenanceSync({
+    syncToken: process.env.OFFICER_SYNC_TOKEN,
+    publish: (datasetVersion) => runMaintenanceRelease(datasetVersion),
+  })
     .then((result) => {
       console.log(
         `同步完成：${result.master.dataset.contentVersion}；標記發布 ${result.published.length} 份工單`,

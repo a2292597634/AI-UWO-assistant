@@ -18,7 +18,7 @@ const VALID_GROUPS = new Set(['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'])
 const VALID_CANDIDATE_KINDS = new Set(['skill', 'job', 'language', 'nationality'])
 const USER_ACTIONS = new Set(['saveDraft', 'submit', 'loadMine', 'listMine'])
 const ADMIN_ACTIONS = new Set(['listAdmin', 'saveReview', 'approve', 'reject'])
-const SYNC_ACTIONS = new Set(['listApprovedForSync', 'markPublished'])
+const SYNC_ACTIONS = new Set(['listApprovedForSync', 'getPortraitDownloadUrl', 'markPublished'])
 
 const ok = (data) => ({ ok: true, data })
 const fail = (code, message) => ({ ok: false, code, message })
@@ -233,7 +233,13 @@ function validateWorkOrderContent(workOrder, referenceData) {
 }
 
 function toClientRecord(record) {
-  const { _id: _id, ownerUid: _ownerUid, idempotencyKey: _idempotencyKey, ...safe } = record
+  const {
+    _id: _id,
+    ownerUid: _ownerUid,
+    idempotencyKey: _idempotencyKey,
+    lastSaveIdempotencyKey: _lastSaveIdempotencyKey,
+    ...safe
+  } = record
   return {
     ...clone(safe),
     history: (Array.isArray(record.history) ? record.history : []).map((entry) => {
@@ -318,6 +324,7 @@ function createOfficerMaintenanceService(repo, options = {}) {
         proposedReferenceCandidates: payload.referenceCandidates ?? [],
         portraitFileId: null,
         portraitMeta: null,
+        lastSaveIdempotencyKey: idempotencyKey,
         status: 'draft',
         revision: 1,
         history: [],
@@ -330,12 +337,21 @@ function createOfficerMaintenanceService(repo, options = {}) {
       candidate.portraitMeta = uploaded.meta ?? null
       const now = new Date().toISOString()
       candidate.history = [historyEntry({ ...candidate, revision: 1 }, 'draftSaved', openid)]
-      const stored = await repo.insert({ ...candidate, createdAt: now, updatedAt: now })
+      const insert = repo.insertIfAbsent ?? repo.insert
+      const stored = await insert({ ...candidate, createdAt: now, updatedAt: now })
       return ok(toClientRecord(stored))
     }
 
     const existing = await getOwned(openid, workOrderId)
     if (!existing) return fail('not-found', '找不到本人工單')
+    const saveIdempotencyKey = asTrimmedString(payload.idempotencyKey)
+    if (
+      existing.status === 'draft' &&
+      saveIdempotencyKey &&
+      existing.lastSaveIdempotencyKey === saveIdempotencyKey
+    ) {
+      return ok(toClientRecord(existing))
+    }
     if (!matchesCurrentVersion(existing, payload)) {
       return fail('conflict', '工單已被更新，請重新載入')
     }
@@ -373,6 +389,7 @@ function createOfficerMaintenanceService(repo, options = {}) {
       referenceCandidates: clone(candidate.referenceCandidates),
       portraitFileId: candidate.portraitFileId,
       portraitMeta: candidate.portraitMeta,
+      lastSaveIdempotencyKey: saveIdempotencyKey || null,
       proposedReferenceCandidates: clone(candidate.referenceCandidates),
       reviewedData: null,
       history: appendHistory(existing, historyEntry(existing, 'draftSaved', openid)),
@@ -384,6 +401,14 @@ function createOfficerMaintenanceService(repo, options = {}) {
     const workOrderId = asTrimmedString(payload.workOrderId)
     const existing = await getOwned(openid, workOrderId)
     if (!existing) return fail('not-found', '找不到本人工單')
+    const submitIdempotencyKey = asTrimmedString(payload.submitIdempotencyKey)
+    if (
+      existing.status === 'pendingReview' &&
+      submitIdempotencyKey &&
+      existing.submitIdempotencyKey === submitIdempotencyKey
+    ) {
+      return ok(toClientRecord(existing))
+    }
     if (!matchesCurrentVersion(existing, payload)) {
       return fail('conflict', '工單已被更新，請重新載入')
     }
@@ -400,6 +425,7 @@ function createOfficerMaintenanceService(repo, options = {}) {
       : 'submitted'
     const updated = await repo.updateIfCurrent(workOrderId, payload.revision, payload.updatedAt, {
       status: 'pendingReview',
+      submitIdempotencyKey: submitIdempotencyKey || null,
       history: appendHistory(existing, historyEntry(existing, action, openid)),
     })
     return updated ? ok(toClientRecord(updated)) : fail('conflict', '工單已被更新，請重新載入')
@@ -539,6 +565,30 @@ function createOfficerMaintenanceService(repo, options = {}) {
     return updated ? ok(toClientRecord(updated)) : fail('conflict', '工單已被更新，請重新載入')
   }
 
+  async function getPortraitDownloadUrl(payload) {
+    const existing = await repo.findByWorkOrderId(asTrimmedString(payload.workOrderId))
+    if (!existing) return fail('not-found', '找不到工單')
+    if (!matchesCurrentVersion(existing, payload)) {
+      return fail('conflict', '工單已被更新，請重新載入')
+    }
+    if (existing.status !== 'approvedPendingPublish') {
+      return fail('invalid-state', '只有待發布核准工單可以取得頭像')
+    }
+    const fileID = asTrimmedString(existing.portraitFileId)
+    if (!fileID) return fail('invalid-portrait', '工單缺少已上傳頭像')
+    if (!cloud || typeof cloud.getTempFileURL !== 'function') {
+      return fail('portrait-download-failed', '頭像下載服務尚未就緒，請稍後再試')
+    }
+    try {
+      const result = await cloud.getTempFileURL({ fileList: [fileID] })
+      const file = result?.fileList?.[0]
+      if (!file?.tempFileURL) return fail('portrait-download-failed', '頭像下載地址無效')
+      return ok({ tempFileURL: file.tempFileURL })
+    } catch {
+      return fail('portrait-download-failed', '頭像下載地址取得失敗')
+    }
+  }
+
   async function dispatch(action, payload = {}, openid) {
     if (![...USER_ACTIONS, ...ADMIN_ACTIONS, ...SYNC_ACTIONS].includes(action)) {
       return fail('unknown-action', `未知操作: ${action}`)
@@ -573,6 +623,8 @@ function createOfficerMaintenanceService(repo, options = {}) {
         return reject(payload, openid)
       case 'listApprovedForSync':
         return ok((await repo.listByStatus('approvedPendingPublish')).map(toClientRecord))
+      case 'getPortraitDownloadUrl':
+        return getPortraitDownloadUrl(payload)
       case 'markPublished':
         return markPublished(payload)
       default:

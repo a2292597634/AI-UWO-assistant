@@ -8,6 +8,9 @@
 const COLLECTION = 'officer_maintenance_work_orders'
 const QUERY_PAGE_SIZE = 100
 
+const getIdempotencyDocumentId = (ownerUid, idempotencyKey) =>
+  `idempotency_${encodeURIComponent(ownerUid)}_${encodeURIComponent(idempotencyKey)}`
+
 const sortNewestFirst = (records) =>
   [...records].sort((left, right) => {
     const timeComparison = String(right.updatedAt ?? '').localeCompare(String(left.updatedAt ?? ''))
@@ -75,6 +78,35 @@ function createRepository(db) {
     return records[0] ?? null
   }
 
+  /**
+   * 以 owner + 幂等鍵的 deterministic 文件 ID 做交易式一次性插入，
+   * 避免網路重試在 check-then-insert 競態下建立兩筆新增工單。
+   */
+  async function insertIfAbsent(record) {
+    await ensureCollection()
+    const existing = await findByOwnerAndIdempotencyKey(record.ownerUid, record.idempotencyKey)
+    if (existing) return existing
+    const now = new Date().toISOString()
+    const { _id: _ignoredId, ...data } = {
+      ...record,
+      createdAt: record.createdAt ?? now,
+      updatedAt: record.updatedAt ?? now,
+      revision: record.revision ?? 1,
+    }
+    const documentId = getIdempotencyDocumentId(record.ownerUid, record.idempotencyKey)
+    if (typeof db.runTransaction !== 'function' || typeof collection.doc !== 'function') {
+      const result = await collection.add({ data })
+      return { ...data, _id: result._id }
+    }
+    return db.runTransaction(async (transaction) => {
+      const document = transaction.collection(COLLECTION).doc(documentId)
+      const current = await document.get()
+      if (current?.data) return current.data
+      await document.set({ data })
+      return { ...data, _id: documentId }
+    })
+  }
+
   async function listByOwner(ownerUid) {
     return sortNewestFirst(await getAll({ ownerUid }))
   }
@@ -104,6 +136,7 @@ function createRepository(db) {
 
   return {
     insert,
+    insertIfAbsent,
     findByWorkOrderId,
     findByOwnerAndIdempotencyKey,
     listByOwner,

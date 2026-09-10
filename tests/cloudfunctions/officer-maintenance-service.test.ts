@@ -70,6 +70,22 @@ function createMemoryRepo() {
       records.push(saved)
       return structuredClone(saved)
     },
+    async insertIfAbsent(record: Omit<StoredRecord, '_id'>) {
+      const existing = records.find(
+        (item) =>
+          item.ownerUid === record.ownerUid && item.idempotencyKey === record.idempotencyKey,
+      )
+      if (existing) return structuredClone(existing)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const raced = records.find(
+        (item) =>
+          item.ownerUid === record.ownerUid && item.idempotencyKey === record.idempotencyKey,
+      )
+      if (raced) return structuredClone(raced)
+      const saved = { ...structuredClone(record), _id: `doc_${nextId++}` } as StoredRecord
+      records.push(saved)
+      return structuredClone(saved)
+    },
     async findByWorkOrderId(workOrderId: string) {
       const found = records.find((record) => record.workOrderId === workOrderId)
       return found ? structuredClone(found) : null
@@ -328,6 +344,54 @@ describe('航海士維護工單狀態機', () => {
     expect(repo.records).toHaveLength(2)
   })
 
+  it('新增工單同時保存時仍只建立一筆幂等結果', async () => {
+    const payload = {
+      operation: 'createOfficer',
+      targetOfficerId: null,
+      baseDataVersion: null,
+      baseSnapshot: null,
+      proposedData: officerData('並發新增航海士'),
+      referenceCandidates: [],
+      idempotencyKey: 'concurrent-save-1',
+    }
+    const results = await Promise.all([
+      service.dispatch('saveDraft', payload, 'owner-user'),
+      service.dispatch('saveDraft', payload, 'owner-user'),
+    ])
+
+    expect(results[0]).toMatchObject({ ok: true })
+    expect(results[1]).toMatchObject({ ok: true })
+    expect(repo.records).toHaveLength(1)
+    if (
+      !results[0].ok ||
+      !results[1].ok ||
+      !results[0].data ||
+      !results[1].data ||
+      Array.isArray(results[0].data) ||
+      Array.isArray(results[1].data)
+    )
+      return
+    expect(results[0].data.workOrderId).toBe(results[1].data.workOrderId)
+  })
+
+  it('送審請求已在伺服器成功但客戶端重試時回傳原結果', async () => {
+    const draftResult = await service.dispatch('saveDraft', updateDraft(), 'owner-user')
+    expect(draftResult).toMatchObject({ ok: true })
+    if (!draftResult.ok || !draftResult.data || Array.isArray(draftResult.data)) return
+    const draft = draftResult.data
+    const submitKey = 'submit-retry-1'
+    const first = saved(
+      await service.dispatch('submit', { ...draft, submitIdempotencyKey: submitKey }, 'owner-user'),
+    )
+    const retry = saved(
+      await service.dispatch('submit', { ...draft, submitIdempotencyKey: submitKey }, 'owner-user'),
+    )
+
+    expect(first.status).toBe('pendingReview')
+    expect(retry).toEqual(first)
+    expect(repo.records).toHaveLength(1)
+  })
+
   it('新增工單保存缺少幂等鍵時拒絕建立', async () => {
     const result = await service.dispatch(
       'saveDraft',
@@ -344,6 +408,23 @@ describe('航海士維護工單狀態機', () => {
 
     expect(result).toMatchObject({ ok: false, code: 'invalid-data' })
     expect(repo.records).toHaveLength(0)
+  })
+
+  it('既有草稿保存逾時後以同一保存幂等鍵重試時回傳已保存版本', async () => {
+    const draft = saved(await service.dispatch('saveDraft', updateDraft(), 'owner-user'))
+    const payload = {
+      ...draft,
+      ...updateDraft({ proposedData: officerData('保存一次') }),
+      workOrderId: draft.workOrderId,
+      revision: draft.revision,
+      updatedAt: draft.updatedAt,
+      idempotencyKey: 'save:wo_1:1',
+    }
+    const first = saved(await service.dispatch('saveDraft', payload, 'owner-user'))
+    const retry = saved(await service.dispatch('saveDraft', payload, 'owner-user'))
+
+    expect(retry).toEqual(first)
+    expect(repo.records).toHaveLength(1)
   })
 
   const candidate = (overrides: Record<string, unknown> = {}) => ({
@@ -572,6 +653,38 @@ describe('航海士維護工單狀態機', () => {
     await expect(
       service.dispatch('listApprovedForSync', { syncToken: 'sync-secret' }, null),
     ).resolves.toEqual({ ok: true, data: [] })
+  })
+
+  it('同步端可取得核准工單已上傳頭像的臨時下載地址', async () => {
+    const pending = await createPendingWorkOrder()
+    repo.records[0]!.status = 'approvedPendingPublish'
+    repo.records[0]!.portraitFileId = 'cloud://portrait-approved'
+    const syncService = serviceModule.createOfficerMaintenanceService(repo, {
+      adminOpenIds: new Set(['admin-user']),
+      syncToken: 'sync-secret',
+      referenceData,
+      cloud: {
+        async getTempFileURL(input: { fileList: string[] }) {
+          expect(input).toEqual({ fileList: ['cloud://portrait-approved'] })
+          return {
+            fileList: [
+              { fileID: 'cloud://portrait-approved', tempFileURL: 'https://temp.example/a.png' },
+            ],
+          }
+        },
+      },
+    })
+
+    await expect(
+      syncService.dispatch(
+        'getPortraitDownloadUrl',
+        { ...pending, syncToken: 'sync-secret' },
+        null,
+      ),
+    ).resolves.toMatchObject({
+      ok: true,
+      data: { tempFileURL: 'https://temp.example/a.png' },
+    })
   })
 
   it('他人不可讀寫工單，updatedAt 單獨不符亦拒絕 CAS', async () => {

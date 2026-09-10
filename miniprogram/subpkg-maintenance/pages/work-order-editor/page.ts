@@ -374,6 +374,9 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
     if (isNewWorkOrder && !state.idempotencyKey) {
       state.idempotencyKey = generateIdempotencyKey()
     }
+    const saveIdempotencyKey = isNewWorkOrder
+      ? state.idempotencyKey
+      : `save:${state.saved!.workOrderId}:${state.saved!.revision}:${submit ? 'submit' : 'draft'}`
     state.saved = await service.saveDraft({
       ...clone(state.draft),
       ...(state.saved
@@ -383,7 +386,7 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
             updatedAt: state.saved.updatedAt,
           }
         : {}),
-      ...(isNewWorkOrder ? { idempotencyKey: state.idempotencyKey } : {}),
+      idempotencyKey: saveIdempotencyKey,
       ...(state.portraitUpload ? { portraitUpload: state.portraitUpload } : {}),
     })
     state.draft = {
@@ -402,10 +405,36 @@ const persist = async (page: EditorPage, submit: boolean): Promise<void> => {
     })
     if (submit) {
       const { workOrderId, revision, updatedAt } = state.saved
-      state.saved = await service.submit({ workOrderId, revision, updatedAt })
+      state.saved = await service.submit({
+        workOrderId,
+        revision,
+        updatedAt,
+        submitIdempotencyKey: `submit:${workOrderId}:${revision}`,
+      })
     }
     page.setData({ readonly: submit, notice: submit ? '工單已送審，等待管理員審核' : '草稿已儲存' })
   } catch (error) {
+    if (
+      submit &&
+      state.saved &&
+      error instanceof OfficerMaintenanceError &&
+      ['conflict', 'invalid-state'].includes(error.code)
+    ) {
+      try {
+        const recovered = await getOfficerMaintenanceService().loadMine(state.saved.workOrderId)
+        if (recovered.status === 'pendingReview') {
+          state.saved = recovered
+          page.setData({
+            readonly: true,
+            error: '',
+            notice: '工單已送審，等待管理員審核',
+          })
+          return
+        }
+      } catch {
+        // 重新載入也失敗時，沿用原本錯誤提示與可重試狀態。
+      }
+    }
     const portraitUploadFailed =
       error instanceof OfficerMaintenanceError &&
       ['invalid-portrait', 'upload-failed'].includes(error.code)

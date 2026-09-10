@@ -519,10 +519,42 @@ describe('維護工單編輯器', () => {
       workOrderId: 'wo-1',
       revision: 2,
       updatedAt: 'now',
+      submitIdempotencyKey: 'submit:wo-1:2',
     })
     expect(page.data.error).toContain('送審失敗')
     expect(page.data.submitting).toBe(false)
     expect(page.data.saving).toBe(false)
+  })
+
+  it('送審回應遺失後再次操作可載入伺服器已送審狀態', async () => {
+    await import('../../miniprogram/subpkg-maintenance/pages/work-order-editor/index')
+    await page.onLoad({ targetOfficerId: 'officer-1' })
+    const { OfficerMaintenanceError } =
+      await import('../../miniprogram/runtime/officer-maintenance-service')
+    fixtures.saveDraft.mockImplementation(async (input) => ({
+      ...input,
+      workOrderId: 'wo-recover',
+      status: 'draft',
+      revision: 2,
+      updatedAt: 'now',
+    }))
+    fixtures.submit.mockRejectedValueOnce(new OfficerMaintenanceError('network', '網路逾時'))
+    await page.onSubmit()
+
+    fixtures.saveDraft.mockRejectedValue(
+      new OfficerMaintenanceError('conflict', '工單已被更新，請重新載入'),
+    )
+    fixtures.loadMine.mockResolvedValue({
+      workOrderId: 'wo-recover',
+      status: 'pendingReview',
+      revision: 3,
+      updatedAt: 'server-now',
+    })
+    await page.onSubmit()
+
+    expect(fixtures.loadMine).toHaveBeenCalledWith('wo-recover')
+    expect(page.data.readonly).toBe(true)
+    expect(page.data.notice).toContain('已送審')
   })
 
   it('新增表單選用正式實體後不帶修改基準，技能與語言保留正式 ID', async () => {

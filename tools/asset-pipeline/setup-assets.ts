@@ -4,7 +4,9 @@ import sharp from 'sharp'
 import type { CanonicalOfficer, CanonicalSkill } from '../import/types'
 import {
   buildAssetDependencyIndex,
+  assertAssetDependencyIndex,
   type AssetDependencyIndex,
+  writeAssetDependencyIndex,
 } from '../data-pipeline/asset-dependencies'
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { planAssetPackageLayout } from './asset-package-builder'
@@ -82,6 +84,8 @@ export const setupAssets = async (): Promise<void> => {
   const dependencies = buildAssetDependencyIndex(officers, skills, {
     assetFilenames: skillFilenames,
   })
+  assertAssetDependencyIndex(dependencies)
+  writeAssetDependencyIndex(dependencies, 'data/assets/asset-dependencies.json')
   await validateReferencedAssetSources(dependencies, sources)
   const existing = existsSync(PUBLISH_DIR)
     ? readdirSync(PUBLISH_DIR).filter((filename) => filename.endsWith('.png'))

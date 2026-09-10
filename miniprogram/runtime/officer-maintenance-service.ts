@@ -65,6 +65,8 @@ export interface SubmitMaintenanceWorkOrderInput {
   readonly workOrderId: string
   readonly revision: number
   readonly updatedAt: string
+  /** 送審逾時重試時沿用同一鍵，讓服務端回傳已成功的結果。 */
+  readonly submitIdempotencyKey?: string
 }
 
 export interface SaveMaintenanceReviewInput extends SubmitMaintenanceWorkOrderInput {
