@@ -4,15 +4,15 @@
   "navigationBarTextStyle": "white",
   "backgroundColor": "#ded7c7",
   "usingComponents": {
-    "config-bar": "../../components/config-bar/index",
-    "config-name-modal": "../../components/config-name-modal/index",
-    "config-conflict-modal": "../../components/config-conflict-modal/index",
-    "mode-tabs": "../../components/mode-tabs/index",
-    "officer-action-sheet": "../../components/officer-action-sheet/index",
-    "skill-picker-sheet": "../../components/skill-picker-sheet/index",
-    "result-preview-sheet": "../../components/result-preview-sheet/index",
-    "empty-state": "../../components/empty-state/index",
-    "disclosure-section": "../../components/disclosure-section/index",
-    "skill-sheet": "../../components/skill-sheet/index"
+    "config-bar": "../../../components/config-bar/index",
+    "config-name-modal": "../../../components/config-name-modal/index",
+    "config-conflict-modal": "../../../components/config-conflict-modal/index",
+    "mode-tabs": "../../../components/mode-tabs/index",
+    "officer-action-sheet": "../../../components/officer-action-sheet/index",
+    "skill-picker-sheet": "../../../components/skill-picker-sheet/index",
+    "result-preview-sheet": "../../../components/result-preview-sheet/index",
+    "empty-state": "../../../components/empty-state/index",
+    "disclosure-section": "../../../components/disclosure-section/index",
+    "skill-sheet": "../../../components/skill-sheet/index"
   }
 }

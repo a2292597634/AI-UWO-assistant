@@ -533,7 +533,7 @@ describe('battle fleet target safety', () => {
 describe('battle fleet shared component wiring', () => {
   it('registers and renders the page shared components', () => {
     for (const name of sharedComponentNames) {
-      expect(fleetJson.usingComponents?.[name]).toBe(`../../components/${name}/index`)
+      expect(fleetJson.usingComponents?.[name]).toBe(`../../../components/${name}/index`)
       expect(fleetWxml).toMatch(new RegExp(`<${name}(?:\\s|/?>)`))
     }
   })
@@ -586,7 +586,7 @@ describe('battle fleet shared component wiring', () => {
 describe('battle fleet P5 workbench structure', () => {
   it('registers the disclosure component and uses the six-column workbench structure', () => {
     expect(fleetJson.usingComponents?.['disclosure-section']).toBe(
-      '../../components/disclosure-section/index',
+      '../../../components/disclosure-section/index',
     )
     expect(fleetWxml.match(/<disclosure-section\b/g)).toHaveLength(3)
     expect(fleetWxml).not.toContain('class="fleet-header"')

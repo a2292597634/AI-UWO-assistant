@@ -296,7 +296,10 @@ describe.each(PAGE_PATHS)('%s 共享元件接線', (pagePath) => {
     }
 
     const expectedRegistrations = Object.fromEntries(
-      pageComponentContracts(pagePath).map(({ name }) => [name, `../../components/${name}/index`]),
+      pageComponentContracts(pagePath).map(({ name }) => [
+        name,
+        `${pagePath.includes('/subpkg-fleet/') ? '../../../' : '../../'}components/${name}/index`,
+      ]),
     )
 
     expect(pageConfig.usingComponents).toMatchObject(expectedRegistrations)
