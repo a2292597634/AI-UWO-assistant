@@ -60,28 +60,6 @@ declare module '../../generated/skills' {
   export = skills
 }
 
-declare module '../../generated/fleet-officers' {
-  interface FleetSkillRelation {
-    skillId: string
-    kind: 'active' | 'passive'
-    categoryId: string
-    unlockLevel: number
-  }
-  interface FleetOfficer {
-    id: string
-    name: string
-    jobName: string
-    rarityName: string
-    portraitPath: string
-    visualGradeId: string
-    typeId: string
-    genderId: string
-    skills: FleetSkillRelation[]
-  }
-  const officers: FleetOfficer[]
-  export = officers
-}
-
 declare module '../trade-goods' {
   interface TradeGoodIndexEntry {
     id: string

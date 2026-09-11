@@ -97272,5 +97272,125 @@
       "voyageTw": "chacbt057"
     },
     "visualGradeId": "grade_2"
+  },
+  {
+    "displayOrder": 628,
+    "genderId": "gender_m",
+    "jobId": "job_job21402009",
+    "languages": [],
+    "maintenanceNote": "手动新增 — 2026-09-11",
+    "name": "詹姆士蘭開斯特",
+    "nationalityId": "nationality_ctn_eng",
+    "portraitId": null,
+    "rarityId": "rarity_5",
+    "recruitment": {
+      "cityIds": [
+        "city_town17301",
+        "city_town11108",
+        "city_town3301",
+        "city_town11102",
+        "city_town2206",
+        "city_town15104"
+      ],
+      "note": null,
+      "requiredOfficerIds": [],
+      "requirementId": null
+    },
+    "skills": [
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill501046",
+        "slot": 0,
+        "sourceGroup": "sk0",
+        "unlockLevel": 10
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill201401",
+        "slot": 1,
+        "sourceGroup": "sk0",
+        "unlockLevel": 10
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill201121",
+        "slot": 2,
+        "sourceGroup": "sk0",
+        "unlockLevel": 50
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill200881",
+        "slot": 3,
+        "sourceGroup": "sk0",
+        "unlockLevel": 50
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill200621",
+        "slot": 4,
+        "sourceGroup": "sk0",
+        "unlockLevel": 30
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill202646",
+        "slot": 5,
+        "sourceGroup": "sk0",
+        "unlockLevel": 30
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skill100048",
+        "slot": 6,
+        "sourceGroup": "sk0",
+        "unlockLevel": 70
+      },
+      {
+        "kind": "passive",
+        "level": 2,
+        "skillId": "skill_skill200921",
+        "slot": 7,
+        "sourceGroup": "sk0",
+        "unlockLevel": 70
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skillT0032",
+        "slot": 8,
+        "sourceGroup": "sk0",
+        "unlockLevel": 1
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_skillT0097",
+        "slot": 9,
+        "sourceGroup": "sk0",
+        "unlockLevel": 1
+      },
+      {
+        "kind": "passive",
+        "level": 1,
+        "skillId": "skill_wo_mtttzwza_ecnsvvum_candidate_1788942048188_0",
+        "slot": 10,
+        "sourceGroup": "sk1",
+        "unlockLevel": 1
+      }
+    ],
+    "typeId": "type_class_1",
+    "visualGradeId": "grade_2",
+    "id": "officer_wo_mtttzwza_ecnsvvum",
+    "sourceRefs": {
+      "workOrderId": "wo_mtttzwza_ecnsvvum"
+    }
   }
 ]

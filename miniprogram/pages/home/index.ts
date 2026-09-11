@@ -17,7 +17,7 @@ Page({
         id: 'battle-fleet',
         name: '戰鬥模擬艦隊',
         iconPath: '/assets/ui/feature-battle-fleet.png',
-        route: '/pages/fleet/index',
+        route: '/subpkg-fleet/pages/index/index',
         iconFailed: false,
       },
       {

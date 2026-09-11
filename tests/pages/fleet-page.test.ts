@@ -121,7 +121,7 @@ beforeAll(async () => {
   })
   vi.stubGlobal('wx', wxStub)
 
-  await import('../../miniprogram/pages/fleet/index')
+  await import('../../miniprogram/subpkg-fleet/pages/index/index')
 })
 
 beforeEach(() => {
@@ -429,11 +429,11 @@ describe('battle fleet page', () => {
 })
 
 const fleetWxml = fs.readFileSync(
-  path.resolve(__dirname, '../../miniprogram/pages/fleet/index.wxml'),
+  path.resolve(__dirname, '../../miniprogram/subpkg-fleet/pages/index/index.wxml'),
   'utf8',
 )
 const fleetWxss = fs.readFileSync(
-  path.resolve(__dirname, '../../miniprogram/pages/fleet/index.wxss'),
+  path.resolve(__dirname, '../../miniprogram/subpkg-fleet/pages/index/index.wxss'),
   'utf8',
 )
 const skillPickerWxss = fs.readFileSync(
@@ -449,7 +449,10 @@ const resultPreviewWxss = fs.readFileSync(
   'utf8',
 )
 const fleetJson = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../../miniprogram/pages/fleet/index.json'), 'utf8'),
+  fs.readFileSync(
+    path.resolve(__dirname, '../../miniprogram/subpkg-fleet/pages/index/index.json'),
+    'utf8',
+  ),
 ) as { usingComponents?: Record<string, string> }
 
 const sharedComponentNames = [

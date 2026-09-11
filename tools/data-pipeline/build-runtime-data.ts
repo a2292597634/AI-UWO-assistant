@@ -601,6 +601,7 @@ export const writeRuntimeData = (
   dependencies?: AssetDependencyIndex,
   manifest?: RuntimeAssetUrlManifest,
   datasetMeta?: RuntimeDatasetMetaInput,
+  fleetOutputDir?: string,
 ): void => {
   mkdirSync(outputDir, { recursive: true })
 
@@ -627,7 +628,12 @@ export const writeRuntimeData = (
     writeFileSync(`${outputDir}/${name}.js`, `module.exports = ${JSON.stringify(data)}\n`)
 
   write('catalog', catalog)
-  write('fleet-officers', fleetOfficers)
+  const fleetWriteDir = fleetOutputDir ?? outputDir
+  mkdirSync(fleetWriteDir, { recursive: true })
+  writeFileSync(
+    `${fleetWriteDir}/fleet-officers.js`,
+    `module.exports = ${JSON.stringify(fleetOfficers)}\n`,
+  )
   write('skills', runtimeSkills) // dict format: {skillId: {id,n,cat,ip}, ...}
   write('dictionaries', runtimeDicts)
   // Lightweight metadata for home page (avoids loading full catalog)

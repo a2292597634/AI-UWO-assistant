@@ -17,6 +17,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 
 const GENERATED_DIR = path.resolve(__dirname, '../../miniprogram/generated')
+const FLEET_GENERATED_DIR = path.resolve(__dirname, '../../miniprogram/subpkg-fleet/generated')
 const DETAIL_DIR = path.resolve(__dirname, '../../miniprogram/subpkg-detail')
 const ASSET_MANIFEST = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
@@ -29,7 +30,10 @@ const ASSET_URL_PREFIX = `${ASSET_MANIFEST.cdnOrigin}/${ASSET_MANIFEST.cloudPath
 // ── Helpers ──
 
 const readGenerated = (name: string): Record<string, unknown> => {
-  const filePath = path.join(GENERATED_DIR, `${name}.js`)
+  const filePath = path.join(
+    name === 'fleet-officers' ? FLEET_GENERATED_DIR : GENERATED_DIR,
+    `${name}.js`,
+  )
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(filePath) as Record<string, unknown>
 }

@@ -60,6 +60,7 @@ export const findRuntimeNetworkReferences = (
 
   const generatedAssetFile = (path: string): boolean =>
     /[\\/]generated[\\/](?:catalog|skills|fleet-officers)\.js$/.test(path) ||
+    /[\\/]subpkg-fleet[\\/]generated[\\/]fleet-officers\.js$/.test(path) ||
     /[\\/]subpkg-detail[\\/]details-\d+\.js$/.test(path)
 
   const generatedAssetLine = (path: string, line: string): boolean => {

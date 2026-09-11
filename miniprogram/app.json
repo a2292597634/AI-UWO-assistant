@@ -2,7 +2,6 @@
   "pages": [
     "pages/home/index",
     "pages/catalog/index",
-    "pages/fleet/index",
     "pages/adventure-fleet/index",
     "pages/officer-editor/index"
   ],
@@ -40,6 +39,11 @@
       "root": "subpkg-coupon",
       "name": "coupon",
       "pages": ["pages/redemption/index", "pages/settings/index"]
+    },
+    {
+      "root": "subpkg-fleet",
+      "name": "fleet",
+      "pages": ["pages/index/index"]
     }
   ],
   "window": {

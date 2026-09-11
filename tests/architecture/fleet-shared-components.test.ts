@@ -111,12 +111,15 @@ const COMPONENT_CONTRACTS = [
   { name: 'empty-state', events: ['action'] },
 ] as const
 
-const PAGE_PATHS = ['miniprogram/pages/fleet', 'miniprogram/pages/adventure-fleet'] as const
+const PAGE_PATHS = [
+  'miniprogram/subpkg-fleet/pages/index',
+  'miniprogram/pages/adventure-fleet',
+] as const
 const PAGE_COMPONENT_CONTRACTS = COMPONENT_CONTRACTS.filter(
   ({ name }) => name !== 'config-list-modal',
 )
 const PAGE_COMPONENT_OMISSIONS: Partial<Record<(typeof PAGE_PATHS)[number], Set<string>>> = {
-  'miniprogram/pages/fleet': new Set(['status-badge']),
+  'miniprogram/subpkg-fleet/pages/index': new Set(['status-badge']),
 }
 
 const pageComponentContracts = (pagePath: (typeof PAGE_PATHS)[number]) =>

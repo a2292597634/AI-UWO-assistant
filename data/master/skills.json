@@ -13231,5 +13231,16 @@
       "voyageTw": "skill509999116"
     },
     "levelInfo": ""
+  },
+  {
+    "id": "skill_wo_mtttzwza_ecnsvvum_candidate_1788942048188_0",
+    "name": "檸檬汁一匙",
+    "categoryId": "skill_category_innate_buff",
+    "description": "探索陆地、村庄时，船员生存率增加 0.1%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_mtttzwza_ecnsvvum:candidate_1788942048188_0"
+    }
   }
 ]

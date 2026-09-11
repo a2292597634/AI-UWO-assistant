@@ -10,48 +10,49 @@ import {
   unbanOfficer,
   unlockOfficer,
   updateShipTargets,
-} from '../../domain/battle-fleet'
-import { solveBattleTargets } from '../../domain/battle-fleet-solver'
+} from '../../../domain/battle-fleet'
+import { solveBattleTargets } from '../../../domain/battle-fleet-solver'
 import {
   applyBattleProposal,
   cloneFleetState,
   fleetStateFingerprint,
-} from '../../domain/fleet-proposal'
-import { getDictionaries, getFleetOfficers, getSkills } from '../../runtime/main-data-store'
-import { buildBattleFleetPageData } from '../../presenters/battle-fleet-presenter'
-import { buildFleetProposalPreview } from '../../presenters/fleet-proposal-presenter'
-import { buildSkillSheet } from '../../presenters/skill-sheet'
+} from '../../../domain/fleet-proposal'
+import { getDictionaries, getSkills } from '../../../runtime/main-data-store'
+import { getFleetOfficers } from '../../runtime/fleet-data-store'
+import { buildBattleFleetPageData } from '../../../presenters/battle-fleet-presenter'
+import { buildFleetProposalPreview } from '../../../presenters/fleet-proposal-presenter'
+import { buildSkillSheet } from '../../../presenters/skill-sheet'
 import {
   buildConfigModalData,
   DEFAULT_CONFIG_NAME,
   deriveConfigStatus,
   resolveConfigAction,
   validateConfigName,
-} from '../../presenters/config-management-presenter'
+} from '../../../presenters/config-management-presenter'
 import type {
   ConfigListState,
   ConfigModalAction,
   PendingConfigAction,
-} from '../../presenters/config-management-presenter'
+} from '../../../presenters/config-management-presenter'
 import {
   MAX_CONFIGS_PER_SCOPE,
   MAX_TARGETS_PER_SHIP,
   serializeFleetState,
   type FleetConfigRecord,
-} from '../../contracts/fleet-config'
-import { getFleetConfigService, FleetConfigError } from '../../runtime/fleet-config-service'
-import type { FleetConfigService } from '../../runtime/fleet-config-service'
-import type { FleetConfigSummary } from '../../contracts/fleet-config'
-import type { BattleSkillFilter, FleetState } from '../../contracts/battle-fleet'
-import type { BattleFleetPageData } from '../../presenters/battle-fleet-presenter'
-import type { FleetProposal } from '../../contracts/fleet-proposal'
-import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
-import type { SkillSheetView } from '../../presenters/skill-sheet'
+} from '../../../contracts/fleet-config'
+import { getFleetConfigService, FleetConfigError } from '../../../runtime/fleet-config-service'
+import type { FleetConfigService } from '../../../runtime/fleet-config-service'
+import type { FleetConfigSummary } from '../../../contracts/fleet-config'
+import type { BattleSkillFilter, FleetState } from '../../../contracts/battle-fleet'
+import type { BattleFleetPageData } from '../../../presenters/battle-fleet-presenter'
+import type { FleetProposal } from '../../../contracts/fleet-proposal'
+import type { FleetProposalPreviewView } from '../../../presenters/fleet-proposal-presenter'
+import type { SkillSheetView } from '../../../presenters/skill-sheet'
 import type {
   RuntimeDictionaries,
   RuntimeFleetOfficer,
   RuntimeSkill,
-} from '../../contracts/runtime-data'
+} from '../../../contracts/runtime-data'
 
 // ── Page data ──
 

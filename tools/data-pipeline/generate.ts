@@ -23,6 +23,7 @@ import {
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
+const FLEET_OUTPUT_DIR = 'miniprogram/subpkg-fleet/generated'
 const SUBPKG_DIR = 'miniprogram/subpkg-detail'
 const TRADE_SUBPKG_DIR = 'miniprogram/subpkg-trade'
 const MAINTENANCE_SUBPKG_DIR = 'miniprogram/subpkg-maintenance'
@@ -72,6 +73,7 @@ const generate = (): void => {
   console.log(`  Asset roots: ${assetDependencies.roots.length}`)
 
   mkdirSync(OUTPUT_DIR, { recursive: true })
+  mkdirSync(FLEET_OUTPUT_DIR, { recursive: true })
   mkdirSync(SUBPKG_DIR, { recursive: true })
   mkdirSync(TRADE_SUBPKG_DIR, { recursive: true })
   mkdirSync(DATA_ASSETS_DIR, { recursive: true })
@@ -98,7 +100,15 @@ const generate = (): void => {
       updatedAt: datasetMeta.updatedAt,
       sourceSnapshot: datasetMeta.sourceSnapshot,
     },
+    FLEET_OUTPUT_DIR,
   )
+
+  // Remove the legacy main-package fleet index after moving its output.
+  const legacyFleetPath = `${OUTPUT_DIR}/fleet-officers.js`
+  if (existsSync(legacyFleetPath)) {
+    unlinkSync(legacyFleetPath)
+    console.log(`  Removed legacy ${legacyFleetPath}`)
+  }
   writeAssetDependencyIndex(assetDependencies, ASSET_DEPENDENCY_PATH)
 
   // Remove legacy JS module so it never ends up in the miniprogram package

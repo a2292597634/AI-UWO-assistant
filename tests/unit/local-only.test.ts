@@ -94,7 +94,7 @@ describe('findRuntimeNetworkReferences', () => {
   it('rejects wx.cloud.callFunction in a non-allowed page', () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-local-reject-'))
     fixtureRoots.push(root)
-    const pagesDir = join(root, 'pages', 'fleet')
+    const pagesDir = join(root, 'subpkg-fleet', 'pages', 'index')
     mkdirSync(pagesDir, { recursive: true })
     writeFileSync(
       join(pagesDir, 'index.ts'),
@@ -107,7 +107,7 @@ describe('findRuntimeNetworkReferences', () => {
     })
     expect(findings).toHaveLength(1)
     expect(findings[0].reason).toBe('wx.cloud')
-    expect(findings[0].file).toContain('pages/fleet/index.ts')
+    expect(findings[0].file).toContain('subpkg-fleet/pages/index/index.ts')
   })
 
   it('allows wx.cloud.init only in app.ts', () => {

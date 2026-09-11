@@ -69,9 +69,11 @@ describe('首頁功能入口', () => {
   it('保留現有模組路由事件', () => {
     const page = createPageInstance()
 
-    page.onModuleTap({ currentTarget: { dataset: { route: '/pages/fleet/index' } } } as never)
+    page.onModuleTap({
+      currentTarget: { dataset: { route: '/subpkg-fleet/pages/index/index' } },
+    } as never)
 
-    expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/pages/fleet/index' })
+    expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/subpkg-fleet/pages/index/index' })
   })
 
   it('顯示四個主要模組並將資料維護降級為次級入口', () => {

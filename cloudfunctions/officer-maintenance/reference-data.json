@@ -1795,7 +1795,8 @@
     "skill_skill509999115",
     "skill_skill509998137",
     "skill_skill509998138",
-    "skill_skill509999116"
+    "skill_skill509999116",
+    "skill_wo_mtttzwza_ecnsvvum_candidate_1788942048188_0"
   ],
   "officerIds": [
     "officer_chast089",
@@ -2425,6 +2426,7 @@
     "officer_chacbt055",
     "officer_chacbt056",
     "officer_chacbt057",
+    "officer_wo_mtttzwza_ecnsvvum",
     "officer_custom_singuack",
     "officer_custom_piyale"
   ],
@@ -2453,5 +2455,5 @@
     "skill_category_naval_active_cannon",
     "skill_category_innate_debuff"
   ],
-  "dataVersion": "1.0.0"
+  "dataVersion": "maintenance-9c44a91928ee1ad9"
 }

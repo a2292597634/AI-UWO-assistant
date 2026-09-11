@@ -46,7 +46,7 @@ export interface RuntimeSkill {
   li: string // levelInfo — compact per-level effect summary
 }
 
-// ── Fleet officer index (miniprogram/generated/fleet-officers.js) ──
+// ── Fleet officer index (miniprogram/subpkg-fleet/generated/fleet-officers.js) ──
 
 export interface RuntimeFleetSkillRelation {
   skillId: string

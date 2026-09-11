@@ -2,6 +2,7 @@ archive/
 coverage/
 docs/superpowers/
 miniprogram/generated/
+miniprogram/subpkg-fleet/generated/
 miniprogram/subpkg-detail/details-*.js
 miniprogram/subpkg-detail/detail-index.js
 miniprogram/subpkg-detail/detail-loaders.js

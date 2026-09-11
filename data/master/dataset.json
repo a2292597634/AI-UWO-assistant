@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "1.0.0",
-  "updatedAt": "2026-07-30T10:29:31.318Z",
+  "contentVersion": "maintenance-9c44a91928ee1ad9",
+  "updatedAt": "2026-09-11T09:08:38.240Z",
   "sourceSnapshot": "voyage-tw-2026052501",
   "auditStatus": "verified",
   "auditNotes": "All 23 skill categories named, 1921 active / 7221 passive skills verified, 0 blocking anomalies, 11 known source-data anomalies tracked in data/corrections/.",
   "counts": {
-    "officers": 627,
-    "skills": 1203,
+    "officers": 628,
+    "skills": 1204,
     "assets": 0,
     "dictionaryItems": 600,
     "tradeGoods": 656,

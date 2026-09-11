@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 const ROOT = resolve(__dirname, '../..')
 const SPEC_PATH = 'docs/superpowers/specs/2026-08-09-design-foundation-design.md'
 const TASK_7_WXSS_PATHS = [
-  'miniprogram/pages/fleet/index.wxss',
+  'miniprogram/subpkg-fleet/pages/index/index.wxss',
   'miniprogram/pages/adventure-fleet/index.wxss',
   'miniprogram/pages/officer-editor/index.wxss',
   'miniprogram/pages/catalog/index.wxss',
