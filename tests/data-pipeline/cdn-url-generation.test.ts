@@ -128,6 +128,36 @@ describe('generated CDN image URLs', () => {
     expect(JSON.stringify({ catalog, skills, details })).not.toContain('/subpkg-assets-')
   })
 
+  it('accepts an exact public URL from a reused historical release', () => {
+    const historicalSkill = skill('skill_historical')
+    const historicalAsset = {
+      filename: 'skill_historical.png',
+      cloudPath: 'assets/0.9.0-legacy/skill_historical.png',
+      releaseId: '0.9.0-legacy',
+      publicUrl: 'https://uwo-prod-123.tcb.qcloud.la/assets/0.9.0-legacy/skill_historical.png',
+    }
+    const historicalManifest: RuntimeAssetUrlManifest = {
+      ...manifest,
+      assets: [...manifest.assets, historicalAsset],
+    }
+    const historicalDependencies = buildAssetDependencyIndex(
+      [officer('officer_test')],
+      [historicalSkill],
+      { assetFilenames: new Set([historicalAsset.filename]) },
+    )
+    const generated = buildSkills(
+      [historicalSkill],
+      dictionaries,
+      undefined,
+      undefined,
+      undefined,
+      historicalDependencies,
+      historicalManifest,
+    )
+
+    expect(generated.skill_historical!.ip).toBe(historicalAsset.publicUrl)
+  })
+
   it('rejects a generated asset manifest from a non-CloudBase origin', () => {
     expect(() =>
       buildCatalog(

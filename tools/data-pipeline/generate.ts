@@ -15,11 +15,13 @@ import {
 import { writeTradeRuntimeData } from './build-trade-runtime-data'
 import type { CanonicalDatasetHeader, CanonicalTradeDataset } from '../import/types'
 import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
+import { loadAssetReuseLocations } from '../asset-pipeline/cloudbase-manifest'
 import { loadCanonicalOfficers } from './load-officers'
 import {
   buildOfficerReferenceData,
   buildMaintenanceReferenceData,
 } from './build-officer-reference-data'
+import { loadSkillIconOverrides } from '../asset-pipeline/source-skill-icons'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
@@ -34,6 +36,8 @@ const OFFICER_REFERENCE_DATA_PATH = 'cloudfunctions/officer-custom/reference-dat
 const MAINTENANCE_REFERENCE_DATA_PATH = 'cloudfunctions/officer-maintenance/reference-data.json'
 const PUBLISHED_MANIFEST_PATH =
   process.env.CLOUDBASE_ASSET_MANIFEST_PATH ?? 'data/assets/cloudbase-manifest.json'
+const REUSED_ASSET_LOCATIONS_PATH =
+  process.env.CLOUDBASE_ASSET_REUSE_PATH ?? 'data/assets/cloudbase-reused-skill-icons.json'
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
 
@@ -56,6 +60,26 @@ const generate = (): void => {
   )
   const tradeDataset = readJson<CanonicalTradeDataset>(`${CANONICAL_DIR}/trade-goods.json`)
   const publishedManifest = loadPublishedAssetManifest(PUBLISHED_MANIFEST_PATH)
+  const reusedAssetLocations = existsSync(REUSED_ASSET_LOCATIONS_PATH)
+    ? loadAssetReuseLocations(REUSED_ASSET_LOCATIONS_PATH)
+    : new Map()
+  const runtimeAssetManifest = {
+    ...publishedManifest,
+    assets: [
+      ...publishedManifest.assets,
+      ...[...reusedAssetLocations.values()]
+        .filter(
+          (asset) => !publishedManifest.assets.some((entry) => entry.filename === asset.filename),
+        )
+        .map(({ filename, publicUrl, cloudPath, releaseId }) => ({
+          filename,
+          publicUrl,
+          cloudPath,
+          releaseId,
+        })),
+    ],
+  }
+  const skillIconOverrides = loadSkillIconOverrides()
   const officerReferenceData = buildOfficerReferenceData(CANONICAL_DIR)
 
   console.log(`  Officers: ${officers.length}`)
@@ -64,10 +88,11 @@ const generate = (): void => {
   console.log(`  Trade goods: ${tradeDataset.tradeGoods.length}`)
   console.log(`  Officer reference IDs: ${officerReferenceData.officerIds.length}`)
 
-  const iconSet = new Set(publishedManifest.assets.map((asset) => asset.filename))
+  const iconSet = new Set(runtimeAssetManifest.assets.map((asset) => asset.filename))
   console.log(`  Icon files found: ${iconSet.size}`)
   const assetDependencies = buildAssetDependencyIndex(officers, skills, {
     assetFilenames: iconSet,
+    skillIconOverrides,
   })
   assertAssetDependencyIndex(assetDependencies)
   console.log(`  Asset roots: ${assetDependencies.roots.length}`)
@@ -94,7 +119,7 @@ const generate = (): void => {
     undefined,
     undefined,
     assetDependencies,
-    publishedManifest,
+    runtimeAssetManifest,
     {
       contentVersion: datasetMeta.contentVersion,
       updatedAt: datasetMeta.updatedAt,
@@ -127,7 +152,7 @@ const generate = (): void => {
     undefined,
     undefined,
     assetDependencies,
-    publishedManifest,
+    runtimeAssetManifest,
   )
 
   // Write detail lookup index and static loaders

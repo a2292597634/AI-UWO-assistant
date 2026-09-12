@@ -3,7 +3,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { AssetDependencyIndex } from '../../tools/data-pipeline/asset-dependencies'
-import { buildAssetReleasePlan } from '../../tools/asset-pipeline/cloudbase-manifest'
+import {
+  buildAssetReleasePlan,
+  type AssetReuseLocation,
+} from '../../tools/asset-pipeline/cloudbase-manifest'
 import {
   loadPublishedAssetManifest,
   publishAssetRelease,
@@ -90,6 +93,49 @@ describe('CloudBase asset publishing', () => {
           },
         }),
       ).rejects.toThrow('permission denied')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('reuses existing assets without uploading them again', async () => {
+    const { root } = setup()
+    const reused: AssetReuseLocation = {
+      filename: 'officer-a.png',
+      cloudPath: 'assets/0.9.0-legacy/officer-a.png',
+      publicUrl: 'https://uwo-prod-123.tcb.qcloud.la/assets/0.9.0-legacy/officer-a.png',
+      releaseId: '0.9.0-legacy',
+      fileID: 'cloud://uwo-prod-123/assets/0.9.0-legacy/officer-a.png',
+    }
+    try {
+      const reusedPlan = buildAssetReleasePlan({
+        dependencies: dependencies(),
+        assetRoot: root,
+        config: {
+          envId: 'uwo-prod-123',
+          cdnOrigin: 'https://uwo-prod-123.tcb.qcloud.la',
+          contentVersion: '1.0.0',
+          cloudPathPrefix: 'assets',
+          cacheControl: 'public, max-age=31536000, immutable',
+          cliCommand: 'tcb',
+        },
+        reusedAssets: new Map([[reused.filename, reused]]),
+      })
+      const uploads: string[] = []
+      const manifest = await publishAssetRelease({
+        plan: reusedPlan,
+        reusedAssets: new Map([[reused.filename, reused]]),
+        cli: {
+          upload: async (input) => {
+            uploads.push(input.cloudPath)
+            return { fileID: `cloud://uwo-prod-123/${input.cloudPath}` }
+          },
+        },
+      })
+
+      expect(uploads).toEqual([])
+      expect(manifest.assets[0]!.fileID).toBe(reused.fileID)
+      expect(manifest.assets[0]!.publicUrl).toBe(reused.publicUrl)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

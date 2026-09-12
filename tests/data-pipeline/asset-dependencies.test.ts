@@ -170,6 +170,30 @@ describe('asset dependency index', () => {
     expect(index.skillIcons.skill_skillT0001?.path).toContain('skill_skill400591.png')
   })
 
+  it('uses a skill icon override before variant fallback', () => {
+    const skills = [makeSkill('skill_skillT0092', 'skill_category_adventure')]
+
+    const index = buildAssetDependencyIndex([], skills, {
+      assetFilenames: new Set(['skill_skill200921.png', 'skill_skill202001.png']),
+      skillIconOverrides: new Map([['skill_skillT0092', 'skill_skill202001.png']]),
+    })
+
+    expect(index.skillIcons.skill_skillT0092?.path).toContain('skill_skill202001.png')
+  })
+
+  it('uses a deterministic global fallback when a variant category has no icon', () => {
+    const skills = [
+      makeSkill('skill_skillT0226', 'skill_category_certificate'),
+      makeSkill('skill_skill400591', 'skill_category_naval_active_enhancement'),
+    ]
+
+    const index = buildAssetDependencyIndex([], skills, {
+      assetFilenames: new Set(['skill_skill400591.png']),
+    })
+
+    expect(index.skillIcons.skill_skillT0226?.path).toContain('skill_skill400591.png')
+  })
+
   it('keeps every enhancement skill on its own icon filename when all assets exist', () => {
     const skills = navalActiveEnhancementSkillIds.map((id) =>
       makeSkill(id, 'skill_category_naval_active_enhancement'),

@@ -8,6 +8,7 @@ import {
   finalizePublishedAssetManifest,
   parseCloudBasePublishConfig,
   validatePublishedAssetManifest,
+  type AssetReuseLocation,
 } from '../../tools/asset-pipeline/cloudbase-manifest'
 
 const PNG_HEADER = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
@@ -121,6 +122,42 @@ describe('CloudBase asset manifest', () => {
 
       expect(after.releaseId).not.toBe(before.releaseId)
       expect(after.assets[0]?.sha256).not.toBe(before.assets[0]?.sha256)
+    } finally {
+      rmSync(assetRoot, { recursive: true, force: true })
+    }
+  })
+
+  it('preserves a reused asset location while versioning new assets', () => {
+    const assetRoot = writeAssets()
+    const reused: AssetReuseLocation = {
+      filename: 'officer-a.png',
+      cloudPath: 'assets/0.9.0-legacy/officer-a.png',
+      publicUrl: 'https://uwo-prod-123.tcb.qcloud.la/assets/0.9.0-legacy/officer-a.png',
+      releaseId: '0.9.0-legacy',
+      fileID: 'cloud://uwo-prod-123/assets/0.9.0-legacy/officer-a.png',
+    }
+    try {
+      const plan = buildAssetReleasePlan({
+        dependencies: dependencies(),
+        assetRoot,
+        config: config(),
+        reusedAssets: new Map([[reused.filename, reused]]),
+      })
+
+      expect(plan.assets[0]).toMatchObject({
+        filename: reused.filename,
+        cloudPath: reused.cloudPath,
+        publicUrl: reused.publicUrl,
+        releaseId: reused.releaseId,
+        fileID: null,
+      })
+      expect(plan.assets[1]!.cloudPath).toBe(`assets/${plan.releaseId}/skill-shared.png`)
+      const manifest = finalizePublishedAssetManifest(plan, {
+        'officer-a.png': reused.fileID,
+        'skill-shared.png': `cloud://uwo-prod-123/${plan.assets[1]!.cloudPath}`,
+        'officer-b.png': `cloud://uwo-prod-123/${plan.assets[2]!.cloudPath}`,
+      })
+      expect(() => validatePublishedAssetManifest(manifest)).not.toThrow()
     } finally {
       rmSync(assetRoot, { recursive: true, force: true })
     }

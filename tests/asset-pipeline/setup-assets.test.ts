@@ -9,6 +9,7 @@ import {
   collectAssetSourceFiles,
   validateReferencedAssetSources,
 } from '../../tools/asset-pipeline/setup-assets'
+import { loadSkillIconOverrides } from '../../tools/asset-pipeline/source-skill-icons'
 
 const dependencies = (files: string[]): AssetDependencyIndex => ({
   roots: [
@@ -36,6 +37,34 @@ describe('asset source collection', () => {
       const sources = collectAssetSourceFiles([join(root, 'source')])
 
       expect([...sources.keys()]).toEqual(['skill_skillT0003.png'])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('normalizes lowercase skill variant filenames to canonical casing', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-lowercase-'))
+    try {
+      mkdirSync(join(root, 'source'))
+      writeFileSync(join(root, 'source', 'skill_skillt0092.png'), 'png')
+
+      const sources = collectAssetSourceFiles([join(root, 'source')])
+
+      expect([...sources.keys()]).toEqual(['skill_skillT0092.png'])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('loads canonical skill icon overrides from skill_arr metadata', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-skill-icons-'))
+    try {
+      const sourcePath = join(root, 'json_char.js')
+      writeFileSync(sourcePath, 'var skill_arr={"skillT0092":{"t":"menuskt16","i":"skill202001"}}')
+
+      const overrides = loadSkillIconOverrides(sourcePath)
+
+      expect(overrides.get('skill_skillT0092')).toBe('skill_skill202001.png')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

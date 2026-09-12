@@ -29,6 +29,21 @@ export interface PublishedAsset extends Omit<AssetReleasePlanAsset, 'fileID'> {
   fileID: string
 }
 
+/** 已存在於 CloudBase、可直接沿用的資產位置。 */
+export interface AssetReuseLocation {
+  filename: string
+  cloudPath: string
+  publicUrl: string
+  releaseId: string
+  fileID: string
+  sha256?: string
+  bytes?: number
+  contentType?: 'image/png'
+  /** 可選的本地來源指紋；不一致時會改走新版本上傳。 */
+  sourceSha256?: string
+  sourceBytes?: number
+}
+
 export interface AssetReleasePlan {
   assetRoot: string
   releaseId: string
@@ -49,6 +64,7 @@ interface AssetReleasePlanInput {
   assetRoot: string
   config: CloudBasePublishConfig
   limit?: number
+  reusedAssets?: ReadonlyMap<string, AssetReuseLocation>
 }
 
 const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
@@ -89,11 +105,52 @@ const isPng = (content: Buffer): boolean =>
   content.length >= PNG_SIGNATURE.length &&
   PNG_SIGNATURE.equals(content.subarray(0, PNG_SIGNATURE.length))
 
+const assertReuseLocation = (
+  location: AssetReuseLocation,
+  config: CloudBasePublishConfig,
+): void => {
+  assertFilename(location.filename)
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(location.releaseId)) {
+    throw new Error(`reused asset release ID is invalid: ${location.releaseId}`)
+  }
+  const expectedCloudPath = `${config.cloudPathPrefix}/${location.releaseId}/${location.filename}`
+  if (location.cloudPath !== expectedCloudPath) {
+    throw new Error(`reused asset cloud path does not match release: ${location.cloudPath}`)
+  }
+  if (location.publicUrl !== publicUrlFor(config.cdnOrigin, location.cloudPath)) {
+    throw new Error(
+      `reused asset public URL is not the configured CloudBase CDN URL: ${location.filename}`,
+    )
+  }
+  if (!/^cloud:\/\/[^?\s]+$/.test(location.fileID)) {
+    throw new Error(`reused asset fileID is missing or invalid: ${location.filename}`)
+  }
+  if (location.sha256 !== undefined && !/^[a-f0-9]{64}$/i.test(location.sha256)) {
+    throw new Error(`reused asset sha256 is invalid: ${location.filename}`)
+  }
+  if (location.bytes !== undefined && (!Number.isInteger(location.bytes) || location.bytes <= 0)) {
+    throw new Error(`reused asset bytes is invalid: ${location.filename}`)
+  }
+  if (location.contentType !== undefined && location.contentType !== 'image/png') {
+    throw new Error(`reused asset content type is invalid: ${location.filename}`)
+  }
+  if (location.sourceSha256 !== undefined && !/^[a-f0-9]{64}$/i.test(location.sourceSha256)) {
+    throw new Error(`reused asset source sha256 is invalid: ${location.filename}`)
+  }
+  if (
+    location.sourceBytes !== undefined &&
+    (!Number.isInteger(location.sourceBytes) || location.sourceBytes <= 0)
+  ) {
+    throw new Error(`reused asset source bytes is invalid: ${location.filename}`)
+  }
+}
+
 export const buildAssetReleasePlan = ({
   dependencies,
   assetRoot,
   config,
   limit,
+  reusedAssets,
 }: AssetReleasePlanInput): AssetReleasePlan => {
   if (limit !== undefined && (!Number.isInteger(limit) || limit < 1)) {
     throw new Error(`asset publish limit must be a positive integer: ${limit}`)
@@ -135,12 +192,45 @@ export const buildAssetReleasePlan = ({
     }
   }
 
-  const manifestDigest = digestFor(localAssets)
-  const releaseId = `${config.contentVersion}-${manifestDigest.slice(0, 12)}`
-  const assets: AssetReleasePlanAsset[] = localAssets.map((asset) => {
-    const cloudPath = `${config.cloudPathPrefix}/${releaseId}/${asset.filename}`
+  const effectiveReusedAssets = new Map<string, AssetReuseLocation>()
+  for (const asset of localAssets) {
+    const reused = reusedAssets?.get(asset.filename)
+    if (!reused) continue
+    const sourceMatches =
+      (reused.sourceSha256 === undefined || reused.sourceSha256 === asset.sha256) &&
+      (reused.sourceBytes === undefined || reused.sourceBytes === asset.bytes)
+    if (!sourceMatches) continue
+    assertReuseLocation(reused, config)
+    effectiveReusedAssets.set(asset.filename, reused)
+  }
+
+  const effectiveAssets = localAssets.map((asset) => {
+    const reused = effectiveReusedAssets.get(asset.filename)
+    if (!reused) return asset
     return {
       ...asset,
+      ...(reused.sha256 === undefined ? {} : { sha256: reused.sha256 }),
+      ...(reused.bytes === undefined ? {} : { bytes: reused.bytes }),
+      ...(reused.contentType === undefined ? {} : { contentType: reused.contentType }),
+    }
+  })
+  const manifestDigest = digestFor(effectiveAssets)
+  const releaseId = `${config.contentVersion}-${manifestDigest.slice(0, 12)}`
+  const assets: AssetReleasePlanAsset[] = localAssets.map((asset, index) => {
+    const effectiveAsset = effectiveAssets[index]!
+    const reused = effectiveReusedAssets.get(asset.filename)
+    if (reused) {
+      return {
+        ...effectiveAsset,
+        cloudPath: reused.cloudPath,
+        publicUrl: reused.publicUrl,
+        releaseId: reused.releaseId,
+        fileID: null,
+      }
+    }
+    const cloudPath = `${config.cloudPathPrefix}/${releaseId}/${asset.filename}`
+    return {
+      ...effectiveAsset,
       cloudPath,
       publicUrl: publicUrlFor(config.cdnOrigin, cloudPath),
       releaseId,
@@ -158,6 +248,54 @@ export const buildAssetReleasePlan = ({
     cacheControl: config.cacheControl,
     assets,
   }
+}
+
+export const assetReuseLocationFromPublishedAsset = (
+  asset: PublishedAsset,
+): AssetReuseLocation => ({
+  filename: asset.filename,
+  cloudPath: asset.cloudPath,
+  publicUrl: asset.publicUrl,
+  releaseId: asset.releaseId,
+  fileID: asset.fileID,
+  sha256: asset.sha256,
+  bytes: asset.bytes,
+  contentType: asset.contentType,
+})
+
+export const loadAssetReuseLocations = (path: string): Map<string, AssetReuseLocation> => {
+  const value = JSON.parse(readFileSync(path, 'utf8')) as unknown
+  if (!Array.isArray(value)) throw new Error(`asset reuse manifest must be an array: ${path}`)
+  const locations = new Map<string, AssetReuseLocation>()
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error(`asset reuse manifest contains an invalid entry: ${path}`)
+    }
+    const record = entry as Record<string, unknown>
+    const requiredFields = ['filename', 'cloudPath', 'publicUrl', 'releaseId', 'fileID']
+    if (requiredFields.some((field) => typeof record[field] !== 'string')) {
+      throw new Error(`asset reuse manifest entry is incomplete: ${path}`)
+    }
+    const location: AssetReuseLocation = {
+      filename: record.filename as string,
+      cloudPath: record.cloudPath as string,
+      publicUrl: record.publicUrl as string,
+      releaseId: record.releaseId as string,
+      fileID: record.fileID as string,
+      ...(record.sha256 === undefined ? {} : { sha256: record.sha256 as string }),
+      ...(record.bytes === undefined ? {} : { bytes: record.bytes as number }),
+      ...(record.contentType === undefined
+        ? {}
+        : { contentType: record.contentType as 'image/png' }),
+      ...(record.sourceSha256 === undefined ? {} : { sourceSha256: record.sourceSha256 as string }),
+      ...(record.sourceBytes === undefined ? {} : { sourceBytes: record.sourceBytes as number }),
+    }
+    if (locations.has(location.filename)) {
+      throw new Error(`duplicate asset reuse filename: ${location.filename}`)
+    }
+    locations.set(location.filename, location)
+  }
+  return locations
 }
 
 export const finalizePublishedAssetManifest = (
@@ -195,11 +333,12 @@ export const validatePublishedAssetManifest = (manifest: PublishedAssetManifest)
     filenames.add(asset.filename)
     if (cloudPaths.has(asset.cloudPath)) throw new Error(`duplicate cloud path: ${asset.cloudPath}`)
     cloudPaths.add(asset.cloudPath)
-    if (asset.cloudPath !== `${manifest.cloudPathPrefix}/${manifest.releaseId}/${asset.filename}`) {
+    if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(asset.releaseId)) {
+      throw new Error(`asset release ID is invalid: ${asset.filename}`)
+    }
+    if (asset.cloudPath !== `${manifest.cloudPathPrefix}/${asset.releaseId}/${asset.filename}`) {
       throw new Error(`asset cloud path does not match release: ${asset.cloudPath}`)
     }
-    if (asset.releaseId !== manifest.releaseId)
-      throw new Error(`asset release ID mismatch: ${asset.filename}`)
     if (!/^cloud:\/\/[^?\s]+$/.test(asset.fileID))
       throw new Error(`asset fileID is missing or invalid: ${asset.filename}`)
     if (!/^[a-f0-9]{64}$/i.test(asset.sha256))

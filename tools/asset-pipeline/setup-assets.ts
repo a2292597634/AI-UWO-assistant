@@ -10,12 +10,18 @@ import {
 } from '../data-pipeline/asset-dependencies'
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { planAssetPackageLayout } from './asset-package-builder'
+import { loadSkillIconOverrides } from './source-skill-icons'
 
 export const ASSET_STAGING_DIR = 'data/assets/staging'
 const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', ASSET_STAGING_DIR]
 const PUBLISH_DIR = ASSET_STAGING_DIR
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
+
+export const normalizeAssetFilename = (filename: string): string => {
+  const variantMatch = /^skill_skillt([0-9]+)\.png$/i.exec(filename)
+  return variantMatch ? `skill_skillT${variantMatch[1]}.png` : filename
+}
 
 /** Compress a PNG buffer to 8-bit palette with max compression. */
 async function compressPNG(input: Buffer): Promise<Buffer> {
@@ -35,7 +41,8 @@ export const collectAssetSourceFiles = (sourceDirs: readonly string[]): Map<stri
     if (!existsSync(sourceDir)) continue
     for (const file of readdirSync(sourceDir)) {
       if (!file.endsWith('.png')) continue
-      files.set(file.toLowerCase(), { filename: file, path: join(sourceDir, file) })
+      const filename = normalizeAssetFilename(file)
+      files.set(filename.toLowerCase(), { filename, path: join(sourceDir, file) })
     }
   }
   return new Map([...files.values()].map(({ filename, path }) => [filename, path]))
@@ -78,11 +85,26 @@ const canonicalData = (): {
 export const setupAssets = async (): Promise<void> => {
   const { officers, skills } = canonicalData()
   const sources = sourceFiles()
+  const skillIconOverrides = loadSkillIconOverrides()
   const skillFilenames = new Set(
     [...sources.keys()].filter((filename) => filename.startsWith('skill_')),
   )
+  const missingVariantSourceIcons = skills
+    .filter(
+      (skill) =>
+        /^skill_skillT[0-9]+$/.test(skill.id) &&
+        !skillIconOverrides.has(skill.id) &&
+        !skillFilenames.has(`${skill.id}.png`),
+    )
+    .map((skill) => `${skill.sourceRefs.voyageTw ?? skill.id}: ${skill.name}`)
+  if (missingVariantSourceIcons.length > 0) {
+    console.warn(
+      `來源 skillT 圖標未收錄，將保留分類或全域 fallback：${missingVariantSourceIcons.join(', ')}`,
+    )
+  }
   const dependencies = buildAssetDependencyIndex(officers, skills, {
     assetFilenames: skillFilenames,
+    skillIconOverrides,
   })
   assertAssetDependencyIndex(dependencies)
   writeAssetDependencyIndex(dependencies, 'data/assets/asset-dependencies.json')

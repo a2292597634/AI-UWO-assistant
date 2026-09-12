@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { isVoyageTwOfficerSourceRefs, type CanonicalOfficer } from '../import/types'
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
+import { loadSkillIconOverrides } from './source-skill-icons'
 
 // ── Types ──
 
@@ -270,15 +271,7 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   // Read canonical data to build asset list
   const officers = loadCanonicalOfficers('data/master')
   const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8'))
-  const rawJsonChar = readFileSync('archive/voyage-tw-2026052501/raw-data/json_char.js', 'utf8')
-
-  // Extract skill metadata (image overrides from skill_arr)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { parseSkills } = require('../import/parse-skills')
-  const skillArr = parseSkills(rawJsonChar) as Record<
-    string,
-    { sourceCategoryId: string; imageOverrideId: string | null }
-  >
+  const skillIconOverrides = loadSkillIconOverrides()
 
   console.log(`=== Asset Downloader (batch size: ${BATCH_SIZE}, limit: ${limit ?? 'all'}) ===\n`)
   console.log(`Building asset list...`)
@@ -294,7 +287,11 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   const skillList: Array<{ id: string; imageOverrideId: string | null }> = skills.map(
     (s: { sourceRefs: { voyageTw: string }; iconId: string | null }) => ({
       id: s.sourceRefs.voyageTw,
-      imageOverrideId: skillArr[s.sourceRefs.voyageTw]?.imageOverrideId ?? null,
+      imageOverrideId:
+        skillIconOverrides
+          .get(`skill_${s.sourceRefs.voyageTw}`)
+          ?.replace(/^skill_/, '')
+          .replace(/\.png$/, '') ?? null,
     }),
   )
 

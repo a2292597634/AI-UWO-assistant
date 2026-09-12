@@ -15,6 +15,7 @@ export type AssetDependencyIndex = RuntimeAssetDependencyIndex
 
 interface AssetDependencyOptions {
   assetFilenames?: ReadonlySet<string>
+  skillIconOverrides?: ReadonlyMap<string, string>
 }
 
 const filenameForOfficer = (officerId: string): string => `${officerId}.png`
@@ -58,10 +59,21 @@ const resolveSkillFilename = (
   skill: CanonicalSkill,
   assetFilenames: ReadonlySet<string>,
   categoryFallback: ReadonlyMap<string, string>,
+  skillIconOverrides: ReadonlyMap<string, string>,
 ): string | undefined => {
+  const overrideFilename = skillIconOverrides.get(skill.id)
+  if (overrideFilename) {
+    if (assetFilenames.size === 0 || assetFilenames.has(overrideFilename)) {
+      return overrideFilename
+    }
+    throw new Error(`技能圖示覆蓋資產缺失：${skill.id}，預期檔案 ${overrideFilename}`)
+  }
+
   const ownFilename = filenameForSkill(skill.id)
   if (assetFilenames.size === 0 || assetFilenames.has(ownFilename)) return ownFilename
-  if (isVariantSkill(skill.id)) return categoryFallback.get(skill.categoryId)
+  if (isVariantSkill(skill.id)) {
+    return categoryFallback.get(skill.categoryId) ?? categoryFallback.values().next().value
+  }
   throw new Error(`技能圖示資產缺失：${skill.id}（${skill.categoryId}），預期檔案 ${ownFilename}`)
 }
 
@@ -85,11 +97,12 @@ export const buildAssetDependencyIndex = (
   options: AssetDependencyOptions = {},
 ): AssetDependencyIndex => {
   const assetFilenames = options.assetFilenames ?? new Set<string>()
+  const skillIconOverrides = options.skillIconOverrides ?? new Map<string, string>()
   const categoryFallback = firstAvailableByCategory(skills, assetFilenames)
   const skillFilenames = new Map(
     skills.map((skill) => [
       skill.id,
-      resolveSkillFilename(skill, assetFilenames, categoryFallback),
+      resolveSkillFilename(skill, assetFilenames, categoryFallback, skillIconOverrides),
     ]),
   )
   const ownerByFilename = new Map<string, string>()

@@ -21,11 +21,19 @@ const FLEET_GENERATED_DIR = path.resolve(__dirname, '../../miniprogram/subpkg-fl
 const DETAIL_DIR = path.resolve(__dirname, '../../miniprogram/subpkg-detail')
 const ASSET_MANIFEST = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
-) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
+) as {
+  cdnOrigin: string
+  cloudPathPrefix: string
+  releaseId: string
+  assets: Array<{ filename: string; publicUrl: string }>
+}
 const CANONICAL_DATASET = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../../data/master/dataset.json'), 'utf8'),
 ) as { contentVersion: string; updatedAt: string; sourceSnapshot: string }
-const ASSET_URL_PREFIX = `${ASSET_MANIFEST.cdnOrigin}/${ASSET_MANIFEST.cloudPathPrefix}/${ASSET_MANIFEST.releaseId}/`
+const ASSET_URL_PREFIX = `${ASSET_MANIFEST.cdnOrigin}/${ASSET_MANIFEST.cloudPathPrefix}/`
+const ASSET_URLS_BY_FILENAME = new Map(
+  ASSET_MANIFEST.assets.map((asset) => [asset.filename, asset.publicUrl]),
+)
 
 // ── Helpers ──
 
@@ -68,7 +76,8 @@ const isPublishedAssetUrl = (value: string, filenamePrefix: string): boolean => 
       !url.hash &&
       url.href.startsWith(ASSET_URL_PREFIX) &&
       url.pathname.endsWith('.png') &&
-      url.pathname.split('/').pop()!.startsWith(filenamePrefix)
+      url.pathname.split('/').pop()!.startsWith(filenamePrefix) &&
+      ASSET_URLS_BY_FILENAME.get(url.pathname.split('/').pop()!) === value
     )
   } catch {
     // CDN URL 不可用时，允许本地分包路径

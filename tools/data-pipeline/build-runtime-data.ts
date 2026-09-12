@@ -24,7 +24,12 @@ export interface RuntimeAssetUrlManifest {
   contentVersion?: string
   cdnOrigin: string
   cloudPathPrefix?: string
-  assets: Array<{ filename: string; publicUrl: string }>
+  assets: Array<{
+    filename: string
+    publicUrl: string
+    cloudPath?: string
+    releaseId?: string
+  }>
 }
 
 export type RuntimeDatasetMetaInput = Pick<
@@ -85,6 +90,11 @@ const publicAssetUrl = (
   }
   const cloudPathPrefix = manifest.cloudPathPrefix ?? 'assets'
   const expectedPathPrefix = `/${cloudPathPrefix}/${manifest.releaseId}/`
+  const expectedAssetPath = asset.cloudPath
+    ? `/${asset.cloudPath}`
+    : asset.releaseId
+      ? `/${cloudPathPrefix}/${asset.releaseId}/${asset.filename}`
+      : undefined
   if (
     origin.protocol !== 'https:' ||
     !/^[A-Za-z0-9][A-Za-z0-9-]*\.tcb\.qcloud\.la$/i.test(origin.hostname) ||
@@ -99,7 +109,9 @@ const publicAssetUrl = (
     publicUrl.origin !== origin.origin ||
     publicUrl.search ||
     publicUrl.hash ||
-    !publicUrl.pathname.startsWith(expectedPathPrefix)
+    (expectedAssetPath
+      ? publicUrl.pathname !== expectedAssetPath
+      : !publicUrl.pathname.startsWith(expectedPathPrefix))
   ) {
     throw new Error(`asset publicUrl is outside the configured CloudBase CDN release: ${filename}`)
   }
