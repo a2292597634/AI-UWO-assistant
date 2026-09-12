@@ -322,6 +322,42 @@ describe('核准工單純轉換', () => {
     expect(result.officers[0]!.skills).toEqual(mixed.skills)
   })
 
+  it('拒絕把 sk2 醫術技能審核為被動技能', () => {
+    const input = master()
+    input.dictionaries.skillCategories!.push({
+      id: 'skill_category_medicine',
+      name: '醫術',
+      displayOrder: 1,
+      sourceRefs: { voyageTw: 'menuskt15' },
+    })
+    input.skills.push({
+      id: 'skill_skill400441',
+      name: '醫術：大規模',
+      categoryId: 'skill_category_medicine',
+      description: '恢復船員體力',
+      levelInfo: '',
+      iconId: null,
+      sourceRefs: { voyageTw: 'skill400441' },
+    })
+    const reviewedData = {
+      ...structuredClone(data),
+      skills: [
+        {
+          skillId: 'skill_skill400441',
+          kind: 'passive' as const,
+          sourceGroup: 'sk2' as const,
+          slot: 0,
+          unlockLevel: 1,
+          level: 1,
+        },
+      ],
+    }
+
+    expect(() => applyApprovedWorkOrders(input, [order({ reviewedData })])).toThrow(
+      '技能類型與來源分類不符',
+    )
+  })
+
   it('同名相同候選技能只產生一次正式 ID 並回填各工單引用，輸入次序不影響輸出', () => {
     const candidate = {
       key: 'candidate_a',

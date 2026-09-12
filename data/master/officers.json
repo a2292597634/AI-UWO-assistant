@@ -1189,7 +1189,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -7190,7 +7190,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 2,
@@ -9722,7 +9722,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -10020,7 +10020,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -10747,7 +10747,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -11476,7 +11476,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -11617,7 +11617,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -12189,7 +12189,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -14557,7 +14557,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -15447,7 +15447,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -19822,7 +19822,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -24862,7 +24862,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -25311,7 +25311,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -26514,7 +26514,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 2,
@@ -26796,7 +26796,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -29797,7 +29797,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -30095,7 +30095,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -31533,7 +31533,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -31981,7 +31981,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -32912,7 +32912,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -34912,7 +34912,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -35065,7 +35065,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -35822,7 +35822,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -35975,7 +35975,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 2,
@@ -36283,7 +36283,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 2,
@@ -45202,7 +45202,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -46145,7 +46145,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -46474,7 +46474,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -46777,7 +46777,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -46930,7 +46930,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -47407,7 +47407,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -48009,7 +48009,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -48499,7 +48499,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -49277,7 +49277,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -49750,7 +49750,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -50233,7 +50233,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -50991,7 +50991,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -51154,7 +51154,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -51311,7 +51311,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -51470,7 +51470,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -51789,7 +51789,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -53074,7 +53074,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -53716,7 +53716,7 @@
       },
       {
         "skillId": "skill_skill400461",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -71975,7 +71975,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -72124,7 +72124,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -72280,7 +72280,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -72421,7 +72421,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -72574,7 +72574,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -72725,7 +72725,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -73182,7 +73182,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -74517,7 +74517,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -74674,7 +74674,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -74827,7 +74827,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -75598,7 +75598,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -75898,7 +75898,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -75906,7 +75906,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -76365,7 +76365,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -76988,7 +76988,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -76996,7 +76996,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -77147,7 +77147,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -77306,7 +77306,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -77937,7 +77937,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -77945,7 +77945,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -78544,7 +78544,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -78552,7 +78552,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -78697,7 +78697,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -79429,7 +79429,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -79574,7 +79574,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -79892,7 +79892,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -80362,7 +80362,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -80519,7 +80519,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -80683,7 +80683,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -80994,7 +80994,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -81306,7 +81306,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -81756,7 +81756,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -82224,7 +82224,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -82540,7 +82540,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -82697,7 +82697,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -82854,7 +82854,7 @@
       },
       {
         "skillId": "skill_skill400431",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -83167,7 +83167,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -83944,7 +83944,7 @@
       },
       {
         "skillId": "skill_skill400441",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -84101,7 +84101,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -84727,7 +84727,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -84880,7 +84880,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -85192,7 +85192,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -85364,7 +85364,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -86436,7 +86436,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -87325,7 +87325,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -87470,7 +87470,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -87772,7 +87772,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -87935,7 +87935,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -90570,7 +90570,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -90874,7 +90874,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -90882,7 +90882,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -91030,7 +91030,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -91038,7 +91038,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -91517,7 +91517,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -91668,7 +91668,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -93181,7 +93181,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -93934,7 +93934,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -94394,7 +94394,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -94713,7 +94713,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -95170,7 +95170,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -95325,7 +95325,7 @@
       },
       {
         "skillId": "skill_skill400074",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -95333,7 +95333,7 @@
       },
       {
         "skillId": "skill_skill400401",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -96422,7 +96422,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -96738,7 +96738,7 @@
       },
       {
         "skillId": "skill_skill400411",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,
@@ -97211,7 +97211,7 @@
       },
       {
         "skillId": "skill_skill400421",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 1,
         "unlockLevel": 1,

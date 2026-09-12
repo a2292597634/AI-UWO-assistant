@@ -64,6 +64,7 @@ const skillMetadata: Record<string, SourceSkillMetadata> = {
   skill400581: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
   skill400591: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
   skill400861: { sourceCategoryId: 'menuskt11', imageOverrideId: null, levelValues: [] },
+  skill400441: { sourceCategoryId: 'menuskt15', imageOverrideId: null, levelValues: [] },
   // sk3
   skill300001: { sourceCategoryId: 'menuskt22', imageOverrideId: null, levelValues: [] },
   skill300004: { sourceCategoryId: 'menuskt22', imageOverrideId: null, levelValues: [] },
@@ -168,6 +169,41 @@ describe('transformOfficers', () => {
 
     // No anomalies for this officer
     expect(anomalies).toEqual([])
+  })
+
+  it('classifies a sk2 medicine action as active', () => {
+    const source: Record<string, SourceOfficer> = {
+      chacbb042: {
+        cht: '札克·布魯姆',
+        rank: '2',
+        type: 'class_3',
+        job: 'job21400002',
+        country: '',
+        gender: 'm',
+        lang: {},
+        skill: { sk2: { skill400441: '1' } },
+        city: [],
+        req: '',
+      },
+    }
+
+    const { officers } = transformOfficers(
+      source,
+      languageMap,
+      skillMetadata,
+      fieldInventory,
+      enumInventory,
+      mappingTable,
+    )
+
+    expect(officers[0]!.skills).toContainEqual({
+      skillId: 'skill_skill400441',
+      kind: 'active',
+      sourceGroup: 'sk2',
+      slot: 0,
+      unlockLevel: 1,
+      level: 1,
+    })
   })
 
   it('rejects chasT051 from city IDs', () => {

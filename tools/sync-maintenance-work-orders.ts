@@ -85,6 +85,9 @@ const candidateGroup = {
   nationality: 'nationalities',
 } as const
 
+// sk2 中的醫術與修理是可執行的戰鬥行動，不能因技能名稱未包含「主動」而歸為被動。
+const sk2ActionCategoryIds = new Set(['skill_category_medicine', 'skill_category_repair'])
+
 /** 新資料沿用匯入器的正式 ID 前綴；來源值則由工單與候選 key 組成。 */
 const canonicalIdPrefix = {
   officer: 'officer_',
@@ -175,6 +178,18 @@ const validateMaster = (master: MaintenanceMaster): void => {
     requireRef(skill.categoryId, groupIds('skillCategories'))
     if (skill.levelInfo !== undefined && typeof skill.levelInfo !== 'string')
       throw new Error('技能 levelInfo 格式無效')
+  }
+
+  const skillCategories = new Map(master.skills.map((skill) => [skill.id, skill.categoryId]))
+  for (const officer of master.officers) {
+    for (const relation of officer.skills) {
+      if (
+        relation.sourceGroup === 'sk2' &&
+        sk2ActionCategoryIds.has(skillCategories.get(relation.skillId) ?? '') &&
+        relation.kind !== 'active'
+      )
+        throw new Error(`技能類型與來源分類不符：${officer.id}/${relation.skillId}`)
+    }
   }
 }
 

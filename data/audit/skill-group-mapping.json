@@ -84,6 +84,28 @@
     "status": "approved"
   },
   {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt14",
+    "kind": "active",
+    "categoryId": "skill_category_repair",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "原始 skill_arr 將修理行動技能標為 menuskt14；目前 json_char 的 sk2 關係均為可執行的船員修理效果，應歸類為主動技能。"
+    ],
+    "status": "auto"
+  },
+  {
+    "sourceGroup": "sk2",
+    "sourceCategoryId": "menuskt15",
+    "kind": "active",
+    "categoryId": "skill_category_medicine",
+    "evidenceSkillIds": [],
+    "evidence": [
+      "原始 skill_arr 將醫術行動技能標為 menuskt15；目前 json_char 的 sk2 關係均為可執行的船員治療效果，應歸類為主動技能。"
+    ],
+    "status": "auto"
+  },
+  {
     "sourceGroup": "sk3",
     "sourceCategoryId": "menuskt22",
     "kind": "active",

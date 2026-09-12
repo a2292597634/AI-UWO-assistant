@@ -41,6 +41,42 @@ describe('Full data integrity', () => {
     expect(catalog).toHaveLength(officers.length)
   })
 
+  it('keeps the maintenance-added officer passive skills and canonical levels', () => {
+    const catalog = buildCatalog(officers, skills, dictionaries)
+    const officer = catalog.find((item) => item.id === 'officer_wo_mtttzwza_ecnsvvum')
+
+    expect(officer).toBeDefined()
+    expect(officer!.activeSkills).toEqual([])
+    expect(officer!.passiveSkills).toHaveLength(11)
+    expect(officer!.skillLevels).toEqual({ skill_skill200921: 2 })
+  })
+
+  it('classifies all sk2 medical and repair actions as active', () => {
+    const actionCategoryIds = new Set(['skill_category_medicine', 'skill_category_repair'])
+    const skillCategories = new Map(skills.map((skill) => [skill.id, skill.categoryId]))
+    const misclassified = officers.flatMap((officer) =>
+      officer.skills
+        .filter(
+          (relation) =>
+            relation.sourceGroup === 'sk2' &&
+            actionCategoryIds.has(skillCategories.get(relation.skillId) ?? '') &&
+            relation.kind !== 'active',
+        )
+        .map((relation) => `${officer.id}/${relation.skillId}`),
+    )
+
+    expect(misclassified).toEqual([])
+  })
+
+  it('gives 札克·布魯姆 three active skills', () => {
+    const catalog = buildCatalog(officers, skills, dictionaries)
+    const officer = catalog.find((item) => item.id === 'officer_chacbb042')
+
+    expect(officer).toBeDefined()
+    expect(officer!.activeSkills).toHaveLength(3)
+    expect(officer!.activeSkills).toContain('skill_skill400441')
+  })
+
   it('all officers have Chinese gender labels (not f/m)', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     for (const o of catalog) {
