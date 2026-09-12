@@ -116,9 +116,9 @@
 
 .catalog-page__officer-row {
   display: flex;
-  min-height: 132rpx;
+  min-height: 124rpx;
   margin-bottom: var(--uwo-space-3);
-  padding: var(--uwo-space-4);
+  padding: var(--uwo-space-2) var(--uwo-space-4);
   border: 2rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-card);
   background: var(--uwo-color-surface);
@@ -220,7 +220,7 @@
 .catalog-page__officer-skills {
   width: 100%;
   height: 88rpx;
-  margin-top: var(--uwo-space-2);
+  margin-top: var(--uwo-space-1);
   white-space: nowrap;
 }
 
@@ -247,11 +247,11 @@
   width: 88rpx;
   min-height: 88rpx;
   height: 88rpx;
-  margin-right: var(--uwo-space-2);
+  margin-right: var(--uwo-space-1);
 }
 
 .catalog-page__skill-more {
-  margin-right: var(--uwo-space-2);
+  margin-right: var(--uwo-space-1);
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-supporting);
 }
@@ -259,7 +259,7 @@
 .catalog-page__skill-divider {
   width: 2rpx;
   height: 36rpx;
-  margin: 0 var(--uwo-space-2);
+  margin: 0 var(--uwo-space-1);
   background: var(--uwo-color-border-subtle);
 }
 
