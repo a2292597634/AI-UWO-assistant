@@ -1,27 +1,31 @@
-<view wx:if="{{reviewList}}" class="maintenance-editor">
-  <view class="maintenance-editor__heading">待審核工單</view>
-  <view wx:if="{{!reviewOrders.length}}" class="maintenance-editor__hint">目前沒有待審核工單。</view>
-  <button wx:for="{{reviewOrders}}" wx:key="workOrderId" class="ui-button ui-button--secondary" data-id="{{item.workOrderId}}" bindtap="onReviewOrder">{{item.proposedData.name}}・待審核</button>
-</view>
-<block wx:else>
-  <include src="../work-order-editor/index.wxml" />
-  <view wx:if="{{!loading && !loadError}}" class="maintenance-review">
-    <view class="maintenance-editor__title">基準資料 → 最新修訂</view>
-    <view wx:if="{{!reviewDiff.length}}" class="maintenance-editor__hint">航海士欄位無變更。</view>
-    <view wx:for="{{reviewDiff}}" wx:key="field" class="maintenance-review__diff"><view>{{item.label}}</view><view>原值：{{item.beforeText}}</view><view>修訂：{{item.afterText}}</view></view>
-    <view class="maintenance-editor__title">投稿內容 → 管理員修訂</view>
-    <view wx:if="{{!proposalDiff.length}}" class="maintenance-editor__hint">目前與投稿內容相同。</view>
-    <view wx:for="{{proposalDiff}}" wx:key="field" class="maintenance-review__diff"><view>{{item.label}}</view><view>投稿：{{item.beforeText}}</view><view>修訂：{{item.afterText}}</view></view>
-    <view wx:if="{{conflict}}" class="ui-status ui-status--review">需復核：{{conflict}}</view>
-    <view class="maintenance-editor__hint">核准時將再次檢查工單與正式資料版本。操作期間或完成審核後不能修改。</view>
-    <label class="maintenance-editor__label">本次修訂原因（儲存與核准時必填）<textarea class="maintenance-editor__textarea" value="{{reviewReason}}" bindinput="onReviewReasonInput" disabled="{{readonly || saving}}" maxlength="2000" /></label>
-    <label class="maintenance-editor__label">駁回原因（駁回時必填）<textarea class="maintenance-editor__textarea" value="{{rejectReason}}" bindinput="onRejectReasonInput" disabled="{{readonly || saving}}" maxlength="2000" /></label>
-    <view class="maintenance-editor__actions">
-      <view wx:if="{{saving}}" class="maintenance-editor__hint">正在處理審核操作，請稍候…</view>
-      <button class="ui-button ui-button--secondary" bindtap="onSaveReview" disabled="{{readonly || saving}}" loading="{{saving}}">儲存管理員修訂</button>
-      <button class="ui-button ui-button--primary" bindtap="onApprove" disabled="{{readonly || saving}}">檢查最新差異並核准</button>
-      <button class="ui-button ui-button--secondary" bindtap="onReject" disabled="{{readonly || saving}}">駁回工單</button>
-      <button class="ui-button ui-button--secondary" bindtap="onReviewList">返回審核列表</button>
+<scroll-view class="review-page" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="review-header">
+    <text class="review-header__title ui-display-title">錯誤回報審核</text>
+    <text class="review-header__hint">此處只記錄處理結果，不會直接修改正式名鑑資料。</text>
+  </view>
+  <scroll-view class="status-tabs" scroll-x enhanced show-scrollbar="{{false}}"><view class="status-tabs__inner">
+    <view wx:for="{{statusTabs}}" wx:key="id" data-status="{{item.id}}" bindtap="onStatusTap" class="status-tab {{activeStatus === item.id ? 'status-tab--active' : ''}}">{{item.label}}</view>
+  </view></scroll-view>
+  <view wx:if="{{loading}}" class="review-message">正在載入回報…</view>
+  <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
+  <button wx:if="{{loadError}}" class="ui-button ui-button--secondary retry-button" bindtap="onRetry">重試載入</button>
+  <view wx:if="{{!loading && !loadError && !reports.length}}" class="review-message">此狀態目前沒有回報。</view>
+  <view wx:for="{{reports}}" wx:key="reportId" class="review-card {{selectedReportId === item.reportId ? 'review-card--selected' : ''}}" data-id="{{item.reportId}}" bindtap="onSelectReport">
+    <view class="review-card__heading"><text class="review-card__name">{{item.officerName}}</text><text class="review-card__status">{{item.statusLabel}}</text></view>
+    <view class="review-block"><text class="review-block__label">錯誤說明</text><text>{{item.description}}</text></view>
+    <view class="review-block"><text class="review-block__label">建議的正確內容</text><text>{{item.suggestedCorrection}}</text></view>
+    <view wx:if="{{item.sourceUrl}}" class="review-block"><text class="review-block__label">來源網址</text><text class="review-block__value">{{item.sourceUrl}}</text></view>
+    <text class="review-card__meta">回報編號：{{item.reportId}} · 更新：{{item.updatedAt}}</text>
+  </view>
+  <view wx:if="{{selectedReportId}}" class="review-actions">
+    <text class="review-actions__title">處理此回報</text>
+    <textarea class="review-textarea" value="{{reviewReply}}" maxlength="500" placeholder="管理員回覆；要求補充或不採納時必填" bindinput="onReviewReplyInput"></textarea>
+    <input wx:if="{{activeStatus === 'accepted'}}" class="review-input" value="{{datasetVersion}}" placeholder="修正資料版本（標記已修正時必填）" bindinput="onDatasetVersionInput" />
+    <view class="review-actions__buttons">
+      <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--secondary" disabled="{{actionLoading}}" bindtap="onRequestInfo">要求補充</button>
+      <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--primary" disabled="{{actionLoading}}" bindtap="onAccept">採納</button>
+      <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--secondary" disabled="{{actionLoading}}" bindtap="onReject">不採納</button>
+      <button wx:if="{{activeStatus === 'accepted'}}" class="ui-button ui-button--primary" loading="{{actionLoading}}" disabled="{{actionLoading}}" bindtap="onMarkFixed">標記已修正</button>
     </view>
   </view>
-</block>
+</scroll-view>
