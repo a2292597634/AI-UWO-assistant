@@ -17,6 +17,7 @@ interface DetailPageConfig {
   retryAssetLoading(): Promise<void>
   onPortraitError(): void
   onSkillImageError(event: WechatMiniprogram.BaseEvent): void
+  onReportError(): void
 }
 
 interface DetailPageInstance extends DetailPageConfig {
@@ -145,5 +146,27 @@ describe('detail page skill hierarchy', () => {
     expect(detailWxss).toMatch(
       /\.skill-action\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-minimum-action\)/,
     )
+  })
+})
+
+describe('detail page error report entry', () => {
+  it('opens the report form with the current officer id', async () => {
+    const page = createPageInstance()
+    await page.onLoad({ id: 'officer_chast089' })
+
+    page.onReportError()
+
+    expect(wxStub.navigateTo).toHaveBeenCalledWith({
+      url: '/pages/officer-editor/index?officerId=officer_chast089',
+    })
+  })
+
+  it('shows a visible report action in the template', () => {
+    const wxml = fs.readFileSync(
+      path.resolve(__dirname, '../../miniprogram/subpkg-detail/pages/detail/index.wxml'),
+      'utf8',
+    )
+    expect(wxml).toContain('回報資料錯誤')
+    expect(wxml).toContain('bindtap="onReportError"')
   })
 })

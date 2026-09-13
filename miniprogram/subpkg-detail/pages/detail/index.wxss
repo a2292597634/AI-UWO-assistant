@@ -359,6 +359,19 @@
   overflow-wrap: anywhere;
 }
 
+.report-error-action {
+  padding: var(--uwo-space-5) var(--uwo-space-4) 0;
+}
+
+.report-error-button {
+  min-height: 88rpx;
+  color: var(--uwo-color-accent-text);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-control);
+  font-size: var(--uwo-font-size-action);
+}
+
 .page-spacer {
   height: calc(var(--uwo-space-6) + env(safe-area-inset-bottom));
 }

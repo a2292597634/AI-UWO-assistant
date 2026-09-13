@@ -5,7 +5,8 @@ import {
 } from '../../miniprogram/runtime/officer-error-report-service'
 
 const callFunction = vi.fn()
-vi.stubGlobal('wx', { cloud: { callFunction } })
+const uploadFile = vi.fn()
+vi.stubGlobal('wx', { cloud: { callFunction, uploadFile } })
 
 const draft = {
   officerId: 'officer_1',
@@ -63,5 +64,20 @@ describe('錯誤回報小程序服務', () => {
       .catch((value: unknown) => value)
     expect(error).toMatchObject({ code: 'network' })
     expect((error as Error).message).not.toContain('internal secret')
+  })
+
+  it('在服務邊界上傳最多三張證據截圖', async () => {
+    uploadFile
+      .mockResolvedValueOnce({ fileID: 'cloud://shot-1' })
+      .mockResolvedValueOnce({ fileID: 'cloud://shot-2' })
+
+    await expect(
+      createOfficerErrorReportService().uploadScreenshots(['/tmp/a.png', '/tmp/b.jpg']),
+    ).resolves.toEqual(['cloud://shot-1', 'cloud://shot-2'])
+    expect(uploadFile).toHaveBeenCalledTimes(2)
+    expect(uploadFile.mock.calls[0]?.[0].cloudPath).toMatch(/^officer-error-reports\//)
+    await expect(
+      createOfficerErrorReportService().uploadScreenshots(['1', '2', '3', '4']),
+    ).rejects.toMatchObject({ code: 'invalid-data' })
   })
 })

@@ -158,6 +158,10 @@
     </view>
   </view>
 
+  <view class="report-error-action">
+    <button class="report-error-button" bindtap="onReportError">回報資料錯誤</button>
+  </view>
+
   <view class="page-spacer"></view>
 </scroll-view>
 

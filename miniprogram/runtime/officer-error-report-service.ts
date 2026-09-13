@@ -35,6 +35,7 @@ export interface ErrorReportVersionInput {
 }
 
 export interface OfficerErrorReportService {
+  uploadScreenshots(tempFilePaths: readonly string[]): Promise<readonly string[]>
   createReport(draft: OfficerErrorReportDraft): Promise<OfficerErrorReport>
   listMine(): Promise<readonly OfficerErrorReport[]>
   appendSupplement(
@@ -117,6 +118,25 @@ const call = async <Result>(action: string, payload: Record<string, unknown>): P
 }
 
 export const createOfficerErrorReportService = (): OfficerErrorReportService => ({
+  async uploadScreenshots(tempFilePaths) {
+    if (tempFilePaths.length > 3) {
+      throw new OfficerErrorReportError('invalid-data', '證據截圖最多三張')
+    }
+    const fileIds: string[] = []
+    for (const [index, filePath] of tempFilePaths.entries()) {
+      const suffix = filePath.toLowerCase().endsWith('.png') ? 'png' : 'jpg'
+      try {
+        const result = await wx.cloud.uploadFile({
+          cloudPath: `officer-error-reports/${Date.now()}-${index}.${suffix}`,
+          filePath,
+        })
+        fileIds.push(result.fileID)
+      } catch {
+        throw new OfficerErrorReportError('network', '證據截圖上傳失敗，請稍後再試')
+      }
+    }
+    return fileIds
+  },
   createReport: (draft) => call('createReport', { ...draft }),
   listMine: () => call('listMyReports', {}),
   appendSupplement: (input) => call('appendReportSupplement', { ...input }),
