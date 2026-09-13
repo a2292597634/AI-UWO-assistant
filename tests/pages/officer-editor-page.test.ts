@@ -6,38 +6,31 @@ const ROOT = resolve(__dirname, '../..')
 const readPageFile = (file: string): string =>
   readFileSync(resolve(ROOT, 'miniprogram/pages/officer-editor', file), 'utf8')
 
-describe('航海士資料投稿頁契約', () => {
-  it('使用兩步流程，移除舊的低頻與內部欄位', () => {
+describe('航海士資料錯誤回報頁契約', () => {
+  it('只收集既有航海士的錯誤回報，不再建立完整航海士', () => {
     const wxml = readPageFile('index.wxml')
-    expect(wxml).toContain('stepLabels')
-    expect(wxml).toContain('下一步：語言與技能')
-    expect(wxml).toContain('招募資料（選填）')
-    expect(wxml).not.toContain('Boss')
-    expect(wxml).not.toContain('voyage.tw')
-    expect(wxml).not.toContain('維護備註')
-    expect(wxml).not.toContain('招募備註')
-    expect(wxml).not.toContain('disclosure-section')
+    expect(wxml).toContain('回報資料錯誤')
+    expect(wxml).toContain('選擇航海士')
+    expect(wxml).toContain('錯誤類型')
+    expect(wxml).toContain('錯誤說明')
+    expect(wxml).toContain('建議的正確內容')
+    expect(wxml).not.toContain('新增航海士')
+    expect(wxml).not.toContain('技能等級')
+    expect(wxml).not.toContain('解鎖等級')
   })
 
-  it('技能名稱只能從篩選後的 picker 選取，解鎖等級保留預設提示', () => {
+  it('來源網址與最多三張截圖明確標示為選填', () => {
     const wxml = readPageFile('index.wxml')
-    expect(wxml).toContain('搜尋技能名稱')
-    expect(wxml).toContain('range="{{item.filteredOptions}}"')
-    expect(wxml).toContain('解鎖等級')
-    expect(wxml).toContain('預設 Lv.1，可修改')
-    expect(wxml).not.toContain('placeholder="輸入技能名稱')
+    expect(wxml).toContain('來源網址（選填）')
+    expect(wxml).toContain('證據截圖（選填）')
+    expect(wxml).toContain('最多 3 張')
+    expect(wxml).toContain('提供來源可加快確認')
   })
 
-  it('明確展示正式版頭像限制與審核後發布流程', () => {
+  it('使用既有 Design Foundation 並保留安全區', () => {
     const wxml = readPageFile('index.wxml')
     const wxss = readPageFile('index.wxss')
-    const page = readPageFile('index.ts')
-    expect(wxml).toContain('不超過 512 KB')
-    expect(wxml).toContain('最長邊不超過 512 px')
-    expect(page).toContain("imageTypeName === 'jpg'")
-    expect(page).toContain("cropScale: '1:1'")
-    expect(wxml).toContain('提交後狀態為「待審核」')
-    expect(wxml).toContain('portraitFileId')
+    expect(wxml).toContain('提交回報')
     expect(wxss).toContain('var(--uwo-color-canvas)')
     expect(wxss).toContain('var(--uwo-color-surface)')
     expect(wxss).toMatch(/min-height\s*:\s*88rpx/)
@@ -46,13 +39,11 @@ describe('航海士資料投稿頁契約', () => {
     expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
   })
 
-  it('提供臨時 OpenID 顯示與複製入口', () => {
-    const wxml = readPageFile('index.wxml')
+  it('從 query 帶入航海士並透過錯誤回報服務提交', () => {
     const ts = readPageFile('index.ts')
-
-    expect(wxml).toContain('查看目前帳號 OpenID（臨時）')
-    expect(ts).toContain('onShowOpenId')
-    expect(ts).toContain('getOfficerSubmissionService().getMyOpenId()')
-    expect(ts).toContain('wx.setClipboardData')
+    expect(ts).toContain('query?.officerId')
+    expect(ts).toContain('validateOfficerErrorReportDraft')
+    expect(ts).toContain('getOfficerErrorReportService()')
+    expect(ts).toContain('uploadScreenshots')
   })
 })

@@ -49,11 +49,11 @@
     </view>
 
     <view class="feature-hub__secondary">
-      <text class="feature-hub__secondary-label">資料維護</text>
+      <text class="feature-hub__secondary-label">資料回報</text>
       <view class="module-grid module-grid--secondary">
         <block wx:for="{{modules}}" wx:key="id">
           <view
-            wx:if="{{item.id === 'data-maintenance'}}"
+            wx:if="{{item.id === 'error-report'}}"
             class="module-grid__item module-grid__item--secondary"
             bindtap="onModuleTap"
             data-route="{{item.route}}"
@@ -75,7 +75,7 @@
             </view>
             <view class="module-grid__secondary-copy">
               <text class="module-grid__name">{{item.name}}</text>
-              <text class="module-grid__hint">低頻入口 · 維護自訂航海士資料</text>
+              <text class="module-grid__hint">回報既有航海士資料中的錯誤</text>
             </view>
           </view>
         </block>

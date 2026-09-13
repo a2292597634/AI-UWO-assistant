@@ -76,14 +76,14 @@ describe('首頁功能入口', () => {
     expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/subpkg-fleet/pages/index/index' })
   })
 
-  it('顯示四個主要模組並將資料維護降級為次級入口', () => {
+  it('顯示主要模組並將資料錯誤回報降級為次級入口', () => {
     expect(homePage.data.modules.map((module) => module.id)).toEqual([
       'officer-catalog',
       'battle-fleet',
       'adventure-fleet',
       'trade-goods',
       'coupon-redemption',
-      'data-maintenance',
+      'error-report',
     ])
     expect(homePage.data.modules[3]).toMatchObject({
       name: '交易品淡旺季查询',
@@ -106,12 +106,12 @@ describe('首頁功能入口', () => {
       route: '/subpkg-coupon/pages/redemption/index',
     })
     expect(homePage.data.modules[homePage.data.modules.length - 1]).toMatchObject({
-      name: '資料維護',
-      route: '/subpkg-maintenance/pages/work-orders/index',
+      name: '資料錯誤回報',
+      route: '/pages/officer-editor/index',
       iconPath: '/assets/ui/feature-data-maintenance.png',
     })
     expect(homeWxml).toContain('index < 5')
-    expect(homeWxml).toContain("item.id === 'data-maintenance'")
+    expect(homeWxml).toContain("item.id === 'error-report'")
     expect(homeWxss).toMatch(/width:\s*33\.333333%/)
   })
 
@@ -123,9 +123,9 @@ describe('首頁功能入口', () => {
     expect(homeWxss).not.toMatch(/font-size:\s*34rpx/)
   })
 
-  it('收斂 Hero 並保留資料維護次級入口的結構鉤子', () => {
+  it('收斂 Hero 並保留資料錯誤回報次級入口的結構鉤子', () => {
     expect(homeWxss).toContain('height: 240rpx')
     expect(homeWxml).toContain('module-grid--secondary')
-    expect(homeWxml).toContain('資料維護')
+    expect(homeWxml).toContain('資料回報')
   })
 })

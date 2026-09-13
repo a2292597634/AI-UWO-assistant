@@ -9,12 +9,7 @@
     {
       "root": "subpkg-maintenance",
       "name": "maintenance",
-      "pages": [
-        "pages/work-orders/index",
-        "pages/modify-officer/index",
-        "pages/work-order-editor/index",
-        "pages/work-order-review/index"
-      ]
+      "pages": ["pages/work-orders/index", "pages/work-order-review/index"]
     },
     {
       "root": "subpkg-detail",
@@ -25,15 +20,6 @@
       "root": "subpkg-trade",
       "name": "trade",
       "pages": ["pages/index/index", "pages/detail/index"]
-    },
-    {
-      "root": "subpkg-submission",
-      "name": "submission",
-      "pages": [
-        "pages/officer-submissions/index",
-        "pages/officer-review/index",
-        "pages/officer-review-detail/index"
-      ]
     },
     {
       "root": "subpkg-coupon",

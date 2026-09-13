@@ -23,13 +23,9 @@ describe('小程序管理員審核工作台契約', () => {
     expect(wxml).toContain('待審核 {{pendingCount}} 筆')
   })
 
-  it('审核页与投稿列表注册在低频功能分包，不增加主包体积', () => {
+  it('舊完整投稿分包已從正式路由移除', () => {
     const submissionPackage = app.subpackages.find((item) => item.root === 'subpkg-submission')
-    expect(submissionPackage?.pages).toEqual([
-      'pages/officer-submissions/index',
-      'pages/officer-review/index',
-      'pages/officer-review-detail/index',
-    ])
+    expect(submissionPackage).toBeUndefined()
     expect(app.pages).not.toContain('pages/officer-review/index')
     expect(app.pages).not.toContain('pages/officer-submissions/index')
   })

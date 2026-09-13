@@ -122,4 +122,12 @@ Page({
     this.setData({ sheetSkill: null })
     wx.redirectTo({ url: '/pages/catalog/index?skillId=' + skill.id })
   },
+
+  onReportError() {
+    const officerId = officerIdByPage.get(this)
+    if (!officerId) return
+    wx.navigateTo({
+      url: `/pages/officer-editor/index?officerId=${encodeURIComponent(officerId)}`,
+    })
+  },
 })
