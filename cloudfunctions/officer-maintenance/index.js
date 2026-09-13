@@ -3,6 +3,8 @@
 const cloud = require('wx-server-sdk')
 const { createRepository } = require('./repository')
 const { createOfficerMaintenanceService } = require('./service')
+const { createErrorReportRepository } = require('./error-report-repository')
+const { createErrorReportService, isErrorReportAction } = require('./error-report-service')
 const { uploadPortrait } = require('./portrait-upload')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -41,6 +43,10 @@ const service = createOfficerMaintenanceService(repo, {
   uploadPortrait,
   cloud,
 })
+const errorReportService = createErrorReportService(createErrorReportRepository(cloud.database()), {
+  adminOpenIds: configuredAdminOpenIds,
+  officerIds: new Set(loadReferenceData().officerIds ?? []),
+})
 
 function asTrimmedToken(value) {
   return typeof value === 'string' ? value.trim() : ''
@@ -51,7 +57,8 @@ exports.main = async (event, context) => {
   const requestId = asTrimmedToken(context?.requestId) || `req-${Date.now().toString(36)}`
   try {
     const openid = cloud.getWXContext().OPENID || null
-    const result = await service.dispatch(action, payload, openid)
+    const targetService = isErrorReportAction(action) ? errorReportService : service
+    const result = await targetService.dispatch(action, payload, openid)
     console.log(`[officer-maintenance] action=${action} requestId=${requestId} ok=${result.ok}`)
     return result
   } catch (error) {
