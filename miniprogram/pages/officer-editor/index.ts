@@ -121,7 +121,7 @@ Page({
   },
 
   onMyReportsTap() {
-    wx.navigateTo({ url: '/subpkg-submission/pages/officer-submissions/index' })
+    wx.navigateTo({ url: '/subpkg-maintenance/pages/work-orders/index' })
   },
 
   async onSubmit() {
@@ -144,7 +144,7 @@ Page({
         content: '錯誤回報已送出，可在「我的回報」查看處理進度。',
         showCancel: false,
       })
-      wx.redirectTo({ url: '/subpkg-submission/pages/officer-submissions/index' })
+      wx.redirectTo({ url: '/subpkg-maintenance/pages/work-orders/index' })
     } catch (error) {
       wx.hideLoading()
       this.setData({ submitting: false })

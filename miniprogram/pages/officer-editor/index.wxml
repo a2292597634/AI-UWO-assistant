@@ -1,7 +1,7 @@
 <scroll-view class="report-page" scroll-y enhanced show-scrollbar="{{false}}">
   <view class="report-header">
     <view>
-      <text class="report-header__eyebrow">航海士資料維護</text>
+      <text class="report-header__eyebrow">航海士資料回報</text>
       <text class="report-header__title ui-display-title">回報資料錯誤</text>
       <text class="report-header__hint">請指出既有資料的問題，我們會核對並更新資料庫。</text>
     </view>
@@ -35,7 +35,7 @@
 
     <view class="form-field">
       <text class="form-label">來源網址（選填）</text>
-      <input class="form-control" value="{{draft.sourceUrl}}" type="text" placeholder="https://" bindinput="onSourceUrlInput" />
+      <input class="form-control" value="{{draft.sourceUrl}}" type="text" placeholder="貼上來源網頁地址" bindinput="onSourceUrlInput" />
       <text class="form-hint">提供來源可加快確認，但不影響提交。</text>
     </view>
 

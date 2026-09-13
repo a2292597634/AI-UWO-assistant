@@ -73,6 +73,24 @@ describe('findRuntimeNetworkReferences', () => {
     ).toEqual([])
   })
 
+  it('只允許指定附件服務使用 wx.cloud.uploadFile', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-local-upload-allow-'))
+    fixtureRoots.push(root)
+    const runtimeDir = join(root, 'runtime')
+    mkdirSync(runtimeDir, { recursive: true })
+    writeFileSync(
+      join(runtimeDir, 'error-report-service.ts'),
+      "wx.cloud.uploadFile({ cloudPath: 'reports/1.jpg', filePath: '/tmp/1.jpg' })",
+      'utf8',
+    )
+
+    expect(
+      findRuntimeNetworkReferences(root, {
+        allowedCloudUploadFiles: ['runtime/error-report-service.ts'],
+      }),
+    ).toEqual([])
+  })
+
   it('allows coupon redemption CloudBase call only in its runtime adapter', () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-local-coupon-allow-'))
     fixtureRoots.push(root)

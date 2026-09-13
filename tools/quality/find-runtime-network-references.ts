@@ -12,6 +12,8 @@ export interface RuntimeNetworkScanOptions {
   generatedAssetPathPrefix?: string
   /** Relative file paths (from miniprogram root) allowed to call wx.cloud.callFunction */
   allowedCloudFunctionFiles?: readonly string[]
+  /** Relative file paths (from miniprogram root) allowed to call wx.cloud.uploadFile */
+  allowedCloudUploadFiles?: readonly string[]
   /** Relative file paths (from miniprogram root) allowed to call wx.cloud.init */
   allowedCloudInitFiles?: readonly string[]
 }
@@ -113,7 +115,8 @@ export const findRuntimeNetworkReferences = (
                     options.allowedCloudInitFiles?.includes(relativePath)) ||
                   (api === 'init' && options.allowedCloudInitFiles?.includes(relativePath)) ||
                   (api === 'callFunction' &&
-                    options.allowedCloudFunctionFiles?.includes(relativePath))
+                    options.allowedCloudFunctionFiles?.includes(relativePath)) ||
+                  (api === 'uploadFile' && options.allowedCloudUploadFiles?.includes(relativePath))
                 )
               })
 

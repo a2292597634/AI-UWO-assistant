@@ -42,10 +42,10 @@ Page({
         iconFailed: false,
       },
       {
-        id: 'data-maintenance',
-        name: '資料維護',
+        id: 'error-report',
+        name: '資料錯誤回報',
         iconPath: '/assets/ui/feature-data-maintenance.png',
-        route: '/subpkg-maintenance/pages/work-orders/index',
+        route: '/pages/officer-editor/index',
         iconFailed: false,
       },
     ],
