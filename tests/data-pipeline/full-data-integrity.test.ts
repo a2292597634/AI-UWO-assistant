@@ -129,6 +129,28 @@ describe('Full data integrity', () => {
     }
   })
 
+  it('受影響的提督技能使用官方名稱', () => {
+    const runtimeSkills = buildSkills(skills, dictionaries)
+    const expectedNames = {
+      skill_skillT0218: '高段數',
+      skill_skillT0219: '眼光',
+      skill_skillT0220: '運用',
+      skill_skillT0221: '工匠精神',
+      skill_skillT0222: '無痛縫合術',
+      skill_skillT0223: '壓迫切除法',
+      skill_skillT0224: '印象深刻的商品',
+      skill_skillT0225: '急救處方術',
+    }
+
+    for (const [skillId, name] of Object.entries(expectedNames)) {
+      expect(runtimeSkills[skillId]).toMatchObject({
+        n: name,
+        cat: 'skill_category_admiral',
+        cn: '提督技能',
+      })
+    }
+  })
+
   it('all active/passive skills exist in skills dictionary', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     const runtimeSkills = buildSkills(skills, dictionaries)

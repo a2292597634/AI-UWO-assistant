@@ -859,7 +859,7 @@
   },
   {
     "id": "skill_skillT0226",
-    "name": "skillT0226",
+    "name": "勝利的戰利品",
     "categoryId": "skill_category_certificate",
     "description": "透過戰鬥獲得的證書數量增加15%",
     "iconId": null,
@@ -881,7 +881,7 @@
   },
   {
     "id": "skill_skillT0222",
-    "name": "skillT0222",
+    "name": "無痛縫合術",
     "categoryId": "skill_category_admiral",
     "description": "解除全體我軍1個異常狀態。此外﹐在3回合內使全體我軍防禦力增加150%﹐並恢復15%的耐久度與船員體力。",
     "iconId": null,
@@ -892,7 +892,7 @@
   },
   {
     "id": "skill_skillT0223",
-    "name": "skillT0223",
+    "name": "壓迫切除法",
     "categoryId": "skill_category_admiral",
     "description": "使全體敵軍造成的所有直接傷害在3回合內減少30%﹐並使額外機動力減少15%",
     "iconId": null,
@@ -903,7 +903,7 @@
   },
   {
     "id": "skill_skillT0224",
-    "name": "skillT0224",
+    "name": "印象深刻的商品",
     "categoryId": "skill_category_admiral",
     "description": "10分鐘內購買貿易品時﹐購買數量增加10",
     "iconId": null,
@@ -914,7 +914,7 @@
   },
   {
     "id": "skill_skillT0225",
-    "name": "skillT0225",
+    "name": "急救處方術",
     "categoryId": "skill_category_admiral",
     "description": "恢復全體我軍30%的耐久度與船員體力。此外﹐在3回合內恢復15%的耐久度與船員體力",
     "iconId": null,
@@ -4258,7 +4258,7 @@
   },
   {
     "id": "skill_skillT0227",
-    "name": "skillT0227",
+    "name": "耶希·奧爾",
     "categoryId": "skill_category_admiral",
     "description": "解除我軍全體所有可解除的狀態異常﹐但3回合內直接受到的所有傷害量增加15%",
     "iconId": null,
@@ -4269,7 +4269,7 @@
   },
   {
     "id": "skill_skillT0228",
-    "name": "skillT0228",
+    "name": "白銀鑰匙",
     "categoryId": "skill_category_admiral",
     "description": "1小時內水和糧食的每日消耗量減少15%﹐每10分鐘﹐水和糧食的持有量增加15。(僅限於可補給水和糧食的船隻)",
     "iconId": null,
@@ -4280,7 +4280,7 @@
   },
   {
     "id": "skill_skillT0229",
-    "name": "skillT0229",
+    "name": "強運",
     "categoryId": "skill_category_admiral",
     "description": "在10分鐘內﹐協商發生率增加5.5%﹐協商成功率增加4.5%﹐貿易品協商成功時溢價率增加5%",
     "iconId": null,
@@ -4291,7 +4291,7 @@
   },
   {
     "id": "skill_skillT0230",
-    "name": "skillT0230",
+    "name": "小周天",
     "categoryId": "skill_category_admiral",
     "description": "我軍全體的機動力恢復12%﹐並在3回合內使額外機動力增加15%",
     "iconId": null,
