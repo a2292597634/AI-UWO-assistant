@@ -78,4 +78,9 @@ describe('canonical collection schema validation', () => {
       }),
     ).toContainEqual(expect.objectContaining({ code: 'SCHEMA_ADDITIONAL_PROPERTY' }))
   })
+
+  it('validates the actual master officer collection', () => {
+    const officers = readJson<unknown>('data/master/officers.json')
+    expect(validator.validate('officers', officers)).toEqual([])
+  })
 })

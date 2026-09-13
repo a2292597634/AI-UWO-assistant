@@ -271,6 +271,18 @@ describe('Officer custom submission service', () => {
     })
   })
 
+  it.each([0, 10, 50])('服務端拒絕把解鎖門檻 %s 當成技能等級', async (level) => {
+    const payload = validPayload()
+    const formData = payload.formData as { skills: Array<{ level: number }> }
+    formData.skills[0]!.level = level
+
+    await expect(dispatchSubmit(payload)).resolves.toMatchObject({
+      ok: false,
+      code: 'invalid-data',
+    })
+    expect(repo.records).toHaveLength(0)
+  })
+
   it('并发新投稿由 repository 原子限额控制', async () => {
     for (let index = 0; index < 49; index += 1) {
       repo.records.push({
@@ -429,6 +441,29 @@ describe('Officer custom submission service', () => {
       id: `officer_custom_${submissionId}`,
       sourceRefs: { submissionId },
     })
+  })
+
+  it('保留审核者写入的 kind，不从 sourceGroup 推导主动或被动', async () => {
+    const first = await dispatchSubmit()
+    const result = await service.dispatch(
+      'saveAdmin',
+      {
+        submissionId: first.data.submissionId,
+        revision: 1,
+        updatedAt: first.data.updatedAt,
+        formData: validFormData(),
+        reviewFields: {
+          visualGradeId: 'grade_5',
+          skills: [{ skillId: 'skill_skill200681', kind: 'passive', sourceGroup: 'sk2', slot: 0 }],
+        },
+      },
+      'openid_admin',
+    )
+
+    expect(result).toMatchObject({ ok: true, data: { status: 'pending' } })
+    expect(repo.records[0]!.canonicalData!.skills).toEqual([
+      expect.objectContaining({ kind: 'passive', sourceGroup: 'sk2' }),
+    ])
   })
 
   it('同步 token 只能读取 approved，并可在发布后标记 published', async () => {

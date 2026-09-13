@@ -12,6 +12,8 @@ const VISUAL_GRADE_IDS = new Set(['grade_2', 'grade_3', 'grade_4', 'grade_5', 'g
 const VALID_CANDIDATE_KINDS = new Set(['skill', 'job', 'language', 'nationality'])
 const VALID_SKILL_KINDS = new Set(['active', 'passive'])
 const VALID_SKILL_SOURCE_GROUPS = new Set(['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'])
+const SKILL_LEVEL_MIN = 1
+const SKILL_LEVEL_MAX = 9
 
 const OFFICER_DATA_FIELDS: readonly (keyof MaintenanceOfficerData)[] = [
   'name',
@@ -224,6 +226,22 @@ export const validateMaintenanceDraft = (
       })
     }
     skillSlots.add(slotKey)
+    if (!Number.isInteger(skill.unlockLevel) || skill.unlockLevel < SKILL_LEVEL_MIN) {
+      errors.push({
+        field: `proposedData.skills[${index}].unlockLevel`,
+        message: '解鎖等級不可小於 1',
+      })
+    }
+    if (
+      !Number.isInteger(skill.level) ||
+      skill.level < SKILL_LEVEL_MIN ||
+      skill.level > SKILL_LEVEL_MAX
+    ) {
+      errors.push({
+        field: `proposedData.skills[${index}].level`,
+        message: `技能等級範圍 ${SKILL_LEVEL_MIN}-${SKILL_LEVEL_MAX}`,
+      })
+    }
     pushUnknownReference(
       errors,
       `proposedData.skills[${index}].skillId`,

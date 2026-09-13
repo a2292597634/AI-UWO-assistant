@@ -25,6 +25,28 @@ describe('canonical data relationships', () => {
     expect(validateCanonicalDataset(readCanonicalDataset())).toEqual([])
   })
 
+  it('rejects a multi-digit canonical skill level', () => {
+    const invalid = clone(readCanonicalDataset())
+    const relation = invalid.officers[0]?.skills[0]
+    if (relation === undefined) throw new Error('fixture requires a skill relation')
+    relation.level = 10
+
+    expect(validateCanonicalDataset(invalid).map((finding) => finding.code)).toContain(
+      'DATA_SKILL_LEVEL_INVALID',
+    )
+  })
+
+  it('rejects a non-positive skill unlock level', () => {
+    const invalid = clone(readCanonicalDataset())
+    const relation = invalid.officers[0]?.skills[0]
+    if (relation === undefined) throw new Error('fixture requires a skill relation')
+    relation.unlockLevel = 0
+
+    expect(validateCanonicalDataset(invalid).map((finding) => finding.code)).toContain(
+      'DATA_SKILL_UNLOCK_LEVEL_INVALID',
+    )
+  })
+
   it('preserves the approved representative transformations and exact selection', () => {
     const canonical = readCanonicalDataset()
     const bySourceId = new Map(

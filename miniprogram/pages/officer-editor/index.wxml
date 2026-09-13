@@ -154,7 +154,7 @@
           </view>
           <view class="skill-entry__level-field">
             <text class="form-field__label">技能等級</text>
-            <input class="form-input form-input--number" type="number" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" />
+            <input class="form-input form-input--number" type="number" min="1" max="9" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" />
             <text class="form-hint">通常填寫目前等級</text>
           </view>
         </view>

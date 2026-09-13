@@ -220,22 +220,12 @@ const buildSkillRelations = (
 ): CanonicalSkillRelation[] => {
   const relations: CanonicalSkillRelation[] = []
 
-  // Unlock level overrides
-  const slvMap: Record<string, number> = {}
+  // 技能等级覆盖值：来源 `slv.*` 保存界面显示的技能等级。
+  const skillLevelMap: Record<string, number> = {}
   if (src.slv) {
     for (const [skillId, value] of Object.entries(src.slv)) {
       const num = typeof value === 'number' ? value : parseInt(String(value), 10)
-      if (!isNaN(num)) slvMap[skillId] = num
-    }
-  }
-
-  // Duel skill level overrides (top-level skill<N> keys)
-  const duelLevelMap: Record<string, number> = {}
-  for (const [key, value] of Object.entries(src)) {
-    const match = /^skill(\d+)$/.exec(key)
-    if (match && value !== undefined && value !== null) {
-      const duelLevel = typeof value === 'number' ? value : parseInt(String(value), 10)
-      if (!isNaN(duelLevel)) duelLevelMap[match[0]] = duelLevel
+      if (!isNaN(num)) skillLevelMap[skillId] = num
     }
   }
 
@@ -295,17 +285,15 @@ const buildSkillRelations = (
         continue
       }
 
-      const baseLevel =
+      // 嵌套 `skill.sk*` 保存解锁门槛；缺失或 null 表示初始等级即可解锁，即 1。
+      const unlockLevel =
         levelValue === null
           ? 1
           : typeof levelValue === 'number'
             ? levelValue
             : parseInt(String(levelValue), 10) || 1
-
-      const duelOverride = duelLevelMap[skillSourceId]
-      const level = duelOverride ?? baseLevel
-
-      const unlockLevel = slvMap[skillSourceId] ?? 1
+      // `slv.*` 是技能自身等级的唯一来源，不能回退到 unlockLevel 或无关的顶层 `skill*` 值。
+      const level = skillLevelMap[skillSourceId] ?? 1
 
       relations.push({
         skillId: `skill_${skillSourceId}`,

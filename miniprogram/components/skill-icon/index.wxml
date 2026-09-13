@@ -8,5 +8,5 @@
     binderror="onImageError"
   />
   <text wx:else class="skill-icon__fallback" aria-hidden="true">{{fallbackLabel}}</text>
-  <text wx:if="{{level > 0}}" class="skill-icon__level-badge" aria-hidden="true">Lv.{{level}}</text>
+  <text wx:if="{{level > 1}}" class="skill-icon__level-badge" aria-hidden="true">Lv.{{level}}</text>
 </view>

@@ -77,10 +77,10 @@
     "observedTypes": ["string"],
     "optional": true,
     "nullable": false,
-    "disposition": "derived",
-    "canonicalPath": "skills[].level",
-    "transform": "Apply the displayed duel skill level to the matching source skill relationship; do not create a duplicate relationship.",
-    "reason": "Top-level dynamic skill IDs are level overrides for an existing skill relationship.",
+    "disposition": "archive-only",
+    "canonicalPath": null,
+    "transform": null,
+    "reason": "Top-level dynamic skill fields are a separate source value and are not approved as officer skill-relationship or icon-badge data.",
     "evidenceOfficerIds": ["chasT089"]
   },
   {
@@ -162,9 +162,9 @@
     "optional": true,
     "nullable": false,
     "disposition": "derived",
-    "canonicalPath": "skills[].unlockLevel",
-    "transform": "Normalize each dynamic skill ID's numeric or numeric-string unlock level and apply it to the matching source skill relationship.",
-    "reason": "slv holds skill-specific unlock-level overrides in both numeric and numeric-string forms.",
+    "canonicalPath": "skills[].level",
+    "transform": "Normalize each dynamic skill ID's numeric or numeric-string skill rank and apply it to the matching source skill relationship; this canonical level is the only skill-icon badge source.",
+    "reason": "slv holds raw skill-specific ranks in both numeric and numeric-string forms.",
     "evidenceOfficerIds": ["chasT089", "chasab012"]
   },
   {

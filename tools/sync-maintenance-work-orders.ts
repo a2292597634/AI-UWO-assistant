@@ -87,6 +87,8 @@ const candidateGroup = {
 
 // sk2 中的醫術與修理是可執行的戰鬥行動，不能因技能名稱未包含「主動」而歸為被動。
 const sk2ActionCategoryIds = new Set(['skill_category_medicine', 'skill_category_repair'])
+const SKILL_LEVEL_MIN = 1
+const SKILL_LEVEL_MAX = 9
 
 /** 新資料沿用匯入器的正式 ID 前綴；來源值則由工單與候選 key 組成。 */
 const canonicalIdPrefix = {
@@ -222,7 +224,8 @@ const validateReviewed = (data: MaintenanceOfficerData): void => {
       !Number.isInteger(item.unlockLevel) ||
       item.unlockLevel < 1 ||
       !Number.isInteger(item.level) ||
-      item.level < 1
+      item.level < SKILL_LEVEL_MIN ||
+      item.level > SKILL_LEVEL_MAX
     )
       throw new Error('技能槽位、類型或等級無效')
     slots.add(slot)

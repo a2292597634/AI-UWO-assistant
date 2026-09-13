@@ -151,6 +151,7 @@ describe('Runtime Contract: catalog.js', () => {
       'passiveSkills',
       'searchAliases',
       'skillLevels',
+      'skillUnlockLevels',
     ])
     for (const entry of catalog) {
       for (const key of Object.keys(entry)) {
@@ -204,10 +205,30 @@ describe('Runtime Contract: catalog.js', () => {
         expect(allSkillIds.has(skillId)).toBe(true)
         // Values must be integers
         expect(Number.isInteger(level)).toBe(true)
-        // Level must be at least 2 (since 1 is omitted)
+        // 由于 1 被省略，技能等级必须至少为 2。
         expect(level).toBeGreaterThanOrEqual(2)
+        // Canonical 技能等级只能是单数字；解锁门槛使用独立映射。
+        expect(level).toBeLessThanOrEqual(9)
       }
     }
+  })
+
+  it('skillUnlockLevels maps skill IDs to explicit unlock thresholds', () => {
+    let foundUnlockMap = false
+    for (const entry of catalog) {
+      const skillUnlockLevels = entry.skillUnlockLevels as Record<string, number> | undefined
+      if (skillUnlockLevels === undefined) continue
+      foundUnlockMap = true
+      const allSkillIds = new Set([
+        ...(entry.activeSkills as string[]),
+        ...(entry.passiveSkills as string[]),
+      ])
+      for (const [skillId, level] of Object.entries(skillUnlockLevels)) {
+        expect(allSkillIds.has(skillId)).toBe(true)
+        expect(Number.isInteger(level)).toBe(true)
+      }
+    }
+    expect(foundUnlockMap).toBe(true)
   })
 
   it('IDs are unique', () => {

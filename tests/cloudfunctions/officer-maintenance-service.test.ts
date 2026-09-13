@@ -225,6 +225,21 @@ describe('航海士維護工單狀態機', () => {
     ).resolves.toMatchObject({ ok: false, code: 'invalid-portrait' })
   })
 
+  it.each([0, 10, 50])('服務端拒絕維護資料中的技能等級 %s', async (level) => {
+    const proposedData = officerData()
+    const skills = proposedData.skills as Array<{ level: number }>
+    skills[0]!.level = level
+
+    await expect(
+      service.dispatch(
+        'saveDraft',
+        updateDraft({ proposedData, idempotencyKey: `invalid-skill-level-${level}` }),
+        'owner-user',
+      ),
+    ).resolves.toMatchObject({ ok: false, code: 'invalid-data' })
+    expect(repo.records).toHaveLength(0)
+  })
+
   it('新增航海士保存裁切後頭像並忽略客戶端偽造的 file ID', async () => {
     const uploadPortrait = vi.fn(async () => ({
       ok: true,

@@ -45,7 +45,7 @@ export interface SkillFormRow {
   groupLabel: SkillGroupLabel
   /** 解锁等级（≥1） */
   unlockLevel: number
-  /** 技能等级（≥1） */
+  /** 技能等级（1-9；与解锁等级分开） */
   level: number
 }
 

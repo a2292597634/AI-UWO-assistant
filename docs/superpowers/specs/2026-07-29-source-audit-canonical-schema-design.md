@@ -191,6 +191,8 @@ tests/
 
 主动或被动属于航海士与技能的关系，不属于技能实体本身。
 
+关系中的 `level` 与 `unlockLevel` 必须按不同语义归一化：`level` 是技能本身的单数字等级，`unlockLevel` 是航海士解锁该技能所需的等级。来源字段（包括动态 `skill*` 与 `slv.*`）在进入 Canonical 前必须经过显式映射，不能因为来源字段名、数值大小或页面位置相似就互换；角标规则以 `docs/superpowers/specs/2026-09-13-skill-level-and-badge-convention-design.md` 为准。
+
 ### 6.5 技能
 
 - 来源 ID。

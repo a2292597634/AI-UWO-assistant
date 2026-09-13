@@ -20,7 +20,7 @@ export interface SourceOfficer {
     sk4?: Record<string, number | string | null>
     sk5?: Record<string, number | null>
   }
-  /** Unlock-level overrides keyed by skill ID. */
+  /** 按技能 ID 记录的技能等级覆盖值（来源 `slv.*` 字段）。 */
   slv?: Record<string, number | string>
   city: string[]
   req: string
@@ -30,8 +30,6 @@ export interface SourceOfficer {
   note?: string
   new?: number
   boss?: number
-  /** Top-level duel skill level overrides keyed by skill ID. */
-  [key: `skill${number}`]: string | number | undefined
 }
 
 /** Metadata for one skill from `skill_arr`. */

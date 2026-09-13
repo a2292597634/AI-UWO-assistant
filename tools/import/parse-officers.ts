@@ -64,7 +64,7 @@ const normalizeSkillObject = (
   return result
 }
 
-/** Normalize slv overrides. */
+/** 归一化 `slv` 技能等级覆盖值。 */
 const normalizeSlvObject = (
   slv: Record<string, unknown> | undefined,
 ): Record<string, number | string> | undefined => {

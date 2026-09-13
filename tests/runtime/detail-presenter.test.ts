@@ -34,7 +34,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
       si: 'skill_active_1',
       k: 'active',
       ul: 1,
-      lv: 10,
+      lv: 2,
       n: '攻擊強化',
       ip: '/subpkg-assets-0/imgs/skill_active_1.png',
       d: '',
@@ -44,7 +44,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
       si: 'skill_passive_1',
       k: 'passive',
       ul: 1,
-      lv: 20,
+      lv: 3,
       n: '防禦強化',
       ip: '/subpkg-assets-1/imgs/skill_passive_1.png',
       d: '',
@@ -54,7 +54,7 @@ const makeRecord = (overrides?: Partial<RuntimeDetailRecord>): RuntimeDetailReco
       si: 'skill_active_2',
       k: 'active',
       ul: 2,
-      lv: 50,
+      lv: 1,
       n: '必殺攻擊',
       ip: '/subpkg-assets-2/imgs/skill_active_2.png',
       d: '',
@@ -201,8 +201,13 @@ describe('presentDetail', () => {
     const active1 = state.activeSkills.find((s) => s.skillId === 'skill_active_1')
     expect(active1).toBeDefined()
     expect(active1!.unlockLevel).toBe(1)
-    expect(active1!.level).toBe(10)
+    expect(active1!.level).toBe(2)
     expect(active1!.iconPath).toBe('/subpkg-assets-0/imgs/skill_active_1.png')
+
+    const active2 = state.activeSkills.find((s) => s.skillId === 'skill_active_2')
+    expect(active2).toBeDefined()
+    expect(active2!.unlockLevel).toBe(2)
+    expect(active2!.level).toBe(1)
   })
 
   it('handles record with empty portrait path', () => {

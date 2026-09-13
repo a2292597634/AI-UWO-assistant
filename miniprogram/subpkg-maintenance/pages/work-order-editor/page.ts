@@ -332,6 +332,7 @@ const validationError = (state: EditorState, requirePortrait = false): string =>
       (row) =>
         !Number.isInteger(row.level) ||
         row.level < 1 ||
+        row.level > 9 ||
         !Number.isInteger(row.unlockLevel) ||
         row.unlockLevel < 1 ||
         !Number.isInteger(row.slot) ||
@@ -349,7 +350,7 @@ const validationError = (state: EditorState, requirePortrait = false): string =>
     candidateError ||
     (!state.draft.proposedData.name.trim() ? '請輸入航海士名稱' : '') ||
     portraitError ||
-    (invalidNumber ? '語言與技能等級必須為正整數，槽位必須為非負整數' : '')
+    (invalidNumber ? '語言等級需為 1-10，技能等級需為 1-9，解鎖等級與槽位必須為有效整數' : '')
   )
 }
 const persist = async (page: EditorPage, submit: boolean): Promise<void> => {

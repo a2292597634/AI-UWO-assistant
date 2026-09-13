@@ -17,6 +17,18 @@ const skills = readJson<CanonicalSkill[]>('data/master/skills.json')
 const dictionaries = readJson<Record<string, DictionaryItem[]>>('data/master/dictionaries.json')
 
 describe('Full data integrity', () => {
+  it('keeps every canonical skill level in the single-digit skill-level range', () => {
+    for (const officer of officers) {
+      for (const relation of officer.skills) {
+        expect(Number.isInteger(relation.level)).toBe(true)
+        expect(relation.level).toBeGreaterThanOrEqual(1)
+        expect(relation.level).toBeLessThanOrEqual(9)
+        expect(Number.isInteger(relation.unlockLevel)).toBe(true)
+        expect(relation.unlockLevel).toBeGreaterThanOrEqual(1)
+      }
+    }
+  })
+
   it('generates a complete fleet officer index with battle-only relations', () => {
     const fleet = buildFleetOfficers(officers, skills, dictionaries)
 
@@ -41,14 +53,21 @@ describe('Full data integrity', () => {
     expect(catalog).toHaveLength(officers.length)
   })
 
-  it('keeps the maintenance-added officer passive skills and canonical levels', () => {
+  it('keeps the maintenance-added officer active/passive skills and canonical levels', () => {
     const catalog = buildCatalog(officers, skills, dictionaries)
     const officer = catalog.find((item) => item.id === 'officer_wo_mtttzwza_ecnsvvum')
 
     expect(officer).toBeDefined()
-    expect(officer!.activeSkills).toEqual([])
+    expect(officer!.activeSkills).toEqual([
+      'skill_skill400591',
+      'skill_skill400471',
+      'skill_skill300004',
+    ])
     expect(officer!.passiveSkills).toHaveLength(11)
-    expect(officer!.skillLevels).toEqual({ skill_skill200921: 2 })
+    expect(officer!.skillLevels).toEqual({
+      skill_skill400471: 2,
+      skill_skill200921: 2,
+    })
   })
 
   it('classifies all sk2 medical and repair actions as active', () => {

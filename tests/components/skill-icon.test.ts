@@ -91,8 +91,8 @@ describe('skill icon component contract', () => {
     expect(skillIconWxml).toContain('{{fallbackLabel}}')
   })
 
-  it('renders positive levels and uses the existing visual tokens', () => {
-    expect(skillIconWxml).toContain('wx:if="{{level > 0}}"')
+  it('renders skill badges only for levels above 1 and uses the existing visual tokens', () => {
+    expect(skillIconWxml).toContain('wx:if="{{level > 1}}"')
     expect(skillIconWxml).toContain('Lv.{{level}}')
     expect(skillIconWxss).toContain('width: 44rpx;')
     expect(skillIconWxss).toContain('height: 44rpx;')

@@ -310,6 +310,34 @@ export const validateCanonicalDataset = (dataset: CanonicalDataset): AuditFindin
         )
       }
       slots.add(slotKey)
+      if (
+        !Number.isInteger(relationship.level) ||
+        relationship.level < 1 ||
+        relationship.level > 9
+      ) {
+        findings.push(
+          finding(
+            'DATA_SKILL_LEVEL_INVALID',
+            'officer',
+            officer.id,
+            `${base}/skills/${skillIndex}/level`,
+            relationship.level,
+            'Canonical skill level must be an integer from 1 to 9; unlock levels must remain in unlockLevel.',
+          ),
+        )
+      }
+      if (!Number.isInteger(relationship.unlockLevel) || relationship.unlockLevel < 1) {
+        findings.push(
+          finding(
+            'DATA_SKILL_UNLOCK_LEVEL_INVALID',
+            'officer',
+            officer.id,
+            `${base}/skills/${skillIndex}/unlockLevel`,
+            relationship.unlockLevel,
+            'Canonical skill unlock level must be a positive integer; skill levels belong in level.',
+          ),
+        )
+      }
       const skill = skills.get(relationship.skillId)
       if (skill === undefined) {
         findings.push(

@@ -43,6 +43,7 @@ interface DetailSkillView extends SubmissionSkillFormRow {
   filteredOptions: SubmissionOption[]
   skillIndex: number
   kind: 'active' | 'passive'
+  kindIndex: number
   sourceGroup: string
   groupName: string
   groupIndex: number
@@ -114,6 +115,7 @@ interface DetailPageData {
   languages: DetailLanguageView[]
   languageOptions: SubmissionOption[]
   skills: DetailSkillView[]
+  skillKindOptions: SubmissionOption[]
   skillGroupOptions: SubmissionOption[]
   groupIndex: number
   recruitment: OfficerSubmissionFormState['recruitment']
@@ -145,6 +147,11 @@ const GROUP_OPTIONS: SubmissionOption[] = [
   { id: 'sk5', name: '被動組 2' },
 ]
 
+const KIND_OPTIONS: SubmissionOption[] = [
+  { id: 'active', name: '主動技能' },
+  { id: 'passive', name: '被動技能' },
+]
+
 const VISUAL_GRADE_OPTIONS: SubmissionOption[] = [
   { id: 'grade_2', name: '檔位 2（C）' },
   { id: 'grade_3', name: '檔位 3（B）' },
@@ -152,8 +159,6 @@ const VISUAL_GRADE_OPTIONS: SubmissionOption[] = [
   { id: 'grade_5', name: '檔位 5（S）' },
   { id: 'grade_6', name: '檔位 6（特殊）' },
 ]
-
-const ACTIVE_GROUPS = new Set(['sk2', 'sk3', 'sk4'])
 
 const pageStateByInstance = new WeakMap<object, DetailPageState>()
 
@@ -241,11 +246,7 @@ const reviewFromRecord = (
       ? (sourceGroupCandidate as OfficerSubmissionReviewFields['skills'][number]['sourceGroup'])
       : 'sk0'
     const kind: 'active' | 'passive' =
-      relation?.kind === 'active' || relation?.kind === 'passive'
-        ? relation.kind
-        : ACTIVE_GROUPS.has(sourceGroup)
-          ? 'active'
-          : 'passive'
+      relation?.kind === 'active' || relation?.kind === 'passive' ? relation.kind : 'passive'
     return {
       skillId: skill.skillId,
       kind,
@@ -360,12 +361,14 @@ const buildView = (state: DetailPageState): DetailPageData => {
         filteredOptions,
         skillIndex: findSubmissionOptionIndex(filteredOptions, skill.skillId),
         kind: review?.kind ?? 'passive',
+        kindIndex: findSubmissionOptionIndex(KIND_OPTIONS, review?.kind ?? 'passive'),
         sourceGroup,
         groupName: selectedName(GROUP_OPTIONS, sourceGroup),
         groupIndex: findSubmissionOptionIndex(GROUP_OPTIONS, sourceGroup),
         slot: review?.slot ?? index,
       }
     }),
+    skillKindOptions: KIND_OPTIONS,
     skillGroupOptions: GROUP_OPTIONS,
     groupIndex: 0,
     recruitment: form.recruitment,
@@ -534,6 +537,7 @@ Page({
     languages: [],
     languageOptions: [],
     skills: [],
+    skillKindOptions: KIND_OPTIONS,
     skillGroupOptions: GROUP_OPTIONS,
     groupIndex: 0,
     recruitment: {
@@ -791,7 +795,19 @@ Page({
     if (review && option) {
       review.sourceGroup =
         option.id as OfficerSubmissionReviewFields['skills'][number]['sourceGroup']
-      review.kind = ACTIVE_GROUPS.has(option.id) ? 'active' : 'passive'
+    }
+    render(this)
+  },
+
+  onSkillKindChange(event: WechatMiniprogram.PickerChange) {
+    const key = dataset(event).key
+    if (typeof key !== 'string') return
+    const state = getState(this)
+    const index = state.form.skills.findIndex((skill) => skill.key === key)
+    const option = KIND_OPTIONS[Number(event.detail.value)]
+    const review = state.reviewFields.skills[index]
+    if (review && option && (option.id === 'active' || option.id === 'passive')) {
+      review.kind = option.id
     }
     render(this)
   },

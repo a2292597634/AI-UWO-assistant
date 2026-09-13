@@ -107,6 +107,22 @@ describe('航海士維護工單校驗', () => {
     ).toBe(false)
   })
 
+  it.each([0, 10, 50])('維護工單技能等級拒絕解鎖門檻值 %s', (level) => {
+    const draft = {
+      ...updateDraft(),
+      targetOfficerId: 'officer_existing',
+      proposedData: {
+        ...proposedData,
+        skills: [{ ...proposedData.skills[0]!, level }],
+      },
+    }
+
+    expect(validateMaintenanceDraft(draft, context)).toContainEqual({
+      field: 'proposedData.skills[0].level',
+      message: '技能等級範圍 1-9',
+    })
+  })
+
   it.each([
     [
       { key: 'a', kind: 'job' as const, name: '甲', aliases: ['乙'] },

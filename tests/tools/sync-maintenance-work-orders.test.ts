@@ -322,6 +322,36 @@ describe('核准工單純轉換', () => {
     expect(result.officers[0]!.skills).toEqual(mixed.skills)
   })
 
+  it.each([0, 10, 50])('拒絕把解鎖門檻值寫成維護工單的技能等級 %s', (level) => {
+    const input = master()
+    input.skills.push({
+      id: 'skill_existing',
+      name: '既有技能',
+      categoryId: 'skill_category_1',
+      description: '說明',
+      levelInfo: '',
+      iconId: null,
+      sourceRefs: { voyageTw: 'skill-existing' },
+    })
+    const reviewedData = {
+      ...structuredClone(data),
+      skills: [
+        {
+          skillId: 'skill_existing',
+          kind: 'passive' as const,
+          sourceGroup: 'sk0' as const,
+          slot: 0,
+          unlockLevel: 50,
+          level,
+        },
+      ],
+    }
+
+    expect(() => applyApprovedWorkOrders(input, [order({ reviewedData })])).toThrow(
+      '技能槽位、類型或等級無效',
+    )
+  })
+
   it('拒絕把 sk2 醫術技能審核為被動技能', () => {
     const input = master()
     input.dictionaries.skillCategories!.push({

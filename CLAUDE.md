@@ -18,6 +18,11 @@ pages → presenters → domain/runtime → contracts → generated
 
 素材链路：`voyage.tw → tools/asset-pipeline → miniprogram/assets → subpkg-a0~a9/imgs`
 
+## 技能等级与角标规范
+
+涉及技能等级、解锁等级、技能角标或主动／被动分类时，先阅读并遵循
+`docs/superpowers/specs/2026-09-13-skill-level-and-badge-convention-design.md`。
+
 ## 触发式参考文档
 
 以下文档不需要每次读取，只在相关任务时按需查阅：

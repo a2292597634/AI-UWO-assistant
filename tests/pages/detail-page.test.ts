@@ -113,7 +113,7 @@ describe('detail page CDN assets', () => {
     // Level badge wrapper and condition
     expect(wxml).toContain('detail-skill-icon-wrapper')
     expect(wxml).toContain('skill-level-badge')
-    expect(wxml).toContain('item.level !== 1')
+    expect(wxml).toContain('item.level > 1')
   })
 
   it('shows Lv.N badge only when detail skill level is not 1', () => {

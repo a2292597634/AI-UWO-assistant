@@ -163,6 +163,12 @@ describe('transformOfficers', () => {
     expect(sk0Skill!.sourceGroup).toBe('sk0')
     expect(sk0Skill!.slot).toBeGreaterThanOrEqual(0)
 
+    const overriddenSkill = officer.skills.find((s) => s.skillId === 'skill_skill203426')
+    expect(overriddenSkill).toMatchObject({
+      unlockLevel: 70,
+      level: 2,
+    })
+
     // Source refs
     expect(officer.sourceRefs.voyageTw).toBe('chasT089')
     expect(officer.displayOrder).toBe(1)
@@ -286,7 +292,7 @@ describe('transformOfficers', () => {
         skill: { sk3: { skill300001: null }, sk4: { skill100063: '1', skill100064: '60' } },
         city: [],
         req: '',
-        slv: { skill100064: '60' },
+        slv: { skill100064: '2' },
       },
     }
 
@@ -300,6 +306,10 @@ describe('transformOfficers', () => {
     )
 
     expect(officers[0]!.name).toBe('伊歐琳·潘德萊肯')
+    expect(officers[0]!.skills.find((s) => s.skillId === 'skill_skill100064')).toMatchObject({
+      unlockLevel: 60,
+      level: 2,
+    })
   })
 
   it('flags unknown enum values as warnings', () => {

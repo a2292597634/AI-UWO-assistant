@@ -25,7 +25,7 @@ const formData: SubmissionFormData = {
   jobId: 'job_jobchasT089',
   nationalityId: 'nationality_ctn_swe',
   languages: [{ languageId: 'language_lang70', level: 5 }],
-  skills: [{ skillId: 'skill_skill200681', unlockLevel: 1, level: 10 }],
+  skills: [{ skillId: 'skill_skill200681', unlockLevel: 1, level: 2 }],
   recruitment: { cityIds: [], requirementId: null, requiredOfficerIds: [] },
   portraitFileId: '',
 }

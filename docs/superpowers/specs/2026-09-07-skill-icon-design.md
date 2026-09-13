@@ -27,7 +27,7 @@
 | `iconPath` | `String` | `''` | 技能图标路径 |
 | `skillName` | `String` | `'技能'` | 图标的无障碍名称 |
 | `categoryName` | `String` | `'技能'` | 图标缺失时生成分类占位字 |
-| `level` | `Number` | `0` | 技能等级；大于零时显示徽章 |
+| `level` | `Number` | `0` | Canonical 技能等级；`Lv.1` 隐藏徽章，`Lv.2` 及以上才显示 |
 | `assetReady` | `Boolean` | `false` | 当前目录行素材是否已准备好 |
 
 组件内部维护 `imageFailed` 状态：
@@ -86,7 +86,7 @@ skill-icon
 2. 素材路径存在但图片加载失败：组件捕获 `error`，显示同一分类首字占位。
 3. 技能名称为空：无障碍标签使用“技能”，点击热区使用“查看技能詳情：技能”。
 4. 分类为空：占位文字使用“技”。
-5. 技能等级为零、空值或非正值：不显示等级徽章；正值继续显示 `Lv.N`。
+5. `level` 为零、空值、非正值或 `1`：不显示等级徽章；只有 canonical 技能等级大于 `1` 才显示 `Lv.N`。`unlockLevel` 永远不参与角标计算。
 6. 组件只使用本地素材路径和已有 presenter 数据，不引入运行时网络请求、远程 URL 或 Node.js API。
 
 ## 5. 测试策略

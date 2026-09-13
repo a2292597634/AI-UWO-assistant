@@ -51,8 +51,8 @@
           "kind": { "enum": ["active", "passive"] },
           "sourceGroup": { "enum": ["sk0", "sk1", "sk2", "sk3", "sk4", "sk5"] },
           "slot": { "type": "integer" },
-          "unlockLevel": { "type": "integer" },
-          "level": { "type": "integer" }
+          "unlockLevel": { "type": "integer", "minimum": 1 },
+          "level": { "type": "integer", "minimum": 1, "maximum": 9 }
         }
       }
     },

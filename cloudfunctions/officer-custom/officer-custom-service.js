@@ -12,7 +12,6 @@ const MAX_NAME_LENGTH = 50
 const MAX_REJECT_REASON_LENGTH = 500
 const VALID_STATUSES = new Set(['pending', 'approved', 'rejected', 'published'])
 const VALID_GROUPS = new Set(['sk0', 'sk1', 'sk2', 'sk3', 'sk4', 'sk5'])
-const ACTIVE_GROUPS = new Set(['sk2', 'sk3', 'sk4'])
 const VALID_GRADES = new Set(['grade_2', 'grade_3', 'grade_4', 'grade_5', 'grade_6'])
 const FORM_KEYS = new Set([
   'name',
@@ -190,8 +189,8 @@ const normalizeFormData = (raw, referenceData, portraitFileId = '') => {
     if (!Number.isInteger(skill.unlockLevel) || skill.unlockLevel < 1) {
       return fail('invalid-data', '解鎖等級不可小於 1')
     }
-    if (!Number.isInteger(skill.level) || skill.level < 1 || skill.level > 100) {
-      return fail('invalid-data', '技能等級範圍 1-100')
+    if (!Number.isInteger(skill.level) || skill.level < 1 || skill.level > 9) {
+      return fail('invalid-data', '技能等級範圍 1-9')
     }
     skillIds.add(skillId)
     skills.push({ skillId, unlockLevel: skill.unlockLevel, level: skill.level })
@@ -277,8 +276,6 @@ const normalizeReviewFields = (raw, formData) => {
       return fail('invalid-review', '技能類型無效')
     }
     if (!VALID_GROUPS.has(skill.sourceGroup)) return fail('invalid-review', '技能組別無效')
-    const expectedKind = ACTIVE_GROUPS.has(skill.sourceGroup) ? 'active' : 'passive'
-    if (skill.kind !== expectedKind) return fail('invalid-review', '技能類型與組別不一致')
     if (!Number.isInteger(skill.slot) || skill.slot < 0) {
       return fail('invalid-review', '技能槽位無效')
     }

@@ -80,7 +80,7 @@
         <view class="detail-skill-icon-wrapper">
           <image wx:if="{{assetReady && item.iconPath && !failedSkillImages[item.skillId]}}" class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onSkillImageError" data-skill-id="{{item.skillId}}" />
           <view wx:else class="skill-icon skill-icon--placeholder">圖</view>
-          <text wx:if="{{item.level !== 1}}" class="skill-level-badge">Lv.{{item.level}}</text>
+          <text wx:if="{{item.level > 1}}" class="skill-level-badge">Lv.{{item.level}}</text>
         </view>
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>
@@ -112,7 +112,7 @@
         <view class="detail-skill-icon-wrapper">
           <image wx:if="{{assetReady && item.iconPath && !failedSkillImages[item.skillId]}}" class="skill-icon" src="{{item.iconPath}}" mode="aspectFit" binderror="onSkillImageError" data-skill-id="{{item.skillId}}" />
           <view wx:else class="skill-icon skill-icon--placeholder">圖</view>
-          <text wx:if="{{item.level !== 1}}" class="skill-level-badge">Lv.{{item.level}}</text>
+          <text wx:if="{{item.level > 1}}" class="skill-level-badge">Lv.{{item.level}}</text>
         </view>
         <view class="skill-body">
           <text class="skill-name">{{item.name}}</text>

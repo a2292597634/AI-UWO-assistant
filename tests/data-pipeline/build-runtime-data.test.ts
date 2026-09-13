@@ -55,6 +55,9 @@ describe('buildCatalog', () => {
     expect(officer.skillLevels!['skill_skill203426']).toBe(2)
     // skill_skill400581 has canonical level=2 and unlockLevel=50 in fixtures
     expect(officer.skillLevels!['skill_skill400581']).toBe(2)
+    // 解锁门槛使用独立的压缩映射。
+    expect(officer.skillUnlockLevels!['skill_skill203426']).toBe(70)
+    expect(officer.skillUnlockLevels!['skill_skill400581']).toBe(50)
     // Level 1 canonical-level skills are absent even when unlocked later
     expect(officer.skillLevels!['skill_skill200681']).toBeUndefined()
     expect(officer.skillLevels!['skill_skill200921']).toBeUndefined()

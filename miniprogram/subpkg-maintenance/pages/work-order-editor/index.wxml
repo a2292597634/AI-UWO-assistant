@@ -75,7 +75,7 @@
           </view>
           <label class="maintenance-editor__label">技能槽位<input class="maintenance-editor__input" type="number" value="{{item.slot}}" data-id="{{item.id}}" data-kind="skill" data-field="slot" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
           <label class="maintenance-editor__label">解鎖等級<input class="maintenance-editor__input" type="number" value="{{item.unlockLevel}}" data-id="{{item.id}}" data-kind="skill" data-field="unlockLevel" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
-          <label class="maintenance-editor__label">技能等級<input class="maintenance-editor__input" type="number" value="{{item.level}}" data-id="{{item.id}}" data-kind="skill" data-field="level" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
+          <label class="maintenance-editor__label">技能等級<input class="maintenance-editor__input" type="number" min="1" max="9" value="{{item.level}}" data-id="{{item.id}}" data-kind="skill" data-field="level" bindinput="onRelationInput" disabled="{{readonly || saving || submitting}}" /></label>
         </view>
       </view>
     </view>

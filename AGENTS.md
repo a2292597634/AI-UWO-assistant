@@ -20,6 +20,11 @@ archive/  →  data/master/  →  miniprogram/generated/
 - `miniprogram/generated/`：由 `npm run data:generate` 生成。手動修改無效，下次構建必定被覆蓋。
 - 修改 `data/master/` 後必須運行 `npm run data:check`。
 
+## 1.1 技能等級、解鎖等級與角標規範
+
+涉及技能等級、解鎖等級、技能角標或主動／被動分類時，先閱讀並遵循
+`docs/superpowers/specs/2026-09-13-skill-level-and-badge-convention-design.md`；本文件不重複詳細規則。
+
 ## 2. 硬約束
 
 - 禁止直接在 `master` 分支開發。分支命名：`codex/phase-N-描述`。

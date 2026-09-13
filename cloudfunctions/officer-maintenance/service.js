@@ -172,7 +172,8 @@ function validateOfficerData(data, referenceData, candidateIds = {}) {
       !Number.isInteger(skill.unlockLevel) ||
       skill.unlockLevel < 1 ||
       !Number.isInteger(skill.level) ||
-      skill.level < 1
+      skill.level < 1 ||
+      skill.level > 9
     ) {
       return fail('invalid-data', '技能資料無效')
     }

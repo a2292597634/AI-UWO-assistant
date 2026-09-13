@@ -97,6 +97,16 @@ describe('航海士投稿领域逻辑', () => {
     )
   })
 
+  it.each([0, 10, 50])('技能等級拒絕解鎖門檻值 %s', (level) => {
+    const form = validForm()
+    form.skills[0]!.level = level
+
+    expect(validateSubmissionForm(form, validContext)).toContainEqual({
+      field: 'skills[0].level',
+      message: '技能等級範圍 1-9',
+    })
+  })
+
   it('视觉檔位默认按稀有度推导，特殊资料可由审核端覆盖', () => {
     expect(getDefaultSubmissionVisualGrade('rarity_2')).toBe('grade_2')
     expect(getDefaultSubmissionVisualGrade('rarity_5')).toBe('grade_5')

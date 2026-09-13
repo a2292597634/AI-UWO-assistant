@@ -37,6 +37,7 @@ declare module '../../generated/catalog' {
     activeSkills: string[]
     passiveSkills: string[]
     skillLevels?: Record<string, number>
+    skillUnlockLevels?: Record<string, number>
     searchAliases: string[]
     activeSkillIcons?: Record<string, string>
     passiveSkillIcons?: Record<string, string>

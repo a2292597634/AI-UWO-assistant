@@ -457,7 +457,7 @@
           "kind": "passive",
           "sourceGroup": "sk1",
           "slot": 0,
-          "unlockLevel": 0,
+          "unlockLevel": 1,
           "level": 1
         },
         {
@@ -465,7 +465,7 @@
           "kind": "active",
           "sourceGroup": "sk3",
           "slot": 0,
-          "unlockLevel": 0,
+          "unlockLevel": 1,
           "level": 1
         },
         {
@@ -528,7 +528,7 @@
           "kind": "active",
           "sourceGroup": "sk3",
           "slot": 0,
-          "unlockLevel": 0,
+          "unlockLevel": 1,
           "level": 1
         },
         {

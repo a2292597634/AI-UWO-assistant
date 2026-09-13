@@ -33,9 +33,9 @@ import { MAX_PORTRAIT_BYTES, MAX_PORTRAIT_EDGE } from '../contracts/officer-subm
 const LANG_LEVEL_MIN = 1
 const LANG_LEVEL_MAX = 10
 
-/** 技能等级/解锁等级范围 */
+/** 技能等级范围；解锁等级只要求为正整数，可使用多位数。 */
 const SKILL_LEVEL_MIN = 1
-const SKILL_LEVEL_MAX = 100
+const SKILL_LEVEL_MAX = 9
 
 /** 名称最大长度（字符数，约 50 个汉字） */
 const MAX_NAME_LENGTH = 50
@@ -220,8 +220,15 @@ export const validateSubmissionForm = (
     if (!Number.isInteger(skill.unlockLevel) || skill.unlockLevel < 1) {
       errors.push({ field: `skills[${index}].unlockLevel`, message: '解鎖等級不可小於 1' })
     }
-    if (!Number.isInteger(skill.level) || skill.level < 1 || skill.level > 100) {
-      errors.push({ field: `skills[${index}].level`, message: '技能等級範圍 1-100' })
+    if (
+      !Number.isInteger(skill.level) ||
+      skill.level < SKILL_LEVEL_MIN ||
+      skill.level > SKILL_LEVEL_MAX
+    ) {
+      errors.push({
+        field: `skills[${index}].level`,
+        message: `技能等級範圍 ${SKILL_LEVEL_MIN}-${SKILL_LEVEL_MAX}`,
+      })
     }
   }
 

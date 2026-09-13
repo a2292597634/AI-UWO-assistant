@@ -137,7 +137,7 @@
         <view class="detail-panel__heading detail-panel__heading--row">
           <view class="detail-panel__copy">
             <text class="detail-panel__title">技能與組別</text>
-            <text class="detail-panel__hint">技能名稱仍需從篩選結果選取；管理員另外確認主動／被動組別與槽位。</text>
+            <text class="detail-panel__hint">技能名稱仍需從篩選結果選取；管理員另外確認主動／被動類型、來源組別與槽位。</text>
           </view>
           <button class="ui-button ui-button--secondary compact-button" bindtap="onSkillAdd">新增技能</button>
         </view>
@@ -152,9 +152,10 @@
           </picker>
           <view class="skill-entry__levels">
             <view class="skill-entry__level-field"><text class="form-field__label">解鎖等級</text><input class="form-input form-input--number" type="number" value="{{item.unlockLevel}}" bindinput="onSkillUnlockLevelInput" data-key="{{item.key}}" /></view>
-            <view class="skill-entry__level-field"><text class="form-field__label">技能等級</text><input class="form-input form-input--number" type="number" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" /></view>
+            <view class="skill-entry__level-field"><text class="form-field__label">技能等級</text><input class="form-input form-input--number" type="number" min="1" max="9" value="{{item.level}}" bindinput="onSkillLevelInput" data-key="{{item.key}}" /></view>
           </view>
           <view class="skill-entry__levels skill-entry__levels--review">
+            <view class="skill-entry__level-field"><text class="form-field__label">技能類型</text><picker mode="selector" range="{{skillKindOptions}}" range-key="name" value="{{item.kindIndex}}" bindchange="onSkillKindChange" data-key="{{item.key}}"><view class="form-picker">{{item.kind === 'active' ? '主動技能' : '被動技能'}}</view></picker></view>
             <view class="skill-entry__level-field"><text class="form-field__label">技能組別</text><picker mode="selector" range="{{skillGroupOptions}}" range-key="name" value="{{item.groupIndex}}" bindchange="onSkillGroupChange" data-key="{{item.key}}"><view class="form-picker">{{item.groupName}}</view></picker></view>
             <view class="skill-entry__level-field"><text class="form-field__label">槽位</text><input class="form-input form-input--number" type="number" value="{{item.slot}}" bindinput="onSkillSlotInput" data-key="{{item.key}}" /></view>
           </view>
@@ -183,7 +184,7 @@
           <button wx:if="{{canReject}}" class="ui-button ui-button--danger" bindtap="onReject" disabled="{{saving}}">駁回投稿</button>
           <button wx:if="{{canApprove}}" class="ui-button ui-button--primary" bindtap="onApprove" disabled="{{saving}}">通過，等待發布</button>
         </view>
-        <text class="detail-action-panel__hint">保存後狀態不會自動通過；通過前請確認所有技能組別與槽位。</text>
+        <text class="detail-action-panel__hint">保存後狀態不會自動通過；通過前請確認所有技能類型、組別與槽位。</text>
       </view>
     </block>
 

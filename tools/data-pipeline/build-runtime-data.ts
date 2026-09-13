@@ -192,9 +192,13 @@ export const buildCatalog = (
     }
 
     const skillLevels: Record<string, number> = {}
+    const skillUnlockLevels: Record<string, number> = {}
     for (const relation of o.skills) {
       if (relation.level !== 1) {
         skillLevels[relation.skillId] = relation.level
+      }
+      if (relation.unlockLevel !== 1) {
+        skillUnlockLevels[relation.skillId] = relation.unlockLevel
       }
     }
 
@@ -216,6 +220,7 @@ export const buildCatalog = (
       activeSkills: o.skills.filter((r) => r.kind === 'active').map((r) => r.skillId),
       passiveSkills: o.skills.filter((r) => r.kind === 'passive').map((r) => r.skillId),
       skillLevels: Object.keys(skillLevels).length > 0 ? skillLevels : undefined,
+      skillUnlockLevels: Object.keys(skillUnlockLevels).length > 0 ? skillUnlockLevels : undefined,
       searchAliases: aliases,
     }
   })

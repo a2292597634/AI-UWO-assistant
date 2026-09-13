@@ -37,6 +37,21 @@ describe('canonical JSON Schemas', () => {
     ).toContain('SCHEMA_REQUIRED')
   })
 
+  it('rejects non-positive skill unlock levels', () => {
+    const officers = readJson('tests/fixtures/canonical/officers.json') as Array<
+      Record<string, unknown>
+    >
+    const officer = officers[0]
+    if (officer === undefined) throw new Error('fixture requires an officer')
+    const skills = officer.skills as Array<Record<string, unknown>>
+    const skill = skills[0]
+    if (skill === undefined) throw new Error('fixture requires a skill relation')
+
+    expect(
+      validator.validate('officers', [{ ...officer, skills: [{ ...skill, unlockLevel: 0 }] }]),
+    ).toContainEqual(expect.objectContaining({ code: 'SCHEMA_MINIMUM' }))
+  })
+
   it('rejects officer-only maintenance notes on assets', () => {
     const assets = readJson('tests/fixtures/canonical/assets.json') as Array<
       Record<string, unknown>

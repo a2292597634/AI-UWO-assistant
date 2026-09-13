@@ -113,7 +113,7 @@ export const deriveAdventureOfficers = (
       .filter((sid) => adventureSkillIds.has(sid))
       .map((sid) => ({
         skillId: sid,
-        unlockLevel: entry.skillLevels?.[sid] ?? 1,
+        unlockLevel: entry.skillUnlockLevels?.[sid] ?? 1,
       })),
   }))
 

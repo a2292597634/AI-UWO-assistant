@@ -31,6 +31,7 @@ export interface RuntimeCatalogEntry {
   activeSkills: string[] // skill IDs
   passiveSkills: string[] // skill IDs
   skillLevels?: Record<string, number> // skill ID → canonical level; absent means level 1
+  skillUnlockLevels?: Record<string, number> // skill ID → unlock threshold; absent means level 1
   searchAliases: string[] // name parts for search matching
 }
 
