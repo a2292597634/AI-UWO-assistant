@@ -4,155 +4,178 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const listMine = vi.hoisted(() => vi.fn())
 const listAdmin = vi.hoisted(() => vi.fn())
+const appendSupplement = vi.hoisted(() => vi.fn())
+const uploadScreenshots = vi.hoisted(() => vi.fn())
 const navigateTo = vi.hoisted(() => vi.fn())
-vi.mock('../../miniprogram/runtime/officer-maintenance-service', async (original) => ({
+
+vi.mock('../../miniprogram/runtime/officer-error-report-service', async (original) => ({
   ...(await original<object>()),
-  getOfficerMaintenanceService: () => ({ listMine, listAdmin }),
+  getOfficerErrorReportService: () => ({
+    listMine,
+    listAdmin,
+    appendSupplement,
+    uploadScreenshots,
+  }),
 }))
+vi.mock('../../miniprogram/runtime/main-data-store', () => ({
+  getCatalog: () => [{ id: 'officer_1', name: '測試航海士' }],
+}))
+
 interface TestPage {
   data: {
     loading: boolean
     loadError: string
-    rows: { statusLabel: string; rejectionReason?: string }[]
-    isAdmin: boolean
+    rows: Array<{
+      reportId: string
+      status: string
+      statusLabel: string
+      officerName: string
+      reviewReply: string
+      canSupplement: boolean
+    }>
+    supplementReportId: string
+    supplementText: string
+    supplementSourceUrl: string
+    supplementTempPaths: string[]
+    submittingSupplement: boolean
     adminReviewVisible: boolean
-    adminReviewCount: number
   }
   setData(update: Record<string, unknown>): void
-  loadWorkOrders(): Promise<void>
-  onModifyWorkOrder(): void
+  loadReports(): Promise<void>
   checkAdminPermission(): Promise<void>
+  onOpenSupplement(event: WechatMiniprogram.BaseEvent): void
+  onSupplementInput(event: WechatMiniprogram.Input): void
+  onSubmitSupplement(): Promise<void>
   onAdminReview(): void
 }
+
+const report = (status: string, overrides: Record<string, unknown> = {}) => ({
+  reportId: `report_${status}`,
+  officerId: 'officer_1',
+  errorTypes: ['skill'],
+  description: '技能資料有誤',
+  suggestedCorrection: '應改為正確技能',
+  sourceUrl: '',
+  screenshotFileIds: [],
+  supplement: '',
+  status,
+  reviewReply: null,
+  fixedDatasetVersion: null,
+  supplements: [],
+  history: [],
+  revision: 1,
+  createdAt: '2026-09-13T01:00:00.000Z',
+  updatedAt: '2026-09-13T02:00:00.000Z',
+  ...overrides,
+})
+
+const loadPage = async (): Promise<TestPage> => {
+  let page: TestPage | undefined
+  vi.stubGlobal('wx', {
+    setNavigationBarTitle: vi.fn(),
+    navigateTo,
+    showToast: vi.fn(),
+    showLoading: vi.fn(),
+    hideLoading: vi.fn(),
+  })
+  vi.stubGlobal('Page', (definition: TestPage) => {
+    page = {
+      ...definition,
+      data: structuredClone(definition.data),
+      setData(update) {
+        Object.assign(this.data, update)
+      },
+    }
+  })
+  await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
+  return page!
+}
+
 beforeEach(() => {
   vi.resetModules()
   vi.clearAllMocks()
 })
 afterEach(() => vi.unstubAllGlobals())
-describe('我的維護工單', () => {
-  it('提供新增、草稿續編、駁回原因與錯誤重試入口', () => {
+
+describe('我的錯誤回報', () => {
+  it('顯示五種文字狀態、管理員回覆、空列表與重試入口', () => {
     const wxml = readFileSync(
       resolve(__dirname, '../../miniprogram/subpkg-maintenance/pages/work-orders/index.wxml'),
       'utf8',
     )
-    expect(wxml).toContain('onNewWorkOrder')
+    expect(wxml).toContain('我的回報')
+    expect(wxml).toContain('待確認')
+    expect(wxml).toContain('需要補充')
+    expect(wxml).toContain('已採納')
+    expect(wxml).toContain('已修正')
+    expect(wxml).toContain('不採納')
+    expect(wxml).toContain('管理員回覆')
+    expect(wxml).toContain('目前尚無錯誤回報')
     expect(wxml).toContain('onRetry')
-    expect(wxml).toContain('item.statusLabel')
-    expect(wxml).toContain('item.rejectionReason')
-  })
-  it('提供新增與修改兩個獨立入口', () => {
-    const wxml = readFileSync(
-      resolve(__dirname, '../../miniprogram/subpkg-maintenance/pages/work-orders/index.wxml'),
-      'utf8',
-    )
-    expect(wxml).toContain('onNewWorkOrder')
-    expect(wxml).toContain('onModifyWorkOrder')
-    expect(wxml).not.toContain('entity-search-picker')
-  })
-  it('點擊修改入口導向獨立的航海士選擇頁', async () => {
-    let page: TestPage | undefined
-    vi.stubGlobal('wx', { setNavigationBarTitle: vi.fn(), navigateTo })
-    vi.stubGlobal('Page', (definition: TestPage) => {
-      page = {
-        ...definition,
-        data: structuredClone(definition.data),
-        setData(update) {
-          Object.assign(this.data, update)
-        },
-      }
-    })
-    await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
-    page!.onModifyWorkOrder()
-    expect(navigateTo).toHaveBeenCalledWith({
-      url: '/subpkg-maintenance/pages/modify-officer/index',
-    })
-  })
-  it('將服務端狀態轉為繁體中文，失敗時呈現可重試錯誤', async () => {
-    let page: TestPage | undefined
-    vi.stubGlobal('Page', (definition: TestPage) => {
-      page = {
-        ...definition,
-        data: structuredClone(definition.data),
-        setData(update) {
-          Object.assign(this.data, update)
-        },
-      }
-    })
-    listMine.mockResolvedValue([
-      {
-        workOrderId: 'wo',
-        status: 'pendingReview',
-        proposedData: { name: '航海士' },
-        operation: 'createOfficer',
-        history: [
-          { action: 'submitted', reason: null },
-          { action: 'rejected', reason: '請補上來源截圖' },
-        ],
-      },
-    ])
-    await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
-    await page!.loadWorkOrders()
-    expect(page!.data.rows[0]?.statusLabel).toBe('待審核')
-    listMine.mockResolvedValue([
-      {
-        workOrderId: 'rejected',
-        status: 'rejected',
-        proposedData: { name: '待補正航海士' },
-        operation: 'createOfficer',
-        history: [
-          { action: 'rejected', reason: '請補上來源截圖' },
-          { action: 'rejected', reason: '請確認技能等級' },
-        ],
-      },
-    ])
-    await page!.loadWorkOrders()
-    expect(page!.data.rows[0]?.rejectionReason).toBe('請確認技能等級')
-    listMine.mockRejectedValue(new Error('失敗'))
-    await page!.loadWorkOrders()
-    expect(page!.data.loading).toBe(false)
-    expect(page!.data.loadError).toContain('重試')
   })
 
-  it('以服務端 listAdmin 權限探測顯示管理員審核入口，普通使用者不顯示', async () => {
-    let page: TestPage | undefined
-    vi.stubGlobal('wx', { setNavigationBarTitle: vi.fn(), navigateTo })
-    vi.stubGlobal('Page', (definition: TestPage) => {
-      page = {
-        ...definition,
-        data: structuredClone(definition.data),
-        setData(update) {
-          Object.assign(this.data, update)
-        },
-      }
-    })
-    listMine.mockResolvedValue([])
-    listAdmin.mockResolvedValue([{ workOrderId: 'pending', status: 'pendingReview' }])
-    await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
-    await page!.checkAdminPermission()
-    expect(listAdmin).toHaveBeenCalledWith('pendingReview')
-    expect(page!.data.isAdmin).toBe(true)
-    expect(page!.data.adminReviewVisible).toBe(true)
-    expect(page!.data.adminReviewCount).toBe(1)
-    page!.onAdminReview()
+  it('載入目前帳號的回報並把航海士 ID 轉為名稱', async () => {
+    listMine.mockResolvedValue([
+      report('pending'),
+      report('needsInfo', { reviewReply: '請提供技能畫面' }),
+      report('accepted'),
+      report('fixed'),
+      report('rejected'),
+    ])
+    const page = await loadPage()
+    await page.loadReports()
+    expect(listMine).toHaveBeenCalledOnce()
+    expect(page.data.rows.map(({ statusLabel }) => statusLabel)).toEqual([
+      '待確認',
+      '需要補充',
+      '已採納',
+      '已修正',
+      '不採納',
+    ])
+    expect(page.data.rows[0]?.officerName).toBe('測試航海士')
+    expect(page.data.rows[1]).toMatchObject({ reviewReply: '請提供技能畫面', canSupplement: true })
+    expect(page.data.rows[3]?.canSupplement).toBe(false)
+  })
+
+  it('載入失敗時保留可重試錯誤', async () => {
+    listMine.mockRejectedValue(new Error('失敗'))
+    const page = await loadPage()
+    await page.loadReports()
+    expect(page.data.loading).toBe(false)
+    expect(page.data.loadError).toContain('重試')
+  })
+
+  it('只有 needsInfo 能追加內容，成功後以服務端記錄替換並回到待確認', async () => {
+    listMine.mockResolvedValue([report('needsInfo')])
+    uploadScreenshots.mockResolvedValue([])
+    appendSupplement.mockResolvedValue(
+      report('pending', { reportId: 'report_needsInfo', revision: 2 }),
+    )
+    const page = await loadPage()
+    await page.loadReports()
+    page.onOpenSupplement({ currentTarget: { dataset: { id: 'report_needsInfo' } } } as never)
+    page.onSupplementInput({ detail: { value: '補充技能截圖說明' } } as never)
+    await page.onSubmitSupplement()
+    expect(appendSupplement).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reportId: 'report_needsInfo',
+        revision: 1,
+        text: '補充技能截圖說明',
+      }),
+    )
+    expect(page.data.rows[0]).toMatchObject({ status: 'pending', statusLabel: '待確認' })
+    expect(page.data.supplementReportId).toBe('')
+  })
+
+  it('管理員權限探測只控制審核入口', async () => {
+    listAdmin.mockResolvedValue([report('pending')])
+    const page = await loadPage()
+    await page.checkAdminPermission()
+    expect(listAdmin).toHaveBeenCalledWith('pending')
+    expect(page.data.adminReviewVisible).toBe(true)
+    page.onAdminReview()
     expect(navigateTo).toHaveBeenCalledWith({
       url: '/subpkg-maintenance/pages/work-order-review/index',
     })
-
-    vi.resetModules()
-    vi.clearAllMocks()
-    listAdmin.mockRejectedValue(new Error('forbidden'))
-    let ordinaryPage: TestPage | undefined
-    vi.stubGlobal('Page', (definition: TestPage) => {
-      ordinaryPage = {
-        ...definition,
-        data: structuredClone(definition.data),
-        setData(update) {
-          Object.assign(this.data, update)
-        },
-      }
-    })
-    await import('../../miniprogram/subpkg-maintenance/pages/work-orders/index')
-    await ordinaryPage!.checkAdminPermission()
-    expect(ordinaryPage!.data.isAdmin).toBe(false)
   })
 })

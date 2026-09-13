@@ -1,20 +1,60 @@
-<view class="work-orders">
-  <view class="work-orders__heading">我的維護工單</view>
-  <view class="work-orders__hint">查看草稿、審核與發布進度。</view>
-  <view class="work-orders__entry-actions">
-    <button class="ui-button ui-button--primary" bindtap="onNewWorkOrder">新增航海士工單</button>
-    <button class="ui-button ui-button--secondary" bindtap="onModifyWorkOrder">修改既有航海士</button>
-    <button wx:if="{{adminReviewVisible}}" class="ui-button ui-button--secondary" bindtap="onAdminReview">管理員審核工單（待審 {{adminReviewCount}} 筆）</button>
+<scroll-view class="reports-page" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="reports-header">
+    <view>
+      <text class="reports-header__title ui-display-title">我的回報</text>
+      <text class="reports-header__hint">查看資料錯誤的確認與修正進度。</text>
+    </view>
+    <button class="ui-button ui-button--primary header-button" bindtap="onNewReport">新增回報</button>
   </view>
-  <view wx:if="{{loading}}" class="work-orders__hint">正在載入工單…</view>
+
+  <view class="status-legend" aria-label="回報狀態">
+    <text>待確認</text><text>需要補充</text><text>已採納</text><text>已修正</text><text>不採納</text>
+  </view>
+
+  <button wx:if="{{adminReviewVisible}}" class="ui-button ui-button--secondary admin-button" bindtap="onAdminReview">管理員審核（待確認 {{adminReviewCount}} 筆）</button>
+  <view wx:if="{{loading}}" class="reports-message">正在載入回報…</view>
   <view wx:if="{{loadError}}" class="ui-status ui-status--error">{{loadError}}</view>
-  <button wx:if="{{loadError}}" class="ui-button ui-button--secondary" bindtap="onRetry" disabled="{{loading}}">重試載入</button>
-  <view wx:if="{{!loading && !loadError && !rows.length}}" class="work-orders__empty">目前尚無維護工單。</view>
-  <view wx:for="{{rows}}" wx:key="id" class="work-orders__row">
-    <view class="work-orders__name">{{item.name}}</view>
-    <view class="work-orders__hint">{{item.operationLabel}}・{{item.statusLabel}}</view>
-    <view wx:if="{{item.rejectionReason}}" class="ui-status ui-status--error">駁回原因：{{item.rejectionReason}}。請補正後重新送審。</view>
-    <view class="work-orders__hint">更新時間：{{item.updatedAt}}</view>
-    <button class="ui-button ui-button--secondary" data-id="{{item.id}}" bindtap="onRowTap">{{item.editable ? '繼續編輯' : '查看工單'}}</button>
+  <button wx:if="{{loadError}}" class="ui-button ui-button--secondary retry-button" bindtap="onRetry" disabled="{{loading}}">重試載入</button>
+  <view wx:if="{{!loading && !loadError && !rows.length}}" class="reports-empty">目前尚無錯誤回報。</view>
+
+  <view wx:for="{{rows}}" wx:key="reportId" class="report-card">
+    <view class="report-card__heading">
+      <text class="report-card__name">{{item.officerName}}</text>
+      <text class="report-card__status report-card__status--{{item.status}}">{{item.statusLabel}}</text>
+    </view>
+    <text class="report-card__meta">{{item.errorTypeText}} · {{item.updatedAt}}</text>
+    <view class="report-block">
+      <text class="report-block__label">錯誤說明</text>
+      <text class="report-block__value">{{item.description}}</text>
+    </view>
+    <view class="report-block">
+      <text class="report-block__label">建議的正確內容</text>
+      <text class="report-block__value">{{item.suggestedCorrection}}</text>
+    </view>
+    <view wx:if="{{item.reviewReply}}" class="review-reply">
+      <text class="report-block__label">管理員回覆</text>
+      <text class="report-block__value">{{item.reviewReply}}</text>
+    </view>
+    <button wx:if="{{item.canSupplement}}" class="ui-button ui-button--secondary supplement-button" data-id="{{item.reportId}}" bindtap="onOpenSupplement">補充資料</button>
   </view>
-</view>
+
+  <view wx:if="{{supplementReportId}}" class="supplement-mask" bindtap="onCloseSupplement">
+    <view class="supplement-sheet" catchtap="noop">
+      <text class="supplement-sheet__title">補充資料</text>
+      <textarea class="supplement-textarea" value="{{supplementText}}" maxlength="500" placeholder="請依管理員回覆補充說明" bindinput="onSupplementInput"></textarea>
+      <input class="supplement-input" value="{{supplementSourceUrl}}" placeholder="來源網址（選填）" bindinput="onSupplementSourceInput" />
+      <text class="supplement-hint">證據截圖（選填），最多 3 張</text>
+      <view class="supplement-images">
+        <view wx:for="{{supplementTempPaths}}" wx:key="*this" class="supplement-image-wrap">
+          <image class="supplement-image" src="{{item}}" mode="aspectFill" />
+          <text data-index="{{index}}" bindtap="onRemoveSupplementScreenshot">移除</text>
+        </view>
+        <view wx:if="{{supplementTempPaths.length < 3}}" class="supplement-add" bindtap="onChooseSupplementScreenshots">＋ 添加截圖</view>
+      </view>
+      <view class="supplement-actions">
+        <button class="ui-button ui-button--secondary" bindtap="onCloseSupplement">取消</button>
+        <button class="ui-button ui-button--primary" loading="{{submittingSupplement}}" disabled="{{submittingSupplement}}" bindtap="onSubmitSupplement">提交補充</button>
+      </view>
+    </view>
+  </view>
+</scroll-view>
