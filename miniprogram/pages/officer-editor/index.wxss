@@ -52,11 +52,12 @@
 }
 
 .report-header__entry {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: space-between;
   gap: var(--uwo-space-4);
-  width: 100%;
+  width: 100% !important;
+  max-width: none;
   min-height: 88rpx;
   margin: var(--uwo-space-6) 0 0;
   padding: var(--uwo-space-3) var(--uwo-space-4);
@@ -217,8 +218,8 @@
 .officer-candidate__rarity-icon,
 .officer-identity__rarity-icon {
   position: absolute;
-  top: -8rpx;
-  left: -8rpx;
+  top: 4rpx;
+  left: 4rpx;
   z-index: 3;
   width: 40rpx;
   height: 40rpx;
@@ -312,8 +313,11 @@
   margin: 0;
   padding: 0 var(--uwo-space-3);
   color: var(--uwo-color-accent-text);
-  background: transparent;
-  border: 0;
+  background: var(--uwo-color-surface-muted);
+  border: 2rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-control);
+  display: inline-flex !important;
+  box-sizing: border-box;
   font-size: var(--uwo-font-size-minimum-action);
   font-weight: 600;
 }
@@ -349,9 +353,11 @@
 }
 
 .type-chip {
-  display: inline-flex;
-  flex: none;
-  width: auto;
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 0;
+  max-width: 100%;
   min-height: 64rpx;
   align-items: center;
   justify-content: center;
@@ -519,6 +525,13 @@
 .report-complete__button {
   width: 100%;
   margin: 0;
+}
+
+.report-actions__submit {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .report-complete {

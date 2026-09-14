@@ -28,6 +28,10 @@ describe('航海士資料錯誤回報頁契約', () => {
     expect(wxml).not.toContain('class="officer-identity__rarity"')
     expect(wxss).toMatch(/\.officer-identity__body\s*\{[^}]*min-width:\s*0/s)
     expect(wxss).toMatch(/\.officer-identity__change\s*\{[^}]*position:\s*absolute/s)
+    expect(wxss).toMatch(
+      /\.officer-identity__change\s*\{[^}]*background:\s*var\(--uwo-color-surface-muted\)/s,
+    )
+    expect(wxss).toMatch(/\.officer-identity__rarity-icon\s*\{[^}]*top:\s*4rpx[^}]*left:\s*4rpx/s)
   })
 
   it('所有回報字段位於單一表單容器並提供字段級回饋', () => {
@@ -97,9 +101,14 @@ describe('航海士資料錯誤回報頁契約', () => {
     expect(wxml).toContain('回報航海士資料錯誤')
     expect(wxml).toContain('查看我的回報與處理進度')
     expect(wxml).toContain('class="report-actions"')
+    expect(wxss).toMatch(/\.report-header__entry\s*\{[^}]*display:\s*flex[^}]*width:\s*100%/s)
     expect(wxss).toMatch(/\.type-chip\s*\{[^}]*min-height:\s*64rpx/s)
-    expect(wxss).toMatch(/\.type-chip\s*\{[^}]*width:\s*auto/s)
+    expect(wxss).toMatch(/\.type-chip\s*\{[^}]*display:\s*inline-flex\s*!important/s)
+    expect(wxss).toMatch(/\.type-chip\s*\{[^}]*width:\s*auto\s*!important/s)
     expect(wxss).toMatch(/\.report-actions\s*\{[^}]*position:\s*fixed/s)
+    expect(wxss).toMatch(
+      /\.report-actions__submit\s*\{[^}]*display:\s*flex\s*!important[^}]*width:\s*100%\s*!important/s,
+    )
     expect(wxss).toContain('env(safe-area-inset-bottom)')
     expect(wxss).toMatch(/\.report-page__content\s*\{[^}]*padding-bottom:/s)
   })
