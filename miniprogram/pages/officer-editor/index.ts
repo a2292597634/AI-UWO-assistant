@@ -106,11 +106,7 @@ Page({
         return
       }
       this.setData({
-        officerIdentity: presentOfficerReportIdentity(
-          catalogEntry,
-          maintenance.data,
-          dictionaries,
-        ),
+        officerIdentity: presentOfficerReportIdentity(catalogEntry, maintenance.data, dictionaries),
         selectingOfficer: false,
         'draft.officerId': officerId,
         fieldErrors: withoutFieldError(this.data.fieldErrors, 'officerId'),
@@ -119,9 +115,7 @@ Page({
     } catch (error) {
       this.setData({
         submitError:
-          error instanceof Error
-            ? error.message
-            : '暫時無法讀取航海士資料，請稍後再試。',
+          error instanceof Error ? error.message : '暫時無法讀取航海士資料，請稍後再試。',
       })
     } finally {
       this.setData({ identityLoading: false })

@@ -1,58 +1,183 @@
 <scroll-view class="report-page" scroll-y enhanced show-scrollbar="{{false}}">
-  <view class="report-header">
-    <view>
-      <text class="report-header__eyebrow">航海士資料回報</text>
-      <text class="report-header__title ui-display-title">回報資料錯誤</text>
-      <text class="report-header__hint">請指出既有資料的問題，我們會核對並更新資料庫。</text>
+  <view wx:if="{{submittedReportId}}" class="report-complete">
+    <view class="report-complete__mark ui-status ui-status--achieved">
+      <text class="ui-status__label">回報已提交</text>
     </view>
-    <view class="report-header__link" bindtap="onMyReportsTap">我的回報</view>
+    <text class="report-complete__title ui-display-title">感謝協助校正資料</text>
+    <text class="report-complete__copy">我們會核對你提供的內容，處理進度可在「我的回報」中查看。</text>
+    <view class="report-complete__number">
+      <text class="report-complete__number-label">回報編號</text>
+      <text class="report-complete__number-value">{{submittedReportId}}</text>
+    </view>
+    <view class="report-complete__actions">
+      <button class="ui-button ui-button--primary report-complete__button" bindtap="onMyReportsTap">查看我的回報</button>
+      <button class="ui-button ui-button--secondary report-complete__button" bindtap="onReturnFromSuccess">{{returnToOfficerId ? '返回航海士詳情' : '返回名鑑'}}</button>
+    </view>
   </view>
 
-  <view class="report-card">
-    <view class="form-field">
-      <text class="form-label">選擇航海士 <text class="required">*</text></text>
-      <picker mode="selector" range="{{officerOptions}}" range-key="name" value="{{officerIndex}}" bindchange="onOfficerChange">
-        <view class="form-control {{selectedOfficerName ? '' : 'form-control--empty'}}">{{selectedOfficerName || '請選擇航海士'}}</view>
-      </picker>
-    </view>
-
-    <view class="form-field">
-      <text class="form-label">錯誤類型 <text class="required">*</text></text>
-      <view class="type-list">
-        <view wx:for="{{errorTypeOptions}}" wx:key="id" data-id="{{item.id}}" bindtap="onErrorTypeTap" class="type-chip {{item.selected ? 'type-chip--selected' : ''}}">{{item.name}}</view>
+  <block wx:else>
+    <view class="report-header">
+      <view class="report-header__copy">
+        <text class="report-header__eyebrow">航海資料館勘誤</text>
+        <text class="report-header__title ui-display-title">回報錯誤資料</text>
+        <text class="report-header__hint">選擇錯誤類型並填寫兩項說明，即可快速完成回報。</text>
       </view>
+      <button class="report-header__link" bindtap="onMyReportsTap">我的回報</button>
     </view>
 
-    <view class="form-field">
-      <text class="form-label">錯誤說明 <text class="required">*</text></text>
-      <textarea class="form-textarea" value="{{draft.description}}" maxlength="500" placeholder="目前哪項資料有誤？請盡量寫明位置與內容" bindinput="onDescriptionInput"></textarea>
-    </view>
-
-    <view class="form-field">
-      <text class="form-label">建議的正確內容 <text class="required">*</text></text>
-      <textarea class="form-textarea" value="{{draft.suggestedCorrection}}" maxlength="500" placeholder="請寫出你認為正確的資料" bindinput="onCorrectionInput"></textarea>
-    </view>
-
-    <view class="form-field">
-      <text class="form-label">來源網址（選填）</text>
-      <input class="form-control" value="{{draft.sourceUrl}}" type="text" placeholder="貼上來源網頁地址" bindinput="onSourceUrlInput" />
-      <text class="form-hint">提供來源可加快確認，但不影響提交。</text>
-    </view>
-
-    <view class="form-field">
-      <text class="form-label">證據截圖（選填）</text>
-      <text class="form-hint">最多 3 張；提供來源可加快確認。</text>
-      <view class="screenshot-list">
-        <view wx:for="{{screenshotTempPaths}}" wx:key="*this" class="screenshot-item">
-          <image class="screenshot-image" src="{{item}}" mode="aspectFill" />
-          <view class="screenshot-remove" data-index="{{index}}" bindtap="onRemoveScreenshot">移除</view>
+    <view id="field-officerId" class="officer-section">
+      <view wx:if="{{selectingOfficer}}" class="officer-picker">
+        <view class="officer-picker__heading">
+          <text class="officer-picker__title">選擇航海士</text>
+          <text class="officer-picker__meta">必填</text>
         </view>
-        <view wx:if="{{screenshotTempPaths.length < 3}}" class="screenshot-add" bindtap="onChooseScreenshots">＋ 添加截圖</view>
+        <entity-search-picker
+          label="航海士"
+          options="{{officerOptions}}"
+          allow-candidate="{{false}}"
+          bindselect="onOfficerSelect"
+        />
+        <text wx:if="{{identityLoading}}" class="officer-picker__status">正在讀取航海士資料…</text>
+      </view>
+
+      <view wx:else class="officer-identity">
+        <view class="officer-identity__portrait-wrap">
+          <image
+            wx:if="{{!portraitFailed}}"
+            class="officer-identity__portrait"
+            src="{{officerIdentity.portraitPath}}"
+            mode="aspectFill"
+            binderror="onPortraitError"
+          />
+          <view wx:else class="officer-identity__portrait-fallback">無頭像</view>
+          <text class="officer-identity__rarity">{{officerIdentity.rarityName}}</text>
+        </view>
+        <view class="officer-identity__body">
+          <text class="officer-identity__name">{{officerIdentity.name}}</text>
+          <text class="officer-identity__meta">{{officerIdentity.typeName}} · {{officerIdentity.jobName}} · {{officerIdentity.genderLabel}}</text>
+          <text class="officer-identity__meta">{{officerIdentity.nationalityName}} · {{officerIdentity.languageSummary}}</text>
+        </view>
+        <button class="officer-identity__change" bindtap="onChangeOfficer" aria-label="更換航海士">更換</button>
+      </view>
+      <text wx:if="{{fieldErrors.officerId}}" class="field-error">錯誤：{{fieldErrors.officerId}}</text>
+    </view>
+
+    <view class="report-form">
+      <view id="field-errorTypes" class="report-form__field">
+        <view class="field-heading">
+          <text class="field-heading__title">錯誤類型</text>
+          <text class="field-heading__meta">必填 · 可多選</text>
+        </view>
+        <view class="type-list">
+          <button
+            wx:for="{{errorTypeOptions}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            bindtap="onErrorTypeTap"
+            class="type-chip {{item.selected ? 'type-chip--selected' : ''}}"
+            aria-pressed="{{item.selected}}"
+          >{{item.name}}</button>
+        </view>
+        <text wx:if="{{fieldErrors.errorTypes}}" class="field-error">錯誤：{{fieldErrors.errorTypes}}</text>
+      </view>
+
+      <view id="field-description" class="report-form__field">
+        <view class="field-heading">
+          <text class="field-heading__title">錯誤說明</text>
+          <text class="field-heading__meta">{{descriptionCount}} / 500</text>
+        </view>
+        <textarea
+          class="form-textarea"
+          value="{{draft.description}}"
+          maxlength="500"
+          placeholder="請說明哪項資料有誤，以及目前顯示的內容"
+          bindinput="onDescriptionInput"
+        ></textarea>
+        <text wx:if="{{fieldErrors.description}}" class="field-error">錯誤：{{fieldErrors.description}}</text>
+      </view>
+
+      <view id="field-suggestedCorrection" class="report-form__field">
+        <view class="field-heading">
+          <text class="field-heading__title">建議的正確內容</text>
+          <text class="field-heading__meta">{{correctionCount}} / 500</text>
+        </view>
+        <textarea
+          class="form-textarea"
+          value="{{draft.suggestedCorrection}}"
+          maxlength="500"
+          placeholder="請填寫你認為正確的資料內容"
+          bindinput="onCorrectionInput"
+        ></textarea>
+        <text wx:if="{{fieldErrors.suggestedCorrection}}" class="field-error">錯誤：{{fieldErrors.suggestedCorrection}}</text>
+      </view>
+
+      <view id="field-sourceUrl" class="report-form__field">
+        <button
+          class="evidence-toggle"
+          bindtap="onToggleEvidence"
+          aria-expanded="{{evidenceExpanded}}"
+          aria-label="{{evidenceExpanded ? '收合' : '展開'}}來源與截圖"
+        >
+          <view class="evidence-toggle__copy">
+            <text class="field-heading__title">來源與截圖</text>
+            <text class="evidence-toggle__summary">{{evidenceSummary}}</text>
+          </view>
+          <text class="evidence-toggle__action">{{evidenceExpanded ? '收合' : '添加'}}</text>
+        </button>
+
+        <view wx:if="{{evidenceExpanded}}" class="evidence-fields">
+          <view class="evidence-fields__group">
+            <view class="field-heading">
+              <text class="field-heading__title">來源網址</text>
+              <text class="field-heading__meta">選填</text>
+            </view>
+            <input
+              class="form-control"
+              value="{{draft.sourceUrl}}"
+              type="text"
+              placeholder="https://example.com"
+              bindinput="onSourceUrlInput"
+            />
+            <text wx:if="{{fieldErrors.sourceUrl}}" class="field-error">錯誤：{{fieldErrors.sourceUrl}}</text>
+          </view>
+
+          <view class="evidence-fields__group">
+            <view class="field-heading">
+              <text class="field-heading__title">證據截圖</text>
+              <text class="field-heading__meta">選填 · 最多 3 張</text>
+            </view>
+            <view class="screenshot-list">
+              <view wx:for="{{screenshotTempPaths}}" wx:key="*this" class="screenshot-item">
+                <image class="screenshot-image" src="{{item}}" mode="aspectFill" />
+                <button
+                  class="screenshot-remove"
+                  data-index="{{index}}"
+                  bindtap="onRemoveScreenshot"
+                  aria-label="移除第 {{index + 1}} 張證據截圖"
+                >移除</button>
+              </view>
+              <button
+                wx:if="{{screenshotTempPaths.length < 3}}"
+                class="screenshot-add"
+                bindtap="onChooseScreenshots"
+              >添加截圖</button>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
-  </view>
 
-  <view class="report-actions">
-    <button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onSubmit">提交回報</button>
-  </view>
+    <view class="report-actions">
+      <view wx:if="{{submitError}}" class="submit-error ui-status ui-status--error">
+        <text class="ui-status__label">提交失敗：{{submitError}}</text>
+      </view>
+      <text wx:if="{{submitting}}" class="report-actions__status">正在提交回報，請勿重複操作。</text>
+      <button
+        class="ui-button ui-button--primary report-actions__submit"
+        loading="{{submitting}}"
+        disabled="{{submitting}}"
+        bindtap="onSubmit"
+      >{{submitting ? '正在提交回報…' : '提交回報'}}</button>
+    </view>
+  </block>
 </scroll-view>

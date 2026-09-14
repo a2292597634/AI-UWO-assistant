@@ -72,10 +72,7 @@ export const presentOfficerReportIdentity = (
     typeName: catalogEntry.typeName,
     jobName: catalogEntry.jobName,
     genderLabel: catalogEntry.genderLabel,
-    nationalityName: findDictionaryName(
-      dictionaries.nationalities,
-      maintenanceData.nationalityId,
-    ),
+    nationalityName: findDictionaryName(dictionaries.nationalities, maintenanceData.nationalityId),
     languageSummary,
   }
 }

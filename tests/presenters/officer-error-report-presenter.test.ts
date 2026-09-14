@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { MaintenanceDictionaries, MaintenanceOfficerData } from '../../miniprogram/contracts/officer-maintenance'
+import type {
+  MaintenanceDictionaries,
+  MaintenanceOfficerData,
+} from '../../miniprogram/contracts/officer-maintenance'
 import type { RuntimeCatalogEntry } from '../../miniprogram/contracts/runtime-data'
 import {
   buildOfficerReportOptions,
@@ -99,10 +102,7 @@ describe('航海士錯誤回報 Presenter', () => {
         catalogEntry,
         {
           ...maintenanceData,
-          languages: [
-            ...maintenanceData.languages,
-            { languageId: 'lang_fr', level: 2 },
-          ],
+          languages: [...maintenanceData.languages, { languageId: 'lang_fr', level: 2 }],
         },
         dictionaries,
       ).languageSummary,

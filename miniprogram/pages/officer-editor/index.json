@@ -1,7 +1,9 @@
 {
-  "navigationBarTitleText": "回報資料錯誤",
+  "navigationBarTitleText": "資料勘誤",
   "navigationBarBackgroundColor": "#26332f",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#e7deca",
-  "usingComponents": {}
+  "usingComponents": {
+    "entity-search-picker": "/components/entity-search-picker/index"
+  }
 }
