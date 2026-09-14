@@ -263,6 +263,13 @@
     </disclosure-section>
   </scroll-view>
 
+  <canvas
+    id="fleet-share-canvas"
+    type="2d"
+    class="fleet-share-canvas"
+    style="width: {{shareCanvasWidth}}px; height: {{shareCanvasHeight}}px;"
+  />
+
   <view class="fleet-share-bar" role="region" aria-label="分享當前隊伍">
     <view class="fleet-share-bar__copy">
       <text class="fleet-share-bar__title">分享當前隊伍</text>
@@ -305,4 +312,16 @@
   />
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
+
+  <fleet-share-preview
+    visible="{{shareStatus === 'ready' || shareStatus === 'error'}}"
+    image-path="{{shareImagePath}}"
+    status="{{shareStatus === 'error' ? 'error' : 'ready'}}"
+    error-message="{{shareError}}"
+    degraded-asset-count="{{shareDegradedAssetCount}}"
+    bind:close="onSharePreviewClose"
+    bind:share="onShareImage"
+    bind:save="onSaveShareImage"
+    bind:retry="onShareRetry"
+  />
 </view>

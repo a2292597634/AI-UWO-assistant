@@ -175,6 +175,14 @@
   font-weight: 700;
 }
 
+.fleet-share-canvas {
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ── 面板通用 ── */
 
 .panel-heading {

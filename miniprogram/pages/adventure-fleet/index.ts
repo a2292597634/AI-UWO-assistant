@@ -54,6 +54,9 @@ import type { AdventureFleetPageData } from '../../presenters/adventure-fleet-pr
 import type { FleetProposal } from '../../contracts/fleet-proposal'
 import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../presenters/skill-sheet'
+import { buildAdventureFleetShareViewModel } from '../../presenters/fleet-share-presenter'
+import { QR_PATH, drawFleetShareImage } from '../../runtime/fleet-share-renderer'
+import { measureAdventureFleetShare, type FleetShareLayout } from '../../runtime/fleet-share-layout'
 
 // ── 页面数据 ──
 
@@ -156,8 +159,81 @@ const getState = (page: object): FleetPageState => {
   return state
 }
 
-const beginShareGeneration = (page: FleetPageLike): void => {
+const selectShareCanvas = (): Promise<WechatMiniprogram.Canvas> =>
+  new Promise((resolve, reject) => {
+    try {
+      const query = wx.createSelectorQuery()
+      query
+        .select('#fleet-share-canvas')
+        .node()
+        .exec((result) => {
+          const canvas = (result?.[0] as { node?: WechatMiniprogram.Canvas } | undefined)?.node
+          if (!canvas) reject(new Error('分享圖畫布初始化失敗'))
+          else resolve(canvas)
+        })
+    } catch (error) {
+      reject(error)
+    }
+  })
+
+const exportShareCanvas = (
+  page: FleetPageLike,
+  canvas: WechatMiniprogram.Canvas,
+  layout: FleetShareLayout,
+): Promise<string> =>
+  new Promise((resolve, reject) => {
+    wx.canvasToTempFilePath(
+      {
+        canvas,
+        x: 0,
+        y: 0,
+        width: layout.width,
+        height: layout.height,
+        destWidth: layout.width * 2,
+        destHeight: layout.height * 2,
+        fileType: 'png',
+        success: (result) => resolve(result.tempFilePath),
+        fail: reject,
+      },
+      page as never,
+    )
+  })
+
+const resolveShareError = (error: unknown): string => {
+  const message = error instanceof Error ? error.message : String(error)
+  if (message.includes('首頁碼素材缺失')) return '首頁碼素材缺失，暫時無法生成分享圖'
+  if (message.includes('畫布')) return '分享圖畫布初始化失敗，請重試'
+  return '分享圖生成失敗，請重試'
+}
+
+const generateShareImage = async (page: FleetPageLike): Promise<void> => {
+  const state = getState(page)
   page.setData({ shareStatus: 'generating' satisfies FleetShareStatus, shareError: null })
+  try {
+    const view = buildAdventureFleetShareViewModel(
+      state.fleet,
+      state.adventureOfficers,
+      state.skills,
+      state.configName,
+      QR_PATH,
+    )
+    const layout = measureAdventureFleetShare(view)
+    page.setData({ shareCanvasWidth: layout.width, shareCanvasHeight: layout.height })
+    const canvas = await selectShareCanvas()
+    canvas.width = layout.width
+    canvas.height = layout.height
+    const report = await drawFleetShareImage(canvas, view, layout)
+    if (report.fatalAssetMissing) throw new Error('首頁碼素材缺失')
+    const imagePath = await exportShareCanvas(page, canvas, layout)
+    page.setData({
+      shareStatus: 'ready',
+      shareImagePath: imagePath,
+      shareDegradedAssetCount: report.degradedAssetCount,
+      shareError: null,
+    })
+  } catch (error) {
+    page.setData({ shareStatus: 'error', shareError: resolveShareError(error) })
+  }
 }
 
 const emptyPageData: FleetPageData = {
@@ -383,12 +459,12 @@ const resolvePendingAction = (page: FleetPageLike): void => {
       wx.navigateBack({})
       break
     case 'share':
-      beginShareGeneration(page)
+      void generateShareImage(page)
       break
   }
 }
 
-const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction): void => {
+const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction): Promise<void> => {
   const state = getState(page)
   const decision = resolveConfigAction(action, state.isDirty)
   state.pendingAction = decision.pendingAction
@@ -396,7 +472,11 @@ const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction)
     pendingAction: decision.pendingAction,
     showUnsavedGuard: decision.showUnsavedGuard,
   })
-  if (!decision.showUnsavedGuard) resolvePendingAction(page)
+  if (!decision.showUnsavedGuard) {
+    if (action.type === 'share') return generateShareImage(page)
+    resolvePendingAction(page)
+  }
+  return Promise.resolve()
 }
 
 // ── 配置操作 ──
@@ -678,20 +758,41 @@ Page({
   },
 
   onShareFleet() {
-    if (this.data.shareStatus === 'generating') return
-    checkUnsavedAndProceed(this, { type: 'share' })
+    if (this.data.shareStatus === 'generating') return Promise.resolve()
+    return checkUnsavedAndProceed(this, { type: 'share' })
   },
 
   onSharePreviewClose() {
     this.setData({ shareImagePath: '', shareStatus: 'idle', shareError: null })
   },
 
-  onShareImage() {},
+  async onShareImage() {
+    const imagePath = this.data.shareImagePath
+    if (!imagePath) return
+    try {
+      await wx.showShareImageMenu({
+        path: imagePath,
+        needShowEntrance: true,
+        entrancePath: 'pages/home/index',
+      })
+    } catch {
+      showError('当前版本暂不支持直接分享，请先保存图片')
+    }
+  },
 
-  onSaveShareImage() {},
+  async onSaveShareImage() {
+    const imagePath = this.data.shareImagePath
+    if (!imagePath) return
+    try {
+      await wx.saveImageToPhotosAlbum({ filePath: imagePath })
+      showError('分享圖已保存到相冊')
+    } catch {
+      showError('請在小程序設定中開啟相冊權限')
+    }
+  },
 
   onShareRetry() {
-    this.onShareFleet()
+    return this.onShareFleet()
   },
 
   // ── 素材 ──

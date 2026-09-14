@@ -89,11 +89,11 @@ interface FleetPageConfig {
   onConflictReload(): Promise<void>
   onConflictForceOverwrite(): Promise<void>
   onConflictCancel(): void
-  onShareFleet(): void
+  onShareFleet(): Promise<void>
   onSharePreviewClose(): void
-  onShareImage(): void
-  onSaveShareImage(): void
-  onShareRetry(): void
+  onShareImage(): Promise<void>
+  onSaveShareImage(): Promise<void>
+  onShareRetry(): Promise<void>
 }
 
 interface FleetPageInstance extends FleetPageConfig {
@@ -108,6 +108,10 @@ const wxStub = {
   setNavigationBarTitle: vi.fn(),
   navigateTo: vi.fn(),
   navigateBack: vi.fn((options: { success?: () => void }) => options.success?.()),
+  createSelectorQuery: vi.fn(),
+  canvasToTempFilePath: vi.fn(),
+  saveImageToPhotosAlbum: vi.fn(),
+  showShareImageMenu: vi.fn(),
   cloud: {
     callFunction: mockCallFunction,
   },
@@ -471,6 +475,39 @@ const sharedComponentNames = [
   'empty-state',
 ] as const
 
+const createShareCanvas = () => {
+  const context = {
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    arcTo: vi.fn(),
+    closePath: vi.fn(),
+    fill: vi.fn(),
+    stroke: vi.fn(),
+    fillRect: vi.fn(),
+    clearRect: vi.fn(),
+    fillText: vi.fn(),
+    measureText: vi.fn((text: string) => ({ width: text.length * 12 })),
+    drawImage: vi.fn(),
+    font: '',
+    fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 1,
+    textBaseline: 'middle',
+  }
+  const canvas = {
+    width: 0,
+    height: 0,
+    getContext: vi.fn(() => context),
+    createImage: vi.fn(() => {
+      const image = { width: 64, height: 64, src: '', onload: () => {}, onerror: () => {} }
+      queueMicrotask(() => image.onload())
+      return image
+    }),
+  }
+  return { canvas, context }
+}
+
 describe('battle fleet share entry', () => {
   it('keeps one fixed share bar outside the main fleet scroll view', () => {
     const fleetScrollEnd = fleetWxml.lastIndexOf('</scroll-view>')
@@ -504,6 +541,84 @@ describe('battle fleet share entry', () => {
 
     expect(page.data.showUnsavedGuard).toBe(true)
     expect(page.data.pendingAction).toEqual({ type: 'share' })
+  })
+})
+
+describe('battle fleet share generation', () => {
+  const prepareCanvas = () => {
+    const share = createShareCanvas()
+    wxStub.createSelectorQuery.mockReturnValue({
+      select: vi.fn(() => ({
+        node: vi.fn(() => ({
+          exec: vi.fn((callback: (result: Array<{ node: unknown }>) => void) =>
+            callback([{ node: share.canvas }]),
+          ),
+        })),
+      })),
+    })
+    wxStub.canvasToTempFilePath.mockImplementation(
+      (options: { success?: (result: { tempFilePath: string }) => void }) => {
+        options.success?.({ tempFilePath: 'wxfile://fleet-share.png' })
+      },
+    )
+    return share
+  }
+
+  it('generates a preview image through a local 2D canvas', async () => {
+    prepareCanvas()
+    const page = createPageInstance()
+    await page.onLoad()
+
+    await page.onShareFleet()
+
+    expect(page.data.shareStatus).toBe('ready')
+    expect(page.data.shareImagePath).toBe('wxfile://fleet-share.png')
+    expect(wxStub.canvasToTempFilePath).toHaveBeenCalledWith(
+      expect.objectContaining({ fileType: 'png', destWidth: expect.any(Number) }),
+      page,
+    )
+  })
+
+  it('restores an error state when Canvas export fails and exposes retry text', async () => {
+    prepareCanvas()
+    wxStub.canvasToTempFilePath.mockImplementation(
+      (options: { fail?: (error: unknown) => void }) => {
+        options.fail?.(new Error('export failed'))
+      },
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+
+    await page.onShareFleet()
+
+    expect(page.data.shareStatus).toBe('error')
+    expect(page.data.shareError).toContain('生成')
+  })
+
+  it('uses the saved image for WeChat share and album APIs', async () => {
+    prepareCanvas()
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onShareFleet()
+    wxStub.saveImageToPhotosAlbum.mockImplementation((options: { success?: () => void }) =>
+      options.success?.(),
+    )
+    wxStub.showShareImageMenu.mockImplementation((options: { success?: () => void }) =>
+      options.success?.(),
+    )
+
+    await page.onSaveShareImage()
+    await page.onShareImage()
+
+    expect(wxStub.saveImageToPhotosAlbum).toHaveBeenCalledWith({
+      filePath: 'wxfile://fleet-share.png',
+    })
+    expect(wxStub.showShareImageMenu).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'wxfile://fleet-share.png',
+        entrancePath: 'pages/home/index',
+      }),
+    )
   })
 })
 

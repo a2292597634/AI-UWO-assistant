@@ -38,11 +38,11 @@ interface AdventurePageConfig {
   onConfigToggle(): void
   onConfigClassify(event: WechatMiniprogram.BaseEvent): Promise<void>
   onConfigRetry(): Promise<void>
-  onShareFleet(): void
+  onShareFleet(): Promise<void>
   onSharePreviewClose(): void
-  onShareImage(): void
-  onSaveShareImage(): void
-  onShareRetry(): void
+  onShareImage(): Promise<void>
+  onSaveShareImage(): Promise<void>
+  onShareRetry(): Promise<void>
 }
 
 interface AdventurePageInstance extends AdventurePageConfig {
@@ -58,6 +58,10 @@ const wxStub = {
   setNavigationBarTitle: vi.fn(),
   navigateTo: vi.fn(),
   navigateBack: vi.fn(),
+  createSelectorQuery: vi.fn(),
+  canvasToTempFilePath: vi.fn(),
+  saveImageToPhotosAlbum: vi.fn(),
+  showShareImageMenu: vi.fn(),
   cloud: {
     callFunction: adventureMockCallFunction,
   },
@@ -548,6 +552,52 @@ const sharedComponentNames = [
   'empty-state',
 ] as const
 
+const prepareShareCanvas = () => {
+  const context = {
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    arcTo: vi.fn(),
+    closePath: vi.fn(),
+    fill: vi.fn(),
+    stroke: vi.fn(),
+    fillRect: vi.fn(),
+    clearRect: vi.fn(),
+    fillText: vi.fn(),
+    measureText: vi.fn((text: string) => ({ width: text.length * 12 })),
+    drawImage: vi.fn(),
+    font: '',
+    fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 1,
+    textBaseline: 'middle',
+  }
+  const canvas = {
+    width: 0,
+    height: 0,
+    getContext: vi.fn(() => context),
+    createImage: vi.fn(() => {
+      const image = { width: 64, height: 64, src: '', onload: () => {}, onerror: () => {} }
+      queueMicrotask(() => image.onload())
+      return image
+    }),
+  }
+  wxStub.createSelectorQuery.mockReturnValue({
+    select: vi.fn(() => ({
+      node: vi.fn(() => ({
+        exec: vi.fn((callback: (result: Array<{ node: unknown }>) => void) =>
+          callback([{ node: canvas }]),
+        ),
+      })),
+    })),
+  })
+  wxStub.canvasToTempFilePath.mockImplementation(
+    (options: { success?: (result: { tempFilePath: string }) => void }) => {
+      options.success?.({ tempFilePath: 'wxfile://adventure-share.png' })
+    },
+  )
+}
+
 describe('adventure fleet share entry', () => {
   it('keeps one fixed share bar outside the main fleet scroll view', () => {
     const fleetScrollEnd = adventureWxml.lastIndexOf('</scroll-view>')
@@ -569,6 +619,26 @@ describe('adventure fleet share entry', () => {
 
     expect(page.data.showUnsavedGuard).toBe(true)
     expect(page.data.pendingAction).toEqual({ type: 'share' })
+  })
+})
+
+describe('adventure fleet share generation', () => {
+  it('generates a preview and passes the mini program home entrance when sharing', async () => {
+    prepareShareCanvas()
+    const page = createPageInstance()
+    await page.onLoad()
+
+    await page.onShareFleet()
+    await page.onShareImage()
+
+    expect(page.data.shareStatus).toBe('ready')
+    expect(page.data.shareImagePath).toBe('wxfile://adventure-share.png')
+    expect(wxStub.showShareImageMenu).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'wxfile://adventure-share.png',
+        entrancePath: 'pages/home/index',
+      }),
+    )
   })
 })
 
