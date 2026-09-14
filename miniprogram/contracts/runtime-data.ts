@@ -53,6 +53,7 @@ export interface RuntimeFleetSkillRelation {
   skillId: string
   kind: 'active' | 'passive'
   categoryId: string
+  level: number
   unlockLevel: number
 }
 

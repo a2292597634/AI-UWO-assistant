@@ -82,7 +82,7 @@ const candidateContributions = (
   const result: Record<string, number> = {}
   for (const relation of officer.skills) {
     if (!targetIds.has(relation.skillId) || !isBattleFleetSkill(relation)) continue
-    result[relation.skillId] = (result[relation.skillId] ?? 0) + relation.unlockLevel
+    result[relation.skillId] = (result[relation.skillId] ?? 0) + relation.level
   }
   return result
 }

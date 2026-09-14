@@ -86,7 +86,7 @@ const candidateContributions = (
   const result: Record<string, number> = {}
   for (const relation of officer.adventureSkills) {
     if (!targetIds.has(relation.skillId)) continue
-    result[relation.skillId] = (result[relation.skillId] ?? 0) + relation.unlockLevel
+    result[relation.skillId] = (result[relation.skillId] ?? 0) + relation.level
   }
   return result
 }
@@ -331,8 +331,7 @@ const beforeLevelsFor = (
     const contributions: Record<string, number> = {}
     for (const relation of officer.adventureSkills) {
       if (targetIds.has(relation.skillId)) {
-        contributions[relation.skillId] =
-          (contributions[relation.skillId] ?? 0) + relation.unlockLevel
+        contributions[relation.skillId] = (contributions[relation.skillId] ?? 0) + relation.level
       }
     }
     for (const [skillId, level] of Object.entries(contributions)) {

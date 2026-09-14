@@ -12,13 +12,13 @@ const officer = (id: string, skillId: string): AdventureFleetOfficer => ({
   typeId: 'type_class_1',
   typeName: '冒險',
   genderId: 'gender_m',
-  adventureSkills: [{ skillId, unlockLevel: 1 }],
+  adventureSkills: [{ skillId, level: 1, unlockLevel: 1 }],
   zone: 'adventure',
 })
 
 const multiSkillOfficer = (
   id: string,
-  skills: Array<{ skillId: string; unlockLevel: number }>,
+  skills: Array<{ skillId: string; level: number; unlockLevel: number }>,
 ): AdventureFleetOfficer => ({
   ...officer(id, skills[0]!.skillId),
   adventureSkills: skills,
@@ -74,6 +74,22 @@ describe('adventure fleet solver target semantics', () => {
     expect(result.targetProgress.map((target) => target.skillId)).toEqual(['skill-goal'])
   })
 
+  it('uses canonical skill level rather than the officer unlock threshold', () => {
+    const result = solveAdventureTargets({
+      ...baseInput,
+      officers: [
+        multiSkillOfficer('officer-level-two', [
+          { skillId: 'skill-goal', level: 2, unlockLevel: 50 },
+        ]),
+      ],
+      targets: [{ skillId: 'skill-goal', targetLevel: 3 }],
+    })
+
+    expect(result.targetProgress).toEqual([
+      { skillId: 'skill-goal', targetLevel: 3, currentLevel: 2, difference: 1, reached: false },
+    ])
+  })
+
   it('reports an explicit no-candidate constraint without an applicable empty proposal', () => {
     const result = solveAdventureTargets({
       ...baseInput,
@@ -119,10 +135,10 @@ describe('adventure fleet solver target semantics', () => {
     const result = solveAdventureTargets({
       ...baseInput,
       officers: [
-        multiSkillOfficer('officer-complete', [{ skillId: 'skill-0', unlockLevel: 10 }]),
+        multiSkillOfficer('officer-complete', [{ skillId: 'skill-0', level: 10, unlockLevel: 10 }]),
         multiSkillOfficer('officer-broad', [
-          { skillId: 'skill-0', unlockLevel: 1 },
-          { skillId: 'skill-1', unlockLevel: 1 },
+          { skillId: 'skill-0', level: 1, unlockLevel: 1 },
+          { skillId: 'skill-1', level: 1, unlockLevel: 1 },
         ]),
       ],
       targets,

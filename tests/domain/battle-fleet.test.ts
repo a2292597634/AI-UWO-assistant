@@ -24,7 +24,8 @@ const relation = (
   kind: 'active' | 'passive',
   categoryId: string,
   unlockLevel: number,
-) => ({ skillId, kind, categoryId, unlockLevel })
+  level = unlockLevel,
+) => ({ skillId, kind, categoryId, unlockLevel, level })
 
 const officer = (id: string, skills: RuntimeFleetOfficer['skills']): RuntimeFleetOfficer => ({
   id,
@@ -40,7 +41,7 @@ const officer = (id: string, skills: RuntimeFleetOfficer['skills']): RuntimeFlee
 
 const sampleOfficers: Record<string, RuntimeFleetOfficer> = {
   'officer-a': officer('officer-a', [
-    relation('skill-main', 'active', 'skill_category_naval_active_cannon', 5),
+    relation('skill-main', 'active', 'skill_category_naval_active_cannon', 50, 2),
     relation('skill-cannon-passive', 'passive', 'skill_category_naval_passive_cannon', 2),
     relation('skill-trade', 'passive', 'skill_category_trade_expertise', 9),
   ]),
@@ -48,7 +49,7 @@ const sampleOfficers: Record<string, RuntimeFleetOfficer> = {
     relation('skill-other', 'passive', 'skill_category_naval_passive_melee', 4),
   ]),
   'officer-c': officer('officer-c', [
-    relation('skill-main', 'active', 'skill_category_naval_active_cannon', 7),
+    relation('skill-main', 'active', 'skill_category_naval_active_cannon', 70, 1),
   ]),
 }
 
@@ -313,13 +314,13 @@ describe('battle skill query', () => {
 })
 
 describe('ship skill summary', () => {
-  it('sums unlockLevel, keeps values above ten, sorts, and shows target-only Lv.0', () => {
+  it('sums canonical skill levels without treating unlock thresholds as contributions', () => {
     const result = summarizeShipSkills(['officer-a', 'officer-c'], sampleOfficers, sampleSkills, {
       'skill-target-only': 3,
     })
     const main = result.find((item) => item.skillId === 'skill-main')!
 
-    expect(main).toMatchObject({ skillId: 'skill-main', totalLevel: 12 })
+    expect(main).toMatchObject({ skillId: 'skill-main', totalLevel: 3 })
     expect(main.contributorOfficerIds).toEqual(['officer-a', 'officer-c'])
     expect(result.find((item) => item.skillId === 'skill-target-only')).toMatchObject({
       totalLevel: 0,

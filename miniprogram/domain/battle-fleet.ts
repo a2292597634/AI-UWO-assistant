@@ -285,7 +285,7 @@ export const summarizeShipSkills = (
     if (!officer) continue
     for (const relation of officer.skills) {
       if (!isBattleFleetSkill(relation)) continue
-      totals.set(relation.skillId, (totals.get(relation.skillId) ?? 0) + relation.unlockLevel)
+      totals.set(relation.skillId, (totals.get(relation.skillId) ?? 0) + relation.level)
       const current = contributors.get(relation.skillId) ?? []
       current.push(officerId)
       contributors.set(relation.skillId, current)
@@ -301,6 +301,7 @@ export const summarizeShipSkills = (
         skillId,
         kind,
         categoryId: skill.cat,
+        level: 0,
         unlockLevel: 0,
       })
       totals.set(skillId, 0)

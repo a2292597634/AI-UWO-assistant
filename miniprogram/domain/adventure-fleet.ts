@@ -48,6 +48,7 @@ const getTypeIdByZone = (zone: AdventureTypeZone): string => {
 
 export interface AdventureSkillRelation {
   skillId: string
+  level: number
   unlockLevel: number
 }
 
@@ -113,6 +114,7 @@ export const deriveAdventureOfficers = (
       .filter((sid) => adventureSkillIds.has(sid))
       .map((sid) => ({
         skillId: sid,
+        level: entry.skillLevels?.[sid] ?? 1,
         unlockLevel: entry.skillUnlockLevels?.[sid] ?? 1,
       })),
   }))
@@ -240,7 +242,7 @@ export const summarizeFleetAdventureSkills = (
     const officer = adventureOfficers[officerId]
     if (!officer) continue
     for (const relation of officer.adventureSkills) {
-      totals.set(relation.skillId, (totals.get(relation.skillId) ?? 0) + relation.unlockLevel)
+      totals.set(relation.skillId, (totals.get(relation.skillId) ?? 0) + relation.level)
       const current = contributors.get(relation.skillId) ?? []
       current.push(officerId)
       contributors.set(relation.skillId, current)

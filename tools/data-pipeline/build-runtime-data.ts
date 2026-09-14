@@ -265,6 +265,7 @@ export const buildFleetOfficers = (
         skillId: relation.skillId,
         kind: relation.kind,
         categoryId: relation.categoryId,
+        level: relation.level,
         unlockLevel: relation.unlockLevel,
       })),
   }))

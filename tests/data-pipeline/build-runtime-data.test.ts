@@ -85,7 +85,7 @@ describe('buildCatalog', () => {
 })
 
 describe('buildFleetOfficers', () => {
-  it('builds a compact fleet index with battle relations and unlockLevel', () => {
+  it('builds a compact fleet index with separate skill and unlock levels', () => {
     const index = buildFleetOfficers(officers, skills, dictionaries)
     const officer = index.find((item) => item.id === 'officer_chast089')!
     const relation = officer.skills.find((item) => item.skillId === 'skill_skill400581')!
@@ -94,6 +94,7 @@ describe('buildFleetOfficers', () => {
     expect(relation).toMatchObject({
       skillId: 'skill_skill400581',
       kind: 'active',
+      level: 2,
       unlockLevel: 50,
     })
     expect(

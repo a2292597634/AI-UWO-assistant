@@ -16,7 +16,7 @@ describe('adventure fleet target semantics', () => {
     ).toEqual([{ skillId: 'skill-goal', targetLevel: 3 }])
   })
 
-  it('uses explicit unlock levels instead of canonical skill levels', () => {
+  it('keeps canonical skill levels separate from unlock thresholds', () => {
     const catalog = [
       {
         id: 'officer-test',
@@ -42,6 +42,8 @@ describe('adventure fleet target semantics', () => {
     ]
 
     const officers = deriveAdventureOfficers(catalog, new Set(['skill-adventure']))
-    expect(officers[0]!.adventureSkills).toEqual([{ skillId: 'skill-adventure', unlockLevel: 50 }])
+    expect(officers[0]!.adventureSkills).toEqual([
+      { skillId: 'skill-adventure', level: 2, unlockLevel: 50 },
+    ])
   })
 })

@@ -15,10 +15,11 @@ const officer = (id: string, skills: RuntimeFleetOfficer['skills']): RuntimeFlee
   skills,
 })
 
-const active = (skillId: string, unlockLevel: number) => ({
+const active = (skillId: string, level: number, unlockLevel = level) => ({
   skillId,
   kind: 'active' as const,
   categoryId: 'skill_category_naval_active_cannon',
+  level,
   unlockLevel,
 })
 
@@ -26,6 +27,7 @@ const passive = (skillId: string, categoryId: string, unlockLevel: number) => ({
   skillId,
   kind: 'passive' as const,
   categoryId,
+  level: unlockLevel,
   unlockLevel,
 })
 
@@ -91,6 +93,18 @@ describe('battle fleet auto solver', () => {
     expect(result.officerIds).not.toEqual(
       expect.arrayContaining(['officer-removed', 'officer-banned', 'officer-other-ship']),
     )
+  })
+
+  it('uses canonical skill level rather than the officer unlock threshold', () => {
+    const result = solveBattleTargets({
+      ...emptyInput,
+      officers: [officer('officer-level-two', [active('skill-cannon', 2, 50)])],
+      targets: [{ skillId: 'skill-cannon', targetLevel: 3 }],
+    })
+
+    expect(result.targetProgress).toEqual([
+      { skillId: 'skill-cannon', targetLevel: 3, currentLevel: 2, difference: 1, reached: false },
+    ])
   })
 
   it('prefers more completed targets, then fewer officers, lower overage, then IDs', () => {

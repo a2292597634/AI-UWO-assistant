@@ -25,7 +25,8 @@ const officers: RuntimeFleetOfficer[] = [
         skillId: 'skill-main',
         kind: 'active',
         categoryId: 'skill_category_naval_active_cannon',
-        unlockLevel: 5,
+        level: 2,
+        unlockLevel: 50,
       },
     ],
   },
@@ -43,6 +44,7 @@ const officers: RuntimeFleetOfficer[] = [
         skillId: 'skill-main',
         kind: 'active',
         categoryId: 'skill_category_naval_active_cannon',
+        level: 7,
         unlockLevel: 7,
       },
     ],
@@ -61,6 +63,7 @@ const officers: RuntimeFleetOfficer[] = [
         skillId: 'skill-target-only',
         kind: 'passive',
         categoryId: 'skill_category_naval_passive_boarding',
+        level: 3,
         unlockLevel: 3,
       },
     ],
@@ -228,7 +231,7 @@ describe('battle fleet presenter', () => {
     )
 
     expect(view.manualCandidates.find((item) => item.id === 'officer-a')).toMatchObject({
-      skillContributionLabel: '主砲強化 +Lv.5',
+      skillContributionLabel: '主砲強化 +Lv.2',
     })
   })
 

@@ -269,7 +269,7 @@ export const buildBattleFleetPageData = (
           return {
             ...view,
             skillContributionLabel:
-              relation && skillName ? `${skillName} +Lv.${relation.unlockLevel}` : '',
+              relation && skillName ? `${skillName} +Lv.${relation.level}` : '',
           }
         })
     : []
