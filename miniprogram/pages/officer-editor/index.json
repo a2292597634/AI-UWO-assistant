@@ -3,7 +3,5 @@
   "navigationBarBackgroundColor": "#26332f",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#e7deca",
-  "usingComponents": {
-    "entity-search-picker": "/components/entity-search-picker/index"
-  }
+  "usingComponents": {}
 }

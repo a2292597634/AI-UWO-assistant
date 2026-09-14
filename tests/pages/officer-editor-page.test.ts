@@ -7,19 +7,27 @@ const readPageFile = (file: string): string =>
   readFileSync(resolve(ROOT, 'miniprogram/pages/officer-editor', file), 'utf8')
 
 describe('航海士資料錯誤回報頁契約', () => {
-  it('以搜尋選擇器或完整身份卡呈現航海士', () => {
+  it('使用單一搜尋框與帶稀有度分層頭像的候選列表', () => {
     const wxml = readPageFile('index.wxml')
-    expect(wxml).toContain('<entity-search-picker')
-    expect(wxml).toContain('bindselect="onOfficerSelect"')
-    expect(wxml).toContain('officerIdentity.portraitPath')
-    expect(wxml).toContain('binderror="onPortraitError"')
-    expect(wxml).toContain('officerIdentity.rarityName')
-    expect(wxml).toContain('officerIdentity.typeName')
-    expect(wxml).toContain('officerIdentity.jobName')
-    expect(wxml).toContain('officerIdentity.genderLabel')
-    expect(wxml).toContain('officerIdentity.nationalityName')
-    expect(wxml).toContain('officerIdentity.languageSummary')
-    expect(wxml).toContain('更換')
+    const config = JSON.parse(readPageFile('index.json'))
+    expect(wxml).toContain('bindinput="onOfficerSearchInput"')
+    expect(wxml).toContain('wx:for="{{officerCandidates}}"')
+    expect(wxml).toContain('item.visuals.framePath')
+    expect(wxml).toContain('item.visuals.rarityIconPath')
+    expect(wxml).not.toContain('<entity-search-picker')
+    expect(config.usingComponents).not.toHaveProperty('entity-search-picker')
+  })
+
+  it('身份卡使用左上稀有度圖示並把更換放在右上角', () => {
+    const wxml = readPageFile('index.wxml')
+    const wxss = readPageFile('index.wxss')
+    expect(wxml).toContain('officerIdentity.visuals.framePath')
+    expect(wxml).toContain('officerIdentity.visuals.rarityIconPath')
+    expect(wxml).toContain('data-layer="rarityIcon"')
+    expect(wxml).toContain('class="officer-identity__change"')
+    expect(wxml).not.toContain('class="officer-identity__rarity"')
+    expect(wxss).toMatch(/\.officer-identity__body\s*\{[^}]*min-width:\s*0/s)
+    expect(wxss).toMatch(/\.officer-identity__change\s*\{[^}]*position:\s*absolute/s)
   })
 
   it('所有回報字段位於單一表單容器並提供字段級回饋', () => {
@@ -36,12 +44,14 @@ describe('航海士資料錯誤回報頁契約', () => {
     expect(wxml).toContain('maxlength="500"')
   })
 
-  it('證據區可在原字段內收合並提供截圖移除名稱', () => {
+  it('證據區以整行入口收合並提供截圖移除名稱', () => {
     const wxml = readPageFile('index.wxml')
     expect(wxml).toContain('bindtap="onToggleEvidence"')
     expect(wxml).toContain('aria-expanded="{{evidenceExpanded}}"')
     expect(wxml).toContain('{{evidenceSummary}}')
     expect(wxml).toContain('wx:if="{{evidenceExpanded}}"')
+    expect(wxml).toContain('補充證據（選填）')
+    expect(wxml).toContain('來源網址或最多 3 張截圖')
     expect(wxml).toContain('aria-label="移除第 {{index + 1}} 張證據截圖"')
     expect(wxml).toContain('最多 3 張')
   })
@@ -72,15 +82,26 @@ describe('航海士資料錯誤回報頁契約', () => {
     expect(wxss).not.toMatch(/#[0-9a-f]{3,8}\b|(?:rgb|hsl)a?\s*\(/i)
   })
 
-  it('頁面配置註冊搜尋組件並使用資料勘誤導航標題', () => {
+  it('頁面配置移除搜尋組件並使用資料勘誤導航標題', () => {
     const config = JSON.parse(readPageFile('index.json')) as {
       navigationBarTitleText: string
       usingComponents: Record<string, string>
     }
     expect(config.navigationBarTitleText).toBe('資料勘誤')
-    expect(config.usingComponents).toEqual({
-      'entity-search-picker': '/components/entity-search-picker/index',
-    })
+    expect(config.usingComponents).toEqual({})
+  })
+
+  it('標題、整行回報入口與固定提交欄保持可理解且不浪費窄屏寬度', () => {
+    const wxml = readPageFile('index.wxml')
+    const wxss = readPageFile('index.wxss')
+    expect(wxml).toContain('回報航海士資料錯誤')
+    expect(wxml).toContain('查看我的回報與處理進度')
+    expect(wxml).toContain('class="report-actions"')
+    expect(wxss).toMatch(/\.type-chip\s*\{[^}]*min-height:\s*64rpx/s)
+    expect(wxss).toMatch(/\.type-chip\s*\{[^}]*width:\s*auto/s)
+    expect(wxss).toMatch(/\.report-actions\s*\{[^}]*position:\s*fixed/s)
+    expect(wxss).toContain('env(safe-area-inset-bottom)')
+    expect(wxss).toMatch(/\.report-page__content\s*\{[^}]*padding-bottom:/s)
   })
 
   it('不重新引入完整航海士建立流程或遠程請求', () => {

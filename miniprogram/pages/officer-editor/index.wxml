@@ -16,151 +16,237 @@
   </view>
 
   <block wx:else>
-    <view class="report-header">
-      <view class="report-header__copy">
-        <text class="report-header__eyebrow">航海資料館勘誤</text>
-        <text class="report-header__title ui-display-title">回報錯誤資料</text>
+    <view class="report-page__content">
+      <view class="report-header">
+        <text class="report-header__title ui-display-title">回報航海士資料錯誤</text>
         <text class="report-header__hint">選擇錯誤類型並填寫兩項說明，即可快速完成回報。</text>
-      </view>
-      <button class="report-header__link" bindtap="onMyReportsTap">我的回報</button>
-    </view>
-
-    <view id="field-officerId" class="officer-section">
-      <view wx:if="{{selectingOfficer}}" class="officer-picker">
-        <view class="officer-picker__heading">
-          <text class="officer-picker__title">選擇航海士</text>
-          <text class="officer-picker__meta">必填</text>
-        </view>
-        <entity-search-picker
-          label="航海士"
-          options="{{officerOptions}}"
-          allow-candidate="{{false}}"
-          bindselect="onOfficerSelect"
-        />
-        <text wx:if="{{identityLoading}}" class="officer-picker__status">正在讀取航海士資料…</text>
-      </view>
-
-      <view wx:else class="officer-identity">
-        <view class="officer-identity__portrait-wrap">
-          <image
-            wx:if="{{!portraitFailed}}"
-            class="officer-identity__portrait"
-            src="{{officerIdentity.portraitPath}}"
-            mode="aspectFill"
-            binderror="onPortraitError"
-          />
-          <view wx:else class="officer-identity__portrait-fallback">無頭像</view>
-          <text class="officer-identity__rarity">{{officerIdentity.rarityName}}</text>
-        </view>
-        <view class="officer-identity__body">
-          <text class="officer-identity__name">{{officerIdentity.name}}</text>
-          <text class="officer-identity__meta">{{officerIdentity.typeName}} · {{officerIdentity.jobName}} · {{officerIdentity.genderLabel}}</text>
-          <text class="officer-identity__meta">{{officerIdentity.nationalityName}} · {{officerIdentity.languageSummary}}</text>
-        </view>
-        <button class="officer-identity__change" bindtap="onChangeOfficer" aria-label="更換航海士">更換</button>
-      </view>
-      <text wx:if="{{fieldErrors.officerId}}" class="field-error">錯誤：{{fieldErrors.officerId}}</text>
-    </view>
-
-    <view class="report-form">
-      <view id="field-errorTypes" class="report-form__field">
-        <view class="field-heading">
-          <text class="field-heading__title">錯誤類型</text>
-          <text class="field-heading__meta">必填 · 可多選</text>
-        </view>
-        <view class="type-list">
-          <button
-            wx:for="{{errorTypeOptions}}"
-            wx:key="id"
-            data-id="{{item.id}}"
-            bindtap="onErrorTypeTap"
-            class="type-chip {{item.selected ? 'type-chip--selected' : ''}}"
-            aria-pressed="{{item.selected}}"
-          >{{item.name}}</button>
-        </view>
-        <text wx:if="{{fieldErrors.errorTypes}}" class="field-error">錯誤：{{fieldErrors.errorTypes}}</text>
-      </view>
-
-      <view id="field-description" class="report-form__field">
-        <view class="field-heading">
-          <text class="field-heading__title">錯誤說明</text>
-          <text class="field-heading__meta">{{descriptionCount}} / 500</text>
-        </view>
-        <textarea
-          class="form-textarea"
-          value="{{draft.description}}"
-          maxlength="500"
-          placeholder="請說明哪項資料有誤，以及目前顯示的內容"
-          bindinput="onDescriptionInput"
-        ></textarea>
-        <text wx:if="{{fieldErrors.description}}" class="field-error">錯誤：{{fieldErrors.description}}</text>
-      </view>
-
-      <view id="field-suggestedCorrection" class="report-form__field">
-        <view class="field-heading">
-          <text class="field-heading__title">建議的正確內容</text>
-          <text class="field-heading__meta">{{correctionCount}} / 500</text>
-        </view>
-        <textarea
-          class="form-textarea"
-          value="{{draft.suggestedCorrection}}"
-          maxlength="500"
-          placeholder="請填寫你認為正確的資料內容"
-          bindinput="onCorrectionInput"
-        ></textarea>
-        <text wx:if="{{fieldErrors.suggestedCorrection}}" class="field-error">錯誤：{{fieldErrors.suggestedCorrection}}</text>
-      </view>
-
-      <view id="field-sourceUrl" class="report-form__field">
-        <button
-          class="evidence-toggle"
-          bindtap="onToggleEvidence"
-          aria-expanded="{{evidenceExpanded}}"
-          aria-label="{{evidenceExpanded ? '收合' : '展開'}}來源與截圖"
-        >
-          <view class="evidence-toggle__copy">
-            <text class="field-heading__title">來源與截圖</text>
-            <text class="evidence-toggle__summary">{{evidenceSummary}}</text>
+        <button class="report-header__entry" bindtap="onMyReportsTap">
+          <view class="report-header__entry-copy">
+            <text class="report-header__entry-title">查看我的回報與處理進度</text>
+            <text class="report-header__entry-hint">查看已提交的回報與最新處理狀態</text>
           </view>
-          <text class="evidence-toggle__action">{{evidenceExpanded ? '收合' : '添加'}}</text>
+          <text class="report-header__entry-arrow" aria-hidden="true">›</text>
         </button>
+      </view>
 
-        <view wx:if="{{evidenceExpanded}}" class="evidence-fields">
-          <view class="evidence-fields__group">
-            <view class="field-heading">
-              <text class="field-heading__title">來源網址</text>
-              <text class="field-heading__meta">選填</text>
-            </view>
-            <input
-              class="form-control"
-              value="{{draft.sourceUrl}}"
-              type="text"
-              placeholder="貼上來源網頁地址"
-              bindinput="onSourceUrlInput"
-            />
-            <text wx:if="{{fieldErrors.sourceUrl}}" class="field-error">錯誤：{{fieldErrors.sourceUrl}}</text>
+      <view id="field-officerId" class="officer-section">
+        <view wx:if="{{selectingOfficer}}" class="officer-picker">
+          <view class="officer-picker__heading">
+            <text class="officer-picker__title">選擇航海士</text>
+            <text class="officer-picker__meta">必填</text>
           </view>
-
-          <view class="evidence-fields__group">
-            <view class="field-heading">
-              <text class="field-heading__title">證據截圖</text>
-              <text class="field-heading__meta">選填 · 最多 3 張</text>
-            </view>
-            <view class="screenshot-list">
-              <view wx:for="{{screenshotTempPaths}}" wx:key="*this" class="screenshot-item">
-                <image class="screenshot-image" src="{{item}}" mode="aspectFill" />
-                <button
-                  class="screenshot-remove"
-                  data-index="{{index}}"
-                  bindtap="onRemoveScreenshot"
-                  aria-label="移除第 {{index + 1}} 張證據截圖"
-                >移除</button>
+          <input
+            class="officer-picker__search"
+            value="{{officerQuery}}"
+            type="text"
+            placeholder="搜尋航海士姓名、ID 或別名"
+            bindinput="onOfficerSearchInput"
+          />
+          <view wx:if="{{officerCandidates.length > 0}}" class="officer-candidates">
+            <view
+              wx:for="{{officerCandidates}}"
+              wx:key="id"
+              class="officer-candidate"
+              data-id="{{item.id}}"
+              bindtap="onOfficerCandidateTap"
+            >
+              <view class="officer-candidate__portrait-wrap">
+                <image
+                  wx:if="{{item.visuals.framePath && !failedOfficerLayers[item.id + '_frame']}}"
+                  class="officer-candidate__portrait-layer officer-candidate__portrait-layer--frame"
+                  src="{{item.visuals.framePath}}"
+                  mode="aspectFill"
+                  binderror="onOfficerLayerError"
+                  data-id="{{item.id}}"
+                  data-layer="frame"
+                />
+                <image
+                  wx:if="{{item.portraitPath && !failedOfficerLayers[item.id + '_portrait']}}"
+                  class="officer-candidate__portrait-layer officer-candidate__portrait-layer--portrait"
+                  src="{{item.portraitPath}}"
+                  mode="aspectFill"
+                  binderror="onOfficerLayerError"
+                  data-id="{{item.id}}"
+                  data-layer="portrait"
+                />
+                <view wx:if="{{failedOfficerLayers[item.id + '_portrait']}}" class="officer-candidate__portrait-fallback">{{item.name}}</view>
+                <image
+                  wx:if="{{item.visuals.rarityIconPath && !failedOfficerLayers[item.id + '_rarityIcon']}}"
+                  class="officer-candidate__rarity-icon"
+                  src="{{item.visuals.rarityIconPath}}"
+                  mode="aspectFit"
+                  binderror="onOfficerLayerError"
+                  data-id="{{item.id}}"
+                  data-layer="rarityIcon"
+                />
               </view>
-              <button
-                wx:if="{{screenshotTempPaths.length < 3}}"
-                class="screenshot-add"
-                bindtap="onChooseScreenshots"
-              >添加截圖</button>
+              <view class="officer-candidate__body">
+                <text class="officer-candidate__name">{{item.name}}</text>
+                <text class="officer-candidate__meta">{{item.meta}}</text>
+              </view>
+            </view>
+          </view>
+          <text wx:if="{{identityLoading}}" class="officer-picker__status">正在讀取航海士資料…</text>
+        </view>
+
+        <view wx:else class="officer-identity">
+          <view class="officer-identity__portrait-wrap">
+            <image
+              wx:if="{{officerIdentity.visuals.framePath && !failedOfficerLayers[officerIdentity.id + '_frame']}}"
+              class="officer-identity__portrait-layer officer-identity__portrait-layer--frame"
+              src="{{officerIdentity.visuals.framePath}}"
+              mode="aspectFill"
+              binderror="onOfficerLayerError"
+              data-id="{{officerIdentity.id}}"
+              data-layer="frame"
+            />
+            <image
+              wx:if="{{officerIdentity.portraitPath && !failedOfficerLayers[officerIdentity.id + '_portrait']}}"
+              class="officer-identity__portrait-layer officer-identity__portrait-layer--portrait"
+              src="{{officerIdentity.portraitPath}}"
+              mode="aspectFill"
+              binderror="onOfficerLayerError"
+              data-id="{{officerIdentity.id}}"
+              data-layer="portrait"
+            />
+            <view wx:if="{{failedOfficerLayers[officerIdentity.id + '_portrait']}}" class="officer-identity__portrait-fallback">{{officerIdentity.name}}</view>
+            <image
+              wx:if="{{officerIdentity.visuals.rarityIconPath && !failedOfficerLayers[officerIdentity.id + '_rarityIcon']}}"
+              class="officer-identity__rarity-icon"
+              src="{{officerIdentity.visuals.rarityIconPath}}"
+              mode="aspectFit"
+              binderror="onOfficerLayerError"
+              data-id="{{officerIdentity.id}}"
+              data-layer="rarityIcon"
+            />
+          </view>
+          <view class="officer-identity__body">
+            <text class="officer-identity__name">{{officerIdentity.name}}</text>
+            <text class="officer-identity__meta">{{officerIdentity.typeName}} · {{officerIdentity.jobName}} · {{officerIdentity.genderLabel}}</text>
+            <text class="officer-identity__meta">{{officerIdentity.nationalityName}} · {{officerIdentity.languageSummary}}</text>
+          </view>
+          <button class="officer-identity__change" bindtap="onChangeOfficer" aria-label="更換航海士">更換</button>
+        </view>
+        <text wx:if="{{fieldErrors.officerId}}" class="field-error">錯誤：{{fieldErrors.officerId}}</text>
+      </view>
+
+      <view class="report-form">
+        <view id="field-errorTypes" class="report-form__field">
+          <view class="field-heading">
+            <text class="field-heading__title">錯誤類型</text>
+            <text class="field-heading__meta">必填 · 可多選</text>
+          </view>
+          <view class="type-list">
+            <button
+              wx:for="{{errorTypeOptions}}"
+              wx:key="id"
+              data-id="{{item.id}}"
+              bindtap="onErrorTypeTap"
+              class="type-chip {{item.selected ? 'type-chip--selected' : ''}}"
+              aria-pressed="{{item.selected}}"
+            >{{item.name}}</button>
+          </view>
+          <text wx:if="{{fieldErrors.errorTypes}}" class="field-error">錯誤：{{fieldErrors.errorTypes}}</text>
+        </view>
+
+        <view id="field-description" class="report-form__field">
+          <view class="field-heading">
+            <text class="field-heading__title">錯誤說明</text>
+            <text class="field-heading__meta">{{descriptionCount}} / 500</text>
+          </view>
+          <textarea
+            class="form-textarea"
+            value="{{draft.description}}"
+            maxlength="500"
+            placeholder="請說明哪項資料有誤，以及目前顯示的內容"
+            bindinput="onDescriptionInput"
+          ></textarea>
+          <text wx:if="{{fieldErrors.description}}" class="field-error">錯誤：{{fieldErrors.description}}</text>
+        </view>
+
+        <view id="field-suggestedCorrection" class="report-form__field">
+          <view class="field-heading">
+            <text class="field-heading__title">建議的正確內容</text>
+            <text class="field-heading__meta">{{correctionCount}} / 500</text>
+          </view>
+          <textarea
+            class="form-textarea"
+            value="{{draft.suggestedCorrection}}"
+            maxlength="500"
+            placeholder="請填寫你認為正確的資料內容"
+            bindinput="onCorrectionInput"
+          ></textarea>
+          <text wx:if="{{fieldErrors.suggestedCorrection}}" class="field-error">錯誤：{{fieldErrors.suggestedCorrection}}</text>
+        </view>
+
+        <view id="field-sourceUrl" class="report-form__field">
+          <button
+            class="evidence-toggle"
+            bindtap="onToggleEvidence"
+            aria-expanded="{{evidenceExpanded}}"
+            aria-label="{{evidenceExpanded ? '收合' : '展開'}}來源與截圖"
+          >
+            <view class="evidence-toggle__copy">
+              <text class="evidence-toggle__title">補充證據（選填）</text>
+              <text wx:if="{{evidenceSummary === '添加來源網址或證據截圖'}}" class="evidence-toggle__summary">來源網址或最多 3 張截圖</text>
+              <text wx:else class="evidence-toggle__summary">{{evidenceSummary}}</text>
+            </view>
+            <view class="evidence-toggle__action-wrap">
+              <text class="evidence-toggle__action">{{evidenceExpanded ? '收合' : '添加'}}</text>
+              <image
+                wx:if="{{evidenceExpanded}}"
+                class="evidence-toggle__disclosure"
+                src="/assets/ui/uwo-disclosure-chevron-up.png"
+                mode="aspectFit"
+                aria-hidden="true"
+              />
+              <image
+                wx:else
+                class="evidence-toggle__disclosure"
+                src="/assets/ui/uwo-disclosure-chevron-down.png"
+                mode="aspectFit"
+                aria-hidden="true"
+              />
+            </view>
+          </button>
+
+          <view wx:if="{{evidenceExpanded}}" class="evidence-fields">
+            <view class="evidence-fields__group">
+              <view class="field-heading">
+                <text class="field-heading__title">來源網址</text>
+                <text class="field-heading__meta">選填</text>
+              </view>
+              <input
+                class="form-control"
+                value="{{draft.sourceUrl}}"
+                type="text"
+                placeholder="貼上來源網頁地址"
+                bindinput="onSourceUrlInput"
+              />
+              <text wx:if="{{fieldErrors.sourceUrl}}" class="field-error">錯誤：{{fieldErrors.sourceUrl}}</text>
+            </view>
+
+            <view class="evidence-fields__group">
+              <view class="field-heading">
+                <text class="field-heading__title">證據截圖</text>
+                <text class="field-heading__meta">選填 · 最多 3 張</text>
+              </view>
+              <view class="screenshot-list">
+                <view wx:for="{{screenshotTempPaths}}" wx:key="*this" class="screenshot-item">
+                  <image class="screenshot-image" src="{{item}}" mode="aspectFill" />
+                  <button
+                    class="screenshot-remove"
+                    data-index="{{index}}"
+                    bindtap="onRemoveScreenshot"
+                    aria-label="移除第 {{index + 1}} 張證據截圖"
+                  >移除</button>
+                </view>
+                <button
+                  wx:if="{{screenshotTempPaths.length < 3}}"
+                  class="screenshot-add"
+                  bindtap="onChooseScreenshots"
+                >添加截圖</button>
+              </view>
             </view>
           </view>
         </view>

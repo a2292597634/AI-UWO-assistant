@@ -79,8 +79,15 @@ vi.mock('../../miniprogram/runtime/officer-error-report-service', async (origina
 interface TestPage {
   data: {
     officerOptions: Array<{ id: string; name: string; searchableText: string }>
+    officerQuery: string
+    officerCandidates: Array<{
+      id: string
+      portraitPath: string
+      visuals: { rarityIconPath: string }
+    }>
     officerIdentity: null | { id: string; name: string; rarityName: string }
     selectingOfficer: boolean
+    failedOfficerLayers: Record<string, true>
     fieldErrors: Record<string, string>
     descriptionCount: number
     correctionCount: number
@@ -103,7 +110,9 @@ interface TestPage {
   }
   setData(update: Record<string, unknown>): void
   onLoad(query?: Record<string, string | undefined>): Promise<void>
-  onOfficerSelect(event: WechatMiniprogram.CustomEvent<{ id: string }>): Promise<void>
+  onOfficerSearchInput(event: WechatMiniprogram.Input): void
+  onOfficerCandidateTap(event: WechatMiniprogram.BaseEvent): Promise<void>
+  onOfficerLayerError(event: WechatMiniprogram.BaseEvent): void
   onChangeOfficer(): void
   onErrorTypeTap(event: WechatMiniprogram.BaseEvent): void
   onDescriptionInput(event: WechatMiniprogram.Input): void
@@ -193,19 +202,50 @@ describe('航海士資料錯誤回報 Controller', () => {
     expect(page.data.officerOptions[0]?.searchableText).toContain('Christina')
   })
 
-  it('搜尋選擇航海士後原位顯示身份卡且保留其他表單內容', async () => {
+  it('輸入姓名或別名立即顯示帶頭像候選並可選中', async () => {
     const page = await loadPage()
     await page.onLoad()
-    page.onDescriptionInput(input('已填內容'))
+    page.onOfficerSearchInput(input('Christina'))
 
-    await page.onOfficerSelect({ detail: { id: 'officer_1' } } as never)
+    expect(page.data.officerCandidates).toMatchObject([
+      {
+        id: 'officer_1',
+        portraitPath: '/assets/officers/officer_1.png',
+        visuals: { rarityIconPath: '/assets/ui/uwo-icon-grade-5.png' },
+      },
+    ])
+
+    await page.onOfficerCandidateTap(tap('officer_1'))
 
     expect(page.data.selectingOfficer).toBe(false)
+    expect(page.data.officerIdentity?.id).toBe('officer_1')
     expect(page.data.officerIdentity?.name).toBe('克里斯蒂娜')
-    expect(page.data.draft).toMatchObject({ officerId: 'officer_1', description: '已填內容' })
+    expect(page.data.officerQuery).toBe('')
+    expect(page.data.officerCandidates).toEqual([])
+  })
+
+  it('更換航海士時清空舊查詢但保留表單草稿', async () => {
+    const page = await loadPage()
+    await page.onLoad({ officerId: 'officer_1' })
+    page.onDescriptionInput(input('已填錯誤內容'))
+    page.onOfficerSearchInput(input('Christina'))
+
     page.onChangeOfficer()
-    expect(page.data.selectingOfficer).toBe(true)
-    expect(page.data.draft.description).toBe('已填內容')
+    expect(page.data).toMatchObject({
+      selectingOfficer: true,
+      officerQuery: '',
+      officerCandidates: [],
+    })
+    expect(page.data.draft.description).toBe('已填錯誤內容')
+  })
+
+  it('按候選 ID 與圖片層記錄失敗且不影響其他候選', async () => {
+    const page = await loadPage()
+    page.onOfficerLayerError({
+      currentTarget: { dataset: { id: 'officer_1', layer: 'portrait' } },
+    } as never)
+
+    expect(page.data.failedOfficerLayers).toEqual({ officer_1_portrait: true })
   })
 
   it('輸入時計算字符數並即時清除對應字段錯誤', async () => {
