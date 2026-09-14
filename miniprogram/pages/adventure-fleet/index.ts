@@ -37,7 +37,7 @@ import {
 import type {
   ConfigListState,
   ConfigModalAction,
-  PendingConfigAction,
+  PendingFleetAction,
 } from '../../presenters/config-management-presenter'
 import {
   MAX_CONFIGS_PER_SCOPE,
@@ -84,11 +84,17 @@ interface FleetPageData extends AdventureFleetPageData {
   modalAction: ConfigModalAction
   modalInputValue: string
   modalTitle: string
-  pendingAction: PendingConfigAction | null
+  pendingAction: PendingFleetAction | null
   configLimitReached: boolean
   showConflictDialog: boolean
   proposalPreview: FleetProposalPreviewView | null
   canUndoProposal: boolean
+  shareStatus: FleetShareStatus
+  shareImagePath: string
+  shareError: string | null
+  shareDegradedAssetCount: number
+  shareCanvasWidth: number
+  shareCanvasHeight: number
 }
 
 // ── 页面状态 ──
@@ -111,7 +117,7 @@ interface FleetPageState {
   savedFleetState: string | null
   isDirty: boolean
   configService: FleetConfigService
-  pendingAction: PendingConfigAction | null
+  pendingAction: PendingFleetAction | null
   proposal: FleetProposal | null
   undoFleetState: FleetState | null
 }
@@ -120,6 +126,8 @@ interface FleetPageLike {
   data: FleetPageData
   setData(update: Record<string, unknown>): void
 }
+
+type FleetShareStatus = 'idle' | 'generating' | 'ready' | 'error'
 
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
 const MANUAL_SKILL_WINDOW_SIZE = 40
@@ -146,6 +154,10 @@ const getState = (page: object): FleetPageState => {
   const state = pageStateByInstance.get(page)
   if (!state) throw new Error('adventure-fleet-page-not-loaded')
   return state
+}
+
+const beginShareGeneration = (page: FleetPageLike): void => {
+  page.setData({ shareStatus: 'generating' satisfies FleetShareStatus, shareError: null })
 }
 
 const emptyPageData: FleetPageData = {
@@ -189,6 +201,12 @@ const emptyPageData: FleetPageData = {
   showConflictDialog: false,
   proposalPreview: null,
   canUndoProposal: false,
+  shareStatus: 'idle',
+  shareImagePath: '',
+  shareError: null,
+  shareDegradedAssetCount: 0,
+  shareCanvasWidth: 0,
+  shareCanvasHeight: 0,
 }
 
 const showError = (message: string): void => {
@@ -364,10 +382,13 @@ const resolvePendingAction = (page: FleetPageLike): void => {
     case 'exit':
       wx.navigateBack({})
       break
+    case 'share':
+      beginShareGeneration(page)
+      break
   }
 }
 
-const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingConfigAction): void => {
+const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction): void => {
   const state = getState(page)
   const decision = resolveConfigAction(action, state.isDirty)
   state.pendingAction = decision.pendingAction
@@ -654,6 +675,23 @@ Page({
 
   onReady() {
     render(this)
+  },
+
+  onShareFleet() {
+    if (this.data.shareStatus === 'generating') return
+    checkUnsavedAndProceed(this, { type: 'share' })
+  },
+
+  onSharePreviewClose() {
+    this.setData({ shareImagePath: '', shareStatus: 'idle', shareError: null })
+  },
+
+  onShareImage() {},
+
+  onSaveShareImage() {},
+
+  onShareRetry() {
+    this.onShareFleet()
   },
 
   // ── 素材 ──
@@ -1241,7 +1279,7 @@ Page({
 
   onUnsavedGuardDiscard() {
     const state = getState(this)
-    state.isDirty = false
+    if (state.pendingAction?.type !== 'share') state.isDirty = false
     resolvePendingAction(this)
   },
 

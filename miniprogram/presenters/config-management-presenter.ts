@@ -73,6 +73,9 @@ export interface PendingConfigAction {
   targetName?: string
 }
 
+/** 兩個配隊頁共用的未保存後續動作，分享不會改寫隊伍狀態。 */
+export type PendingFleetAction = PendingConfigAction | { type: 'share' }
+
 export interface ConfigNameValidation {
   ok: boolean
   name?: string
@@ -87,7 +90,7 @@ export interface ConfigModalData {
 }
 
 export interface ConfigActionDecision {
-  pendingAction: PendingConfigAction
+  pendingAction: PendingFleetAction
   showUnsavedGuard: boolean
 }
 
@@ -131,7 +134,7 @@ export function validateConfigName(value: string): ConfigNameValidation {
 }
 
 export function resolveConfigAction(
-  action: PendingConfigAction,
+  action: PendingFleetAction,
   isDirty: boolean,
 ): ConfigActionDecision {
   return {

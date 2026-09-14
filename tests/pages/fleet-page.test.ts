@@ -89,6 +89,11 @@ interface FleetPageConfig {
   onConflictReload(): Promise<void>
   onConflictForceOverwrite(): Promise<void>
   onConflictCancel(): void
+  onShareFleet(): void
+  onSharePreviewClose(): void
+  onShareImage(): void
+  onSaveShareImage(): void
+  onShareRetry(): void
 }
 
 interface FleetPageInstance extends FleetPageConfig {
@@ -465,6 +470,42 @@ const sharedComponentNames = [
   'result-preview-sheet',
   'empty-state',
 ] as const
+
+describe('battle fleet share entry', () => {
+  it('keeps one fixed share bar outside the main fleet scroll view', () => {
+    const fleetScrollEnd = fleetWxml.lastIndexOf('</scroll-view>')
+    const shareBarIndex = fleetWxml.indexOf('<view class="fleet-share-bar"')
+
+    expect(shareBarIndex).toBeGreaterThan(fleetScrollEnd)
+    expect(fleetWxml).toContain('分享當前隊伍')
+    expect(fleetWxml).toContain('↗ 分享隊伍')
+    expect(fleetWxml).toContain('bindtap="onShareFleet"')
+    expect(fleetWxml).toContain('disabled="{{shareStatus === \'generating\'}}"')
+    expect(fleetWxss).toContain('env(safe-area-inset-bottom)')
+  })
+
+  it('clean share action enters generating without changing the fleet view', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    const before = structuredClone(page.data.currentShip)
+
+    page.onShareFleet()
+
+    expect(page.data.shareStatus).toBe('generating')
+    expect(page.data.currentShip).toEqual(before)
+  })
+
+  it('dirty share action uses the existing unsaved guard with share pending action', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onShareFleet()
+
+    expect(page.data.showUnsavedGuard).toBe(true)
+    expect(page.data.pendingAction).toEqual({ type: 'share' })
+  })
+})
 
 describe('fleet slot action touch targets', () => {
   it('keeps six columns with compact direct actions per slot', () => {

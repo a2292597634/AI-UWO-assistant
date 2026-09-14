@@ -120,6 +120,59 @@
 .fleet-scroll {
   min-height: 0;
   flex: 1;
+  padding-bottom: calc(var(--uwo-space-12) + 88rpx + env(safe-area-inset-bottom));
+}
+
+.fleet-share-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: var(--uwo-space-3);
+  padding: var(--uwo-space-3) var(--uwo-space-4)
+    calc(var(--uwo-space-3) + env(safe-area-inset-bottom));
+  border-top: 1rpx solid var(--uwo-color-border-subtle);
+  background: var(--uwo-color-surface);
+  box-shadow: var(--uwo-shadow-elevated);
+}
+
+.fleet-share-bar__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.fleet-share-bar__title,
+.fleet-share-bar__hint {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.fleet-share-bar__title {
+  color: var(--uwo-color-text-primary);
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+}
+
+.fleet-share-bar__hint {
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+}
+
+.fleet-share-bar__button {
+  box-sizing: border-box;
+  min-width: 240rpx;
+  min-height: 88rpx;
+  margin: 0;
+  padding: 0 var(--uwo-space-4);
+  border-color: var(--uwo-color-accent-brass) !important;
+  background: var(--uwo-color-accent-brass) !important;
+  color: var(--uwo-color-ink) !important;
+  font-size: var(--uwo-font-size-body);
+  font-weight: 700;
 }
 
 /* ── 面板通用 ── */

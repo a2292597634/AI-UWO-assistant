@@ -45,10 +45,10 @@
         <text class="config-unsaved-guard__title">尚未保存</text>
       </view>
       <view class="config-unsaved-guard__body">
-        <text class="config-unsaved-guard__text">目前配置尚未保存，要如何處理？</text>
+        <text class="config-unsaved-guard__text">{{pendingAction && pendingAction.type === 'share' ? '目前配置尚未保存，要先保存再生成分享圖嗎？' : '目前配置尚未保存，要如何處理？'}}</text>
         <view class="config-unsaved-guard__actions">
-          <button class="ui-button ui-button--primary config-unsaved-guard__button" bindtap="onUnsavedGuardSave">保存並繼續</button>
-          <button class="ui-button ui-button--danger config-unsaved-guard__button" bindtap="onUnsavedGuardDiscard">放棄修改</button>
+          <button class="ui-button ui-button--primary config-unsaved-guard__button" bindtap="onUnsavedGuardSave">{{pendingAction && pendingAction.type === 'share' ? '保存後生成' : '保存並繼續'}}</button>
+          <button class="ui-button {{pendingAction && pendingAction.type === 'share' ? 'ui-button--secondary' : 'ui-button--danger'}} config-unsaved-guard__button" bindtap="onUnsavedGuardDiscard">{{pendingAction && pendingAction.type === 'share' ? '直接生成' : '放棄修改'}}</button>
           <button class="ui-button ui-button--secondary config-unsaved-guard__button" bindtap="onUnsavedGuardCancel">取消</button>
         </view>
       </view>
@@ -282,6 +282,18 @@
 
     </view>
    </scroll-view>
+
+   <view class="fleet-share-bar" role="region" aria-label="分享當前隊伍">
+     <view class="fleet-share-bar__copy">
+       <text class="fleet-share-bar__title">分享當前隊伍</text>
+       <text class="fleet-share-bar__hint">生成可保存、可分享的長圖</text>
+     </view>
+     <button
+       class="ui-button ui-button--primary fleet-share-bar__button"
+       disabled="{{shareStatus === 'generating'}}"
+       bindtap="onShareFleet"
+     >{{shareStatus === 'generating' ? '正在生成…' : shareStatus === 'error' ? '重試分享' : '↗ 分享隊伍'}}</button>
+   </view>
 
    <result-preview-sheet
      visible="{{proposalPreview !== null}}"

@@ -38,6 +38,11 @@ interface AdventurePageConfig {
   onConfigToggle(): void
   onConfigClassify(event: WechatMiniprogram.BaseEvent): Promise<void>
   onConfigRetry(): Promise<void>
+  onShareFleet(): void
+  onSharePreviewClose(): void
+  onShareImage(): void
+  onSaveShareImage(): void
+  onShareRetry(): void
 }
 
 interface AdventurePageInstance extends AdventurePageConfig {
@@ -542,6 +547,30 @@ const sharedComponentNames = [
   'status-badge',
   'empty-state',
 ] as const
+
+describe('adventure fleet share entry', () => {
+  it('keeps one fixed share bar outside the main fleet scroll view', () => {
+    const fleetScrollEnd = adventureWxml.lastIndexOf('</scroll-view>')
+    const shareBarIndex = adventureWxml.indexOf('<view class="fleet-share-bar"')
+
+    expect(shareBarIndex).toBeGreaterThan(fleetScrollEnd)
+    expect(adventureWxml).toContain('分享當前隊伍')
+    expect(adventureWxml).toContain('↗ 分享隊伍')
+    expect(adventureWxml).toContain('bindtap="onShareFleet"')
+    expect(adventureWxss).toContain('env(safe-area-inset-bottom)')
+  })
+
+  it('dirty share action keeps the current fleet and records a share pending action', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onShareFleet()
+
+    expect(page.data.showUnsavedGuard).toBe(true)
+    expect(page.data.pendingAction).toEqual({ type: 'share' })
+  })
+})
 
 describe('adventure fleet page layout hooks', () => {
   it('loads the changed page files for structural assertions', () => {
