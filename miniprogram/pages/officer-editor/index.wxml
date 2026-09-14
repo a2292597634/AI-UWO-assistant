@@ -135,7 +135,7 @@
               class="form-control"
               value="{{draft.sourceUrl}}"
               type="text"
-              placeholder="https://example.com"
+              placeholder="貼上來源網頁地址"
               bindinput="onSourceUrlInput"
             />
             <text wx:if="{{fieldErrors.sourceUrl}}" class="field-error">錯誤：{{fieldErrors.sourceUrl}}</text>
