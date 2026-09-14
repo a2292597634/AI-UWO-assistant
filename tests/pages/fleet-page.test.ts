@@ -529,6 +529,7 @@ describe('battle fleet share entry', () => {
     page.onShareFleet()
 
     expect(page.data.shareStatus).toBe('generating')
+    expect(page.data.pendingAction).toBeNull()
     expect(page.data.currentShip).toEqual(before)
   })
 

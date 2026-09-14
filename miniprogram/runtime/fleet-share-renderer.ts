@@ -1,8 +1,6 @@
 import type {
   AdventureFleetShareGroup,
-  AdventureFleetShareViewModel,
   BattleFleetShareShipView,
-  BattleFleetShareViewModel,
   FleetShareOfficerView,
   FleetShareSkillView,
   FleetShareViewModel,
@@ -25,15 +23,16 @@ type ShareContext = WechatMiniprogram.CanvasRenderingContext.CanvasRenderingCont
 type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
-const UI_ROOT = '/assets/ui/'
 const OFFICER_SIZE = 64
-const RARITY_SIZE = 32
-const TYPE_SIZE = 18
-const SKILL_ICON_SIZE = 30
+const SKILL_ICON_SIZE = 26
+const FRAME_INSET = 3
+const SKILL_LEVEL_WIDTH = 44
+const SKILL_LEVEL_HEIGHT = 20
 const FONT_OFFICER = '600 22px sans-serif'
 const FONT_SKILL = '600 20px sans-serif'
 const FONT_LABEL = '600 22px sans-serif'
 const FONT_META = '500 18px sans-serif'
+const FONT_LEVEL = '700 16px sans-serif'
 const COLORS = {
   paper: '#f1ead9',
   paperAlt: '#e7ddc8',
@@ -45,11 +44,81 @@ const COLORS = {
   border: '#c2b59d',
   white: '#fffaf0',
   danger: '#9d3c31',
+  activePanel: '#f4e5bf',
+  activeBorder: '#b58a3a',
+  passivePanel: '#dce9e2',
+  passiveBorder: '#527565',
 }
 
 const localAssetPath = (path: string): string => {
-  if (!path || path.startsWith('http://') || path.startsWith('https://')) return ''
-  return path
+  if (path.startsWith('/')) return path
+  // 頭像與技能素材沿用既有 CDN 資料；不接受其他遠程來源。
+  if (path.startsWith('https:') && path.includes('.tcb.qcloud.la/')) return path
+  return ''
+}
+
+export interface OfficerVisualRects {
+  frame: ShareRect
+  portrait: ShareRect
+  rarity: ShareRect
+  type: ShareRect
+}
+
+/** 計算航海士各素材的相對座標，品質與類型圖標始終跟隨頭像。 */
+export const getOfficerVisualRects = (rect: ShareRect): OfficerVisualRects => {
+  const frameSize = Math.min(OFFICER_SIZE, Math.max(0, rect.width))
+  const frame = {
+    x: rect.x + (rect.width - frameSize) / 2,
+    y: rect.y + 4,
+    width: frameSize,
+    height: frameSize,
+  }
+  const portraitSize = Math.max(0, frameSize - FRAME_INSET * 2)
+  const portrait = {
+    x: frame.x + FRAME_INSET,
+    y: frame.y + FRAME_INSET,
+    width: portraitSize,
+    height: portraitSize,
+  }
+  const raritySize = Math.min(portraitSize, Math.max(24, portraitSize * 0.58))
+  const typeSize = Math.min(portraitSize, Math.max(14, portraitSize * 0.32))
+  return {
+    frame,
+    portrait,
+    rarity: { x: portrait.x, y: portrait.y, width: raritySize, height: raritySize },
+    type: {
+      x: portrait.x,
+      y: portrait.y + portrait.height - typeSize,
+      width: typeSize,
+      height: typeSize,
+    },
+  }
+}
+
+export interface SkillCardLayout {
+  rect: ShareRect
+  icon: ShareRect
+  name: ShareRect
+  level: ShareRect
+}
+
+/** 技能卡把名稱與等級角標分到上下兩行，避免窄欄位互相覆蓋。 */
+export const getSkillCardLayout = (rect: ShareRect): SkillCardLayout => {
+  const iconSize = Math.min(SKILL_ICON_SIZE, Math.max(0, rect.height - 12))
+  const icon = { x: rect.x + 6, y: rect.y + 6, width: iconSize, height: iconSize }
+  const level = {
+    x: rect.x + rect.width - SKILL_LEVEL_WIDTH - 6,
+    y: rect.y + rect.height - SKILL_LEVEL_HEIGHT - 5,
+    width: SKILL_LEVEL_WIDTH,
+    height: SKILL_LEVEL_HEIGHT,
+  }
+  const name = {
+    x: icon.x + icon.width + 6,
+    y: rect.y + 4,
+    width: Math.max(0, rect.width - (icon.x + icon.width + 6 - rect.x) - 8),
+    height: 22,
+  }
+  return { rect, icon, name, level }
 }
 
 const loadImage = (canvas: ShareCanvas, path: string): Promise<ShareImage> =>
@@ -194,19 +263,15 @@ const drawOfficer = (
     drawPlaceholder(context, rect, '空位')
     return
   }
-  const portraitRect = {
-    x: rect.x + (rect.width - OFFICER_SIZE) / 2,
-    y: rect.y + 6,
-    width: OFFICER_SIZE,
-    height: OFFICER_SIZE,
-  }
-  roundedRect(context, portraitRect, 8, COLORS.ink)
-  drawImageOptional(context, images.get(officer.portraitPath), portraitRect)
-  if (!images.get(officer.portraitPath))
-    drawPlaceholder(context, portraitRect, officer.name, COLORS.paperAlt)
-
+  const visualRects = getOfficerVisualRects(rect)
   const frame = images.get(officer.visuals.framePath)
-  drawImageOptional(context, frame, portraitRect)
+  if (frame) drawImageFit(context, frame, visualRects.frame)
+  else roundedRect(context, visualRects.frame, 8, COLORS.ink)
+
+  const portrait = images.get(officer.portraitPath)
+  drawImageOptional(context, portrait, visualRects.portrait)
+  if (!portrait) drawPlaceholder(context, visualRects.portrait, officer.name, COLORS.paperAlt)
+
   const rarity = images.get(officer.visuals.rarityIconPath)
   const crop = gradeCrop(officer.visuals.rarityIconPath)
   if (rarity && crop) {
@@ -216,40 +281,25 @@ const drawOfficer = (
       crop.sy,
       crop.sw,
       crop.sh,
-      rect.x + 2,
-      rect.y + 2,
-      RARITY_SIZE,
-      RARITY_SIZE,
+      visualRects.rarity.x,
+      visualRects.rarity.y,
+      visualRects.rarity.width,
+      visualRects.rarity.height,
     )
   } else {
-    roundedRect(
-      context,
-      { x: rect.x + 2, y: rect.y + 2, width: RARITY_SIZE, height: RARITY_SIZE },
-      16,
-      COLORS.brass,
-    )
+    roundedRect(context, visualRects.rarity, 16, COLORS.brass)
     drawText(
       context,
       officer.rarityName,
-      rect.x + 2,
-      rect.y + 18,
-      RARITY_SIZE,
+      visualRects.rarity.x,
+      visualRects.rarity.y + visualRects.rarity.height / 2,
+      visualRects.rarity.width,
       FONT_META,
       COLORS.white,
     )
   }
   const typeIcon = images.get(officer.visuals.typeIconPath)
-  drawImageOptional(
-    context,
-    typeIcon,
-    {
-      x: portraitRect.x,
-      y: portraitRect.y + portraitRect.height - TYPE_SIZE,
-      width: TYPE_SIZE,
-      height: TYPE_SIZE,
-    },
-    true,
-  )
+  drawImageOptional(context, typeIcon, visualRects.type, true)
   drawText(
     context,
     officer.name,
@@ -266,39 +316,51 @@ const drawSkillCard = (
   rect: ShareRect,
   images: ReadonlyMap<string, ShareImage>,
 ): void => {
-  roundedRect(context, rect, 8, COLORS.white, COLORS.border)
-  const iconRect = {
-    x: rect.x + 7,
-    y: rect.y + (rect.height - SKILL_ICON_SIZE) / 2,
-    width: SKILL_ICON_SIZE,
-    height: SKILL_ICON_SIZE,
-  }
+  const card = getSkillCardLayout(rect)
+  roundedRect(context, card.rect, 8, COLORS.white, COLORS.border)
   const icon = images.get(skill.skillIconPath)
-  if (icon) drawImageFit(context, icon, iconRect, true)
-  else drawPlaceholder(context, iconRect, '技', COLORS.paperAlt)
+  if (icon) drawImageFit(context, icon, card.icon, true)
+  else drawPlaceholder(context, card.icon, '技', COLORS.paperAlt)
   drawText(
     context,
     skill.skillName,
-    iconRect.x + iconRect.width + 6,
-    rect.y + 18,
-    rect.width - 78,
+    card.name.x,
+    card.name.y + card.name.height / 2,
+    card.name.width,
     FONT_SKILL,
   )
-  roundedRect(
-    context,
-    { x: rect.x + rect.width - 52, y: rect.y + 11, width: 44, height: 30 },
-    15,
-    COLORS.green,
-  )
+  roundedRect(context, card.level, 10, COLORS.green)
   drawText(
     context,
     `Lv.${skill.totalLevel}`,
-    rect.x + rect.width - 48,
-    rect.y + 26,
-    36,
-    FONT_META,
+    card.level.x + 4,
+    card.level.y + card.level.height / 2,
+    card.level.width - 8,
+    FONT_LEVEL,
     COLORS.white,
   )
+}
+
+const drawSkillSection = (
+  context: ShareContext,
+  skills: readonly FleetShareSkillView[],
+  section: ShareRect,
+  cards: readonly ShareRect[],
+  kind: 'active' | 'passive',
+  images: ReadonlyMap<string, ShareImage>,
+): void => {
+  if (section.height <= 0) return
+  roundedRect(
+    context,
+    section,
+    10,
+    kind === 'active' ? COLORS.activePanel : COLORS.passivePanel,
+    kind === 'active' ? COLORS.activeBorder : COLORS.passiveBorder,
+  )
+  skills.forEach((skill, index) => {
+    const card = cards[index]
+    if (card) drawSkillCard(context, skill, card, images)
+  })
 }
 
 const preloadAssets = async (
@@ -426,34 +488,22 @@ const drawShip = (
   ship.officerSlots.forEach((officer, index) =>
     drawOfficer(context, officer, section.officerSlots[index]!, images),
   )
-  if (ship.activeSkills.length > 0) {
-    drawText(
-      context,
-      '主動技能 TOP 5',
-      section.activeSection.x,
-      section.activeSection.y - 10,
-      220,
-      FONT_META,
-      COLORS.green,
-    )
-    ship.activeSkills.forEach((skill, index) =>
-      drawSkillCard(context, skill, section.activeCards[index]!, images),
-    )
-  }
-  if (ship.passiveSkills.length > 0) {
-    drawText(
-      context,
-      '戰鬥被動技能',
-      section.passiveSection.x,
-      section.passiveSection.y - 10,
-      220,
-      FONT_META,
-      COLORS.green,
-    )
-    ship.passiveSkills.forEach((skill, index) =>
-      drawSkillCard(context, skill, section.passiveCards[index]!, images),
-    )
-  }
+  drawSkillSection(
+    context,
+    ship.activeSkills,
+    section.activeSection,
+    section.activeCards,
+    'active',
+    images,
+  )
+  drawSkillSection(
+    context,
+    ship.passiveSkills,
+    section.passiveSection,
+    section.passiveCards,
+    'passive',
+    images,
+  )
 }
 
 const drawGroup = (
@@ -502,23 +552,48 @@ export const drawFleetShareImage = async (
     })
     drawText(
       context,
-      '全艦累計技能',
+      '全艦冒險技能累計',
       layout.skillSection.rect.x,
-      layout.skillSection.y - 10,
-      240,
+      layout.skillSection.y - 34,
+      300,
       FONT_LABEL,
       COLORS.green,
     )
-    view.skills.forEach((skill, index) =>
-      drawSkillCard(context, skill, layout.skillSection.skillCards[index]!, report.images),
+    drawText(
+      context,
+      '統計上方全部航海士 · 僅列出預設範圍',
+      layout.skillSection.rect.x,
+      layout.skillSection.y - 12,
+      layout.skillSection.rect.width,
+      FONT_META,
+      COLORS.inkMuted,
     )
+    drawSkillSection(
+      context,
+      view.skills,
+      layout.skillSection.rect,
+      layout.skillSection.skillCards,
+      'passive',
+      report.images,
+    )
+    if (view.skills.length === 0) {
+      drawText(
+        context,
+        '尚未設定預設範圍',
+        layout.skillSection.rect.x + 16,
+        layout.skillSection.rect.y + layout.skillSection.rect.height / 2,
+        layout.skillSection.rect.width - 32,
+        FONT_SKILL,
+        COLORS.inkMuted,
+      )
+    }
   }
 
   context.fillStyle = COLORS.green
   context.fillRect(layout.footer.x, layout.footer.y, layout.footer.width, layout.footer.height)
   drawText(
     context,
-    '掃描 QR 碼進入小程序首頁',
+    '掃描 QR 碼進入小程式首頁',
     layout.padding,
     layout.footer.y + layout.footer.height / 2,
     layout.footer.width - layout.padding * 2 - layout.qr.width - 16,

@@ -179,7 +179,6 @@ export const buildAdventureFleetShareViewModel = (
     ),
   ]
   const totals = new Map<string, number>(targetIds.map((skillId) => [skillId, 0]))
-  const metas = new Map<string, RuntimeFleetSkillRelation>()
 
   for (const officerId of collectAllOfficerIds(fleet)) {
     const officer = officers[officerId]
@@ -187,15 +186,6 @@ export const buildAdventureFleetShareViewModel = (
     for (const relation of officer.adventureSkills) {
       if (!targetIds.includes(relation.skillId)) continue
       addLevel(totals, relation.skillId, relation.level)
-      if (!metas.has(relation.skillId)) {
-        metas.set(relation.skillId, {
-          skillId: relation.skillId,
-          kind: 'passive',
-          categoryId: skills[relation.skillId]?.cat ?? 'skill_category_adventure',
-          level: relation.level,
-          unlockLevel: relation.unlockLevel,
-        })
-      }
     }
   }
 
@@ -212,8 +202,6 @@ export const buildAdventureFleetShareViewModel = (
     )
     .sort(compareShareSkills)
 
-  // 呼叫此 helper 以保證未來替換資料來源時仍維持相同的扁平順序。
-  void metas
   return {
     mode: 'adventure',
     configName,

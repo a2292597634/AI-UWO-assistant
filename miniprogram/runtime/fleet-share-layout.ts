@@ -64,6 +64,7 @@ const DEFAULT_PADDING = 32
 const SKILL_COLUMNS = 5
 const SKILL_COLUMN = 132
 const SKILL_GAP = 4
+const SKILL_SECTION_PADDING = 8
 const SECTION_GAP = 24
 const HEADER_HEIGHT = 104
 const FOOTER_HEIGHT = 180
@@ -72,6 +73,8 @@ const OFFICER_SLOT_HEIGHT = 112
 const OFFICER_GAP = 6
 const SKILL_ROW_HEIGHT = 52
 const SKILL_ROW_GAP = 6
+const SKILL_HEADING_HEIGHT = 48
+const EMPTY_SKILL_SECTION_HEIGHT = 56
 
 const skillRows = (count: number): number => Math.ceil(count / SKILL_COLUMNS)
 
@@ -92,15 +95,19 @@ const makeSkillSection = (
   padding: number,
 ): FleetShareSkillSectionLayout => {
   const rows = skillRows(count)
-  const height = skillSectionHeight(count)
+  const contentHeight = skillSectionHeight(count)
+  const height = contentHeight > 0 ? contentHeight + SKILL_SECTION_PADDING * 2 : 0
   const contentWidth = width - padding * 2
   const columnWidth = Math.min(
     SKILL_COLUMN,
-    (contentWidth - (SKILL_COLUMNS - 1) * SKILL_GAP) / SKILL_COLUMNS,
+    (contentWidth - SKILL_SECTION_PADDING * 2 - (SKILL_COLUMNS - 1) * SKILL_GAP) / SKILL_COLUMNS,
   )
   const cards = Array.from({ length: count }, (_, index) => ({
-    x: padding + (index % SKILL_COLUMNS) * (columnWidth + SKILL_GAP),
-    y: y + Math.floor(index / SKILL_COLUMNS) * (SKILL_ROW_HEIGHT + SKILL_ROW_GAP),
+    x: padding + SKILL_SECTION_PADDING + (index % SKILL_COLUMNS) * (columnWidth + SKILL_GAP),
+    y:
+      y +
+      SKILL_SECTION_PADDING +
+      Math.floor(index / SKILL_COLUMNS) * (SKILL_ROW_HEIGHT + SKILL_ROW_GAP),
     width: columnWidth,
     height: SKILL_ROW_HEIGHT,
   }))
@@ -110,6 +117,21 @@ const makeSkillSection = (
     rect: { x: padding, y, width: contentWidth, height },
     skillRows: rows,
     skillCards: cards,
+  }
+}
+
+const makeEmptySkillSection = (
+  y: number,
+  width: number,
+  padding: number,
+): FleetShareSkillSectionLayout => {
+  const contentWidth = width - padding * 2
+  return {
+    y,
+    height: EMPTY_SKILL_SECTION_HEIGHT,
+    rect: { x: padding, y, width: contentWidth, height: EMPTY_SKILL_SECTION_HEIGHT },
+    skillRows: 0,
+    skillCards: [],
   }
 }
 
@@ -149,10 +171,9 @@ export const measureBattleFleetShare = (
     }))
     cursor += OFFICER_SLOT_HEIGHT
     cursor += SECTION_GAP
-    const activeHeight = skillSectionHeight(ship.activeSkills.length)
     const activeSection = makeSkillSection(cursor, ship.activeSkills.length, width, padding)
-    cursor += activeHeight
-    cursor += ship.passiveSkills.length > 0 ? SECTION_GAP : 0
+    cursor += activeSection.height
+    cursor += activeSection.height > 0 && ship.passiveSkills.length > 0 ? SECTION_GAP : 0
     const passiveSection = makeSkillSection(cursor, ship.passiveSkills.length, width, padding)
     cursor += passiveSection.height
     cursor += SECTION_GAP
@@ -220,7 +241,11 @@ export const measureAdventureFleetShare = (
     cursor += SECTION_GAP
     return { rarityName: group.rarityName, y, height: cursor - y, heading, officerSlots }
   })
-  const skillSection = makeSkillSection(cursor, view.skills.length, width, padding)
+  cursor += SKILL_HEADING_HEIGHT
+  const skillSection =
+    view.skills.length > 0
+      ? makeSkillSection(cursor, view.skills.length, width, padding)
+      : makeEmptySkillSection(cursor, width, padding)
   cursor += skillSection.height + SECTION_GAP
   const contentBottom = cursor
   const { footer, qr } = makeFooter(cursor, width, padding)

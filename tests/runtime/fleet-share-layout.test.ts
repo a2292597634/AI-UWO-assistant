@@ -9,6 +9,10 @@ import {
   measureAdventureFleetShare,
   measureBattleFleetShare,
 } from '../../miniprogram/runtime/fleet-share-layout'
+import {
+  getOfficerVisualRects,
+  getSkillCardLayout,
+} from '../../miniprogram/runtime/fleet-share-renderer'
 
 const officer = (id: string): FleetShareOfficerView => ({
   id,
@@ -82,5 +86,30 @@ describe('配隊分享圖布局測量', () => {
     )
     expect(layout.skillSection.skillRows).toBe(3)
     expect(layout.contentBottom).toBeLessThanOrEqual(layout.height)
+  })
+
+  it('航海士品質徽章與類型圖標錨定在實際頭像框內', () => {
+    const visuals = getOfficerVisualRects({ x: 32, y: 120, width: 132, height: 112 })
+
+    expect(visuals.frame.x).toBeLessThanOrEqual(visuals.portrait.x)
+    expect(visuals.frame.y).toBeLessThanOrEqual(visuals.portrait.y)
+    expect(visuals.rarity.x).toBeGreaterThanOrEqual(visuals.portrait.x)
+    expect(visuals.rarity.y).toBeGreaterThanOrEqual(visuals.portrait.y)
+    expect(visuals.rarity.x + visuals.rarity.width).toBeLessThanOrEqual(
+      visuals.portrait.x + visuals.portrait.width,
+    )
+    expect(visuals.type.x).toBeGreaterThanOrEqual(visuals.portrait.x)
+    expect(visuals.type.y + visuals.type.height).toBeLessThanOrEqual(
+      visuals.portrait.y + visuals.portrait.height,
+    )
+  })
+
+  it('技能名稱與累計等級膠囊在卡片內分行且不重疊', () => {
+    const card = getSkillCardLayout({ x: 32, y: 200, width: 132, height: 52 })
+
+    expect(card.name.x + card.name.width).toBeLessThanOrEqual(card.rect.x + card.rect.width)
+    expect(card.name.y + card.name.height).toBeLessThanOrEqual(card.level.y)
+    expect(card.level.x + card.level.width).toBeLessThanOrEqual(card.rect.x + card.rect.width)
+    expect(card.icon.x + card.icon.width).toBeLessThanOrEqual(card.name.x)
   })
 })

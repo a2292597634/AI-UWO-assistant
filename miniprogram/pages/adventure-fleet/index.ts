@@ -473,7 +473,11 @@ const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction)
     showUnsavedGuard: decision.showUnsavedGuard,
   })
   if (!decision.showUnsavedGuard) {
-    if (action.type === 'share') return generateShareImage(page)
+    if (action.type === 'share') {
+      state.pendingAction = null
+      page.setData({ pendingAction: null })
+      return generateShareImage(page)
+    }
     resolvePendingAction(page)
   }
   return Promise.resolve()
@@ -776,7 +780,7 @@ Page({
         entrancePath: 'pages/home/index',
       })
     } catch {
-      showError('当前版本暂不支持直接分享，请先保存图片')
+      showError('目前版本暫不支援直接分享，請先保存圖片')
     }
   },
 
@@ -787,7 +791,7 @@ Page({
       await wx.saveImageToPhotosAlbum({ filePath: imagePath })
       showError('分享圖已保存到相冊')
     } catch {
-      showError('請在小程序設定中開啟相冊權限')
+      showError('請在小程式設定中開啟相冊權限')
     }
   },
 
