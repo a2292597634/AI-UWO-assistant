@@ -1,4 +1,4 @@
-/* 層級順序：固定分享欄 30 → 方案預覽 32/33 → 分享圖預覽 40/41。 */
+/* 層級順序：固定分享欄 30 → 撤銷列 31 → 方案預覽 32/33 → 分享圖預覽 40/41。 */
 .result-preview-sheet__mask {
   position: fixed;
   top: 0;
@@ -200,7 +200,7 @@
   right: var(--uwo-space-6);
   bottom: calc(var(--uwo-space-6) + env(safe-area-inset-bottom));
   left: var(--uwo-space-6);
-  z-index: 19;
+  z-index: 31;
   gap: var(--uwo-space-2);
   padding: var(--uwo-space-2) var(--uwo-space-3);
   border: 2rpx solid var(--uwo-color-border-strong);

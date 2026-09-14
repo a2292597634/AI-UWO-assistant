@@ -298,6 +298,7 @@
      <button
        class="ui-button ui-button--primary fleet-share-bar__button"
        disabled="{{shareStatus === 'generating'}}"
+       loading="{{shareStatus === 'generating'}}"
        bindtap="onShareFleet"
      >{{shareStatus === 'generating' ? '正在生成…' : shareStatus === 'error' ? '重試分享' : '↗ 分享隊伍'}}</button>
    </view>

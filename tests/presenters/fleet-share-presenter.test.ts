@@ -89,6 +89,8 @@ describe('配隊分享圖 Presenter', () => {
     skills.a4 = skill('a4', 'A4')
     skills.a5 = skill('a5', 'A5')
     skills.a6 = skill('a6', 'A6')
+    skills.p1 = skill('p1', 'P1', 'skill_category_naval_passive_boarding')
+    skills.p2 = skill('p2', 'P2', 'skill_category_naval_passive_boarding')
 
     const view = buildBattleFleetShareViewModel(
       fleetWithOfficers([['o1', 'o2']]),
@@ -106,6 +108,87 @@ describe('配隊分享圖 Presenter', () => {
     expect(ship.passiveSkills.map((item) => item.skillId)).toEqual(['p1', 'p2'])
     expect(ship.passiveSkills.every((item) => item.totalLevel >= 2)).toBe(true)
     expect(view.qrPath).toBe('/assets/ui/mini-program-home-code.png')
+  })
+
+  it('戰鬥技能只統計分享圖實際展示的前 11 個位置', () => {
+    const officers = [
+      ...Array.from({ length: 11 }, (_, index) => runtimeOfficer(`o${index}`, [])),
+      runtimeOfficer('overflow', [relation('overflow-skill', 'active', 9)]),
+    ]
+    const view = buildBattleFleetShareViewModel(
+      fleetWithOfficers([officers.map((officer) => officer.id)]),
+      officers,
+      { 'overflow-skill': skill('overflow-skill', '不應出現') },
+      '七船案例',
+      '/qr.png',
+    )
+
+    expect(view.ships[0]!.officerSlots).toHaveLength(11)
+    expect(view.ships[0]!.activeSkills).toEqual([])
+  })
+
+  it('戰鬥主動只看 kind，被動則以 canonical 技能分類判斷', () => {
+    const officers = [
+      runtimeOfficer('o1', [
+        relation('active-outside', 'active', 4, 'skill_category_trade'),
+        relation('passive-relation-battle', 'passive', 4, 'skill_category_naval_passive_defense'),
+        relation('passive-canonical-battle', 'passive', 4, 'skill_category_trade'),
+      ]),
+    ]
+    const skills = {
+      'active-outside': skill('active-outside', '主動技能', 'skill_category_trade'),
+      'passive-relation-battle': skill(
+        'passive-relation-battle',
+        '非戰鬥技能',
+        'skill_category_trade',
+      ),
+      'passive-canonical-battle': skill(
+        'passive-canonical-battle',
+        '錯誤關係分類',
+        'skill_category_naval_passive_defense',
+      ),
+    }
+    const view = buildBattleFleetShareViewModel(
+      fleetWithOfficers([['o1']]),
+      officers,
+      skills,
+      '分類案例',
+      '/qr.png',
+    )
+
+    expect(view.ships[0]!.activeSkills.map((item) => item.skillId)).toEqual(['active-outside'])
+    expect(view.ships[0]!.passiveSkills.map((item) => item.skillId)).toEqual([
+      'passive-canonical-battle',
+    ])
+  })
+
+  it('冒險累計只統計分享圖展示的前 11 個位置', () => {
+    const officers: AdventureFleetOfficer[] = Array.from({ length: 12 }, (_, index) => ({
+      id: `o${index}`,
+      name: `航海士${index}`,
+      jobName: '航海士',
+      rarityName: 'A',
+      portraitPath: `/o${index}.png`,
+      visualGradeId: 'grade_4',
+      typeId: 'type_class_1',
+      typeName: '冒險',
+      genderId: 'gender_f',
+      zone: 'adventure',
+      adventureSkills: [{ skillId: 'target', level: index === 11 ? 9 : 0, unlockLevel: 1 }],
+    }))
+    const state = fleetWithOfficers([officers.map((item) => item.id)])
+    state.ships[0]!.targets = [{ id: 'target-row', skillId: 'target', targetLevel: 1 }]
+
+    const view = buildAdventureFleetShareViewModel(
+      state,
+      officers,
+      { target: skill('target', '目標', 'skill_category_adventure') },
+      '冒險隊伍',
+      '/qr.png',
+    )
+
+    expect(view.groups.flatMap((group) => group.officers)).toHaveLength(11)
+    expect(view.skills[0]?.totalLevel).toBe(0)
   })
 
   it('冒險只累計首艘船預設目標，按 S/A/B/C 分組並顯示 Lv0', () => {

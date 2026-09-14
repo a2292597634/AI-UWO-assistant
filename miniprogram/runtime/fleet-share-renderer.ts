@@ -24,16 +24,22 @@ type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
 const OFFICER_SIZE = 64
-const SKILL_ICON_SIZE = 26
+const SKILL_ICON_SIZE = 24
 const FRAME_INSET = 3
-const SKILL_LEVEL_WIDTH = 44
-const SKILL_LEVEL_HEIGHT = 20
+const SKILL_LEVEL_WIDTH = 64
+const SKILL_LEVEL_HEIGHT = 22
+const SKILL_CARD_INSET = 6
+const SKILL_META_TOP = 4
+const SKILL_NAME_GAP = 2
+const SKILL_NAME_BOTTOM = 2
 export const SHARE_IMAGE_LOAD_TIMEOUT_MS = 8000
+export const SHARE_IMAGE_MAX_OUTPUT_SIDE = 4096
+export const SHARE_IMAGE_PREFERRED_SCALE = 2
 const FONT_OFFICER = '600 22px sans-serif'
 const FONT_SKILL = '600 20px sans-serif'
 const FONT_LABEL = '600 22px sans-serif'
 const FONT_META = '500 18px sans-serif'
-const FONT_LEVEL = '700 16px sans-serif'
+const FONT_LEVEL = '700 17px sans-serif'
 const COLORS = {
   paper: '#f1ead9',
   paperAlt: '#e7ddc8',
@@ -103,21 +109,56 @@ export interface SkillCardLayout {
   level: ShareRect
 }
 
-/** 技能卡把名稱與等級角標分到上下兩行，避免窄欄位互相覆蓋。 */
+export interface ShareCanvasDimensions {
+  /** 實際 Canvas bitmap 的寬度，單位為像素。 */
+  width: number
+  /** 實際 Canvas bitmap 的高度，單位為像素。 */
+  height: number
+  /** 從邏輯坐標到 bitmap 像素的縮放倍率。 */
+  scale: number
+}
+
+/**
+ * 依內容高度選擇安全的 Canvas 倍率，避免長圖在部分平台超過 4096px 邊長。
+ * 寬度與高度共用同一倍率，確保輸出不變形；短圖仍保留最多 2 倍清晰度。
+ */
+export const getShareCanvasDimensions = (
+  layout: Pick<FleetShareLayout, 'width' | 'height'>,
+): ShareCanvasDimensions => {
+  const longestSide = Math.max(1, layout.width, layout.height)
+  const scale = Math.min(SHARE_IMAGE_PREFERRED_SCALE, SHARE_IMAGE_MAX_OUTPUT_SIDE / longestSide)
+  return {
+    width: Math.max(1, Math.round(layout.width * scale)),
+    height: Math.max(1, Math.round(layout.height * scale)),
+    scale,
+  }
+}
+
+/** 技能卡上排放圖標與等級，下排保留完整寬度給技能名稱。 */
 export const getSkillCardLayout = (rect: ShareRect): SkillCardLayout => {
-  const iconSize = Math.min(SKILL_ICON_SIZE, Math.max(0, rect.height - 12))
-  const icon = { x: rect.x + 6, y: rect.y + 6, width: iconSize, height: iconSize }
+  const iconSize = Math.min(SKILL_ICON_SIZE, Math.max(0, rect.height - 28))
+  const icon = {
+    x: rect.x + SKILL_CARD_INSET,
+    y: rect.y + SKILL_META_TOP,
+    width: iconSize,
+    height: iconSize,
+  }
   const level = {
-    x: rect.x + rect.width - SKILL_LEVEL_WIDTH - 6,
-    y: rect.y + rect.height - SKILL_LEVEL_HEIGHT - 5,
+    x: rect.x + rect.width - SKILL_LEVEL_WIDTH - SKILL_CARD_INSET,
+    y: rect.y + SKILL_META_TOP,
     width: SKILL_LEVEL_WIDTH,
     height: SKILL_LEVEL_HEIGHT,
   }
   const name = {
-    x: icon.x + icon.width + 6,
-    y: rect.y + 4,
-    width: Math.max(0, rect.width - (icon.x + icon.width + 6 - rect.x) - 8),
-    height: 22,
+    x: rect.x + SKILL_CARD_INSET,
+    y: rect.y + SKILL_META_TOP + Math.max(iconSize, SKILL_LEVEL_HEIGHT) + SKILL_NAME_GAP,
+    width: Math.max(0, rect.width - SKILL_CARD_INSET * 2),
+    height: Math.max(
+      0,
+      rect.height -
+        (SKILL_META_TOP + Math.max(iconSize, SKILL_LEVEL_HEIGHT) + SKILL_NAME_GAP) -
+        SKILL_NAME_BOTTOM,
+    ),
   }
   return { rect, icon, name, level }
 }
@@ -394,8 +435,10 @@ const preloadAssets = async (
   fatalAssetMissing: boolean
 }> => {
   const paths = new Map<string, 'portrait' | 'skill' | 'ui' | 'qr'>()
+  const missingAssetKinds = new Set<'portrait' | 'skill' | 'ui'>()
   const add = (path: string, kind: 'portrait' | 'skill' | 'ui' | 'qr'): void => {
     if (path) paths.set(path, kind)
+    else if (kind !== 'qr') missingAssetKinds.add(kind)
   }
   add(view.qrPath || QR_PATH, 'qr')
   if (view.mode === 'battle') {
@@ -422,9 +465,9 @@ const preloadAssets = async (
     for (const skill of view.skills) add(skill.skillIconPath, 'skill')
   }
   const images = new Map<string, ShareImage>()
-  let degradedAssetCount = 0
+  let degradedAssetCount = missingAssetKinds.size
   let fatalAssetMissing = false
-  const failedAssetKinds = new Set<string>()
+  const failedAssetKinds = new Set<string>(missingAssetKinds)
   await Promise.all(
     [...paths.entries()].map(async ([path, kind]) => {
       try {
@@ -542,6 +585,15 @@ const drawGroup = (
     FONT_LABEL,
     COLORS.green,
   )
+  drawText(
+    context,
+    `${group.officers.length} 人`,
+    section.heading.x + section.heading.width - 120,
+    section.heading.y + 20,
+    120,
+    FONT_META,
+    COLORS.inkMuted,
+  )
   group.officers.forEach((officer, index) =>
     drawOfficer(context, officer, section.officerSlots[index]!, images),
   )
@@ -553,9 +605,13 @@ export const drawFleetShareImage = async (
   layout: FleetShareLayout,
 ): Promise<ShareRenderReport> => {
   const report = await preloadAssets(canvas, view)
+  const dimensions = getShareCanvasDimensions(layout)
+  canvas.width = dimensions.width
+  canvas.height = dimensions.height
   const context = canvas.getContext('2d') as ShareContext
-  canvas.width = layout.width
-  canvas.height = layout.height
+  if (dimensions.scale !== 1 && typeof context.scale === 'function') {
+    context.scale(dimensions.scale, dimensions.scale)
+  }
   context.clearRect(0, 0, layout.width, layout.height)
   context.fillStyle = COLORS.paper
   context.fillRect(0, 0, layout.width, layout.height)
@@ -582,7 +638,7 @@ export const drawFleetShareImage = async (
     )
     drawText(
       context,
-      '統計上方全部航海士 · 僅列出預設範圍',
+      '統計上方全部航海士的累計效果 · 只列出已選技能範圍',
       layout.skillSection.rect.x,
       layout.skillSection.y - 12,
       layout.skillSection.rect.width,

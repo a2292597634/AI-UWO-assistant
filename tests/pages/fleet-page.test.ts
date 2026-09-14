@@ -492,6 +492,7 @@ const createShareCanvas = () => {
     fillText: vi.fn(),
     measureText: vi.fn((text: string) => ({ width: text.length * 12 })),
     drawImage: vi.fn(),
+    scale: vi.fn(),
     font: '',
     fillStyle: '',
     strokeStyle: '',
@@ -525,6 +526,7 @@ describe('battle fleet share entry', () => {
     expect(fleetWxml).toContain('↗ 分享隊伍')
     expect(fleetWxml).toContain('bindtap="onShareFleet"')
     expect(fleetWxml).toContain('disabled="{{shareStatus === \'generating\'}}"')
+    expect(fleetWxml).toContain('loading="{{shareStatus === \'generating\'}}"')
     expect(fleetWxss).toContain('env(safe-area-inset-bottom)')
   })
 
@@ -582,7 +584,13 @@ describe('battle fleet share generation', () => {
     expect(page.data.shareStatus).toBe('ready')
     expect(page.data.shareImagePath).toBe('wxfile://fleet-share.png')
     expect(wxStub.canvasToTempFilePath).toHaveBeenCalledWith(
-      expect.objectContaining({ fileType: 'png', destWidth: expect.any(Number) }),
+      expect.objectContaining({
+        fileType: 'png',
+        width: expect.any(Number),
+        height: expect.any(Number),
+        destWidth: expect.any(Number),
+        destHeight: expect.any(Number),
+      }),
       page,
     )
   })
@@ -646,6 +654,18 @@ describe('battle fleet share generation', () => {
     expect(events.indexOf('export')).toBeGreaterThan(events.indexOf('request-animation-frame'))
   })
 
+  it('falls back to a timer when the Canvas repaint callback is unavailable', async () => {
+    const share = prepareCanvas()
+    ;(share.canvas as unknown as { requestAnimationFrame?: unknown }).requestAnimationFrame =
+      undefined
+    const page = createPageInstance()
+    await page.onLoad()
+
+    await page.onShareFleet()
+
+    expect(page.data.shareStatus).toBe('ready')
+  })
+
   it('restores an error state when Canvas export fails and exposes retry text', async () => {
     prepareCanvas()
     wxStub.canvasToTempFilePath.mockImplementation(
@@ -660,6 +680,97 @@ describe('battle fleet share generation', () => {
 
     expect(page.data.shareStatus).toBe('error')
     expect(page.data.shareError).toContain('生成')
+  })
+
+  it('不接受空的 Canvas 導出路徑，避免打開空白預覽層', async () => {
+    prepareCanvas()
+    wxStub.canvasToTempFilePath.mockImplementation(
+      (options: { success?: (result: { tempFilePath: string }) => void }) => {
+        options.success?.({ tempFilePath: '' })
+      },
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+
+    await page.onShareFleet()
+
+    expect(page.data.shareStatus).toBe('error')
+    expect(page.data.shareError).toContain('生成')
+    expect(page.data.shareImagePath).toBe('')
+  })
+
+  it('starts every generation with a clean preview payload', async () => {
+    prepareCanvas()
+    const page = createPageInstance()
+    await page.onLoad()
+    page.data.shareImagePath = 'wxfile://stale-share.png'
+    page.data.shareDegradedAssetCount = 3
+    page.data.shareStatus = 'error'
+    const generation = page.onShareFleet()
+
+    expect(page.data.shareImagePath).toBe('')
+    expect(page.data.shareDegradedAssetCount).toBe(0)
+    await generation
+  })
+
+  it('把畫布節點查詢逾時轉成可重試的錯誤狀態', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    wxStub.createSelectorQuery.mockReturnValue({
+      select: vi.fn(() => ({
+        node: vi.fn(() => ({
+          exec: vi.fn(),
+        })),
+      })),
+    })
+    vi.useFakeTimers()
+    try {
+      const generation = page.onShareFleet()
+      await vi.advanceTimersByTimeAsync(8001)
+      await generation
+
+      expect(page.data.shareStatus).toBe('error')
+      expect(page.data.shareError).toBe('分享圖生成逾時，請重試')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('畫布尺寸回調遺失時不會永久停在生成中', async () => {
+    const page = createPageInstance()
+    await page.onLoad()
+    page.setData = (update) => {
+      Object.assign(page.data, update)
+    }
+    vi.useFakeTimers()
+    try {
+      const generation = page.onShareFleet()
+      await vi.advanceTimersByTimeAsync(8001)
+      await generation
+
+      expect(page.data.shareStatus).toBe('error')
+      expect(page.data.shareError).toBe('分享圖生成逾時，請重試')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('畫布導出回調遺失時不會永久停在生成中', async () => {
+    prepareCanvas()
+    const page = createPageInstance()
+    await page.onLoad()
+    wxStub.canvasToTempFilePath.mockImplementation(() => undefined)
+    vi.useFakeTimers()
+    try {
+      const generation = page.onShareFleet()
+      await vi.advanceTimersByTimeAsync(8001)
+      await generation
+
+      expect(page.data.shareStatus).toBe('error')
+      expect(page.data.shareError).toBe('分享圖生成逾時，請重試')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('uses the saved image for WeChat share and album APIs', async () => {

@@ -55,7 +55,11 @@ import type { FleetProposal } from '../../contracts/fleet-proposal'
 import type { FleetProposalPreviewView } from '../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../presenters/skill-sheet'
 import { buildAdventureFleetShareViewModel } from '../../presenters/fleet-share-presenter'
-import { QR_PATH, drawFleetShareImage } from '../../runtime/fleet-share-renderer'
+import {
+  QR_PATH,
+  drawFleetShareImage,
+  getShareCanvasDimensions,
+} from '../../runtime/fleet-share-renderer'
 import { measureAdventureFleetShare, type FleetShareLayout } from '../../runtime/fleet-share-layout'
 
 // ── 页面数据 ──
@@ -135,6 +139,39 @@ type FleetShareStatus = 'idle' | 'generating' | 'ready' | 'error'
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
 const MANUAL_SKILL_WINDOW_SIZE = 40
 const CONFIG_SCOPE = 'adventure' as const
+const SHARE_OPERATION_TIMEOUT_MS = 8000
+
+type ShareAsyncOperation<T> = (
+  resolve: (value: T | PromiseLike<T>) => void,
+  reject: (reason?: unknown) => void,
+) => void
+
+/** 為不一定回調的微信畫布 API 提供逾時保護，避免生成按鈕永久卡在載入中。 */
+const withShareTimeout = <T>(label: string, operation: ShareAsyncOperation<T>): Promise<T> =>
+  new Promise((resolve, reject) => {
+    let settled = false
+    const timeoutId = setTimeout(() => {
+      settled = true
+      reject(new Error(`${label}逾時`))
+    }, SHARE_OPERATION_TIMEOUT_MS)
+    const resolveOnce = (value: T | PromiseLike<T>): void => {
+      if (settled) return
+      settled = true
+      clearTimeout(timeoutId)
+      resolve(value)
+    }
+    const rejectOnce = (reason?: unknown): void => {
+      if (settled) return
+      settled = true
+      clearTimeout(timeoutId)
+      reject(reason)
+    }
+    try {
+      operation(resolveOnce, rejectOnce)
+    } catch (error) {
+      rejectOnce(error)
+    }
+  })
 
 const eventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> => {
   const dataset = (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
@@ -160,36 +197,41 @@ const getState = (page: object): FleetPageState => {
 }
 
 const selectShareCanvas = (): Promise<WechatMiniprogram.Canvas> =>
-  new Promise((resolve, reject) => {
-    try {
-      const query = wx.createSelectorQuery()
-      query
-        .select('#fleet-share-canvas')
-        .node()
-        .exec((result) => {
-          const canvas = (result?.[0] as { node?: WechatMiniprogram.Canvas } | undefined)?.node
-          if (!canvas) reject(new Error('分享圖畫布初始化失敗'))
-          else resolve(canvas)
-        })
-    } catch (error) {
-      reject(error)
-    }
+  withShareTimeout('分享圖畫布初始化', (resolve, reject) => {
+    const query = wx.createSelectorQuery()
+    query
+      .select('#fleet-share-canvas')
+      .node()
+      .exec((result) => {
+        const canvas = (result?.[0] as { node?: WechatMiniprogram.Canvas } | undefined)?.node
+        if (!canvas) reject(new Error('分享圖畫布初始化失敗'))
+        else resolve(canvas)
+      })
   })
 
 /** 等待分享畫布尺寸完成視圖層更新，避免節點仍是初始尺寸時就開始繪製。 */
 const setDataAndWait = (page: FleetPageLike, update: Record<string, unknown>): Promise<void> =>
-  new Promise((resolve, reject) => {
-    try {
-      page.setData(update, resolve)
-    } catch (error) {
-      reject(error)
-    }
+  withShareTimeout('分享圖畫布尺寸更新', (resolve) => {
+    page.setData(update, () => resolve())
   })
 
-/** 等待 Canvas 2D 下一次重繪完成，再把畫布導出為圖片。 */
+/** 等待 Canvas 2D 下一次重繪完成；舊版基礎庫缺少 RAF 時使用短延遲兜底。 */
 const waitForCanvasPaint = (canvas: WechatMiniprogram.Canvas): Promise<void> =>
   new Promise((resolve) => {
-    canvas.requestAnimationFrame(() => resolve())
+    let settled = false
+    function finish(): void {
+      if (settled) return
+      settled = true
+      clearTimeout(safetyTimer)
+      resolve()
+    }
+    const safetyTimer: ReturnType<typeof setTimeout> = setTimeout(finish, 500)
+    try {
+      if (typeof canvas.requestAnimationFrame === 'function') canvas.requestAnimationFrame(finish)
+      else setTimeout(finish, 0)
+    } catch {
+      setTimeout(finish, 0)
+    }
   })
 
 const exportShareCanvas = (
@@ -197,18 +239,26 @@ const exportShareCanvas = (
   canvas: WechatMiniprogram.Canvas,
   layout: FleetShareLayout,
 ): Promise<string> =>
-  new Promise((resolve, reject) => {
+  withShareTimeout('分享圖導出', (resolve, reject) => {
+    const dimensions = getShareCanvasDimensions(layout)
     wx.canvasToTempFilePath(
       {
         canvas,
         x: 0,
         y: 0,
+        // type="2d" 的裁剪區使用邏輯坐標，輸出尺寸才使用實際 bitmap 像素。
         width: layout.width,
         height: layout.height,
-        destWidth: layout.width * 2,
-        destHeight: layout.height * 2,
+        destWidth: dimensions.width,
+        destHeight: dimensions.height,
         fileType: 'png',
-        success: (result) => resolve(result.tempFilePath),
+        success: (result) => {
+          if (!result?.tempFilePath) {
+            reject(new Error('分享圖導出失敗'))
+            return
+          }
+          resolve(result.tempFilePath)
+        },
         fail: reject,
       },
       page as never,
@@ -218,13 +268,19 @@ const exportShareCanvas = (
 const resolveShareError = (error: unknown): string => {
   const message = error instanceof Error ? error.message : String(error)
   if (message.includes('首頁碼素材缺失')) return '首頁碼素材缺失，暫時無法生成分享圖'
+  if (message.includes('逾時')) return '分享圖生成逾時，請重試'
   if (message.includes('畫布')) return '分享圖畫布初始化失敗，請重試'
   return '分享圖生成失敗，請重試'
 }
 
 const generateShareImage = async (page: FleetPageLike): Promise<void> => {
   const state = getState(page)
-  page.setData({ shareStatus: 'generating' satisfies FleetShareStatus, shareError: null })
+  page.setData({
+    shareStatus: 'generating' satisfies FleetShareStatus,
+    shareImagePath: '',
+    shareDegradedAssetCount: 0,
+    shareError: null,
+  })
   try {
     const view = buildAdventureFleetShareViewModel(
       state.fleet,
@@ -239,8 +295,6 @@ const generateShareImage = async (page: FleetPageLike): Promise<void> => {
       shareCanvasHeight: layout.height,
     })
     const canvas = await selectShareCanvas()
-    canvas.width = layout.width
-    canvas.height = layout.height
     const report = await drawFleetShareImage(canvas, view, layout)
     if (report.fatalAssetMissing) throw new Error('首頁碼素材缺失')
     await waitForCanvasPaint(canvas)
@@ -787,7 +841,12 @@ Page({
   },
 
   onSharePreviewClose() {
-    this.setData({ shareImagePath: '', shareStatus: 'idle', shareError: null })
+    this.setData({
+      shareImagePath: '',
+      shareStatus: 'idle',
+      shareDegradedAssetCount: 0,
+      shareError: null,
+    })
   },
 
   async onShareImage() {

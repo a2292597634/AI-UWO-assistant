@@ -57,6 +57,9 @@ describe('配隊分享圖架構契約', () => {
     const resultSheetZIndex = Number(
       resultPreviewWxss.match(/\.result-preview-sheet\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
     )
+    const undoBarZIndex = Number(
+      resultPreviewWxss.match(/\.result-preview-sheet__undo-bar\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+    )
     const sharePreviewMaskZIndex = Number(
       sharePreviewWxss.match(/\.fleet-share-preview__mask\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
     )
@@ -70,8 +73,20 @@ describe('配隊分享圖架構契約', () => {
         wxss.match(/\.fleet-share-bar\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
       )
       expect(resultMaskZIndex).toBeGreaterThan(shareBarZIndex)
+      expect(undoBarZIndex).toBeGreaterThan(shareBarZIndex)
       expect(resultSheetZIndex).toBeGreaterThan(shareBarZIndex)
       expect(sharePreviewMaskZIndex).toBeGreaterThan(resultSheetZIndex)
+
+      const guardMaskZIndex = Number(
+        wxss.match(/\.config-unsaved-guard__mask\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+      )
+      const guardDialogZIndex = Number(
+        wxss.match(/\.config-unsaved-guard__dialog\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+      )
+      expect(wxss).toMatch(
+        /\.config-unsaved-guard__dialog\s*\{[\s\S]*?position:\s*fixed[\s\S]*?top:\s*50%[\s\S]*?left:\s*50%/,
+      )
+      expect(guardDialogZIndex).toBeGreaterThan(guardMaskZIndex)
     }
   })
 
@@ -96,6 +111,13 @@ describe('配隊分享圖架構契約', () => {
 
   it('Canvas 視覺層先鋪品質背景、再繪製頭像，並以分區底框區分技能', () => {
     const source = read('miniprogram/runtime/fleet-share-renderer.ts')
+    const adventurePageSource = read('miniprogram/pages/adventure-fleet/index.ts')
+    const battlePageSource = read('miniprogram/subpkg-fleet/pages/index/index.ts')
+    expect(source.indexOf('const dimensions = getShareCanvasDimensions(layout)')).toBeLessThan(
+      source.indexOf("const context = canvas.getContext('2d')"),
+    )
+    expect(adventurePageSource).toContain('getShareCanvasDimensions(layout)')
+    expect(battlePageSource).toContain('getShareCanvasDimensions(layout)')
     const frameDraw = source.indexOf('drawImageFit(context, frame, visualRects.frame)')
     const portraitDraw = source.indexOf(
       'drawImageOptional(context, portrait, visualRects.portrait)',
@@ -109,6 +131,7 @@ describe('配隊分享圖架構契約', () => {
     expect(source).toContain('COLORS.activePanel')
     expect(source).toContain('COLORS.passivePanel')
     expect(source).toContain('全艦冒險技能累計')
-    expect(source).toContain('統計上方全部航海士 · 僅列出預設範圍')
+    expect(source).toContain('統計上方全部航海士的累計效果 · 只列出已選技能範圍')
+    expect(source).toContain('`${group.officers.length} 人`')
   })
 })

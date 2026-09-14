@@ -16,7 +16,7 @@ const view: AdventureFleetShareViewModel = {
   entrancePath: 'pages/home/index',
 }
 
-const createCanvas = () => {
+const createCanvas = (loadImages = false) => {
   const context = {
     beginPath: vi.fn(),
     moveTo: vi.fn(),
@@ -30,6 +30,7 @@ const createCanvas = () => {
     fillText: vi.fn(),
     measureText: vi.fn((text: string) => ({ width: text.length * 12 })),
     drawImage: vi.fn(),
+    scale: vi.fn(),
     font: '',
     fillStyle: '',
     strokeStyle: '',
@@ -41,13 +42,17 @@ const createCanvas = () => {
     height: 0,
     getContext: vi.fn(() => context),
     // 模擬平台未返回 onload／onerror 的異常素材，生成器仍須在超時後結束。
-    createImage: vi.fn(() => ({
-      width: 64,
-      height: 64,
-      src: '',
-      onload: () => {},
-      onerror: () => {},
-    })),
+    createImage: vi.fn(() => {
+      const image = {
+        width: 64,
+        height: 64,
+        src: '',
+        onload: () => {},
+        onerror: () => {},
+      }
+      if (loadImages) queueMicrotask(() => image.onload())
+      return image
+    }),
   }
   return canvas as never
 }
@@ -71,5 +76,48 @@ describe('配隊分享圖素材載入', () => {
 
     expect(settled).toBe(true)
     await expect(generation).resolves.toMatchObject({ fatalAssetMissing: true })
+  })
+
+  it('空素材路徑也會標記降級類型，讓預覽層顯示降級提示', async () => {
+    const canvas = createCanvas(true)
+    const viewWithMissingAssets: AdventureFleetShareViewModel = {
+      ...view,
+      groups: [
+        {
+          rarityName: 'A',
+          officers: [
+            {
+              id: 'missing-portrait',
+              name: '缺少頭像',
+              portraitPath: '',
+              rarityName: 'A',
+              visuals: { framePath: '', rarityIconPath: '', typeIconPath: '', genderIconPath: '' },
+              shipId: 'ship-1',
+              slotIndex: 0,
+            },
+          ],
+        },
+      ],
+      skills: [
+        {
+          skillId: 'missing-skill',
+          skillName: '缺少技能圖標',
+          skillIconPath: '',
+          kind: 'passive',
+          categoryId: 'skill_category_adventure',
+          totalLevel: 0,
+        },
+      ],
+    }
+
+    const report = await drawFleetShareImage(
+      canvas,
+      viewWithMissingAssets,
+      measureAdventureFleetShare(viewWithMissingAssets),
+    )
+
+    expect(report.fatalAssetMissing).toBe(false)
+    expect(report.degradedAssetCount).toBeGreaterThanOrEqual(2)
+    expect(report.failedAssetKinds).toEqual(expect.arrayContaining(['portrait', 'skill']))
   })
 })

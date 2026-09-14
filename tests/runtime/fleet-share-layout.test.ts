@@ -12,6 +12,7 @@ import {
 import {
   getOfficerVisualRects,
   getSkillCardLayout,
+  getShareCanvasDimensions,
 } from '../../miniprogram/runtime/fleet-share-renderer'
 
 const officer = (id: string): FleetShareOfficerView => ({
@@ -63,6 +64,17 @@ describe('配隊分享圖布局測量', () => {
     expect(layout.qr.x + layout.qr.width).toBeLessThanOrEqual(layout.width - layout.padding)
   })
 
+  it('長圖輸出會按內容高度降低倍率，避免 Canvas bitmap 超過平台安全邊長', () => {
+    const layout = measureBattleFleetShare(battleView())
+    const dimensions = getShareCanvasDimensions(layout)
+
+    expect(dimensions.width).toBeLessThanOrEqual(4096)
+    expect(dimensions.height).toBeLessThanOrEqual(4096)
+    expect(dimensions.scale).toBeGreaterThan(0)
+    expect(dimensions.scale).toBeLessThanOrEqual(2)
+    expect(dimensions.height).toBe(Math.round(layout.height * dimensions.scale))
+  })
+
   it('冒險四個品質分組與全艦技能區不重疊', () => {
     const view: AdventureFleetShareViewModel = {
       mode: 'adventure',
@@ -98,6 +110,7 @@ describe('配隊分享圖布局測量', () => {
     expect(visuals.rarity.x + visuals.rarity.width).toBeLessThanOrEqual(
       visuals.portrait.x + visuals.portrait.width,
     )
+    expect(visuals.rarity.width).toBeGreaterThanOrEqual(visuals.portrait.width * 0.5)
     expect(visuals.type.x).toBeGreaterThanOrEqual(visuals.portrait.x)
     expect(visuals.type.y + visuals.type.height).toBeLessThanOrEqual(
       visuals.portrait.y + visuals.portrait.height,
@@ -107,9 +120,12 @@ describe('配隊分享圖布局測量', () => {
   it('技能名稱與累計等級膠囊在卡片內分行且不重疊', () => {
     const card = getSkillCardLayout({ x: 32, y: 200, width: 132, height: 52 })
 
+    expect(card.icon.y + card.icon.height).toBeLessThanOrEqual(card.name.y)
+    expect(card.level.y + card.level.height).toBeLessThanOrEqual(card.name.y)
+    expect(card.name.x).toBeGreaterThanOrEqual(card.rect.x)
+    expect(card.name.width).toBeGreaterThanOrEqual(card.rect.width - 16)
     expect(card.name.x + card.name.width).toBeLessThanOrEqual(card.rect.x + card.rect.width)
-    expect(card.name.y + card.name.height).toBeLessThanOrEqual(card.level.y)
     expect(card.level.x + card.level.width).toBeLessThanOrEqual(card.rect.x + card.rect.width)
-    expect(card.icon.x + card.icon.width).toBeLessThanOrEqual(card.name.x)
+    expect(card.level.width).toBeGreaterThanOrEqual(60)
   })
 })

@@ -13,18 +13,24 @@ import type {
   RuntimeFleetSkillRelation,
   RuntimeSkill,
 } from '../contracts/runtime-data'
-import { collectAllOfficerIds, type AdventureFleetOfficer } from '../domain/adventure-fleet'
-import { isBattleFleetSkill } from '../domain/battle-fleet'
+import type { AdventureFleetOfficer } from '../domain/adventure-fleet'
 import { buildOfficerVisuals } from './officer-visuals'
 
 const ENTRANCE_PATH = 'pages/home/index' as const
 const OFFICER_SLOT_COUNT = 11
 const RARITY_ORDER: readonly FleetShareRarity[] = ['S', 'A', 'B', 'C']
 
+const isBattlePassiveCategory = (categoryId: string | undefined): boolean =>
+  categoryId !== undefined &&
+  (categoryId.startsWith('skill_category_naval_passive_') ||
+    categoryId === 'skill_category_combat_other')
+
+const compareStableText = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)
+
 const compareShareSkills = (a: FleetShareSkillView, b: FleetShareSkillView): number =>
   b.totalLevel - a.totalLevel ||
-  a.skillName.localeCompare(b.skillName) ||
-  a.skillId.localeCompare(b.skillId)
+  compareStableText(a.skillName, b.skillName) ||
+  compareStableText(a.skillId, b.skillId)
 
 const addLevel = (totals: Map<string, number>, skillId: string, level: number): void => {
   if (!Number.isFinite(level) || level < 0) return
@@ -98,21 +104,23 @@ const buildBattleShip = (
   officers: Readonly<Record<string, RuntimeFleetOfficer>>,
   skills: Readonly<Record<string, RuntimeSkill>>,
 ): BattleFleetShareShipView => {
+  const officerIds = ship.officerIds.slice(0, OFFICER_SLOT_COUNT)
   const officerSlots = Array.from({ length: OFFICER_SLOT_COUNT }, (_, slotIndex) => {
-    const officerId = ship.officerIds[slotIndex]
+    const officerId = officerIds[slotIndex]
     const officer = officerId ? officers[officerId] : undefined
     return officer ? buildOfficerView(officer, ship.id, slotIndex) : null
   })
-  const relations = ship.officerIds.flatMap((officerId) => officers[officerId]?.skills ?? [])
+  const relations = officerIds.flatMap((officerId) => officers[officerId]?.skills ?? [])
   const activeSkills = summarizeRelations(
     relations,
     skills,
-    (relation) => relation.kind === 'active' && isBattleFleetSkill(relation),
+    (relation) => relation.kind === 'active',
   ).slice(0, 5)
   const passiveSkills = summarizeRelations(
     relations,
     skills,
-    (relation) => relation.kind === 'passive' && isBattleFleetSkill(relation),
+    (relation) =>
+      relation.kind === 'passive' && isBattlePassiveCategory(skills[relation.skillId]?.cat),
   ).filter((skill) => skill.totalLevel >= 2)
 
   return {
@@ -148,7 +156,7 @@ const buildAdventureGroups = (
 ): AdventureFleetShareGroup[] => {
   const grouped = new Map<FleetShareRarity, FleetShareOfficerView[]>()
   for (const [shipIndex, ship] of fleet.ships.entries()) {
-    for (const [slotIndex, officerId] of ship.officerIds.entries()) {
+    for (const [slotIndex, officerId] of ship.officerIds.slice(0, OFFICER_SLOT_COUNT).entries()) {
       const officer = officers[officerId]
       if (!officer || !RARITY_ORDER.includes(officer.rarityName as FleetShareRarity)) continue
       const rarityName = officer.rarityName as FleetShareRarity
@@ -180,7 +188,10 @@ export const buildAdventureFleetShareViewModel = (
   ]
   const totals = new Map<string, number>(targetIds.map((skillId) => [skillId, 0]))
 
-  for (const officerId of collectAllOfficerIds(fleet)) {
+  const displayedOfficerIds = fleet.ships.flatMap((ship) =>
+    ship.officerIds.slice(0, OFFICER_SLOT_COUNT),
+  )
+  for (const officerId of displayedOfficerIds) {
     const officer = officers[officerId]
     if (!officer) continue
     for (const relation of officer.adventureSkills) {

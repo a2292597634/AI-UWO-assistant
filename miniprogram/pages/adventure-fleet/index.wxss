@@ -167,12 +167,18 @@
   min-width: 240rpx;
   min-height: 88rpx;
   margin: 0;
-  padding: 0 var(--uwo-space-4);
+  padding: 0 var(--uwo-space-8);
   border-color: var(--uwo-color-accent-brass) !important;
   background: var(--uwo-color-accent-brass) !important;
   color: var(--uwo-color-ink) !important;
   font-size: var(--uwo-font-size-body);
   font-weight: 700;
+}
+
+.fleet-share-bar__button[disabled] {
+  border-color: var(--uwo-color-border-subtle) !important;
+  background: var(--uwo-color-surface-muted) !important;
+  color: var(--uwo-color-text-secondary) !important;
 }
 
 .fleet-share-canvas {
