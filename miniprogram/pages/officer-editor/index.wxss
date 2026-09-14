@@ -4,10 +4,13 @@
   background: var(--uwo-color-canvas);
 }
 
+.report-page__content {
+  padding-bottom: calc(176rpx + env(safe-area-inset-bottom));
+}
+
 .report-header,
 .officer-section,
 .report-form,
-.report-actions,
 .report-complete {
   width: auto;
   max-width: 820rpx;
@@ -16,22 +19,15 @@
 }
 
 .report-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--uwo-space-4);
   padding: var(--uwo-space-8) 0 var(--uwo-space-6);
 }
 
-.report-header__copy,
-.officer-identity__body,
-.evidence-toggle__copy {
-  min-width: 0;
-}
-
-.report-header__eyebrow,
 .report-header__title,
 .report-header__hint,
+.report-header__entry-title,
+.report-header__entry-hint,
+.officer-candidate__name,
+.officer-candidate__meta,
 .officer-identity__name,
 .officer-identity__meta,
 .officer-picker__status,
@@ -43,14 +39,7 @@
   overflow-wrap: anywhere;
 }
 
-.report-header__eyebrow {
-  color: var(--uwo-color-accent-text);
-  font-size: var(--uwo-font-size-minimum-action);
-  font-weight: 600;
-}
-
 .report-header__title {
-  margin-top: var(--uwo-space-2);
   font-size: var(--uwo-font-size-page-title);
   font-weight: 700;
 }
@@ -62,16 +51,43 @@
   line-height: 1.5;
 }
 
-.report-header__link {
-  flex: none;
+.report-header__entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uwo-space-4);
+  width: 100%;
   min-height: 88rpx;
-  margin: 0;
-  padding: 0 var(--uwo-space-3);
-  color: var(--uwo-color-accent-text);
-  background: transparent;
-  border: 0;
-  font-size: var(--uwo-font-size-minimum-action);
+  margin: var(--uwo-space-6) 0 0;
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-surface);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  text-align: left;
+}
+
+.report-header__entry-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.report-header__entry-title {
+  font-size: var(--uwo-font-size-body);
   font-weight: 600;
+}
+
+.report-header__entry-hint {
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+}
+
+.report-header__entry-arrow {
+  flex: none;
+  color: var(--uwo-color-accent-text);
+  font-size: 40rpx;
+  line-height: 1;
 }
 
 .officer-picker,
@@ -106,7 +122,6 @@
 
 .officer-picker__meta,
 .field-heading__meta,
-.evidence-toggle__summary,
 .officer-picker__status {
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-minimum-action);
@@ -117,28 +132,142 @@
   flex: none;
 }
 
-.officer-picker__status {
-  margin-top: var(--uwo-space-3);
+.officer-picker__search {
+  width: 100%;
+  min-height: 88rpx;
+  padding: 0 var(--uwo-space-4);
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-surface-muted);
+  border: 2rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-control);
+  font-size: var(--uwo-font-size-body);
 }
 
-.officer-identity {
+.officer-candidates {
+  margin-top: var(--uwo-space-3);
+  overflow: hidden;
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+}
+
+.officer-candidate {
   display: flex;
   align-items: center;
   gap: var(--uwo-space-4);
-  padding: var(--uwo-space-4);
+  min-height: 112rpx;
+  padding: var(--uwo-space-3) var(--uwo-space-4);
+  color: var(--uwo-color-text-primary);
+  background: var(--uwo-color-surface);
+  border: 0;
+  text-align: left;
 }
 
+.officer-candidate + .officer-candidate {
+  border-top: 2rpx solid var(--uwo-color-border-subtle);
+}
+
+.officer-candidate__portrait-wrap,
 .officer-identity__portrait-wrap {
   position: relative;
   flex: none;
 }
 
-.officer-identity__portrait,
+.officer-candidate__portrait-wrap,
+.officer-candidate__portrait-layer,
+.officer-candidate__portrait-fallback {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.officer-candidate__portrait-layer,
+.officer-identity__portrait-layer {
+  position: absolute;
+  display: block;
+  border-radius: var(--uwo-radius-control);
+}
+
+.officer-candidate__portrait-layer--frame,
+.officer-identity__portrait-layer--frame {
+  inset: 0;
+  z-index: 1;
+}
+
+.officer-candidate__portrait-layer--portrait {
+  top: 4rpx;
+  left: 4rpx;
+  z-index: 2;
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.officer-candidate__portrait-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  background: var(--uwo-color-surface-muted);
+  border-radius: var(--uwo-radius-control);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.officer-candidate__rarity-icon,
+.officer-identity__rarity-icon {
+  position: absolute;
+  top: -8rpx;
+  left: -8rpx;
+  z-index: 3;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.officer-candidate__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.officer-candidate__name {
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.officer-candidate__meta {
+  margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.35;
+}
+
+.officer-picker__status {
+  display: block;
+  margin-top: var(--uwo-space-3);
+}
+
+.officer-identity {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uwo-space-4);
+  padding: var(--uwo-space-4);
+}
+
+.officer-identity__portrait-wrap,
+.officer-identity__portrait-layer,
 .officer-identity__portrait-fallback {
   width: 144rpx;
   height: 144rpx;
-  border: 2rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-control);
+}
+
+.officer-identity__portrait-layer--portrait {
+  top: 6rpx;
+  left: 6rpx;
+  z-index: 2;
+  width: 132rpx;
+  height: 132rpx;
 }
 
 .officer-identity__portrait-fallback {
@@ -148,27 +277,17 @@
   padding: var(--uwo-space-2);
   color: var(--uwo-color-text-secondary);
   background: var(--uwo-color-surface-muted);
+  border-radius: var(--uwo-radius-control);
   font-size: var(--uwo-font-size-minimum-action);
-  text-align: center;
-}
-
-.officer-identity__rarity {
-  position: absolute;
-  right: var(--uwo-space-1);
-  bottom: var(--uwo-space-1);
-  min-width: 40rpx;
-  padding: var(--uwo-space-1) var(--uwo-space-2);
-  color: var(--uwo-color-surface);
-  background: var(--uwo-color-ink);
-  border-radius: var(--uwo-radius-pill);
-  font-size: var(--uwo-font-size-minimum-action);
-  font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
   text-align: center;
 }
 
 .officer-identity__body {
+  min-width: 0;
   flex: 1;
+  padding-right: 112rpx;
 }
 
 .officer-identity__name {
@@ -185,16 +304,18 @@
 }
 
 .officer-identity__change {
-  flex: none;
+  position: absolute;
+  top: var(--uwo-space-3);
+  right: var(--uwo-space-3);
   min-width: 88rpx;
   min-height: 88rpx;
   margin: 0;
   padding: 0 var(--uwo-space-3);
-  color: var(--uwo-color-text-primary);
-  background: var(--uwo-color-surface);
-  border: 2rpx solid var(--uwo-color-border-strong);
-  border-radius: var(--uwo-radius-control);
+  color: var(--uwo-color-accent-text);
+  background: transparent;
+  border: 0;
   font-size: var(--uwo-font-size-minimum-action);
+  font-weight: 600;
 }
 
 .field-error {
@@ -223,11 +344,17 @@
 .screenshot-list {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-start;
   gap: var(--uwo-space-2);
 }
 
 .type-chip {
-  min-height: 72rpx;
+  display: inline-flex;
+  flex: none;
+  width: auto;
+  min-height: 64rpx;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   padding: 0 var(--uwo-space-4);
   color: var(--uwo-color-text-primary);
@@ -282,20 +409,41 @@
 }
 
 .evidence-toggle__copy {
+  min-width: 0;
   flex: 1;
+}
+
+.evidence-toggle__title {
+  display: block;
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .evidence-toggle__summary {
   display: block;
   margin-top: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
   overflow-wrap: anywhere;
 }
 
-.evidence-toggle__action {
+.evidence-toggle__action-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--uwo-space-2);
   flex: none;
+}
+
+.evidence-toggle__action {
   color: var(--uwo-color-accent-text);
   font-size: var(--uwo-font-size-minimum-action);
   font-weight: 600;
+}
+
+.evidence-toggle__disclosure {
+  width: 32rpx;
+  height: 32rpx;
 }
 
 .evidence-fields {
@@ -340,8 +488,17 @@
 }
 
 .report-actions {
-  padding-top: var(--uwo-space-6);
-  padding-bottom: calc(var(--uwo-space-8) + env(safe-area-inset-bottom));
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  margin: 0;
+  padding: var(--uwo-space-4) var(--uwo-space-4)
+    calc(var(--uwo-space-4) + env(safe-area-inset-bottom));
+  background: var(--uwo-color-canvas);
+  border-top: 2rpx solid var(--uwo-color-border-subtle);
 }
 
 .submit-error {
@@ -417,7 +574,6 @@
   .report-header,
   .officer-section,
   .report-form,
-  .report-actions,
   .report-complete {
     margin-right: auto;
     margin-left: auto;
