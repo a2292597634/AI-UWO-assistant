@@ -238,6 +238,28 @@
       }
     },
     {
+      "id": "mini-program-home-code",
+      "output": "mini-program-home-code.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 220,
+      "height": 220,
+      "byteSize": 3965,
+      "sha256": "10d791dcbc437a570571c69494c5108e2df54e74ac00017c769c13ee5d6de485",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 220,
+        "height": 220
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 220,
+        "height": 220
+      }
+    },
+    {
       "id": "officer-class-1",
       "output": "uwo-icon-class-1.png",
       "group": "original-ui",
@@ -639,7 +661,7 @@
   "groupBytes": {
     "banner": 32507,
     "feature": 16922,
-    "original-ui": 43335
+    "original-ui": 47300
   },
-  "totalBytes": 92764
+  "totalBytes": 96729
 }

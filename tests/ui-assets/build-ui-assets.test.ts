@@ -99,6 +99,7 @@ const createFixtureSources = async (sourceRoot: string) => {
     ...[1, 2, 3].map((kind) => writePng(join(original, `uwo_icon_class_${kind}.png`))),
     writePng(join(original, 'gender_f.png')),
     writePng(join(original, 'gender_m.png')),
+    writePng(join(original, 'mini-program-home-code.png'), 320, 320),
     ...['down', 'up'].map((direction) =>
       writePng(join(original, `uwo_disclosure_chevron_${direction}.png`), 60, 60, {
         left: 12,

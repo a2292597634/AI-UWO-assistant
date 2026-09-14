@@ -32,7 +32,7 @@ import {
 import type {
   ConfigListState,
   ConfigModalAction,
-  PendingConfigAction,
+  PendingFleetAction,
 } from '../../../presenters/config-management-presenter'
 import {
   MAX_CONFIGS_PER_SCOPE,
@@ -48,6 +48,9 @@ import type { BattleFleetPageData } from '../../../presenters/battle-fleet-prese
 import type { FleetProposal } from '../../../contracts/fleet-proposal'
 import type { FleetProposalPreviewView } from '../../../presenters/fleet-proposal-presenter'
 import type { SkillSheetView } from '../../../presenters/skill-sheet'
+import { buildBattleFleetShareViewModel } from '../../../presenters/fleet-share-presenter'
+import { QR_PATH, drawFleetShareImage } from '../../../runtime/fleet-share-renderer'
+import { measureBattleFleetShare, type FleetShareLayout } from '../../../runtime/fleet-share-layout'
 import type {
   RuntimeDictionaries,
   RuntimeFleetOfficer,
@@ -82,11 +85,17 @@ interface FleetPageData extends BattleFleetPageData {
   modalAction: ConfigModalAction
   modalInputValue: string
   modalTitle: string
-  pendingAction: PendingConfigAction | null
+  pendingAction: PendingFleetAction | null
   configLimitReached: boolean
   showConflictDialog: boolean
   proposalPreview: FleetProposalPreviewView | null
   canUndoProposal: boolean
+  shareStatus: FleetShareStatus
+  shareImagePath: string
+  shareError: string | null
+  shareDegradedAssetCount: number
+  shareCanvasWidth: number
+  shareCanvasHeight: number
 }
 
 // ── Page state ──
@@ -111,7 +120,7 @@ interface FleetPageState {
   savedFleetState: string | null
   isDirty: boolean
   configService: FleetConfigService
-  pendingAction: PendingConfigAction | null
+  pendingAction: PendingFleetAction | null
   proposal: FleetProposal | null
   undoFleetState: FleetState | null
 }
@@ -120,6 +129,8 @@ interface FleetPageLike {
   data: FleetPageData
   setData(update: Record<string, unknown>): void
 }
+
+type FleetShareStatus = 'idle' | 'generating' | 'ready' | 'error'
 
 const pageStateByInstance = new WeakMap<object, FleetPageState>()
 const MANUAL_SKILL_WINDOW_SIZE = 40
@@ -217,6 +228,12 @@ const emptyPageData: FleetPageData = {
   showConflictDialog: false,
   proposalPreview: null,
   canUndoProposal: false,
+  shareStatus: 'idle',
+  shareImagePath: '',
+  shareError: null,
+  shareDegradedAssetCount: 0,
+  shareCanvasWidth: 0,
+  shareCanvasHeight: 0,
 }
 
 const showError = (message: string): void => {
@@ -331,6 +348,83 @@ const updateTargets = (
   render(page)
 }
 
+const selectShareCanvas = (): Promise<WechatMiniprogram.Canvas> =>
+  new Promise((resolve, reject) => {
+    try {
+      const query = wx.createSelectorQuery()
+      query
+        .select('#fleet-share-canvas')
+        .node()
+        .exec((result) => {
+          const canvas = (result?.[0] as { node?: WechatMiniprogram.Canvas } | undefined)?.node
+          if (!canvas) reject(new Error('分享圖畫布初始化失敗'))
+          else resolve(canvas)
+        })
+    } catch (error) {
+      reject(error)
+    }
+  })
+
+const exportShareCanvas = (
+  page: FleetPageLike,
+  canvas: WechatMiniprogram.Canvas,
+  layout: FleetShareLayout,
+): Promise<string> =>
+  new Promise((resolve, reject) => {
+    wx.canvasToTempFilePath(
+      {
+        canvas,
+        x: 0,
+        y: 0,
+        width: layout.width,
+        height: layout.height,
+        destWidth: layout.width * 2,
+        destHeight: layout.height * 2,
+        fileType: 'png',
+        success: (result) => resolve(result.tempFilePath),
+        fail: reject,
+      },
+      page as never,
+    )
+  })
+
+const resolveShareError = (error: unknown): string => {
+  const message = error instanceof Error ? error.message : String(error)
+  if (message.includes('首頁碼素材缺失')) return '首頁碼素材缺失，暫時無法生成分享圖'
+  if (message.includes('畫布')) return '分享圖畫布初始化失敗，請重試'
+  return '分享圖生成失敗，請重試'
+}
+
+const generateShareImage = async (page: FleetPageLike): Promise<void> => {
+  const state = getState(page)
+  page.setData({ shareStatus: 'generating' satisfies FleetShareStatus, shareError: null })
+  try {
+    const view = buildBattleFleetShareViewModel(
+      state.fleet,
+      state.officers,
+      state.skills,
+      state.configName,
+      QR_PATH,
+    )
+    const layout = measureBattleFleetShare(view)
+    page.setData({ shareCanvasWidth: layout.width, shareCanvasHeight: layout.height })
+    const canvas = await selectShareCanvas()
+    canvas.width = layout.width
+    canvas.height = layout.height
+    const report = await drawFleetShareImage(canvas, view, layout)
+    if (report.fatalAssetMissing) throw new Error('首頁碼素材缺失')
+    const imagePath = await exportShareCanvas(page, canvas, layout)
+    page.setData({
+      shareStatus: 'ready',
+      shareImagePath: imagePath,
+      shareDegradedAssetCount: report.degradedAssetCount,
+      shareError: null,
+    })
+  } catch (error) {
+    page.setData({ shareStatus: 'error', shareError: resolveShareError(error) })
+  }
+}
+
 // ── Unsaved changes guard ──
 
 const resolvePendingAction = (page: FleetPageLike): void => {
@@ -361,10 +455,13 @@ const resolvePendingAction = (page: FleetPageLike): void => {
     case 'exit':
       wx.navigateBack({})
       break
+    case 'share':
+      void generateShareImage(page)
+      break
   }
 }
 
-const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingConfigAction): void => {
+const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction): Promise<void> => {
   const state = getState(page)
   const decision = resolveConfigAction(action, state.isDirty)
   state.pendingAction = decision.pendingAction
@@ -372,7 +469,15 @@ const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingConfigAction
     pendingAction: decision.pendingAction,
     showUnsavedGuard: decision.showUnsavedGuard,
   })
-  if (!decision.showUnsavedGuard) resolvePendingAction(page)
+  if (!decision.showUnsavedGuard) {
+    if (action.type === 'share') {
+      state.pendingAction = null
+      page.setData({ pendingAction: null })
+      return generateShareImage(page)
+    }
+    resolvePendingAction(page)
+  }
+  return Promise.resolve()
 }
 
 // ── Config operations ──
@@ -638,6 +743,44 @@ Page({
 
   onReady() {
     return render(this)
+  },
+
+  onShareFleet() {
+    if (this.data.shareStatus === 'generating') return Promise.resolve()
+    return checkUnsavedAndProceed(this, { type: 'share' })
+  },
+
+  onSharePreviewClose() {
+    this.setData({ shareImagePath: '', shareStatus: 'idle', shareError: null })
+  },
+
+  async onShareImage() {
+    const imagePath = this.data.shareImagePath
+    if (!imagePath) return
+    try {
+      await wx.showShareImageMenu({
+        path: imagePath,
+        needShowEntrance: true,
+        entrancePath: 'pages/home/index',
+      })
+    } catch {
+      showError('目前版本暫不支援直接分享，請先保存圖片')
+    }
+  },
+
+  async onSaveShareImage() {
+    const imagePath = this.data.shareImagePath
+    if (!imagePath) return
+    try {
+      await wx.saveImageToPhotosAlbum({ filePath: imagePath })
+      showError('分享圖已保存到相冊')
+    } catch {
+      showError('請在小程式設定中開啟相冊權限')
+    }
+  },
+
+  onShareRetry() {
+    return this.onShareFleet()
   },
 
   // ── Config: Login ──
@@ -913,7 +1056,7 @@ Page({
 
   onUnsavedGuardDiscard() {
     const state = getState(this)
-    state.isDirty = false
+    if (state.pendingAction?.type !== 'share') state.isDirty = false
     resolvePendingAction(this)
   },
 
