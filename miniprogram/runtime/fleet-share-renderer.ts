@@ -28,6 +28,7 @@ const SKILL_ICON_SIZE = 26
 const FRAME_INSET = 3
 const SKILL_LEVEL_WIDTH = 44
 const SKILL_LEVEL_HEIGHT = 20
+export const SHARE_IMAGE_LOAD_TIMEOUT_MS = 8000
 const FONT_OFFICER = '600 22px sans-serif'
 const FONT_SKILL = '600 20px sans-serif'
 const FONT_LABEL = '600 22px sans-serif'
@@ -128,13 +129,33 @@ const loadImage = (canvas: ShareCanvas, path: string): Promise<ShareImage> =>
       reject(new Error('remote-or-empty-asset'))
       return
     }
+
+    let settled = false
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+    const resolveOnce = (image: ShareImage): void => {
+      if (settled) return
+      settled = true
+      if (timeoutId !== undefined) clearTimeout(timeoutId)
+      resolve(image)
+    }
+    const rejectOnce = (error: unknown): void => {
+      if (settled) return
+      settled = true
+      if (timeoutId !== undefined) clearTimeout(timeoutId)
+      reject(error)
+    }
+
     try {
       const image = canvas.createImage()
-      image.onload = () => resolve(image)
-      image.onerror = () => reject(new Error(`asset-load-failed:${normalizedPath}`))
+      image.onload = () => resolveOnce(image)
+      image.onerror = () => rejectOnce(new Error(`asset-load-failed:${normalizedPath}`))
+      timeoutId = setTimeout(
+        () => rejectOnce(new Error(`asset-load-timeout:${normalizedPath}`)),
+        SHARE_IMAGE_LOAD_TIMEOUT_MS,
+      )
       image.src = normalizedPath
     } catch (error) {
-      reject(error)
+      rejectOnce(error)
     }
   })
 

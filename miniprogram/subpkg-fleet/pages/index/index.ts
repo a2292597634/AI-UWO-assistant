@@ -127,7 +127,7 @@ interface FleetPageState {
 
 interface FleetPageLike {
   data: FleetPageData
-  setData(update: Record<string, unknown>): void
+  setData(update: Record<string, unknown>, callback?: () => void): void
 }
 
 type FleetShareStatus = 'idle' | 'generating' | 'ready' | 'error'
@@ -365,6 +365,22 @@ const selectShareCanvas = (): Promise<WechatMiniprogram.Canvas> =>
     }
   })
 
+/** 等待分享畫布尺寸完成視圖層更新，避免節點仍是初始尺寸時就開始繪製。 */
+const setDataAndWait = (page: FleetPageLike, update: Record<string, unknown>): Promise<void> =>
+  new Promise((resolve, reject) => {
+    try {
+      page.setData(update, resolve)
+    } catch (error) {
+      reject(error)
+    }
+  })
+
+/** 等待 Canvas 2D 下一次重繪完成，再把畫布導出為圖片。 */
+const waitForCanvasPaint = (canvas: WechatMiniprogram.Canvas): Promise<void> =>
+  new Promise((resolve) => {
+    canvas.requestAnimationFrame(() => resolve())
+  })
+
 const exportShareCanvas = (
   page: FleetPageLike,
   canvas: WechatMiniprogram.Canvas,
@@ -407,12 +423,16 @@ const generateShareImage = async (page: FleetPageLike): Promise<void> => {
       QR_PATH,
     )
     const layout = measureBattleFleetShare(view)
-    page.setData({ shareCanvasWidth: layout.width, shareCanvasHeight: layout.height })
+    await setDataAndWait(page, {
+      shareCanvasWidth: layout.width,
+      shareCanvasHeight: layout.height,
+    })
     const canvas = await selectShareCanvas()
     canvas.width = layout.width
     canvas.height = layout.height
     const report = await drawFleetShareImage(canvas, view, layout)
     if (report.fatalAssetMissing) throw new Error('首頁碼素材缺失')
+    await waitForCanvasPaint(canvas)
     const imagePath = await exportShareCanvas(page, canvas, layout)
     page.setData({
       shareStatus: 'ready',

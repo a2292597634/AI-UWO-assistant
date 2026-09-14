@@ -41,9 +41,37 @@ describe('配隊分享圖架構契約', () => {
       const wxml = read(relativePath)
       expect(wxml.match(/class="fleet-share-bar"/g)).toHaveLength(1)
       expect(wxml.match(/id="fleet-share-canvas"/g)).toHaveLength(1)
+      expect(wxml).toContain('wx:if="{{proposalPreview === null}}"')
       const scrollEnd = wxml.lastIndexOf('</scroll-view>')
       expect(wxml.indexOf('class="fleet-share-bar"')).toBeGreaterThan(scrollEnd)
       expect(wxml.indexOf('<fleet-share-preview')).toBeGreaterThan(scrollEnd)
+    }
+  })
+
+  it('方案預覽層必須位於固定分享欄之上，避免攔截底部確認按鈕', () => {
+    const resultPreviewWxss = read('miniprogram/components/result-preview-sheet/index.wxss')
+    const sharePreviewWxss = read('miniprogram/components/fleet-share-preview/index.wxss')
+    const resultMaskZIndex = Number(
+      resultPreviewWxss.match(/\.result-preview-sheet__mask\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+    )
+    const resultSheetZIndex = Number(
+      resultPreviewWxss.match(/\.result-preview-sheet\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+    )
+    const sharePreviewMaskZIndex = Number(
+      sharePreviewWxss.match(/\.fleet-share-preview__mask\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+    )
+
+    for (const relativePath of [
+      'miniprogram/subpkg-fleet/pages/index/index.wxss',
+      'miniprogram/pages/adventure-fleet/index.wxss',
+    ]) {
+      const wxss = read(relativePath)
+      const shareBarZIndex = Number(
+        wxss.match(/\.fleet-share-bar\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
+      )
+      expect(resultMaskZIndex).toBeGreaterThan(shareBarZIndex)
+      expect(resultSheetZIndex).toBeGreaterThan(shareBarZIndex)
+      expect(sharePreviewMaskZIndex).toBeGreaterThan(resultSheetZIndex)
     }
   })
 

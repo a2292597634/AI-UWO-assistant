@@ -1,10 +1,11 @@
+/* 層級順序：固定分享欄 30 → 方案預覽 32/33 → 分享圖預覽 40/41。 */
 .result-preview-sheet__mask {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 20;
+  z-index: 32;
   background: var(--uwo-color-ink);
   opacity: 0.45;
 }
@@ -15,7 +16,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 21;
+  z-index: 33;
   display: flex;
   flex-direction: column;
   max-height: 82vh;

@@ -47,7 +47,7 @@ interface AdventurePageConfig {
 
 interface AdventurePageInstance extends AdventurePageConfig {
   data: AdventurePageData
-  setData(update: Record<string, unknown>): void
+  setData(update: Record<string, unknown>, callback?: () => void): void
 }
 
 let adventurePage: AdventurePageConfig
@@ -70,7 +70,10 @@ const wxStub = {
 const createPageInstance = (): AdventurePageInstance => {
   const instance = Object.create(adventurePage) as AdventurePageInstance
   instance.data = structuredClone(adventurePage.data)
-  instance.setData = (update) => Object.assign(instance.data, update)
+  instance.setData = (update, callback) => {
+    Object.assign(instance.data, update)
+    callback?.()
+  }
   return instance
 }
 
@@ -576,6 +579,10 @@ const prepareShareCanvas = () => {
     width: 0,
     height: 0,
     getContext: vi.fn(() => context),
+    requestAnimationFrame: vi.fn((callback: () => void) => {
+      callback()
+      return 0
+    }),
     createImage: vi.fn(() => {
       const image = { width: 64, height: 64, src: '', onload: () => {}, onerror: () => {} }
       queueMicrotask(() => image.onload())
@@ -596,6 +603,7 @@ const prepareShareCanvas = () => {
       options.success?.({ tempFilePath: 'wxfile://adventure-share.png' })
     },
   )
+  return canvas
 }
 
 describe('adventure fleet share entry', () => {
@@ -639,6 +647,65 @@ describe('adventure fleet share generation', () => {
         entrancePath: 'pages/home/index',
       }),
     )
+  })
+
+  it('waits for the share canvas dimensions to render before selecting the canvas node', async () => {
+    const canvas = prepareShareCanvas()
+    const events: string[] = []
+    const page = createPageInstance()
+    await page.onLoad()
+
+    page.setData = (update, callback) => {
+      Object.assign(page.data, update)
+      if (Object.prototype.hasOwnProperty.call(update, 'shareCanvasWidth')) {
+        queueMicrotask(() => {
+          events.push('rendered')
+          callback?.()
+        })
+      } else {
+        callback?.()
+      }
+    }
+    wxStub.createSelectorQuery.mockImplementation(() => {
+      events.push('query')
+      return {
+        select: vi.fn(() => ({
+          node: vi.fn(() => ({
+            exec: vi.fn((callback: (result: Array<{ node: unknown }>) => void) =>
+              callback([{ node: canvas }]),
+            ),
+          })),
+        })),
+      }
+    })
+
+    await page.onShareFleet()
+
+    expect(events.indexOf('rendered')).toBeGreaterThanOrEqual(0)
+    expect(events.indexOf('query')).toBeGreaterThan(events.indexOf('rendered'))
+  })
+
+  it('waits for the canvas repaint before exporting the share image', async () => {
+    const canvas = prepareShareCanvas()
+    const events: string[] = []
+    canvas.requestAnimationFrame.mockImplementation((callback: () => void) => {
+      events.push('request-animation-frame')
+      callback()
+      return 0
+    })
+    wxStub.canvasToTempFilePath.mockImplementation(
+      (options: { success?: (result: { tempFilePath: string }) => void }) => {
+        events.push('export')
+        options.success?.({ tempFilePath: 'wxfile://adventure-share.png' })
+      },
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+
+    await page.onShareFleet()
+
+    expect(events.indexOf('request-animation-frame')).toBeGreaterThanOrEqual(0)
+    expect(events.indexOf('export')).toBeGreaterThan(events.indexOf('request-animation-frame'))
   })
 })
 
