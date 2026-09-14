@@ -13,6 +13,7 @@
     "result-preview-sheet": "../../../components/result-preview-sheet/index",
     "empty-state": "../../../components/empty-state/index",
     "disclosure-section": "../../../components/disclosure-section/index",
-    "skill-sheet": "../../../components/skill-sheet/index"
+    "skill-sheet": "../../../components/skill-sheet/index",
+    "fleet-share-preview": "../../../components/fleet-share-preview/index"
   }
 }

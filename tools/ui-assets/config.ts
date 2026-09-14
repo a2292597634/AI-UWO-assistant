@@ -135,6 +135,7 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
   ),
   originalUi('gender-f', 'gender_f.png', 'gender-f.png'),
   originalUi('gender-m', 'gender_m.png', 'gender-m.png'),
+  originalUi('mini-program-home-code', 'mini-program-home-code.png', 'mini-program-home-code.png'),
   compactDisclosureUi(
     'disclosure-chevron-down',
     'uwo_disclosure_chevron_down.png',
