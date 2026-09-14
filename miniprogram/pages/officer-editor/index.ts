@@ -3,13 +3,20 @@ import type {
   OfficerErrorType,
 } from '../../contracts/officer-error-report'
 import { validateOfficerErrorReportDraft } from '../../domain/officer-error-report'
+import {
+  buildOfficerReportOptions,
+  mapOfficerReportFieldErrors,
+  presentOfficerReportIdentity,
+  type OfficerReportFieldErrors,
+  type OfficerReportIdentityView,
+  type OfficerReportOfficerOption,
+} from '../../presenters/officer-error-report-presenter'
 import { getOfficerErrorReportService } from '../../runtime/officer-error-report-service'
-import { getCatalog } from '../../runtime/main-data-store'
-
-interface OfficerOption {
-  readonly id: string
-  readonly name: string
-}
+import {
+  getCatalog,
+  getMaintenanceDictionaries,
+  getMaintenanceOfficer,
+} from '../../runtime/main-data-store'
 
 interface ErrorTypeOption {
   readonly id: OfficerErrorType
@@ -37,39 +44,101 @@ const emptyDraft = (): OfficerErrorReportDraft => ({
   supplement: '',
 })
 
+const withoutFieldError = (
+  errors: OfficerReportFieldErrors,
+  field: keyof OfficerErrorReportDraft,
+): OfficerReportFieldErrors => {
+  const next = { ...errors }
+  delete next[field]
+  return next
+}
+
+const evidenceSummary = (sourceUrl: string, screenshotCount: number): string => {
+  const parts: string[] = []
+  if (/^https?:\/\/\S+$/i.test(sourceUrl.trim())) parts.push('1 個網址')
+  if (screenshotCount > 0) parts.push(`${String(screenshotCount)} 張截圖`)
+  return parts.length > 0 ? parts.join(' · ') : '添加來源網址或證據截圖'
+}
+
 Page({
   data: {
-    officerOptions: [] as OfficerOption[],
-    officerIndex: -1,
-    selectedOfficerName: '',
+    officerOptions: [] as OfficerReportOfficerOption[],
+    officerIdentity: null as OfficerReportIdentityView | null,
+    selectingOfficer: true,
+    identityLoading: false,
+    portraitFailed: false,
+    returnToOfficerId: '',
     errorTypeOptions: ERROR_TYPES.map((item) => ({ ...item, selected: false })),
     draft: emptyDraft(),
+    fieldErrors: {} as OfficerReportFieldErrors,
+    descriptionCount: 0,
+    correctionCount: 0,
+    evidenceExpanded: false,
+    evidenceSummary: '添加來源網址或證據截圖',
     screenshotTempPaths: [] as string[],
     submitting: false,
+    submitError: '',
+    submittedReportId: '',
   },
 
-  onLoad(query?: Record<string, string | undefined>) {
-    const officerOptions = getCatalog().map(({ id, name }) => ({ id, name }))
+  async onLoad(query?: Record<string, string | undefined>) {
+    const officerOptions = buildOfficerReportOptions(getCatalog())
     const requestedId = query?.officerId ? decodeURIComponent(query.officerId) : ''
-    const officerIndex = officerOptions.findIndex(({ id }) => id === requestedId)
-    const selected = officerIndex >= 0 ? officerOptions[officerIndex] : undefined
+    const hasRequestedOfficer = officerOptions.some(({ id }) => id === requestedId)
     this.setData({
       officerOptions,
-      officerIndex,
-      selectedOfficerName: selected?.name ?? '',
-      'draft.officerId': selected?.id ?? '',
+      returnToOfficerId: hasRequestedOfficer ? requestedId : '',
     })
+    if (hasRequestedOfficer) await this.loadOfficerIdentity(requestedId)
   },
 
-  onOfficerChange(event: WechatMiniprogram.PickerChange) {
-    const officerIndex = Number(event.detail.value)
-    const selected = this.data.officerOptions[officerIndex]
-    if (!selected) return
-    this.setData({
-      officerIndex,
-      selectedOfficerName: selected.name,
-      'draft.officerId': selected.id,
-    })
+  async loadOfficerIdentity(officerId: string) {
+    const catalogEntry = getCatalog().find(({ id }) => id === officerId)
+    if (!catalogEntry) return
+    this.setData({ identityLoading: true, portraitFailed: false })
+    try {
+      const [maintenance, dictionaries] = await Promise.all([
+        getMaintenanceOfficer(officerId),
+        getMaintenanceDictionaries(),
+      ])
+      if (!maintenance) {
+        this.setData({ submitError: '暫時無法讀取這位航海士的完整資料，請稍後再試。' })
+        return
+      }
+      this.setData({
+        officerIdentity: presentOfficerReportIdentity(
+          catalogEntry,
+          maintenance.data,
+          dictionaries,
+        ),
+        selectingOfficer: false,
+        'draft.officerId': officerId,
+        fieldErrors: withoutFieldError(this.data.fieldErrors, 'officerId'),
+        submitError: '',
+      })
+    } catch (error) {
+      this.setData({
+        submitError:
+          error instanceof Error
+            ? error.message
+            : '暫時無法讀取航海士資料，請稍後再試。',
+      })
+    } finally {
+      this.setData({ identityLoading: false })
+    }
+  },
+
+  async onOfficerSelect(event: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const officerId = String(event.detail.id ?? '')
+    if (officerId) await this.loadOfficerIdentity(officerId)
+  },
+
+  onChangeOfficer() {
+    this.setData({ selectingOfficer: true })
+  },
+
+  onPortraitError() {
+    this.setData({ portraitFailed: true })
   },
 
   onErrorTypeTap(event: WechatMiniprogram.BaseEvent) {
@@ -81,19 +150,45 @@ Page({
     this.setData({
       errorTypeOptions,
       'draft.errorTypes': errorTypeOptions.filter(({ selected }) => selected).map(({ id }) => id),
+      fieldErrors: withoutFieldError(this.data.fieldErrors, 'errorTypes'),
     })
   },
 
   onDescriptionInput(event: WechatMiniprogram.Input) {
-    this.setData({ 'draft.description': event.detail.value })
+    const value = String(event.detail.value ?? '')
+    this.setData({
+      'draft.description': value,
+      descriptionCount: value.length,
+      fieldErrors: withoutFieldError(this.data.fieldErrors, 'description'),
+    })
   },
 
   onCorrectionInput(event: WechatMiniprogram.Input) {
-    this.setData({ 'draft.suggestedCorrection': event.detail.value })
+    const value = String(event.detail.value ?? '')
+    this.setData({
+      'draft.suggestedCorrection': value,
+      correctionCount: value.length,
+      fieldErrors: withoutFieldError(this.data.fieldErrors, 'suggestedCorrection'),
+    })
   },
 
   onSourceUrlInput(event: WechatMiniprogram.Input) {
-    this.setData({ 'draft.sourceUrl': event.detail.value })
+    const value = String(event.detail.value ?? '')
+    this.setData({
+      'draft.sourceUrl': value,
+      evidenceSummary: evidenceSummary(value, this.data.screenshotTempPaths.length),
+      fieldErrors: withoutFieldError(this.data.fieldErrors, 'sourceUrl'),
+    })
+  },
+
+  onToggleEvidence() {
+    this.setData({
+      evidenceExpanded: !this.data.evidenceExpanded,
+      evidenceSummary: evidenceSummary(
+        this.data.draft.sourceUrl,
+        this.data.screenshotTempPaths.length,
+      ),
+    })
   },
 
   async onChooseScreenshots() {
@@ -104,19 +199,24 @@ Page({
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
     })
+    const screenshotTempPaths = this.data.screenshotTempPaths.concat(
+      result.tempFiles.map(({ tempFilePath }) => tempFilePath),
+    )
     this.setData({
-      screenshotTempPaths: this.data.screenshotTempPaths.concat(
-        result.tempFiles.map(({ tempFilePath }) => tempFilePath),
-      ),
+      screenshotTempPaths,
+      evidenceSummary: evidenceSummary(this.data.draft.sourceUrl, screenshotTempPaths.length),
+      fieldErrors: withoutFieldError(this.data.fieldErrors, 'screenshotFileIds'),
     })
   },
 
   onRemoveScreenshot(event: WechatMiniprogram.BaseEvent) {
     const index = Number(event.currentTarget.dataset['index'])
+    const screenshotTempPaths = this.data.screenshotTempPaths.filter(
+      (_, itemIndex) => itemIndex !== index,
+    )
     this.setData({
-      screenshotTempPaths: this.data.screenshotTempPaths.filter(
-        (_, itemIndex) => itemIndex !== index,
-      ),
+      screenshotTempPaths,
+      evidenceSummary: evidenceSummary(this.data.draft.sourceUrl, screenshotTempPaths.length),
     })
   },
 
@@ -124,34 +224,32 @@ Page({
     wx.navigateTo({ url: '/subpkg-maintenance/pages/work-orders/index' })
   },
 
+  onReturnFromSuccess() {
+    const url = this.data.returnToOfficerId
+      ? `/subpkg-detail/pages/detail/index?id=${this.data.returnToOfficerId}`
+      : '/pages/catalog/index'
+    wx.redirectTo({ url })
+  },
+
   async onSubmit() {
     if (this.data.submitting) return
     const validationErrors = validateOfficerErrorReportDraft(this.data.draft)
     if (validationErrors.length > 0) {
-      wx.showToast({ title: validationErrors[0]!.message, icon: 'none' })
+      this.setData({ fieldErrors: mapOfficerReportFieldErrors(validationErrors), submitError: '' })
+      wx.pageScrollTo({ selector: `#field-${validationErrors[0]!.field}`, duration: 240 })
       return
     }
 
-    this.setData({ submitting: true })
-    wx.showLoading({ title: '正在提交', mask: true })
+    this.setData({ submitting: true, submitError: '' })
     try {
       const service = getOfficerErrorReportService()
       const screenshotFileIds = await service.uploadScreenshots(this.data.screenshotTempPaths)
-      await service.createReport({ ...this.data.draft, screenshotFileIds })
-      wx.hideLoading()
-      await wx.showModal({
-        title: '提交成功',
-        content: '錯誤回報已送出，可在「我的回報」查看處理進度。',
-        showCancel: false,
-      })
-      wx.redirectTo({ url: '/subpkg-maintenance/pages/work-orders/index' })
+      const report = await service.createReport({ ...this.data.draft, screenshotFileIds })
+      this.setData({ submittedReportId: report.reportId, submitting: false })
     } catch (error) {
-      wx.hideLoading()
-      this.setData({ submitting: false })
-      wx.showToast({
-        title: error instanceof Error ? error.message : '提交失敗，請稍後再試',
-        icon: 'none',
-      })
+      const message = error instanceof Error ? error.message : '提交失敗，請稍後再試。'
+      this.setData({ submitting: false, submitError: message })
+      wx.showToast({ title: message, icon: 'none' })
     }
   },
 })
