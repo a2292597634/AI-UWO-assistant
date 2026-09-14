@@ -7,6 +7,7 @@ import {
   buildOfficerReportOptions,
   mapOfficerReportFieldErrors,
   presentOfficerReportIdentity,
+  searchOfficerReportOptions,
   type OfficerReportFieldErrors,
   type OfficerReportIdentityView,
   type OfficerReportOfficerOption,
@@ -63,10 +64,12 @@ const evidenceSummary = (sourceUrl: string, screenshotCount: number): string => 
 Page({
   data: {
     officerOptions: [] as OfficerReportOfficerOption[],
+    officerQuery: '',
+    officerCandidates: [] as OfficerReportOfficerOption[],
     officerIdentity: null as OfficerReportIdentityView | null,
     selectingOfficer: true,
     identityLoading: false,
-    portraitFailed: false,
+    failedOfficerLayers: {} as Record<string, true>,
     returnToOfficerId: '',
     errorTypeOptions: ERROR_TYPES.map((item) => ({ ...item, selected: false })),
     draft: emptyDraft(),
@@ -95,7 +98,7 @@ Page({
   async loadOfficerIdentity(officerId: string) {
     const catalogEntry = getCatalog().find(({ id }) => id === officerId)
     if (!catalogEntry) return
-    this.setData({ identityLoading: true, portraitFailed: false })
+    this.setData({ identityLoading: true })
     try {
       const [maintenance, dictionaries] = await Promise.all([
         getMaintenanceOfficer(officerId),
@@ -122,17 +125,31 @@ Page({
     }
   },
 
-  async onOfficerSelect(event: WechatMiniprogram.CustomEvent<{ id: string }>) {
-    const officerId = String(event.detail.id ?? '')
-    if (officerId) await this.loadOfficerIdentity(officerId)
+  onOfficerSearchInput(event: WechatMiniprogram.Input) {
+    const officerQuery = String(event.detail.value ?? '')
+    this.setData({
+      officerQuery,
+      officerCandidates: searchOfficerReportOptions(this.data.officerOptions, officerQuery),
+    })
+  },
+
+  async onOfficerCandidateTap(event: WechatMiniprogram.BaseEvent) {
+    const officerId = String(event.currentTarget.dataset['id'] ?? '')
+    if (!officerId) return
+    await this.loadOfficerIdentity(officerId)
+    if (!this.data.officerIdentity || this.data.officerIdentity.id !== officerId) return
+    this.setData({ officerQuery: '', officerCandidates: [] })
+  },
+
+  onOfficerLayerError(event: WechatMiniprogram.BaseEvent) {
+    const id = String(event.currentTarget.dataset['id'] ?? '')
+    const layer = String(event.currentTarget.dataset['layer'] ?? '')
+    if (!id || !layer) return
+    this.setData({ [`failedOfficerLayers.${id}_${layer}`]: true })
   },
 
   onChangeOfficer() {
-    this.setData({ selectingOfficer: true })
-  },
-
-  onPortraitError() {
-    this.setData({ portraitFailed: true })
+    this.setData({ selectingOfficer: true, officerQuery: '', officerCandidates: [] })
   },
 
   onErrorTypeTap(event: WechatMiniprogram.BaseEvent) {
