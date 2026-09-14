@@ -34,6 +34,21 @@ describe('航海士資料錯誤回報頁契約', () => {
     expect(wxss).toMatch(/\.officer-identity__rarity-icon\s*\{[^}]*top:\s*4rpx[^}]*left:\s*4rpx/s)
   })
 
+  it('更換按鈕固定尺寸並保留邊框，避免壓住航海士文字', () => {
+    const wxss = readPageFile('index.wxss')
+    expect(wxss).toMatch(/\.officer-identity\s*\{[^}]*display:\s*flex/s)
+    expect(wxss).toMatch(/\.officer-identity__body\s*\{[^}]*flex:\s*1/s)
+    expect(wxss).toMatch(/\.officer-identity__body\s*\{[^}]*padding-right:\s*0/s)
+    expect(wxss).toMatch(/\.officer-identity__change\s*\{[^}]*position:\s*absolute/s)
+    expect(wxss).toMatch(/\.officer-identity__change\s*\{[^}]*width:\s*128rpx\s*!important/s)
+    expect(wxss).toMatch(/\.officer-identity__change\s*\{[^}]*max-width:\s*128rpx/s)
+    expect(wxss).toMatch(/\.officer-identity__change\s*\{[^}]*padding:\s*0/s)
+    expect(wxss).toMatch(
+      /\.officer-identity__change\s*\{[^}]*border:\s*2rpx solid var\(--uwo-color-border-strong\)/s,
+    )
+    expect(wxss).toMatch(/\.officer-identity__change::after\s*\{[^}]*border:\s*0/s)
+  })
+
   it('所有回報字段位於單一表單容器並提供字段級回饋', () => {
     const wxml = readPageFile('index.wxml')
     expect(wxml.match(/class="report-form"/g)).toHaveLength(1)

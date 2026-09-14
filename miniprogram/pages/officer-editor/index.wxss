@@ -288,7 +288,7 @@
 .officer-identity__body {
   min-width: 0;
   flex: 1;
-  padding-right: 112rpx;
+  padding-right: 0;
 }
 
 .officer-identity__name {
@@ -308,10 +308,12 @@
   position: absolute;
   top: var(--uwo-space-3);
   right: var(--uwo-space-3);
-  min-width: 88rpx;
+  width: 128rpx !important;
+  min-width: 128rpx;
+  max-width: 128rpx;
   min-height: 88rpx;
   margin: 0;
-  padding: 0 var(--uwo-space-3);
+  padding: 0;
   color: var(--uwo-color-accent-text);
   background: var(--uwo-color-surface-muted);
   border: 2rpx solid var(--uwo-color-border-strong);
@@ -320,6 +322,11 @@
   box-sizing: border-box;
   font-size: var(--uwo-font-size-minimum-action);
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.officer-identity__change::after {
+  border: 0;
 }
 
 .field-error {
