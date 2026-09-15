@@ -51,15 +51,25 @@ const battleView = (): BattleFleetShareViewModel => ({
 })
 
 describe('配隊分享圖布局測量', () => {
-  it('戰鬥固定五欄，七艘船和四行被動技能都納入 QR 頁尾高度', () => {
+  it('戰鬥使用 6＋5 航海士布局，七艘船和四行被動技能都納入 QR 頁尾高度', () => {
     const layout = measureBattleFleetShare(battleView())
+    const section = layout.shipSections[0]!
+    const lastSection = layout.shipSections[layout.shipSections.length - 1]!
+    const firstRow = section.officerSlots.slice(0, 6)
+    const secondRow = section.officerSlots.slice(6)
 
     expect(layout.width).toBe(750)
     expect(layout.shipSections).toHaveLength(7)
-    expect(layout.shipSections[0]!.activeRows).toBe(1)
-    expect(layout.shipSections[0]!.passiveRows).toBe(4)
-    expect(layout.shipSections[0]!.officerSlots).toHaveLength(11)
+    expect(firstRow.every((slot) => slot.y === firstRow[0]!.y)).toBe(true)
+    expect(secondRow.every((slot) => slot.y === secondRow[0]!.y)).toBe(true)
+    expect(secondRow[0]!.y).toBeGreaterThan(firstRow[0]!.y)
+    expect(secondRow[0]!.x).toBe(firstRow[0]!.x)
+    expect(section.officerRow.height).toBeGreaterThan(112)
+    expect(section.activeRows).toBe(2)
+    expect(section.passiveRows).toBe(4)
+    expect(section.officerSlots).toHaveLength(11)
     expect(layout.footer.height).toBeGreaterThanOrEqual(180)
+    expect(layout.footer.y).toBeGreaterThan(lastSection.y + lastSection.height)
     expect(layout.contentBottom).toBeLessThanOrEqual(layout.height)
     expect(layout.qr.x + layout.qr.width).toBeLessThanOrEqual(layout.width - layout.padding)
   })
@@ -73,6 +83,15 @@ describe('配隊分享圖布局測量', () => {
     expect(dimensions.scale).toBeGreaterThan(0)
     expect(dimensions.scale).toBeLessThanOrEqual(2)
     expect(dimensions.height).toBe(Math.round(layout.height * dimensions.scale))
+  })
+
+  it('全空戰鬥艦隊保留空狀態空間，頁尾位於其後', () => {
+    const view = { ...battleView(), ships: [] }
+    const layout = measureBattleFleetShare(view)
+
+    expect(layout.emptyState).not.toBeNull()
+    expect(layout.footer.y).toBeGreaterThan(layout.emptyState!.y + layout.emptyState!.height)
+    expect(layout.shipSections).toHaveLength(0)
   })
 
   it('冒險四個品質分組與全艦技能區不重疊', () => {
@@ -98,6 +117,20 @@ describe('配隊分享圖布局測量', () => {
     )
     expect(layout.skillSection.skillRows).toBe(3)
     expect(layout.contentBottom).toBeLessThanOrEqual(layout.height)
+  })
+
+  it('技能布局固定使用四欄', () => {
+    const layout = measureAdventureFleetShare({
+      mode: 'adventure',
+      configName: '四欄案例',
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+      presetRangeEmpty: false,
+      groups: [],
+      skills: Array.from({ length: 9 }, (_, index) => skill(`skill-${index}`, 'passive')),
+    })
+
+    expect(layout.skillSection.skillRows).toBe(3)
   })
 
   it('航海士品質徽章與類型圖標錨定在實際頭像框內', () => {

@@ -54,6 +54,7 @@ export interface FleetShareLayout {
   shipSections: FleetShareShipLayout[]
   groupSections: FleetShareGroupLayout[]
   skillSection: FleetShareSkillSectionLayout
+  emptyState: ShareRect | null
   footer: ShareRect
   qr: ShareRect
   contentBottom: number
@@ -61,20 +62,47 @@ export interface FleetShareLayout {
 
 const DEFAULT_WIDTH = 750
 const DEFAULT_PADDING = 32
-const SKILL_COLUMNS = 5
-const SKILL_COLUMN = 132
-const SKILL_GAP = 4
-const SKILL_SECTION_PADDING = 8
+const OFFICER_COLUMNS = 6
+const GROUP_OFFICER_COLUMNS = 4
+const OFFICER_ROW_GAP = 10
+const OFFICER_SLOT_HEIGHT = 128
+const SKILL_COLUMNS = 4
+const SKILL_GAP = 8
+const SKILL_SECTION_PADDING = 12
+const SKILL_ROW_HEIGHT = 68
+const SKILL_ROW_GAP = 8
+const EMPTY_STATE_HEIGHT = 96
 const SECTION_GAP = 24
-const HEADER_HEIGHT = 104
-const FOOTER_HEIGHT = 180
-const QR_SIZE = 124
-const OFFICER_SLOT_HEIGHT = 112
+const HEADER_HEIGHT = 124
+const FOOTER_HEIGHT = 200
+const QR_SIZE = 156
 const OFFICER_GAP = 6
-const SKILL_ROW_HEIGHT = 52
-const SKILL_ROW_GAP = 6
 const SKILL_HEADING_HEIGHT = 48
 const EMPTY_SKILL_SECTION_HEIGHT = 56
+
+const makeGridRects = (
+  x: number,
+  y: number,
+  count: number,
+  width: number,
+  columns: number,
+  columnGap: number,
+  rowHeight: number,
+  rowGap: number,
+): ShareRect[] => {
+  const columnWidth = (width - (columns - 1) * columnGap) / columns
+  return Array.from({ length: count }, (_, index) => ({
+    x: x + (index % columns) * (columnWidth + columnGap),
+    y: y + Math.floor(index / columns) * (rowHeight + rowGap),
+    width: columnWidth,
+    height: rowHeight,
+  }))
+}
+
+const gridHeight = (count: number, columns: number, rowHeight: number, rowGap: number): number => {
+  const rows = Math.ceil(count / columns)
+  return rows === 0 ? 0 : rows * rowHeight + (rows - 1) * rowGap
+}
 
 const skillRows = (count: number): number => Math.ceil(count / SKILL_COLUMNS)
 
@@ -98,19 +126,16 @@ const makeSkillSection = (
   const contentHeight = skillSectionHeight(count)
   const height = contentHeight > 0 ? contentHeight + SKILL_SECTION_PADDING * 2 : 0
   const contentWidth = width - padding * 2
-  const columnWidth = Math.min(
-    SKILL_COLUMN,
-    (contentWidth - SKILL_SECTION_PADDING * 2 - (SKILL_COLUMNS - 1) * SKILL_GAP) / SKILL_COLUMNS,
+  const cards = makeGridRects(
+    padding + SKILL_SECTION_PADDING,
+    y + SKILL_SECTION_PADDING,
+    count,
+    contentWidth - SKILL_SECTION_PADDING * 2,
+    SKILL_COLUMNS,
+    SKILL_GAP,
+    SKILL_ROW_HEIGHT,
+    SKILL_ROW_GAP,
   )
-  const cards = Array.from({ length: count }, (_, index) => ({
-    x: padding + SKILL_SECTION_PADDING + (index % SKILL_COLUMNS) * (columnWidth + SKILL_GAP),
-    y:
-      y +
-      SKILL_SECTION_PADDING +
-      Math.floor(index / SKILL_COLUMNS) * (SKILL_ROW_HEIGHT + SKILL_ROW_GAP),
-    width: columnWidth,
-    height: SKILL_ROW_HEIGHT,
-  }))
   return {
     y,
     height,
@@ -155,32 +180,42 @@ export const measureBattleFleetShare = (
 ): FleetShareLayout => {
   const { width, padding } = resolveOptions(options)
   const contentWidth = width - padding * 2
-  const slotWidth = (contentWidth - (11 - 1) * OFFICER_GAP) / 11
   const header = { x: 0, y: 0, width, height: HEADER_HEIGHT }
   let cursor = HEADER_HEIGHT
   const shipSections: FleetShareShipLayout[] = view.ships.map((ship) => {
     const y = cursor
     const heading = { x: padding, y: cursor, width: contentWidth, height: 40 }
     cursor += heading.height + 8
-    const officerRow = { x: padding, y: cursor, width: contentWidth, height: OFFICER_SLOT_HEIGHT }
-    const officerSlots = ship.officerSlots.map((_, index) => ({
-      x: padding + index * (slotWidth + OFFICER_GAP),
-      y: cursor,
-      width: slotWidth,
-      height: OFFICER_SLOT_HEIGHT,
-    }))
-    cursor += OFFICER_SLOT_HEIGHT
+    const officerRowHeight = gridHeight(
+      ship.officerSlots.length,
+      OFFICER_COLUMNS,
+      OFFICER_SLOT_HEIGHT,
+      OFFICER_ROW_GAP,
+    )
+    const officerRow = { x: padding, y: cursor, width: contentWidth, height: officerRowHeight }
+    const officerSlots = makeGridRects(
+      padding,
+      cursor,
+      ship.officerSlots.length,
+      contentWidth,
+      OFFICER_COLUMNS,
+      OFFICER_GAP,
+      OFFICER_SLOT_HEIGHT,
+      OFFICER_ROW_GAP,
+    )
+    cursor += officerRowHeight
     cursor += SECTION_GAP
     const activeSection = makeSkillSection(cursor, ship.activeSkills.length, width, padding)
     cursor += activeSection.height
     cursor += activeSection.height > 0 && ship.passiveSkills.length > 0 ? SECTION_GAP : 0
     const passiveSection = makeSkillSection(cursor, ship.passiveSkills.length, width, padding)
     cursor += passiveSection.height
+    const height = cursor - y
     cursor += SECTION_GAP
     return {
       shipId: ship.shipId,
       y,
-      height: cursor - y,
+      height,
       heading,
       officerSlots,
       officerRow,
@@ -192,6 +227,11 @@ export const measureBattleFleetShare = (
       passiveRows: passiveSection.skillRows,
     }
   })
+  const emptyState =
+    shipSections.length === 0
+      ? { x: padding, y: cursor, width: contentWidth, height: EMPTY_STATE_HEIGHT }
+      : null
+  if (emptyState) cursor += emptyState.height + SECTION_GAP
   const contentBottom = cursor
   const { footer, qr } = makeFooter(cursor, width, padding)
   cursor += footer.height
@@ -209,6 +249,7 @@ export const measureBattleFleetShare = (
       skillRows: 0,
       skillCards: [],
     },
+    emptyState,
     footer,
     qr,
     contentBottom,
@@ -227,17 +268,22 @@ export const measureAdventureFleetShare = (
     const y = cursor
     const heading = { x: padding, y: cursor, width: contentWidth, height: 40 }
     cursor += heading.height + 8
-    const columns = 5
-    const columnWidth = (contentWidth - (columns - 1) * OFFICER_GAP) / columns
-    const rows = Math.ceil(group.officers.length / columns)
-    const officerHeight = 112
-    const officerSlots = group.officers.map((_, index) => ({
-      x: padding + (index % columns) * (columnWidth + OFFICER_GAP),
-      y: cursor + Math.floor(index / columns) * officerHeight,
-      width: columnWidth,
-      height: officerHeight,
-    }))
-    cursor += rows * officerHeight
+    const officerSlots = makeGridRects(
+      padding,
+      cursor,
+      group.officers.length,
+      contentWidth,
+      GROUP_OFFICER_COLUMNS,
+      OFFICER_GAP,
+      OFFICER_SLOT_HEIGHT,
+      OFFICER_ROW_GAP,
+    )
+    cursor += gridHeight(
+      group.officers.length,
+      GROUP_OFFICER_COLUMNS,
+      OFFICER_SLOT_HEIGHT,
+      OFFICER_ROW_GAP,
+    )
     cursor += SECTION_GAP
     return { rarityName: group.rarityName, y, height: cursor - y, heading, officerSlots }
   })
@@ -258,6 +304,7 @@ export const measureAdventureFleetShare = (
     shipSections: [],
     groupSections,
     skillSection,
+    emptyState: null,
     footer,
     qr,
     contentBottom,
