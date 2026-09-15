@@ -1,10 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { AdventureFleetShareViewModel } from '../../miniprogram/contracts/fleet-share'
+import type {
+  AdventureFleetShareViewModel,
+  BattleFleetShareViewModel,
+} from '../../miniprogram/contracts/fleet-share'
 import {
   drawFleetShareImage,
   SHARE_IMAGE_LOAD_TIMEOUT_MS,
 } from '../../miniprogram/runtime/fleet-share-renderer'
-import { measureAdventureFleetShare } from '../../miniprogram/runtime/fleet-share-layout'
+import {
+  measureAdventureFleetShare,
+  measureBattleFleetShare,
+} from '../../miniprogram/runtime/fleet-share-layout'
 
 const view: AdventureFleetShareViewModel = {
   mode: 'adventure',
@@ -40,7 +46,7 @@ const createCanvas = (loadImages = false) => {
   const canvas = {
     width: 0,
     height: 0,
-    getContext: vi.fn(() => context),
+    getContext: vi.fn((_type: '2d') => context),
     // 模擬平台未返回 onload／onerror 的異常素材，生成器仍須在超時後結束。
     createImage: vi.fn(() => {
       const image = {
@@ -54,7 +60,9 @@ const createCanvas = (loadImages = false) => {
       return image
     }),
   }
-  return canvas as never
+  return canvas as unknown as WechatMiniprogram.Canvas & {
+    getContext: (type: '2d') => typeof context
+  }
 }
 
 afterEach(() => {
@@ -62,6 +70,27 @@ afterEach(() => {
 })
 
 describe('配隊分享圖素材載入', () => {
+  it('全空戰鬥配隊會繪製「尚未配置航海士」空狀態', async () => {
+    const emptyView: BattleFleetShareViewModel = {
+      mode: 'battle',
+      configName: '全空案例',
+      ships: [],
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+    const layout = measureBattleFleetShare(emptyView)
+
+    await drawFleetShareImage(canvas, emptyView, layout)
+
+    expect(canvas.getContext('2d').fillText).toHaveBeenCalledWith(
+      '尚未配置航海士',
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+    )
+  })
+
   it('素材回調遺失時在超時後返回 QR 缺失結果，不讓分享流程永久卡住', async () => {
     vi.useFakeTimers()
     const canvas = createCanvas()

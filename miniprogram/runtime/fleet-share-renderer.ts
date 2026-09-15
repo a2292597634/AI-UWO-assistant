@@ -23,23 +23,23 @@ type ShareContext = WechatMiniprogram.CanvasRenderingContext.CanvasRenderingCont
 type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
-const OFFICER_SIZE = 64
-const SKILL_ICON_SIZE = 24
+const OFFICER_SIZE = 84
+const SKILL_ICON_SIZE = 32
 const FRAME_INSET = 3
-const SKILL_LEVEL_WIDTH = 64
-const SKILL_LEVEL_HEIGHT = 22
-const SKILL_CARD_INSET = 6
-const SKILL_META_TOP = 4
-const SKILL_NAME_GAP = 2
-const SKILL_NAME_BOTTOM = 2
+const SKILL_LEVEL_WIDTH = 72
+const SKILL_LEVEL_HEIGHT = 26
+const SKILL_CARD_INSET = 8
+const SKILL_META_TOP = 6
+const SKILL_NAME_GAP = 4
+const SKILL_NAME_BOTTOM = 4
 export const SHARE_IMAGE_LOAD_TIMEOUT_MS = 8000
 export const SHARE_IMAGE_MAX_OUTPUT_SIDE = 4096
 export const SHARE_IMAGE_PREFERRED_SCALE = 2
-const FONT_OFFICER = '600 22px sans-serif'
-const FONT_SKILL = '600 20px sans-serif'
-const FONT_LABEL = '600 22px sans-serif'
-const FONT_META = '500 18px sans-serif'
-const FONT_LEVEL = '700 17px sans-serif'
+const FONT_OFFICER = '600 26px sans-serif'
+const FONT_SKILL = '600 24px sans-serif'
+const FONT_LABEL = '600 28px sans-serif'
+const FONT_META = '500 22px sans-serif'
+const FONT_LEVEL = '700 19px sans-serif'
 const COLORS = {
   paper: '#f1ead9',
   paperAlt: '#e7ddc8',
@@ -312,6 +312,19 @@ const drawPlaceholder = (
     rect.width - 12,
     FONT_META,
     COLORS.inkMuted,
+  )
+}
+
+const drawEmptyState = (context: ShareContext, rect: ShareRect): void => {
+  roundedRect(context, rect, 16, COLORS.paperAlt, COLORS.border)
+  drawText(
+    context,
+    '尚未配置航海士',
+    rect.x + 16,
+    rect.y + rect.height / 2,
+    rect.width - 32,
+    FONT_LABEL,
+    COLORS.green,
   )
 }
 
@@ -618,6 +631,7 @@ export const drawFleetShareImage = async (
   drawHeader(context, layout, view.configName, view.mode)
 
   if (view.mode === 'battle') {
+    if (layout.emptyState) drawEmptyState(context, layout.emptyState)
     view.ships.forEach((ship, index) => {
       const section = layout.shipSections[index]
       if (section) drawShip(context, ship, section, report.images)

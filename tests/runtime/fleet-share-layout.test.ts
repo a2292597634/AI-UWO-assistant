@@ -168,9 +168,11 @@ describe('配隊分享圖布局測量', () => {
     expect(layout.skillSection.skillRows).toBe(3)
   })
 
-  it('航海士品質徽章與類型圖標錨定在實際頭像框內', () => {
-    const visuals = getOfficerVisualRects({ x: 32, y: 120, width: 132, height: 112 })
+  it('航海士框放大為 84px，品質徽章與類型圖標仍錨定在頭像框內', () => {
+    const visuals = getOfficerVisualRects({ x: 32, y: 120, width: 132, height: 128 })
 
+    expect(visuals.frame.width).toBe(84)
+    expect(visuals.frame.height).toBe(84)
     expect(visuals.frame.x).toBeLessThanOrEqual(visuals.portrait.x)
     expect(visuals.frame.y).toBeLessThanOrEqual(visuals.portrait.y)
     expect(visuals.rarity.x).toBeGreaterThanOrEqual(visuals.portrait.x)
@@ -185,9 +187,12 @@ describe('配隊分享圖布局測量', () => {
     )
   })
 
-  it('技能名稱與累計等級膠囊在卡片內分行且不重疊', () => {
-    const card = getSkillCardLayout({ x: 32, y: 200, width: 132, height: 52 })
+  it('84px 航海士視覺下，技能圖標與累計等級膠囊依新尺寸分行', () => {
+    const card = getSkillCardLayout({ x: 32, y: 200, width: 160, height: 68 })
 
+    expect(card.icon.width).toBe(32)
+    expect(card.icon.height).toBe(32)
+    expect(card.level.height).toBe(26)
     expect(card.icon.y + card.icon.height).toBeLessThanOrEqual(card.name.y)
     expect(card.level.y + card.level.height).toBeLessThanOrEqual(card.name.y)
     expect(card.name.x).toBeGreaterThanOrEqual(card.rect.x)

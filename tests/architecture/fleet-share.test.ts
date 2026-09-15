@@ -109,6 +109,7 @@ describe('配隊分享圖架構契約', () => {
 
   it('Canvas 視覺層先鋪品質背景、再繪製頭像，並以分區底框區分技能', () => {
     const source = read('miniprogram/runtime/fleet-share-renderer.ts')
+    const layoutSource = read('miniprogram/runtime/fleet-share-layout.ts')
     const adventurePageSource = read('miniprogram/pages/adventure-fleet/index.ts')
     const battlePageSource = read('miniprogram/subpkg-fleet/pages/index/index.ts')
     expect(source.indexOf('const dimensions = getShareCanvasDimensions(layout)')).toBeLessThan(
@@ -131,5 +132,8 @@ describe('配隊分享圖架構契約', () => {
     expect(source).toContain('全艦冒險技能累計')
     expect(source).toContain('統計上方全部航海士的累計效果 · 只列出已選技能範圍')
     expect(source).toContain('`${group.officers.length} 人`')
+    expect(source).toContain("const FONT_SKILL = '600 24px sans-serif'")
+    expect(source).toContain('尚未配置航海士')
+    expect(layoutSource).toContain('const SKILL_COLUMNS = 4')
   })
 })
