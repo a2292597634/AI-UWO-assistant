@@ -517,17 +517,11 @@ const createShareCanvas = () => {
 }
 
 describe('battle fleet share entry', () => {
-  it('keeps one fixed share bar outside the main fleet scroll view', () => {
-    const fleetScrollEnd = fleetWxml.lastIndexOf('</scroll-view>')
-    const shareBarIndex = fleetWxml.indexOf('<view class="fleet-share-bar"')
-
-    expect(shareBarIndex).toBeGreaterThan(fleetScrollEnd)
-    expect(fleetWxml).toContain('分享當前隊伍')
-    expect(fleetWxml).toContain('↗ 分享隊伍')
-    expect(fleetWxml).toContain('bindtap="onShareFleet"')
-    expect(fleetWxml).toContain('disabled="{{shareStatus === \'generating\'}}"')
-    expect(fleetWxml).toContain('loading="{{shareStatus === \'generating\'}}"')
-    expect(fleetWxss).toContain('env(safe-area-inset-bottom)')
+  it('uses config bar as the only share entry', () => {
+    expect(fleetWxml).toContain('share-status="{{shareStatus}}"')
+    expect(fleetWxml).toContain('bind:share="onShareFleet"')
+    expect(fleetWxml).not.toContain('fleet-share-bar')
+    expect(fleetWxss).not.toContain('.fleet-share-bar')
   })
 
   it('clean share action enters generating without changing the fleet view', async () => {

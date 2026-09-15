@@ -5,12 +5,20 @@
     <view class="config-bar__summary-copy">
       <text class="config-bar__title">我的配置</text>
       <text class="config-bar__name">{{configName || '未命名配置'}}</text>
-      <text class="config-bar__status config-bar__status--{{configStatus}}">
-        {{configStatus === 'saved' ? '已保存' : configStatus === 'unsaved' ? '尚未保存' : '未命名配置'}}
-      </text>
     </view>
     <view class="config-bar__summary-meta">
+      <text class="config-bar__status config-bar__status--{{configStatus}}">
+        {{configStatus === 'saved' ? '已保存' : '尚未保存'}}
+      </text>
+      <text class="config-bar__meta-separator">·</text>
       <text class="config-bar__count">{{configList.length}} 套</text>
+      <button
+        class="config-bar__share"
+        catchtap="onShare"
+        disabled="{{shareStatus === 'generating'}}"
+        loading="{{shareStatus === 'generating'}}"
+        aria-label="{{shareStatus === 'generating' ? '正在生成隊伍分享圖' : shareStatus === 'error' ? '重試生成隊伍分享圖' : '分享目前隊伍'}}"
+      >{{shareStatus === 'generating' ? '生成中' : shareStatus === 'error' ? '重試' : '分享'}}</button>
       <button
         class="config-bar__toggle"
         catchtap="onToggle"
@@ -67,7 +75,14 @@
             class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
             data-id="{{item.configId}}"
             bindtap="onLoad"
+            aria-label="載入配置 {{item.name}}"
           >載入</button>
+          <button
+            wx:if="{{item.configId === activeConfigId}}"
+            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact config-bar__exit"
+            bindtap="onExit"
+            aria-label="離開目前配置 {{item.name}}"
+          >離開配置</button>
         </view>
       </block>
     </view>
@@ -84,23 +99,20 @@
           class="ui-button ui-button--primary config-bar__button"
           bindtap="onSave"
         >覆蓋保存</button>
-        <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onSaveAs">另存為</button>
-        <button
-          wx:if="{{activeConfigId}}"
-          class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
-          bindtap="onRename"
-        >重新命名</button>
-        <button
-          wx:if="{{activeConfigId}}"
-          class="ui-button ui-button--compact ui-button--danger config-bar__button config-bar__button--compact"
-          bindtap="onDelete"
-        >刪除配置</button>
-        <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onNew">新建配置</button>
-        <button
-          wx:if="{{activeConfigId}}"
-          class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
-          bindtap="onExit"
-        >離開配置</button>
+        <view class="config-bar__management-actions">
+          <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onSaveAs">另存為</button>
+          <button
+            wx:if="{{activeConfigId}}"
+            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+            bindtap="onRename"
+          >重新命名</button>
+          <button
+            wx:if="{{activeConfigId}}"
+            class="ui-button ui-button--compact ui-button--danger config-bar__button config-bar__button--compact"
+            bindtap="onDelete"
+          >刪除配置</button>
+          <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onNew">新建配置</button>
+        </view>
       </block>
     </view>
 

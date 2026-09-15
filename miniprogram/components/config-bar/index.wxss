@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--uwo-space-2);
-  min-height: 64rpx;
+  min-height: 88rpx;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -36,8 +36,9 @@
 
 .config-bar__summary-meta {
   flex: 0 0 auto;
-  gap: var(--uwo-space-2);
+  gap: var(--uwo-space-1);
   margin-left: 0;
+  white-space: nowrap;
 }
 
 .config-bar__title,
@@ -72,6 +73,11 @@
   font-size: var(--uwo-font-size-minimum-action);
 }
 
+.config-bar__meta-separator {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+}
+
 .config-bar__status {
   color: var(--uwo-color-text-secondary);
 }
@@ -95,7 +101,7 @@
   width: 64rpx !important;
   min-width: 64rpx !important;
   max-width: 64rpx !important;
-  min-height: 64rpx;
+  min-height: 88rpx;
   margin: 0 !important;
   flex: 0 0 64rpx !important;
   align-items: center;
@@ -106,6 +112,40 @@
   background: transparent;
   color: var(--uwo-color-text-secondary);
   overflow: visible;
+}
+
+.config-bar__share {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 104rpx;
+  min-height: 88rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 var(--uwo-space-2);
+  border: 2rpx solid var(--uwo-color-accent-brass);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+  color: var(--uwo-color-accent-text);
+  font-family: var(--uwo-font-family-body);
+  font-size: var(--uwo-font-size-minimum-action);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.config-bar__share::after {
+  border: 0;
+}
+
+.config-bar__share:active {
+  transform: translateY(2rpx);
+  opacity: 0.88;
+}
+
+.config-bar__share[disabled] {
+  transform: none;
+  opacity: 0.58;
 }
 
 .config-bar__toggle::after {
@@ -141,6 +181,21 @@
   gap: var(--uwo-space-2);
 }
 
+.config-bar__management-actions {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--uwo-space-1);
+}
+
+.config-bar__management-actions .config-bar__button {
+  width: 100%;
+  min-height: 88rpx;
+  padding-right: var(--uwo-space-1);
+  padding-left: var(--uwo-space-1);
+  white-space: nowrap;
+}
+
 .config-bar__list,
 .config-bar__unclassified {
   flex-direction: column;
@@ -153,6 +208,14 @@
   align-items: center;
   gap: var(--uwo-space-2);
   min-width: 0;
+}
+
+.config-bar__list-row .config-bar__button {
+  flex: 0 0 auto;
+}
+
+.config-bar__exit {
+  min-width: 144rpx;
 }
 
 .config-bar__list-copy {

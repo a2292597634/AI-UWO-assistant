@@ -40,11 +40,19 @@ Component({
       type: Boolean,
       value: false,
     },
+    shareStatus: {
+      type: String,
+      value: 'idle',
+    },
   },
 
   methods: {
     onToggle() {
       this.triggerEvent('toggle')
+    },
+
+    onShare() {
+      this.triggerEvent('share')
     },
 
     onLogin() {

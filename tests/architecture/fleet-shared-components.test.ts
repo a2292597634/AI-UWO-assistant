@@ -336,6 +336,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       'listState',
       'listError',
       'expanded',
+      'shareStatus',
     ]) {
       expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
     }
@@ -352,6 +353,15 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxml).toContain('未命名配置')
     expect(wxml).toMatch(/bindtap="onExit"/)
     expect(script).toMatch(/triggerEvent\(\s*['"]exit['"]\s*\)/)
+    expect(script).toMatch(/triggerEvent\(\s*['"]share['"]\s*\)/)
+    expect(wxml).toContain('class="config-bar__share"')
+    expect(wxml).toContain('{{configList.length}} 套')
+    expect(wxml).toMatch(
+      /bindtap="onLoad"[\s\S]*wx:if="{{item.configId === activeConfigId}}"[\s\S]*bindtap="onExit"/,
+    )
+    expect(wxml).toMatch(
+      /class="config-bar__management-actions"[\s\S]*bindtap="onSaveAs"[\s\S]*bindtap="onRename"[\s\S]*bindtap="onDelete"[\s\S]*bindtap="onNew"/,
+    )
     expect(wxml).not.toContain('配置類型')
     expect(wxml).not.toContain('戰鬥配置</button>')
     expect(wxml).toContain('config-bar__summary-copy')
@@ -363,10 +373,10 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxml).toMatch(/class="config-bar__toggle"[\s\S]*catchtap="onToggle"/)
     expect(wxml).not.toContain("{{expanded ? '收起' : '展開'}}")
     expect(wxss).toMatch(
-      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
+      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx[\s\S]*min-width:\s*64rpx[\s\S]*min-height:\s*88rpx[\s\S]*margin:\s*0[\s\S]*border:\s*0[\s\S]*background:\s*transparent/,
     )
     expect(wxss).toMatch(
-      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx\s*!important[\s\S]*min-width:\s*64rpx\s*!important[\s\S]*max-width:\s*64rpx\s*!important[\s\S]*min-height:\s*64rpx[\s\S]*margin:\s*0\s*!important[\s\S]*flex:\s*0\s+0\s+64rpx\s*!important[\s\S]*padding:\s*0\s*!important/,
+      /\.config-bar__toggle\s*\{[\s\S]*width:\s*64rpx\s*!important[\s\S]*min-width:\s*64rpx\s*!important[\s\S]*max-width:\s*64rpx\s*!important[\s\S]*min-height:\s*88rpx[\s\S]*margin:\s*0\s*!important[\s\S]*flex:\s*0\s+0\s+64rpx\s*!important[\s\S]*padding:\s*0\s*!important/,
     )
     expect(wxss).toMatch(
       /\.config-bar__summary\s*\{[\s\S]*width:\s*100%[\s\S]*justify-content:\s*space-between/,
@@ -378,6 +388,10 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       /\.config-bar__summary-meta\s*\{[\s\S]*flex:\s*0\s+0\s+auto[\s\S]*margin-left:\s*0/,
     )
     expect(wxss).toMatch(/\.config-bar__button\s*\{[\s\S]*margin:\s*0/)
+    expect(wxss).toMatch(
+      /\.config-bar__management-actions\s*\{[\s\S]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/,
+    )
+    expect(wxss).toMatch(/\.config-bar__share\s*\{[\s\S]*min-height:\s*88rpx/)
     expect(wxss).toMatch(
       /\.config-bar__toggle-icon\s*\{[\s\S]*width:\s*64rpx[\s\S]*height:\s*64rpx[\s\S]*transform:\s*scale\(3\)/,
     )

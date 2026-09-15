@@ -9,6 +9,7 @@
     list-state="{{configListState}}"
     list-error="{{configListError}}"
     expanded="{{expanded}}"
+    share-status="{{shareStatus}}"
     bind:toggle="onConfigToggle"
     bind:login="onConfigLogin"
     bind:save="onConfigSave"
@@ -20,6 +21,7 @@
     bind:load="onConfigLoad"
     bind:classify="onConfigClassify"
     bind:retry="onConfigRetry"
+    bind:share="onShareFleet"
   />
 
   <view class="fleet-context">
@@ -269,19 +271,6 @@
     class="fleet-share-canvas"
     style="width: {{shareCanvasWidth}}px; height: {{shareCanvasHeight}}px;"
   />
-
-  <view class="fleet-share-bar" wx:if="{{proposalPreview === null}}" role="region" aria-label="分享冒險隊伍">
-    <view class="fleet-share-bar__copy">
-      <text class="fleet-share-bar__title">分享冒險隊伍</text>
-      <text class="fleet-share-bar__hint">生成可保存、可分享的長圖</text>
-    </view>
-    <button
-      class="ui-button ui-button--primary fleet-share-bar__button"
-      disabled="{{shareStatus === 'generating'}}"
-      loading="{{shareStatus === 'generating'}}"
-      bindtap="onShareFleet"
-    >{{shareStatus === 'generating' ? '正在生成…' : shareStatus === 'error' ? '重試分享' : '↗ 分享隊伍'}}</button>
-  </view>
 
   <result-preview-sheet
     visible="{{proposalPreview !== null}}"

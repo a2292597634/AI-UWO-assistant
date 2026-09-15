@@ -608,16 +608,11 @@ const prepareShareCanvas = () => {
 }
 
 describe('adventure fleet share entry', () => {
-  it('keeps one fixed share bar outside the main fleet scroll view', () => {
-    const fleetScrollEnd = adventureWxml.lastIndexOf('</scroll-view>')
-    const shareBarIndex = adventureWxml.indexOf('<view class="fleet-share-bar"')
-
-    expect(shareBarIndex).toBeGreaterThan(fleetScrollEnd)
-    expect(adventureWxml).toContain('分享冒險隊伍')
-    expect(adventureWxml).toContain('↗ 分享隊伍')
-    expect(adventureWxml).toContain('bindtap="onShareFleet"')
-    expect(adventureWxss).toContain('env(safe-area-inset-bottom)')
-    expect(adventureWxml).toContain('loading="{{shareStatus === \'generating\'}}"')
+  it('uses config bar as the only share entry', () => {
+    expect(adventureWxml).toContain('share-status="{{shareStatus}}"')
+    expect(adventureWxml).toContain('bind:share="onShareFleet"')
+    expect(adventureWxml).not.toContain('fleet-share-bar')
+    expect(adventureWxss).not.toContain('.fleet-share-bar')
   })
 
   it('dirty share action keeps the current fleet and records a share pending action', async () => {

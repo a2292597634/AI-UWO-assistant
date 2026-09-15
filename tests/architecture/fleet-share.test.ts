@@ -33,22 +33,22 @@ describe('配隊分享圖架構契約', () => {
     expect(read('miniprogram/subpkg-fleet/pages/index/index.json')).toContain('fleet-share-preview')
   })
 
-  it('兩個頁面各只有一個固定入口並把畫布與預覽置於主滾動區外', () => {
+  it('兩個頁面從配置欄分享且不保留底部固定入口', () => {
     for (const relativePath of [
       'miniprogram/subpkg-fleet/pages/index/index.wxml',
       'miniprogram/pages/adventure-fleet/index.wxml',
     ]) {
       const wxml = read(relativePath)
-      expect(wxml.match(/class="fleet-share-bar"/g)).toHaveLength(1)
+      expect(wxml).toContain('share-status="{{shareStatus}}"')
+      expect(wxml).toContain('bind:share="onShareFleet"')
+      expect(wxml).not.toContain('fleet-share-bar')
       expect(wxml.match(/id="fleet-share-canvas"/g)).toHaveLength(1)
-      expect(wxml).toContain('wx:if="{{proposalPreview === null}}"')
       const scrollEnd = wxml.lastIndexOf('</scroll-view>')
-      expect(wxml.indexOf('class="fleet-share-bar"')).toBeGreaterThan(scrollEnd)
       expect(wxml.indexOf('<fleet-share-preview')).toBeGreaterThan(scrollEnd)
     }
   })
 
-  it('方案預覽層必須位於固定分享欄之上，避免攔截底部確認按鈕', () => {
+  it('方案預覽與未保存守衛維持獨立且明確的層級', () => {
     const resultPreviewWxss = read('miniprogram/components/result-preview-sheet/index.wxss')
     const sharePreviewWxss = read('miniprogram/components/fleet-share-preview/index.wxss')
     const resultMaskZIndex = Number(
@@ -69,12 +69,10 @@ describe('配隊分享圖架構契約', () => {
       'miniprogram/pages/adventure-fleet/index.wxss',
     ]) {
       const wxss = read(relativePath)
-      const shareBarZIndex = Number(
-        wxss.match(/\.fleet-share-bar\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1],
-      )
-      expect(resultMaskZIndex).toBeGreaterThan(shareBarZIndex)
-      expect(undoBarZIndex).toBeGreaterThan(shareBarZIndex)
-      expect(resultSheetZIndex).toBeGreaterThan(shareBarZIndex)
+      expect(wxss).not.toContain('.fleet-share-bar')
+      expect(resultMaskZIndex).toBeGreaterThan(0)
+      expect(undoBarZIndex).toBeGreaterThan(0)
+      expect(resultSheetZIndex).toBeGreaterThan(resultMaskZIndex)
       expect(sharePreviewMaskZIndex).toBeGreaterThan(resultSheetZIndex)
 
       const guardMaskZIndex = Number(
