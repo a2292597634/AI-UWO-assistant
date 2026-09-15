@@ -44,6 +44,10 @@ Component({
       type: String,
       value: 'idle',
     },
+    prominentShare: {
+      type: Boolean,
+      value: false,
+    },
   },
 
   methods: {

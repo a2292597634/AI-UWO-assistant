@@ -1,5 +1,42 @@
-<view class="config-bar {{expanded ? 'config-bar--expanded' : ''}}">
+<view class="config-bar {{expanded ? 'config-bar--expanded' : ''}} {{prominentShare ? 'config-bar--prominent-share' : ''}}">
   <view
+    wx:if="{{prominentShare}}"
+    class="config-bar__summary config-bar__summary--prominent"
+  >
+    <button
+      class="config-bar__config-toggle"
+      catchtap="onToggle"
+      aria-expanded="{{expanded}}"
+      aria-label="{{expanded ? '收起我的配置' : '展開我的配置'}}"
+    >
+      <view class="config-bar__config-row config-bar__config-row--meta">
+        <text class="config-bar__config-label">我的配置</text>
+        <text class="config-bar__status config-bar__status--{{configStatus}}">
+          {{configStatus === 'saved' ? '已保存' : '尚未保存'}}
+        </text>
+      </view>
+      <view class="config-bar__config-row config-bar__config-row--identity">
+        <text class="config-bar__name">{{configName || '未命名配置'}}</text>
+        <text class="config-bar__count">{{configList.length}} 套</text>
+        <image
+          class="config-bar__toggle-icon {{expanded ? 'config-bar__toggle-icon--expanded' : ''}}"
+          src="{{expanded ? '/assets/ui/uwo-disclosure-chevron-up.png' : '/assets/ui/uwo-disclosure-chevron-down.png'}}"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
+      </view>
+    </button>
+    <button
+      class="config-bar__share config-bar__share--prominent"
+      catchtap="onShare"
+      disabled="{{shareStatus === 'generating'}}"
+      loading="{{shareStatus === 'generating'}}"
+      aria-label="{{shareStatus === 'generating' ? '正在生成隊伍分享圖' : shareStatus === 'error' ? '重試生成隊伍分享圖' : '分享目前隊伍'}}"
+    >{{shareStatus === 'generating' ? '生成中' : shareStatus === 'error' ? '重試' : '分享'}}</button>
+  </view>
+
+  <view
+    wx:else
     class="config-bar__summary"
   >
     <view class="config-bar__summary-copy">

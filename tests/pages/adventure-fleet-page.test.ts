@@ -615,6 +615,11 @@ describe('adventure fleet share entry', () => {
     expect(adventureWxss).not.toContain('.fleet-share-bar')
   })
 
+  it('冒險配隊頁保持默認配置摘要', () => {
+    expect(adventureWxml).not.toContain('prominent-share=')
+    expect(adventureWxml).toMatch(/<config-bar[\s\S]*bind:share="onShareFleet"[\s\S]*\/>/)
+  })
+
   it('dirty share action keeps the current fleet and records a share pending action', async () => {
     const page = createPageInstance()
     await page.onLoad()

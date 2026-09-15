@@ -10,6 +10,7 @@
     list-error="{{configListError}}"
     expanded="{{expanded}}"
     share-status="{{shareStatus}}"
+    prominent-share="{{true}}"
     bind:toggle="onConfigToggle"
     bind:login="onConfigLogin"
     bind:save="onConfigSave"

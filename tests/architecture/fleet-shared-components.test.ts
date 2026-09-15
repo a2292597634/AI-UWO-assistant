@@ -337,6 +337,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       'listError',
       'expanded',
       'shareStatus',
+      'prominentShare',
     ]) {
       expect(script).toMatch(new RegExp(`\\b${property}\\s*:`))
     }
@@ -410,6 +411,46 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     )
     expect(wxss).toMatch(
       /\.config-bar__toggle-icon--expanded\s*\{[\s\S]*transform:\s*scaleX\(2\.85\)\s+scaleY\(2\.82\)/,
+    )
+  })
+
+  it('ConfigBar 以默認關閉的變體提供雙層配置入口與獨立分享操作', () => {
+    const script = readComponentFile('config-bar', 'index.ts')
+    const wxml = readComponentFile('config-bar', 'index.wxml')
+    const wxss = readComponentFile('config-bar', 'index.wxss')
+
+    expect(script).toMatch(
+      /prominentShare:\s*\{[\s\S]*type:\s*Boolean[\s\S]*value:\s*false[\s\S]*\}/,
+    )
+    expect(wxml).toContain('config-bar--prominent-share')
+    expect(wxml).toContain('wx:if="{{prominentShare}}"')
+    expect(wxml).toContain('class="config-bar__config-toggle"')
+    expect(wxml).toContain('class="config-bar__config-row config-bar__config-row--meta"')
+    expect(wxml).toContain('class="config-bar__config-row config-bar__config-row--identity"')
+    expect(wxml).toMatch(
+      /class="config-bar__config-toggle"[\s\S]*catchtap="onToggle"[\s\S]*class="config-bar__share config-bar__share--prominent"[\s\S]*catchtap="onShare"/,
+    )
+    expect(wxml.match(/class="config-bar__content"/g)).toHaveLength(1)
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__summary--prominent\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+136rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__config-toggle\s*\{[\s\S]*min-height:\s*104rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*width:\s*136rpx\s*!important[\s\S]*min-height:\s*104rpx/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__config-label,[\s\S]*\.config-bar__count\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-supporting\)[\s\S]*font-weight:\s*600/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__name\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-emphasis\)[\s\S]*font-weight:\s*700/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-body\)/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__config-toggle:focus,[\s\S]*\.config-bar__share--prominent:focus[\s\S]*outline:\s*4rpx\s+solid\s+var\(--uwo-color-accent-brass\)[\s\S]*outline-offset:\s*4rpx/,
     )
   })
 

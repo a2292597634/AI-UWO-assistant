@@ -358,3 +358,97 @@
   display: flex;
   align-items: stretch;
 }
+
+.config-bar--prominent-share .config-bar__summary--prominent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 136rpx;
+  gap: var(--uwo-space-2);
+  min-height: 104rpx;
+  overflow: visible;
+}
+
+.config-bar--prominent-share .config-bar__config-toggle {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  min-height: 104rpx;
+  margin: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--uwo-space-2);
+  padding: var(--uwo-space-2) var(--uwo-space-3);
+  border: 2rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface);
+  color: var(--uwo-color-text-primary);
+  text-align: left;
+}
+
+.config-bar--prominent-share .config-bar__config-toggle::after {
+  border: 0;
+}
+
+.config-bar--prominent-share .config-bar__config-row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: var(--uwo-space-2);
+}
+
+.config-bar--prominent-share .config-bar__config-label,
+.config-bar--prominent-share .config-bar__status,
+.config-bar--prominent-share .config-bar__count {
+  flex: 0 0 auto;
+  font-size: var(--uwo-font-size-supporting);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.config-bar--prominent-share .config-bar__status,
+.config-bar--prominent-share .config-bar__count {
+  margin-left: auto;
+}
+
+.config-bar--prominent-share .config-bar__name {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-size: var(--uwo-font-size-emphasis);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.config-bar--prominent-share .config-bar__config-row .config-bar__toggle-icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex: 0 0 32rpx;
+  transform: none;
+}
+
+.config-bar--prominent-share .config-bar__share--prominent {
+  width: 136rpx !important;
+  min-width: 136rpx !important;
+  max-width: 136rpx !important;
+  min-height: 104rpx;
+  padding: 0 var(--uwo-space-2);
+  border-color: var(--uwo-color-ink);
+  background: var(--uwo-color-ink);
+  color: var(--uwo-color-surface);
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
+}
+
+.config-bar--prominent-share .config-bar__config-toggle:active {
+  transform: translateY(2rpx);
+  opacity: 0.88;
+}
+
+.config-bar--prominent-share .config-bar__config-toggle:focus,
+.config-bar--prominent-share .config-bar__config-toggle.config-bar__config-toggle--focused,
+.config-bar--prominent-share .config-bar__share--prominent:focus,
+.config-bar--prominent-share .config-bar__share--prominent.config-bar__share--focused {
+  outline: 4rpx solid var(--uwo-color-accent-brass);
+  outline-offset: 4rpx;
+}
