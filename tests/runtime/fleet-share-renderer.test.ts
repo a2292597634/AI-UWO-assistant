@@ -85,10 +85,120 @@ describe('配隊分享圖素材載入', () => {
 
     expect(canvas.getContext('2d').fillText).toHaveBeenCalledWith(
       '尚未配置航海士',
+      layout.emptyState!.x + 16,
+      layout.emptyState!.y + layout.emptyState!.height / 2,
+      layout.emptyState!.width - 32,
+    )
+  })
+
+  it('有船時不會繪製「尚未配置航海士」空狀態', async () => {
+    const nonEmptyView: BattleFleetShareViewModel = {
+      mode: 'battle',
+      configName: '有船案例',
+      ships: [
+        {
+          shipId: 'ship-1',
+          shipLabel: '1號船',
+          officerSlots: Array.from({ length: 11 }, (_, index) =>
+            index === 0
+              ? {
+                  id: 'officer-1',
+                  name: '航海士一號',
+                  portraitPath: '/officer-1.png',
+                  rarityName: 'A',
+                  visuals: {
+                    framePath: '/frame.png',
+                    rarityIconPath: '/rarity.png',
+                    typeIconPath: '/type.png',
+                    genderIconPath: '',
+                  },
+                  shipId: 'ship-1',
+                  slotIndex: 0,
+                }
+              : null,
+          ),
+          activeSkills: [],
+          passiveSkills: [],
+        },
+      ],
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+
+    await drawFleetShareImage(canvas, nonEmptyView, measureBattleFleetShare(nonEmptyView))
+
+    expect(canvas.getContext('2d').fillText).not.toHaveBeenCalledWith(
+      '尚未配置航海士',
       expect.any(Number),
       expect.any(Number),
       expect.any(Number),
     )
+  })
+
+  it('冒險技能標題和說明保有安全中心距，且不侵入前後分區', async () => {
+    const adventureView: AdventureFleetShareViewModel = {
+      mode: 'adventure',
+      configName: '技能標題間距案例',
+      groups: [
+        {
+          rarityName: 'A',
+          officers: [
+            {
+              id: 'officer-1',
+              name: '航海士一號',
+              portraitPath: '/officer-1.png',
+              rarityName: 'A',
+              visuals: {
+                framePath: '/frame.png',
+                rarityIconPath: '/rarity.png',
+                typeIconPath: '/type.png',
+                genderIconPath: '',
+              },
+              shipId: 'ship-1',
+              slotIndex: 0,
+            },
+          ],
+        },
+      ],
+      skills: [
+        {
+          skillId: 'skill-1',
+          skillName: '冒險技能一號',
+          skillIconPath: '/skill-1.png',
+          kind: 'passive',
+          categoryId: 'skill_category_adventure',
+          totalLevel: 2,
+        },
+      ],
+      presetRangeEmpty: false,
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+    const context = canvas.getContext('2d')
+    const fillText = vi.mocked(context.fillText)
+    const layout = measureAdventureFleetShare(adventureView)
+    const lastGroup = layout.groupSections[layout.groupSections.length - 1]!
+    const firstSkillCard = layout.skillSection.skillCards[0]!
+
+    await drawFleetShareImage(canvas, adventureView, layout)
+
+    const headingCall = fillText.mock.calls.find(([text]) => text === '全艦冒險技能累計')
+    const descriptionCall = fillText.mock.calls.find(
+      ([text]) => text === '統計上方全部航海士的累計效果 · 只列出已選技能範圍',
+    )
+    expect(headingCall).toBeDefined()
+    expect(descriptionCall).toBeDefined()
+
+    const headingCenterY = headingCall![2] as number
+    const descriptionCenterY = descriptionCall![2] as number
+    expect(headingCenterY).toBe(layout.skillSection.y - 40)
+    expect(descriptionCenterY).toBe(layout.skillSection.y - 12)
+    expect(descriptionCenterY - headingCenterY).toBeGreaterThanOrEqual(28)
+    expect(headingCenterY - 14).toBeGreaterThanOrEqual(lastGroup.y + lastGroup.height)
+    expect(headingCenterY + 14).toBeLessThanOrEqual(descriptionCenterY - 11)
+    expect(descriptionCenterY + 11).toBeLessThan(firstSkillCard.y)
   })
 
   it('素材回調遺失時在超時後返回 QR 缺失結果，不讓分享流程永久卡住', async () => {

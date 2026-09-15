@@ -645,7 +645,7 @@ export const drawFleetShareImage = async (
       context,
       '全艦冒險技能累計',
       layout.skillSection.rect.x,
-      layout.skillSection.y - 34,
+      layout.skillSection.y - 40,
       300,
       FONT_LABEL,
       COLORS.green,

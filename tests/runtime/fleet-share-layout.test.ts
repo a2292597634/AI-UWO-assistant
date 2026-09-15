@@ -125,8 +125,10 @@ describe('配隊分享圖布局測量', () => {
     }
     const layout = measureAdventureFleetShare(view)
     const lastGroup = layout.groupSections[layout.groupSections.length - 1]!
+    const skillHeadingReserve = layout.skillSection.y - (lastGroup.y + lastGroup.height)
 
     expect(layout.groupSections).toHaveLength(4)
+    expect(skillHeadingReserve).toBeGreaterThanOrEqual(56)
     expect(layout.skillSection.y).toBeGreaterThanOrEqual(lastGroup.y + lastGroup.height)
     expect(layout.footer.y).toBeGreaterThanOrEqual(
       layout.skillSection.y + layout.skillSection.height,

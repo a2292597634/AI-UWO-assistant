@@ -77,7 +77,7 @@ const HEADER_HEIGHT = 124
 const FOOTER_HEIGHT = 200
 const QR_SIZE = 156
 const OFFICER_GAP = 6
-const SKILL_HEADING_HEIGHT = 48
+const SKILL_HEADING_HEIGHT = 56
 const EMPTY_SKILL_SECTION_HEIGHT = 56
 
 const makeGridRects = (
