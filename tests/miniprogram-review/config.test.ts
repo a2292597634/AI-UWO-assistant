@@ -26,6 +26,17 @@ describe('小程序验收配置', () => {
     expect(config.automationPort).toBe(9527)
   })
 
+  it('生产模式会探测微信开发者工具常见安装路径', () => {
+    const config = resolveReviewConfig({
+      cwd: 'E:/project',
+      args: {},
+      env: {},
+      pathExists: (path) => path.includes('Program Files (x86)'),
+    })
+
+    expect(config.cliPath).toBe('C:/Program Files (x86)/Tencent/微信web开发者工具/cli.bat')
+  })
+
   it('拒绝超出范围的端口', () => {
     expect(() =>
       resolveReviewConfig({

@@ -8,6 +8,7 @@ interface ResolveReviewConfigInput {
   args: ReviewConfigArgs
   env: Record<string, string | undefined>
   existingPaths?: ReadonlySet<string>
+  pathExists?: (path: string) => boolean
 }
 
 const COMMON_WINDOWS_CLI_PATHS = [
@@ -43,8 +44,10 @@ export const resolveReviewConfig = (input: ResolveReviewConfigInput): ReviewConf
     input.args.automationPort ?? input.env.WECHAT_AUTOMATION_PORT,
     '自动化端口',
   )
-  const existingPaths = input.existingPaths
-  const detectedCli = COMMON_WINDOWS_CLI_PATHS.find((path) => existingPaths?.has(path))
+  const pathExists =
+    input.pathExists ??
+    (input.existingPaths ? (path: string) => input.existingPaths?.has(path) ?? false : existsSync)
+  const detectedCli = COMMON_WINDOWS_CLI_PATHS.find(pathExists)
 
   return {
     projectPath: resolve(

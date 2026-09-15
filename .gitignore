@@ -2,6 +2,7 @@ node_modules/
 miniprogram_npm/
 dist/
 coverage/
+artifacts/miniprogram-review/
 tests/.tmp-*/
 .superpowers/
 .worktrees/
