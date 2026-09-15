@@ -19,3 +19,31 @@ export interface ReviewConfigArgs {
   automationPort?: string | number
   wsEndpoint?: string
 }
+
+export type ReviewState = 'normal' | 'empty' | 'loading' | 'error' | 'long-text'
+
+export type ReviewDevice = 'iphone-small' | 'iphone-standard' | 'android-large'
+
+export type ReviewStep =
+  | { action: 'navigate'; path: string }
+  | { action: 'switchTab'; path: string }
+  | { action: 'tap'; selector: string }
+  | { action: 'input'; selector: string; value: string }
+  | { action: 'clearInput'; selector: string }
+  | { action: 'scrollPage'; distance: number }
+  | { action: 'scrollElement'; selector: string; distance: number }
+  | { action: 'waitFor'; selector: string; timeoutMs?: number }
+  | { action: 'waitFor'; durationMs: number }
+  | { action: 'assertExists'; selector: string; exists?: boolean }
+  | { action: 'assertVisible'; selector: string }
+  | { action: 'assertText'; selector: string; equals: string }
+  | { action: 'assertText'; selector: string; contains: string }
+  | { action: 'screenshot'; name: string }
+
+export interface ReviewScenario {
+  name: string
+  entry: string
+  state: ReviewState
+  devices: ReviewDevice[]
+  steps: ReviewStep[]
+}
