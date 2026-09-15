@@ -34,6 +34,12 @@ const skill = (id: string, kind: 'active' | 'passive'): FleetShareSkillView => (
   totalLevel: 2,
 })
 
+const expectRectsWithinHeight = (rects: { y: number; height: number }[], height: number) => {
+  rects.forEach((rect) => {
+    expect(rect.y + rect.height).toBeLessThanOrEqual(height)
+  })
+}
+
 const battleView = (): BattleFleetShareViewModel => ({
   mode: 'battle',
   configName: '七船案例',
@@ -72,6 +78,16 @@ describe('配隊分享圖布局測量', () => {
     expect(layout.footer.y).toBeGreaterThan(lastSection.y + lastSection.height)
     expect(layout.contentBottom).toBeLessThanOrEqual(layout.height)
     expect(layout.qr.x + layout.qr.width).toBeLessThanOrEqual(layout.width - layout.padding)
+    expect(layout.footer.y + layout.footer.height).toBeLessThanOrEqual(layout.height)
+    expect(layout.qr.y + layout.qr.height).toBeLessThanOrEqual(layout.height)
+    expectRectsWithinHeight(
+      layout.shipSections.flatMap((ship) => [
+        ...ship.officerSlots,
+        ...ship.activeCards,
+        ...ship.passiveCards,
+      ]),
+      layout.height,
+    )
   })
 
   it('長圖輸出會按內容高度降低倍率，避免 Canvas bitmap 超過平台安全邊長', () => {
@@ -103,7 +119,7 @@ describe('配隊分享圖布局測量', () => {
       presetRangeEmpty: false,
       groups: ['S', 'A', 'B', 'C'].map((rarityName) => ({
         rarityName: rarityName as 'S' | 'A' | 'B' | 'C',
-        officers: [officer(`${rarityName}-1`), officer(`${rarityName}-2`)],
+        officers: Array.from({ length: 5 }, (_, index) => officer(`${rarityName}-${index + 1}`)),
       })),
       skills: Array.from({ length: 11 }, (_, index) => skill(`skill-${index}`, 'passive')),
     }
@@ -117,6 +133,25 @@ describe('配隊分享圖布局測量', () => {
     )
     expect(layout.skillSection.skillRows).toBe(3)
     expect(layout.contentBottom).toBeLessThanOrEqual(layout.height)
+    layout.groupSections.forEach((group) => {
+      const firstRow = group.officerSlots.slice(0, 4)
+      const secondRow = group.officerSlots.slice(4)
+
+      expect(group.officerSlots).toHaveLength(5)
+      expect(firstRow.every((slot) => slot.y === firstRow[0]!.y)).toBe(true)
+      expect(secondRow[0]!.y).toBeGreaterThan(firstRow[0]!.y)
+      expect(secondRow[0]!.x).toBe(firstRow[0]!.x)
+    })
+    expect(layout.footer.y).toBeGreaterThan(layout.skillSection.y + layout.skillSection.height)
+    expect(layout.footer.y + layout.footer.height).toBeLessThanOrEqual(layout.height)
+    expect(layout.qr.y + layout.qr.height).toBeLessThanOrEqual(layout.height)
+    expectRectsWithinHeight(
+      [
+        ...layout.groupSections.flatMap((group) => group.officerSlots),
+        ...layout.skillSection.skillCards,
+      ],
+      layout.height,
+    )
   })
 
   it('技能布局固定使用四欄', () => {
