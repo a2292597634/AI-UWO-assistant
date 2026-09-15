@@ -25,12 +25,14 @@ const fixedInput = {
       state: 'normal' as const,
       status: 'passed' as const,
       steps: [],
+      screenshots: ['C:/review/run/current-simulator/catalog-search-result.png'],
     },
   ],
   coverage: {
     covered: ['iphone-standard/normal'],
     exempted: [{ target: 'error', reason: '此纯本地页面没有远端错误状态' }],
     manual: ['iphone-small', 'android-large'],
+    manualStates: ['empty', 'loading', 'error', 'long-text'],
   },
 }
 
@@ -41,6 +43,7 @@ describe('小程序验收报告', () => {
     expect(report.coverage).toEqual({
       ...fixedInput.coverage,
       manual: ['android-large', 'iphone-small'],
+      manualStates: ['empty', 'error', 'loading', 'long-text'],
     })
     expect(report.generatedAt).toBe('2026-09-15T12:00:00.000Z')
     expect(report.status).toBe('passed')
@@ -62,5 +65,8 @@ describe('小程序验收报告', () => {
     })
     expect(readFileSync(paths.markdownPath, 'utf8')).toContain('# 小程序页面验收报告')
     expect(readFileSync(paths.markdownPath, 'utf8')).toContain('待人工核验')
+    expect(readFileSync(paths.markdownPath, 'utf8')).toContain(
+      'C:/review/run/current-simulator/catalog-search-result.png',
+    )
   })
 })

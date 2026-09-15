@@ -22,6 +22,8 @@ export interface ReviewConfigArgs {
 
 export type ReviewState = 'normal' | 'empty' | 'loading' | 'error' | 'long-text'
 
+export const REVIEW_STATES: ReviewState[] = ['normal', 'empty', 'loading', 'error', 'long-text']
+
 export type ReviewDevice = 'iphone-small' | 'iphone-standard' | 'android-large'
 
 export type ReviewStep =

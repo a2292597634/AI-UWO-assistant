@@ -14,6 +14,7 @@ interface ResolveReviewConfigInput {
 const COMMON_WINDOWS_CLI_PATHS = [
   'C:/Program Files (x86)/Tencent/微信web开发者工具/cli.bat',
   'C:/Program Files/Tencent/微信web开发者工具/cli.bat',
+  'D:/微信web开发者工具/cli.bat',
 ]
 
 const parsePort = (value: string | number | undefined, label: string): number | undefined => {

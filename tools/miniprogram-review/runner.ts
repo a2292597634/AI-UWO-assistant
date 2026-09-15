@@ -9,6 +9,7 @@ export interface StepRunResult {
   durationMs: number
   status: 'passed' | 'failed'
   error?: string
+  screenshotPath?: string
 }
 
 export interface ScenarioRunResult {
@@ -17,6 +18,7 @@ export interface ScenarioRunResult {
   state: ReviewScenario['state']
   status: 'passed' | 'failed'
   steps: StepRunResult[]
+  screenshots: string[]
   failedStep?: number
   failureScreenshot?: string
   error?: string
@@ -31,41 +33,52 @@ const requireElement = async (adapter: ReviewAdapter, selector: string): Promise
   if (!(await adapter.queryElement(selector))) throw new Error(`找不到元素：${selector}`)
 }
 
+const formatError = (error: unknown): string => {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  try {
+    const serialized = JSON.stringify(error)
+    return serialized === undefined ? String(error) : serialized
+  } catch {
+    return String(error)
+  }
+}
+
 const executeStep = async (
   adapter: ReviewAdapter,
   step: ReviewStep,
   outputDir: string,
-): Promise<void> => {
+): Promise<string | undefined> => {
   switch (step.action) {
     case 'navigate':
       await adapter.navigate(step.path)
-      return
+      return undefined
     case 'switchTab':
       await adapter.switchTab(step.path)
-      return
+      return undefined
     case 'tap':
       await requireElement(adapter, step.selector)
       await adapter.tap(step.selector)
-      return
+      return undefined
     case 'input':
       await requireElement(adapter, step.selector)
       await adapter.input(step.selector, step.value)
-      return
+      return undefined
     case 'clearInput':
       await requireElement(adapter, step.selector)
       await adapter.clearInput(step.selector)
-      return
+      return undefined
     case 'scrollPage':
       await adapter.scrollPage(step.distance)
-      return
+      return undefined
     case 'scrollElement':
       await requireElement(adapter, step.selector)
       await adapter.scrollElement(step.selector, step.distance)
-      return
+      return undefined
     case 'waitFor':
       if ('selector' in step) await adapter.waitFor(step.selector, step.timeoutMs)
       else await adapter.waitFor(step.durationMs, step.durationMs + 1000)
-      return
+      return undefined
     case 'assertExists': {
       const actual = await adapter.queryElement(step.selector)
       const expected = step.exists ?? true
@@ -74,11 +87,11 @@ const executeStep = async (
           expected ? `找不到元素：${step.selector}` : `元素不应存在：${step.selector}`,
         )
       }
-      return
+      return undefined
     }
     case 'assertVisible':
       if (!(await adapter.isVisible(step.selector))) throw new Error(`元素不可见：${step.selector}`)
-      return
+      return undefined
     case 'assertText': {
       await requireElement(adapter, step.selector)
       const actual = await adapter.readText(step.selector)
@@ -88,10 +101,13 @@ const executeStep = async (
       if ('contains' in step && !actual.includes(step.contains)) {
         throw new Error(`元素文字未包含预期内容：${step.selector}`)
       }
-      return
+      return undefined
     }
-    case 'screenshot':
-      await adapter.screenshot(join(outputDir, `${step.name}.png`))
+    case 'screenshot': {
+      const screenshotPath = join(outputDir, `${step.name}.png`)
+      await adapter.screenshot(screenshotPath)
+      return screenshotPath
+    }
   }
 }
 
@@ -107,6 +123,7 @@ export const runScenario = async (
     state: scenario.state,
     status: 'passed',
     steps: [],
+    screenshots: [],
   }
 
   try {
@@ -114,15 +131,17 @@ export const runScenario = async (
     for (const [index, step] of scenario.steps.entries()) {
       const started = now()
       try {
-        await executeStep(adapter, step, context.outputDir)
+        const screenshotPath = await executeStep(adapter, step, context.outputDir)
         result.steps.push({
           action: step.action,
           startedAt: started.toISOString(),
           durationMs: Math.max(0, now().getTime() - started.getTime()),
           status: 'passed',
+          ...(screenshotPath ? { screenshotPath } : {}),
         })
+        if (screenshotPath) result.screenshots.push(screenshotPath)
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error)
+        const message = formatError(error)
         result.status = 'failed'
         result.failedStep = index
         result.error = message
@@ -148,7 +167,7 @@ export const runScenario = async (
     result.pagePath = await adapter.currentPagePath()
   } catch (error) {
     result.status = 'failed'
-    result.error = error instanceof Error ? error.message : String(error)
+    result.error = formatError(error)
   } finally {
     await adapter.disconnect()
   }

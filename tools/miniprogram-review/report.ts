@@ -7,6 +7,7 @@ export interface ReviewCoverage {
   covered: string[]
   exempted: Array<{ target: string; reason: string }>
   manual: string[]
+  manualStates: string[]
 }
 
 export interface ReviewReportInput {
@@ -40,6 +41,7 @@ export const buildReviewReport = (input: ReviewReportInput): ReviewReport => ({
       left.target.localeCompare(right.target),
     ),
     manual: sorted(input.coverage.manual),
+    manualStates: sorted(input.coverage.manualStates),
   },
   results: [...input.results].sort((left, right) => left.scenario.localeCompare(right.scenario)),
 })
@@ -56,7 +58,12 @@ const toMarkdown = (report: ReviewReport): string => {
             `${index + 1}. ${step.action}：${step.status === 'passed' ? '通过' : `失败（${step.error ?? '未知错误'}）`}`,
         )
         .join('\n')
-      return `## ${result.scenario}\n\n- 页面：${result.pagePath}\n- 状态：${result.state}\n- 结果：${result.status === 'passed' ? '通过' : '失败'}\n\n${steps || '无步骤记录'}`
+      const screenshots =
+        result.screenshots.length > 0 ? `\n\n截图证据：\n${list(result.screenshots)}` : ''
+      const failureScreenshot = result.failureScreenshot
+        ? `\n\n失败现场：\n- ${result.failureScreenshot}`
+        : ''
+      return `## ${result.scenario}\n\n- 页面：${result.pagePath}\n- 状态：${result.state}\n- 结果：${result.status === 'passed' ? '通过' : '失败'}\n\n${steps || '无步骤记录'}${screenshots}${failureScreenshot}`
     })
     .join('\n\n')
   const exemptions = report.coverage.exempted.map((item) => `${item.target}：${item.reason}`)
@@ -80,6 +87,10 @@ ${list(exemptions)}
 ## 待人工核验
 
 ${list(report.coverage.manual)}
+
+## 待人工核验状态
+
+${list(report.coverage.manualStates)}
 
 ${resultSections}
 `

@@ -1,8 +1,40 @@
 import { describe, expect, it } from 'vitest'
 
-import { createAutomatorAdapter } from '../../tools/miniprogram-review/adapter'
+import {
+  buildWindowsBatchLaunch,
+  createAutomatorAdapter,
+  shouldBypassLegacyVersionCheck,
+  waitForPageReady,
+} from '../../tools/miniprogram-review/adapter'
 
 describe('miniprogram-automator 适配器', () => {
+  it('新版开发者工具只有 version 时绕过旧 SDKVersion 检查', () => {
+    expect(shouldBypassLegacyVersionCheck({ version: '2.01.2509150' })).toBe(true)
+    expect(shouldBypassLegacyVersionCheck({ version: '2.01.2509150', SDKVersion: '3.7.0' })).toBe(
+      false,
+    )
+    expect(shouldBypassLegacyVersionCheck({})).toBe(false)
+  })
+
+  it('Windows 批处理 CLI 使用完整 PowerShell 命令保留中文与空格路径', () => {
+    expect(
+      buildWindowsBatchLaunch({
+        projectPath: 'E:/AI UWO assistant',
+        cliPath: 'D:/微信web开发者工具/cli.bat',
+        servicePort: 40870,
+        automationPort: 9420,
+      }),
+    ).toEqual({
+      executable: 'C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',
+      args: [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        "& 'D:/微信web开发者工具/cli.bat' auto --project 'E:/AI UWO assistant' --auto-port 9420 --trust-project --port 40870",
+      ],
+    })
+  })
+
   it('把输入、点击、滚动、截图和页面路径映射到 SDK', async () => {
     const calls: string[] = []
     const elements = {
@@ -60,6 +92,22 @@ describe('miniprogram-automator 适配器', () => {
     ])
   })
 
+  it('页面首帧尚未完成时等待到可操作状态', async () => {
+    let attempts = 0
+    const path = await waitForPageReady(
+      {
+        currentPagePath: async () => {
+          attempts += 1
+          if (attempts < 2) throw new Error('页面尚未就绪')
+          return '/pages/home/index'
+        },
+      },
+      1000,
+    )
+    expect(path).toBe('/pages/home/index')
+    expect(attempts).toBe(2)
+  })
+
   it('元素不支持输入时给出明确错误', async () => {
     const miniProgram = {
       currentPage: async () => ({
@@ -77,5 +125,35 @@ describe('miniprogram-automator 适配器', () => {
     await expect(adapter.input('.plain-view', '文字')).rejects.toThrow(
       '元素不支持输入：.plain-view',
     )
+  })
+
+  it('页面切换过渡期重新获取顶层页面后继续等待', async () => {
+    let currentPageCalls = 0
+    const miniProgram = {
+      currentPage: async () => {
+        currentPageCalls += 1
+        return {
+          path: currentPageCalls === 1 ? 'pages/catalog/index' : 'subpkg-detail/pages/detail/index',
+          $: async () => (currentPageCalls === 1 ? null : ({} as never)),
+          waitFor: async () => undefined,
+        }
+      },
+    }
+    const adapter = createAutomatorAdapter(miniProgram as never)
+
+    await adapter.waitFor('.detail-page', 1000)
+    expect(currentPageCalls).toBe(2)
+  })
+
+  it('元素等待接近截止时间时仍使用正数轮询间隔', async () => {
+    const adapter = createAutomatorAdapter({
+      currentPage: async () => ({
+        path: 'pages/catalog/index',
+        $: async () => null,
+        waitFor: async () => undefined,
+      }),
+    } as never)
+
+    await expect(adapter.waitFor('.missing', 1)).rejects.toThrow('等待元素超时：.missing')
   })
 })

@@ -56,6 +56,7 @@ describe('小程序验收场景执行器', () => {
     ])
     expect(result.status).toBe('passed')
     expect(result.steps).toHaveLength(5)
+    expect(result.screenshots).toEqual([join(outputDir, 'detail-bottom.png')])
   })
 
   it('元素缺失时保存失败截图并停止后续步骤', async () => {
@@ -114,5 +115,17 @@ describe('小程序验收场景执行器', () => {
       'waitFor:100',
       'disconnect',
     ])
+  })
+
+  it('非 Error 异常也保留结构化诊断', async () => {
+    const calls: string[] = []
+    const adapter = createRecordingAdapter(calls)
+    adapter.tap = async () => {
+      throw { code: 'PAGE_TRANSITION', page: '/pages/catalog/index' }
+    }
+    const result = await runScenario(adapter, scenario, { outputDir: 'C:/review/run' })
+
+    expect(result.status).toBe('failed')
+    expect(result.error).toBe('{"code":"PAGE_TRANSITION","page":"/pages/catalog/index"}')
   })
 })

@@ -1,0 +1,63 @@
+{
+  "name": "航海士目录搜寻与详情",
+  "entry": "/pages/catalog/index",
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "input",
+      "selector": ".catalog-page__search-input",
+      "value": "達納"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__officer-row",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__officer-row",
+      "contains": "達納"
+    },
+    {
+      "action": "screenshot",
+      "name": "catalog-search-result"
+    },
+    {
+      "action": "scrollElement",
+      "selector": ".catalog-page__list",
+      "distance": 120
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__officer-row"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".detail-page",
+      "timeoutMs": 15000
+    },
+    {
+      "action": "assertExists",
+      "selector": ".dossier-name"
+    },
+    {
+      "action": "assertText",
+      "selector": ".dossier-name",
+      "contains": "達納"
+    },
+    {
+      "action": "screenshot",
+      "name": "officer-detail-top"
+    },
+    {
+      "action": "scrollElement",
+      "selector": ".detail-page",
+      "distance": 800
+    },
+    {
+      "action": "screenshot",
+      "name": "officer-detail-bottom"
+    }
+  ]
+}

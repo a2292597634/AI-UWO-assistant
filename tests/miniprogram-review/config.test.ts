@@ -37,6 +37,17 @@ describe('小程序验收配置', () => {
     expect(config.cliPath).toBe('C:/Program Files (x86)/Tencent/微信web开发者工具/cli.bat')
   })
 
+  it('支持本机使用的 D 盘独立安装路径', () => {
+    const config = resolveReviewConfig({
+      cwd: 'E:/project',
+      args: {},
+      env: {},
+      pathExists: (path) => path === 'D:/微信web开发者工具/cli.bat',
+    })
+
+    expect(config.cliPath).toBe('D:/微信web开发者工具/cli.bat')
+  })
+
   it('拒绝超出范围的端口', () => {
     expect(() =>
       resolveReviewConfig({
