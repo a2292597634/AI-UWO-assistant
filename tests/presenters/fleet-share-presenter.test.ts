@@ -61,21 +61,31 @@ const runtimeOfficer = (
 })
 
 describe('配隊分享圖 Presenter', () => {
-  it('分享圖移除完全空船，但保留部分空位和原船順序', () => {
+  it('分享圖移除完全空船，但保留部分空位和有效船原順序', () => {
     const view = buildBattleFleetShareViewModel(
-      fleetWithOfficers([[], ['o1', 'missing-officer'], []]),
-      [runtimeOfficer('o1', [])],
+      fleetWithOfficers([
+        [],
+        ['o1', 'missing-officer'],
+        ['missing-only'],
+        ['o2'],
+      ]),
+      [runtimeOfficer('o1', []), runtimeOfficer('o2', [])],
       {},
       '空船篩選案例',
       '/qr.png',
     )
 
-    expect(view.ships.map((ship) => ship.shipId)).toEqual(['ship-2'])
+    expect(view.ships.map((ship) => ship.shipId)).toEqual(['ship-2', 'ship-4'])
     expect(view.ships[0]!.shipLabel).toBe('2號船')
     expect(view.ships[0]!.officerSlots).toHaveLength(11)
     expect(view.ships[0]!.officerSlots.slice(0, 3).map((officer) => officer?.id ?? null)).toEqual([
       'o1',
       null,
+      null,
+    ])
+    expect(view.ships[1]!.shipLabel).toBe('4號船')
+    expect(view.ships[1]!.officerSlots.slice(0, 2).map((officer) => officer?.id ?? null)).toEqual([
+      'o2',
       null,
     ])
   })

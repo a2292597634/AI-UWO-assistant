@@ -67,3 +67,38 @@ Tests  6 passed (6)
 ## 疑慮
 
 無功能疑慮。依 brief 要求，本任務提交不包含工作樹中既有的計劃文件。
+
+## 審查修復
+
+針對回歸測試審查發現補強 `tests/presenters/fleet-share-presenter.test.ts`：
+
+- 新增第 3 艘僅含 `missing-officer` 的船，確認沒有任何有效航海士時會被移除，而不是僅依原始 ID 陣列是否非空判斷。
+- 保留第 2 與第 4 艘有效船，斷言結果順序為 `ship-2`、`ship-4`，實際鎖定多艘有效船之間的原船相對順序。
+- 保留原有部分空位與 11 槽位斷言，並補充第 4 艘船的有效航海士位置斷言。
+
+本次未修改 `miniprogram/presenters/fleet-share-presenter.ts`。
+
+## 審查後測試
+
+命令：
+
+```text
+npx vitest run tests/presenters/fleet-share-presenter.test.ts
+```
+
+完整關鍵輸出：
+
+```text
+ RUN  v4.1.10 E:/AI UWO assistant
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:01:15
+   Duration  362ms (transform 72ms, setup 0ms, tests 12ms, environment 0ms)
+```
+
+## 修復後自檢
+
+- `git diff --check`：通過，無空白錯誤。
+- 生產實現未變更；本次測試變更只涉及指定測試案例及其斷言。
+- 既有未追蹤文件 `docs/superpowers/plans/2026-09-15-fleet-share-image-readability.md` 未納入提交。
