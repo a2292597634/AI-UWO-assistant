@@ -391,7 +391,20 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxss).toMatch(
       /\.config-bar__management-actions\s*\{[\s\S]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/,
     )
-    expect(wxss).toMatch(/\.config-bar__share\s*\{[\s\S]*min-height:\s*88rpx/)
+    expect(wxss).toMatch(
+      /\.config-bar__share\s*\{[\s\S]*width:\s*104rpx\s*!important[\s\S]*min-width:\s*104rpx\s*!important[\s\S]*max-width:\s*104rpx\s*!important[\s\S]*min-height:\s*88rpx[\s\S]*flex:\s*0\s+0\s+104rpx\s*!important/,
+    )
+    expect(wxml).toContain('config-bar__load')
+    expect(wxml).toContain('config-bar__exit')
+    expect(wxss).toMatch(
+      /\.config-bar__load\s*\{[\s\S]*width:\s*112rpx\s*!important[\s\S]*flex:\s*0\s+0\s+112rpx\s*!important/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar__exit\s*\{[\s\S]*width:\s*160rpx\s*!important[\s\S]*flex:\s*0\s+0\s+160rpx\s*!important/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar__list-name\s*\{[\s\S]*overflow:\s*hidden[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/,
+    )
     expect(wxss).toMatch(
       /\.config-bar__toggle-icon\s*\{[\s\S]*width:\s*64rpx[\s\S]*height:\s*64rpx[\s\S]*transform:\s*scale\(3\)/,
     )

@@ -72,7 +72,7 @@
             <text wx:if="{{item.configId === activeConfigId}}" class="config-bar__active-label">目前使用</text>
           </view>
           <button
-            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact"
+            class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact config-bar__load"
             data-id="{{item.configId}}"
             bindtap="onLoad"
             aria-label="載入配置 {{item.name}}"

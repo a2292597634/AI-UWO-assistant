@@ -117,11 +117,14 @@
 .config-bar__share {
   box-sizing: border-box;
   display: flex;
-  min-width: 104rpx;
+  width: 104rpx !important;
+  min-width: 104rpx !important;
+  max-width: 104rpx !important;
   min-height: 88rpx;
+  flex: 0 0 104rpx !important;
   align-items: center;
   justify-content: center;
-  margin: 0;
+  margin: 0 !important;
   padding: 0 var(--uwo-space-2);
   border: 2rpx solid var(--uwo-color-accent-brass);
   border-radius: var(--uwo-radius-control);
@@ -214,8 +217,24 @@
   flex: 0 0 auto;
 }
 
+.config-bar__load {
+  width: 112rpx !important;
+  min-width: 112rpx !important;
+  max-width: 112rpx !important;
+  flex: 0 0 112rpx !important;
+  margin: 0 !important;
+  padding-right: var(--uwo-space-1);
+  padding-left: var(--uwo-space-1);
+}
+
 .config-bar__exit {
-  min-width: 144rpx;
+  width: 160rpx !important;
+  min-width: 160rpx !important;
+  max-width: 160rpx !important;
+  flex: 0 0 160rpx !important;
+  margin: 0 !important;
+  padding-right: var(--uwo-space-1);
+  padding-left: var(--uwo-space-1);
 }
 
 .config-bar__list-copy {
@@ -224,12 +243,15 @@
   align-items: center;
   gap: var(--uwo-space-2);
   min-width: 0;
+  overflow: hidden;
 }
 
 .config-bar__list-name {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
   font-size: var(--uwo-font-size-supporting);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .config-bar__active-label {
