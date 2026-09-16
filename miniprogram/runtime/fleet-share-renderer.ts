@@ -23,22 +23,24 @@ type ShareContext = WechatMiniprogram.CanvasRenderingContext.CanvasRenderingCont
 type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
-const OFFICER_SIZE = 64
-const SKILL_ICON_SIZE = 24
-const FRAME_INSET = 3
-const SKILL_LEVEL_WIDTH = 64
-const SKILL_LEVEL_HEIGHT = 22
-const SKILL_CARD_INSET = 6
-const SKILL_META_TOP = 4
-const SKILL_NAME_GAP = 2
-const SKILL_NAME_BOTTOM = 2
+const OFFICER_SIZE = 84
+const TYPE_ICON_SIZE = 22
+const SKILL_ICON_SIZE = 36
+const FRAME_INSET = 4
+const SKILL_LEVEL_WIDTH = 68
+const SKILL_LEVEL_HEIGHT = 28
+const SKILL_CARD_INSET = 8
+const SKILL_META_TOP = 6
+const SKILL_NAME_GAP = 4
+const SKILL_NAME_BOTTOM = 4
+const SKILL_NAME_LINE_HEIGHT = 20
 export const SHARE_IMAGE_LOAD_TIMEOUT_MS = 8000
 export const SHARE_IMAGE_MAX_OUTPUT_SIDE = 4096
 export const SHARE_IMAGE_PREFERRED_SCALE = 2
-const FONT_OFFICER = '600 22px sans-serif'
+const FONT_OFFICER = '600 20px sans-serif'
 const FONT_SKILL = '600 20px sans-serif'
-const FONT_LABEL = '600 22px sans-serif'
-const FONT_META = '500 18px sans-serif'
+const FONT_LABEL = '600 28px sans-serif'
+const FONT_META = '500 22px sans-serif'
 const FONT_LEVEL = '700 17px sans-serif'
 const COLORS = {
   paper: '#f1ead9',
@@ -67,11 +69,10 @@ const localAssetPath = (path: string): string => {
 export interface OfficerVisualRects {
   frame: ShareRect
   portrait: ShareRect
-  rarity: ShareRect
   type: ShareRect
 }
 
-/** 計算航海士各素材的相對座標，品質與類型圖標始終跟隨頭像。 */
+/** 計算航海士素材座標；品質由背景框顏色表達，類型角標沿用名鑑右下錨點。 */
 export const getOfficerVisualRects = (rect: ShareRect): OfficerVisualRects => {
   const frameSize = Math.min(OFFICER_SIZE, Math.max(0, rect.width))
   const frame = {
@@ -87,17 +88,14 @@ export const getOfficerVisualRects = (rect: ShareRect): OfficerVisualRects => {
     width: portraitSize,
     height: portraitSize,
   }
-  const raritySize = Math.min(portraitSize, Math.max(24, portraitSize * 0.58))
-  const typeSize = Math.min(portraitSize, Math.max(14, portraitSize * 0.32))
   return {
     frame,
     portrait,
-    rarity: { x: portrait.x, y: portrait.y, width: raritySize, height: raritySize },
     type: {
-      x: portrait.x,
-      y: portrait.y + portrait.height - typeSize,
-      width: typeSize,
-      height: typeSize,
+      x: portrait.x + portrait.width - Math.min(TYPE_ICON_SIZE, portraitSize) - 4,
+      y: portrait.y + portrait.height - Math.min(TYPE_ICON_SIZE, portraitSize) - 4,
+      width: Math.min(TYPE_ICON_SIZE, portraitSize),
+      height: Math.min(TYPE_ICON_SIZE, portraitSize),
     },
   }
 }
@@ -136,7 +134,7 @@ export const getShareCanvasDimensions = (
 
 /** 技能卡上排放圖標與等級，下排保留完整寬度給技能名稱。 */
 export const getSkillCardLayout = (rect: ShareRect): SkillCardLayout => {
-  const iconSize = Math.min(SKILL_ICON_SIZE, Math.max(0, rect.height - 28))
+  const iconSize = Math.min(SKILL_ICON_SIZE, Math.max(0, rect.height - 36))
   const icon = {
     x: rect.x + SKILL_CARD_INSET,
     y: rect.y + SKILL_META_TOP,
@@ -255,13 +253,81 @@ const drawText = (
   context.font = font
   context.fillStyle = color
   context.textBaseline = 'middle'
+  context.textAlign = 'left'
   context.fillText(truncateText(context, text, maxWidth), x, y, maxWidth)
 }
 
-const gradeCrop = (path: string): { sx: number; sy: number; sw: number; sh: number } | null => {
-  if (path.endsWith('uwo-icon-grade-6.png')) return { sx: 0, sy: 0, sw: 24, sh: 24 }
-  if (/uwo-icon-grade-[2-5]\.png$/.test(path)) return { sx: 2, sy: 0, sw: 20, sh: 23 }
-  return null
+const drawCenteredText = (
+  context: ShareContext,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  font: string,
+  color = COLORS.ink,
+): void => {
+  context.font = font
+  context.fillStyle = color
+  context.textBaseline = 'middle'
+  context.textAlign = 'center'
+  context.fillText(truncateText(context, text, maxWidth), x + maxWidth / 2, y, maxWidth)
+  context.textAlign = 'left'
+}
+
+const wrapText = (
+  context: ShareContext,
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+): string[] => {
+  const chars = Array.from(text)
+  const lines: string[] = []
+  let cursor = 0
+
+  while (cursor < chars.length && lines.length < maxLines) {
+    const isLastLine = lines.length === maxLines - 1
+    let line = ''
+    while (cursor < chars.length) {
+      const next = `${line}${chars[cursor]}`
+      if (line.length === 0 || context.measureText(next).width <= maxWidth) {
+        line = next
+        cursor += 1
+      } else {
+        break
+      }
+    }
+    if (isLastLine && cursor < chars.length) {
+      while (line.length > 0 && context.measureText(`${line}…`).width > maxWidth) {
+        line = line.slice(0, -1)
+      }
+      line = `${line}…`
+    }
+    lines.push(line)
+  }
+
+  return lines.length > 0 ? lines : ['']
+}
+
+const drawMultilineText = (
+  context: ShareContext,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  font: string,
+  lineHeight: number,
+  maxLines: number,
+  color = COLORS.ink,
+): void => {
+  context.font = font
+  context.fillStyle = color
+  context.textBaseline = 'middle'
+  context.textAlign = 'left'
+  const lines = wrapText(context, text, maxWidth, maxLines)
+  const blockHeight = (lines.length - 1) * lineHeight
+  lines.forEach((line, index) => {
+    context.fillText(line, x, y - blockHeight / 2 + index * lineHeight, maxWidth)
+  })
 }
 
 const drawImageFit = (
@@ -315,6 +381,19 @@ const drawPlaceholder = (
   )
 }
 
+const drawEmptyState = (context: ShareContext, rect: ShareRect): void => {
+  roundedRect(context, rect, 16, COLORS.paperAlt, COLORS.border)
+  drawText(
+    context,
+    '尚未配置航海士',
+    rect.x + 16,
+    rect.y + rect.height / 2,
+    rect.width - 32,
+    FONT_LABEL,
+    COLORS.green,
+  )
+}
+
 const drawOfficer = (
   context: ShareContext,
   officer: FleetShareOfficerView | null,
@@ -327,6 +406,7 @@ const drawOfficer = (
   }
   const visualRects = getOfficerVisualRects(rect)
   const frame = images.get(officer.visuals.framePath)
+  // 品質由 framePath 對應的背景框顏色表達，不再繪製品質角標。
   if (frame) drawImageFit(context, frame, visualRects.frame)
   else roundedRect(context, visualRects.frame, 8, COLORS.ink)
 
@@ -334,35 +414,9 @@ const drawOfficer = (
   drawImageOptional(context, portrait, visualRects.portrait)
   if (!portrait) drawPlaceholder(context, visualRects.portrait, officer.name, COLORS.paperAlt)
 
-  const rarity = images.get(officer.visuals.rarityIconPath)
-  const crop = gradeCrop(officer.visuals.rarityIconPath)
-  if (rarity && crop) {
-    context.drawImage(
-      rarity,
-      crop.sx,
-      crop.sy,
-      crop.sw,
-      crop.sh,
-      visualRects.rarity.x,
-      visualRects.rarity.y,
-      visualRects.rarity.width,
-      visualRects.rarity.height,
-    )
-  } else {
-    roundedRect(context, visualRects.rarity, 16, COLORS.brass)
-    drawText(
-      context,
-      officer.rarityName,
-      visualRects.rarity.x,
-      visualRects.rarity.y + visualRects.rarity.height / 2,
-      visualRects.rarity.width,
-      FONT_META,
-      COLORS.white,
-    )
-  }
   const typeIcon = images.get(officer.visuals.typeIconPath)
   drawImageOptional(context, typeIcon, visualRects.type, true)
-  drawText(
+  drawCenteredText(
     context,
     officer.name,
     rect.x + 3,
@@ -381,23 +435,37 @@ const drawSkillCard = (
   const card = getSkillCardLayout(rect)
   roundedRect(context, card.rect, 8, COLORS.white, COLORS.border)
   const icon = images.get(skill.skillIconPath)
+  roundedRect(
+    context,
+    {
+      x: card.icon.x - 2,
+      y: card.icon.y - 2,
+      width: card.icon.width + 4,
+      height: card.icon.height + 4,
+    },
+    6,
+    COLORS.paperAlt,
+    COLORS.border,
+  )
   if (icon) drawImageFit(context, icon, card.icon, true)
   else drawPlaceholder(context, card.icon, '技', COLORS.paperAlt)
-  drawText(
+  drawMultilineText(
     context,
     skill.skillName,
     card.name.x,
     card.name.y + card.name.height / 2,
     card.name.width,
     FONT_SKILL,
+    SKILL_NAME_LINE_HEIGHT,
+    2,
   )
   roundedRect(context, card.level, 10, COLORS.green)
-  drawText(
+  drawCenteredText(
     context,
     `Lv.${skill.totalLevel}`,
-    card.level.x + 4,
+    card.level.x,
     card.level.y + card.level.height / 2,
-    card.level.width - 8,
+    card.level.width,
     FONT_LEVEL,
     COLORS.white,
   )
@@ -447,7 +515,6 @@ const preloadAssets = async (
         if (!officer) continue
         add(officer.portraitPath, 'portrait')
         add(officer.visuals.framePath, 'ui')
-        add(officer.visuals.rarityIconPath, 'ui')
         add(officer.visuals.typeIconPath, 'ui')
       }
       for (const skill of [...ship.activeSkills, ...ship.passiveSkills])
@@ -458,7 +525,6 @@ const preloadAssets = async (
       for (const officer of group.officers) {
         add(officer.portraitPath, 'portrait')
         add(officer.visuals.framePath, 'ui')
-        add(officer.visuals.rarityIconPath, 'ui')
         add(officer.visuals.typeIconPath, 'ui')
       }
     }
@@ -535,7 +601,7 @@ const drawShip = (
     context,
     ship.shipLabel,
     section.heading.x + 14,
-    section.heading.y + 22,
+    section.heading.y + 20,
     180,
     FONT_LABEL,
     COLORS.green,
@@ -544,14 +610,16 @@ const drawShip = (
     context,
     `${ship.officerSlots.filter(Boolean).length}/11 航海士`,
     section.heading.x + section.heading.width - 180,
-    section.heading.y + 22,
+    section.heading.y + 20,
     166,
     FONT_META,
     COLORS.inkMuted,
   )
-  ship.officerSlots.forEach((officer, index) =>
-    drawOfficer(context, officer, section.officerSlots[index]!, images),
-  )
+  ship.officerSlots
+    .filter((officer) => officer !== null)
+    .forEach((officer, index) =>
+      drawOfficer(context, officer, section.officerSlots[index]!, images),
+    )
   drawSkillSection(
     context,
     ship.activeSkills,
@@ -618,6 +686,7 @@ export const drawFleetShareImage = async (
   drawHeader(context, layout, view.configName, view.mode)
 
   if (view.mode === 'battle') {
+    if (layout.emptyState) drawEmptyState(context, layout.emptyState)
     view.ships.forEach((ship, index) => {
       const section = layout.shipSections[index]
       if (section) drawShip(context, ship, section, report.images)
@@ -631,7 +700,7 @@ export const drawFleetShareImage = async (
       context,
       '全艦冒險技能累計',
       layout.skillSection.rect.x,
-      layout.skillSection.y - 34,
+      layout.skillSection.y - 40,
       300,
       FONT_LABEL,
       COLORS.green,
@@ -688,4 +757,4 @@ export const drawFleetShareImage = async (
   }
 }
 
-export { QR_PATH, gradeCrop, localAssetPath }
+export { QR_PATH, localAssetPath }

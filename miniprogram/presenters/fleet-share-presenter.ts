@@ -141,7 +141,9 @@ export const buildBattleFleetShareViewModel = (
 ): BattleFleetShareViewModel => ({
   mode: 'battle',
   configName,
-  ships: fleet.ships.map((ship) => buildBattleShip(ship, toOfficerMap(officerList), skills)),
+  ships: fleet.ships
+    .map((ship) => buildBattleShip(ship, toOfficerMap(officerList), skills))
+    .filter((ship) => ship.officerSlots.some(Boolean)),
   qrPath,
   entrancePath: ENTRANCE_PATH,
 })

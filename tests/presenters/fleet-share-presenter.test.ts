@@ -61,6 +61,30 @@ const runtimeOfficer = (
 })
 
 describe('配隊分享圖 Presenter', () => {
+  it('分享圖移除完全空船，但保留部分空位和有效船原順序', () => {
+    const view = buildBattleFleetShareViewModel(
+      fleetWithOfficers([[], ['o1', 'missing-officer'], ['missing-only'], ['o2']]),
+      [runtimeOfficer('o1', []), runtimeOfficer('o2', [])],
+      {},
+      '空船篩選案例',
+      '/qr.png',
+    )
+
+    expect(view.ships.map((ship) => ship.shipId)).toEqual(['ship-2', 'ship-4'])
+    expect(view.ships[0]!.shipLabel).toBe('2號船')
+    expect(view.ships[0]!.officerSlots).toHaveLength(11)
+    expect(view.ships[0]!.officerSlots.slice(0, 3).map((officer) => officer?.id ?? null)).toEqual([
+      'o1',
+      null,
+      null,
+    ])
+    expect(view.ships[1]!.shipLabel).toBe('4號船')
+    expect(view.ships[1]!.officerSlots.slice(0, 2).map((officer) => officer?.id ?? null)).toEqual([
+      'o2',
+      null,
+    ])
+  })
+
   it('戰鬥每艘船只輸出主動 TOP5，並保留累計至少 Lv2 的戰鬥被動', () => {
     const officers = [
       runtimeOfficer('o1', [
