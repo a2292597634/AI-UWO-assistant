@@ -24,9 +24,10 @@ type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
 const OFFICER_SIZE = 84
-const TYPE_ICON_SIZE = 22
+const REFERENCE_TILE_SIZE = 60
+const TYPE_ICON_RATIO = 16 / REFERENCE_TILE_SIZE
+const TYPE_ICON_OFFSET = 4
 const SKILL_ICON_SIZE = 36
-const FRAME_INSET = 4
 const SKILL_LEVEL_WIDTH = 68
 const SKILL_LEVEL_HEIGHT = 28
 const SKILL_CARD_INSET = 8
@@ -69,10 +70,11 @@ const localAssetPath = (path: string): string => {
 export interface OfficerVisualRects {
   frame: ShareRect
   portrait: ShareRect
+  rarity: ShareRect
   type: ShareRect
 }
 
-/** 計算航海士素材座標；品質由背景框顏色表達，類型角標沿用名鑑右下錨點。 */
+/** 計算航海士四層素材座標：框、頭像、稀有度共用滿格人物格，類型角標置於左下。 */
 export const getOfficerVisualRects = (rect: ShareRect): OfficerVisualRects => {
   const frameSize = Math.min(OFFICER_SIZE, Math.max(0, rect.width))
   const frame = {
@@ -81,21 +83,16 @@ export const getOfficerVisualRects = (rect: ShareRect): OfficerVisualRects => {
     width: frameSize,
     height: frameSize,
   }
-  const portraitSize = Math.max(0, frameSize - FRAME_INSET * 2)
-  const portrait = {
-    x: frame.x + FRAME_INSET,
-    y: frame.y + FRAME_INSET,
-    width: portraitSize,
-    height: portraitSize,
-  }
+  const typeSize = Math.min(frameSize, Math.round(frameSize * TYPE_ICON_RATIO))
   return {
     frame,
-    portrait,
+    portrait: frame,
+    rarity: frame,
     type: {
-      x: portrait.x + portrait.width - Math.min(TYPE_ICON_SIZE, portraitSize) - 4,
-      y: portrait.y + portrait.height - Math.min(TYPE_ICON_SIZE, portraitSize) - 4,
-      width: Math.min(TYPE_ICON_SIZE, portraitSize),
-      height: Math.min(TYPE_ICON_SIZE, portraitSize),
+      x: frame.x + TYPE_ICON_OFFSET,
+      y: frame.y + frame.height - typeSize - TYPE_ICON_OFFSET,
+      width: typeSize,
+      height: typeSize,
     },
   }
 }
@@ -406,13 +403,15 @@ const drawOfficer = (
   }
   const visualRects = getOfficerVisualRects(rect)
   const frame = images.get(officer.visuals.framePath)
-  // 品質由 framePath 對應的背景框顏色表達，不再繪製品質角標。
   if (frame) drawImageFit(context, frame, visualRects.frame)
   else roundedRect(context, visualRects.frame, 8, COLORS.ink)
 
   const portrait = images.get(officer.portraitPath)
   drawImageOptional(context, portrait, visualRects.portrait)
   if (!portrait) drawPlaceholder(context, visualRects.portrait, officer.name, COLORS.paperAlt)
+
+  const rarity = images.get(officer.visuals.rarityIconPath)
+  drawImageOptional(context, rarity, visualRects.rarity)
 
   const typeIcon = images.get(officer.visuals.typeIconPath)
   drawImageOptional(context, typeIcon, visualRects.type, true)
@@ -515,6 +514,7 @@ const preloadAssets = async (
         if (!officer) continue
         add(officer.portraitPath, 'portrait')
         add(officer.visuals.framePath, 'ui')
+        add(officer.visuals.rarityIconPath, 'ui')
         add(officer.visuals.typeIconPath, 'ui')
       }
       for (const skill of [...ship.activeSkills, ...ship.passiveSkills])
@@ -525,6 +525,7 @@ const preloadAssets = async (
       for (const officer of group.officers) {
         add(officer.portraitPath, 'portrait')
         add(officer.visuals.framePath, 'ui')
+        add(officer.visuals.rarityIconPath, 'ui')
         add(officer.visuals.typeIconPath, 'ui')
       }
     }

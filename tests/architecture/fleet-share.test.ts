@@ -121,11 +121,16 @@ describe('配隊分享圖架構契約', () => {
     const portraitDraw = source.indexOf(
       'drawImageOptional(context, portrait, visualRects.portrait)',
     )
+    const rarityDraw = source.indexOf('drawImageOptional(context, rarity, visualRects.rarity)')
+    const typeDraw = source.indexOf('drawImageOptional(context, typeIcon, visualRects.type, true)')
 
     expect(frameDraw).toBeGreaterThan(-1)
     expect(portraitDraw).toBeGreaterThan(frameDraw)
-    expect(source).not.toContain('visualRects.rarity')
-    expect(source).not.toContain('rarityIconPath')
+    expect(rarityDraw).toBeGreaterThan(portraitDraw)
+    expect(typeDraw).toBeGreaterThan(rarityDraw)
+    expect(source).toContain('rarityIconPath')
+    expect(source).toContain("add(officer.visuals.rarityIconPath, 'ui')")
+    expect(source).not.toContain('品質由 framePath 對應的背景框顏色表達，不再繪製品質角標')
     expect(source).not.toContain("'主動技能 TOP 5'")
     expect(source).not.toContain("'戰鬥被動技能'")
     expect(source).toContain('COLORS.activePanel')

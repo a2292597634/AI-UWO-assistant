@@ -354,8 +354,15 @@ const catalogPageSource = fs.readFileSync(
 )
 
 const cssRule = (selector: string): string => {
-  const match = catalogWxss.match(new RegExp(`\\${selector}\\s*\\{([^}]*)\\}`, 's'))
-  return match?.[1] ?? ''
+  return [...catalogWxss.matchAll(/([^{}]+)\{([^{}]*)\}/gs)]
+    .filter(([, header]) =>
+      header
+        .split(',')
+        .map((item) => item.trim())
+        .includes(selector),
+    )
+    .map(([, , body]) => body)
+    .join('\n')
 }
 
 describe('catalog touch target markup contracts', () => {
@@ -477,5 +484,78 @@ describe('catalog touch target markup contracts', () => {
     expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*64rpx;/)
     expect(cssRule('.catalog-page__officer-skills')).toMatch(/height:\s*64rpx;/)
     expect(cssRule('.catalog-page__officer-skills-content')).toMatch(/height:\s*64rpx;/)
+  })
+
+  it('使用 voyage.tw 比例呈現名鑒人物角標', () => {
+    for (const selector of [
+      '.catalog-page__officer-rarity-icon',
+      '.catalog-page__expanded-officer-rarity',
+    ]) {
+      expect(cssRule(selector)).toMatch(/top:\s*0;/)
+      expect(cssRule(selector)).toMatch(/left:\s*0;/)
+      expect(cssRule(selector)).toMatch(/width:\s*100%;/)
+      expect(cssRule(selector)).toMatch(/height:\s*100%;/)
+    }
+
+    expect(cssRule('.catalog-page__officer-type-icon')).toMatch(/left:\s*var\(--uwo-space-1\);/)
+    expect(cssRule('.catalog-page__officer-type-icon')).toMatch(/bottom:\s*var\(--uwo-space-1\);/)
+    expect(cssRule('.catalog-page__officer-type-icon')).toMatch(/width:\s*28rpx;/)
+    expect(cssRule('.catalog-page__officer-type-icon')).toMatch(/height:\s*28rpx;/)
+
+    expect(cssRule('.catalog-page__expanded-officer-type')).toMatch(/left:\s*var\(--uwo-space-1\);/)
+    expect(cssRule('.catalog-page__expanded-officer-type')).toMatch(
+      /bottom:\s*var\(--uwo-space-1\);/,
+    )
+    expect(cssRule('.catalog-page__expanded-officer-type')).toMatch(/width:\s*21rpx;/)
+    expect(cssRule('.catalog-page__expanded-officer-type')).toMatch(/height:\s*21rpx;/)
+  })
+
+  it('鎖定主列表與技能反查的四層 WXML 分層順序與素材綁定', () => {
+    const visualLayers = [
+      {
+        container: 'catalog-page__officer-portrait',
+        end: 'catalog-page__officer-info',
+        paths: [
+          'item.visuals.framePath',
+          'item.portraitPath',
+          'item.visuals.rarityIconPath',
+          'item.visuals.typeIconPath',
+        ],
+        classes: [
+          'catalog-page__officer-portrait-layer--frame',
+          'catalog-page__officer-avatar',
+          'catalog-page__officer-rarity-icon',
+          'catalog-page__officer-type-icon',
+        ],
+      },
+      {
+        container: 'catalog-page__expanded-officer-visuals',
+        end: 'catalog-page__expanded-officer-name',
+        paths: [
+          'officer.visuals.framePath',
+          'officer.portraitPath',
+          'officer.visuals.rarityIconPath',
+          'officer.visuals.typeIconPath',
+        ],
+        classes: [
+          'catalog-page__expanded-officer-frame',
+          'catalog-page__expanded-officer-portrait',
+          'catalog-page__expanded-officer-rarity',
+          'catalog-page__expanded-officer-type',
+        ],
+      },
+    ]
+
+    for (const { container, end, paths, classes } of visualLayers) {
+      const start = catalogWxml.indexOf(`class="${container}"`)
+      const endPosition = catalogWxml.indexOf(`class="${end}"`, start)
+      const block =
+        start >= 0 && endPosition > start ? catalogWxml.slice(start, endPosition) : undefined
+      expect(block).toBeDefined()
+      const layerPositions = classes.map((className) => block!.indexOf(className))
+      expect(layerPositions.every((position) => position >= 0)).toBe(true)
+      expect(layerPositions).toEqual([...layerPositions].sort((a, b) => a - b))
+      for (const path of paths) expect(block).toContain(`{{${path}}}`)
+    }
   })
 })

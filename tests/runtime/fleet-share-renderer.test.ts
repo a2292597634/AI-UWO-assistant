@@ -23,6 +23,7 @@ const view: AdventureFleetShareViewModel = {
 }
 
 const createCanvas = (loadImages = false) => {
+  const createdImages: Array<{ width: number; height: number; src: string }> = []
   const context = {
     beginPath: vi.fn(),
     moveTo: vi.fn(),
@@ -56,12 +57,15 @@ const createCanvas = (loadImages = false) => {
         onload: () => {},
         onerror: () => {},
       }
+      createdImages.push(image)
       if (loadImages) queueMicrotask(() => image.onload())
       return image
     }),
+    createdImages,
   }
   return canvas as unknown as WechatMiniprogram.Canvas & {
     getContext: (type: '2d') => typeof context
+    createdImages: typeof createdImages
   }
 }
 
@@ -134,6 +138,66 @@ describe('配隊分享圖素材載入', () => {
       expect.any(Number),
       expect.any(Number),
     )
+  })
+
+  it('戰鬥航海士會預載並按 frame、portrait、rarity、type 順序繪製四層', async () => {
+    const battleView: BattleFleetShareViewModel = {
+      mode: 'battle',
+      configName: '四層繪製案例',
+      ships: [
+        {
+          shipId: 'ship-1',
+          shipLabel: '1號船',
+          officerSlots: [
+            {
+              id: 'officer-1',
+              name: '四層航海士',
+              portraitPath: '/portrait.png',
+              rarityName: 'S',
+              visuals: {
+                framePath: '/frame.png',
+                rarityIconPath: '/rarity.png',
+                typeIconPath: '/type.png',
+                genderIconPath: '',
+              },
+              shipId: 'ship-1',
+              slotIndex: 0,
+            },
+          ],
+          activeSkills: [],
+          passiveSkills: [],
+        },
+      ],
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+    const context = canvas.getContext('2d')
+
+    await drawFleetShareImage(canvas, battleView, measureBattleFleetShare(battleView))
+
+    const loadedPaths = canvas.createdImages.map((image) => image.src)
+    expect(loadedPaths).toContain('/rarity.png')
+
+    const officerDraws = vi
+      .mocked(context.drawImage)
+      .mock.calls.filter(([image]) =>
+        ['/frame.png', '/portrait.png', '/rarity.png', '/type.png'].includes(
+          (image as { src: string }).src,
+        ),
+      )
+    expect(officerDraws.map(([image]) => (image as { src: string }).src)).toEqual([
+      '/frame.png',
+      '/portrait.png',
+      '/rarity.png',
+      '/type.png',
+    ])
+    expect(officerDraws.map(([, x, y, width, height]) => [x, y, width, height])).toEqual([
+      [333, 146, 84, 84],
+      [333, 146, 84, 84],
+      [333, 146, 84, 84],
+      [337, 204, 22, 22],
+    ])
   })
 
   it('冒險技能標題和說明保有安全中心距，且不侵入前後分區', async () => {

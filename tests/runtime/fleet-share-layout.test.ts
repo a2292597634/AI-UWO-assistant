@@ -214,27 +214,17 @@ describe('配隊分享圖布局測量', () => {
     expect(lastRow[0]!.x).toBeLessThan(firstRow[4]!.x)
   })
 
-  it('航海士框用背景色表達品質，類型角標沿用名鑑右下位置', () => {
+  it('航海士框沿用 voyage.tw 滿格分層與左下類型角標', () => {
     const visuals = getOfficerVisualRects({ x: 32, y: 120, width: 132, height: 128 })
 
     expect(visuals.frame.width).toBe(84)
     expect(visuals.frame.height).toBe(84)
-    expect(visuals.frame.x).toBeLessThanOrEqual(visuals.portrait.x)
-    expect(visuals.frame.y).toBeLessThanOrEqual(visuals.portrait.y)
-    expect(visuals.portrait.width).toBe(76)
-    expect(visuals.portrait.height).toBe(76)
-    expect(visuals.type.x).toBeGreaterThanOrEqual(visuals.portrait.x)
-    expect(visuals.type.y + visuals.type.height).toBeLessThanOrEqual(
-      visuals.portrait.y + visuals.portrait.height,
-    )
-    expect(visuals.type.x + visuals.type.width).toBe(
-      visuals.portrait.x + visuals.portrait.width - 4,
-    )
-    expect(visuals.type.y + visuals.type.height).toBe(
-      visuals.portrait.y + visuals.portrait.height - 4,
-    )
+    expect(visuals.portrait).toEqual(visuals.frame)
+    expect(visuals.rarity).toEqual(visuals.frame)
     expect(visuals.type.width).toBe(22)
     expect(visuals.type.height).toBe(22)
+    expect(visuals.type.x).toBe(visuals.frame.x + 4)
+    expect(visuals.type.y + visuals.type.height).toBe(visuals.frame.y + visuals.frame.height - 4)
   })
 
   it('技能卡保留完整下排給兩行技能名稱，圖標與等級膠囊置於上排', () => {
