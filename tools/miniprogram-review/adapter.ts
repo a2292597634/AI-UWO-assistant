@@ -35,7 +35,12 @@ interface AutomatorElement {
 interface AutomatorPage {
   path: string
   $(selector: string): Promise<AutomatorElement | null>
+  getElementByXpath?(selector: string): Promise<AutomatorElement | null>
   waitFor(condition: string | number): Promise<void>
+}
+
+export interface AutomatorAdapterOptions {
+  screenshot?: (path: string) => Promise<void>
 }
 
 interface AutomatorMiniProgram {
@@ -53,11 +58,24 @@ const currentPage = async (miniProgram: AutomatorMiniProgram): Promise<Automator
   return page
 }
 
+const findElement = async (
+  page: AutomatorPage,
+  selector: string,
+): Promise<AutomatorElement | null> => {
+  const xpath = selector.startsWith('xpath:')
+    ? selector.slice('xpath:'.length)
+    : selector.startsWith('//')
+      ? selector
+      : undefined
+  if (xpath) return page.getElementByXpath ? page.getElementByXpath(xpath) : null
+  return page.$(selector)
+}
+
 const element = async (
   miniProgram: AutomatorMiniProgram,
   selector: string,
 ): Promise<AutomatorElement> => {
-  const target = await (await currentPage(miniProgram)).$(selector)
+  const target = await findElement(await currentPage(miniProgram), selector)
   if (!target) throw new Error(`找不到元素：${selector}`)
   return target
 }
@@ -301,7 +319,10 @@ const launchWindowsBatchCli = async (config: ReviewConfig): Promise<unknown> => 
   }
 }
 
-export const createAutomatorAdapter = (miniProgram: AutomatorMiniProgram): ReviewAdapter => ({
+export const createAutomatorAdapter = (
+  miniProgram: AutomatorMiniProgram,
+  options: AutomatorAdapterOptions = {},
+): ReviewAdapter => ({
   async navigate(path) {
     await miniProgram.navigateTo(path)
   },
@@ -342,7 +363,7 @@ export const createAutomatorAdapter = (miniProgram: AutomatorMiniProgram): Revie
     while (Date.now() < deadline) {
       try {
         const page = await currentPage(miniProgram)
-        if (await page.$(selectorOrDuration)) return
+        if (await findElement(page, selectorOrDuration)) return
       } catch (error) {
         // 页面转场期间 currentPage 或元素查询可能暂时失败；下一轮重新获取顶层页面。
         void error
@@ -354,10 +375,10 @@ export const createAutomatorAdapter = (miniProgram: AutomatorMiniProgram): Revie
     throw new Error(`等待元素超时：${selectorOrDuration}`)
   },
   async queryElement(selector) {
-    return Boolean(await (await currentPage(miniProgram)).$(selector))
+    return Boolean(await findElement(await currentPage(miniProgram), selector))
   },
   async isVisible(selector) {
-    const target = await (await currentPage(miniProgram)).$(selector)
+    const target = await findElement(await currentPage(miniProgram), selector)
     if (!target) return false
     const size = await target.size()
     return size.width > 0 && size.height > 0
@@ -366,7 +387,20 @@ export const createAutomatorAdapter = (miniProgram: AutomatorMiniProgram): Revie
     return await (await element(miniProgram, selector)).text()
   },
   async screenshot(path) {
-    await miniProgram.screenshot({ path })
+    const captureScreenshot =
+      options.screenshot ??
+      (async (targetPath: string) => miniProgram.screenshot({ path: targetPath }))
+    let lastError: unknown
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        await captureScreenshot(path)
+        return
+      } catch (error) {
+        lastError = error
+        if (attempt === 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, 3000))
+      }
+    }
+    throw lastError instanceof Error ? lastError : new Error('截图失败')
   },
   async currentPagePath() {
     const path = (await currentPage(miniProgram)).path
@@ -388,7 +422,18 @@ export const connectReviewAdapter = async (config: ReviewConfig): Promise<Review
           port: config.automationPort,
           trustProject: true,
         })
-  const adapter = createAutomatorAdapter(miniProgram as unknown as AutomatorMiniProgram)
+  const screenshotEndpoint = config.wsEndpoint ?? `ws://127.0.0.1:${config.automationPort}`
+  const adapter = createAutomatorAdapter(miniProgram as unknown as AutomatorMiniProgram, {
+    screenshot: async (path) => {
+      const { connection } = await connectWithInfo(screenshotEndpoint)
+      const screenshotMiniProgram = new MiniProgram(connection)
+      try {
+        await screenshotMiniProgram.screenshot({ path })
+      } finally {
+        screenshotMiniProgram.disconnect()
+      }
+    },
+  })
   await waitForPageReady(adapter)
   return adapter
 }

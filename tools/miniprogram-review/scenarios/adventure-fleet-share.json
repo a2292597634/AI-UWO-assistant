@@ -1,0 +1,57 @@
+{
+  "name": "冒險配隊分享圖",
+  "entry": "/pages/adventure-fleet/index",
+  "watchPaths": [
+    "miniprogram/pages/adventure-fleet/",
+    "miniprogram/runtime/fleet-share-renderer.ts",
+    "miniprogram/runtime/fleet-share-layout.ts",
+    "miniprogram/assets/ui/fleet-share-map.jpg",
+    "data/master/ui-assets/fleet-share-map-source.png",
+    "tools/ui-assets/config.ts",
+    "tools/ui-assets/build-ui-assets.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".fleet-page",
+      "timeoutMs": 15000
+    },
+    {
+      "action": "tap",
+      "selector": "xpath://button[contains(@class, \"config-bar__share\")]"
+    },
+    {
+      "action": "waitFor",
+      "selector": "xpath://image[contains(@class, \"fleet-share-preview__image\")]",
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitFor",
+      "durationMs": 1000
+    },
+    {
+      "action": "assertVisible",
+      "selector": "xpath://image[contains(@class, \"fleet-share-preview__image\")]"
+    },
+    {
+      "action": "assertText",
+      "selector": "xpath://text[contains(@class, \"fleet-share-preview__title\")]",
+      "equals": "分享圖預覽"
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-share-top"
+    },
+    {
+      "action": "scrollElement",
+      "selector": "xpath://scroll-view[contains(@class, \"fleet-share-preview__content\")]",
+      "distance": 1600
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-share-bottom"
+    }
+  ]
+}

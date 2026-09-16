@@ -77,7 +77,8 @@ describe('配隊分享圖布局測量', () => {
     expect(section.activeRows).toBe(1)
     expect(section.passiveRows).toBe(4)
     expect(section.officerSlots).toHaveLength(11)
-    expect(layout.header.height).toBe(100)
+    expect(layout.header.height).toBe(88)
+    expect(section.y).toBeGreaterThanOrEqual(layout.header.y + layout.header.height)
     expect(layout.footer.height).toBe(160)
     expect(layout.shipSections[1]!.y - (section.y + section.height)).toBe(16)
     expect(layout.footer.y).toBeGreaterThan(lastSection.y + lastSection.height)
@@ -156,6 +157,9 @@ describe('配隊分享圖布局測量', () => {
     expect(layout.groupSections).toHaveLength(4)
     expect(skillHeadingReserve).toBeGreaterThanOrEqual(56)
     expect(layout.skillSection.y).toBeGreaterThanOrEqual(lastGroup.y + lastGroup.height)
+    expect(layout.groupSections[0]!.y).toBeGreaterThanOrEqual(
+      layout.header.y + layout.header.height,
+    )
     expect(layout.footer.y).toBeGreaterThanOrEqual(
       layout.skillSection.y + layout.skillSection.height,
     )

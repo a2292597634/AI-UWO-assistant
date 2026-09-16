@@ -108,6 +108,16 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     maxBytes: 150 * 1024,
     group: 'banner',
   },
+  {
+    id: 'fleet-share-map',
+    source: 'fleet-share-map-source.png',
+    output: 'fleet-share-map.jpg',
+    mode: 'banner-jpeg',
+    width: 750,
+    height: 420,
+    maxBytes: 100 * 1024,
+    group: 'banner',
+  },
   ...[2, 3, 4, 5, 6].flatMap((grade) => [
     originalUi(
       `rarity-badge-grade-${grade}`,

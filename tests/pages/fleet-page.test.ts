@@ -480,9 +480,12 @@ const sharedComponentNames = [
 
 const createShareCanvas = () => {
   const context = {
+    save: vi.fn(),
+    restore: vi.fn(),
     beginPath: vi.fn(),
     moveTo: vi.fn(),
     lineTo: vi.fn(),
+    arc: vi.fn(),
     arcTo: vi.fn(),
     closePath: vi.fn(),
     fill: vi.fn(),
@@ -493,11 +496,17 @@ const createShareCanvas = () => {
     measureText: vi.fn((text: string) => ({ width: text.length * 12 })),
     drawImage: vi.fn(),
     scale: vi.fn(),
+    globalAlpha: 1,
+    shadowColor: '',
+    shadowBlur: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     font: '',
     fillStyle: '',
     strokeStyle: '',
     lineWidth: 1,
     textBaseline: 'middle',
+    textAlign: 'left',
   }
   const canvas = {
     width: 0,

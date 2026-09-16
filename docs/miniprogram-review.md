@@ -50,6 +50,17 @@ npm run devtools:review -- --page /pages/catalog/index
 - `run`：运行一个命名场景或 JSON 文件路径。
 - `review`：运行入口路径相符的全部已保存场景。
 
+艦隊分享圖场景：
+
+```powershell
+npm run devtools:run -- --scenario battle-fleet-share
+npm run devtools:run -- --scenario adventure-fleet-share
+```
+
+战鬥与冒險分享场景会点击配置栏分享、等待生成图片、检查预览可见性、截取顶部与底部，并滚动分享预览内容。修改
+`fleet-share-renderer`、`fleet-share-layout`、海圖来源或其 UI recipe 时，`devtools:changed` 会自动选中这两个入口；
+只修改数据或文档时则不会打开开发者工具。
+
 退出码 `0` 表示命令通过，`1` 表示诊断、连接、步骤或断言失败，`2` 表示命令参数错误。
 
 ## 场景格式

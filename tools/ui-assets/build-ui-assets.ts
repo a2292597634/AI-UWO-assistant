@@ -140,15 +140,20 @@ const png = async (
 const optimizedPng = (input: string): Promise<Buffer> =>
   sharp(input).png({ palette: true, compressionLevel: 9, quality: 100, effort: 10 }).toBuffer()
 
-const jpeg = async (input: string, maxBytes: number): Promise<Buffer> => {
+const jpeg = async (
+  input: string,
+  width: number,
+  height: number,
+  maxBytes: number,
+): Promise<Buffer> => {
   for (const quality of [78, 74, 70, 66]) {
     const output = await sharp(input)
-      .resize(750, 320, { fit: 'cover' })
+      .resize(width, height, { fit: 'cover' })
       .jpeg({ quality, chromaSubsampling: '4:2:0' })
       .toBuffer()
     if (output.byteLength <= maxBytes) return output
   }
-  throw budgetError(`home-harbor cannot fit within ${maxBytes} bytes`)
+  throw budgetError(`${basename(input)} cannot fit within ${maxBytes} bytes`)
 }
 
 const buildOne = async (recipe: UiAssetRecipe, sourceRoot: string): Promise<BuiltAsset> => {
@@ -158,7 +163,7 @@ const buildOne = async (recipe: UiAssetRecipe, sourceRoot: string): Promise<Buil
     recipe.mode === 'copy-png'
       ? await optimizedPng(sourcePath)
       : recipe.mode === 'banner-jpeg'
-        ? await jpeg(sourcePath, recipe.maxBytes)
+        ? await jpeg(sourcePath, recipe.width ?? 750, recipe.height ?? 320, recipe.maxBytes)
         : recipe.mode === 'resize-png'
           ? await png(sourcePath, recipe.width ?? 0, recipe.height ?? 0, recipe.paletteColors)
           : await sharp(sourcePath)

@@ -92,6 +92,70 @@ describe('miniprogram-automator 适配器', () => {
     ])
   })
 
+  it('使用 xpath: 选择器穿透 glass-easel 自定义组件边界', async () => {
+    const calls: string[] = []
+    const target = {
+      tap: async () => void calls.push('tap'),
+      size: async () => ({ width: 100, height: 40 }),
+      text: async () => '分享',
+    }
+    const miniProgram = {
+      currentPage: async () => ({
+        path: 'pages/adventure-fleet/index',
+        $: async () => null,
+        getElementByXpath: async (selector: string) => {
+          calls.push(`xpath:${selector}`)
+          return target
+        },
+        waitFor: async () => undefined,
+      }),
+    }
+    const adapter = createAutomatorAdapter(miniProgram as never)
+
+    await adapter.tap('xpath://button[contains(@class, "config-bar__share")]')
+
+    expect(calls).toEqual(['xpath://button[contains(@class, "config-bar__share")]', 'tap'])
+  })
+
+  it('截图响应暂时超时时自动重试一次', async () => {
+    let attempts = 0
+    const miniProgram = {
+      screenshot: async () => {
+        attempts += 1
+        if (attempts === 1) throw new Error('timeout waiting for automator response')
+      },
+      currentPage: async () => ({
+        path: 'pages/home/index',
+        $: async () => null,
+        waitFor: async () => undefined,
+      }),
+    }
+    const adapter = createAutomatorAdapter(miniProgram as never)
+
+    await adapter.screenshot('C:/review/page.png')
+
+    expect(attempts).toBe(2)
+  })
+
+  it('支持使用独立会话执行截图，避免当前会话查询后截图超时', async () => {
+    const calls: string[] = []
+    const miniProgram = {
+      screenshot: async () => void calls.push('inline-screenshot'),
+      currentPage: async () => ({
+        path: 'pages/home/index',
+        $: async () => null,
+        waitFor: async () => undefined,
+      }),
+    }
+    const adapter = createAutomatorAdapter(miniProgram as never, {
+      screenshot: async (path: string) => void calls.push(`fresh-screenshot:${path}`),
+    })
+
+    await adapter.screenshot('C:/review/page.png')
+
+    expect(calls).toEqual(['fresh-screenshot:C:/review/page.png'])
+  })
+
   it('页面首帧尚未完成时等待到可操作状态', async () => {
     let attempts = 0
     const path = await waitForPageReady(

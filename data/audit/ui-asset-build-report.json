@@ -178,6 +178,22 @@
       }
     },
     {
+      "id": "fleet-share-map",
+      "output": "fleet-share-map.jpg",
+      "group": "banner",
+      "mimeType": "image/jpeg",
+      "width": 750,
+      "height": 420,
+      "byteSize": 17796,
+      "sha256": "d97b8addae975d4d74590dcfa84d61e6d95983a86acf12c78bc962615464b163",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 1024,
+        "height": 1536
+      }
+    },
+    {
       "id": "gender-f",
       "output": "gender-f.png",
       "group": "original-ui",
@@ -659,9 +675,9 @@
     }
   ],
   "groupBytes": {
-    "banner": 32507,
+    "banner": 50303,
     "feature": 16922,
     "original-ui": 50407
   },
-  "totalBytes": 99836
+  "totalBytes": 117632
 }

@@ -23,6 +23,8 @@ type ShareContext = WechatMiniprogram.CanvasRenderingContext.CanvasRenderingCont
 type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
+export const FLEET_SHARE_BACKGROUND_PATH = '/assets/ui/fleet-share-map.jpg'
+const FLEET_SHARE_BACKGROUND_HEIGHT = 420
 const OFFICER_SIZE = 84
 const REFERENCE_TILE_SIZE = 60
 const TYPE_ICON_RATIO = 16 / REFERENCE_TILE_SIZE
@@ -43,21 +45,34 @@ const FONT_SKILL = '600 20px sans-serif'
 const FONT_LABEL = '600 28px sans-serif'
 const FONT_META = '500 22px sans-serif'
 const FONT_LEVEL = '700 17px sans-serif'
+const FONT_EYEBROW = '600 14px sans-serif'
+const FONT_HEADER_TITLE = '700 28px sans-serif'
+const FONT_HEADER_META = '500 16px sans-serif'
+const FONT_HEADER_SLOGAN = '600 15px sans-serif'
+const FONT_FOOTER_TITLE = '700 20px sans-serif'
+const FONT_FOOTER_META = '500 16px sans-serif'
 const COLORS = {
-  paper: '#f1ead9',
-  paperAlt: '#e7ddc8',
-  ink: '#2f302b',
-  inkMuted: '#5e5b50',
-  green: '#24473d',
-  brass: '#b58a3a',
-  brassLight: '#e9d49d',
-  border: '#c2b59d',
-  white: '#fffaf0',
-  danger: '#9d3c31',
-  activePanel: '#f4e5bf',
-  activeBorder: '#b58a3a',
-  passivePanel: '#dce9e2',
-  passiveBorder: '#527565',
+  canvas: '#E7DECA',
+  surface: '#F5EFE0',
+  ink: '#26332F',
+  textPrimary: '#292A26',
+  textSecondary: '#625947',
+  brass: '#B99552',
+  accentText: '#76501A',
+  battleAccent: '#8B3A3A',
+  adventureAccent: '#315451',
+  paper: '#E7DECA',
+  paperAlt: '#F5EFE0',
+  inkMuted: '#625947',
+  green: '#26332F',
+  brassLight: '#F5EFE0',
+  border: '#B99552',
+  white: '#F5EFE0',
+  danger: '#8B3A3A',
+  activePanel: '#F5EFE0',
+  activeBorder: '#B99552',
+  passivePanel: '#F5EFE0',
+  passiveBorder: '#315451',
 }
 
 const localAssetPath = (path: string): string => {
@@ -360,6 +375,242 @@ const drawImageOptional = (
   if (image) drawImageFit(context, image, rect, contain)
 }
 
+type ShareMode = FleetShareViewModel['mode']
+
+const modeTitle = (mode: ShareMode): string => (mode === 'battle' ? '戰鬥配隊記錄' : '冒險配隊記錄')
+
+const modeSlogan = (mode: ShareMode): string =>
+  mode === 'battle' ? '定航向・統全艦・赴遠洋' : '向未知海域・寫下下一段航跡'
+
+const modeAccent = (mode: ShareMode): string =>
+  mode === 'battle' ? COLORS.battleAccent : COLORS.adventureAccent
+
+const drawShareBackground = (
+  context: ShareContext,
+  layout: FleetShareLayout,
+  image: ShareImage | undefined,
+): void => {
+  context.save()
+  context.globalAlpha = 1
+  context.fillStyle = COLORS.canvas
+  context.fillRect(0, 0, layout.width, layout.height)
+  if (image) {
+    context.globalAlpha = 0.18
+    for (let y = 0; y < layout.height; y += FLEET_SHARE_BACKGROUND_HEIGHT) {
+      context.drawImage(
+        image,
+        0,
+        0,
+        image.width || FLEET_SHARE_BACKGROUND_HEIGHT,
+        image.height || FLEET_SHARE_BACKGROUND_HEIGHT,
+        0,
+        y,
+        layout.width,
+        FLEET_SHARE_BACKGROUND_HEIGHT,
+      )
+    }
+  }
+  context.globalAlpha = 0.52
+  context.strokeStyle = COLORS.brass
+  context.lineWidth = 1
+  context.beginPath()
+  context.moveTo(layout.padding, layout.header.height - 1)
+  context.lineTo(layout.width - layout.padding, layout.header.height - 1)
+  context.moveTo(layout.padding, layout.height - 1)
+  context.lineTo(layout.width - layout.padding, layout.height - 1)
+  context.stroke()
+  context.restore()
+}
+
+const drawModeEmblem = (context: ShareContext, x: number, y: number, mode: ShareMode): void => {
+  const accent = modeAccent(mode)
+  const centerX = x + 22
+  const centerY = y + 22
+  context.save()
+  context.strokeStyle = accent
+  context.fillStyle = accent
+  context.lineWidth = 1.5
+  context.beginPath()
+  context.arc(centerX, centerY, 18, 0, Math.PI * 2)
+  context.stroke()
+  context.beginPath()
+  context.moveTo(centerX, centerY - 14)
+  context.lineTo(centerX + 4, centerY)
+  context.lineTo(centerX, centerY + 14)
+  context.lineTo(centerX - 4, centerY)
+  context.closePath()
+  context.stroke()
+  if (mode === 'battle') {
+    context.beginPath()
+    context.moveTo(centerX + 7, centerY - 14)
+    context.lineTo(centerX + 7, centerY + 12)
+    context.lineTo(centerX + 18, centerY + 7)
+    context.lineTo(centerX + 7, centerY + 2)
+    context.stroke()
+  } else {
+    context.beginPath()
+    context.moveTo(centerX - 13, centerY + 5)
+    context.lineTo(centerX - 5, centerY + 1)
+    context.lineTo(centerX + 3, centerY + 5)
+    context.lineTo(centerX + 11, centerY + 1)
+    context.stroke()
+    context.beginPath()
+    context.moveTo(centerX - 11, centerY + 11)
+    context.lineTo(centerX - 3, centerY + 7)
+    context.lineTo(centerX + 5, centerY + 11)
+    context.lineTo(centerX + 13, centerY + 7)
+    context.stroke()
+  }
+  context.restore()
+}
+
+const drawHeader = (
+  context: ShareContext,
+  layout: FleetShareLayout,
+  configName: string,
+  mode: ShareMode,
+): void => {
+  const emblemX = layout.width - layout.padding - 44
+  const titleMaxWidth = layout.width - layout.padding * 2 - 72
+  const sloganMaxWidth = layout.width - layout.padding * 2 - 112
+  context.save()
+  context.shadowColor = 'rgba(245, 239, 224, 0.72)'
+  context.shadowBlur = 4
+  context.shadowOffsetX = 0
+  context.shadowOffsetY = 1
+  drawText(
+    context,
+    '遠洋艦隊・航海檔案',
+    layout.padding,
+    12,
+    titleMaxWidth,
+    FONT_EYEBROW,
+    COLORS.accentText,
+  )
+  drawText(
+    context,
+    modeTitle(mode),
+    layout.padding,
+    34,
+    titleMaxWidth,
+    FONT_HEADER_TITLE,
+    COLORS.ink,
+  )
+  drawText(
+    context,
+    configName || '未命名隊伍',
+    layout.padding,
+    54,
+    titleMaxWidth,
+    FONT_HEADER_META,
+    COLORS.textSecondary,
+  )
+  drawText(
+    context,
+    modeSlogan(mode),
+    layout.padding + 18,
+    75,
+    sloganMaxWidth,
+    FONT_HEADER_SLOGAN,
+    modeAccent(mode),
+  )
+  context.shadowColor = 'transparent'
+  context.shadowBlur = 0
+  context.beginPath()
+  context.strokeStyle = COLORS.brass
+  context.lineWidth = 1
+  context.moveTo(layout.padding, 75)
+  context.lineTo(layout.padding + 10, 75)
+  context.stroke()
+  drawModeEmblem(context, emblemX, 8, mode)
+  drawCenteredText(
+    context,
+    mode === 'battle' ? '戰鬥' : '冒險',
+    emblemX - 4,
+    76,
+    52,
+    FONT_EYEBROW,
+    modeAccent(mode),
+  )
+  context.restore()
+}
+
+const drawSectionAccent = (
+  context: ShareContext,
+  layout: FleetShareLayout,
+  mode: ShareMode,
+): void => {
+  const sections = mode === 'battle' ? layout.shipSections : layout.groupSections
+  context.save()
+  context.globalAlpha = 0.6
+  context.strokeStyle = modeAccent(mode)
+  context.fillStyle = modeAccent(mode)
+  context.lineWidth = 1
+  sections.forEach((section) => {
+    const x = Math.max(4, section.heading.x - 10)
+    const top = section.y + 12
+    const bottom = section.y + section.height - 12
+    context.beginPath()
+    context.moveTo(x, top)
+    context.lineTo(x, bottom)
+    context.stroke()
+    context.beginPath()
+    context.arc(x, top, 2.5, 0, Math.PI * 2)
+    context.fill()
+  })
+  if (layout.skillSection.height > 0) {
+    const x = Math.max(4, layout.skillSection.rect.x - 10)
+    context.beginPath()
+    context.moveTo(x, layout.skillSection.y + 8)
+    context.lineTo(x, layout.skillSection.y + layout.skillSection.height - 8)
+    context.stroke()
+  }
+  context.restore()
+}
+
+const drawFooter = (
+  context: ShareContext,
+  layout: FleetShareLayout,
+  mode: ShareMode,
+  qr: ShareImage | undefined,
+): void => {
+  const textX = layout.padding + 60
+  const textWidth = Math.max(0, layout.qr.x - textX - 16)
+  context.save()
+  context.fillStyle = COLORS.ink
+  context.fillRect(layout.footer.x, layout.footer.y, layout.footer.width, layout.footer.height)
+  context.globalAlpha = 0.85
+  context.strokeStyle = COLORS.brass
+  context.lineWidth = 1
+  context.beginPath()
+  context.moveTo(layout.padding, layout.footer.y + 16)
+  context.lineTo(layout.qr.x - 16, layout.footer.y + 16)
+  context.stroke()
+  context.globalAlpha = 1
+  drawModeEmblem(context, layout.padding + 4, layout.footer.y + 30, mode)
+  drawText(
+    context,
+    '一圖收艦・掃碼回到航海日誌',
+    textX,
+    layout.footer.y + 58,
+    textWidth,
+    FONT_FOOTER_TITLE,
+    COLORS.surface,
+  )
+  drawText(
+    context,
+    '掃描進入小程式首頁',
+    textX,
+    layout.footer.y + 90,
+    textWidth,
+    FONT_FOOTER_META,
+    COLORS.brassLight,
+  )
+  if (qr) drawImageFit(context, qr, layout.qr, true)
+  else drawPlaceholder(context, layout.qr, '首頁碼', COLORS.surface)
+  context.restore()
+}
+
 const drawPlaceholder = (
   context: ShareContext,
   rect: ShareRect,
@@ -508,6 +759,7 @@ const preloadAssets = async (
     else if (kind !== 'qr') missingAssetKinds.add(kind)
   }
   add(view.qrPath || QR_PATH, 'qr')
+  add(FLEET_SHARE_BACKGROUND_PATH, 'ui')
   if (view.mode === 'battle') {
     for (const ship of view.ships) {
       for (const officer of ship.officerSlots) {
@@ -549,35 +801,6 @@ const preloadAssets = async (
     }),
   )
   return { images, degradedAssetCount, failedAssetKinds: [...failedAssetKinds], fatalAssetMissing }
-}
-
-const drawHeader = (
-  context: ShareContext,
-  layout: FleetShareLayout,
-  configName: string,
-  mode: string,
-): void => {
-  context.fillStyle = COLORS.green
-  context.fillRect(0, layout.header.y, layout.header.width, layout.header.height)
-  drawText(
-    context,
-    mode === 'battle' ? '戰鬥配隊分享' : '冒險配隊分享',
-    layout.padding,
-    34,
-    layout.width - layout.padding * 2 - 160,
-    FONT_LABEL,
-    COLORS.white,
-  )
-  drawText(
-    context,
-    configName || '未命名隊伍',
-    layout.padding,
-    72,
-    layout.width - layout.padding * 2 - 160,
-    FONT_META,
-    COLORS.brassLight,
-  )
-  drawText(context, '長圖', layout.width - layout.padding - 72, 52, 72, FONT_META, COLORS.white)
 }
 
 const drawShip = (
@@ -682,8 +905,7 @@ export const drawFleetShareImage = async (
     context.scale(dimensions.scale, dimensions.scale)
   }
   context.clearRect(0, 0, layout.width, layout.height)
-  context.fillStyle = COLORS.paper
-  context.fillRect(0, 0, layout.width, layout.height)
+  drawShareBackground(context, layout, report.images.get(FLEET_SHARE_BACKGROUND_PATH))
   drawHeader(context, layout, view.configName, view.mode)
 
   if (view.mode === 'battle') {
@@ -736,20 +958,9 @@ export const drawFleetShareImage = async (
     }
   }
 
-  context.fillStyle = COLORS.green
-  context.fillRect(layout.footer.x, layout.footer.y, layout.footer.width, layout.footer.height)
-  drawText(
-    context,
-    '掃描 QR 碼進入小程式首頁',
-    layout.padding,
-    layout.footer.y + layout.footer.height / 2,
-    layout.footer.width - layout.padding * 2 - layout.qr.width - 16,
-    FONT_META,
-    COLORS.white,
-  )
+  drawSectionAccent(context, layout, view.mode)
   const qr = report.images.get(view.qrPath || QR_PATH)
-  if (qr) drawImageFit(context, qr, layout.qr, true)
-  else drawPlaceholder(context, layout.qr, '首頁碼', COLORS.white)
+  drawFooter(context, layout, view.mode, qr)
 
   return {
     degradedAssetCount: report.degradedAssetCount,

@@ -41,6 +41,11 @@ const generatedPathPatterns = [
   /^miniprogram_npm(?:\/|$)/,
 ]
 
+const sharedFleetShareAssetPatterns = [
+  /^data\/master\/ui-assets\/fleet-share-map-source\.png$/,
+  /^tools\/ui-assets\/(?:config|build-ui-assets)\.ts$/,
+]
+
 export const normalizeRepoPath = (value: string): string => {
   const normalized = value.trim().replace(/\\/g, '/')
   const withoutDotPrefix = normalized.replace(/^(?:\.\/)+/, '')
@@ -72,6 +77,7 @@ export const isPageRelatedPath = (value: string): boolean => {
   if (!path || path === 'miniprogram/app.json' || isGeneratedPath(path)) {
     return path === 'miniprogram/app.json'
   }
+  if (sharedFleetShareAssetPatterns.some((pattern) => pattern.test(path))) return true
   if (!path.startsWith('miniprogram/')) return false
   return pageExtensions.has(pathPosix.extname(path).toLowerCase())
 }

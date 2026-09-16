@@ -5,6 +5,7 @@ import type {
 } from '../../miniprogram/contracts/fleet-share'
 import {
   drawFleetShareImage,
+  FLEET_SHARE_BACKGROUND_PATH,
   SHARE_IMAGE_LOAD_TIMEOUT_MS,
 } from '../../miniprogram/runtime/fleet-share-renderer'
 import {
@@ -25,9 +26,12 @@ const view: AdventureFleetShareViewModel = {
 const createCanvas = (loadImages = false) => {
   const createdImages: Array<{ width: number; height: number; src: string }> = []
   const context = {
+    save: vi.fn(),
+    restore: vi.fn(),
     beginPath: vi.fn(),
     moveTo: vi.fn(),
     lineTo: vi.fn(),
+    arc: vi.fn(),
     arcTo: vi.fn(),
     closePath: vi.fn(),
     fill: vi.fn(),
@@ -38,11 +42,17 @@ const createCanvas = (loadImages = false) => {
     measureText: vi.fn((text: string) => ({ width: text.length * 12 })),
     drawImage: vi.fn(),
     scale: vi.fn(),
+    globalAlpha: 1,
+    shadowColor: '',
+    shadowBlur: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     font: '',
     fillStyle: '',
     strokeStyle: '',
     lineWidth: 1,
     textBaseline: 'middle',
+    textAlign: 'left',
   }
   const canvas = {
     width: 0,
@@ -193,11 +203,81 @@ describe('配隊分享圖素材載入', () => {
       '/type.png',
     ])
     expect(officerDraws.map(([, x, y, width, height]) => [x, y, width, height])).toEqual([
-      [333, 146, 84, 84],
-      [333, 146, 84, 84],
-      [333, 146, 84, 84],
-      [337, 204, 22, 22],
+      [333, 134, 84, 84],
+      [333, 134, 84, 84],
+      [333, 134, 84, 84],
+      [337, 192, 22, 22],
     ])
+  })
+
+  it('共享海圖底板先於內容繪製，頁首透明且戰鬥文案落在 88 高度內', async () => {
+    const battleView: BattleFleetShareViewModel = {
+      mode: 'battle',
+      configName: '海圖底板案例',
+      ships: [],
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+    const context = canvas.getContext('2d')
+    const layout = measureBattleFleetShare(battleView)
+
+    await drawFleetShareImage(canvas, battleView, layout)
+
+    expect(canvas.createdImages.map((image) => image.src)).toContain(FLEET_SHARE_BACKGROUND_PATH)
+    const imageCalls = vi.mocked(context.drawImage).mock.calls
+    expect((imageCalls[0]?.[0] as { src: string }).src).toBe(FLEET_SHARE_BACKGROUND_PATH)
+    expect(context.fillRect).not.toHaveBeenCalledWith(
+      0,
+      layout.header.y,
+      layout.header.width,
+      layout.header.height,
+    )
+    for (const label of ['遠洋艦隊・航海檔案', '戰鬥配隊記錄', '定航向・統全艦・赴遠洋']) {
+      const call = vi.mocked(context.fillText).mock.calls.find(([text]) => text === label)
+      expect(call).toBeDefined()
+      expect(call![2]).toBeGreaterThanOrEqual(0)
+      expect(call![2]).toBeLessThanOrEqual(layout.header.height)
+    }
+    expect(context.globalAlpha).toBe(1)
+    expect(context.save).toHaveBeenCalled()
+    expect(context.restore).toHaveBeenCalled()
+  })
+
+  it('冒險模式只切換標題、徽記、強調色與標語', async () => {
+    const adventureView: AdventureFleetShareViewModel = {
+      ...view,
+      configName: '冒險海圖案例',
+    }
+    const canvas = createCanvas(true)
+    const context = canvas.getContext('2d')
+
+    await drawFleetShareImage(canvas, adventureView, measureAdventureFleetShare(adventureView))
+
+    expect(context.fillText).toHaveBeenCalledWith(
+      '冒險配隊記錄',
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+    )
+    expect(context.fillText).toHaveBeenCalledWith(
+      '向未知海域・寫下下一段航跡',
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+    )
+    expect(context.fillText).toHaveBeenCalledWith(
+      '一圖收艦・掃碼回到航海日誌',
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+    )
+    expect(context.fillText).toHaveBeenCalledWith(
+      '掃描進入小程式首頁',
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+    )
   })
 
   it('冒險技能標題和說明保有安全中心距，且不侵入前後分區', async () => {

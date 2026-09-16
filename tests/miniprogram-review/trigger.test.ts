@@ -83,4 +83,28 @@ describe('小程序页面变更触发器', () => {
     expect(plan.outcome).toBe('blocked')
     expect(plan.scenarios).toEqual([])
   })
+
+  it('分享底板来源或 recipe 变更会同时触发戰鬥與冒險分享场景', () => {
+    const watchPaths = [
+      'miniprogram/runtime/fleet-share-renderer.ts',
+      'miniprogram/runtime/fleet-share-layout.ts',
+      'miniprogram/assets/ui/fleet-share-map.jpg',
+      'data/master/ui-assets/fleet-share-map-source.png',
+      'tools/ui-assets/config.ts',
+      'tools/ui-assets/build-ui-assets.ts',
+    ]
+    const plan = createTriggerPlan({
+      mode: 'final',
+      changedFiles: ['data/master/ui-assets/fleet-share-map-source.png'],
+      scenarios: [
+        scenario('battle-share', 2, watchPaths, '/subpkg-fleet/pages/index/index'),
+        scenario('adventure-share', 2, watchPaths, '/pages/adventure-fleet/index'),
+      ],
+    })
+
+    expect(isPageRelatedPath('data/master/ui-assets/fleet-share-map-source.png')).toBe(true)
+    expect(plan.outcome).toBe('run')
+    expect(plan.pageFiles).toEqual(['data/master/ui-assets/fleet-share-map-source.png'])
+    expect(plan.scenarios.map(({ name }) => name)).toEqual(['adventure-share', 'battle-share'])
+  })
 })

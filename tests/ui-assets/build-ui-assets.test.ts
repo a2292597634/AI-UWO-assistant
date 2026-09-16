@@ -111,6 +111,9 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 1500, height: 640, channels: 3, background: '#193d44' } })
       .png()
       .toFile(join(sourceRoot, 'home-harbor-source.png')),
+    sharp({ create: { width: 1500, height: 840, channels: 3, background: '#d8c8a8' } })
+      .png()
+      .toFile(join(sourceRoot, 'fleet-share-map-source.png')),
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-officer-catalog-source.png')),
@@ -144,6 +147,7 @@ describe('buildUiAssets', () => {
     const files = first.files as ReportFileWithTransparency[]
     const grade = files.find((file) => file.id === 'rarity-filter-grade-5')
     const banner = files.find((file) => file.id === 'home-harbor')
+    const fleetShareMap = files.find((file) => file.id === 'fleet-share-map')
     const featureIds = [
       'feature-officer-catalog',
       'feature-trade-goods',
@@ -162,6 +166,13 @@ describe('buildUiAssets', () => {
         .every((file) => file.outputTransparentBounds !== undefined),
     ).toBe(true)
     expect(banner?.outputTransparentBounds).toBeUndefined()
+    expect(fleetShareMap).toMatchObject({
+      output: 'fleet-share-map.jpg',
+      mimeType: 'image/jpeg',
+      width: 750,
+      height: 420,
+    })
+    expect(fleetShareMap?.byteSize).toBeLessThanOrEqual(100 * 1024)
     expect([grade?.width, grade?.height]).toEqual([29, 29])
     expect(featureIds.every((id) => files.some((file) => file.id === id))).toBe(true)
     expect(
@@ -178,6 +189,9 @@ describe('buildUiAssets', () => {
     expect(first.totalBytes).toBeLessThanOrEqual(UI_ASSET_TOTAL_BUDGET)
     expect(readFileSync(join(firstOutput, 'home-harbor.jpg')).byteLength).toBeLessThanOrEqual(
       150 * 1024,
+    )
+    expect(readFileSync(join(firstOutput, 'fleet-share-map.jpg')).byteLength).toBeLessThanOrEqual(
+      100 * 1024,
     )
   })
 
