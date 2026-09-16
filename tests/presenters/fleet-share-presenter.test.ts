@@ -63,12 +63,7 @@ const runtimeOfficer = (
 describe('配隊分享圖 Presenter', () => {
   it('分享圖移除完全空船，但保留部分空位和有效船原順序', () => {
     const view = buildBattleFleetShareViewModel(
-      fleetWithOfficers([
-        [],
-        ['o1', 'missing-officer'],
-        ['missing-only'],
-        ['o2'],
-      ]),
+      fleetWithOfficers([[], ['o1', 'missing-officer'], ['missing-only'], ['o2']]),
       [runtimeOfficer('o1', []), runtimeOfficer('o2', [])],
       {},
       '空船篩選案例',

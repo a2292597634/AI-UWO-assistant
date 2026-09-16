@@ -20,6 +20,7 @@ export interface FleetShareShipLayout {
   y: number
   height: number
   heading: ShareRect
+  /** 只為已配置航海士建立繪製座標，分享圖不渲染空位卡片。 */
   officerSlots: ShareRect[]
   officerRow: ShareRect
   activeSection: ShareRect
@@ -64,19 +65,21 @@ const DEFAULT_WIDTH = 750
 const DEFAULT_PADDING = 32
 const OFFICER_COLUMNS = 6
 const GROUP_OFFICER_COLUMNS = 4
-const OFFICER_ROW_GAP = 10
-const OFFICER_SLOT_HEIGHT = 128
-const SKILL_COLUMNS = 4
-const SKILL_GAP = 8
-const SKILL_SECTION_PADDING = 12
-const SKILL_ROW_HEIGHT = 68
-const SKILL_ROW_GAP = 8
+const OFFICER_ROW_GAP = 6
+const OFFICER_SLOT_HEIGHT = 120
+const SKILL_COLUMNS = 5
+const SKILL_GAP = 6
+const SKILL_SECTION_PADDING = 8
+const SKILL_ROW_HEIGHT = 84
+const SKILL_ROW_GAP = 6
 const EMPTY_STATE_HEIGHT = 96
-const SECTION_GAP = 24
-const HEADER_HEIGHT = 124
-const FOOTER_HEIGHT = 200
-const QR_SIZE = 156
+const SECTION_GAP = 16
+const HEADER_HEIGHT = 100
+const FOOTER_HEIGHT = 160
+const QR_SIZE = 144
 const OFFICER_GAP = 6
+const HEADING_HEIGHT = 36
+const HEADING_CONTENT_GAP = 6
 const SKILL_HEADING_HEIGHT = 56
 const EMPTY_SKILL_SECTION_HEIGHT = 56
 
@@ -89,10 +92,17 @@ const makeGridRects = (
   columnGap: number,
   rowHeight: number,
   rowGap: number,
+  centerLastRow = false,
 ): ShareRect[] => {
   const columnWidth = (width - (columns - 1) * columnGap) / columns
   return Array.from({ length: count }, (_, index) => ({
-    x: x + (index % columns) * (columnWidth + columnGap),
+    x:
+      x +
+      ((index % columns) +
+        (centerLastRow && count - Math.floor(index / columns) * columns < columns
+          ? (columns - (count - Math.floor(index / columns) * columns)) / 2
+          : 0)) *
+        (columnWidth + columnGap),
     y: y + Math.floor(index / columns) * (rowHeight + rowGap),
     width: columnWidth,
     height: rowHeight,
@@ -135,6 +145,7 @@ const makeSkillSection = (
     SKILL_GAP,
     SKILL_ROW_HEIGHT,
     SKILL_ROW_GAP,
+    true,
   )
   return {
     y,
@@ -184,10 +195,11 @@ export const measureBattleFleetShare = (
   let cursor = HEADER_HEIGHT
   const shipSections: FleetShareShipLayout[] = view.ships.map((ship) => {
     const y = cursor
-    const heading = { x: padding, y: cursor, width: contentWidth, height: 40 }
-    cursor += heading.height + 8
+    const heading = { x: padding, y: cursor, width: contentWidth, height: HEADING_HEIGHT }
+    cursor += heading.height + HEADING_CONTENT_GAP
+    const visibleOfficerCount = ship.officerSlots.filter(Boolean).length
     const officerRowHeight = gridHeight(
-      ship.officerSlots.length,
+      visibleOfficerCount,
       OFFICER_COLUMNS,
       OFFICER_SLOT_HEIGHT,
       OFFICER_ROW_GAP,
@@ -196,12 +208,13 @@ export const measureBattleFleetShare = (
     const officerSlots = makeGridRects(
       padding,
       cursor,
-      ship.officerSlots.length,
+      visibleOfficerCount,
       contentWidth,
       OFFICER_COLUMNS,
       OFFICER_GAP,
       OFFICER_SLOT_HEIGHT,
       OFFICER_ROW_GAP,
+      true,
     )
     cursor += officerRowHeight
     cursor += SECTION_GAP
@@ -266,8 +279,8 @@ export const measureAdventureFleetShare = (
   let cursor = HEADER_HEIGHT
   const groupSections: FleetShareGroupLayout[] = view.groups.map((group) => {
     const y = cursor
-    const heading = { x: padding, y: cursor, width: contentWidth, height: 40 }
-    cursor += heading.height + 8
+    const heading = { x: padding, y: cursor, width: contentWidth, height: HEADING_HEIGHT }
+    cursor += heading.height + HEADING_CONTENT_GAP
     const officerSlots = makeGridRects(
       padding,
       cursor,
@@ -277,6 +290,7 @@ export const measureAdventureFleetShare = (
       OFFICER_GAP,
       OFFICER_SLOT_HEIGHT,
       OFFICER_ROW_GAP,
+      true,
     )
     cursor += gridHeight(
       group.officers.length,
