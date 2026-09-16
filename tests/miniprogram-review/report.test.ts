@@ -50,16 +50,18 @@ describe('小程序验收报告', () => {
     expect(report.status).toBe('passed')
   })
 
-  it('写入确定性的 JSON 和 Markdown 文件', () => {
+  it('同时写入 HTML、JSON、Markdown 文件', () => {
     const directory = mkdtempSync(join(tmpdir(), 'uwo-review-report-'))
     temporaryDirectories.push(directory)
 
     const paths = writeReviewReport(directory, buildReviewReport(fixedInput))
 
     expect(paths).toEqual({
+      htmlPath: join(directory, 'report.html'),
       jsonPath: join(directory, 'report.json'),
       markdownPath: join(directory, 'report.md'),
     })
+    expect(readFileSync(paths.htmlPath, 'utf8')).toContain('<title>小程序页面验收报告</title>')
     expect(JSON.parse(readFileSync(paths.jsonPath, 'utf8'))).toMatchObject({
       runId: fixedInput.runId,
       status: 'passed',

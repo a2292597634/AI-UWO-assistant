@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import { renderReviewReportHtml } from './report-html'
 import type { ScenarioRunResult } from './runner'
 
 export interface ReviewCoverage {
@@ -158,11 +159,13 @@ ${resultSections}
 export const writeReviewReport = (
   outputDir: string,
   report: ReviewReport,
-): { jsonPath: string; markdownPath: string } => {
+): { htmlPath: string; jsonPath: string; markdownPath: string } => {
   mkdirSync(outputDir, { recursive: true })
+  const htmlPath = join(outputDir, 'report.html')
   const jsonPath = join(outputDir, 'report.json')
   const markdownPath = join(outputDir, 'report.md')
   writeFileSync(jsonPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
   writeFileSync(markdownPath, toMarkdown(report), 'utf8')
-  return { jsonPath, markdownPath }
+  writeFileSync(htmlPath, renderReviewReportHtml(report, outputDir), 'utf8')
+  return { htmlPath, jsonPath, markdownPath }
 }

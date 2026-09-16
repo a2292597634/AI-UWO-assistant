@@ -1,6 +1,6 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { runCli, type CliDependencies } from '../../tools/miniprogram-review/cli'
@@ -48,7 +48,11 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
     steps: [],
     screenshots: [],
   }),
-  writeReport: () => ({ jsonPath: 'C:/review/report.json', markdownPath: 'C:/review/report.md' }),
+  writeReport: () => ({
+    htmlPath: 'C:/review/report.html',
+    jsonPath: 'C:/review/report.json',
+    markdownPath: 'C:/review/report.md',
+  }),
   createRunDirectory,
   readGitState: () => ({ commit: 'abc1234', dirty: false }),
   now: () => new Date('2026-09-15T12:00:00.000Z'),
@@ -87,6 +91,7 @@ describe('小程序验收 CLI', () => {
 
   it('run 场景失败时写入报告并返回 1', async () => {
     const writeReport = vi.fn((..._args: Parameters<CliDependencies['writeReport']>) => ({
+      htmlPath: 'C:/review/report.html',
       jsonPath: 'C:/review/report.json',
       markdownPath: 'C:/review/report.md',
     }))
@@ -137,7 +142,11 @@ describe('小程序验收 CLI', () => {
     let capturedReport: ReviewReport | undefined
     const writeReport = vi.fn((_outputDir: string, report: ReviewReport) => {
       capturedReport = report
-      return { jsonPath: 'C:/review/report.json', markdownPath: 'C:/review/report.md' }
+      return {
+        htmlPath: 'C:/review/report.html',
+        jsonPath: 'C:/review/report.json',
+        markdownPath: 'C:/review/report.md',
+      }
     })
     const runScenario = vi.fn(async (_adapter, _scenario, context: { outputDir: string }) => ({
       scenario: '目录搜寻',
@@ -161,6 +170,7 @@ describe('小程序验收 CLI', () => {
       manualStates: ['empty', 'error', 'loading', 'long-text'],
     })
     expect(runScenario.mock.calls[0]?.[2].outputDir).toContain('current-simulator')
+    expect(log).toHaveBeenCalledWith(`HTML 报告：${resolve('C:/review/report.html')}`)
     expect(log).toHaveBeenCalledWith(expect.stringContaining('截图证据：'))
   })
 })

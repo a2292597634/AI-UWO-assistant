@@ -46,6 +46,7 @@ export interface CliDependencies {
     outputDir: string,
     report: ReviewReport,
   ): {
+    htmlPath: string
     jsonPath: string
     markdownPath: string
   }
@@ -156,6 +157,7 @@ const runScenarios = async (
   }
   const report = createReport(dependencies, runId, results, scenarios)
   const paths = dependencies.writeReport(outputDir, report)
+  dependencies.log(`HTML 报告：${resolve(paths.htmlPath)}`)
   dependencies.log(`JSON 报告：${resolve(paths.jsonPath)}`)
   dependencies.log(`Markdown 报告：${resolve(paths.markdownPath)}`)
   for (const screenshot of results.flatMap((result) => [
