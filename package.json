@@ -19,6 +19,7 @@
     "devtools:inspect": "tsx tools/miniprogram-review/cli.ts inspect",
     "devtools:run": "tsx tools/miniprogram-review/cli.ts run",
     "devtools:review": "tsx tools/miniprogram-review/cli.ts review",
+    "devtools:changed": "tsx tools/miniprogram-review/cli.ts changed",
     "data:audit:capture": "tsx tools/data-audit/capture-source-samples.ts",
     "data:audit:check": "tsx tools/data-audit/run-data-audit.ts --check",
     "data:audit:write": "tsx tools/data-audit/run-data-audit.ts --write",

@@ -33,9 +33,9 @@ const isInsideDirectory = (directory: string, candidate: string): boolean => {
   const relativePath = relative(resolve(directory), resolve(candidate))
   return Boolean(
     relativePath &&
-      !isAbsolute(relativePath) &&
-      relativePath !== '..' &&
-      !relativePath.startsWith(`..${sep}`),
+    !isAbsolute(relativePath) &&
+    relativePath !== '..' &&
+    !relativePath.startsWith(`..${sep}`),
   )
 }
 

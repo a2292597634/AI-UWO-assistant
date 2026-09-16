@@ -4,7 +4,10 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { buildReviewReport, writeReviewReport } from '../../tools/miniprogram-review/report'
-import { renderReviewReportHtml, toReportAssetPath } from '../../tools/miniprogram-review/report-html'
+import {
+  renderReviewReportHtml,
+  toReportAssetPath,
+} from '../../tools/miniprogram-review/report-html'
 
 const temporaryDirectories: string[] = []
 

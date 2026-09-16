@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { get } from 'node:http'
 import { createConnection } from 'node:net'
 import { basename, isAbsolute, join, resolve } from 'node:path'
@@ -7,9 +7,17 @@ import { pathToFileURL } from 'node:url'
 
 import { connectReviewAdapter, probeAutomationEndpoint, type ReviewAdapter } from './adapter'
 import { diagnoseReviewConfig, resolveReviewConfig } from './config'
-import { buildReviewReport, writeReviewReport, type ReviewReport } from './report'
+import {
+  buildReviewReport,
+  writeReviewReport,
+  type ReviewIterationInput,
+  type ReviewReport,
+} from './report'
+import { createIterationInput } from './iteration'
+import { readGitChangedFiles } from './git'
 import { runScenario, type ScenarioRunResult } from './runner'
 import { loadScenario } from './scenario'
+import { createTriggerPlan, type ReviewTriggerMode } from './trigger'
 import {
   REVIEW_STATES,
   type DiagnosticItem,
@@ -22,6 +30,7 @@ interface ParsedArguments extends ReviewConfigArgs {
   command: string
   scenario?: string
   page?: string
+  mode?: string
 }
 
 export interface CliDependencies {
@@ -52,9 +61,12 @@ export interface CliDependencies {
   }
   createRunDirectory(runId: string): string
   readGitState(): { commit: string; dirty: boolean }
+  readGitChangedFiles(): string[]
+  runQualityGate(): Promise<boolean>
   now(): Date
   randomId(): string
   listScenarioPaths?(): string[]
+  listPreviousReportDirs?(): string[]
 }
 
 const optionNames: Record<string, keyof ParsedArguments> = {
@@ -65,6 +77,7 @@ const optionNames: Record<string, keyof ParsedArguments> = {
   '--service-port': 'servicePort',
   '--automation-port': 'automationPort',
   '--ws-endpoint': 'wsEndpoint',
+  '--mode': 'mode',
 }
 
 const parseArguments = (argv: string[]): ParsedArguments => {
@@ -80,6 +93,11 @@ const parseArguments = (argv: string[]): ParsedArguments => {
     Object.assign(parsed, { [key]: value })
   }
   return parsed
+}
+
+const parseTriggerMode = (value: string | undefined): ReviewTriggerMode => {
+  if (value === 'iterate' || value === 'final') return value
+  throw new Error('changed 必须提供 --mode iterate 或 --mode final')
 }
 
 const formatError = (error: unknown): string => {
@@ -111,6 +129,7 @@ const createReport = (
   runId: string,
   results: ScenarioRunResult[],
   scenarios: ReviewScenario[],
+  iterations: ReviewIterationInput[] = [],
 ): ReviewReport =>
   buildReviewReport({
     runId,
@@ -127,6 +146,7 @@ const createReport = (
         (state) => !scenarios.some((scenario) => scenario.state === state),
       ),
     },
+    iterations,
   })
 
 const safeScenarioDirectoryName = (name: string, index: number): string => {
@@ -137,12 +157,71 @@ const safeScenarioDirectoryName = (name: string, index: number): string => {
   return `${String(index + 1).padStart(3, '0')}-${safeName || 'scenario'}`
 }
 
+interface RunScenarioOptions {
+  changedFiles?: string[]
+  mode?: ReviewTriggerMode
+}
+
+const logReportPaths = (
+  dependencies: CliDependencies,
+  paths: { htmlPath: string; jsonPath: string; markdownPath: string },
+  results: ScenarioRunResult[],
+): void => {
+  dependencies.log(`HTML 报告：${resolve(paths.htmlPath)}`)
+  dependencies.log(`JSON 报告：${resolve(paths.jsonPath)}`)
+  dependencies.log(`Markdown 报告：${resolve(paths.markdownPath)}`)
+  for (const screenshot of results.flatMap((result) => [
+    ...result.screenshots,
+    ...(result.failureScreenshot ? [result.failureScreenshot] : []),
+  ])) {
+    dependencies.log(`截图证据：${resolve(screenshot)}`)
+  }
+}
+
+const writeBlockedReport = (
+  dependencies: CliDependencies,
+  reason: string,
+  changedFiles: string[],
+  scenarios: ReviewScenario[] = [],
+): number => {
+  const startedAt = dependencies.now()
+  const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
+  const outputDir = dependencies.createRunDirectory(runId)
+  const result: ScenarioRunResult = {
+    scenario: '页面自动验收环境',
+    pagePath: scenarios[0]?.entry ?? '/',
+    state: 'normal',
+    status: 'blocked',
+    steps: [],
+    screenshots: [],
+    error: reason,
+  }
+  const iteration = createIterationInput({
+    id: runId,
+    startedAt,
+    finishedAt: dependencies.now(),
+    changedFiles,
+    results: [result],
+    previousReportDirs: [],
+    outputDir,
+    summary: '页面自动验收被环境阻塞',
+    notes: [reason],
+  })
+  const report = createReport(dependencies, runId, [result], scenarios, [iteration])
+  const paths = dependencies.writeReport(outputDir, report)
+  dependencies.log(reason)
+  logReportPaths(dependencies, paths, [result])
+  return 1
+}
+
 const runScenarios = async (
   dependencies: CliDependencies,
   config: ReviewConfig,
   scenarios: ReviewScenario[],
+  options: RunScenarioOptions = {},
 ): Promise<number> => {
-  const runId = `${dependencies.now().toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
+  const startedAt = dependencies.now()
+  const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
   const outputDir = dependencies.createRunDirectory(runId)
   const results: ScenarioRunResult[] = []
   for (const [index, scenario] of scenarios.entries()) {
@@ -155,30 +234,81 @@ const runScenarios = async (
     mkdirSync(scenarioOutput, { recursive: true })
     results.push(await dependencies.runScenario(adapter, scenario, { outputDir: scenarioOutput }))
   }
-  const report = createReport(dependencies, runId, results, scenarios)
+  const iterations = options.changedFiles
+    ? [
+        createIterationInput({
+          id: runId,
+          startedAt,
+          finishedAt: dependencies.now(),
+          changedFiles: options.changedFiles,
+          results,
+          previousReportDirs: dependencies.listPreviousReportDirs?.() ?? [],
+          outputDir,
+          summary: options.mode === 'final' ? '本轮页面修改与最终验收' : undefined,
+        }),
+      ]
+    : []
+  const report = createReport(dependencies, runId, results, scenarios, iterations)
   const paths = dependencies.writeReport(outputDir, report)
-  dependencies.log(`HTML 报告：${resolve(paths.htmlPath)}`)
-  dependencies.log(`JSON 报告：${resolve(paths.jsonPath)}`)
-  dependencies.log(`Markdown 报告：${resolve(paths.markdownPath)}`)
-  for (const screenshot of results.flatMap((result) => [
-    ...result.screenshots,
-    ...(result.failureScreenshot ? [result.failureScreenshot] : []),
-  ])) {
-    dependencies.log(`截图证据：${resolve(screenshot)}`)
-  }
+  logReportPaths(dependencies, paths, results)
   return report.status === 'passed' ? 0 : 1
+}
+
+const loadAllScenarios = (dependencies: CliDependencies): ReviewScenario[] =>
+  (dependencies.listScenarioPaths?.() ?? []).map((path) => dependencies.loadScenario(path))
+
+const runChanged = async (
+  dependencies: CliDependencies,
+  config: ReviewConfig,
+  mode: ReviewTriggerMode,
+): Promise<number> => {
+  const changedFiles = dependencies.readGitChangedFiles()
+  const plan = createTriggerPlan({
+    mode,
+    changedFiles,
+    scenarios: loadAllScenarios(dependencies),
+  })
+  if (plan.outcome === 'skipped') {
+    dependencies.log(plan.reason ?? '未发现页面相关变更，已跳过自动验收')
+    return 0
+  }
+  if (plan.outcome === 'blocked') {
+    return writeBlockedReport(
+      dependencies,
+      plan.reason ?? '页面自动验收被阻塞',
+      plan.changedFiles,
+      plan.scenarios,
+    )
+  }
+
+  const capability = await dependencies.checkCliCapability(config)
+  if (!capability.ok) {
+    return writeBlockedReport(dependencies, capability.message, plan.changedFiles, plan.scenarios)
+  }
+
+  const code = await runScenarios(dependencies, config, plan.scenarios, {
+    changedFiles: plan.changedFiles,
+    mode,
+  })
+  if (mode === 'final' && code === 0 && !(await dependencies.runQualityGate())) {
+    dependencies.log('页面自动验收通过，但仓库质量门禁失败')
+    return 1
+  }
+  return code
 }
 
 export const runCli = async (argv: string[], dependencies: CliDependencies): Promise<number> => {
   let parsed: ParsedArguments
+  let triggerMode: ReviewTriggerMode | undefined
   try {
     parsed = parseArguments(argv)
+    if (parsed.command === 'changed') triggerMode = parseTriggerMode(parsed.mode)
   } catch (error) {
     dependencies.log(formatError(error))
     return 2
   }
 
-  if (!['doctor', 'start', 'inspect', 'run', 'review'].includes(parsed.command)) {
+  if (!['doctor', 'start', 'inspect', 'run', 'review', 'changed'].includes(parsed.command)) {
     dependencies.log(`未知命令：${parsed.command || '未提供'}`)
     return 2
   }
@@ -220,6 +350,10 @@ export const runCli = async (argv: string[], dependencies: CliDependencies): Pro
       return await runScenarios(dependencies, config, [
         dependencies.loadScenario(scenarioPath(dependencies.cwd, parsed.scenario)),
       ])
+    }
+    if (parsed.command === 'changed') {
+      if (!triggerMode) throw new Error('changed 必须提供 --mode iterate 或 --mode final')
+      return await runChanged(dependencies, config, triggerMode)
     }
     if (!parsed.page) throw new Error('review 必须提供 --page')
     const paths = dependencies.listScenarioPaths?.() ?? []
@@ -335,12 +469,29 @@ const defaultDependencies: CliDependencies = {
     commit: execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
   }),
+  readGitChangedFiles: () => readGitChangedFiles(root),
+  runQualityGate: async () => {
+    try {
+      execFileSync('npm', ['run', 'verify'], { cwd: root, stdio: 'inherit' })
+      return true
+    } catch {
+      return false
+    }
+  },
   now: () => new Date(),
   randomId: () => Math.random().toString(36).slice(2, 8),
   listScenarioPaths: () =>
     readdirSync(scenarioDirectory, { withFileTypes: true })
       .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
       .map((entry) => join(scenarioDirectory, entry.name)),
+  listPreviousReportDirs: () => {
+    const reportsRoot = join(root, 'artifacts', 'miniprogram-review')
+    if (!existsSync(reportsRoot)) return []
+    return readdirSync(reportsRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(reportsRoot, entry.name))
+      .sort((left, right) => right.localeCompare(left))
+  },
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

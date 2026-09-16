@@ -68,20 +68,14 @@ const renderAsset = (outputDir: string, assetPath: string, label: string): strin
   return `<a class="screenshot-link" href="${escapeHtml(relativePath)}" data-lightbox-src="${escapeHtml(relativePath)}" data-lightbox-alt="${escapeHtml(alt)}"><img loading="lazy" src="${escapeHtml(relativePath)}" alt="${escapeHtml(alt)}"><span>${escapeHtml(basename(assetPath))}</span></a>`
 }
 
-const renderScreenshotList = (
-  outputDir: string,
-  paths: string[],
-  label: string,
-): string => {
+const renderScreenshotList = (outputDir: string, paths: string[], label: string): string => {
   if (paths.length === 0) return '<p class="muted">没有截图证据。</p>'
   return `<div class="screenshot-grid">${paths.map((path) => renderAsset(outputDir, path, label)).join('')}</div>`
 }
 
 const renderStep = (outputDir: string, step: StepRunResult, index: number): string => {
   const action = actionLabels[step.action] ?? '未知动作'
-  const error = step.error
-    ? `<p class="step-error">${escapeHtml(step.error)}</p>`
-    : ''
+  const error = step.error ? `<p class="step-error">${escapeHtml(step.error)}</p>` : ''
   const screenshot = step.screenshotPath
     ? `<div class="step-evidence">${renderAsset(outputDir, step.screenshotPath, `步骤 ${index + 1}`)}</div>`
     : ''
@@ -96,9 +90,7 @@ const renderScenario = (outputDir: string, result: ScenarioRunResult): string =>
   const steps = result.steps.length
     ? `<ol class="step-list">${result.steps.map((step, index) => renderStep(outputDir, step, index)).join('')}</ol>`
     : '<p class="muted">没有步骤记录。</p>'
-  const error = result.error
-    ? `<p class="scenario-error">${escapeHtml(result.error)}</p>`
-    : ''
+  const error = result.error ? `<p class="scenario-error">${escapeHtml(result.error)}</p>` : ''
   const failure = result.failureScreenshot
     ? `<section class="evidence-section"><h4>失败现场</h4>${renderScreenshotList(outputDir, [result.failureScreenshot], '失败现场')}</section>`
     : ''

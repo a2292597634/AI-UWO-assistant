@@ -31,18 +31,21 @@ describe('小程序验收场景', () => {
     ])
   })
 
-  it.each(['../miniprogram/pages', '/miniprogram/pages', ''])('拒绝不安全 watchPath：%s', (path) => {
-    expect(() =>
-      parseScenario({
-        name: '危险路径',
-        entry: '/pages/catalog/index',
-        watchPaths: [path],
-        state: 'normal',
-        devices: ['iphone-standard'],
-        steps: [{ action: 'screenshot', name: 'catalog' }],
-      }),
-    ).toThrow('watchPaths')
-  })
+  it.each(['../miniprogram/pages', '/miniprogram/pages', ''])(
+    '拒绝不安全 watchPath：%s',
+    (path) => {
+      expect(() =>
+        parseScenario({
+          name: '危险路径',
+          entry: '/pages/catalog/index',
+          watchPaths: [path],
+          state: 'normal',
+          devices: ['iphone-standard'],
+          steps: [{ action: 'screenshot', name: 'catalog' }],
+        }),
+      ).toThrow('watchPaths')
+    },
+  )
 
   it('接受第一阶段全部动作', () => {
     const scenario = parseScenario({

@@ -14,7 +14,18 @@ export interface TriggerPlan {
   reason?: string
 }
 
-const pageExtensions = new Set(['.wxml', '.wxss', '.ts', '.js', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'])
+const pageExtensions = new Set([
+  '.wxml',
+  '.wxss',
+  '.ts',
+  '.js',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.webp',
+  '.gif',
+  '.svg',
+])
 
 const generatedPathPatterns = [
   /^miniprogram\/generated(?:\/|$)/,
@@ -83,8 +94,12 @@ const fallbackWatchPath = (entry: string): string => {
 }
 
 const scenarioMatches = (scenario: ReviewScenario, pageFiles: string[]): boolean => {
-  const watchPaths = scenario.watchPaths?.length ? scenario.watchPaths : [fallbackWatchPath(scenario.entry)]
-  return pageFiles.some((filePath) => watchPaths.some((watchPath) => matchesWatchPath(filePath, watchPath)))
+  const watchPaths = scenario.watchPaths?.length
+    ? scenario.watchPaths
+    : [fallbackWatchPath(scenario.entry)]
+  return pageFiles.some((filePath) =>
+    watchPaths.some((watchPath) => matchesWatchPath(filePath, watchPath)),
+  )
 }
 
 const compareScenario = (left: ReviewScenario, right: ReviewScenario): number => {
@@ -124,7 +139,9 @@ export const createTriggerPlan = (input: {
   changedFiles: string[]
   scenarios: ReviewScenario[]
 }): TriggerPlan => {
-  const changedFiles = uniqueSorted(input.changedFiles.map((value) => tryNormalize(value)).filter(Boolean) as string[])
+  const changedFiles = uniqueSorted(
+    input.changedFiles.map((value) => tryNormalize(value)).filter(Boolean) as string[],
+  )
   const pageFiles = changedFiles.filter(isPageRelatedPath)
   if (pageFiles.length === 0) {
     return {
@@ -158,7 +175,8 @@ export const createTriggerPlan = (input: {
     mode: input.mode,
     changedFiles,
     pageFiles,
-    scenarios: input.mode === 'iterate' ? chooseIterateScenarios(matched) : sortFinalScenarios(matched),
+    scenarios:
+      input.mode === 'iterate' ? chooseIterateScenarios(matched) : sortFinalScenarios(matched),
     outcome: 'run',
   }
 }

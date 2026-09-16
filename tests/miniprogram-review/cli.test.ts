@@ -48,6 +48,8 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
     steps: [],
     screenshots: [],
   }),
+  readGitChangedFiles: () => [],
+  runQualityGate: async () => true,
   writeReport: () => ({
     htmlPath: 'C:/review/report.html',
     jsonPath: 'C:/review/report.json',
@@ -172,5 +174,67 @@ describe('小程序验收 CLI', () => {
     expect(runScenario.mock.calls[0]?.[2].outputDir).toContain('current-simulator')
     expect(log).toHaveBeenCalledWith(`HTML 报告：${resolve('C:/review/report.html')}`)
     expect(log).toHaveBeenCalledWith(expect.stringContaining('截图证据：'))
+  })
+
+  it('iterate 没有页面变更时不连接开发者工具', async () => {
+    const connect = vi.fn()
+    const log = vi.fn()
+    const code = await runCli(
+      ['changed', '--mode', 'iterate'],
+      dependencies({
+        log,
+        connect,
+        readGitChangedFiles: () => ['docs/miniprogram-review.md'],
+      }),
+    )
+
+    expect(code).toBe(0)
+    expect(connect).not.toHaveBeenCalled()
+    expect(log).toHaveBeenCalledWith('未发现页面相关变更，已跳过自动验收')
+  })
+
+  it('changed 缺少或传入未知模式时返回参数错误码 2', async () => {
+    const log = vi.fn()
+    const missingModeCode = await runCli(['changed'], dependencies({ log }))
+    const unknownModeCode = await runCli(['changed', '--mode', 'fast'], dependencies({ log }))
+
+    expect(missingModeCode).toBe(2)
+    expect(unknownModeCode).toBe(2)
+    expect(log).toHaveBeenCalledWith('changed 必须提供 --mode iterate 或 --mode final')
+  })
+
+  it('final 没有可匹配场景时生成阻塞报告并返回非零', async () => {
+    const writeReport = vi.fn((..._args: Parameters<CliDependencies['writeReport']>) => ({
+      htmlPath: 'C:/review/report.html',
+      jsonPath: 'C:/review/report.json',
+      markdownPath: 'C:/review/report.md',
+    }))
+    const code = await runCli(
+      ['changed', '--mode', 'final'],
+      dependencies({
+        listScenarioPaths: () => [],
+        readGitChangedFiles: () => ['miniprogram/pages/new/index.wxml'],
+        writeReport,
+      }),
+    )
+
+    expect(code).not.toBe(0)
+    expect(writeReport).toHaveBeenCalledOnce()
+    expect(writeReport.mock.calls[0]?.[1].status).toBe('blocked')
+  })
+
+  it('final 场景通过后仍执行 npm run verify，质量门禁失败则返回非零', async () => {
+    const runQualityGate = vi.fn(async () => false)
+    const code = await runCli(
+      ['changed', '--mode', 'final'],
+      dependencies({
+        listScenarioPaths: () => ['catalog-search.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        runQualityGate,
+      }),
+    )
+
+    expect(runQualityGate).toHaveBeenCalledOnce()
+    expect(code).not.toBe(0)
   })
 })

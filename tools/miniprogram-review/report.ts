@@ -92,12 +92,10 @@ export const buildReviewReport = (input: ReviewReportInput): ReviewReport => ({
     manual: sorted(input.coverage.manual),
     manualStates: sorted(input.coverage.manualStates),
   },
-  iterations: [...(input.iterations ?? [])]
-    .map(normalizeIteration)
-    .sort((left, right) => {
-      const byStartedAt = left.startedAt.localeCompare(right.startedAt)
-      return byStartedAt === 0 ? left.id.localeCompare(right.id) : byStartedAt
-    }),
+  iterations: [...(input.iterations ?? [])].map(normalizeIteration).sort((left, right) => {
+    const byStartedAt = left.startedAt.localeCompare(right.startedAt)
+    return byStartedAt === 0 ? left.id.localeCompare(right.id) : byStartedAt
+  }),
   results: [...input.results].sort((left, right) => left.scenario.localeCompare(right.scenario)),
 })
 
