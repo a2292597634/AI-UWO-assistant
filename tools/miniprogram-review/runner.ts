@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 
 import type { ReviewAdapter } from './adapter'
+import type { ReviewResultStatus } from './report'
 import type { ReviewScenario, ReviewStep } from './types'
 
 export interface StepRunResult {
@@ -16,7 +17,7 @@ export interface ScenarioRunResult {
   scenario: string
   pagePath: string
   state: ReviewScenario['state']
-  status: 'passed' | 'failed'
+  status: ReviewResultStatus
   steps: StepRunResult[]
   screenshots: string[]
   failedStep?: number

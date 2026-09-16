@@ -69,4 +69,49 @@ describe('小程序验收报告', () => {
       'C:/review/run/current-simulator/catalog-search-result.png',
     )
   })
+
+  it('规范化修改轮次并让阻塞优先于失败', () => {
+    const report = buildReviewReport({
+      runId: 'fixed-run',
+      generatedAt: new Date('2026-09-16T01:00:00.000Z'),
+      git: { commit: 'abc1234', dirty: true },
+      results: [
+        {
+          scenario: '目录搜寻',
+          pagePath: '/pages/catalog/index',
+          state: 'normal',
+          status: 'blocked',
+          steps: [],
+          screenshots: [],
+          error: '开发者工具未登录',
+        },
+      ],
+      iterations: [
+        {
+          id: '002',
+          startedAt: new Date('2026-09-16T01:02:00.000Z'),
+          summary: '调整卡片间距',
+          changedFiles: [
+            'miniprogram/pages/catalog/index.wxss',
+            'miniprogram/pages/catalog/index.wxml',
+          ],
+          status: 'blocked',
+          afterScreenshots: [],
+        },
+        {
+          id: '001',
+          startedAt: new Date('2026-09-16T01:01:00.000Z'),
+          changedFiles: ['miniprogram/pages/catalog/index.wxml'],
+          status: 'passed',
+          afterScreenshots: ['C:/review/run/after.png'],
+        },
+      ],
+      coverage: { covered: [], exempted: [], manual: [], manualStates: [] },
+    })
+
+    expect(report.status).toBe('blocked')
+    expect(report.iterations.map((iteration) => iteration.id)).toEqual(['001', '002'])
+    expect(report.iterations[0]?.summary).toBe('本轮页面修改与自动验收')
+    expect(report.iterations[0]?.changedFiles).toEqual(['miniprogram/pages/catalog/index.wxml'])
+  })
 })
