@@ -45,6 +45,7 @@ export type ReviewStep =
 export interface ReviewScenario {
   name: string
   entry: string
+  watchPaths?: string[]
   state: ReviewState
   devices: ReviewDevice[]
   steps: ReviewStep[]

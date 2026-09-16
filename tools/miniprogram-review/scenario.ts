@@ -58,6 +58,30 @@ const expectPagePath = (value: unknown, label: string): string => {
 
 const expectSelector = (value: unknown): string => expectString(value, '选择器')
 
+const expectWatchPath = (value: unknown): string => {
+  const path = expectString(value, 'watchPaths 路径').replace(/\\/g, '/')
+  const segments = path.split('/')
+  const pathSegments = path.endsWith('/') ? segments.slice(0, -1) : segments
+  if (
+    path.startsWith('/') ||
+    path.includes('\0') ||
+    pathSegments.some((segment) => segment === '.' || segment === '..' || segment === '')
+  ) {
+    throw new Error('watchPaths 路径必须是安全的仓库相对路径')
+  }
+  return path
+}
+
+const expectWatchPaths = (value: unknown): string[] | undefined => {
+  if (value === undefined) return undefined
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error('watchPaths 必须是非空数组')
+  }
+  const paths = value.map(expectWatchPath)
+  if (new Set(paths).size !== paths.length) throw new Error('watchPaths 不能包含重复路径')
+  return paths
+}
+
 const expectDistance = (value: unknown): number => {
   const distance = expectNumber(value, '滚动距离')
   if (!Number.isInteger(distance) || distance === 0 || Math.abs(distance) > 100_000) {
@@ -163,7 +187,7 @@ const parseStep = (value: unknown, index: number): ReviewStep => {
 
 export const parseScenario = (value: unknown): ReviewScenario => {
   const record = expectRecord(value, '场景')
-  rejectUnknownKeys(record, ['name', 'entry', 'state', 'devices', 'steps'], '场景')
+  rejectUnknownKeys(record, ['name', 'entry', 'watchPaths', 'state', 'devices', 'steps'], '场景')
   const state = expectString(record.state, '数据状态')
   if (!STATES.has(state as ReviewState)) throw new Error(`不支持的数据状态：${state}`)
   if (!Array.isArray(record.devices) || record.devices.length === 0) {
@@ -181,6 +205,7 @@ export const parseScenario = (value: unknown): ReviewScenario => {
   return {
     name: expectString(record.name, '场景名称'),
     entry: expectPagePath(record.entry, '入口页面'),
+    ...(record.watchPaths === undefined ? {} : { watchPaths: expectWatchPaths(record.watchPaths) }),
     state: state as ReviewState,
     devices,
     steps: record.steps.map(parseStep),

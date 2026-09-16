@@ -15,6 +15,35 @@ afterEach(() => {
 })
 
 describe('小程序验收场景', () => {
+  it('接受 watchPaths 并规范化路径分隔符', () => {
+    const scenario = parseScenario({
+      name: '目录搜寻',
+      entry: '/pages/catalog/index',
+      watchPaths: ['miniprogram\\pages\\catalog\\', 'miniprogram/components/catalog'],
+      state: 'normal',
+      devices: ['iphone-standard'],
+      steps: [{ action: 'screenshot', name: 'catalog' }],
+    })
+
+    expect(scenario.watchPaths).toEqual([
+      'miniprogram/pages/catalog/',
+      'miniprogram/components/catalog',
+    ])
+  })
+
+  it.each(['../miniprogram/pages', '/miniprogram/pages', ''])('拒绝不安全 watchPath：%s', (path) => {
+    expect(() =>
+      parseScenario({
+        name: '危险路径',
+        entry: '/pages/catalog/index',
+        watchPaths: [path],
+        state: 'normal',
+        devices: ['iphone-standard'],
+        steps: [{ action: 'screenshot', name: 'catalog' }],
+      }),
+    ).toThrow('watchPaths')
+  })
+
   it('接受第一阶段全部动作', () => {
     const scenario = parseScenario({
       name: '目录搜寻',
