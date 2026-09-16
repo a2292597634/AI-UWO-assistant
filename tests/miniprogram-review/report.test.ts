@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { buildReviewReport, writeReviewReport } from '../../tools/miniprogram-review/report'
+import { renderReviewReportHtml, toReportAssetPath } from '../../tools/miniprogram-review/report-html'
 
 const temporaryDirectories: string[] = []
 
@@ -113,5 +114,37 @@ describe('小程序验收报告', () => {
     expect(report.iterations.map((iteration) => iteration.id)).toEqual(['001', '002'])
     expect(report.iterations[0]?.summary).toBe('本轮页面修改与自动验收')
     expect(report.iterations[0]?.changedFiles).toEqual(['miniprogram/pages/catalog/index.wxml'])
+  })
+
+  it('生成包含时间线、步骤图标和相对截图的离线 HTML', () => {
+    const outputDir = 'C:/review/output'
+    const report = buildReviewReport({
+      ...fixedInput,
+      iterations: [
+        {
+          id: '001',
+          startedAt: new Date('2026-09-16T01:00:00.000Z'),
+          summary: '<调整卡片>',
+          changedFiles: ['miniprogram/pages/catalog/index.wxss'],
+          status: 'passed',
+          afterScreenshots: [`${outputDir}/current-simulator/catalog.png`],
+          notes: ['保持 <script> 文本为普通说明'],
+        },
+      ],
+    })
+    const html = renderReviewReportHtml(report, outputDir)
+
+    expect(html).toContain('<title>小程序页面验收报告</title>')
+    expect(html).toContain('修改过程')
+    expect(html).toContain('调整卡片')
+    expect(html).toContain('data-lightbox-src="current-simulator/catalog.png"')
+    expect(html).toContain('icon-screenshot')
+    expect(html).not.toContain('<script> 文本为普通说明')
+    expect(html).toContain('&lt;script&gt; 文本为普通说明')
+    expect(html).not.toMatch(/https?:\/\//i)
+  })
+
+  it('拒绝把报告目录外的截图渲染成图片链接', () => {
+    expect(toReportAssetPath('C:/review/output', 'C:/review/secret.png')).toBeUndefined()
   })
 })
