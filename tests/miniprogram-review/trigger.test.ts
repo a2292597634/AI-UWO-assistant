@@ -90,6 +90,8 @@ describe('小程序页面变更触发器', () => {
       'miniprogram/runtime/fleet-share-layout.ts',
       'miniprogram/assets/ui/fleet-share-map.jpg',
       'data/master/ui-assets/fleet-share-map-source.png',
+      'miniprogram/assets/ui/fleet-share-nautical-motifs.png',
+      'data/master/ui-assets/fleet-share-nautical-motifs-source.png',
       'tools/ui-assets/config.ts',
       'tools/ui-assets/build-ui-assets.ts',
     ]
@@ -103,6 +105,10 @@ describe('小程序页面变更触发器', () => {
     })
 
     expect(isPageRelatedPath('data/master/ui-assets/fleet-share-map-source.png')).toBe(true)
+    expect(isPageRelatedPath('data/master/ui-assets/fleet-share-nautical-motifs-source.png')).toBe(
+      true,
+    )
+    expect(isPageRelatedPath('miniprogram/assets/ui/fleet-share-nautical-motifs.png')).toBe(true)
     expect(plan.outcome).toBe('run')
     expect(plan.pageFiles).toEqual(['data/master/ui-assets/fleet-share-map-source.png'])
     expect(plan.scenarios.map(({ name }) => name)).toEqual(['adventure-share', 'battle-share'])

@@ -9,6 +9,7 @@ import type { ReviewConfig } from './types'
 
 export interface ReviewAdapter {
   navigate(path: string): Promise<void>
+  reLaunch(path: string): Promise<void>
   switchTab(path: string): Promise<void>
   tap(selector: string): Promise<void>
   input(selector: string, value: string): Promise<void>
@@ -45,6 +46,7 @@ export interface AutomatorAdapterOptions {
 
 interface AutomatorMiniProgram {
   navigateTo(path: string): Promise<unknown>
+  reLaunch(path: string): Promise<unknown>
   switchTab(path: string): Promise<unknown>
   currentPage(): Promise<AutomatorPage | undefined>
   pageScrollTo(scrollTop: number): Promise<void>
@@ -325,6 +327,9 @@ export const createAutomatorAdapter = (
 ): ReviewAdapter => ({
   async navigate(path) {
     await miniProgram.navigateTo(path)
+  },
+  async reLaunch(path) {
+    await miniProgram.reLaunch(path)
   },
   async switchTab(path) {
     await miniProgram.switchTab(path)

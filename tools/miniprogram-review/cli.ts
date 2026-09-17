@@ -453,6 +453,13 @@ const checkCliCapability = async (
   return { ok: true, message: `CLI 可执行、登录状态正常，服务端口可访问：${servicePort}` }
 }
 
+export const getQualityGateCommand = (
+  platform: NodeJS.Platform = process.platform,
+): { command: string; args: string[] } =>
+  platform === 'win32'
+    ? { command: 'cmd.exe', args: ['/d', '/s', '/c', 'npm.cmd run verify'] }
+    : { command: 'npm', args: ['run', 'verify'] }
+
 const defaultDependencies: CliDependencies = {
   cwd: root,
   env: process.env,
@@ -472,7 +479,8 @@ const defaultDependencies: CliDependencies = {
   readGitChangedFiles: () => readGitChangedFiles(root),
   runQualityGate: async () => {
     try {
-      execFileSync('npm', ['run', 'verify'], { cwd: root, stdio: 'inherit' })
+      const { command, args } = getQualityGateCommand()
+      execFileSync(command, args, { cwd: root, stdio: 'inherit' })
       return true
     } catch {
       return false

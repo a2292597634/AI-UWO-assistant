@@ -128,7 +128,7 @@ export const runScenario = async (
   }
 
   try {
-    await adapter.navigate(scenario.entry)
+    await adapter.reLaunch(scenario.entry)
     for (const [index, step] of scenario.steps.entries()) {
       const started = now()
       try {

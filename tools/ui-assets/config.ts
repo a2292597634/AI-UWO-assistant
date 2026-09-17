@@ -114,8 +114,19 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     output: 'fleet-share-map.jpg',
     mode: 'banner-jpeg',
     width: 750,
-    height: 420,
-    maxBytes: 100 * 1024,
+    height: 1125,
+    maxBytes: 80 * 1024,
+    group: 'banner',
+  },
+  {
+    id: 'fleet-share-nautical-motifs',
+    source: 'fleet-share-nautical-motifs-source.png',
+    output: 'fleet-share-nautical-motifs.png',
+    mode: 'resize-png',
+    width: 768,
+    height: 512,
+    paletteColors: 128,
+    maxBytes: 80 * 1024,
     group: 'banner',
   },
   ...[2, 3, 4, 5, 6].flatMap((grade) => [
@@ -169,7 +180,7 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
 ]
 
 export const UI_ASSET_GROUP_BUDGETS: Readonly<Record<UiAssetRecipe['group'], number>> = {
-  banner: 150 * 1024,
+  banner: 180 * 1024,
   feature: 48 * 1024,
   'original-ui': 80 * 1024,
 }

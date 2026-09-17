@@ -6,6 +6,8 @@ import type {
 import {
   drawFleetShareImage,
   FLEET_SHARE_BACKGROUND_PATH,
+  FLEET_SHARE_MOTIFS_PATH,
+  resolveFleetShareQrRect,
   SHARE_IMAGE_LOAD_TIMEOUT_MS,
 } from '../../miniprogram/runtime/fleet-share-renderer'
 import {
@@ -25,6 +27,9 @@ const view: AdventureFleetShareViewModel = {
 
 const createCanvas = (loadImages = false) => {
   const createdImages: Array<{ width: number; height: number; src: string }> = []
+  const alphaHistory: number[] = []
+  const fillStyleHistory: string[] = []
+  const strokeStyleHistory: string[] = []
   const context = {
     save: vi.fn(),
     restore: vi.fn(),
@@ -54,6 +59,36 @@ const createCanvas = (loadImages = false) => {
     textBaseline: 'middle',
     textAlign: 'left',
   }
+  let globalAlpha = 1
+  let fillStyle = ''
+  let strokeStyle = ''
+  Object.defineProperty(context, 'globalAlpha', {
+    configurable: true,
+    enumerable: true,
+    get: () => globalAlpha,
+    set: (value: number) => {
+      alphaHistory.push(value)
+      globalAlpha = value
+    },
+  })
+  Object.defineProperty(context, 'fillStyle', {
+    configurable: true,
+    enumerable: true,
+    get: () => fillStyle,
+    set: (value: string) => {
+      fillStyleHistory.push(value)
+      fillStyle = value
+    },
+  })
+  Object.defineProperty(context, 'strokeStyle', {
+    configurable: true,
+    enumerable: true,
+    get: () => strokeStyle,
+    set: (value: string) => {
+      strokeStyleHistory.push(value)
+      strokeStyle = value
+    },
+  })
   const canvas = {
     width: 0,
     height: 0,
@@ -72,10 +107,16 @@ const createCanvas = (loadImages = false) => {
       return image
     }),
     createdImages,
+    alphaHistory,
+    fillStyleHistory,
+    strokeStyleHistory,
   }
   return canvas as unknown as WechatMiniprogram.Canvas & {
     getContext: (type: '2d') => typeof context
     createdImages: typeof createdImages
+    alphaHistory: typeof alphaHistory
+    fillStyleHistory: typeof fillStyleHistory
+    strokeStyleHistory: typeof strokeStyleHistory
   }
 }
 
@@ -244,6 +285,72 @@ describe('配隊分享圖素材載入', () => {
     expect(context.restore).toHaveBeenCalled()
   })
 
+  it('海圖頂底保留細節，中段使用低對比紋理', async () => {
+    const skill = (
+      id: string,
+    ): BattleFleetShareViewModel['ships'][number]['activeSkills'][number] => ({
+      skillId: id,
+      skillName: `測試技能${id}`,
+      skillIconPath: `/skill-${id}.png`,
+      kind: 'active',
+      categoryId: 'skill_category_naval_active_cannon',
+      totalLevel: 1,
+    })
+    const emptyView: BattleFleetShareViewModel = {
+      mode: 'battle',
+      configName: '海圖對比案例',
+      ships: Array.from({ length: 3 }, (_, index) => ({
+        shipId: `ship-${index + 1}`,
+        shipLabel: `${index + 1}號船`,
+        officerSlots: Array.from({ length: 11 }, () => null),
+        activeSkills: Array.from({ length: 10 }, (_, skillIndex) =>
+          skill(`ship-${index + 1}-${skillIndex + 1}`),
+        ),
+        passiveSkills: [],
+      })),
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+    const context = canvas.getContext('2d')
+
+    await drawFleetShareImage(canvas, emptyView, measureBattleFleetShare(emptyView))
+
+    expect(canvas.alphaHistory).toContain(0.42)
+    expect(canvas.alphaHistory).toContain(0.14)
+    expect(canvas.fillStyleHistory).toContain('rgba(245, 239, 224, 0.9)')
+    const backgroundDraws = vi
+      .mocked(context.drawImage)
+      .mock.calls.filter(
+        ([image]) => (image as { src: string }).src === FLEET_SHARE_BACKGROUND_PATH,
+      )
+    expect(backgroundDraws.length).toBeGreaterThan(2)
+    expect(backgroundDraws[1]?.[2]).toBeGreaterThan(0)
+  })
+
+  it('正常渲染會直接取用已確認的原始航海裝飾板，而不是只畫 Canvas 線稿', async () => {
+    const battleView: BattleFleetShareViewModel = {
+      mode: 'battle',
+      configName: '原始裝飾板案例',
+      ships: [],
+      qrPath: '/qr.png',
+      entrancePath: 'pages/home/index',
+    }
+    const canvas = createCanvas(true)
+    const context = canvas.getContext('2d')
+
+    await drawFleetShareImage(canvas, battleView, measureBattleFleetShare(battleView))
+
+    expect(canvas.createdImages.map((image) => image.src)).toContain(FLEET_SHARE_MOTIFS_PATH)
+    const motifDraws = vi
+      .mocked(context.drawImage)
+      .mock.calls.filter(([image]) => (image as { src: string }).src === FLEET_SHARE_MOTIFS_PATH)
+    expect(motifDraws.length).toBeGreaterThanOrEqual(4)
+    expect(motifDraws.some((call) => call.length === 9)).toBe(true)
+    expect(motifDraws.some((call) => call[1] === 0 && call[2] === 0)).toBe(true)
+    expect(motifDraws.some((call) => call[1] === 512 && call[2] === 0)).toBe(true)
+  })
+
   it('冒險模式只切換標題、徽記、強調色與標語', async () => {
     const adventureView: AdventureFleetShareViewModel = {
       ...view,
@@ -251,8 +358,9 @@ describe('配隊分享圖素材載入', () => {
     }
     const canvas = createCanvas(true)
     const context = canvas.getContext('2d')
+    const layout = measureAdventureFleetShare(adventureView)
 
-    await drawFleetShareImage(canvas, adventureView, measureAdventureFleetShare(adventureView))
+    await drawFleetShareImage(canvas, adventureView, layout)
 
     expect(context.fillText).toHaveBeenCalledWith(
       '冒險配隊記錄',
@@ -278,6 +386,24 @@ describe('配隊分享圖素材載入', () => {
       expect.any(Number),
       expect.any(Number),
     )
+    expect(canvas.strokeStyleHistory[canvas.strokeStyleHistory.length - 1]).toBe('#B99552')
+    expect(context.fillRect).not.toHaveBeenCalledWith(
+      layout.footer.x,
+      layout.footer.y,
+      layout.footer.width,
+      layout.footer.height,
+    )
+  })
+
+  it('二维码會映射到原始海圖右下預留框，而不是沿用過大的通用頁尾框', () => {
+    const layout = measureAdventureFleetShare(view)
+    const qrRect = resolveFleetShareQrRect(layout, { width: 750, height: 1125 })
+
+    expect(qrRect.x).toBe(596)
+    expect(qrRect.width).toBe(100)
+    expect(qrRect.height).toBe(100)
+    expect(qrRect.x + qrRect.width).toBeLessThan(layout.width)
+    expect(qrRect.y + qrRect.height).toBeLessThanOrEqual(layout.height)
   })
 
   it('冒險技能標題和說明保有安全中心距，且不侵入前後分區', async () => {

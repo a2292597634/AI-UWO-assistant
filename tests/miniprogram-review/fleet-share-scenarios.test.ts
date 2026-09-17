@@ -27,6 +27,8 @@ describe('艦隊分享圖自動驗收場景', () => {
         'miniprogram/runtime/fleet-share-layout.ts',
         'miniprogram/assets/ui/fleet-share-map.jpg',
         'data/master/ui-assets/fleet-share-map-source.png',
+        'miniprogram/assets/ui/fleet-share-nautical-motifs.png',
+        'data/master/ui-assets/fleet-share-nautical-motifs-source.png',
       ]),
     )
     expect(actions).toEqual(

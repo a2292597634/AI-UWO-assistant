@@ -8,6 +8,18 @@ import {
 } from '../../tools/miniprogram-review/adapter'
 
 describe('miniprogram-automator 适配器', () => {
+  it('将可重入场景入口映射为 reLaunch', async () => {
+    const calls: string[] = []
+    const miniProgram = {
+      reLaunch: async (path: string) => void calls.push(`reLaunch:${path}`),
+    }
+    const adapter = createAutomatorAdapter(miniProgram as never)
+
+    await adapter.reLaunch('/subpkg-fleet/pages/index/index')
+
+    expect(calls).toEqual(['reLaunch:/subpkg-fleet/pages/index/index'])
+  })
+
   it('新版开发者工具只有 version 时绕过旧 SDKVersion 检查', () => {
     expect(shouldBypassLegacyVersionCheck({ version: '2.01.2509150' })).toBe(true)
     expect(shouldBypassLegacyVersionCheck({ version: '2.01.2509150', SDKVersion: '3.7.0' })).toBe(

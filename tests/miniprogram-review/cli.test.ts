@@ -3,7 +3,11 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { runCli, type CliDependencies } from '../../tools/miniprogram-review/cli'
+import {
+  getQualityGateCommand,
+  runCli,
+  type CliDependencies,
+} from '../../tools/miniprogram-review/cli'
 import type { ReviewReport } from '../../tools/miniprogram-review/report'
 
 const temporaryDirectories: string[] = []
@@ -63,6 +67,14 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
 })
 
 describe('小程序验收 CLI', () => {
+  it('Windows 质量门禁使用 npm.cmd，避免原生 Node 找不到 npm', () => {
+    expect(getQualityGateCommand('win32')).toEqual({
+      command: 'cmd.exe',
+      args: ['/d', '/s', '/c', 'npm.cmd run verify'],
+    })
+    expect(getQualityGateCommand('linux')).toEqual({ command: 'npm', args: ['run', 'verify'] })
+  })
+
   it('doctor 有错误诊断时返回 1', async () => {
     const log = vi.fn()
     const code = await runCli(

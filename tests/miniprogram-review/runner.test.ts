@@ -24,6 +24,7 @@ const createRecordingAdapter = (
   options: { missingSelector?: string } = {},
 ): ReviewAdapter => ({
   navigate: async (path) => void calls.push(`navigate:${path}`),
+  reLaunch: async (path) => void calls.push(`reLaunch:${path}`),
   switchTab: async (path) => void calls.push(`switchTab:${path}`),
   tap: async (selector) => void calls.push(`tap:${selector}`),
   input: async (selector, value) => void calls.push(`input:${selector}:${value}`),
@@ -41,13 +42,25 @@ const createRecordingAdapter = (
 })
 
 describe('小程序验收场景执行器', () => {
+  it('以 reLaunch 重置已经打开的场景入口，避免同页 navigateTo 抛出对象错误', async () => {
+    const calls: string[] = []
+    const adapter = {
+      ...createRecordingAdapter(calls),
+      reLaunch: async (path: string) => void calls.push(`reLaunch:${path}`),
+    } as ReviewAdapter
+
+    await runScenario(adapter, { ...scenario, steps: [] }, { outputDir: 'C:/review/run' })
+
+    expect(calls).toEqual(['reLaunch:/pages/catalog/index', 'disconnect'])
+  })
+
   it('按顺序执行输入、点击、滚动、断言和截图', async () => {
     const calls: string[] = []
     const outputDir = 'C:/review/run'
     const result = await runScenario(createRecordingAdapter(calls), scenario, { outputDir })
 
     expect(calls).toEqual([
-      'navigate:/pages/catalog/index',
+      'reLaunch:/pages/catalog/index',
       'input:.search:郑和',
       'tap:.row',
       'scrollPage:600',
@@ -80,7 +93,7 @@ describe('小程序验收场景执行器', () => {
     expect(result.failureScreenshot).toBe(join(outputDir, 'failure-step-001.png'))
     expect(result.error).toContain('找不到元素：.missing')
     expect(calls).toEqual([
-      'navigate:/pages/catalog/index',
+      'reLaunch:/pages/catalog/index',
       `screenshot:${join(outputDir, 'failure-step-001.png')}`,
       'disconnect',
     ])
@@ -108,7 +121,7 @@ describe('小程序验收场景执行器', () => {
 
     expect(result.status).toBe('passed')
     expect(calls).toEqual([
-      'navigate:/pages/catalog/index',
+      'reLaunch:/pages/catalog/index',
       'clearInput:.search',
       'scrollElement:.list:300',
       'waitFor:.row',

@@ -111,9 +111,15 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 1500, height: 640, channels: 3, background: '#193d44' } })
       .png()
       .toFile(join(sourceRoot, 'home-harbor-source.png')),
-    sharp({ create: { width: 1500, height: 840, channels: 3, background: '#d8c8a8' } })
+    sharp({ create: { width: 1024, height: 1536, channels: 3, background: '#d8c8a8' } })
       .png()
       .toFile(join(sourceRoot, 'fleet-share-map-source.png')),
+    writePng(join(sourceRoot, 'fleet-share-nautical-motifs-source.png'), 1536, 1024, {
+      left: 160,
+      top: 120,
+      width: 320,
+      height: 320,
+    }),
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-officer-catalog-source.png')),
@@ -148,6 +154,7 @@ describe('buildUiAssets', () => {
     const grade = files.find((file) => file.id === 'rarity-filter-grade-5')
     const banner = files.find((file) => file.id === 'home-harbor')
     const fleetShareMap = files.find((file) => file.id === 'fleet-share-map')
+    const fleetShareMotifs = files.find((file) => file.id === 'fleet-share-nautical-motifs')
     const featureIds = [
       'feature-officer-catalog',
       'feature-trade-goods',
@@ -170,9 +177,17 @@ describe('buildUiAssets', () => {
       output: 'fleet-share-map.jpg',
       mimeType: 'image/jpeg',
       width: 750,
-      height: 420,
+      height: 1125,
     })
-    expect(fleetShareMap?.byteSize).toBeLessThanOrEqual(100 * 1024)
+    expect(fleetShareMap?.byteSize).toBeLessThanOrEqual(80 * 1024)
+    expect(fleetShareMotifs).toMatchObject({
+      output: 'fleet-share-nautical-motifs.png',
+      mimeType: 'image/png',
+      width: 768,
+      height: 512,
+    })
+    expect(fleetShareMotifs?.outputTransparentBounds).toBeDefined()
+    expect(fleetShareMotifs?.byteSize).toBeLessThanOrEqual(80 * 1024)
     expect([grade?.width, grade?.height]).toEqual([29, 29])
     expect(featureIds.every((id) => files.some((file) => file.id === id))).toBe(true)
     expect(
@@ -191,8 +206,11 @@ describe('buildUiAssets', () => {
       150 * 1024,
     )
     expect(readFileSync(join(firstOutput, 'fleet-share-map.jpg')).byteLength).toBeLessThanOrEqual(
-      100 * 1024,
+      80 * 1024,
     )
+    expect(
+      readFileSync(join(firstOutput, 'fleet-share-nautical-motifs.png')).byteLength,
+    ).toBeLessThanOrEqual(80 * 1024)
   })
 
   it('keeps production feature icons within the same visible size range', () => {

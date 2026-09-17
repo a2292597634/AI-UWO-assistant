@@ -183,14 +183,36 @@
       "group": "banner",
       "mimeType": "image/jpeg",
       "width": 750,
-      "height": 420,
-      "byteSize": 17796,
-      "sha256": "d97b8addae975d4d74590dcfa84d61e6d95983a86acf12c78bc962615464b163",
+      "height": 1125,
+      "byteSize": 75946,
+      "sha256": "7e8f48ca3ed435207fbdc0977f95e6d6bab86d245c43a6b8958c2247b7b29931",
       "sourceTransparentBounds": {
         "left": 0,
         "top": 0,
         "width": 1024,
         "height": 1536
+      }
+    },
+    {
+      "id": "fleet-share-nautical-motifs",
+      "output": "fleet-share-nautical-motifs.png",
+      "group": "banner",
+      "mimeType": "image/png",
+      "width": 768,
+      "height": 512,
+      "byteSize": 55526,
+      "sha256": "65f6aa10f191bc2ff94a8577f5292318d003a42c8047e03ee6e0ac100c6337c4",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 1522,
+        "height": 1008
+      },
+      "outputTransparentBounds": {
+        "left": 18,
+        "top": 6,
+        "width": 737,
+        "height": 490
       }
     },
     {
@@ -675,9 +697,9 @@
     }
   ],
   "groupBytes": {
-    "banner": 50303,
+    "banner": 163979,
     "feature": 16922,
     "original-ui": 50407
   },
-  "totalBytes": 117632
+  "totalBytes": 231308
 }

@@ -24,7 +24,20 @@ type ShareImage = WechatMiniprogram.Image
 
 const QR_PATH = '/assets/ui/mini-program-home-code.png'
 export const FLEET_SHARE_BACKGROUND_PATH = '/assets/ui/fleet-share-map.jpg'
-const FLEET_SHARE_BACKGROUND_HEIGHT = 420
+export const FLEET_SHARE_MOTIFS_PATH = '/assets/ui/fleet-share-nautical-motifs.png'
+const FLEET_SHARE_BACKGROUND_EDGE_OPACITY = 0.42
+const FLEET_SHARE_BACKGROUND_MIDDLE_OPACITY = 0.14
+const FLEET_SHARE_SURFACE_OPACITY = 0.9
+const FLEET_SHARE_BACKGROUND_EDGE_HEIGHT = 420
+const FLEET_SHARE_MAP_REFERENCE_WIDTH = 750
+const FLEET_SHARE_MAP_REFERENCE_HEIGHT = 1125
+/** 原始海圖右下金色框內部的 QR 安全區，座標以 750×1125 原圖為基準。 */
+const FLEET_SHARE_MAP_QR_FRAME: ShareRect = {
+  x: 596,
+  y: 953,
+  width: 100,
+  height: 100,
+}
 const OFFICER_SIZE = 84
 const REFERENCE_TILE_SIZE = 60
 const TYPE_ICON_RATIO = 16 / REFERENCE_TILE_SIZE
@@ -61,17 +74,17 @@ const COLORS = {
   accentText: '#76501A',
   battleAccent: '#8B3A3A',
   adventureAccent: '#315451',
-  paper: '#E7DECA',
-  paperAlt: '#F5EFE0',
+  paper: `rgba(231, 222, 202, ${FLEET_SHARE_SURFACE_OPACITY})`,
+  paperAlt: `rgba(245, 239, 224, ${FLEET_SHARE_SURFACE_OPACITY})`,
   inkMuted: '#625947',
   green: '#26332F',
   brassLight: '#F5EFE0',
   border: '#B99552',
-  white: '#F5EFE0',
+  white: 'rgba(245, 239, 224, 0.86)',
   danger: '#8B3A3A',
-  activePanel: '#F5EFE0',
+  activePanel: 'rgba(245, 239, 224, 0.88)',
   activeBorder: '#B99552',
-  passivePanel: '#F5EFE0',
+  passivePanel: 'rgba(245, 239, 224, 0.88)',
   passiveBorder: '#315451',
 }
 
@@ -385,6 +398,79 @@ const modeSlogan = (mode: ShareMode): string =>
 const modeAccent = (mode: ShareMode): string =>
   mode === 'battle' ? COLORS.battleAccent : COLORS.adventureAccent
 
+type FleetShareMotif = 'compass' | 'sextant' | 'flag' | 'anchor' | 'wave' | 'starCompass'
+
+const FLEET_SHARE_MOTIF_SOURCE_RECTS: Readonly<Record<FleetShareMotif, ShareRect>> = {
+  compass: { x: 0, y: 0, width: 256, height: 256 },
+  sextant: { x: 256, y: 0, width: 256, height: 256 },
+  flag: { x: 512, y: 0, width: 256, height: 256 },
+  anchor: { x: 0, y: 256, width: 256, height: 256 },
+  wave: { x: 256, y: 256, width: 256, height: 256 },
+  starCompass: { x: 512, y: 256, width: 256, height: 256 },
+}
+
+const drawMotifImage = (
+  context: ShareContext,
+  image: ShareImage | undefined,
+  motif: FleetShareMotif,
+  destination: ShareRect,
+  opacity = 1,
+): boolean => {
+  if (!image) return false
+  const source = FLEET_SHARE_MOTIF_SOURCE_RECTS[motif]
+  context.save()
+  context.globalAlpha = opacity
+  context.drawImage(
+    image,
+    source.x,
+    source.y,
+    source.width,
+    source.height,
+    destination.x,
+    destination.y,
+    destination.width,
+    destination.height,
+  )
+  context.globalAlpha = 1
+  context.restore()
+  return true
+}
+
+interface FleetShareBackgroundGeometry {
+  sourceWidth: number
+  sourceHeight: number
+  logicalScale: number
+  naturalHeight: number
+  edgeHeight: number
+  sourceEdgeHeight: number
+}
+
+const getFleetShareBackgroundGeometry = (
+  layout: FleetShareLayout,
+  image: Pick<ShareImage, 'width' | 'height'>,
+): FleetShareBackgroundGeometry => {
+  const sourceWidth = image.width || layout.width
+  const sourceHeight = image.height || FLEET_SHARE_MAP_REFERENCE_HEIGHT
+  const logicalScale = layout.width / Math.max(1, sourceWidth)
+  const naturalHeight = Math.max(1, Math.round(sourceHeight * logicalScale))
+  const edgeHeight = Math.min(
+    FLEET_SHARE_BACKGROUND_EDGE_HEIGHT,
+    Math.floor(Math.min(naturalHeight, layout.height) / 2),
+  )
+  const sourceEdgeHeight = Math.max(
+    1,
+    Math.min(sourceHeight, Math.round(edgeHeight / Math.max(logicalScale, 0.001))),
+  )
+  return {
+    sourceWidth,
+    sourceHeight,
+    logicalScale,
+    naturalHeight,
+    edgeHeight,
+    sourceEdgeHeight,
+  }
+}
+
 const drawShareBackground = (
   context: ShareContext,
   layout: FleetShareLayout,
@@ -395,18 +481,74 @@ const drawShareBackground = (
   context.fillStyle = COLORS.canvas
   context.fillRect(0, 0, layout.width, layout.height)
   if (image) {
-    context.globalAlpha = 0.18
-    for (let y = 0; y < layout.height; y += FLEET_SHARE_BACKGROUND_HEIGHT) {
+    const { sourceWidth, sourceHeight, logicalScale, naturalHeight, edgeHeight, sourceEdgeHeight } =
+      getFleetShareBackgroundGeometry(layout, image)
+    const drawBand = (
+      sourceY: number,
+      sourceBandHeight: number,
+      destinationY: number,
+      destinationHeight: number,
+      opacity: number,
+    ): void => {
+      context.globalAlpha = opacity
       context.drawImage(
         image,
         0,
+        sourceY,
+        sourceWidth,
+        sourceBandHeight,
         0,
-        image.width || FLEET_SHARE_BACKGROUND_HEIGHT,
-        image.height || FLEET_SHARE_BACKGROUND_HEIGHT,
-        0,
-        y,
+        destinationY,
         layout.width,
-        FLEET_SHARE_BACKGROUND_HEIGHT,
+        destinationHeight,
+      )
+    }
+
+    if (layout.height <= naturalHeight && edgeHeight > 0) {
+      const middleStart = edgeHeight
+      const middleEnd = layout.height - edgeHeight
+      const middleSourceY = sourceEdgeHeight
+      const middleSourceHeight = Math.max(1, sourceHeight - sourceEdgeHeight * 2)
+      const middleDestinationHeight = Math.max(1, middleEnd - middleStart)
+      drawBand(0, sourceEdgeHeight, 0, edgeHeight, FLEET_SHARE_BACKGROUND_EDGE_OPACITY)
+      if (middleEnd > middleStart) {
+        drawBand(
+          middleSourceY,
+          middleSourceHeight,
+          middleStart,
+          middleDestinationHeight,
+          FLEET_SHARE_BACKGROUND_MIDDLE_OPACITY,
+        )
+      }
+      drawBand(
+        sourceHeight - sourceEdgeHeight,
+        sourceEdgeHeight,
+        middleEnd,
+        edgeHeight,
+        FLEET_SHARE_BACKGROUND_EDGE_OPACITY,
+      )
+    } else {
+      drawBand(0, sourceEdgeHeight, 0, edgeHeight, FLEET_SHARE_BACKGROUND_EDGE_OPACITY)
+      const middleStart = edgeHeight
+      const middleEnd = layout.height - edgeHeight
+      const middleSourceY = sourceEdgeHeight
+      const middleSourceHeight = Math.max(1, sourceHeight - sourceEdgeHeight * 2)
+      const middleDestinationHeight = Math.max(1, Math.round(middleSourceHeight * logicalScale))
+      for (let y = middleStart; y < middleEnd; y += middleDestinationHeight) {
+        drawBand(
+          middleSourceY,
+          middleSourceHeight,
+          y,
+          Math.min(middleDestinationHeight, middleEnd - y),
+          FLEET_SHARE_BACKGROUND_MIDDLE_OPACITY,
+        )
+      }
+      drawBand(
+        sourceHeight - sourceEdgeHeight,
+        sourceEdgeHeight,
+        middleEnd,
+        edgeHeight,
+        FLEET_SHARE_BACKGROUND_EDGE_OPACITY,
       )
     }
   }
@@ -422,8 +564,73 @@ const drawShareBackground = (
   context.restore()
 }
 
-const drawModeEmblem = (context: ShareContext, x: number, y: number, mode: ShareMode): void => {
-  const accent = modeAccent(mode)
+const mapSourceYToDestinationY = (
+  sourceY: number,
+  layout: FleetShareLayout,
+  geometry: FleetShareBackgroundGeometry,
+): number => {
+  const { sourceHeight, logicalScale, naturalHeight, edgeHeight, sourceEdgeHeight } = geometry
+  const sourceMiddleStart = sourceEdgeHeight
+  const sourceMiddleEnd = sourceHeight - sourceEdgeHeight
+  const destinationMiddleStart = edgeHeight
+  const destinationMiddleEnd = layout.height - edgeHeight
+  if (sourceY <= sourceMiddleStart) return sourceY * logicalScale
+  if (sourceY >= sourceMiddleEnd) {
+    return destinationMiddleEnd + (sourceY - sourceMiddleEnd) * logicalScale
+  }
+  if (layout.height <= naturalHeight) {
+    const sourceMiddleHeight = Math.max(1, sourceMiddleEnd - sourceMiddleStart)
+    const destinationMiddleHeight = Math.max(1, destinationMiddleEnd - destinationMiddleStart)
+    return (
+      destinationMiddleStart +
+      ((sourceY - sourceMiddleStart) / sourceMiddleHeight) * destinationMiddleHeight
+    )
+  }
+  return destinationMiddleStart + (sourceY - sourceMiddleStart) * logicalScale
+}
+
+/** 將原海圖右下預留框映射到目前分享圖，避免 QR 蓋住金色邊框。 */
+export const resolveFleetShareQrRect = (
+  layout: FleetShareLayout,
+  background?: Pick<ShareImage, 'width' | 'height'>,
+): ShareRect => {
+  if (!background) return layout.qr
+  const sourceWidth = background.width || FLEET_SHARE_MAP_REFERENCE_WIDTH
+  const sourceHeight = background.height || FLEET_SHARE_MAP_REFERENCE_HEIGHT
+  const geometry = getFleetShareBackgroundGeometry(layout, background)
+  const sourceScaleX = sourceWidth / FLEET_SHARE_MAP_REFERENCE_WIDTH
+  const sourceScaleY = sourceHeight / FLEET_SHARE_MAP_REFERENCE_HEIGHT
+  const sourceX = FLEET_SHARE_MAP_QR_FRAME.x * sourceScaleX
+  const sourceY = FLEET_SHARE_MAP_QR_FRAME.y * sourceScaleY
+  return {
+    x: sourceX * geometry.logicalScale,
+    y: mapSourceYToDestinationY(sourceY, layout, geometry),
+    width: FLEET_SHARE_MAP_QR_FRAME.width * sourceScaleX * geometry.logicalScale,
+    height: FLEET_SHARE_MAP_QR_FRAME.height * sourceScaleX * geometry.logicalScale,
+  }
+}
+
+const drawModeEmblem = (
+  context: ShareContext,
+  x: number,
+  y: number,
+  mode: ShareMode,
+  motifs?: ShareImage,
+  color = modeAccent(mode),
+): void => {
+  const motifSize = 42
+  const motif = mode === 'battle' ? 'flag' : 'wave'
+  const motifDrawn = drawMotifImage(
+    context,
+    motifs,
+    'compass',
+    { x, y, width: motifSize, height: motifSize },
+    0.94,
+  )
+  drawMotifImage(context, motifs, motif, { x: x + 26, y: y + 24, width: 18, height: 18 }, 0.98)
+  if (motifDrawn) return
+
+  const accent = color
   const centerX = x + 22
   const centerY = y + 22
   context.save()
@@ -469,6 +676,7 @@ const drawHeader = (
   layout: FleetShareLayout,
   configName: string,
   mode: ShareMode,
+  motifs?: ShareImage,
 ): void => {
   const emblemX = layout.width - layout.padding - 44
   const titleMaxWidth = layout.width - layout.padding * 2 - 72
@@ -522,7 +730,7 @@ const drawHeader = (
   context.moveTo(layout.padding, 75)
   context.lineTo(layout.padding + 10, 75)
   context.stroke()
-  drawModeEmblem(context, emblemX, 8, mode)
+  drawModeEmblem(context, emblemX, 8, mode, motifs)
   drawCenteredText(
     context,
     mode === 'battle' ? '戰鬥' : '冒險',
@@ -568,26 +776,77 @@ const drawSectionAccent = (
   context.restore()
 }
 
+const drawMotifDecorations = (
+  context: ShareContext,
+  layout: FleetShareLayout,
+  mode: ShareMode,
+  motifs?: ShareImage,
+): void => {
+  if (!motifs) return
+  const sideSize = 54
+  const footerGap = Math.max(10, layout.height - layout.footer.y)
+  const sideY = Math.min(layout.footer.y - sideSize - 18, layout.header.height + 22)
+  const footerY = Math.max(layout.header.height + 22, layout.footer.y - sideSize - footerGap / 2)
+  context.save()
+  drawMotifImage(
+    context,
+    motifs,
+    'sextant',
+    {
+      x: layout.width - layout.padding - sideSize + 8,
+      y: sideY,
+      width: sideSize,
+      height: sideSize,
+    },
+    0.16,
+  )
+  drawMotifImage(
+    context,
+    motifs,
+    mode === 'battle' ? 'anchor' : 'wave',
+    { x: 2, y: footerY, width: sideSize, height: sideSize },
+    0.16,
+  )
+  drawMotifImage(
+    context,
+    motifs,
+    'starCompass',
+    {
+      x: layout.width / 2 - sideSize / 2,
+      y: footerY,
+      width: sideSize,
+      height: sideSize,
+    },
+    0.12,
+  )
+  context.restore()
+}
+
 const drawFooter = (
   context: ShareContext,
   layout: FleetShareLayout,
   mode: ShareMode,
   qr: ShareImage | undefined,
+  motifs?: ShareImage,
+  background?: ShareImage,
 ): void => {
+  const qrRect = resolveFleetShareQrRect(layout, background)
   const textX = layout.padding + 60
-  const textWidth = Math.max(0, layout.qr.x - textX - 16)
+  const textWidth = Math.max(0, qrRect.x - textX - 16)
   context.save()
-  context.fillStyle = COLORS.ink
-  context.fillRect(layout.footer.x, layout.footer.y, layout.footer.width, layout.footer.height)
   context.globalAlpha = 0.85
   context.strokeStyle = COLORS.brass
   context.lineWidth = 1
   context.beginPath()
   context.moveTo(layout.padding, layout.footer.y + 16)
-  context.lineTo(layout.qr.x - 16, layout.footer.y + 16)
+  context.lineTo(qrRect.x - 16, layout.footer.y + 16)
   context.stroke()
   context.globalAlpha = 1
-  drawModeEmblem(context, layout.padding + 4, layout.footer.y + 30, mode)
+  context.shadowColor = 'rgba(38, 51, 47, 0.44)'
+  context.shadowBlur = 3
+  context.shadowOffsetX = 0
+  context.shadowOffsetY = 1
+  drawModeEmblem(context, layout.padding + 4, layout.footer.y + 30, mode, motifs, COLORS.brass)
   drawText(
     context,
     '一圖收艦・掃碼回到航海日誌',
@@ -606,8 +865,10 @@ const drawFooter = (
     FONT_FOOTER_META,
     COLORS.brassLight,
   )
-  if (qr) drawImageFit(context, qr, layout.qr, true)
-  else drawPlaceholder(context, layout.qr, '首頁碼', COLORS.surface)
+  if (qr) drawImageFit(context, qr, qrRect, true)
+  else drawPlaceholder(context, qrRect, '首頁碼', COLORS.surface)
+  context.shadowColor = 'transparent'
+  context.shadowBlur = 0
   context.restore()
 }
 
@@ -631,6 +892,27 @@ const drawPlaceholder = (
 
 const drawEmptyState = (context: ShareContext, rect: ShareRect): void => {
   roundedRect(context, rect, 16, COLORS.paperAlt, COLORS.border)
+  const centerX = rect.x + rect.width - 86
+  const centerY = rect.y + rect.height / 2
+  context.save()
+  context.globalAlpha = 0.3
+  context.strokeStyle = COLORS.brass
+  context.lineWidth = 1.5
+  context.beginPath()
+  context.arc(centerX, centerY, 28, 0, Math.PI * 2)
+  context.moveTo(centerX, centerY - 22)
+  context.lineTo(centerX + 6, centerY)
+  context.lineTo(centerX, centerY + 22)
+  context.lineTo(centerX - 6, centerY)
+  context.closePath()
+  context.stroke()
+  context.globalAlpha = 0.5
+  context.beginPath()
+  context.moveTo(centerX - 54, centerY + 36)
+  context.lineTo(centerX - 32, centerY + 20)
+  context.lineTo(centerX - 10, centerY + 31)
+  context.stroke()
+  context.restore()
   drawText(
     context,
     '尚未配置航海士',
@@ -760,6 +1042,7 @@ const preloadAssets = async (
   }
   add(view.qrPath || QR_PATH, 'qr')
   add(FLEET_SHARE_BACKGROUND_PATH, 'ui')
+  add(FLEET_SHARE_MOTIFS_PATH, 'ui')
   if (view.mode === 'battle') {
     for (const ship of view.ships) {
       for (const officer of ship.officerSlots) {
@@ -906,7 +1189,9 @@ export const drawFleetShareImage = async (
   }
   context.clearRect(0, 0, layout.width, layout.height)
   drawShareBackground(context, layout, report.images.get(FLEET_SHARE_BACKGROUND_PATH))
-  drawHeader(context, layout, view.configName, view.mode)
+  const motifs = report.images.get(FLEET_SHARE_MOTIFS_PATH)
+  drawMotifDecorations(context, layout, view.mode, motifs)
+  drawHeader(context, layout, view.configName, view.mode, motifs)
 
   if (view.mode === 'battle') {
     if (layout.emptyState) drawEmptyState(context, layout.emptyState)
@@ -960,7 +1245,8 @@ export const drawFleetShareImage = async (
 
   drawSectionAccent(context, layout, view.mode)
   const qr = report.images.get(view.qrPath || QR_PATH)
-  drawFooter(context, layout, view.mode, qr)
+  const background = report.images.get(FLEET_SHARE_BACKGROUND_PATH)
+  drawFooter(context, layout, view.mode, qr, motifs, background)
 
   return {
     degradedAssetCount: report.degradedAssetCount,
