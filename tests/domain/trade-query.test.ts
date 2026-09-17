@@ -14,6 +14,7 @@ const entries: RuntimeTradeGoodIndexEntry[] = [
     peakSeasonIds: ['s4'],
     lowSeasonIds: ['s2'],
     searchAliases: ['葡萄酒', 'wine'],
+    iconPath: '/subpkg-assets-0/imgs/trade_trade0615.png',
   },
   {
     id: 'trade0201',
@@ -26,6 +27,7 @@ const entries: RuntimeTradeGoodIndexEntry[] = [
     peakSeasonIds: ['s1'],
     lowSeasonIds: ['s3'],
     searchAliases: ['胡椒', 'pepper'],
+    iconPath: '/subpkg-assets-0/imgs/trade_trade0201.png',
   },
 ]
 

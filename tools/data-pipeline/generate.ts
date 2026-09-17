@@ -159,7 +159,13 @@ const generate = (): void => {
   // Write detail lookup index and static loaders
   writeDetailIndex(officers, SUBPKG_DIR)
   writeDetailLoaders(SUBPKG_DIR)
-  writeTradeRuntimeData(tradeDataset, OUTPUT_DIR, TRADE_SUBPKG_DIR)
+  writeTradeRuntimeData(
+    tradeDataset,
+    OUTPUT_DIR,
+    TRADE_SUBPKG_DIR,
+    assetDependencies,
+    runtimeAssetManifest,
+  )
   writeMaintenanceOfficerIndex(
     officers,
     datasetMeta.contentVersion,

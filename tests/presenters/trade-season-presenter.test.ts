@@ -16,6 +16,7 @@ const detail: RuntimeTradeGoodDetail = {
   peakSeasonIds: ['s4'],
   lowSeasonIds: ['s2'],
   iconId: null,
+  iconPath: '/subpkg-assets-0/imgs/trade_trade0615.png',
 }
 
 const reference: RuntimeTradeReference = {

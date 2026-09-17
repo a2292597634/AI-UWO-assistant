@@ -113,6 +113,7 @@ export interface RuntimeTradeGoodIndexEntry {
   peakSeasonIds: string[]
   lowSeasonIds: string[]
   searchAliases: string[]
+  iconPath: string
 }
 
 export interface RuntimeTradeGoodDetail {
@@ -126,6 +127,7 @@ export interface RuntimeTradeGoodDetail {
   peakSeasonIds: string[]
   lowSeasonIds: string[]
   iconId: string | null
+  iconPath: string
 }
 
 export interface RuntimeTradeType {

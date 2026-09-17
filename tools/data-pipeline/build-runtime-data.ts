@@ -71,9 +71,9 @@ const legacyPortraitPath = (officerId: string): string => {
   return `/subpkg-assets-0/imgs/${filename}`
 }
 
-const filenameFromPath = (path: string): string => path.split('/').pop() ?? path
+export const filenameFromPath = (path: string): string => path.split('/').pop() ?? path
 
-const publicAssetUrl = (
+export const publicAssetUrl = (
   filename: string,
   manifest?: RuntimeAssetUrlManifest,
 ): string | undefined => {
