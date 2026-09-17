@@ -37,5 +37,19 @@
   "packOptions": {
     "ignore": [],
     "include": []
+  },
+  "watchOptions": {
+    "ignore": [
+      "**/artifacts/**",
+      "**/.superpowers/**",
+      "**/.worktrees/**",
+      "**/archive/**",
+      "**/cloudfunctions/**",
+      "**/data/**",
+      "**/docs/**",
+      "**/node_modules/**",
+      "**/tests/**",
+      "**/tools/**"
+    ]
   }
 }
