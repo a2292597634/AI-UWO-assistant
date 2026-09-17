@@ -276,19 +276,16 @@ export type { RuntimeDetailRecord } from '../../miniprogram/contracts/runtime-da
 
 export const buildDetails = (
   officers: CanonicalOfficer[],
-  skills: CanonicalSkill[],
+  _skills: CanonicalSkill[],
   dictionaries: Record<string, DictionaryItem[]>,
-  iconSet?: Set<string>,
-  categoryFallback?: Map<string, string>,
-  globalFallback?: string,
+  _iconSet?: Set<string>,
+  _categoryFallback?: Map<string, string>,
+  _globalFallback?: string,
   dependencies?: AssetDependencyIndex,
   manifest?: RuntimeAssetUrlManifest,
 ): Record<string, RuntimeDetailRecord> => {
-  const skillMap = new Map(skills.map((s) => [s.id, s]))
   const dictName = (group: string, id: string): string =>
     dictionaries[group]?.find((d) => d.id === id)?.name ?? id
-  const _iconSet = iconSet ?? new Set<string>()
-  const _catFB = categoryFallback ?? new Map<string, string>()
 
   const result: Record<string, RuntimeDetailRecord> = {}
 
@@ -310,21 +307,11 @@ export const buildDetails = (
         n: dictName('languages', l.languageId),
       })),
       ss: o.skills.map((rel) => {
-        const sk = skillMap.get(rel.skillId)
         return {
           si: rel.skillId,
           k: rel.kind,
           ul: rel.unlockLevel,
           lv: rel.level,
-          ip: iconPath(
-            rel.skillId,
-            _iconSet,
-            _catFB,
-            sk?.categoryId ?? '',
-            globalFallback,
-            dependencies,
-            manifest,
-          ),
         }
       }),
       rc: {

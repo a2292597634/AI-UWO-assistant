@@ -122,9 +122,9 @@ describe('generated CDN image URLs', () => {
     expect(catalog[0]!.portraitPath).toBe(manifest.assets[0]!.publicUrl)
     expect(skills.skill_active!.ip).toBe(manifest.assets[1]!.publicUrl)
     expect(details.officer_test!.pp).toBe(manifest.assets[0]!.publicUrl)
-    expect(details.officer_test!.ss.every((entry) => entry.ip.startsWith(manifest.cdnOrigin))).toBe(
-      true,
-    )
+    expect(
+      details.officer_test!.ss.every((entry) => !Object.prototype.hasOwnProperty.call(entry, 'ip')),
+    ).toBe(true)
     expect(JSON.stringify({ catalog, skills, details })).not.toContain('/subpkg-assets-')
   })
 
@@ -224,6 +224,6 @@ describe('generated CDN image URLs', () => {
     )
 
     expect(runtime[missingSkill.id]!.ip).toBe('')
-    expect(details.officer_missing!.ss[0]!.ip).toBe('')
+    expect(Object.prototype.hasOwnProperty.call(details.officer_missing!.ss[0]!, 'ip')).toBe(false)
   })
 })

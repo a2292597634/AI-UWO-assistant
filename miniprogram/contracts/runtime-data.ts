@@ -204,9 +204,9 @@ export interface RuntimeDetailSkill {
   k: 'active' | 'passive' // kind
   ul: number // unlockLevel
   lv: number // level
-  ip: string // iconPath
-  // The following fields are optional in generated detail shards;
+  // Skill metadata and iconPath are optional in generated detail shards;
   // they are patched at runtime from the shared skills.js dictionary.
+  ip?: string // iconPath
   n?: string // name
   d?: string // description
   li?: string // levelInfo — compact per-level effect summary

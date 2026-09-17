@@ -182,13 +182,13 @@ describe('buildDetails', () => {
     expect(officer.nn).toBeTruthy()
     expect(officer.pp).toMatch(/^\/subpkg-assets-\d\/imgs\//)
     expect(officer.ss.length).toBeGreaterThan(0)
-    // Skills have only essential fields: si, k, ul, lv, ip
-    // n/d/li are optional — patched at runtime from shared skills.js
+    // Skills have only relation fields: si, k, ul, lv
+    // n/d/li/ip are optional — patched at runtime from shared skills.js
     const sk = officer.ss[0]!
     expect(sk.si).toBeTruthy()
     expect(sk.lv).toBeGreaterThanOrEqual(0)
     expect(sk.k).toMatch(/^(active|passive)$/)
-    expect(sk.ip).toMatch(/^\/subpkg-assets-\d\/imgs\//)
+    expect(sk.ip).toBeUndefined()
     // Unused fields must NOT be present
     expect((sk as unknown as Record<string, unknown>).sg).toBeUndefined()
     expect((sk as unknown as Record<string, unknown>).sl).toBeUndefined()

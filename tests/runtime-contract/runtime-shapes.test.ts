@@ -495,14 +495,13 @@ describe('Runtime Contract: details-N.js', () => {
     }
   })
 
-  it('skill icon paths have expected format', () => {
+  it('detail skill records omit duplicated icon paths', () => {
     for (let s = 0; s < DETAIL_SHARD_COUNT; s++) {
       const shard = readDetailShard(s)
       for (const [, rec] of Object.entries(shard)) {
         const ss = (rec as Record<string, unknown>).ss as Array<Record<string, unknown>>
         for (const skill of ss) {
-          const ip = skill.ip as string
-          expectPublishedAssetUrl(ip, 'skill_', true)
+          expect(Object.prototype.hasOwnProperty.call(skill, 'ip')).toBe(false)
         }
       }
     }

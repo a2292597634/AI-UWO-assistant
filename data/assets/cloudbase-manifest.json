@@ -1,6 +1,6 @@
 {
-  "releaseId": "maintenance-alkan-avatar-alpha-20260917-5f44661efc47",
-  "manifestDigest": "5f44661efc4746cd12e676162b19c5be4198bcd66f79ffd8997f227725ccb620",
+  "releaseId": "maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7",
+  "manifestDigest": "1fc6ce97f2f76a081b40227e00585b9910da7e8a476f93c2ba585dfe2044db4b",
   "contentVersion": "maintenance-alkan-avatar-alpha-20260917",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
@@ -18507,6 +18507,28 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-alkan-avatar-alpha-20260917-5f44661efc47/skill_wo_offline_frederick_funny_drunk.png",
       "releaseId": "maintenance-alkan-avatar-alpha-20260917-5f44661efc47",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-alkan-avatar-alpha-20260917-5f44661efc47/skill_wo_offline_frederick_funny_drunk.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_margareta_di_parma.png",
+      "filename": "officer_wo_offline_margareta_di_parma.png",
+      "sha256": "c0f919b9534c1792b76cc6639500de032546810ba7de45695e37e2267229e0a2",
+      "bytes": 105512,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_margareta_di_parma.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_margareta_di_parma.png",
+      "releaseId": "maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_margareta_di_parma.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_nurbanu_sultan.png",
+      "filename": "officer_wo_offline_nurbanu_sultan.png",
+      "sha256": "be24617cbc6dd0a699cefb634e71d14bb4b78750c4259014dab085ac30bfacad",
+      "bytes": 105039,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_nurbanu_sultan.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_nurbanu_sultan.png",
+      "releaseId": "maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_nurbanu_sultan.png"
     },
     {
       "sourcePath": "officer_custom_singuack.png",

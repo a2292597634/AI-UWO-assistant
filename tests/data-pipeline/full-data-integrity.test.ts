@@ -823,7 +823,7 @@ describe('WXML field contract', () => {
         expect(s.k).toMatch(/^(active|passive)$/)
         expect(s.si).toBeTruthy()
         expect(typeof s.lv).toBe('number')
-        expect(s.ip).toMatch(/^\/subpkg-assets-\d\/imgs\//)
+        expect(Object.prototype.hasOwnProperty.call(s, 'ip')).toBe(false)
       }
     }
   })
