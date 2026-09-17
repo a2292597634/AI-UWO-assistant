@@ -357,6 +357,276 @@ describe('Full data integrity', () => {
     })
   })
 
+  it('收錄瑪格麗特·德·帕爾瑪的截圖資料、技能等級與位置解鎖等級', () => {
+    const officer = officers.find((item) => item.name === '瑪格麗特·德·帕爾瑪')
+
+    expect(officer).toMatchObject({
+      id: 'officer_wo_offline_margareta_di_parma',
+      name: '瑪格麗特·德·帕爾瑪',
+      rarityId: 'rarity_5',
+      visualGradeId: 'grade_5',
+      typeId: 'type_class_2',
+      genderId: 'gender_f',
+      jobId: 'job_job21401012',
+      nationalityId: 'nationality_ctn_esp',
+      displayOrder: 632,
+      recruitment: {
+        cityIds: [],
+        requirementId: null,
+        requiredOfficerIds: [],
+        note: null,
+      },
+      portraitId: null,
+      sourceRefs: { workOrderId: 'wo_offline_margareta_di_parma' },
+      maintenanceNote: '手動新增 — 2026-09-17',
+    })
+    expect(officer?.languages).toEqual([
+      { languageId: 'language_lang20', level: 5 },
+      { languageId: 'language_lang100', level: 3 },
+    ])
+    expect(officer?.skills).toEqual([
+      {
+        skillId: 'skill_skill400521',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill400581',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 1,
+        unlockLevel: 50,
+        level: 2,
+      },
+      {
+        skillId: 'skill_skill300004',
+        kind: 'active',
+        sourceGroup: 'sk3',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill500796',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 0,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203826',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 1,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200681',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 2,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill201101',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 3,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill500436',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 4,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200281',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 5,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203406',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 6,
+        unlockLevel: 70,
+        level: 2,
+      },
+      {
+        skillId: 'skill_skillT0226',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 7,
+        unlockLevel: 70,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0068',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0080',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 1,
+        unlockLevel: 1,
+        level: 1,
+      },
+    ])
+  })
+
+  it('收錄努爾巴努·蘇丹的截圖資料、技能等級與位置解鎖等級', () => {
+    const officer = officers.find((item) => item.name === '努爾巴努·蘇丹')
+
+    expect(officer).toMatchObject({
+      id: 'officer_wo_offline_nurbanu_sultan',
+      name: '努爾巴努·蘇丹',
+      rarityId: 'rarity_5',
+      visualGradeId: 'grade_5',
+      typeId: 'type_class_2',
+      genderId: 'gender_f',
+      jobId: 'job_job21401014',
+      nationalityId: 'nationality_ctn_tur',
+      displayOrder: 633,
+      recruitment: {
+        cityIds: [],
+        requirementId: null,
+        requiredOfficerIds: [],
+        note: null,
+      },
+      portraitId: null,
+      sourceRefs: { workOrderId: 'wo_offline_nurbanu_sultan' },
+      maintenanceNote: '手動新增 — 2026-09-17',
+    })
+    expect(officer?.languages).toEqual([
+      { languageId: 'language_lang60', level: 5 },
+      { languageId: 'language_lang140', level: 3 },
+    ])
+    expect(officer?.skills).toEqual([
+      {
+        skillId: 'skill_skill400631',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill400591',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 1,
+        unlockLevel: 50,
+        level: 2,
+      },
+      {
+        skillId: 'skill_skill300004',
+        kind: 'active',
+        sourceGroup: 'sk3',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill501046',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 0,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203786',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 1,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200641',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 2,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill202586',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 3,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill500816',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 4,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill210486',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 5,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill500776',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 6,
+        unlockLevel: 70,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203386',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 7,
+        unlockLevel: 70,
+        level: 2,
+      },
+      {
+        skillId: 'skill_skillT0079',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0019',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 1,
+        unlockLevel: 1,
+        level: 1,
+      },
+    ])
+  })
+
   it('classifies all sk2 medical and repair actions as active', () => {
     const actionCategoryIds = new Set(['skill_category_medicine', 'skill_category_repair'])
     const skillCategories = new Map(skills.map((skill) => [skill.id, skill.categoryId]))
