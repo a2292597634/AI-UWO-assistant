@@ -19,6 +19,10 @@ const dataset = JSON.parse(
 const dependencies = JSON.parse(
   readFileSync('data/assets/asset-dependencies.json', 'utf8'),
 ) as AssetDependencyIndex
+const wineDataset: CanonicalTradeDataset = {
+  ...dataset,
+  tradeGoods: dataset.tradeGoods.filter((trade) => trade.id === 'trade0615'),
+}
 
 const makeOutputRoots = (): { root: string; generated: string; subpackage: string } => {
   const root = mkdtempSync(join(tmpdir(), 'uwo-trade-runtime-'))
@@ -58,11 +62,34 @@ describe('貿易品 runtime 輸出', () => {
     expect(tradeDetailShard('trade0615')).toBeLessThan(10)
   })
 
-  it('resolves dependency paths through the published asset manifest', () => {
-    const wineDataset: CanonicalTradeDataset = {
-      ...dataset,
-      tradeGoods: dataset.tradeGoods.filter((trade) => trade.id === 'trade0615'),
+  it('rejects a dependency index that omits the trade mapping', () => {
+    const incompleteDependencies = structuredClone(dependencies)
+    delete incompleteDependencies.tradeIcons.trade0615
+
+    expect(() => buildTradeGoodsIndex(wineDataset, incompleteDependencies)).toThrow(
+      '貿易品圖示依賴缺失或路徑為空：trade0615',
+    )
+    expect(() => buildTradeGoodDetails(wineDataset, incompleteDependencies)).toThrow(
+      '貿易品圖示依賴缺失或路徑為空：trade0615',
+    )
+  })
+
+  it('rejects a dependency index whose trade path is empty', () => {
+    const incompleteDependencies = structuredClone(dependencies)
+    incompleteDependencies.tradeIcons.trade0615 = {
+      ...incompleteDependencies.tradeIcons.trade0615!,
+      path: '',
     }
+
+    expect(() => buildTradeGoodsIndex(wineDataset, incompleteDependencies)).toThrow(
+      '貿易品圖示依賴缺失或路徑為空：trade0615',
+    )
+    expect(() => buildTradeGoodDetails(wineDataset, incompleteDependencies)).toThrow(
+      '貿易品圖示依賴缺失或路徑為空：trade0615',
+    )
+  })
+
+  it('resolves dependency paths through the published asset manifest', () => {
     const mappedDependencies = structuredClone(dependencies)
     mappedDependencies.tradeIcons.trade0615 = {
       path: '/subpkg-assets-0/imgs/trade_mapped-wine.png',

@@ -32,7 +32,10 @@ const tradeIconPath = (
 ): string => {
   const resolvedImageId = resolveTradeIconImageId(trade)
   const path =
-    dependencies?.tradeIcons[trade.id]?.path ?? `/subpkg-assets-0/imgs/trade_${resolvedImageId}.png`
+    dependencies === undefined
+      ? `/subpkg-assets-0/imgs/trade_${resolvedImageId}.png`
+      : dependencies.tradeIcons[trade.id]?.path
+  if (!path) throw new Error(`貿易品圖示依賴缺失或路徑為空：${trade.id}`)
   return publicAssetUrl(filenameFromPath(path), manifest) ?? path
 }
 
