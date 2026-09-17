@@ -17,7 +17,7 @@ export const tradeIconUrl = (imageId: string): string =>
   `https://voyage.tw/img/trade/uwo_${imageId}.png`
 
 const compareUtf8 = (left: string, right: string): number =>
-  new Intl.Collator('en', { numeric: true }).compare(left, right)
+  Buffer.from(left, 'utf8').compare(Buffer.from(right, 'utf8'))
 
 export const buildTradeIconSources = (
   trades: readonly CanonicalTradeGood[],

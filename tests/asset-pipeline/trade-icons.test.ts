@@ -48,7 +48,7 @@ describe('貿易品圖示來源解析器', () => {
         imageId: 'trade1817',
         filename: 'trade_trade1817.png',
         url: 'https://voyage.tw/img/trade/uwo_trade1817.png',
-        tradeIds: ['trade18T903', 'trade1817'],
+        tradeIds: ['trade1817', 'trade18T903'],
       },
     ])
   })
