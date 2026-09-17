@@ -386,10 +386,11 @@ export const updateShipTargets = (
   state: FleetState,
   shipId: string,
   targets: readonly FleetTarget[],
+  maxTargets = MAX_TARGETS_PER_SHIP,
 ): FleetTransitionResult => {
   const ship = findShip(state, shipId)
   if (!ship) return { state, error: 'unknown-ship' }
-  if (targets.length > MAX_TARGETS_PER_SHIP) return { state, error: 'target-limit' }
+  if (targets.length > maxTargets) return { state, error: 'target-limit' }
   if (
     targets.some(
       (target) => target.targetLevel < (target.skillId === null ? 1 : 0) || target.targetLevel > 10,

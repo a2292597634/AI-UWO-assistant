@@ -688,6 +688,38 @@ describe('FleetConfigService dispatch', () => {
     expect(saveAsResult.ok, 'saveAsConfig 應接受 Lv.0 追蹤目標').toBe(true)
   })
 
+  it('冒險配置接受 30 個目標但拒絕第 31 個，戰鬥仍拒絕第 21 個', async () => {
+    const createStateWithTargets = (count: number): FleetState => {
+      const state = createFleetState()
+      state.ships[0]!.targets = Array.from({ length: count }, (_, index) => ({
+        id: `target-${index + 1}`,
+        skillId: `skill-${index + 1}`,
+        targetLevel: 0,
+      }))
+      return state
+    }
+
+    const adventure = await dispatch('createConfig', {
+      scope: 'adventure',
+      name: '30個冒險目標',
+      fleetState: createStateWithTargets(30),
+    })
+    const adventureTooMany = await dispatch('createConfig', {
+      scope: 'adventure',
+      name: '31個冒險目標',
+      fleetState: createStateWithTargets(31),
+    })
+    const battleTooMany = await dispatch('createConfig', {
+      scope: 'battle',
+      name: '21個戰鬥目標',
+      fleetState: createStateWithTargets(21),
+    })
+
+    expect(adventure.ok).toBe(true)
+    expect(adventureTooMany).toMatchObject({ ok: false, code: 'invalid-state' })
+    expect(battleTooMany).toMatchObject({ ok: false, code: 'invalid-state' })
+  })
+
   it('rejects Lv.0 empty targets at the server boundary', async () => {
     const invalidState = createFleetState()
     invalidState.ships[0]!.mode = 'auto'

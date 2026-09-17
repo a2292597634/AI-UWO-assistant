@@ -11,6 +11,8 @@ import { FLEET_SHIP_COUNT, MAX_TARGETS_PER_SHIP, SHIP_OFFICER_CAPACITY } from '.
 
 export { MAX_TARGETS_PER_SHIP }
 
+export const MAX_ADVENTURE_TARGETS_PER_SHIP = 30
+
 // ── Constants ──
 
 export const SCHEMA_VERSION = 1
@@ -18,6 +20,9 @@ export const MAX_CONFIG_NAME_LENGTH = 30
 
 export type ConfigScope = 'battle' | 'adventure' | 'unclassified'
 export type ClassifiedConfigScope = Exclude<ConfigScope, 'unclassified'>
+
+export const getMaxTargetsPerShip = (scope: ConfigScope): number =>
+  scope === 'adventure' ? MAX_ADVENTURE_TARGETS_PER_SHIP : MAX_TARGETS_PER_SHIP
 
 export const CLASSIFIED_CONFIG_SCOPES = ['battle', 'adventure'] as const
 export const MAX_CONFIGS_PER_SCOPE = 10
@@ -180,32 +185,41 @@ const MAX_OFFICER_ID_LIST_LENGTH = 1000
  * Validate that an unknown value is a well-formed FleetState suitable for storage.
  * Rejects unknown top-level fields so UI transient state cannot leak in.
  */
-export const isValidFleetState = (value: unknown): value is FleetState => {
+export const isValidFleetState = (
+  value: unknown,
+  maxTargetsPerShip = MAX_TARGETS_PER_SHIP,
+): value is FleetState => {
   if (typeof value !== 'object' || value === null) return false
   const obj = value as Record<string, unknown>
 
   if (!hasOnlyAllowedKeys(obj, ALLOWED_RUNTIME_TOP_LEVEL_KEYS)) return false
-  return isValidFleetStateFields(obj)
+  return isValidFleetStateFields(obj, maxTargetsPerShip)
 }
 
 /**
  * 驗證包含 schemaVersion 的持久化 FleetState。
  * schemaVersion 屬於序列化 envelope，不是 FleetState runtime business state。
  */
-export const isValidSerializedFleetState = (value: unknown): value is SerializedFleetState => {
+export const isValidSerializedFleetState = (
+  value: unknown,
+  maxTargetsPerShip = MAX_TARGETS_PER_SHIP,
+): value is SerializedFleetState => {
   if (typeof value !== 'object' || value === null) return false
   const obj = value as Record<string, unknown>
 
   if (!hasOnlyAllowedKeys(obj, ALLOWED_SERIALIZED_TOP_LEVEL_KEYS)) return false
   if (obj.schemaVersion !== SCHEMA_VERSION) return false
-  return isValidFleetStateFields(obj)
+  return isValidFleetStateFields(obj, maxTargetsPerShip)
 }
 
 const hasOnlyAllowedKeys = (value: Record<string, unknown>, allowed: Set<string>): boolean => {
   return Object.keys(value).every((key) => allowed.has(key))
 }
 
-const isValidFleetStateFields = (obj: Record<string, unknown>): boolean => {
+const isValidFleetStateFields = (
+  obj: Record<string, unknown>,
+  maxTargetsPerShip: number,
+): boolean => {
   // ships must be an array of exactly 7
   if (!Array.isArray(obj.ships) || obj.ships.length !== FLEET_SHIP_COUNT) return false
 
@@ -213,7 +227,7 @@ const isValidFleetStateFields = (obj: Record<string, unknown>): boolean => {
   const allOfficerIds = new Set<string>()
   const shipIds = new Set<string>()
   for (const ship of obj.ships) {
-    if (!isValidShip(ship)) return false
+    if (!isValidShip(ship, maxTargetsPerShip)) return false
     const s = ship as Record<string, unknown>
     if (shipIds.has(s.id as string)) return false
     shipIds.add(s.id as string)
@@ -232,7 +246,7 @@ const isValidFleetStateFields = (obj: Record<string, unknown>): boolean => {
   return true
 }
 
-const isValidShip = (value: unknown): boolean => {
+const isValidShip = (value: unknown, maxTargetsPerShip: number): boolean => {
   if (typeof value !== 'object' || value === null) return false
   const ship = value as Record<string, unknown>
 
@@ -262,7 +276,7 @@ const isValidShip = (value: unknown): boolean => {
 
   // targets
   if (!Array.isArray(ship.targets)) return false
-  if (ship.targets.length > MAX_TARGETS_PER_SHIP) return false
+  if (ship.targets.length > maxTargetsPerShip) return false
   for (const target of ship.targets) {
     if (!isValidTarget(target)) return false
   }

@@ -14,6 +14,7 @@ const SHIP_OFFICER_CAPACITY = 11
 const MAX_IDENTIFIER_LENGTH = 100
 const MAX_LABEL_LENGTH = 30
 const MAX_TARGETS_PER_SHIP = 20
+const MAX_ADVENTURE_TARGETS_PER_SHIP = 30
 const MAX_OFFICER_ID_LIST_LENGTH = 1000
 const CLASSIFIED_CONFIG_SCOPES = new Set(['battle', 'adventure'])
 const VALID_ACTIONS = new Set([
@@ -46,6 +47,14 @@ function normalizeConfigName(value) {
  */
 function isClassifiedScope(value) {
   return CLASSIFIED_CONFIG_SCOPES.has(value)
+}
+
+/**
+ * @param {'battle' | 'adventure'} scope
+ * @returns {number}
+ */
+function getMaxTargetsPerShip(scope) {
+  return scope === 'adventure' ? MAX_ADVENTURE_TARGETS_PER_SHIP : MAX_TARGETS_PER_SHIP
 }
 
 /**
@@ -102,9 +111,10 @@ const ALLOWED_TARGET_KEYS = new Set(['id', 'skillId', 'targetLevel'])
  * 驗證可由 runtime 使用的 FleetState business state。
  * schemaVersion 屬於持久化 envelope，不是此型別的一部分。
  * @param {unknown} state
+ * @param {number} [maxTargetsPerShip]
  * @returns {boolean}
  */
-function isValidFleetState(state) {
+function isValidFleetState(state, maxTargetsPerShip = MAX_TARGETS_PER_SHIP) {
   if (!isPlainObject(state)) return false
   if (!hasOnlyAllowedKeys(state, ALLOWED_STATE_KEYS)) return false
   if (!Array.isArray(state.ships) || state.ships.length !== FLEET_SHIP_COUNT) return false
@@ -113,7 +123,7 @@ function isValidFleetState(state) {
   const allOfficerIds = new Set()
   const shipIds = new Set()
   for (const ship of state.ships) {
-    if (!isValidShip(ship)) return false
+    if (!isValidShip(ship, maxTargetsPerShip)) return false
     if (shipIds.has(ship.id)) return false
     shipIds.add(ship.id)
     for (const officerId of ship.officerIds) {
@@ -162,9 +172,10 @@ function isValidIdArray(value, maxLength) {
 
 /**
  * @param {unknown} value
+ * @param {number} [maxTargetsPerShip]
  * @returns {boolean}
  */
-function isValidShip(value) {
+function isValidShip(value, maxTargetsPerShip = MAX_TARGETS_PER_SHIP) {
   if (!isPlainObject(value) || !hasOnlyAllowedKeys(value, ALLOWED_SHIP_KEYS)) return false
   if (!isValidIdentifier(value.id)) return false
   if (
@@ -179,7 +190,7 @@ function isValidShip(value) {
   if (!isValidIdArray(value.lockedOfficerIds, SHIP_OFFICER_CAPACITY)) return false
   if (!isValidIdArray(value.removedOfficerIds, MAX_OFFICER_ID_LIST_LENGTH)) return false
   if (typeof value.needsReview !== 'boolean') return false
-  if (!Array.isArray(value.targets) || value.targets.length > MAX_TARGETS_PER_SHIP) return false
+  if (!Array.isArray(value.targets) || value.targets.length > maxTargetsPerShip) return false
 
   const skillIds = new Set()
   for (const target of value.targets) {
@@ -450,7 +461,7 @@ function createFleetConfigService(repo) {
     if (!isSchemaCompatible(record.schemaVersion)) {
       return fail('invalid-state', `Unsupported schema version: ${record.schemaVersion}`)
     }
-    if (!isValidFleetState(record.fleetState)) {
+    if (!isValidFleetState(record.fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
       return fail('invalid-state', 'Invalid fleet configuration data')
     }
 
@@ -470,7 +481,7 @@ function createFleetConfigService(repo) {
     }
 
     // Validate fleet state
-    if (!fleetState || !isValidFleetState(fleetState)) {
+    if (!fleetState || !isValidFleetState(fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
       return fail('invalid-state', 'Invalid fleet configuration data')
     }
 
@@ -512,7 +523,7 @@ function createFleetConfigService(repo) {
       return fail('not-found', 'Config ID is required')
     }
 
-    if (!fleetState || !isValidFleetState(fleetState)) {
+    if (!fleetState || !isValidFleetState(fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
       return fail('invalid-state', 'Invalid fleet configuration data')
     }
 
@@ -554,7 +565,7 @@ function createFleetConfigService(repo) {
       return fail('name-required', 'Please enter a config name (1-30 characters)')
     }
 
-    if (!fleetState || !isValidFleetState(fleetState)) {
+    if (!fleetState || !isValidFleetState(fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
       return fail('invalid-state', 'Invalid fleet configuration data')
     }
 

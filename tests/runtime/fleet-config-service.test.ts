@@ -168,6 +168,36 @@ describe('FleetConfigService adapter contract', () => {
     })
   })
 
+  it('接受包含 30 個目標的冒險配置回應', async () => {
+    const state = createFleetState()
+    state.ships[0]!.targets = Array.from({ length: 30 }, (_, index) => ({
+      id: `adventure-target-${index + 1}`,
+      skillId: `skill-adventure-${index + 1}`,
+      targetLevel: 0,
+    }))
+    mockCallFunction.mockResolvedValue({
+      result: {
+        ok: true,
+        data: {
+          configId: 'adventure-cfg-1',
+          name: '冒險30目標',
+          normalizedName: '冒險30目標',
+          scope: 'adventure',
+          fleetState: state,
+          schemaVersion: 1,
+          version: 1,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          lastUsedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    })
+
+    await expect(
+      createFleetConfigService().loadConfig('adventure', 'adventure-cfg-1'),
+    ).resolves.toMatchObject({ configId: 'adventure-cfg-1' })
+  })
+
   it('sends the expected version when deleting a config', async () => {
     mockSuccess({ deleted: true })
 

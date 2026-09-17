@@ -340,38 +340,49 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.canRecalculate).toBe(false)
   })
 
-  it('达到默认目标上限时不打开目标选择器', () => {
+  it('預設配置全部 25 個有效冒險技能目標', () => {
     const page = createPageInstance()
     page.onLoad()
-    const before = structuredClone(page.data.targets)
-    expect(before).toHaveLength(20)
+
+    expect(page.data.targets).toHaveLength(25)
+    expect(page.data.targets.map((target) => target.skillId)).toEqual(
+      expect.arrayContaining([
+        'skill_skillT0172',
+        'skill_skillT0173',
+        'skill_skillT0174',
+        'skill_skillT0175',
+        'skill_skillT0176',
+      ]),
+    )
+  })
+
+  it('預設目標未達 30 個時仍可新增目標', () => {
+    const page = createPageInstance()
+    page.onLoad()
     wxStub.showToast.mockClear()
 
     page.onAddTarget()
 
-    expect(page.data.showTargetPicker).toBe(false)
-    expect(page.data.targets).toEqual(before)
-    expect(wxStub.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: '每艘船最多設定 20 個目標' }),
-    )
+    expect(page.data.showTargetPicker).toBe(true)
+    expect(wxStub.showToast).not.toHaveBeenCalled()
   })
 
   it('stops opening the target picker after the per-ship limit', () => {
     const page = createPageInstance()
     page.onLoad()
 
-    for (let index = page.data.targets.length; index < 20; index += 1) {
+    for (let index = page.data.targets.length; index < 30; index += 1) {
       page.onAddTarget()
       page.onSkillSelect({ currentTarget: { dataset: { id: `skill-limit-${index}` } } } as never)
     }
-    expect(page.data.targets).toHaveLength(20)
+    expect(page.data.targets).toHaveLength(30)
     wxStub.showToast.mockClear()
 
     page.onAddTarget()
 
     expect(page.data.showTargetPicker).toBe(false)
     expect(wxStub.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: '每艘船最多設定 20 個目標' }),
+      expect.objectContaining({ title: '每艘船最多設定 30 個目標' }),
     )
   })
 

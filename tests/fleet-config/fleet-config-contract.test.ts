@@ -134,6 +134,23 @@ describe('FleetState validation', () => {
     expect(isValidFleetState(JSON.parse(encoded))).toBe(false)
   })
 
+  it('冒險配置可驗證 30 個目標，而預設戰鬥上限仍拒絕相同狀態', () => {
+    const adventureTargetLimit = 30
+    const state = createFleetState()
+    state.ships[0]!.targets = Array.from({ length: adventureTargetLimit }, (_, index) => ({
+      id: `adventure-target-${index + 1}`,
+      skillId: `skill-adventure-${index + 1}`,
+      targetLevel: 0,
+    }))
+
+    const validateWithLimit = isValidFleetState as (
+      value: unknown,
+      maxTargetsPerShip: number,
+    ) => boolean
+    expect(validateWithLimit(state, adventureTargetLimit)).toBe(true)
+    expect(isValidFleetState(state)).toBe(false)
+  })
+
   it('rejects state without exactly seven ships', () => {
     const state = createFleetState()
     expect(isValidFleetState({ ...state, ships: state.ships.slice(0, 3) })).toBe(false)
