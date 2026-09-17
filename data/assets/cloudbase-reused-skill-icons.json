@@ -226,5 +226,17 @@
     "contentType": "image/png",
     "sourceSha256": "da314507f4d7c92f168ab4103feb31e3870bf305e879d8bc14d3299132922dd5",
     "sourceBytes": 6774
+  },
+  {
+    "filename": "skill_wo_offline_alkan_beldad_secret_processing.png",
+    "cloudPath": "assets/maintenance-9c44a91928ee1ad9-891ec97fa92e/skill_skill509998406.png",
+    "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-9c44a91928ee1ad9-891ec97fa92e/skill_skill509998406.png",
+    "releaseId": "maintenance-9c44a91928ee1ad9-891ec97fa92e",
+    "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-9c44a91928ee1ad9-891ec97fa92e/skill_skill509998406.png",
+    "sha256": "44b19e2a306c4a959207ffd82aa79489bd318c9510fbdd0773b22cdd2e72b618",
+    "bytes": 3965,
+    "contentType": "image/png",
+    "sourceSha256": "44b19e2a306c4a959207ffd82aa79489bd318c9510fbdd0773b22cdd2e72b618",
+    "sourceBytes": 3965
   }
 ]

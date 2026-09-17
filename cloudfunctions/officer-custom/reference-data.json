@@ -1796,7 +1796,8 @@
     "skill_skill509998137",
     "skill_skill509998138",
     "skill_skill509999116",
-    "skill_wo_mtttzwza_ecnsvvum_candidate_1788942048188_0"
+    "skill_wo_mtttzwza_ecnsvvum_candidate_1788942048188_0",
+    "skill_wo_offline_alkan_beldad_secret_processing"
   ],
   "officerIds": [
     "officer_chast089",
@@ -2427,6 +2428,7 @@
     "officer_chacbt056",
     "officer_chacbt057",
     "officer_wo_mtttzwza_ecnsvvum",
+    "officer_wo_offline_alkan_beldad",
     "officer_custom_singuack",
     "officer_custom_piyale"
   ]

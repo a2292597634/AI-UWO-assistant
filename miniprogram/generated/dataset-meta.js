@@ -1,1 +1,1 @@
-module.exports = {"officerCount":630,"skillCount":1204,"contentVersion":"maintenance-9c44a91928ee1ad9","updatedAt":"2026-09-11T09:08:38.240Z","sourceSnapshot":"voyage-tw-2026052501"}
+module.exports = {"officerCount":631,"skillCount":1205,"contentVersion":"maintenance-756fe5d9f2b01a27","updatedAt":"2026-09-17T08:06:53.040Z","sourceSnapshot":"voyage-tw-2026052501"}

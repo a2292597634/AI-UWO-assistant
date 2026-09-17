@@ -70,6 +70,144 @@ describe('Full data integrity', () => {
     })
   })
 
+  it('收錄阿爾坎·貝爾達德的截圖資料與天生效果等級', () => {
+    const officer = officers.find((item) => item.name === '阿爾坎·貝爾達德')
+
+    expect(officer).toMatchObject({
+      id: 'officer_wo_offline_alkan_beldad',
+      rarityId: 'rarity_5',
+      visualGradeId: 'grade_5',
+      typeId: 'type_class_2',
+      genderId: 'gender_f',
+      jobId: 'job_job21401012',
+      nationalityId: 'nationality_ctn_eng',
+      recruitment: {
+        cityIds: [],
+        requirementId: null,
+        requiredOfficerIds: [],
+        note: null,
+      },
+    })
+    expect(officer?.languages).toEqual([
+      { languageId: 'language_lang20', level: 5 },
+      { languageId: 'language_lang120', level: 3 },
+    ])
+    expect(officer?.skills).toEqual([
+      {
+        skillId: 'skill_skill400581',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill400521',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 1,
+        unlockLevel: 50,
+        level: 2,
+      },
+      {
+        skillId: 'skill_skill300004',
+        kind: 'active',
+        sourceGroup: 'sk3',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill500796',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 0,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203826',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 1,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200681',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 2,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill201101',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 3,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200281',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 4,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill210486',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 5,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill202646',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 6,
+        unlockLevel: 70,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203426',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 7,
+        unlockLevel: 70,
+        level: 2,
+      },
+      {
+        skillId: 'skill_skillT0053',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0069',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 1,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_wo_offline_alkan_beldad_secret_processing',
+        kind: 'passive',
+        sourceGroup: 'sk1',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+    ])
+  })
+
   it('classifies all sk2 medical and repair actions as active', () => {
     const actionCategoryIds = new Set(['skill_category_medicine', 'skill_category_repair'])
     const skillCategories = new Map(skills.map((skill) => [skill.id, skill.categoryId]))

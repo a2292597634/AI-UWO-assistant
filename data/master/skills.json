@@ -13242,5 +13242,16 @@
     "sourceRefs": {
       "workOrderId": "wo_mtttzwza_ecnsvvum:candidate_1788942048188_0"
     }
+  },
+  {
+    "id": "skill_wo_offline_alkan_beldad_secret_processing",
+    "name": "秘密加工",
+    "categoryId": "skill_category_innate_buff",
+    "description": "工藝品出售溢價增加0.2%",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_alkan_beldad:secret_processing"
+    }
   }
 ]
