@@ -208,6 +208,155 @@ describe('Full data integrity', () => {
     ])
   })
 
+  it('收錄佛雷德烈的截圖資料、位置解鎖等級與新天生技能', () => {
+    const officer = officers.find((item) => item.name === '佛雷德烈')
+    const innateSkill = skills.find((item) => item.name === '有趣的酒鬼')
+
+    expect(officer).toMatchObject({
+      id: 'officer_wo_offline_frederick',
+      name: '佛雷德烈',
+      rarityId: 'rarity_5',
+      visualGradeId: 'grade_5',
+      typeId: 'type_class_2',
+      genderId: 'gender_m',
+      jobId: 'job_job21401001',
+      nationalityId: 'nationality_ctn_ntc',
+      displayOrder: 631,
+      recruitment: {
+        cityIds: [],
+        requirementId: null,
+        requiredOfficerIds: [],
+        note: null,
+      },
+    })
+    expect(officer?.languages).toEqual([
+      { languageId: 'language_lang30', level: 5 },
+      { languageId: 'language_lang90', level: 3 },
+    ])
+    expect(officer?.skills).toEqual([
+      {
+        skillId: 'skill_skill400591',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill400711',
+        kind: 'active',
+        sourceGroup: 'sk2',
+        slot: 1,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill300001',
+        kind: 'active',
+        sourceGroup: 'sk3',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill501356',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 0,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203546',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 1,
+        unlockLevel: 10,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200401',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 2,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203566',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 3,
+        unlockLevel: 50,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0207',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 4,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill200411',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 5,
+        unlockLevel: 30,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0204',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 6,
+        unlockLevel: 70,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skill203166',
+        kind: 'passive',
+        sourceGroup: 'sk0',
+        slot: 7,
+        unlockLevel: 70,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0041',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_skillT0062',
+        kind: 'passive',
+        sourceGroup: 'sk5',
+        slot: 1,
+        unlockLevel: 1,
+        level: 1,
+      },
+      {
+        skillId: 'skill_wo_offline_frederick_funny_drunk',
+        kind: 'passive',
+        sourceGroup: 'sk1',
+        slot: 0,
+        unlockLevel: 1,
+        level: 1,
+      },
+    ])
+    expect(innateSkill).toMatchObject({
+      id: 'skill_wo_offline_frederick_funny_drunk',
+      name: '有趣的酒鬼',
+      categoryId: 'skill_category_innate_buff',
+      description: '酒類出售溢價增加0.2%。',
+      iconId: null,
+      sourceRefs: { workOrderId: 'wo_offline_frederick:funny_drunk' },
+    })
+  })
+
   it('classifies all sk2 medical and repair actions as active', () => {
     const actionCategoryIds = new Set(['skill_category_medicine', 'skill_category_repair'])
     const skillCategories = new Map(skills.map((skill) => [skill.id, skill.categoryId]))

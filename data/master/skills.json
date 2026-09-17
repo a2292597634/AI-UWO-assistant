@@ -13253,5 +13253,16 @@
     "sourceRefs": {
       "workOrderId": "wo_offline_alkan_beldad:secret_processing"
     }
+  },
+  {
+    "id": "skill_wo_offline_frederick_funny_drunk",
+    "name": "有趣的酒鬼",
+    "categoryId": "skill_category_innate_buff",
+    "description": "酒類出售溢價增加0.2%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_frederick:funny_drunk"
+    }
   }
 ]

@@ -97562,5 +97562,151 @@
       "workOrderId": "wo_offline_alkan_beldad"
     },
     "maintenanceNote": "手動新增 — 2026-09-17"
+  },
+  {
+    "id": "officer_wo_offline_frederick",
+    "name": "佛雷德烈",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_m",
+    "jobId": "job_job21401001",
+    "nationalityId": "nationality_ctn_ntc",
+    "languages": [
+      {
+        "languageId": "language_lang30",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang90",
+        "level": 3
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400711",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501356",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203546",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200401",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203566",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0207",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200411",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0204",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203166",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0041",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0062",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_frederick_funny_drunk",
+        "kind": "passive",
+        "sourceGroup": "sk1",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 631,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_frederick"
+    },
+    "maintenanceNote": "手動新增 — 2026-09-17"
   }
 ]
