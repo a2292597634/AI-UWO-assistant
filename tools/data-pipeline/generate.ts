@@ -93,6 +93,7 @@ const generate = (): void => {
   const assetDependencies = buildAssetDependencyIndex(officers, skills, {
     assetFilenames: iconSet,
     skillIconOverrides,
+    trades: tradeDataset.tradeGoods,
   })
   assertAssetDependencyIndex(assetDependencies)
   console.log(`  Asset roots: ${assetDependencies.roots.length}`)

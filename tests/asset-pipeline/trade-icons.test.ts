@@ -24,18 +24,20 @@ describe('貿易品圖示來源解析器', () => {
   })
 
   it('builds the voyage.tw URL and collision-safe filename', () => {
-    expect(tradeIconUrl('trade0615')).toBe(
-      'https://voyage.tw/img/trade/uwo_trade0615.png',
-    )
+    expect(tradeIconUrl('trade0615')).toBe('https://voyage.tw/img/trade/uwo_trade0615.png')
     expect(tradeIconFilename('trade0615')).toBe('trade_trade0615.png')
   })
 
   it('deduplicates two goods that share an overridden image ID', () => {
-    const sources = buildTradeIconSources([normal, overridden, {
-      id: 'trade1817',
-      iconId: null,
-      sourceRefs: { voyageTw: 'trade1817' },
-    }] as never[])
+    const sources = buildTradeIconSources([
+      normal,
+      overridden,
+      {
+        id: 'trade1817',
+        iconId: null,
+        sourceRefs: { voyageTw: 'trade1817' },
+      },
+    ] as never[])
 
     expect(sources).toEqual([
       {

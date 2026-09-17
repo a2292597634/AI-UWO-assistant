@@ -3,6 +3,7 @@ import type {
   CanonicalOfficer,
   CanonicalSkill,
   CanonicalSkillRelation,
+  CanonicalTradeGood,
 } from '../../tools/import/types'
 import {
   assertAssetDependencyIndex,
@@ -47,6 +48,20 @@ const relation = (
   slot,
   unlockLevel: 1,
   level: 1,
+})
+
+const makeTrade = (id: string, iconId: string): CanonicalTradeGood => ({
+  id,
+  name: id,
+  categoryId: 'trade_type_18',
+  categoryName: '測試類別',
+  rank: 1,
+  salesMode: 'fixed-port',
+  salesPortIds: [],
+  peakSeasonIds: [],
+  lowSeasonIds: [],
+  iconId,
+  sourceRefs: { voyageTw: id.replace(/^trade_/, '') },
 })
 
 const navalActiveEnhancementSkillIds = [
@@ -131,6 +146,30 @@ describe('asset dependency index', () => {
       index.officerPortraits.officer_test000!.root,
     )
     expect(index.officerDetailRoots.officer_test100).toEqual(['subpkg-assets-1', 'subpkg-assets-0'])
+  })
+
+  it('讓共用圖示的貿易品映射到第一素材根的同一檔案', () => {
+    const trades = [makeTrade('trade1817', 'trade1817'), makeTrade('trade18T903', 'trade1817')]
+    const index = buildAssetDependencyIndex([], [], {
+      assetFilenames: new Set(['trade_trade1817.png']),
+      trades,
+    })
+
+    expect(index.tradeIcons.trade18T903).toEqual(index.tradeIcons.trade1817)
+    expect(index.roots.flatMap((root) => root.files)).toContain('trade_trade1817.png')
+    expect(
+      index.roots.flatMap((root) => root.files).filter((file) => file === 'trade_trade1817.png'),
+    ).toHaveLength(1)
+    expect(() => assertAssetDependencyIndex(index)).not.toThrow()
+
+    const broken = structuredClone(index)
+    broken.tradeIcons.trade1817 = {
+      path: '/subpkg-assets-missing/imgs/trade_trade1817.png',
+      root: 'subpkg-assets-missing',
+    }
+    expect(() => assertAssetDependencyIndex(broken)).toThrow(
+      'asset reference points to missing file',
+    )
   })
 
   it('validates generated paths, root ownership, and duplicate file output', () => {

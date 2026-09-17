@@ -25,6 +25,7 @@ const dependencies = (files: string[]): AssetDependencyIndex => ({
   officerPortraits: {},
   officerCatalogRoots: {},
   officerDetailRoots: {},
+  tradeIcons: {},
 })
 
 describe('asset source collection', () => {
@@ -111,6 +112,12 @@ describe('素材来源完整性校验', () => {
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+
+  it('缺少貿易品圖示時失敗並指出檔名', async () => {
+    await expect(
+      validateReferencedAssetSources(dependencies(['trade_trade1817.png']), new Map()),
+    ).rejects.toThrow('trade_trade1817.png')
   })
 
   it('PNG 无法被 sharp 解码时失败并指出文件名', async () => {

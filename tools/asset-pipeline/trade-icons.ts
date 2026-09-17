@@ -19,9 +19,7 @@ export const tradeIconUrl = (imageId: string): string =>
 const compareUtf8 = (left: string, right: string): number =>
   Buffer.from(left, 'utf8').compare(Buffer.from(right, 'utf8'))
 
-export const buildTradeIconSources = (
-  trades: readonly CanonicalTradeGood[],
-): TradeIconSource[] => {
+export const buildTradeIconSources = (trades: readonly CanonicalTradeGood[]): TradeIconSource[] => {
   const sources = new Map<string, string[]>()
 
   for (const trade of trades) {

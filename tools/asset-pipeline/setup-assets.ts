@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import sharp from 'sharp'
-import type { CanonicalOfficer, CanonicalSkill } from '../import/types'
+import type { CanonicalOfficer, CanonicalSkill, CanonicalTradeDataset } from '../import/types'
 import {
   buildAssetDependencyIndex,
   assertAssetDependencyIndex,
@@ -77,13 +77,15 @@ const sourceFiles = (): Map<string, string> => collectAssetSourceFiles(SRC_DIRS)
 const canonicalData = (): {
   officers: CanonicalOfficer[]
   skills: CanonicalSkill[]
+  trades: CanonicalTradeDataset['tradeGoods']
 } => ({
   officers: loadCanonicalOfficers('data/master'),
   skills: readJson<CanonicalSkill[]>('data/master/skills.json'),
+  trades: readJson<CanonicalTradeDataset>('data/master/trade-goods.json').tradeGoods,
 })
 
 export const setupAssets = async (): Promise<void> => {
-  const { officers, skills } = canonicalData()
+  const { officers, skills, trades } = canonicalData()
   const sources = sourceFiles()
   const skillIconOverrides = loadSkillIconOverrides()
   const skillFilenames = new Set(
@@ -105,6 +107,7 @@ export const setupAssets = async (): Promise<void> => {
   const dependencies = buildAssetDependencyIndex(officers, skills, {
     assetFilenames: skillFilenames,
     skillIconOverrides,
+    trades,
   })
   assertAssetDependencyIndex(dependencies)
   writeAssetDependencyIndex(dependencies, 'data/assets/asset-dependencies.json')

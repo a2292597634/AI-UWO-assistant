@@ -181,6 +181,7 @@ export interface RuntimeAssetDependencyIndex {
   officerPortraits: Record<string, RuntimeAssetReference>
   officerCatalogRoots: Record<string, string[]>
   officerDetailRoots: Record<string, string[]>
+  tradeIcons: Record<string, RuntimeAssetReference>
 }
 
 // ── Detail records (miniprogram/subpkg-detail/details-N.js) ──

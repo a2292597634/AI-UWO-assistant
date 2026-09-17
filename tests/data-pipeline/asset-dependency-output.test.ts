@@ -62,6 +62,15 @@ describe('generated asset dependency output', () => {
     ).toBe(true)
   })
 
+  it('為全部貿易品輸出素材映射', () => {
+    expect(Object.keys(dependencies.tradeIcons)).toHaveLength(656)
+    expect(
+      Object.values(dependencies.tradeIcons).every((reference) =>
+        reference.path.startsWith('/subpkg-assets-'),
+      ),
+    ).toBe(true)
+  })
+
   it('keeps build-only roots out of the app subpackage configuration', () => {
     const appRoots = appConfig.subpackages
       .filter((subpackage) => subpackage.name.startsWith('assetsCatalog'))

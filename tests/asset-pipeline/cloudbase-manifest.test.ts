@@ -34,6 +34,7 @@ const dependencies = (): AssetDependencyIndex => ({
   officerPortraits: {},
   officerCatalogRoots: {},
   officerDetailRoots: {},
+  tradeIcons: {},
 })
 
 const config = () =>
