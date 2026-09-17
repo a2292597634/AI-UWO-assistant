@@ -1,11 +1,33 @@
 import { describe, expect, it } from 'vitest'
+import { createFleetState } from '../../miniprogram/domain/battle-fleet'
 import {
   deriveAdventureOfficers,
   getAdventureOptimizationTargets,
+  updateAdventureShipTargets,
 } from '../../miniprogram/domain/adventure-fleet'
 import type { RuntimeCatalogEntry } from '../../miniprogram/contracts/runtime-data'
 
 describe('adventure fleet target semantics', () => {
+  it('冒險配隊接受每船 30 個目標但拒絕第 31 個', () => {
+    const state = createFleetState()
+    const targets = Array.from({ length: 30 }, (_, index) => ({
+      id: `adventure-target-${index + 1}`,
+      skillId: `skill-adventure-${index + 1}`,
+      targetLevel: 0,
+    }))
+
+    const accepted = updateAdventureShipTargets(state, 'ship-1', targets)
+    expect(accepted.error).toBeUndefined()
+    expect(accepted.state.ships[0]!.targets).toHaveLength(30)
+
+    const rejected = updateAdventureShipTargets(accepted.state, 'ship-1', [
+      ...targets,
+      { id: 'adventure-target-31', skillId: 'skill-adventure-31', targetLevel: 0 },
+    ])
+    expect(rejected.error).toBe('target-limit')
+    expect(rejected.state).toBe(accepted.state)
+  })
+
   it('keeps only configured Lv.1+ adventure targets for optimization', () => {
     expect(
       getAdventureOptimizationTargets([

@@ -14,7 +14,7 @@ import {
   setShipMode,
   unbanOfficer,
   unlockOfficer,
-  updateShipTargets,
+  updateAdventureShipTargets,
   type AdventureFleetOfficer,
 } from '../../domain/adventure-fleet'
 import { solveAdventureTargets } from '../../domain/adventure-fleet-solver'
@@ -41,7 +41,7 @@ import type {
 } from '../../presenters/config-management-presenter'
 import {
   MAX_CONFIGS_PER_SCOPE,
-  MAX_TARGETS_PER_SHIP,
+  MAX_ADVENTURE_TARGETS_PER_SHIP,
   serializeFleetState,
   type FleetConfigRecord,
 } from '../../contracts/fleet-config'
@@ -370,7 +370,7 @@ const resultMessage: Record<string, string> = {
   'officer-locked': '航海士已鎖定',
   'invalid-target-level': '目標等級必須是 Lv.0 至 Lv.10',
   'duplicate-target': '該技能已在目標列表中',
-  'target-limit': `每艘船最多設定 ${MAX_TARGETS_PER_SHIP} 個目標`,
+  'target-limit': `每艘船最多設定 ${MAX_ADVENTURE_TARGETS_PER_SHIP} 個目標`,
   'invalid-recommendation': '自動配隊結果無效',
   'ship-slot-full': '目前船已滿 (11人)',
   'no-optimization-target': '請先設定至少一個 Lv.1 以上的優化目標',
@@ -476,7 +476,7 @@ const syncAllShipsMode = (state: FleetPageState, mode: FleetShipState['mode']): 
 const clearEmptyTargets = (state: FleetPageState): void => {
   let fleet = state.fleet
   for (const ship of fleet.ships) {
-    const result = updateShipTargets(
+    const result = updateAdventureShipTargets(
       fleet,
       ship.id,
       ship.targets.filter((target) => target.skillId !== null),
@@ -775,7 +775,7 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
 const initDefaultTargets = (state: FleetPageState): void => {
   const defaultSkillIds = getDefaultAdventureTargetSkillIds(state.adventureOfficers).slice(
     0,
-    MAX_TARGETS_PER_SHIP,
+    MAX_ADVENTURE_TARGETS_PER_SHIP,
   )
   if (defaultSkillIds.length === 0) return
   const targets = defaultSkillIds.map((skillId, index) => ({
@@ -783,7 +783,7 @@ const initDefaultTargets = (state: FleetPageState): void => {
     skillId,
     targetLevel: 0,
   }))
-  const result = updateShipTargets(state.fleet, 'ship-1', targets)
+  const result = updateAdventureShipTargets(state.fleet, 'ship-1', targets)
   if (!result.error) state.fleet = result.state
 }
 
@@ -986,7 +986,7 @@ Page({
           target.id === existingTarget.id ? { ...target, targetLevel: 1 } : { ...target },
         )
       : [...configuredTargets, { id: nextAdventureTargetId(ship), skillId, targetLevel: 1 }]
-    const result = updateShipTargets(state.fleet, ship.id, targets)
+    const result = updateAdventureShipTargets(state.fleet, ship.id, targets)
     if (result.error) {
       applyResult(this, result)
       return
@@ -1022,7 +1022,7 @@ Page({
     const targets = ship.targets.map((t) =>
       t.id === targetId ? { ...t, targetLevel: level } : { ...t },
     )
-    const result = updateShipTargets(state.fleet, ship.id, targets)
+    const result = updateAdventureShipTargets(state.fleet, ship.id, targets)
     applyResult(this, result)
     render(this)
   },
@@ -1030,7 +1030,7 @@ Page({
   onAddTarget() {
     const state = getState(this)
     const ship = state.fleet.ships[0]!
-    if (ship.targets.length >= MAX_TARGETS_PER_SHIP) {
+    if (ship.targets.length >= MAX_ADVENTURE_TARGETS_PER_SHIP) {
       showError(resultMessage['target-limit'])
       return
     }
@@ -1046,7 +1046,7 @@ Page({
     if (typeof targetId !== 'string') return
     const state = getState(this)
     const ship = state.fleet.ships[0]!
-    const result = updateShipTargets(
+    const result = updateAdventureShipTargets(
       state.fleet,
       ship.id,
       ship.targets.filter((t) => t.id !== targetId),

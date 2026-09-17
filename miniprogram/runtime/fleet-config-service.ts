@@ -15,6 +15,7 @@ import type {
   FleetConfigAction,
 } from '../contracts/fleet-config'
 import {
+  getMaxTargetsPerShip,
   isValidFleetState,
   MAX_CONFIG_NAME_LENGTH,
   SCHEMA_VERSION,
@@ -169,7 +170,7 @@ const isValidFleetConfigRecord = (value: unknown): value is FleetConfigRecord =>
     isNonEmptyString(value.configId) &&
     isNonEmptyString(name, MAX_CONFIG_NAME_LENGTH) &&
     isConfigScope(value.scope) &&
-    isValidFleetState(value.fleetState) &&
+    isValidFleetState(value.fleetState, getMaxTargetsPerShip(value.scope)) &&
     value.schemaVersion === SCHEMA_VERSION &&
     isValidVersion(value.version) &&
     isValidTimestamp(value.createdAt) &&

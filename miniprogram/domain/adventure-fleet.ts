@@ -2,14 +2,17 @@ import type {
   FleetSkillMap,
   FleetState,
   FleetTarget,
+  FleetTransitionResult,
   ShipSkillSummary,
 } from '../contracts/battle-fleet'
 import { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY } from '../contracts/battle-fleet'
+import { MAX_ADVENTURE_TARGETS_PER_SHIP } from '../contracts/fleet-config'
 import type {
   RuntimeCatalogEntry,
   RuntimeFleetSkillRelation,
   RuntimeSkill,
 } from '../contracts/runtime-data'
+import { updateShipTargets as updateBaseShipTargets } from './battle-fleet'
 
 export { FLEET_SHIP_COUNT, SHIP_OFFICER_CAPACITY }
 
@@ -344,6 +347,14 @@ export const getAdventureOptimizationTargets = (
       ? [{ skillId: target.skillId, targetLevel: target.targetLevel }]
       : [],
   )
+
+/** 使用冒險配隊專用的目標技能上限更新船隻目標。 */
+export const updateAdventureShipTargets = (
+  state: FleetState,
+  shipId: string,
+  targets: readonly FleetTarget[],
+): FleetTransitionResult =>
+  updateBaseShipTargets(state, shipId, targets, MAX_ADVENTURE_TARGETS_PER_SHIP)
 
 // ── 重新导出 battle-fleet 的状态操作函数 ──
 
