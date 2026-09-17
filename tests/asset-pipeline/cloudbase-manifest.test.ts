@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import type { AssetDependencyIndex } from '../../tools/data-pipeline/asset-dependencies'
 import {
   buildAssetReleasePlan,
+  assetReuseLocationFromPublishedAsset,
   finalizePublishedAssetManifest,
   parseCloudBasePublishConfig,
   validatePublishedAssetManifest,
@@ -122,6 +123,38 @@ describe('CloudBase asset manifest', () => {
 
       expect(after.releaseId).not.toBe(before.releaseId)
       expect(after.assets[0]?.sha256).not.toBe(before.assets[0]?.sha256)
+    } finally {
+      rmSync(assetRoot, { recursive: true, force: true })
+    }
+  })
+
+  it('does not reuse a published asset when its local PNG content changed', () => {
+    const assetRoot = writeAssets()
+    try {
+      const before = buildAssetReleasePlan({
+        dependencies: dependencies(),
+        assetRoot,
+        config: config(),
+      })
+      const published = {
+        ...before.assets[0]!,
+        fileID: 'cloud://uwo-prod-123/assets/1.0.0-officer-a/officer-a.png',
+      }
+      const reused = assetReuseLocationFromPublishedAsset(published)
+      writeFileSync(
+        join(assetRoot, 'subpkg-assets-0', 'imgs', 'officer-a.png'),
+        Buffer.concat([PNG_HEADER, Buffer.from('changed')]),
+      )
+
+      const after = buildAssetReleasePlan({
+        dependencies: dependencies(),
+        assetRoot,
+        config: config(),
+        reusedAssets: new Map([[reused.filename, reused]]),
+      })
+
+      expect(after.assets[0]!.cloudPath).not.toBe(published.cloudPath)
+      expect(after.assets[0]!.sha256).not.toBe(published.sha256)
     } finally {
       rmSync(assetRoot, { recursive: true, force: true })
     }

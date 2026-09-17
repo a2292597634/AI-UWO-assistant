@@ -1,7 +1,7 @@
 {
-  "releaseId": "maintenance-756fe5d9f2b01a27-f8786371424b",
-  "manifestDigest": "f8786371424bc5b4755ba3ec657167df8303c1aad009dcb3c4f83b730046f11b",
-  "contentVersion": "maintenance-756fe5d9f2b01a27",
+  "releaseId": "maintenance-alkan-avatar-alpha-20260917-795f6a91d296",
+  "manifestDigest": "795f6a91d29651ac07ea1d5bec2aac40c3c8354146164ab7ebff189cb3844a9b",
+  "contentVersion": "maintenance-alkan-avatar-alpha-20260917",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
   "cacheControl": "public, max-age=31536000, immutable",
@@ -18467,13 +18467,13 @@
     {
       "sourcePath": "officer_wo_offline_alkan_beldad.png",
       "filename": "officer_wo_offline_alkan_beldad.png",
-      "sha256": "b9e02a464c7ee76996f629761024dc3d77e8c0ba454a2fbecb6c354272845dfa",
-      "bytes": 50158,
+      "sha256": "aba4838ff7a6576020da5bab0ff8b6401a7adb7ef69bc522b03516d3c1397096",
+      "bytes": 38306,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f8786371424b/officer_wo_offline_alkan_beldad.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f8786371424b/officer_wo_offline_alkan_beldad.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-f8786371424b",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f8786371424b/officer_wo_offline_alkan_beldad.png"
+      "cloudPath": "assets/maintenance-alkan-avatar-alpha-20260917-741250caca86/officer_wo_offline_alkan_beldad.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-alkan-avatar-alpha-20260917-741250caca86/officer_wo_offline_alkan_beldad.png",
+      "releaseId": "maintenance-alkan-avatar-alpha-20260917-741250caca86",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-alkan-avatar-alpha-20260917-741250caca86/officer_wo_offline_alkan_beldad.png"
     },
     {
       "sourcePath": "skill_wo_offline_alkan_beldad_secret_processing.png",

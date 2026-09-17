@@ -261,6 +261,8 @@ export const assetReuseLocationFromPublishedAsset = (
   sha256: asset.sha256,
   bytes: asset.bytes,
   contentType: asset.contentType,
+  sourceSha256: asset.sha256,
+  sourceBytes: asset.bytes,
 })
 
 export const loadAssetReuseLocations = (path: string): Map<string, AssetReuseLocation> => {
