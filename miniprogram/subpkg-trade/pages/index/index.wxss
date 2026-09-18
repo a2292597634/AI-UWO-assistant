@@ -136,6 +136,9 @@
 }
 
 .trade-result {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uwo-space-3);
   margin-bottom: var(--uwo-space-3);
   padding: var(--uwo-space-4);
   border: 2rpx solid var(--uwo-color-border-subtle);
@@ -147,6 +150,36 @@
   background: var(--uwo-color-surface-muted);
 }
 
+.trade-result__icon-wrap {
+  display: flex;
+  flex: 0 0 96rpx;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+  overflow: hidden;
+}
+
+.trade-result__icon {
+  width: 100%;
+  height: 100%;
+}
+
+.trade-result__icon-fallback {
+  padding: var(--uwo-space-2);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.trade-result__body {
+  flex: 1;
+  min-width: 0;
+}
+
 .trade-result__heading {
   display: flex;
   align-items: center;
@@ -156,13 +189,10 @@
 
 .trade-result__name {
   min-width: 0;
-  overflow: hidden;
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-emphasis);
   font-weight: 700;
   line-height: 1.4;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .trade-result__rank {
