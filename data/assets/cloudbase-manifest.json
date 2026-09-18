@@ -1,7 +1,7 @@
 {
-  "releaseId": "maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7",
-  "manifestDigest": "1fc6ce97f2f76a081b40227e00585b9910da7e8a476f93c2ba585dfe2044db4b",
-  "contentVersion": "maintenance-alkan-avatar-alpha-20260917",
+  "releaseId": "maintenance-756fe5d9f2b01a27-272b2e3f343e",
+  "manifestDigest": "272b2e3f343e79ddf2d7c7cd5744e442a388f97caae858aeee547fe19aa57f78",
+  "contentVersion": "maintenance-756fe5d9f2b01a27",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
   "cacheControl": "public, max-age=31536000, immutable",
@@ -18529,6 +18529,61 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_nurbanu_sultan.png",
       "releaseId": "maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-alkan-avatar-alpha-20260917-1fc6ce97f2f7/officer_wo_offline_nurbanu_sultan.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_melati.png",
+      "filename": "officer_wo_offline_melati.png",
+      "sha256": "efbe4d3082b8f384d31199210cc2f69fcbf225a098daef96bd4b3bc902c50809",
+      "bytes": 51977,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_melati.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_melati.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-272b2e3f343e",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_melati.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_antonio_malatesta.png",
+      "filename": "officer_wo_offline_antonio_malatesta.png",
+      "sha256": "1ddaaa16b8f3262b3b70d94802e388bc0576779ccbd9eeadcc7778f934f0cd94",
+      "bytes": 39559,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_antonio_malatesta.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_antonio_malatesta.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-272b2e3f343e",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_antonio_malatesta.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_louise_de_poisson.png",
+      "filename": "officer_wo_offline_louise_de_poisson.png",
+      "sha256": "3f5b5d08389fbeec38b0761db13d79f351f2cafc6d237ddfd6384341604b5706",
+      "bytes": 37325,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_louise_de_poisson.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_louise_de_poisson.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-272b2e3f343e",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_louise_de_poisson.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_valentina_morel.png",
+      "filename": "officer_wo_offline_valentina_morel.png",
+      "sha256": "594b5bf553aa32ac27654a49478d0a7350d05a19d24cbc90443a6f219fb6862e",
+      "bytes": 51049,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_valentina_morel.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_valentina_morel.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-272b2e3f343e",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_valentina_morel.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_giacomo_de_campania.png",
+      "filename": "officer_wo_offline_giacomo_de_campania.png",
+      "sha256": "ac21b8aa028821b468f32901365f43830e862104f014e79c59e18af916d97bc0",
+      "bytes": 59036,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_giacomo_de_campania.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_giacomo_de_campania.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-272b2e3f343e",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-272b2e3f343e/officer_wo_offline_giacomo_de_campania.png"
     },
     {
       "sourcePath": "officer_custom_singuack.png",
