@@ -35,6 +35,10 @@ const wxStub = {
 }
 const anchorMs = Date.UTC(2026, 8, 7, 1, 0, 0)
 const dayMs = 24 * 60 * 60 * 1000
+const assetManifest = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
+) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
+const expectedWineIconPath = `${assetManifest.cdnOrigin}/${assetManifest.cloudPathPrefix}/${assetManifest.releaseId}/trade_trade0615.png`
 
 const createPageInstance = (): TradeDetailPageInstance => {
   const instance = Object.create(detailPage) as TradeDetailPageInstance
@@ -75,7 +79,7 @@ describe('trade detail page', () => {
     expect(page.data.loading).toBe(false)
     expect(page.data.pageError).toBeNull()
     expect(page.data.title.name).toBe('葡萄酒')
-    expect(page.data.title.iconPath).toBe('/subpkg-assets-0/imgs/trade_trade0615.png')
+    expect(page.data.title.iconPath).toBe(expectedWineIconPath)
     expect(page.data.iconFailed).toBe(false)
     expect(page.data.currentGameMonth).toBe(4)
     expect(page.data.ports.length).toBeGreaterThan(0)

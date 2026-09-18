@@ -138,9 +138,7 @@ describe('貿易品圖示下載條目', () => {
         (entry) => entry.ownerCanonicalId === 'trade-icon_trade0801',
       )?.sourceId,
     ).toBe('trade0801')
-    expect(
-      dataset.tradeGoods.find((trade) => trade.id === 'trade02T092')?.iconId,
-    ).toBe('trade0801')
+    expect(dataset.tradeGoods.find((trade) => trade.id === 'trade02T092')?.iconId).toBe('trade0801')
   })
 
   it('下載貿易品圖示並記錄其來源資訊', async () => {

@@ -59,6 +59,11 @@ const inputEvent = (value: string): WechatMiniprogram.Input => ({ detail: { valu
 const categoryEvent = (categoryId: string): WechatMiniprogram.BaseEvent =>
   ({ currentTarget: { dataset: { categoryId } } }) as never
 
+const assetManifest = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
+) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
+const expectedWineIconPath = `${assetManifest.cdnOrigin}/${assetManifest.cloudPathPrefix}/${assetManifest.releaseId}/trade_trade0615.png`
+
 beforeAll(async () => {
   vi.stubGlobal('Page', (config: TradePageConfig) => {
     tradePage = config
@@ -85,7 +90,7 @@ describe('trade page', () => {
     expect(page.data.visibleGoods).toContainEqual(
       expect.objectContaining({
         id: 'trade0615',
-        iconPath: '/subpkg-assets-0/imgs/trade_trade0615.png',
+        iconPath: expectedWineIconPath,
         iconFailed: false,
       }),
     )
