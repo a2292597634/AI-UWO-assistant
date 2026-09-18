@@ -30,6 +30,7 @@ const dependencies = (): AssetDependencyIndex => ({
   officerPortraits: {},
   officerCatalogRoots: {},
   officerDetailRoots: {},
+  tradeIcons: {},
 })
 
 const setup = (): { root: string; plan: ReturnType<typeof buildAssetReleasePlan> } => {

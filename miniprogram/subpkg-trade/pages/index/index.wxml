@@ -56,18 +56,33 @@
         role="button"
         aria-label="查看{{item.name}}淡旺季資料"
       >
-        <view class="trade-result__heading">
-          <text class="trade-result__name">{{item.name}}</text>
-          <text class="trade-result__rank">{{item.rankLabel}}</text>
+        <view class="trade-result__icon-wrap">
+          <image
+            wx:if="{{item.iconPath && !item.iconFailed}}"
+            class="trade-result__icon"
+            src="{{item.iconPath}}"
+            mode="aspectFit"
+            lazy-load="{{true}}"
+            binderror="onTradeIconError"
+            data-trade-id="{{item.id}}"
+            aria-label="{{item.name}}圖示"
+          />
+          <text wx:else class="trade-result__icon-fallback">圖示載入失敗</text>
         </view>
-        <view class="trade-result__meta">
-          <text>{{item.categoryName}}</text>
-          <text class="trade-result__separator">·</text>
-          <text>{{item.salesLabel}}</text>
-        </view>
-        <view class="trade-result__seasons">
-          <text class="trade-result__season trade-result__season--peak">旺 {{item.peakLabel}}</text>
-          <text class="trade-result__season trade-result__season--low">淡 {{item.lowLabel}}</text>
+        <view class="trade-result__body">
+          <view class="trade-result__heading">
+            <text class="trade-result__name">{{item.name}}</text>
+            <text class="trade-result__rank">{{item.rankLabel}}</text>
+          </view>
+          <view class="trade-result__meta">
+            <text>{{item.categoryName}}</text>
+            <text class="trade-result__separator">·</text>
+            <text>{{item.salesLabel}}</text>
+          </view>
+          <view class="trade-result__seasons">
+            <text class="trade-result__season trade-result__season--peak">旺 {{item.peakLabel}}</text>
+            <text class="trade-result__season trade-result__season--low">淡 {{item.lowLabel}}</text>
+          </view>
         </view>
       </view>
 

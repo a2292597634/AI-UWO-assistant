@@ -6,6 +6,7 @@ import type {
 } from '../../../contracts/runtime-data'
 
 interface TradeListItem extends RuntimeTradeGoodIndexEntry {
+  iconFailed: boolean
   peakLabel: string
   lowLabel: string
   salesLabel: string
@@ -26,8 +27,11 @@ interface TradePageController {
   setData(update: Partial<TradePageData>): void
 }
 
-const getEventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
-  (event.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
+const getEventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> => {
+  const dataset = (event as { currentTarget?: { dataset?: unknown } } | undefined)?.currentTarget
+    ?.dataset
+  return (dataset as Record<string, unknown>) ?? {}
+}
 
 const seasonLabel = (seasonIds: readonly string[], reference: RuntimeTradeReference): string => {
   if (seasonIds.length === 0) return '未設定'
@@ -53,6 +57,7 @@ const toListItem = (
   reference: RuntimeTradeReference,
 ): TradeListItem => ({
   ...entry,
+  iconFailed: false,
   peakLabel: seasonLabel(entry.peakSeasonIds, reference),
   lowLabel: seasonLabel(entry.lowSeasonIds, reference),
   salesLabel: salesLabel(entry),
@@ -142,5 +147,16 @@ Page({
     if (typeof tradeId !== 'string' || !tradeId) return
 
     wx.navigateTo({ url: '/subpkg-trade/pages/detail/index?id=' + tradeId })
+  },
+
+  onTradeIconError(event: WechatMiniprogram.BaseEvent) {
+    const tradeId = getEventDataset(event).tradeId
+    if (typeof tradeId !== 'string' || !tradeId) return
+
+    this.setData({
+      visibleGoods: this.data.visibleGoods.map((item) =>
+        item.id === tradeId ? { ...item, iconFailed: true } : item,
+      ),
+    })
   },
 })

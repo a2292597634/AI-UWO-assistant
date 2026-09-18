@@ -16,6 +16,7 @@ const detail: RuntimeTradeGoodDetail = {
   peakSeasonIds: ['s4'],
   lowSeasonIds: ['s2'],
   iconId: null,
+  iconPath: '/subpkg-assets-0/imgs/trade_trade0615.png',
 }
 
 const reference: RuntimeTradeReference = {
@@ -66,6 +67,7 @@ describe('trade season presenter', () => {
     const view = presentTradeDetail(detail, reference, 12)
 
     expect(view.title.name).toBe('葡萄酒')
+    expect(view.title.iconPath).toBe('/subpkg-assets-0/imgs/trade_trade0615.png')
     expect(view.title.categoryName).toBe('酒類')
     expect(view.currentGameMonth).toBe(12)
     expect(view.currentMonthLabel).toBe('12月')

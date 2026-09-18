@@ -1,5 +1,6 @@
-import type { CanonicalOfficer, CanonicalSkill } from '../import/types'
+import type { CanonicalOfficer, CanonicalSkill, CanonicalTradeGood } from '../import/types'
 import { writeFileSync } from 'node:fs'
+import { buildTradeIconSources } from '../asset-pipeline/trade-icons'
 import type {
   RuntimeAssetDependencyIndex,
   RuntimeAssetReference,
@@ -13,9 +14,10 @@ export type AssetRootDependency = RuntimeAssetRootDependency
 export type AssetReference = RuntimeAssetReference
 export type AssetDependencyIndex = RuntimeAssetDependencyIndex
 
-interface AssetDependencyOptions {
+export interface AssetDependencyOptions {
   assetFilenames?: ReadonlySet<string>
   skillIconOverrides?: ReadonlyMap<string, string>
+  trades?: readonly CanonicalTradeGood[]
 }
 
 const filenameForOfficer = (officerId: string): string => `${officerId}.png`
@@ -148,6 +150,10 @@ export const buildAssetDependencyIndex = (
   for (const filename of skillFilenames.values()) {
     if (filename) addFirstOwner(ownerByFilename, filename, firstRoot)
   }
+  const tradeIconSources = buildTradeIconSources(options.trades ?? [])
+  for (const source of tradeIconSources) {
+    addFirstOwner(ownerByFilename, source.filename, firstRoot)
+  }
 
   const pathToRoot: Record<string, string> = {}
   for (const [filename, root] of ownerByFilename) {
@@ -164,6 +170,12 @@ export const buildAssetDependencyIndex = (
   const skillIcons: Record<string, AssetReference> = {}
   for (const [skillId, filename] of skillFilenames) {
     if (filename) skillIcons[skillId] = makeReference(filename)
+  }
+
+  const tradeIcons: Record<string, AssetReference> = {}
+  for (const source of tradeIconSources) {
+    const reference = makeReference(source.filename)
+    for (const tradeId of source.tradeIds) tradeIcons[tradeId] = reference
   }
 
   const officerPortraits: Record<string, AssetReference> = {}
@@ -190,6 +202,7 @@ export const buildAssetDependencyIndex = (
     officerPortraits,
     officerCatalogRoots,
     officerDetailRoots,
+    tradeIcons,
   }
 }
 
@@ -230,6 +243,7 @@ export const assertAssetDependencyIndex = (index: AssetDependencyIndex): void =>
   }
   for (const reference of Object.values(index.skillIcons)) assertReference(reference)
   for (const reference of Object.values(index.officerPortraits)) assertReference(reference)
+  for (const reference of Object.values(index.tradeIcons)) assertReference(reference)
 
   const assertRootList = (rootList: readonly string[]): void => {
     for (const root of rootList) {

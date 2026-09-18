@@ -27,7 +27,7 @@ import {
   buildAssetDependencyIndex,
   type AssetDependencyIndex,
 } from '../data-pipeline/asset-dependencies'
-import type { CanonicalSkill } from '../import/types'
+import type { CanonicalSkill, CanonicalTradeDataset } from '../import/types'
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { loadSkillIconOverrides } from './source-skill-icons'
 import { buildAssetReleasePlan } from './cloudbase-manifest'
@@ -241,6 +241,7 @@ const readPublishDependencies = (assetRoot: string): AssetDependencyIndex => {
       {
         assetFilenames: new Set(stagedFiles),
         skillIconOverrides: loadSkillIconOverrides(),
+        trades: readJson<CanonicalTradeDataset>('data/master/trade-goods.json').tradeGoods,
       },
     )
   }

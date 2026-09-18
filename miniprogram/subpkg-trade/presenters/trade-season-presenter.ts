@@ -5,6 +5,7 @@ import type { RuntimeTradeGoodDetail, RuntimeTradeReference } from '../../contra
 export interface TradeDetailPageState {
   title: {
     name: string
+    iconPath: string
     categoryName: string
     rankLabel: string
     peakLabel: string
@@ -53,6 +54,7 @@ export const presentTradeDetail = (
   return {
     title: {
       name: detail.name,
+      iconPath: detail.iconPath,
       categoryName: detail.categoryName,
       rankLabel: detail.rank === null ? '等級待補' : `名產 Lv.${detail.rank}`,
       peakLabel: seasonSummary(detail.peakSeasonIds, reference),

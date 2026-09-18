@@ -14,6 +14,44 @@
   color: var(--uwo-color-surface);
 }
 
+.trade-detail__hero-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uwo-space-4);
+}
+
+.trade-detail__icon-wrap {
+  display: flex;
+  flex: 0 0 112rpx;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: var(--uwo-radius-control);
+  background: var(--uwo-color-surface-muted);
+  overflow: hidden;
+}
+
+.trade-detail__icon {
+  width: 100%;
+  height: 100%;
+}
+
+.trade-detail__icon-fallback {
+  padding: var(--uwo-space-2);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.trade-detail__hero-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
 .trade-detail__eyebrow {
   color: var(--uwo-color-accent-brass);
   font-size: var(--uwo-font-size-minimum-action);

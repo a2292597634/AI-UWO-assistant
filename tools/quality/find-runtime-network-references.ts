@@ -63,11 +63,12 @@ export const findRuntimeNetworkReferences = (
   const generatedAssetFile = (path: string): boolean =>
     /[\\/]generated[\\/](?:catalog|skills|fleet-officers)\.js$/.test(path) ||
     /[\\/]subpkg-fleet[\\/]generated[\\/]fleet-officers\.js$/.test(path) ||
-    /[\\/]subpkg-detail[\\/]details-\d+\.js$/.test(path)
+    /[\\/]subpkg-detail[\\/]details-\d+\.js$/.test(path) ||
+    /[\\/]subpkg-trade[\\/]trade-(?:goods|details-\d+)\.js$/.test(path)
 
   const generatedAssetLine = (path: string, line: string): boolean => {
     if (!options.generatedCdnOrigin || !generatedAssetFile(path)) return false
-    if (!/portraitPath|"(?:ip|pp)"/.test(line)) return false
+    if (!/portraitPath|"(?:ip|pp|iconPath)"/.test(line)) return false
     const urls = [...line.matchAll(/https?:\/\/[^"'\s]+/g)].map(([url]) => url)
     if (urls.length === 0) return false
     return urls.every((value) => {

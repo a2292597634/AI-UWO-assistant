@@ -9,6 +9,7 @@ describe('CloudBase generated URL runtime boundary', () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-runtime-network-'))
     try {
       mkdirSync(join(root, 'generated'), { recursive: true })
+      mkdirSync(join(root, 'subpkg-trade'), { recursive: true })
       mkdirSync(join(root, 'pages'), { recursive: true })
       writeFileSync(
         join(root, 'generated', 'catalog.js'),
@@ -17,6 +18,10 @@ describe('CloudBase generated URL runtime boundary', () => {
       writeFileSync(
         join(root, 'generated', 'unexpected.js'),
         'module.exports = {"url":"https://uwo-prod-123.tcb.qcloud.la/assets/1.0.0-release/rogue.png"}\n',
+      )
+      writeFileSync(
+        join(root, 'subpkg-trade', 'trade-goods.js'),
+        'module.exports = [{"iconPath":"https://uwo-prod-123.tcb.qcloud.la/assets/1.0.0-release/trade_trade0101.png"}]\n',
       )
       writeFileSync(
         join(root, 'pages', 'index.ts'),

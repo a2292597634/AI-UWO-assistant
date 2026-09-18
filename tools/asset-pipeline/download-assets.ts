@@ -1,12 +1,18 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { isVoyageTwOfficerSourceRefs, type CanonicalOfficer } from '../import/types'
+import {
+  isVoyageTwOfficerSourceRefs,
+  type CanonicalOfficer,
+  type CanonicalTradeDataset,
+  type CanonicalTradeGood,
+} from '../import/types'
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { loadSkillIconOverrides } from './source-skill-icons'
+import { buildTradeIconSources, tradeIconUrl } from './trade-icons'
 
 // ── Types ──
 
-interface AssetEntry {
+export interface AssetEntry {
   sourceId: string
   url: string
   localPath: string
@@ -263,6 +269,15 @@ export const buildAssetEntries = (
   return entries
 }
 
+export const buildTradeAssetEntries = (trades: readonly CanonicalTradeGood[]): AssetEntry[] =>
+  buildTradeIconSources(trades).map(({ imageId, filename }) => ({
+    ownerCanonicalId: `trade-icon_${imageId}`,
+    kind: 'icon',
+    sourceId: imageId,
+    url: tradeIconUrl(imageId),
+    localPath: `${ASSETS_DIR}/${filename}`,
+  }))
+
 // ── CLI ──
 
 if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download-assets.ts')) {
@@ -271,6 +286,9 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
   // Read canonical data to build asset list
   const officers = loadCanonicalOfficers('data/master')
   const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8'))
+  const tradeDataset = JSON.parse(
+    readFileSync('data/master/trade-goods.json', 'utf8'),
+  ) as CanonicalTradeDataset
   const skillIconOverrides = loadSkillIconOverrides()
 
   console.log(`=== Asset Downloader (batch size: ${BATCH_SIZE}, limit: ${limit ?? 'all'}) ===\n`)
@@ -295,7 +313,10 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
     }),
   )
 
-  const entries = buildAssetEntries(officerData, skillList, limit ? limit * 2 : undefined)
+  const entries = [
+    ...buildAssetEntries(officerData, skillList, limit ? limit * 2 : undefined),
+    ...buildTradeAssetEntries(tradeDataset.tradeGoods),
+  ]
   console.log(
     `  ${entries.length} assets to check (${entries.filter((e) => e.kind === 'portrait').length} portraits, ${entries.filter((e) => e.kind === 'icon').length} icons)\n`,
   )

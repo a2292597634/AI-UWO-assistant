@@ -12,6 +12,8 @@ interface TradeListItem {
   peakLabel: string
   lowLabel: string
   salesLabel: string
+  iconPath: string
+  iconFailed: boolean
 }
 
 interface TradePageData {
@@ -29,6 +31,7 @@ interface TradePageConfig {
   onSearchInput(event: WechatMiniprogram.Input): void
   onCategoryTap(event: WechatMiniprogram.BaseEvent): void
   onTradeTap(event: WechatMiniprogram.BaseEvent): void
+  onTradeIconError(event: WechatMiniprogram.BaseEvent): void
 }
 
 interface TradePageInstance extends TradePageConfig {
@@ -56,6 +59,11 @@ const inputEvent = (value: string): WechatMiniprogram.Input => ({ detail: { valu
 const categoryEvent = (categoryId: string): WechatMiniprogram.BaseEvent =>
   ({ currentTarget: { dataset: { categoryId } } }) as never
 
+const assetManifest = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
+) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
+const expectedWineIconPath = `${assetManifest.cdnOrigin}/${assetManifest.cloudPathPrefix}/${assetManifest.releaseId}/trade_trade0615.png`
+
 beforeAll(async () => {
   vi.stubGlobal('Page', (config: TradePageConfig) => {
     tradePage = config
@@ -79,6 +87,13 @@ describe('trade page', () => {
     expect(page.data.visibleGoods.length).toBeGreaterThan(0)
     expect(page.data.categories).toContainEqual({ id: '06', name: '酒類' })
     expect(page.data.pageError).toBeNull()
+    expect(page.data.visibleGoods).toContainEqual(
+      expect.objectContaining({
+        id: 'trade0615',
+        iconPath: expectedWineIconPath,
+        iconFailed: false,
+      }),
+    )
   })
 
   it('filters by trade name and category while preserving the result count', () => {
@@ -107,6 +122,24 @@ describe('trade page', () => {
       url: '/subpkg-trade/pages/detail/index?id=trade0615',
     })
   })
+
+  it('only marks the failed trade icon with its fallback state', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onTradeIconError({
+      currentTarget: { dataset: { tradeId: 'trade0615' } },
+    } as never)
+
+    const wine = page.data.visibleGoods.find((item) => item.id === 'trade0615')
+    const otherGood = page.data.visibleGoods.find((item) => item.id !== 'trade0615')
+    expect(wine?.iconFailed).toBe(true)
+    expect(otherGood?.iconFailed).toBe(false)
+    expect(page.data.resultCount).toBe(page.data.visibleGoods.length)
+
+    page.onTradeIconError({} as never)
+    expect(page.data.visibleGoods.find((item) => item.id === 'trade0615')?.iconFailed).toBe(true)
+  })
 })
 
 describe('trade page markup', () => {
@@ -119,6 +152,11 @@ describe('trade page markup', () => {
     expect(tradeWxml).toContain('貿易品清單')
     expect(tradeWxml).toContain('無結果')
     expect(tradeWxml).toContain('data-trade-id')
+    expect(tradeWxml).toContain('<image')
+    expect(tradeWxml).toContain('lazy-load')
+    expect(tradeWxml).toContain('binderror="onTradeIconError"')
+    expect(tradeWxml).toContain('trade-result__icon')
+    expect(tradeWxml).toContain('圖示載入失敗')
     expect(tradeWxss).toContain('var(--uwo-color-canvas)')
     expect(tradeWxss).toContain('var(--uwo-space-')
   })

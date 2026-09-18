@@ -8,6 +8,13 @@ import type {
   RuntimeTradeType,
 } from '../../miniprogram/contracts/runtime-data'
 import type { CanonicalTradeDataset, CanonicalTradeGood, CanonicalTradePort } from '../import/types'
+import { resolveTradeIconImageId } from '../asset-pipeline/trade-icons'
+import type { AssetDependencyIndex } from './asset-dependencies'
+import {
+  filenameFromPath,
+  publicAssetUrl,
+  type RuntimeAssetUrlManifest,
+} from './build-runtime-data'
 
 const compareText = (left: string, right: string): number =>
   Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'))
@@ -18,8 +25,24 @@ const sortedGoods = (dataset: CanonicalTradeDataset): CanonicalTradeGood[] =>
 const sortedPorts = (dataset: CanonicalTradeDataset): CanonicalTradePort[] =>
   [...dataset.ports].sort((left, right) => compareText(left.id, right.id))
 
+const tradeIconPath = (
+  trade: CanonicalTradeGood,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
+): string => {
+  const resolvedImageId = resolveTradeIconImageId(trade)
+  const path =
+    dependencies === undefined
+      ? `/subpkg-assets-0/imgs/trade_${resolvedImageId}.png`
+      : dependencies.tradeIcons[trade.id]?.path
+  if (!path) throw new Error(`貿易品圖示依賴缺失或路徑為空：${trade.id}`)
+  return publicAssetUrl(filenameFromPath(path), manifest) ?? path
+}
+
 export const buildTradeGoodsIndex = (
   dataset: CanonicalTradeDataset,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): RuntimeTradeGoodIndexEntry[] =>
   sortedGoods(dataset).map((trade) => ({
     id: trade.id,
@@ -32,6 +55,7 @@ export const buildTradeGoodsIndex = (
     peakSeasonIds: [...trade.peakSeasonIds],
     lowSeasonIds: [...trade.lowSeasonIds],
     searchAliases: [...new Set([trade.name, ...(trade.searchAliases ?? [])])],
+    iconPath: tradeIconPath(trade, dependencies, manifest),
   }))
 
 export const buildTradeReference = (dataset: CanonicalTradeDataset): RuntimeTradeReference => {
@@ -70,6 +94,8 @@ export const buildTradeReference = (dataset: CanonicalTradeDataset): RuntimeTrad
 
 export const buildTradeGoodDetails = (
   dataset: CanonicalTradeDataset,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): Record<string, RuntimeTradeGoodDetail> => {
   const details: Record<string, RuntimeTradeGoodDetail> = {}
   for (const trade of sortedGoods(dataset)) {
@@ -84,6 +110,7 @@ export const buildTradeGoodDetails = (
       peakSeasonIds: [...trade.peakSeasonIds],
       lowSeasonIds: [...trade.lowSeasonIds],
       iconId: trade.iconId,
+      iconPath: tradeIconPath(trade, dependencies, manifest),
     }
   }
   return details
@@ -105,6 +132,8 @@ export const writeTradeRuntimeData = (
   dataset: CanonicalTradeDataset,
   legacyOutputDir: string,
   subpackageDir: string,
+  dependencies?: AssetDependencyIndex,
+  manifest?: RuntimeAssetUrlManifest,
 ): void => {
   mkdirSync(legacyOutputDir, { recursive: true })
   mkdirSync(subpackageDir, { recursive: true })
@@ -116,9 +145,9 @@ export const writeTradeRuntimeData = (
     if (existsSync(legacyPath)) unlinkSync(legacyPath)
   }
 
-  const index = buildTradeGoodsIndex(dataset)
+  const index = buildTradeGoodsIndex(dataset, dependencies, manifest)
   const reference = buildTradeReference(dataset)
-  const details = buildTradeGoodDetails(dataset)
+  const details = buildTradeGoodDetails(dataset, dependencies, manifest)
   writeModule(subpackageDir + '/trade-goods.js', index)
   writeModule(subpackageDir + '/trade-reference.js', reference)
 

@@ -22,6 +22,7 @@ const dependencyIndex = (overrides?: Partial<AssetDependencyIndex>): AssetDepend
   officerPortraits: {},
   officerCatalogRoots: {},
   officerDetailRoots: {},
+  tradeIcons: {},
   ...overrides,
 })
 

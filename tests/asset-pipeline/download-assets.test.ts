@@ -3,7 +3,12 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { buildAssetEntries, downloadAssets } from '../../tools/asset-pipeline/download-assets'
+import type { CanonicalTradeDataset, CanonicalTradeGood } from '../../tools/import/types'
+import {
+  buildAssetEntries,
+  buildTradeAssetEntries,
+  downloadAssets,
+} from '../../tools/asset-pipeline/download-assets'
 
 const sha256 = (content: Buffer): string => createHash('sha256').update(content).digest('hex')
 
@@ -82,6 +87,85 @@ describe('素材下载批次节流', () => {
       expect(manifest[0]).toMatchObject({
         byteSize: freshContent.length,
         sha256: sha256(freshContent),
+      })
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('貿易品圖示下載條目', () => {
+  const normalTrade = {
+    id: 'trade0615',
+    iconId: null,
+    sourceRefs: { voyageTw: 'trade0615' },
+  } as CanonicalTradeGood
+
+  it('將共用覆寫圖示建立為單一下載條目', () => {
+    const entries = buildTradeAssetEntries([
+      {
+        id: 'trade18T903',
+        iconId: 'trade1817',
+        sourceRefs: { voyageTw: 'trade18T903' },
+      },
+      {
+        id: 'trade1817',
+        iconId: null,
+        sourceRefs: { voyageTw: 'trade1817' },
+      },
+    ] as CanonicalTradeGood[])
+
+    expect(entries).toEqual([
+      {
+        ownerCanonicalId: 'trade-icon_trade1817',
+        kind: 'icon',
+        sourceId: 'trade1817',
+        url: 'https://voyage.tw/img/trade/uwo_trade1817.png',
+        localPath: 'data/assets/staging/trade_trade1817.png',
+      },
+    ])
+  })
+
+  it('為目前主資料的 656 項貿易品建立 633 個唯一圖示條目', () => {
+    const dataset = JSON.parse(
+      readFileSync('data/master/trade-goods.json', 'utf8'),
+    ) as CanonicalTradeDataset
+
+    expect(dataset.tradeGoods).toHaveLength(656)
+    expect(buildTradeAssetEntries(dataset.tradeGoods)).toHaveLength(633)
+    expect(
+      buildTradeAssetEntries(dataset.tradeGoods).find(
+        (entry) => entry.ownerCanonicalId === 'trade-icon_trade0801',
+      )?.sourceId,
+    ).toBe('trade0801')
+    expect(dataset.tradeGoods.find((trade) => trade.id === 'trade02T092')?.iconId).toBe('trade0801')
+  })
+
+  it('下載貿易品圖示並記錄其來源資訊', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-download-trade-icon-'))
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(Buffer.from('png'), { status: 200 }))
+    const entries = buildTradeAssetEntries([normalTrade])
+
+    try {
+      const manifest = await downloadAssets(
+        entries.map((entry) => ({
+          ...entry,
+          localPath: join(root, entry.ownerCanonicalId + '.png'),
+        })),
+        [],
+        { fetcher, sleep: async () => undefined, random: () => 0 },
+      )
+
+      expect(fetcher).toHaveBeenCalledWith(
+        'https://voyage.tw/img/trade/uwo_trade0615.png',
+        expect.objectContaining({ headers: { 'user-agent': expect.any(String) } }),
+      )
+      expect(manifest[0]).toMatchObject({
+        canonicalId: 'trade-icon_trade0615',
+        sourceId: 'trade0615',
+        status: 200,
       })
     } finally {
       rmSync(root, { recursive: true, force: true })
