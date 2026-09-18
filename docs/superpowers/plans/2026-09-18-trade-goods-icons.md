@@ -549,7 +549,7 @@
 - Consumes: `data/master/trade-goods.json`, Task 2 downloader, Task 3 dependency index.
 - Produces: 633 unique valid staged PNGs and a dependency index mapping all 656 goods. `trade02T092`（黃銅礦）經使用者批准以 `iconId: "trade0801"` 共用銅礦圖示，因其原始 voyage.tw 圖示回應 404。
 
-- [ ] **Step 1: Run the full trade download**
+- [x] **Step 1: Run the full trade download**
 
   Run:
 
@@ -557,9 +557,9 @@
   npm run assets:download -- 0
   ```
 
-  Expected: the command completes with 656 trade references represented by 633 unique `trade_*.png` files; any non-200 response is printed and exits non-zero.
+  Expected: the command completes with 656 trade references represented by 633 unique `trade_*.png` files; any non-200 response is printed and exits non-zero. Current validation boundary: the full CLI is blocked before trade requests by 3 existing skill records missing `sourceRefs.voyageTw`; Task 7 therefore uses the verified trade-only downloader for the trade scope and does not repair unrelated skill data.
 
-- [ ] **Step 2: Run source setup and PNG validation**
+- [x] **Step 2: Run source setup and PNG validation**
 
   Run:
 
@@ -569,7 +569,7 @@
 
   Expected: Sharp decodes every referenced trade PNG, the setup reports the retained source count, and `data/assets/asset-dependencies.json` contains 656 `tradeIcons` entries. No file is copied under `miniprogram/`.
 
-- [ ] **Step 3: Run a read-only completeness audit**
+- [x] **Step 3: Run a read-only completeness audit**
 
   Run:
 
@@ -581,9 +581,9 @@
   "Trade icon sources: goods=$($dataset.tradeGoods.Count), unique=$($expected.Count), staged=$($actual.Count)"
   ```
 
-  Expected: `goods=656, unique=633, staged=633` and no comparison differences.
+  Expected: `goods=656, unique=633, staged=633` and no comparison differences. This is the completed trade-only audit result; it does not claim that the blocked full-download CLI passed its existing skill precondition.
 
-- [ ] **Step 4: Run the asset and data focused tests**
+- [x] **Step 4: Run the asset and data focused tests**
 
   Run:
 
