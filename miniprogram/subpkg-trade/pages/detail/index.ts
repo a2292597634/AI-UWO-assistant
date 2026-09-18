@@ -6,6 +6,7 @@ import { getTradeDetail } from '../../runtime/trade-detail-store'
 
 interface TradeDetailPageData extends TradeDetailPageState {
   monthLabels: string[]
+  iconFailed: boolean
   loading: boolean
   pageError: string | null
   retryAvailable: boolean
@@ -35,6 +36,7 @@ const getPageState = (page: object): TradeDetailPageInstanceState => {
 const emptyView: TradeDetailPageState = {
   title: {
     name: '',
+    iconPath: '',
     categoryName: '',
     rankLabel: '',
     peakLabel: '',
@@ -62,6 +64,7 @@ const loadDetail = (
     page.setData({
       ...emptyView,
       monthLabels,
+      iconFailed: false,
       loading: false,
       pageError: '找不到貿易品資料。',
       retryAvailable: false,
@@ -87,6 +90,7 @@ const loadDetail = (
     page.setData({
       ...view,
       monthLabels,
+      iconFailed: false,
       loading: false,
       pageError: null,
       retryAvailable: false,
@@ -129,6 +133,7 @@ Page({
   data: {
     ...emptyView,
     monthLabels,
+    iconFailed: false,
     loading: false,
     pageError: null,
     retryAvailable: false,
@@ -150,5 +155,9 @@ Page({
 
     state.retryCount += 1
     loadDetail(this, { id: state.tradeId })
+  },
+
+  onTradeIconError() {
+    this.setData({ iconFailed: true })
   },
 })

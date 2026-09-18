@@ -10,16 +10,31 @@
 
   <block wx:else>
     <view class="trade-detail__header">
-      <text class="trade-detail__eyebrow">貿易品詳情</text>
-      <text class="trade-detail__title">{{title.name}}</text>
-      <view class="trade-detail__meta">
-        <text>{{title.categoryName}}</text>
-        <text class="trade-detail__separator">·</text>
-        <text>{{title.rankLabel}}</text>
-      </view>
-      <view class="trade-detail__summary">
-        <text class="trade-detail__summary-item trade-detail__summary-item--peak">旺 {{title.peakLabel}}</text>
-        <text class="trade-detail__summary-item trade-detail__summary-item--low">淡 {{title.lowLabel}}</text>
+      <view class="trade-detail__hero-row">
+        <view class="trade-detail__icon-wrap">
+          <image
+            wx:if="{{title.iconPath && !iconFailed}}"
+            class="trade-detail__icon"
+            src="{{title.iconPath}}"
+            mode="aspectFit"
+            binderror="onTradeIconError"
+            aria-label="{{title.name}}圖示"
+          />
+          <text wx:else class="trade-detail__icon-fallback">圖示載入失敗</text>
+        </view>
+        <view class="trade-detail__hero-copy">
+          <text class="trade-detail__eyebrow">貿易品詳情</text>
+          <text class="trade-detail__title">{{title.name}}</text>
+          <view class="trade-detail__meta">
+            <text>{{title.categoryName}}</text>
+            <text class="trade-detail__separator">·</text>
+            <text>{{title.rankLabel}}</text>
+          </view>
+          <view class="trade-detail__summary">
+            <text class="trade-detail__summary-item trade-detail__summary-item--peak">旺 {{title.peakLabel}}</text>
+            <text class="trade-detail__summary-item trade-detail__summary-item--low">淡 {{title.lowLabel}}</text>
+          </view>
+        </view>
       </view>
     </view>
 
