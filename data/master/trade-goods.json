@@ -1765,7 +1765,7 @@
       "salesPortIds": [],
       "peakSeasonIds": ["s2", "s5"],
       "lowSeasonIds": ["s4"],
-      "iconId": null,
+      "iconId": "trade0801",
       "searchAliases": [],
       "sourceRefs": {
         "voyageTw": "trade02T092"

@@ -126,13 +126,21 @@ describe('貿易品圖示下載條目', () => {
     ])
   })
 
-  it('為目前主資料的 656 項貿易品建立 634 個唯一圖示條目', () => {
+  it('為目前主資料的 656 項貿易品建立 633 個唯一圖示條目', () => {
     const dataset = JSON.parse(
       readFileSync('data/master/trade-goods.json', 'utf8'),
     ) as CanonicalTradeDataset
 
     expect(dataset.tradeGoods).toHaveLength(656)
-    expect(buildTradeAssetEntries(dataset.tradeGoods)).toHaveLength(634)
+    expect(buildTradeAssetEntries(dataset.tradeGoods)).toHaveLength(633)
+    expect(
+      buildTradeAssetEntries(dataset.tradeGoods).find(
+        (entry) => entry.ownerCanonicalId === 'trade-icon_trade0801',
+      )?.sourceId,
+    ).toBe('trade0801')
+    expect(
+      dataset.tradeGoods.find((trade) => trade.id === 'trade02T092')?.iconId,
+    ).toBe('trade0801')
   })
 
   it('下載貿易品圖示並記錄其來源資訊', async () => {
