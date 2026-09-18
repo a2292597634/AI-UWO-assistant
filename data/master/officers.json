@@ -97984,5 +97984,695 @@
       "workOrderId": "wo_offline_nurbanu_sultan"
     },
     "maintenanceNote": "手動新增 — 2026-09-17"
+  },
+  {
+    "id": "officer_wo_offline_melati",
+    "name": "梅拉蒂",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_f",
+    "jobId": "job_job21401008",
+    "nationalityId": "nationality_ctn_maj",
+    "languages": [
+      {
+        "languageId": "language_lang100",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang330",
+        "level": 3
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400861",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500886",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203766",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200621",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203746",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill202646",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill210486",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203366",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skillT0032",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0072",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 634,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_melati"
+    },
+    "maintenanceNote": "手動新增 — 2026-09-18"
+  },
+  {
+    "id": "officer_wo_offline_antonio_malatesta",
+    "name": "安東尼奧·馬拉泰斯塔",
+    "rarityId": "rarity_4",
+    "visualGradeId": "grade_4",
+    "typeId": "type_class_3",
+    "genderId": "gender_m",
+    "jobId": "job_job21400012",
+    "nationalityId": "nationality_ctn_ntc",
+    "languages": [
+      {
+        "languageId": "language_lang80",
+        "level": 3
+      },
+      {
+        "languageId": "language_lang30",
+        "level": 2
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400461",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501076",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501356",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500676",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501366",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500816",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100048",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501136",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skillT0105",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0108",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 635,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_antonio_malatesta"
+    },
+    "maintenanceNote": "手動新增 — 2026-09-18"
+  },
+  {
+    "id": "officer_wo_offline_louise_de_poisson",
+    "name": "路易絲·德·波瓦桑",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_1",
+    "genderId": "gender_f",
+    "jobId": "job_job21402004",
+    "nationalityId": "nationality_ctn_fra",
+    "languages": [
+      {
+        "languageId": "language_lang40",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang270",
+        "level": 3
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400521",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400861",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501056",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill202304",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill201781",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill202324",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200741",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill201981",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill5007962",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill202646",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skillT0091",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0168",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 636,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_louise_de_poisson"
+    },
+    "maintenanceNote": "手動新增 — 2026-09-18"
+  },
+  {
+    "id": "officer_wo_offline_valentina_morel",
+    "name": "瓦倫蒂娜·莫雷爾",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_f",
+    "jobId": "job_job21401009",
+    "nationalityId": "nationality_ctn_ntc",
+    "languages": [
+      {
+        "languageId": "language_lang80",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang290",
+        "level": 3
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400471",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400581",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300004",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill501066",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203846",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200701",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill201181",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill5007962",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203426",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500816",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203446",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skillT0074",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0019",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 637,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_valentina_morel"
+    },
+    "maintenanceNote": "手動新增 — 2026-09-18"
+  },
+  {
+    "id": "officer_wo_offline_giacomo_de_campania",
+    "name": "賈科莫·德·坎帕尼亞",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_m",
+    "jobId": "job_job21401010",
+    "nationalityId": "nationality_ctn_ntc",
+    "languages": [
+      {
+        "languageId": "language_lang80",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang140",
+        "level": 3
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400781",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400471",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500866",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203906",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200761",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203866",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203466",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203506",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100048",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100043",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skillT0077",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0020",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": [],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": null
+    },
+    "portraitId": null,
+    "displayOrder": 638,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_giacomo_de_campania"
+    },
+    "maintenanceNote": "手動新增 — 2026-09-18"
   }
 ]
