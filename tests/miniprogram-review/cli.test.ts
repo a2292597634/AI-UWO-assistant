@@ -50,7 +50,7 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
     state: 'normal',
     status: 'passed',
     steps: [],
-    screenshots: [],
+    screenshots: ['C:/review/current-simulator/catalog.png'],
   }),
   readGitChangedFiles: () => [],
   runQualityGate: async () => true,
@@ -248,5 +248,40 @@ describe('小程序验收 CLI', () => {
 
     expect(runQualityGate).toHaveBeenCalledOnce()
     expect(code).not.toBe(0)
+  })
+
+  it('changed 可以把修改摘要和补充说明写入迭代报告', async () => {
+    let capturedReport: ReviewReport | undefined
+    const code = await runCli(
+      [
+        'changed',
+        '--mode',
+        'final',
+        '--summary',
+        '为贸易品页面补齐真实图示',
+        '--note',
+        '已检查列表页和详情页的小屏布局',
+        '--note',
+        '保留数据页的现有查询流程',
+      ],
+      dependencies({
+        listScenarioPaths: () => ['catalog-search.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        writeReport: (_outputDir, report) => {
+          capturedReport = report
+          return {
+            htmlPath: 'C:/review/report.html',
+            jsonPath: 'C:/review/report.json',
+            markdownPath: 'C:/review/report.md',
+          }
+        },
+      }),
+    )
+
+    expect(code).toBe(0)
+    expect(capturedReport?.iterations[0]).toMatchObject({
+      summary: '为贸易品页面补齐真实图示',
+      notes: ['已检查列表页和详情页的小屏布局', '保留数据页的现有查询流程'],
+    })
   })
 })

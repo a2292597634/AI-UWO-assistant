@@ -94,4 +94,25 @@ describe('小程序验收修改轮次', () => {
     expect(iteration.afterScreenshots).toEqual([currentScreenshot])
     expect(existsSync(join(currentOutput, 'iterations', '003-before.png'))).toBe(false)
   })
+
+  it('通过结果没有修改后截图时不得判定本轮通过', () => {
+    const currentOutput = makeDirectory('uwo-review-current-')
+
+    const iteration = createIterationInput({
+      id: '004',
+      startedAt: new Date('2026-09-16T04:00:00.000Z'),
+      finishedAt: new Date('2026-09-16T04:00:02.000Z'),
+      changedFiles: ['miniprogram/pages/catalog/index.wxss'],
+      results: [
+        {
+          ...result(join(currentOutput, 'current.png')),
+          screenshots: [],
+        },
+      ],
+      previousReportDirs: [],
+      outputDir: currentOutput,
+    })
+
+    expect(iteration.status).toBe('failed')
+  })
 })

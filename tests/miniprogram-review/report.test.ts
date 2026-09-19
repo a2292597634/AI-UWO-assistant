@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -76,6 +76,51 @@ describe('小程序验收报告', () => {
     )
   })
 
+  it('在 Markdown 报告中直接展示场景和修改过程截图', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'uwo-review-report-evidence-'))
+    temporaryDirectories.push(directory)
+    const iterationsDirectory = join(directory, 'iterations')
+    const simulatorDirectory = join(directory, 'current-simulator')
+    mkdirSync(iterationsDirectory)
+    mkdirSync(simulatorDirectory)
+
+    const beforeScreenshot = join(iterationsDirectory, '001-before.png')
+    const afterScreenshot = join(simulatorDirectory, 'catalog-after.png')
+    const report = buildReviewReport({
+      ...fixedInput,
+      results: [
+        {
+          ...fixedInput.results[0],
+          screenshots: [afterScreenshot],
+        },
+      ],
+      iterations: [
+        {
+          id: '001',
+          startedAt: new Date('2026-09-16T01:00:00.000Z'),
+          summary: '调整目录卡片间距',
+          changedFiles: ['miniprogram/pages/catalog/index.wxss'],
+          status: 'passed',
+          beforeScreenshot,
+          afterScreenshots: [afterScreenshot],
+          notes: ['确认小屏宽度下没有横向溢出'],
+        },
+      ],
+    })
+
+    const paths = writeReviewReport(directory, report)
+    const markdown = readFileSync(paths.markdownPath, 'utf8')
+    const html = readFileSync(paths.htmlPath, 'utf8')
+
+    expect(markdown).toContain('## 修改过程')
+    expect(markdown).toContain('![修改前](<iterations/001-before.png>)')
+    expect(markdown).toContain('![修改后](<current-simulator/catalog-after.png>)')
+    expect(markdown).toContain('![场景截图](<current-simulator/catalog-after.png>)')
+    expect(markdown).toContain('确认小屏宽度下没有横向溢出')
+    expect(html).toContain('data-lightbox-src="iterations/001-before.png"')
+    expect(html).toContain('data-lightbox-src="current-simulator/catalog-after.png"')
+  })
+
   it('规范化修改轮次并让阻塞优先于失败', () => {
     const report = buildReviewReport({
       runId: 'fixed-run',
@@ -119,6 +164,25 @@ describe('小程序验收报告', () => {
     expect(report.iterations.map((iteration) => iteration.id)).toEqual(['001', '002'])
     expect(report.iterations[0]?.summary).toBe('本轮页面修改与自动验收')
     expect(report.iterations[0]?.changedFiles).toEqual(['miniprogram/pages/catalog/index.wxml'])
+  })
+
+  it('把缺少修改后截图的通过轮次降级为失败，并同步总体结果', () => {
+    const report = buildReviewReport({
+      ...fixedInput,
+      iterations: [
+        {
+          id: '003',
+          startedAt: new Date('2026-09-16T01:03:00.000Z'),
+          changedFiles: ['miniprogram/pages/catalog/index.wxss'],
+          status: 'passed',
+          afterScreenshots: [],
+        },
+      ],
+    })
+
+    expect(report.status).toBe('failed')
+    expect(report.iterations[0]?.status).toBe('failed')
+    expect(report.iterations[0]?.notes).toContain('未提供修改后截图，页面变更验收不得判定为通过。')
   })
 
   it('生成包含时间线、步骤图标和相对截图的离线 HTML', () => {

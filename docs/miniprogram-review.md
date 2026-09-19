@@ -1,6 +1,6 @@
 # 小程序 AI 自主页面验收
 
-本工具使用微信官方 `miniprogram-automator` 连接本机微信开发者工具，让 AI 能自行进入页面、点击、输入、滚动、断言并截图。自动化结果写入 `artifacts/miniprogram-review/`，该目录不会提交 Git。
+本工具使用微信官方 `miniprogram-automator` 连接本机微信开发者工具，让 AI 能自行进入页面、点击、输入、滚动、断言并截图。自动化结果写入 `artifacts/miniprogram-review/`，该目录不会提交 Git。`report.html` 是主报告，打开后直接显示场景和修改过程截图；`report.json`、`report.md` 用于机器读取和兼容脚本。
 
 ## 首次设置
 
@@ -42,6 +42,8 @@ npm run devtools:start
 npm run devtools:inspect -- --page /pages/catalog/index
 npm run devtools:run -- --scenario catalog-search
 npm run devtools:review -- --page /pages/catalog/index
+npm run devtools:changed -- --mode iterate --summary "调整目录页布局" --note "确认小屏没有横向溢出"
+npm run devtools:changed -- --mode final --summary "目录页布局最终验收"
 ```
 
 - `doctor`：检查项目路径和 CLI，不启动或修改开发者工具。
@@ -49,6 +51,7 @@ npm run devtools:review -- --page /pages/catalog/index
 - `inspect`：打开单个页面并截图。
 - `run`：运行一个命名场景或 JSON 文件路径。
 - `review`：运行入口路径相符的全部已保存场景。
+- `changed`：根据当前 Git 页面变更选择场景，并生成带修改过程和截图的迭代报告；`--mode` 必须是 `iterate` 或 `final`，可用 `--summary` 和重复的 `--note` 补充修改说明。
 
 艦隊分享圖场景：
 
@@ -91,15 +94,16 @@ npm run devtools:run -- --scenario adventure-fleet-share
 
 ## AI 标准验收流程
 
-每次新增或修改页面后，AI 应：
+每次新增或修改页面后，AI 必须：
 
 1. 完整阅读 Design Foundation 与该功能的规格文档。
 2. 运行相关 Vitest、TypeScript、ESLint 和架构门禁。
-3. 运行 `devtools:doctor`，再执行目标页面场景。
-4. 读取生成的 `report.json`、`report.md` 和所有关键截图。
-5. 检查信息层级、间距、文字溢出、按钮可发现性、安全区、空状态和交互结果。
-6. 修复发现的问题并重复场景，直至自动断言和视觉检查均无阻塞问题。
-7. 把最终报告、关键截图、实际覆盖项和待人工项交给用户核验。
+3. 运行 `devtools:doctor`；完成一批页面修改后运行 `devtools:changed -- --mode iterate`。
+4. 交付前在页面改动仍存在于工作区或暂存区时运行 `devtools:changed -- --mode final`。
+5. 读取生成的 `report.html`，确认报告内已经直接显示修改过程、场景和失败现场截图；`report.json`、`report.md` 只作为结构化兼容输出。
+6. 检查信息层级、间距、文字溢出、按钮可发现性、安全区、空状态和交互结果。
+7. 修复发现的问题并重复场景，直至自动断言和视觉检查均无阻塞问题。
+8. 把 `report.html`、实际覆盖项和待人工项交给用户核验；不得要求用户自行按路径寻找截图。
 
 ## 状态与设备覆盖
 
@@ -107,8 +111,8 @@ npm run devtools:run -- --scenario adventure-fleet-share
 
 目标设备为小屏 iPhone、标准 iPhone 和安卓大屏。当前 SDK 不能稳定替代开发者工具的全部设备切换操作，因此报告只把实际运行的当前模拟器记为已覆盖，并把场景声明的三档目标设备列为待人工核验。报告还会单独列出未声明场景的状态（`empty`、`loading`、`error`、`long-text`），不得根据场景声明虚报实际设备或状态覆盖。
 
-每个场景的截图会写入 `current-simulator/<序号-场景名>/`，避免多个场景同名截图互相覆盖。`report.json` 和 `report.md`
-都会记录成功截图、失败现场截图的绝对路径，终端也会逐条打印 `截图证据：...`，AI 可直接读取这些证据进行视觉复核。
+每个场景的截图会写入 `current-simulator/<序号-场景名>/`，避免多个场景同名截图互相覆盖。`report.html`
+会直接显示成功截图、失败现场截图以及修改前/修改后截图；`report.json` 保留绝对路径，`report.md` 使用相对图片链接，终端仍会打印 `截图证据：...` 供工具定位。
 
 ## 故障恢复
 

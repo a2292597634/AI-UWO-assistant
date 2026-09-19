@@ -31,6 +31,8 @@ interface ParsedArguments extends ReviewConfigArgs {
   scenario?: string
   page?: string
   mode?: string
+  summary?: string
+  notes?: string[]
 }
 
 export interface CliDependencies {
@@ -78,6 +80,7 @@ const optionNames: Record<string, keyof ParsedArguments> = {
   '--automation-port': 'automationPort',
   '--ws-endpoint': 'wsEndpoint',
   '--mode': 'mode',
+  '--summary': 'summary',
 }
 
 const parseArguments = (argv: string[]): ParsedArguments => {
@@ -86,6 +89,13 @@ const parseArguments = (argv: string[]): ParsedArguments => {
   for (let index = 0; index < rest.length; index += 2) {
     const name = rest[index]
     const value = rest[index + 1]
+    if (name === '--note') {
+      if (value === undefined || value.startsWith('--')) {
+        throw new Error(`未知或缺少值的参数：${name}`)
+      }
+      parsed.notes = [...(parsed.notes ?? []), value]
+      continue
+    }
     const key = optionNames[name]
     if (!key || value === undefined || value.startsWith('--')) {
       throw new Error(`未知或缺少值的参数：${name}`)
@@ -160,6 +170,8 @@ const safeScenarioDirectoryName = (name: string, index: number): string => {
 interface RunScenarioOptions {
   changedFiles?: string[]
   mode?: ReviewTriggerMode
+  summary?: string
+  notes?: string[]
 }
 
 const logReportPaths = (
@@ -183,6 +195,7 @@ const writeBlockedReport = (
   reason: string,
   changedFiles: string[],
   scenarios: ReviewScenario[] = [],
+  options: Pick<RunScenarioOptions, 'summary' | 'notes'> = {},
 ): number => {
   const startedAt = dependencies.now()
   const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
@@ -204,8 +217,8 @@ const writeBlockedReport = (
     results: [result],
     previousReportDirs: [],
     outputDir,
-    summary: '页面自动验收被环境阻塞',
-    notes: [reason],
+    summary: options.summary ?? '页面自动验收被环境阻塞',
+    notes: [reason, ...(options.notes ?? [])],
   })
   const report = createReport(dependencies, runId, [result], scenarios, [iteration])
   const paths = dependencies.writeReport(outputDir, report)
@@ -244,7 +257,9 @@ const runScenarios = async (
           results,
           previousReportDirs: dependencies.listPreviousReportDirs?.() ?? [],
           outputDir,
-          summary: options.mode === 'final' ? '本轮页面修改与最终验收' : undefined,
+          summary:
+            options.summary ?? (options.mode === 'final' ? '本轮页面修改与最终验收' : undefined),
+          notes: options.notes,
         }),
       ]
     : []
@@ -261,6 +276,7 @@ const runChanged = async (
   dependencies: CliDependencies,
   config: ReviewConfig,
   mode: ReviewTriggerMode,
+  options: Pick<RunScenarioOptions, 'summary' | 'notes'> = {},
 ): Promise<number> => {
   const changedFiles = dependencies.readGitChangedFiles()
   const plan = createTriggerPlan({
@@ -278,17 +294,25 @@ const runChanged = async (
       plan.reason ?? '页面自动验收被阻塞',
       plan.changedFiles,
       plan.scenarios,
+      options,
     )
   }
 
   const capability = await dependencies.checkCliCapability(config)
   if (!capability.ok) {
-    return writeBlockedReport(dependencies, capability.message, plan.changedFiles, plan.scenarios)
+    return writeBlockedReport(
+      dependencies,
+      capability.message,
+      plan.changedFiles,
+      plan.scenarios,
+      options,
+    )
   }
 
   const code = await runScenarios(dependencies, config, plan.scenarios, {
     changedFiles: plan.changedFiles,
     mode,
+    ...options,
   })
   if (mode === 'final' && code === 0 && !(await dependencies.runQualityGate())) {
     dependencies.log('页面自动验收通过，但仓库质量门禁失败')
@@ -353,7 +377,10 @@ export const runCli = async (argv: string[], dependencies: CliDependencies): Pro
     }
     if (parsed.command === 'changed') {
       if (!triggerMode) throw new Error('changed 必须提供 --mode iterate 或 --mode final')
-      return await runChanged(dependencies, config, triggerMode)
+      return await runChanged(dependencies, config, triggerMode, {
+        summary: parsed.summary,
+        notes: parsed.notes,
+      })
     }
     if (!parsed.page) throw new Error('review 必须提供 --page')
     const paths = dependencies.listScenarioPaths?.() ?? []

@@ -102,6 +102,9 @@ const unique = (values: string[]): string[] => [...new Set(values)]
 const statusForResults = (results: ScenarioRunResult[]): ReviewResultStatus => {
   if (results.some((result) => result.status === 'blocked')) return 'blocked'
   if (results.some((result) => result.status === 'failed')) return 'failed'
+  if (results.some((result) => result.status === 'passed' && result.screenshots.length === 0)) {
+    return 'failed'
+  }
   return 'passed'
 }
 

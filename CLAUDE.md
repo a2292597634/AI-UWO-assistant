@@ -42,6 +42,11 @@ pages → presenters → domain/runtime → contracts → generated
 
 新增或修改样式必须遵守其中的 Token、字体、间距、圆角、阴影、状态、按钮、触控和安全区规范。
 
+### 页面变更验收触发
+
+涉及 UI、WXML、WXSS、页面素材或页面共享运行时代码的任务，必须阅读并遵循
+`docs/superpowers/specs/2026-09-16-miniprogram-review-html-report-design.md`。
+
 ## 常用命令
 
 | 命令                    | 用途                                                                          |

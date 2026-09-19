@@ -55,3 +55,9 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 `docs/superpowers/specs/2026-08-09-design-foundation-design.md`。
 
 新增或修改樣式必須遵守其中的 Token、字體、間距、圓角、陰影、狀態、按鈕、觸控和安全區規範。
+
+## 6. 页面变更验收触发
+
+涉及 UI、WXML、WXSS、页面素材或页面共享运行时代码的任务，必须阅读并遵循
+`docs/superpowers/specs/2026-09-16-miniprogram-review-html-report-design.md`。
+该文件是页面验收、过程说明和截图证据的唯一规范来源；本文件不重复具体流程。
