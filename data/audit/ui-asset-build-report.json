@@ -2,6 +2,28 @@
   "processingRuleVersion": "1",
   "files": [
     {
+      "id": "config-paper-texture",
+      "output": "config-paper-texture.png",
+      "group": "banner",
+      "mimeType": "image/png",
+      "width": 750,
+      "height": 320,
+      "byteSize": 17524,
+      "sha256": "143d56b3978b9ca4d14178a79caa51fafc3a39df9e6347ba857135773a6919d9",
+      "sourceTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 750,
+        "height": 320
+      },
+      "outputTransparentBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 750,
+        "height": 320
+      }
+    },
+    {
       "id": "disclosure-chevron-down",
       "output": "uwo-disclosure-chevron-down.png",
       "group": "original-ui",
@@ -697,9 +719,9 @@
     }
   ],
   "groupBytes": {
-    "banner": 163979,
+    "banner": 181503,
     "feature": 16922,
     "original-ui": 50407
   },
-  "totalBytes": 231308
+  "totalBytes": 248832
 }

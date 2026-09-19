@@ -138,6 +138,9 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-coupon-source.png')),
+    sharp({ create: { width: 750, height: 320, channels: 3, background: '#e8dfce' } })
+      .png()
+      .toFile(join(sourceRoot, 'config-paper-texture-source.png')),
   ])
 }
 
@@ -217,6 +220,7 @@ describe('buildUiAssets', () => {
     const report = JSON.parse(
       readFileSync(resolve(__dirname, '../../data/audit/ui-asset-build-report.json'), 'utf8'),
     ) as { files: ReportFileWithTransparency[] }
+    const files = report.files
     const featureIds = [
       'feature-officer-catalog',
       'feature-trade-goods',
@@ -226,6 +230,15 @@ describe('buildUiAssets', () => {
       'feature-coupon',
     ]
     const featureFiles = report.files.filter((file) => featureIds.includes(file.id))
+    const configPaperTexture = files.find((file) => file.id === 'config-paper-texture')
+
+    expect(configPaperTexture).toMatchObject({
+      output: 'config-paper-texture.png',
+      mimeType: 'image/png',
+      width: 750,
+      height: 320,
+    })
+    expect(configPaperTexture?.byteSize).toBeLessThanOrEqual(48 * 1024)
 
     expect(featureFiles).toHaveLength(6)
     expect(
