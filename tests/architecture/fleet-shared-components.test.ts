@@ -435,21 +435,26 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       /\.config-bar--prominent-share\s+\.config-bar__summary--prominent\s*\{[\s\S]*display:\s*flex[\s\S]*align-items:\s*stretch[\s\S]*gap:\s*var\(--uwo-space-3\)/,
     )
     expect(wxss).toMatch(/\.config-bar\s*\{[\s\S]*flex:\s*0\s+0\s+auto/)
-    expect(wxss).toMatch(/\.config-bar--prominent-share\s*\{[\s\S]*min-height:\s*224rpx/)
+    expect(wxss).toMatch(/background-image:\s*url\(['"]?\/assets\/ui\/config-paper-texture\.png/)
+    expect(wxss).toMatch(/box-shadow:\s*var\(--uwo-shadow-elevated\)/)
+    expect(wxss).toMatch(/min-height:\s*248rpx/)
+    expect(wxss).toMatch(/min-height:\s*216rpx/)
+    expect(wxss).toMatch(/width:\s*176rpx\s*!important/)
+    expect(wxss).toMatch(/font-size:\s*var\(--uwo-font-size-page-title\)/)
     expect(wxss).toMatch(
       /\.config-bar--prominent-share::after\s*\{[\s\S]*background:\s*var\(--uwo-color-surface-muted\)[\s\S]*opacity:\s*0\.88/,
     )
     expect(wxss).toMatch(
-      /\.config-bar--prominent-share\s+\.config-bar__config-toggle\s*\{[\s\S]*min-height:\s*192rpx/,
+      /\.config-bar--prominent-share\s+\.config-bar__config-toggle\s*\{[\s\S]*min-height:\s*216rpx/,
     )
     expect(wxss).toMatch(
-      /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*width:\s*160rpx\s*!important[\s\S]*min-height:\s*192rpx/,
+      /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*width:\s*176rpx\s*!important[\s\S]*min-height:\s*216rpx/,
     )
     expect(wxss).toMatch(
-      /\.config-bar--prominent-share\s+\.config-bar__config-label\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-supporting\)[\s\S]*font-weight:\s*600/,
+      /\.config-bar--prominent-share\s+\.config-bar__config-label\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-body\)[\s\S]*font-weight:\s*600/,
     )
     expect(wxss).toMatch(
-      /\.config-bar--prominent-share\s+\.config-bar__name\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-section-title\)[\s\S]*font-weight:\s*700/,
+      /\.config-bar--prominent-share\s+\.config-bar__name\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-page-title\)[\s\S]*font-weight:\s*700/,
     )
     expect(wxss).toMatch(
       /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-body\)/,
@@ -468,10 +473,10 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxml).toContain('config-bar__share-glyph')
     expect(wxml).toContain('config-bar__toggle-chevron')
     expect(wxss).toMatch(
-      /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*display:\s*flex[\s\S]*min-height:\s*192rpx[\s\S]*flex-direction:\s*column/,
+      /\.config-bar--prominent-share\s+\.config-bar__share--prominent\s*\{[\s\S]*display:\s*flex[\s\S]*min-height:\s*216rpx[\s\S]*flex-direction:\s*column/,
     )
     expect(wxss).toMatch(
-      /\.config-bar--prominent-share\s+\.config-bar__name\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-section-title\)/,
+      /\.config-bar--prominent-share\s+\.config-bar__name\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-page-title\)/,
     )
   })
 

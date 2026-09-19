@@ -462,9 +462,12 @@
 }
 
 .config-bar--prominent-share {
-  min-height: 224rpx;
+  min-height: 248rpx;
   padding: var(--uwo-space-3);
-  background: transparent;
+  border-color: var(--uwo-color-border-strong);
+  background-color: var(--uwo-color-surface-muted);
+  background-image: url('/assets/ui/config-paper-texture.png');
+  box-shadow: var(--uwo-shadow-elevated);
 }
 
 .config-bar--prominent-share::after {
@@ -496,7 +499,7 @@
   width: 100%;
   align-items: stretch;
   gap: var(--uwo-space-3);
-  min-height: 192rpx;
+  min-height: 216rpx;
   overflow: visible;
 }
 
@@ -504,7 +507,7 @@
   box-sizing: border-box;
   display: flex;
   min-width: 0;
-  min-height: 192rpx;
+  min-height: 216rpx;
   flex: 1 1 0;
   flex-direction: column;
   justify-content: center;
@@ -533,7 +536,7 @@
 .config-bar--prominent-share .config-bar__config-label {
   flex: 0 0 auto;
   color: var(--uwo-color-text-secondary);
-  font-size: var(--uwo-font-size-supporting);
+  font-size: var(--uwo-font-size-body);
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
@@ -567,7 +570,7 @@
   min-width: 0;
   overflow: hidden;
   color: var(--uwo-color-text-primary);
-  font-size: var(--uwo-font-size-section-title);
+  font-size: var(--uwo-font-size-page-title);
   font-weight: 700;
   line-height: 1.3;
   text-overflow: ellipsis;
@@ -617,11 +620,11 @@
 
 .config-bar--prominent-share .config-bar__share--prominent {
   display: flex;
-  width: 160rpx !important;
-  min-width: 160rpx !important;
-  max-width: 160rpx !important;
-  min-height: 192rpx;
-  flex: 0 0 160rpx !important;
+  width: 176rpx !important;
+  min-width: 176rpx !important;
+  max-width: 176rpx !important;
+  min-height: 216rpx;
+  flex: 0 0 176rpx !important;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -633,6 +636,16 @@
   color: var(--uwo-color-surface);
   font-size: var(--uwo-font-size-body);
   font-weight: 600;
+}
+
+.config-bar--prominent-share .config-bar__share-label {
+  font-size: var(--uwo-font-size-section-title);
+}
+
+.config-bar--prominent-share .config-bar__share-glyph {
+  width: 56rpx;
+  height: 52rpx;
+  flex-basis: 56rpx;
 }
 
 .config-bar--prominent-share .config-bar__share--prominent .config-bar__share-glyph {

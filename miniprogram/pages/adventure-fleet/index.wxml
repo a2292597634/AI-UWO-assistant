@@ -8,7 +8,7 @@
   </view>
 
   <config-bar
-    style="display: block; min-height: 224rpx; flex: 0 0 auto;"
+    style="display: block; min-height: 248rpx; flex: 0 0 auto;"
     config-name="{{configName}}"
     config-status="{{configStatus}}"
     auth-status="{{authStatus}}"
