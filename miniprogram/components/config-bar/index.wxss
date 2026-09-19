@@ -514,9 +514,9 @@
   gap: var(--uwo-space-3);
   margin: 0;
   padding: var(--uwo-space-3);
-  border: 2rpx solid var(--uwo-color-border-subtle);
+  border: 2rpx solid var(--uwo-color-surface-muted);
   border-radius: var(--uwo-radius-control);
-  background: var(--uwo-color-surface);
+  background: var(--uwo-color-surface-muted);
   color: var(--uwo-color-text-primary);
   text-align: left;
 }
