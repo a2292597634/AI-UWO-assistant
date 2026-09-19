@@ -1,5 +1,14 @@
 <view class="fleet-page">
+  <view class="fleet-context">
+    <view class="fleet-context__copy">
+      <text class="fleet-context__eyebrow">戰鬥配隊</text>
+      <text class="fleet-context__title">{{currentShip.label}}</text>
+    </view>
+    <text class="fleet-context__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
+  </view>
+
   <config-bar
+    style="display: block; min-height: 224rpx; flex: 0 0 auto;"
     config-name="{{configName}}"
     config-status="{{configStatus}}"
     auth-status="{{authStatus}}"
@@ -24,14 +33,6 @@
     bind:retry="onConfigRetry"
     bind:share="onShareFleet"
   />
-
-  <view class="fleet-context">
-    <view class="fleet-context__copy">
-      <text class="fleet-context__eyebrow">戰鬥配隊</text>
-      <text class="fleet-context__title">{{currentShip.label}}</text>
-    </view>
-    <text class="fleet-context__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
-  </view>
 
   <config-name-modal
     visible="{{showNameModal}}"

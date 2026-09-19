@@ -635,9 +635,13 @@ describe('adventure fleet share entry', () => {
     expect(adventureWxss).not.toContain('.fleet-share-bar')
   })
 
-  it('冒險配隊頁保持默認配置摘要', () => {
-    expect(adventureWxml).not.toContain('prominent-share=')
+  it('冒險配隊與戰鬥配隊共用突出配置卡', () => {
+    expect(adventureWxml).toContain('prominent-share="{{true}}"')
+    expect(adventureWxml).toContain('style="display: block; min-height: 224rpx; flex: 0 0 auto;"')
     expect(adventureWxml).toMatch(/<config-bar[\s\S]*bind:share="onShareFleet"[\s\S]*\/>/)
+    expect(adventureWxml.indexOf('<view class="fleet-context">')).toBeLessThan(
+      adventureWxml.indexOf('<config-bar'),
+    )
   })
 
   it('dirty share action keeps the current fleet and records a share pending action', async () => {

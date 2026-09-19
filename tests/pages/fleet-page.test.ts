@@ -533,9 +533,13 @@ describe('battle fleet share entry', () => {
     expect(fleetWxss).not.toContain('.fleet-share-bar')
   })
 
-  it('只為戰鬥配隊頁啟用突出分享配置摘要', () => {
+  it('冒險與戰鬥配隊頁共用突出分享配置摘要', () => {
     expect(fleetWxml).toContain('prominent-share="{{true}}"')
+    expect(fleetWxml).toContain('style="display: block; min-height: 224rpx; flex: 0 0 auto;"')
     expect(fleetWxml).toMatch(/<config-bar[\s\S]*bind:share="onShareFleet"[\s\S]*\/>/)
+    expect(fleetWxml.indexOf('<view class="fleet-context">')).toBeLessThan(
+      fleetWxml.indexOf('<config-bar'),
+    )
     expect(fleetWxml).toContain('class="fleet-context"')
     expect(fleetWxml).toContain('class="ship-tabs"')
     expect(fleetWxml).toContain('<mode-tabs')

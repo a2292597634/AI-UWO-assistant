@@ -3,6 +3,8 @@
   "entry": "/subpkg-fleet/pages/index/index",
   "watchPaths": [
     "miniprogram/subpkg-fleet/pages/index/",
+    "miniprogram/components/config-bar/",
+    "miniprogram/components/fleet-share-preview/",
     "miniprogram/runtime/fleet-share-renderer.ts",
     "miniprogram/runtime/fleet-share-layout.ts",
     "miniprogram/assets/ui/fleet-share-map.jpg",
@@ -19,6 +21,22 @@
       "action": "waitFor",
       "selector": ".fleet-page",
       "timeoutMs": 15000
+    },
+    {
+      "action": "assertExists",
+      "selector": "xpath://view[contains(@class, \"config-bar\")]"
+    },
+    {
+      "action": "assertExists",
+      "selector": "xpath://view[contains(@class, \"fleet-context\")]"
+    },
+    {
+      "action": "waitFor",
+      "durationMs": 2000
+    },
+    {
+      "action": "screenshot",
+      "name": "battle-top-before-share"
     },
     {
       "action": "tap",

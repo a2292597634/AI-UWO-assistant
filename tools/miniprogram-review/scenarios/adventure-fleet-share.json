@@ -3,6 +3,8 @@
   "entry": "/pages/adventure-fleet/index",
   "watchPaths": [
     "miniprogram/pages/adventure-fleet/",
+    "miniprogram/components/config-bar/",
+    "miniprogram/components/fleet-share-preview/",
     "miniprogram/runtime/fleet-share-renderer.ts",
     "miniprogram/runtime/fleet-share-layout.ts",
     "miniprogram/assets/ui/fleet-share-map.jpg",
@@ -21,8 +23,24 @@
       "timeoutMs": 15000
     },
     {
+      "action": "assertExists",
+      "selector": "xpath://view[contains(@class, \"config-bar\")]"
+    },
+    {
+      "action": "assertExists",
+      "selector": "xpath://view[contains(@class, \"fleet-context\")]"
+    },
+    {
+      "action": "waitFor",
+      "durationMs": 2000
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-top-before-share"
+    },
+    {
       "action": "tap",
-      "selector": "xpath://button[contains(@class, \"config-bar__share\")]"
+      "selector": "xpath://button[contains(@class, \"config-bar__share--prominent\")]"
     },
     {
       "action": "waitFor",

@@ -25,6 +25,8 @@ describe('艦隊分享圖自動驗收場景', () => {
       expect.arrayContaining([
         'miniprogram/runtime/fleet-share-renderer.ts',
         'miniprogram/runtime/fleet-share-layout.ts',
+        'miniprogram/components/config-bar/',
+        'miniprogram/components/fleet-share-preview/',
         'miniprogram/assets/ui/fleet-share-map.jpg',
         'data/master/ui-assets/fleet-share-map-source.png',
         'miniprogram/assets/ui/fleet-share-nautical-motifs.png',
@@ -35,12 +37,13 @@ describe('艦隊分享圖自動驗收場景', () => {
       expect.arrayContaining([
         'tap',
         'waitFor',
+        'assertExists',
         'assertVisible',
         'assertText',
         'scrollElement',
         'screenshot',
       ]),
     )
-    expect(scenario.steps.filter((step) => step.action === 'screenshot')).toHaveLength(2)
+    expect(scenario.steps.filter((step) => step.action === 'screenshot')).toHaveLength(3)
   })
 })
