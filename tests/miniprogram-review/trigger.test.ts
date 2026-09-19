@@ -84,7 +84,7 @@ describe('小程序页面变更触发器', () => {
     expect(plan.scenarios).toEqual([])
   })
 
-  it('分享底板来源或 recipe 变更会同时触发戰鬥與冒險分享场景', () => {
+  it('分享底板或配置卡紙張素材變更會同時觸發戰鬥與冒險分享場景', () => {
     const watchPaths = [
       'miniprogram/runtime/fleet-share-renderer.ts',
       'miniprogram/runtime/fleet-share-layout.ts',
@@ -92,6 +92,8 @@ describe('小程序页面变更触发器', () => {
       'data/master/ui-assets/fleet-share-map-source.png',
       'miniprogram/assets/ui/fleet-share-nautical-motifs.png',
       'data/master/ui-assets/fleet-share-nautical-motifs-source.png',
+      'miniprogram/assets/ui/config-paper-texture.png',
+      'data/master/ui-assets/config-paper-texture-source.png',
       'tools/ui-assets/config.ts',
       'tools/ui-assets/build-ui-assets.ts',
     ]
@@ -109,6 +111,8 @@ describe('小程序页面变更触发器', () => {
       true,
     )
     expect(isPageRelatedPath('miniprogram/assets/ui/fleet-share-nautical-motifs.png')).toBe(true)
+    expect(isPageRelatedPath('miniprogram/assets/ui/config-paper-texture.png')).toBe(true)
+    expect(isPageRelatedPath('data/master/ui-assets/config-paper-texture-source.png')).toBe(true)
     expect(plan.outcome).toBe('run')
     expect(plan.pageFiles).toEqual(['data/master/ui-assets/fleet-share-map-source.png'])
     expect(plan.scenarios.map(({ name }) => name)).toEqual(['adventure-share', 'battle-share'])

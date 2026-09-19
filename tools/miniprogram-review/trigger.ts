@@ -44,7 +44,9 @@ const generatedPathPatterns = [
 const sharedFleetShareAssetPatterns = [
   /^data\/master\/ui-assets\/fleet-share-map-source\.png$/,
   /^data\/master\/ui-assets\/fleet-share-nautical-motifs-source\.png$/,
+  /^data\/master\/ui-assets\/config-paper-texture-source\.png$/,
   /^miniprogram\/assets\/ui\/fleet-share-nautical-motifs\.png$/,
+  /^miniprogram\/assets\/ui\/config-paper-texture\.png$/,
   /^tools\/ui-assets\/(?:config|build-ui-assets)\.ts$/,
 ]
 
