@@ -645,7 +645,7 @@
 .config-bar--prominent-share .config-bar__share-glyph {
   width: 56rpx;
   height: 52rpx;
-  flex-basis: 56rpx;
+  flex-basis: 52rpx;
 }
 
 .config-bar--prominent-share .config-bar__share--prominent .config-bar__share-glyph {

@@ -478,6 +478,12 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxss).toMatch(
       /\.config-bar--prominent-share\s+\.config-bar__name\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-page-title\)/,
     )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__share-label\s*\{[\s\S]*font-size:\s*var\(--uwo-font-size-section-title\)/,
+    )
+    expect(wxss).toMatch(
+      /\.config-bar--prominent-share\s+\.config-bar__share-glyph\s*\{[\s\S]*width:\s*56rpx[\s\S]*height:\s*52rpx[\s\S]*flex-basis:\s*52rpx/,
+    )
   })
 
   it('ModeTabs 以選項值發出 change 並提供可見選中語義', () => {
