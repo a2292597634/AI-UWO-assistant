@@ -10,15 +10,17 @@
       aria-label="{{expanded ? '收起我的配置' : '展開我的配置'}}"
     >
       <view class="config-bar__config-row config-bar__config-row--meta">
-        <text class="config-bar__config-label">我的配置</text>
-        <text class="config-bar__status config-bar__status--{{configStatus}}">
-          {{configStatus === 'saved' ? '已保存' : '尚未保存'}}
-        </text>
+        <view class="config-bar__config-meta">
+          <text class="config-bar__config-label">我的配置</text>
+          <text class="config-bar__count">{{configList.length}} 套</text>
+        </view>
+        <view class="config-bar__status config-bar__status--{{configStatus}}">
+          <text class="config-bar__status-label">{{configStatus === 'saved' ? '已保存' : '尚未保存'}}</text>
+        </view>
       </view>
       <view class="config-bar__config-row config-bar__config-row--identity">
         <view class="config-bar__identity-copy">
           <text class="config-bar__name">{{configName || '未命名配置'}}</text>
-          <text class="config-bar__count">{{configList.length}} 套</text>
         </view>
         <view
           class="config-bar__toggle-chevron {{expanded ? 'config-bar__toggle-chevron--expanded' : ''}}"
@@ -33,15 +35,13 @@
       loading="{{shareStatus === 'generating'}}"
       aria-label="{{shareStatus === 'generating' ? '正在生成隊伍分享圖' : shareStatus === 'error' ? '重試生成隊伍分享圖' : '分享目前隊伍'}}"
     >
-      <view class="config-bar__share-glyph" aria-hidden="true">
-        <view class="config-bar__share-link config-bar__share-link--up"></view>
-        <view class="config-bar__share-link config-bar__share-link--down"></view>
-        <view class="config-bar__share-node config-bar__share-node--top"></view>
-        <view class="config-bar__share-node config-bar__share-node--middle"></view>
-        <view class="config-bar__share-node config-bar__share-node--bottom"></view>
-      </view>
+      <image
+        class="config-bar__share-image"
+        src="/assets/ui/share-action-icon.png"
+        mode="aspectFit"
+        aria-hidden="true"
+      />
       <text class="config-bar__share-label">{{shareStatus === 'generating' ? '生成中' : shareStatus === 'error' ? '重試' : '分享'}}</text>
-      <text class="config-bar__share-hint">{{shareStatus === 'generating' ? '請稍候' : shareStatus === 'error' ? '重新生成' : '生成分享圖'}}</text>
     </button>
   </view>
 
@@ -66,13 +66,12 @@
         loading="{{shareStatus === 'generating'}}"
         aria-label="{{shareStatus === 'generating' ? '正在生成隊伍分享圖' : shareStatus === 'error' ? '重試生成隊伍分享圖' : '分享目前隊伍'}}"
       >
-        <view class="config-bar__share-glyph" aria-hidden="true">
-          <view class="config-bar__share-link config-bar__share-link--up"></view>
-          <view class="config-bar__share-link config-bar__share-link--down"></view>
-          <view class="config-bar__share-node config-bar__share-node--top"></view>
-          <view class="config-bar__share-node config-bar__share-node--middle"></view>
-          <view class="config-bar__share-node config-bar__share-node--bottom"></view>
-        </view>
+        <image
+          class="config-bar__share-image"
+          src="/assets/ui/share-action-icon.png"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
         <text class="config-bar__share-label">{{shareStatus === 'generating' ? '生成中' : shareStatus === 'error' ? '重試' : '分享'}}</text>
         <text class="config-bar__share-hint">{{shareStatus === 'generating' ? '請稍候' : shareStatus === 'error' ? '重新生成' : '生成分享圖'}}</text>
       </button>

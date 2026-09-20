@@ -637,7 +637,7 @@ describe('adventure fleet share entry', () => {
 
   it('冒險配隊與戰鬥配隊共用突出配置卡', () => {
     expect(adventureWxml).toContain('prominent-share="{{true}}"')
-    expect(adventureWxml).toContain('style="display: block; min-height: 248rpx; flex: 0 0 auto;"')
+    expect(adventureWxml).toContain('style="display: block; min-height: 144rpx; flex: 0 0 auto;"')
     expect(adventureWxml).toMatch(/<config-bar[\s\S]*bind:share="onShareFleet"[\s\S]*\/>/)
     expect(adventureWxml.indexOf('<view class="fleet-context">')).toBeLessThan(
       adventureWxml.indexOf('<config-bar'),

@@ -141,6 +141,12 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 750, height: 320, channels: 3, background: '#e8dfce' } })
       .png()
       .toFile(join(sourceRoot, 'config-paper-texture-source.png')),
+    writePng(join(sourceRoot, 'share-action-icon-source.png'), 256, 256, {
+      left: 32,
+      top: 32,
+      width: 192,
+      height: 192,
+    }),
   ])
 }
 
@@ -231,6 +237,7 @@ describe('buildUiAssets', () => {
     ]
     const featureFiles = report.files.filter((file) => featureIds.includes(file.id))
     const configPaperTexture = files.find((file) => file.id === 'config-paper-texture')
+    const shareActionIcon = files.find((file) => file.id === 'share-action-icon')
 
     expect(configPaperTexture).toMatchObject({
       output: 'config-paper-texture.png',
@@ -239,6 +246,14 @@ describe('buildUiAssets', () => {
       height: 320,
     })
     expect(configPaperTexture?.byteSize).toBeLessThanOrEqual(48 * 1024)
+
+    expect(shareActionIcon).toMatchObject({
+      output: 'share-action-icon.png',
+      mimeType: 'image/png',
+      width: 128,
+      height: 128,
+    })
+    expect(shareActionIcon?.byteSize).toBeLessThanOrEqual(12 * 1024)
 
     expect(featureFiles).toHaveLength(6)
     expect(

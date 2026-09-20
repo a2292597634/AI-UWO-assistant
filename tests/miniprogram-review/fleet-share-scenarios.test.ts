@@ -33,6 +33,8 @@ describe('艦隊分享圖自動驗收場景', () => {
         'data/master/ui-assets/fleet-share-nautical-motifs-source.png',
         'miniprogram/assets/ui/config-paper-texture.png',
         'data/master/ui-assets/config-paper-texture-source.png',
+        'miniprogram/assets/ui/share-action-icon.png',
+        'data/master/ui-assets/share-action-icon-source.png',
       ]),
     )
     expect(actions).toEqual(

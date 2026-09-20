@@ -387,58 +387,12 @@
   gap: var(--uwo-space-1);
 }
 
-.config-bar__share-glyph {
-  position: relative;
+.config-bar__share-image {
+  display: block;
   width: 52rpx;
   height: 48rpx;
   flex: 0 0 52rpx;
   margin-bottom: var(--uwo-space-1);
-  color: var(--uwo-color-accent-text);
-}
-
-.config-bar__share-node {
-  position: absolute;
-  z-index: 1;
-  width: 14rpx;
-  height: 14rpx;
-  border: 3rpx solid var(--uwo-color-accent-text);
-  border-radius: var(--uwo-radius-pill);
-  background: transparent;
-}
-
-.config-bar__share-node--top {
-  top: 0;
-  right: 0;
-}
-
-.config-bar__share-node--middle {
-  top: 17rpx;
-  left: 0;
-}
-
-.config-bar__share-node--bottom {
-  right: 0;
-  bottom: 0;
-}
-
-.config-bar__share-link {
-  position: absolute;
-  left: 9rpx;
-  width: 35rpx;
-  height: 3rpx;
-  border-radius: var(--uwo-radius-pill);
-  background: var(--uwo-color-accent-text);
-  transform-origin: left center;
-}
-
-.config-bar__share-link--up {
-  top: 14rpx;
-  transform: rotate(-28deg);
-}
-
-.config-bar__share-link--down {
-  bottom: 14rpx;
-  transform: rotate(28deg);
 }
 
 .config-bar__share-label,
@@ -462,8 +416,8 @@
 }
 
 .config-bar--prominent-share {
-  min-height: 248rpx;
-  padding: var(--uwo-space-3);
+  min-height: 144rpx;
+  padding: var(--uwo-space-2);
   border-color: var(--uwo-color-border-strong);
   background-color: var(--uwo-color-surface-muted);
   background-image: url('/assets/ui/config-paper-texture.png');
@@ -498,8 +452,8 @@
   display: flex;
   width: 100%;
   align-items: stretch;
-  gap: var(--uwo-space-3);
-  min-height: 216rpx;
+  gap: var(--uwo-space-2);
+  min-height: 120rpx;
   overflow: visible;
 }
 
@@ -507,13 +461,13 @@
   box-sizing: border-box;
   display: flex;
   min-width: 0;
-  min-height: 216rpx;
+  min-height: 120rpx;
   flex: 1 1 0;
   flex-direction: column;
   justify-content: center;
-  gap: var(--uwo-space-3);
+  gap: var(--uwo-space-1);
   margin: 0;
-  padding: var(--uwo-space-3);
+  padding: var(--uwo-space-2);
   border: 2rpx solid var(--uwo-color-surface-muted);
   border-radius: var(--uwo-radius-control);
   background: var(--uwo-color-surface-muted);
@@ -530,7 +484,18 @@
   width: 100%;
   min-width: 0;
   align-items: center;
-  gap: var(--uwo-space-2);
+  gap: var(--uwo-space-1);
+}
+
+.config-bar--prominent-share .config-bar__config-row--meta {
+  justify-content: flex-start;
+}
+
+.config-bar--prominent-share .config-bar__config-meta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--uwo-space-1);
 }
 
 .config-bar--prominent-share .config-bar__config-label {
@@ -543,16 +508,26 @@
 }
 
 .config-bar--prominent-share .config-bar__status {
+  box-sizing: border-box;
+  display: flex;
   flex: 0 0 auto;
-  margin-left: 0;
-  padding: var(--uwo-space-1) var(--uwo-space-2);
+  min-height: 32rpx;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--uwo-space-2);
+  padding: 0 var(--uwo-space-2);
   border: 1rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-pill);
-  background: var(--uwo-color-surface-muted);
+  background: var(--uwo-color-surface);
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-minimum-action);
-  line-height: 1.2;
+  line-height: 1;
   white-space: nowrap;
+}
+
+.config-bar--prominent-share .config-bar__status-label {
+  display: block;
+  line-height: 1.2;
 }
 
 .config-bar--prominent-share .config-bar__status--saved {
@@ -581,9 +556,7 @@
   display: flex;
   min-width: 0;
   flex: 1 1 auto;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--uwo-space-2);
+  align-items: center;
 }
 
 .config-bar--prominent-share .config-bar__count {
@@ -623,7 +596,7 @@
   width: 176rpx !important;
   min-width: 176rpx !important;
   max-width: 176rpx !important;
-  min-height: 216rpx;
+  min-height: 120rpx;
   flex: 0 0 176rpx !important;
   flex-direction: column;
   align-items: center;
@@ -639,26 +612,14 @@
 }
 
 .config-bar--prominent-share .config-bar__share-label {
-  font-size: var(--uwo-font-size-section-title);
+  font-size: var(--uwo-font-size-body);
 }
 
-.config-bar--prominent-share .config-bar__share-glyph {
+.config-bar--prominent-share .config-bar__share-image {
+  display: block;
   width: 56rpx;
   height: 52rpx;
   flex-basis: 52rpx;
-}
-
-.config-bar--prominent-share .config-bar__share--prominent .config-bar__share-glyph {
-  color: var(--uwo-color-surface);
-}
-
-.config-bar--prominent-share .config-bar__share--prominent .config-bar__share-node {
-  border-color: var(--uwo-color-surface);
-  background: var(--uwo-color-surface);
-}
-
-.config-bar--prominent-share .config-bar__share--prominent .config-bar__share-link {
-  background: var(--uwo-color-surface);
 }
 
 .config-bar--prominent-share .config-bar__share--prominent .config-bar__share-hint {
@@ -670,18 +631,6 @@
   background: var(--uwo-color-surface-muted);
   color: var(--uwo-color-text-secondary);
   opacity: 1;
-}
-
-.config-bar--prominent-share .config-bar__share--prominent[disabled] .config-bar__share-glyph {
-  color: var(--uwo-color-text-secondary);
-}
-
-.config-bar--prominent-share .config-bar__share--prominent[disabled] .config-bar__share-node {
-  border-color: var(--uwo-color-text-secondary);
-}
-
-.config-bar--prominent-share .config-bar__share--prominent[disabled] .config-bar__share-link {
-  background: var(--uwo-color-text-secondary);
 }
 
 .config-bar--prominent-share .config-bar__share--prominent[disabled] .config-bar__share-hint {

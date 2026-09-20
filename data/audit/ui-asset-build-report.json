@@ -716,12 +716,34 @@
         "width": 64,
         "height": 64
       }
+    },
+    {
+      "id": "share-action-icon",
+      "output": "share-action-icon.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 128,
+      "height": 128,
+      "byteSize": 944,
+      "sha256": "1298334ef31795da2f5948e2fab4c0dcc4ea5a8ef1a1f126701dc163b31e909c",
+      "sourceTransparentBounds": {
+        "left": 254,
+        "top": 230,
+        "width": 906,
+        "height": 878
+      },
+      "outputTransparentBounds": {
+        "left": 25,
+        "top": 28,
+        "width": 78,
+        "height": 80
+      }
     }
   ],
   "groupBytes": {
     "banner": 181503,
     "feature": 16922,
-    "original-ui": 50407
+    "original-ui": 51351
   },
-  "totalBytes": 248832
+  "totalBytes": 249776
 }

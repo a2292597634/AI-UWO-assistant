@@ -140,6 +140,17 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     maxBytes: 48 * 1024,
     group: 'banner',
   },
+  {
+    id: 'share-action-icon',
+    source: 'share-action-icon-source.png',
+    output: 'share-action-icon.png',
+    mode: 'resize-png',
+    width: 128,
+    height: 128,
+    paletteColors: 64,
+    maxBytes: 12 * 1024,
+    group: 'original-ui',
+  },
   ...[2, 3, 4, 5, 6].flatMap((grade) => [
     originalUi(
       `rarity-badge-grade-${grade}`,

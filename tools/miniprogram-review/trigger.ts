@@ -47,6 +47,8 @@ const sharedFleetShareAssetPatterns = [
   /^data\/master\/ui-assets\/config-paper-texture-source\.png$/,
   /^miniprogram\/assets\/ui\/fleet-share-nautical-motifs\.png$/,
   /^miniprogram\/assets\/ui\/config-paper-texture\.png$/,
+  /^miniprogram\/assets\/ui\/share-action-icon\.png$/,
+  /^data\/master\/ui-assets\/share-action-icon-source\.png$/,
   /^tools\/ui-assets\/(?:config|build-ui-assets)\.ts$/,
 ]
 
