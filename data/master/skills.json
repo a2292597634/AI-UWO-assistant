@@ -13264,5 +13264,38 @@
     "sourceRefs": {
       "workOrderId": "wo_offline_frederick:funny_drunk"
     }
+  },
+  {
+    "id": "skill_wo_offline_adventure_collect_hazard",
+    "name": "採集險地",
+    "categoryId": "skill_category_adventure",
+    "description": "探險中採集力增加3。",
+    "levelInfo": "Lv1: 3 | Lv2: 5 | Lv3: 6 | Lv4: 7 | Lv5: 9 | Lv6: 10 | Lv7: 11 | Lv8: 12 | Lv9: 13 | Lv10: 15",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_adventure_passive_skills:collect_hazard"
+    }
+  },
+  {
+    "id": "skill_wo_offline_adventure_battle_hazard",
+    "name": "平定險地",
+    "categoryId": "skill_category_adventure",
+    "description": "探險中戰鬥力增加3。",
+    "levelInfo": "Lv1: 3 | Lv2: 5 | Lv3: 6 | Lv4: 7 | Lv5: 9 | Lv6: 10 | Lv7: 11 | Lv8: 12 | Lv9: 13 | Lv10: 15",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_adventure_passive_skills:battle_hazard"
+    }
+  },
+  {
+    "id": "skill_wo_offline_adventure_observation_hazard",
+    "name": "觀察險地",
+    "categoryId": "skill_category_adventure",
+    "description": "探險中觀察力增加3。",
+    "levelInfo": "Lv1: 3 | Lv2: 5 | Lv3: 6 | Lv4: 7 | Lv5: 9 | Lv6: 10 | Lv7: 11 | Lv8: 12 | Lv9: 13 | Lv10: 15",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_adventure_passive_skills:observation_hazard"
+    }
   }
 ]

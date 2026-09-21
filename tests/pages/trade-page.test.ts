@@ -61,8 +61,10 @@ const categoryEvent = (categoryId: string): WechatMiniprogram.BaseEvent =>
 
 const assetManifest = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../../data/assets/cloudbase-manifest.json'), 'utf8'),
-) as { cdnOrigin: string; cloudPathPrefix: string; releaseId: string }
-const expectedWineIconPath = `${assetManifest.cdnOrigin}/${assetManifest.cloudPathPrefix}/${assetManifest.releaseId}/trade_trade0615.png`
+) as { assets: Array<{ filename: string; publicUrl: string }> }
+const expectedWineIconPath = assetManifest.assets.find(
+  (asset) => asset.filename === 'trade_trade0615.png',
+)!.publicUrl
 
 beforeAll(async () => {
   vi.stubGlobal('Page', (config: TradePageConfig) => {

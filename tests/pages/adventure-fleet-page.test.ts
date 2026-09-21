@@ -340,11 +340,11 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.canRecalculate).toBe(false)
   })
 
-  it('預設配置全部 25 個有效冒險技能目標', () => {
+  it('預設配置全部 28 個有效冒險技能目標', () => {
     const page = createPageInstance()
     page.onLoad()
 
-    expect(page.data.targets).toHaveLength(25)
+    expect(page.data.targets).toHaveLength(28)
     expect(page.data.targets.map((target) => target.skillId)).toEqual(
       expect.arrayContaining([
         'skill_skillT0172',

@@ -240,6 +240,14 @@
         "slot": 1,
         "unlockLevel": 1,
         "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_battle_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
+        "unlockLevel": 1,
+        "level": 1
       }
     ],
     "recruitment": {

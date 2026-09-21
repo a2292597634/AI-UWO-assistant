@@ -1518,6 +1518,14 @@
         "slot": 1,
         "unlockLevel": 1,
         "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_observation_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
+        "unlockLevel": 1,
+        "level": 1
       }
     ],
     "recruitment": {
@@ -14433,6 +14441,14 @@
         "kind": "passive",
         "sourceGroup": "sk5",
         "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_observation_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
         "unlockLevel": 1,
         "level": 1
       }
@@ -37075,6 +37091,14 @@
         "slot": 1,
         "unlockLevel": 1,
         "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_collect_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
+        "unlockLevel": 1,
+        "level": 1
       }
     ],
     "recruitment": {
@@ -37555,6 +37579,14 @@
         "slot": 1,
         "unlockLevel": 1,
         "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_battle_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
+        "unlockLevel": 1,
+        "level": 1
       }
     ],
     "recruitment": {
@@ -37712,6 +37744,14 @@
         "kind": "passive",
         "sourceGroup": "sk5",
         "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_battle_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
         "unlockLevel": 1,
         "level": 1
       }
@@ -60669,6 +60709,14 @@
         "kind": "passive",
         "sourceGroup": "sk5",
         "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_collect_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
         "unlockLevel": 1,
         "level": 1
       }
@@ -86324,6 +86372,14 @@
         "kind": "passive",
         "sourceGroup": "sk5",
         "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_adventure_observation_hazard",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 2,
         "unlockLevel": 1,
         "level": 1
       }

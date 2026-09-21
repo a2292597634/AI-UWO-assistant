@@ -1,6 +1,6 @@
 {
-  "releaseId": "maintenance-756fe5d9f2b01a27-df032d8f2a03",
-  "manifestDigest": "df032d8f2a03268badd9a58f671289ea64ed7db9ccbfb1b0e1842e688cc58bc9",
+  "releaseId": "maintenance-756fe5d9f2b01a27-2fa6d609f313",
+  "manifestDigest": "2fa6d609f3135a9c7101b67bcf55c63b40a8f131798e2576d02a59e361b085d8",
   "contentVersion": "maintenance-756fe5d9f2b01a27",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
@@ -1127,6 +1127,17 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/skill_skill201881.png",
       "releaseId": "maintenance-756fe5d9f2b01a27-df032d8f2a03",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/skill_skill201881.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_adventure_observation_hazard.png",
+      "filename": "skill_wo_offline_adventure_observation_hazard.png",
+      "sha256": "997a8b755826c7fed656de5215ce22731817fcec0499f5cea4b7d6375c177e53",
+      "bytes": 4349,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_observation_hazard.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_observation_hazard.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-a1e130ce86eb",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_observation_hazard.png"
     },
     {
       "sourcePath": "officer_chast100.png",
@@ -16837,6 +16848,17 @@
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/skill_skill50999820.png"
     },
     {
+      "sourcePath": "skill_wo_offline_adventure_collect_hazard.png",
+      "filename": "skill_wo_offline_adventure_collect_hazard.png",
+      "sha256": "79db72c609e729f6743b672b59d8bbd2e283764aa0c374dd5b576a6bf8ed0298",
+      "bytes": 4371,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_collect_hazard.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_collect_hazard.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-a1e130ce86eb",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_collect_hazard.png"
+    },
+    {
       "sourcePath": "officer_chaabd006.png",
       "filename": "officer_chaabd006.png",
       "sha256": "51a6c0a4e476ceac7e448e82e84ac38990e94828fa1305e5b7add49cb84b26e9",
@@ -16934,6 +16956,17 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/skill_skill5099998.png",
       "releaseId": "maintenance-756fe5d9f2b01a27-df032d8f2a03",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/skill_skill5099998.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_adventure_battle_hazard.png",
+      "filename": "skill_wo_offline_adventure_battle_hazard.png",
+      "sha256": "2e204868ad05c58c81119636bef14f689a0258c6bf9bae62f4326023dae2eeed",
+      "bytes": 4056,
+      "contentType": "image/png",
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_battle_hazard.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_battle_hazard.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-a1e130ce86eb",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-a1e130ce86eb/skill_wo_offline_adventure_battle_hazard.png"
     },
     {
       "sourcePath": "officer_chaabd010.png",
