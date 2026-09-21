@@ -395,6 +395,30 @@ describe('配隊分享圖素材載入', () => {
     )
   })
 
+  it('冒險分享分組標題使用類型名稱', async () => {
+    const groupedView: AdventureFleetShareViewModel = {
+      ...view,
+      groups: [
+        { zone: 'adventure', zoneLabel: '冒險航海士', officers: [] },
+        { zone: 'combat', zoneLabel: '戰鬥航海士', officers: [] },
+        { zone: 'trade', zoneLabel: '交易航海士', officers: [] },
+      ],
+    }
+    const canvas = createCanvas(true)
+
+    await drawFleetShareImage(canvas, groupedView, measureAdventureFleetShare(groupedView))
+
+    const fillText = vi.mocked(canvas.getContext('2d').fillText)
+    for (const label of ['冒險航海士', '戰鬥航海士', '交易航海士']) {
+      expect(fillText).toHaveBeenCalledWith(
+        label,
+        expect.any(Number),
+        expect.any(Number),
+        expect.any(Number),
+      )
+    }
+  })
+
   it('二维码會映射到原始海圖右下預留框，而不是沿用過大的通用頁尾框', () => {
     const layout = measureAdventureFleetShare(view)
     const qrRect = resolveFleetShareQrRect(layout, { width: 750, height: 1125 })
@@ -412,7 +436,8 @@ describe('配隊分享圖素材載入', () => {
       configName: '技能標題間距案例',
       groups: [
         {
-          rarityName: 'A',
+          zone: 'adventure',
+          zoneLabel: '冒險航海士',
           officers: [
             {
               id: 'officer-1',
@@ -493,7 +518,8 @@ describe('配隊分享圖素材載入', () => {
       ...view,
       groups: [
         {
-          rarityName: 'A',
+          zone: 'adventure',
+          zoneLabel: '冒險航海士',
           officers: [
             {
               id: 'missing-portrait',

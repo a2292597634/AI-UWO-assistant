@@ -1153,7 +1153,7 @@ const drawGroup = (
 ): void => {
   drawText(
     context,
-    `${group.rarityName} 級航海士`,
+    group.zoneLabel,
     section.heading.x,
     section.heading.y + 20,
     240,

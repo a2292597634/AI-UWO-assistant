@@ -2,6 +2,7 @@ import type {
   AdventureFleetShareViewModel,
   BattleFleetShareViewModel,
 } from '../contracts/fleet-share'
+import type { AdventureTypeZone } from '../domain/adventure-fleet'
 
 export interface ShareRect {
   x: number
@@ -32,7 +33,8 @@ export interface FleetShareShipLayout {
 }
 
 export interface FleetShareGroupLayout {
-  rarityName: 'S' | 'A' | 'B' | 'C'
+  zone: AdventureTypeZone
+  zoneLabel: string
   y: number
   height: number
   heading: ShareRect
@@ -64,7 +66,7 @@ export interface FleetShareLayout {
 const DEFAULT_WIDTH = 750
 const DEFAULT_PADDING = 32
 const OFFICER_COLUMNS = 6
-const GROUP_OFFICER_COLUMNS = 4
+const GROUP_OFFICER_COLUMNS = 5
 const OFFICER_ROW_GAP = 6
 const OFFICER_SLOT_HEIGHT = 120
 const SKILL_COLUMNS = 5
@@ -299,7 +301,14 @@ export const measureAdventureFleetShare = (
       OFFICER_ROW_GAP,
     )
     cursor += SECTION_GAP
-    return { rarityName: group.rarityName, y, height: cursor - y, heading, officerSlots }
+    return {
+      zone: group.zone,
+      zoneLabel: group.zoneLabel,
+      y,
+      height: cursor - y,
+      heading,
+      officerSlots,
+    }
   })
   cursor += SKILL_HEADING_HEIGHT
   const skillSection =

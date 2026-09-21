@@ -60,6 +60,26 @@ const runtimeOfficer = (
   skills,
 })
 
+const adventureOfficer = (
+  id: string,
+  rarityName: string,
+  typeId: string,
+  typeName: string,
+  zone: AdventureFleetOfficer['zone'],
+): AdventureFleetOfficer => ({
+  id,
+  name: id,
+  jobName: '航海士',
+  rarityName,
+  portraitPath: `/${id}.png`,
+  visualGradeId: 'grade_4',
+  typeId,
+  typeName,
+  genderId: 'gender_f',
+  zone,
+  adventureSkills: [],
+})
+
 describe('配隊分享圖 Presenter', () => {
   it('分享圖移除完全空船，但保留部分空位和有效船原順序', () => {
     const view = buildBattleFleetShareViewModel(
@@ -289,7 +309,9 @@ describe('配隊分享圖 Presenter', () => {
 
     const view = buildAdventureFleetShareViewModel(state, officers, skills, '冒險隊伍', '/qr.png')
 
-    expect(view.groups.map((group) => group.rarityName)).toEqual(['S', 'A', 'B', 'C'])
+    expect(view.groups.map(({ zone, zoneLabel }) => [zone, zoneLabel])).toEqual([
+      ['adventure', '冒險航海士'],
+    ])
     expect(view.groups.flatMap((group) => group.officers).map((officer) => officer.id)).toEqual([
       's',
       'a',
@@ -302,5 +324,37 @@ describe('配隊分享圖 Presenter', () => {
     ])
     expect(view.skills.map((item) => item.skillId)).not.toContain('outside')
     expect(view.presetRangeEmpty).toBe(false)
+  })
+
+  it('冒險分享按冒險戰鬥交易分組，組內依 S 到 C 排序並保留同級配置順序', () => {
+    const officers = [
+      adventureOfficer('trade-c', 'C', 'type_class_2', '交易', 'trade'),
+      adventureOfficer('adv-a', 'A', 'type_class_1', '冒險', 'adventure'),
+      adventureOfficer('combat-b', 'B', 'type_class_3', '戰鬥', 'combat'),
+      adventureOfficer('adv-s', 'S', 'type_class_1', '冒險', 'adventure'),
+      adventureOfficer('trade-s', 'S', 'type_class_2', '交易', 'trade'),
+      adventureOfficer('combat-c', 'C', 'type_class_3', '戰鬥', 'combat'),
+      adventureOfficer('adv-a-2', 'A', 'type_class_1', '冒險', 'adventure'),
+    ]
+    const view = buildAdventureFleetShareViewModel(
+      fleetWithOfficers([
+        ['trade-c', 'adv-a', 'combat-b', 'adv-s', 'trade-s', 'combat-c', 'adv-a-2'],
+      ]),
+      officers,
+      {},
+      '分類排序案例',
+      '/qr.png',
+    )
+
+    expect(view.groups.map(({ zone, zoneLabel }) => [zone, zoneLabel])).toEqual([
+      ['adventure', '冒險航海士'],
+      ['combat', '戰鬥航海士'],
+      ['trade', '交易航海士'],
+    ])
+    expect(view.groups.map((group) => group.officers.map((officer) => officer.id))).toEqual([
+      ['adv-s', 'adv-a', 'adv-a-2'],
+      ['combat-b', 'combat-c'],
+      ['trade-s', 'trade-c'],
+    ])
   })
 })

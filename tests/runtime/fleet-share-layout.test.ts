@@ -137,24 +137,37 @@ describe('配隊分享圖布局測量', () => {
     expect(layout.shipSections).toHaveLength(0)
   })
 
-  it('冒險四個品質分組與全艦技能區不重疊', () => {
+  it('冒險三個類型分組使用五欄且與全艦技能區不重疊', () => {
     const view: AdventureFleetShareViewModel = {
       mode: 'adventure',
       configName: '冒險案例',
       qrPath: '/qr.png',
       entrancePath: 'pages/home/index',
       presetRangeEmpty: false,
-      groups: ['S', 'A', 'B', 'C'].map((rarityName) => ({
-        rarityName: rarityName as 'S' | 'A' | 'B' | 'C',
-        officers: Array.from({ length: 5 }, (_, index) => officer(`${rarityName}-${index + 1}`)),
-      })),
+      groups: [
+        {
+          zone: 'adventure',
+          zoneLabel: '冒險航海士',
+          officers: Array.from({ length: 6 }, (_, index) => officer(`adventure-${index + 1}`)),
+        },
+        {
+          zone: 'combat',
+          zoneLabel: '戰鬥航海士',
+          officers: [officer('combat-1')],
+        },
+        {
+          zone: 'trade',
+          zoneLabel: '交易航海士',
+          officers: Array.from({ length: 5 }, (_, index) => officer(`trade-${index + 1}`)),
+        },
+      ],
       skills: Array.from({ length: 11 }, (_, index) => skill(`skill-${index}`, 'passive')),
     }
     const layout = measureAdventureFleetShare(view)
     const lastGroup = layout.groupSections[layout.groupSections.length - 1]!
     const skillHeadingReserve = layout.skillSection.y - (lastGroup.y + lastGroup.height)
 
-    expect(layout.groupSections).toHaveLength(4)
+    expect(layout.groupSections).toHaveLength(3)
     expect(skillHeadingReserve).toBeGreaterThanOrEqual(56)
     expect(layout.skillSection.y).toBeGreaterThanOrEqual(lastGroup.y + lastGroup.height)
     expect(layout.groupSections[0]!.y).toBeGreaterThanOrEqual(
@@ -165,16 +178,16 @@ describe('配隊分享圖布局測量', () => {
     )
     expect(layout.skillSection.skillRows).toBe(3)
     expect(layout.contentBottom).toBeLessThanOrEqual(layout.height)
-    layout.groupSections.forEach((group) => {
-      const firstRow = group.officerSlots.slice(0, 4)
-      const secondRow = group.officerSlots.slice(4)
-
-      expect(group.officerSlots).toHaveLength(5)
-      expect(firstRow.every((slot) => slot.y === firstRow[0]!.y)).toBe(true)
-      expect(secondRow[0]!.y).toBeGreaterThan(firstRow[0]!.y)
-      expect(secondRow[0]!.x).toBeGreaterThan(firstRow[0]!.x)
-      expect(secondRow[0]!.x).toBeLessThan(firstRow[3]!.x)
-    })
+    const adventureSlots = layout.groupSections[0]!.officerSlots
+    const firstRow = adventureSlots.slice(0, 5)
+    const secondRow = adventureSlots.slice(5)
+    expect(adventureSlots).toHaveLength(6)
+    expect(firstRow.every((slot) => slot.y === firstRow[0]!.y)).toBe(true)
+    expect(secondRow[0]!.y).toBeGreaterThan(firstRow[0]!.y)
+    expect(secondRow[0]!.x).toBeGreaterThan(firstRow[0]!.x)
+    expect(secondRow[0]!.x).toBeLessThan(firstRow[4]!.x)
+    expect(layout.groupSections[1]!.officerSlots).toHaveLength(1)
+    expect(layout.groupSections[2]!.officerSlots).toHaveLength(5)
     expect(layout.footer.y).toBeGreaterThan(layout.skillSection.y + layout.skillSection.height)
     expect(layout.footer.y + layout.footer.height).toBeLessThanOrEqual(layout.height)
     expect(layout.qr.y + layout.qr.height).toBeLessThanOrEqual(layout.height)

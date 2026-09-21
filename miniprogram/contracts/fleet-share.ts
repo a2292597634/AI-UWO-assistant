@@ -1,5 +1,6 @@
 import type { FleetState } from './battle-fleet'
 import type { OfficerVisualPaths } from '../presenters/officer-visuals'
+import type { AdventureTypeZone } from '../domain/adventure-fleet'
 
 /** 分享圖中一名航海士的完整視圖資料。 */
 export interface FleetShareOfficerView {
@@ -41,7 +42,8 @@ export interface BattleFleetShareViewModel {
 export type FleetShareRarity = 'S' | 'A' | 'B' | 'C'
 
 export interface AdventureFleetShareGroup {
-  rarityName: FleetShareRarity
+  zone: AdventureTypeZone
+  zoneLabel: string
   officers: FleetShareOfficerView[]
 }
 

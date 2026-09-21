@@ -13,7 +13,12 @@ import type {
   RuntimeFleetSkillRelation,
   RuntimeSkill,
 } from '../contracts/runtime-data'
-import type { AdventureFleetOfficer } from '../domain/adventure-fleet'
+import {
+  getZoneLabel,
+  ZONE_ORDER,
+  type AdventureFleetOfficer,
+  type AdventureTypeZone,
+} from '../domain/adventure-fleet'
 import { buildOfficerVisuals } from './officer-visuals'
 
 const ENTRANCE_PATH = 'pages/home/index' as const
@@ -156,20 +161,32 @@ const buildAdventureGroups = (
   fleet: FleetState,
   officers: Readonly<Record<string, AdventureFleetOfficer>>,
 ): AdventureFleetShareGroup[] => {
-  const grouped = new Map<FleetShareRarity, FleetShareOfficerView[]>()
+  const grouped = new Map<AdventureTypeZone, FleetShareOfficerView[]>()
   for (const [shipIndex, ship] of fleet.ships.entries()) {
     for (const [slotIndex, officerId] of ship.officerIds.slice(0, OFFICER_SLOT_COUNT).entries()) {
       const officer = officers[officerId]
-      if (!officer || !RARITY_ORDER.includes(officer.rarityName as FleetShareRarity)) continue
-      const rarityName = officer.rarityName as FleetShareRarity
-      const group = grouped.get(rarityName) ?? []
+      if (
+        !officer ||
+        !officer.zone ||
+        !RARITY_ORDER.includes(officer.rarityName as FleetShareRarity)
+      ) {
+        continue
+      }
+      const group = grouped.get(officer.zone) ?? []
       group.push(buildOfficerView(officer, ship.id || `ship-${shipIndex + 1}`, slotIndex))
-      grouped.set(rarityName, group)
+      grouped.set(officer.zone, group)
     }
   }
-  return RARITY_ORDER.flatMap((rarityName) => {
-    const group = grouped.get(rarityName)
-    return group && group.length > 0 ? [{ rarityName, officers: group }] : []
+
+  return ZONE_ORDER.flatMap((zone) => {
+    const group = grouped.get(zone)
+    if (!group || group.length === 0) return []
+    const officersInOrder = [...group].sort(
+      (a, b) =>
+        RARITY_ORDER.indexOf(a.rarityName as FleetShareRarity) -
+        RARITY_ORDER.indexOf(b.rarityName as FleetShareRarity),
+    )
+    return [{ zone, zoneLabel: getZoneLabel(zone), officers: officersInOrder }]
   })
 }
 
