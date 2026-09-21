@@ -1,10 +1,19 @@
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import {
   buildWindowsBatchLaunch,
+  disposeFailedAutomationConnection,
   createAutomatorAdapter,
+  isDevToolsConnectionError,
+  prepareReviewProject,
+  restartReviewConnection,
   shouldBypassLegacyVersionCheck,
   waitForPageReady,
+  waitForPageReadyWithCleanup,
 } from '../../tools/miniprogram-review/adapter'
 
 describe('miniprogram-automator 适配器', () => {
@@ -18,6 +27,23 @@ describe('miniprogram-automator 适配器', () => {
     await adapter.reLaunch('/subpkg-fleet/pages/index/index')
 
     expect(calls).toEqual(['reLaunch:/subpkg-fleet/pages/index/index'])
+  })
+
+  it('开发者工具尚未生成当前页面时直接调用 wx 路由方法', async () => {
+    const calls: Array<{ method: string; args: unknown[] }> = []
+    const miniProgram = {
+      callWxMethod: async (method: string, ...args: unknown[]) => {
+        calls.push({ method, args })
+      },
+      reLaunch: async () => {
+        throw new Error('不应先读取当前页面')
+      },
+    }
+    const adapter = createAutomatorAdapter(miniProgram as never)
+
+    await adapter.reLaunch('/pages/home/index')
+
+    expect(calls).toEqual([{ method: 'reLaunch', args: [{ url: '/pages/home/index' }] }])
   })
 
   it('新版开发者工具只有 version 时绕过旧 SDKVersion 检查', () => {
@@ -45,6 +71,42 @@ describe('miniprogram-automator 适配器', () => {
         "& 'D:/微信web开发者工具/cli.bat' auto --project 'E:/AI UWO assistant' --auto-port 9420 --trust-project --port 40870",
       ],
     })
+  })
+
+  it('TypeScript 工程验收时生成不改动源代码的临时 JavaScript 镜像', async () => {
+    const projectPath = await mkdtemp(join(tmpdir(), 'uwo-review-project-'))
+    try {
+      await writeFile(
+        join(projectPath, 'project.config.json'),
+        JSON.stringify({
+          miniprogramRoot: 'miniprogram/',
+          setting: { useCompilerPlugins: ['typescript'] },
+        }),
+        'utf8',
+      )
+      await mkdir(join(projectPath, 'miniprogram'), { recursive: true })
+      await writeFile(
+        join(projectPath, 'miniprogram', 'app.ts'),
+        "const app: string = 'ok'\n",
+        'utf8',
+      )
+
+      const mirrorPath = await prepareReviewProject(projectPath)
+
+      expect(mirrorPath).not.toBe(projectPath)
+      await expect(readFile(join(mirrorPath, 'miniprogram', 'app.js'), 'utf8')).resolves.toContain(
+        'const app =',
+      )
+      await expect(readFile(join(mirrorPath, 'miniprogram', 'app.ts'), 'utf8')).rejects.toThrow()
+      await expect(readFile(join(mirrorPath, 'project.config.json'), 'utf8')).resolves.toContain(
+        '"useCompilerPlugins": []',
+      )
+      await expect(readFile(join(projectPath, 'miniprogram', 'app.ts'), 'utf8')).resolves.toContain(
+        ': string',
+      )
+    } finally {
+      await rm(projectPath, { recursive: true, force: true })
+    }
   })
 
   it('把输入、点击、滚动、截图和页面路径映射到 SDK', async () => {
@@ -184,6 +246,33 @@ describe('miniprogram-automator 适配器', () => {
     expect(attempts).toBe(2)
   })
 
+  it('页面首帧超时时释放已经建立的自动化会话', async () => {
+    let disconnects = 0
+
+    await expect(
+      waitForPageReadyWithCleanup(
+        { currentPagePath: async () => '/pages/home/index' },
+        async () => {
+          disconnects += 1
+        },
+        0,
+      ),
+    ).rejects.toThrow('等待小程序页面首帧就绪超时')
+
+    expect(disconnects).toBe(1)
+  })
+
+  it('自动化握手失败时只释放连接，不关闭仍在启动的工具窗口', () => {
+    const calls: string[] = []
+    const connection = {
+      dispose: () => void calls.push('dispose'),
+    }
+
+    disposeFailedAutomationConnection(connection)
+
+    expect(calls).toEqual(['dispose'])
+  })
+
   it('元素不支持输入时给出明确错误', async () => {
     const miniProgram = {
       currentPage: async () => ({
@@ -231,5 +320,65 @@ describe('miniprogram-automator 适配器', () => {
     } as never)
 
     await expect(adapter.waitFor('.missing', 1)).rejects.toThrow('等待元素超时：.missing')
+  })
+
+  it('只把自动化连接错误识别为可恢复阻塞', () => {
+    expect(isDevToolsConnectionError(new Error('连接微信开发者工具自动化端点超时'))).toBe(true)
+    expect(isDevToolsConnectionError(new Error('timeout waiting for automator response'))).toBe(
+      true,
+    )
+    expect(isDevToolsConnectionError(new Error('业务提示：WebSocket 分享图已生成'))).toBe(false)
+    expect(isDevToolsConnectionError(new Error('WebSocket connection closed'))).toBe(true)
+    expect(isDevToolsConnectionError(new Error('微信开发者工具没有当前小程序页面'))).toBe(true)
+    expect(isDevToolsConnectionError(new Error('找不到元素：.catalog-row'))).toBe(false)
+    expect(isDevToolsConnectionError(new Error('元素文字不相等：.catalog-title'))).toBe(false)
+  })
+
+  it('waitFor 不吞掉自动化连接断开错误', async () => {
+    const adapter = createAutomatorAdapter({
+      currentPage: async () => {
+        throw new Error('Connection is closed')
+      },
+    } as never)
+
+    await expect(adapter.waitFor('.missing', 1)).rejects.toThrow('Connection is closed')
+  })
+
+  it('重启编排先关闭旧会话再启动同一配置的新会话', async () => {
+    const calls: string[] = []
+    const config = {
+      projectPath: 'E:/AI UWO assistant',
+      cliPath: 'D:/微信web开发者工具/cli.bat',
+      servicePort: 55975,
+      automationPort: 9420,
+    }
+
+    await restartReviewConnection(config, {
+      closeSession: async (endpoint) => void calls.push(`close:${endpoint}`),
+      launchSession: async (receivedConfig) => {
+        calls.push(`launch:${receivedConfig.projectPath}:${receivedConfig.automationPort}`)
+      },
+    })
+
+    expect(calls).toEqual(['close:ws://127.0.0.1:9420', 'launch:E:/AI UWO assistant:9420'])
+  })
+
+  it('仅有 WebSocket 端点时只尝试重新连接，不关闭或启动 CLI', async () => {
+    const calls: string[] = []
+
+    await restartReviewConnection(
+      {
+        projectPath: 'E:/AI UWO assistant',
+        wsEndpoint: 'ws://127.0.0.1:9420',
+        automationPort: 9420,
+      },
+      {
+        closeSession: async () => void calls.push('close'),
+        launchSession: async () => void calls.push('launch'),
+        reconnectSession: async (endpoint) => void calls.push(`reconnect:${endpoint}`),
+      },
+    )
+
+    expect(calls).toEqual(['reconnect:ws://127.0.0.1:9420'])
   })
 })

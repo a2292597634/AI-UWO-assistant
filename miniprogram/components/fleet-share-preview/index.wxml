@@ -2,11 +2,11 @@
   <view class="fleet-share-preview__mask" bindtap="onClose"></view>
   <view class="fleet-share-preview" catchtap="onNoop" role="dialog" aria-label="分享圖預覽">
     <view class="fleet-share-preview__header">
-      <text class="fleet-share-preview__title">分享圖預覽</text>
+      <text class="fleet-share-preview__title">{{title}}</text>
       <button class="fleet-share-preview__close" bindtap="onClose" aria-label="關閉分享圖預覽">關閉</button>
     </view>
 
-    <scroll-view class="fleet-share-preview__content" scroll-y>
+    <scroll-view class="fleet-share-preview__content" scroll-y scroll-into-view="{{automationScrollIntoView}}">
       <image wx:if="{{imagePath}}" class="fleet-share-preview__image" src="{{imagePath}}" mode="widthFix" />
       <view wx:if="{{degradedAssetCount > 0}}" class="ui-status ui-status--review fleet-share-preview__notice">
         <text class="ui-status__label">部分素材未載入，已使用佔位圖</text>
@@ -14,6 +14,7 @@
       <view wx:if="{{status === 'error'}}" class="ui-status ui-status--error fleet-share-preview__notice">
         <text class="ui-status__label">{{errorMessage || '分享圖生成失敗'}}</text>
       </view>
+      <view id="fleet-share-preview__bottom-anchor" aria-hidden="true"></view>
     </scroll-view>
 
     <view class="fleet-share-preview__actions">

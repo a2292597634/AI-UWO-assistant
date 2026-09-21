@@ -25,6 +25,22 @@ describe('配隊分享圖架構契約', () => {
     expect(wxss).toContain('env(safe-area-inset-bottom)')
   })
 
+  it('為開發者工具驗收提供真實標題讀取與內層滾動錨點', () => {
+    const componentWxml = read('miniprogram/components/fleet-share-preview/index.wxml')
+    const componentScript = read('miniprogram/components/fleet-share-preview/index.ts')
+    expect(componentWxml).toContain('{{title}}')
+    expect(componentWxml).toContain('scroll-into-view="{{automationScrollIntoView}}"')
+    expect(componentWxml).toContain('id="fleet-share-preview__bottom-anchor"')
+    expect(componentScript).toContain("title: { type: String, value: '分享圖預覽' }")
+    expect(componentScript).toContain("automationScrollIntoView: { type: String, value: '' }")
+    for (const relativePath of [
+      'miniprogram/subpkg-fleet/pages/index/index.wxml',
+      'miniprogram/pages/adventure-fleet/index.wxml',
+    ]) {
+      expect(read(relativePath)).toContain('id="fleet-share-preview"')
+    }
+  })
+
   it('首頁碼是非空 PNG 且兩個頁面註冊預覽元件', () => {
     const qrPath = resolve(root, 'miniprogram/assets/ui/mini-program-home-code.png')
     expect(existsSync(qrPath)).toBe(true)

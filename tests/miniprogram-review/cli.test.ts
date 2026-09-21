@@ -36,6 +36,7 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
   }),
   diagnose: () => [{ code: 'READY', level: 'info', message: '配置完整' }],
   checkCliCapability: async () => ({ ok: true, message: 'CLI 调用与登录状态正常' }),
+  restartDevTools: async () => undefined,
   connect: async () => ({ disconnect: async () => undefined }) as never,
   loadScenario: () => ({
     name: '目录搜寻',
@@ -283,5 +284,204 @@ describe('小程序验收 CLI', () => {
       summary: '为贸易品页面补齐真实图示',
       notes: ['已检查列表页和详情页的小屏布局', '保留数据页的现有查询流程'],
     })
+  })
+
+  it('changed 遇到环境阻塞时重启并重新检查后继续场景', async () => {
+    let capabilityChecks = 0
+    const restartDevTools = vi.fn(async () => undefined)
+    let firstConnectionConfig: { wsEndpoint?: string } | undefined
+    const code = await runCli(
+      ['changed', '--mode', 'iterate'],
+      dependencies({
+        listScenarioPaths: () => ['catalog-search.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        checkCliCapability: async () => {
+          capabilityChecks += 1
+          return capabilityChecks === 1
+            ? { ok: false, message: '开发者工具服务端口不可访问' }
+            : { ok: true, message: '重新连接成功' }
+        },
+        restartDevTools: restartDevTools as never,
+        connect: async (config) => {
+          firstConnectionConfig = config
+          return { disconnect: async () => undefined } as never
+        },
+      }),
+    )
+
+    expect(code).toBe(0)
+    expect(restartDevTools).toHaveBeenCalledOnce()
+    expect(capabilityChecks).toBe(2)
+    expect(firstConnectionConfig?.wsEndpoint).toBe('ws://127.0.0.1:9420')
+  })
+
+  it('初次连接阻塞恢复后使用现有自动化端点重连', async () => {
+    const restartDevTools = vi.fn(async () => undefined)
+    let connectCalls = 0
+    const connect = vi.fn(async (config) => {
+      connectCalls += 1
+      if (connectCalls === 1) throw new Error('Failed connecting to ws://127.0.0.1:9420')
+      expect(config.wsEndpoint).toBe('ws://127.0.0.1:9420')
+      return {
+        currentPagePath: async () => '/pages/catalog/index',
+        disconnect: async () => undefined,
+      }
+    })
+
+    const code = await runCli(
+      ['start'],
+      dependencies({
+        connect: connect as never,
+        restartDevTools: restartDevTools as never,
+      }),
+    )
+
+    expect(code).toBe(0)
+    expect(connect).toHaveBeenCalledTimes(2)
+    expect(restartDevTools).toHaveBeenCalledOnce()
+  })
+
+  it('run 连接阻塞时把每次恢复明细写入 blocked 报告', async () => {
+    const restartDevTools = vi.fn(async () => undefined)
+    let capturedReport: ReviewReport | undefined
+    const code = await runCli(
+      ['run', '--scenario', 'catalog-search'],
+      dependencies({
+        connect: async () => {
+          throw new Error('Failed connecting to ws://127.0.0.1:9420')
+        },
+        checkCliCapability: async () => ({ ok: false, message: '自动化端点仍不可用' }),
+        restartDevTools: restartDevTools as never,
+        writeReport: (_outputDir, report) => {
+          capturedReport = report
+          return {
+            htmlPath: 'C:/review/report.html',
+            jsonPath: 'C:/review/report.json',
+            markdownPath: 'C:/review/report.md',
+          }
+        },
+      }),
+    )
+
+    expect(code).not.toBe(0)
+    expect(restartDevTools).toHaveBeenCalledTimes(2)
+    expect(capturedReport?.iterations[0]?.notes.join('\n')).toContain('第 1 次恢复开始')
+    expect(capturedReport?.iterations[0]?.notes.join('\n')).toContain('第 2 次恢复后仍不可用')
+  })
+
+  it('环境阻塞恢复两次仍失败时写入 blocked 报告', async () => {
+    const restartDevTools = vi.fn(async () => undefined)
+    let capturedReport: ReviewReport | undefined
+    const code = await runCli(
+      ['changed', '--mode', 'final'],
+      dependencies({
+        listScenarioPaths: () => ['catalog-search.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        checkCliCapability: async () => ({ ok: false, message: '开发者工具登录状态不可用' }),
+        restartDevTools: restartDevTools as never,
+        writeReport: (_outputDir, report) => {
+          capturedReport = report
+          return {
+            htmlPath: 'C:/review/report.html',
+            jsonPath: 'C:/review/report.json',
+            markdownPath: 'C:/review/report.md',
+          }
+        },
+      }),
+    )
+
+    expect(code).not.toBe(0)
+    expect(restartDevTools).toHaveBeenCalledTimes(2)
+    expect(capturedReport?.status).toBe('blocked')
+    expect(capturedReport?.iterations[0]?.notes.join('\n')).toContain('第 1 次恢复')
+    expect(capturedReport?.iterations[0]?.notes.join('\n')).toContain('第 2 次恢复')
+  })
+
+  it('场景执行期间发生连接阻塞时恢复后只重跑当前场景', async () => {
+    const restartDevTools = vi.fn(async () => undefined)
+    const runScenario = vi
+      .fn()
+      .mockResolvedValueOnce({
+        scenario: '目录搜寻',
+        pagePath: '/pages/catalog/index',
+        state: 'normal' as const,
+        status: 'failed' as const,
+        steps: [],
+        screenshots: [],
+        error: '连接微信开发者工具自动化端点超时',
+      })
+      .mockResolvedValueOnce({
+        scenario: '目录搜寻',
+        pagePath: '/pages/catalog/index',
+        state: 'normal' as const,
+        status: 'passed' as const,
+        steps: [],
+        screenshots: ['C:/review/catalog-after-reconnect.png'],
+      })
+
+    const code = await runCli(
+      ['changed', '--mode', 'iterate'],
+      dependencies({
+        listScenarioPaths: () => ['catalog-search.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        runScenario,
+        restartDevTools: restartDevTools as never,
+      }),
+    )
+
+    expect(code).toBe(0)
+    expect(restartDevTools).toHaveBeenCalledOnce()
+    expect(runScenario).toHaveBeenCalledTimes(2)
+  })
+
+  it('页面断言失败时不触发开发者工具重启', async () => {
+    const restartDevTools = vi.fn(async () => undefined)
+    const code = await runCli(
+      ['changed', '--mode', 'iterate'],
+      dependencies({
+        listScenarioPaths: () => ['catalog-search.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        runScenario: async () => ({
+          scenario: '目录搜寻',
+          pagePath: '/pages/catalog/index',
+          state: 'normal' as const,
+          status: 'failed' as const,
+          steps: [],
+          screenshots: [],
+          error: '找不到元素：.catalog-row',
+        }),
+        restartDevTools: restartDevTools as never,
+      }),
+    )
+
+    expect(code).not.toBe(0)
+    expect(restartDevTools).not.toHaveBeenCalled()
+  })
+
+  it('同一次验收的多个场景共享最多两次恢复预算', async () => {
+    const restartDevTools = vi.fn(async () => undefined)
+    const runScenario = vi.fn(async () => ({
+      scenario: '目录搜寻',
+      pagePath: '/pages/catalog/index',
+      state: 'normal' as const,
+      status: 'failed' as const,
+      steps: [],
+      screenshots: [],
+      error: '连接微信开发者工具自动化端点超时',
+    }))
+
+    const code = await runCli(
+      ['changed', '--mode', 'final'],
+      dependencies({
+        listScenarioPaths: () => ['one.json', 'two.json', 'three.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        runScenario,
+        restartDevTools: restartDevTools as never,
+      }),
+    )
+
+    expect(code).not.toBe(0)
+    expect(restartDevTools).toHaveBeenCalledTimes(2)
+    expect(runScenario).toHaveBeenCalledTimes(3)
   })
 })

@@ -76,7 +76,7 @@ export const diagnoseReviewConfig = (
       message: `项目目录缺少 project.config.json：${config.projectPath}`,
     })
   }
-  if (!config.cliPath || !pathExists(config.cliPath)) {
+  if (!config.wsEndpoint && (!config.cliPath || !pathExists(config.cliPath))) {
     diagnostics.push({
       code: 'CLI_MISSING',
       level: 'error',

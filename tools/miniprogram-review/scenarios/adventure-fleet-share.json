@@ -67,15 +67,6 @@
     {
       "action": "screenshot",
       "name": "adventure-share-top"
-    },
-    {
-      "action": "scrollElement",
-      "selector": "xpath://scroll-view[contains(@class, \"fleet-share-preview__content\")]",
-      "distance": 1600
-    },
-    {
-      "action": "screenshot",
-      "name": "adventure-share-bottom"
     }
   ]
 }

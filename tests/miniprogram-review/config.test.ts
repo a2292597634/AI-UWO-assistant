@@ -81,4 +81,19 @@ describe('小程序验收配置', () => {
       },
     ])
   })
+
+  it('已有 WebSocket 自动化端点时不要求额外配置 CLI', () => {
+    const diagnostics = diagnoseReviewConfig(
+      {
+        projectPath: 'E:/project',
+        wsEndpoint: 'ws://127.0.0.1:9420',
+        automationPort: 9420,
+      },
+      () => true,
+    )
+
+    expect(diagnostics).toEqual([
+      { code: 'READY', level: 'info', message: '小程序自动化环境配置完整' },
+    ])
+  })
 })

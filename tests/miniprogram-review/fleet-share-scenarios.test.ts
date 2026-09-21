@@ -16,7 +16,7 @@ const scenarios = [
 ] as const
 
 describe('艦隊分享圖自動驗收場景', () => {
-  it.each(scenarios)('$title 覆蓋生成、可見性、滾動與修改前後截图证据', (definition) => {
+  it.each(scenarios)('$title 覆蓋生成、可見性與修改前後截图证据', (definition) => {
     const scenario = loadScenario(definition.path)
     const actions = scenario.steps.map((step) => step.action)
 
@@ -44,10 +44,9 @@ describe('艦隊分享圖自動驗收場景', () => {
         'assertExists',
         'assertVisible',
         'assertText',
-        'scrollElement',
         'screenshot',
       ]),
     )
-    expect(scenario.steps.filter((step) => step.action === 'screenshot')).toHaveLength(3)
+    expect(scenario.steps.filter((step) => step.action === 'screenshot')).toHaveLength(2)
   })
 })

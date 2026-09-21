@@ -306,6 +306,7 @@
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
 
   <fleet-share-preview
+    id="fleet-share-preview"
     visible="{{shareStatus === 'ready' || shareStatus === 'error'}}"
     image-path="{{shareImagePath}}"
     status="{{shareStatus === 'error' ? 'error' : 'ready'}}"

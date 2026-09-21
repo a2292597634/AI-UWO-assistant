@@ -5,7 +5,13 @@ import { createConnection } from 'node:net'
 import { basename, isAbsolute, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { connectReviewAdapter, probeAutomationEndpoint, type ReviewAdapter } from './adapter'
+import {
+  connectReviewAdapter,
+  isDevToolsConnectionError,
+  probeAutomationEndpoint,
+  restartReviewConnection,
+  type ReviewAdapter,
+} from './adapter'
 import { diagnoseReviewConfig, resolveReviewConfig } from './config'
 import {
   buildReviewReport,
@@ -18,6 +24,7 @@ import { readGitChangedFiles } from './git'
 import { runScenario, type ScenarioRunResult } from './runner'
 import { loadScenario } from './scenario'
 import { createTriggerPlan, type ReviewTriggerMode } from './trigger'
+import { resolveWechatIdeCliPath } from './wechatide'
 import {
   REVIEW_STATES,
   type DiagnosticItem,
@@ -46,6 +53,7 @@ export interface CliDependencies {
   }): ReviewConfig
   diagnose(config: ReviewConfig): DiagnosticItem[]
   checkCliCapability(config: ReviewConfig): Promise<{ ok: boolean; message: string }>
+  restartDevTools(config: ReviewConfig): Promise<void>
   connect(config: ReviewConfig): Promise<ReviewAdapter>
   loadScenario(path: string): ReviewScenario
   runScenario(
@@ -69,6 +77,22 @@ export interface CliDependencies {
   randomId(): string
   listScenarioPaths?(): string[]
   listPreviousReportDirs?(): string[]
+}
+
+const MAX_DEVTOOLS_RECOVERY_ATTEMPTS = 2
+
+interface DevToolsRecoveryState {
+  attempts: number
+  notes: string[]
+}
+
+const createRecoveryState = (): DevToolsRecoveryState => ({ attempts: 0, notes: [] })
+
+class DevToolsBlockedError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'DevToolsBlockedError'
+  }
 }
 
 const optionNames: Record<string, keyof ParsedArguments> = {
@@ -112,7 +136,8 @@ const parseTriggerMode = (value: string | undefined): ReviewTriggerMode => {
 
 const formatError = (error: unknown): string => {
   if (error instanceof Error) {
-    if (/Failed connecting|ECONNREFUSED|automation enabled|自动化端点/i.test(error.message)) {
+    if (/开发者工具(?:自动恢复失败|恢复后)/.test(error.message)) return error.message
+    if (isDevToolsConnectionError(error)) {
       return `无法连接微信开发者工具自动化会话：${error.message}。请确认开发者工具已登录、项目已打开且已开启自动化接口。`
     }
     return error.message
@@ -123,6 +148,80 @@ const formatError = (error: unknown): string => {
     return serialized === undefined ? String(error) : serialized
   } catch {
     return String(error)
+  }
+}
+
+interface RecoveryResult {
+  ok: boolean
+  message: string
+}
+
+const recoverDevTools = async (
+  dependencies: CliDependencies,
+  config: ReviewConfig,
+  initialReason: string,
+  state: DevToolsRecoveryState,
+): Promise<RecoveryResult> => {
+  if (state.attempts >= MAX_DEVTOOLS_RECOVERY_ATTEMPTS) {
+    const message = `开发者工具自动恢复失败，已达到 ${MAX_DEVTOOLS_RECOVERY_ATTEMPTS} 次恢复上限。原始阻塞：${initialReason}`
+    state.notes.push(message)
+    return { ok: false, message }
+  }
+
+  let lastReason = initialReason
+  while (state.attempts < MAX_DEVTOOLS_RECOVERY_ATTEMPTS) {
+    state.attempts += 1
+    const attempt = state.attempts
+    state.notes.push(`第 ${attempt} 次恢复开始：${initialReason}`)
+    dependencies.log(
+      `开发者工具环境阻塞，尝试重启微信开发者工具并重新连接（${attempt}/${MAX_DEVTOOLS_RECOVERY_ATTEMPTS}）`,
+    )
+    try {
+      await dependencies.restartDevTools(config)
+      const capability = await dependencies.checkCliCapability(config)
+      if (capability.ok) {
+        state.notes.push(`第 ${attempt} 次恢复成功：${capability.message}`)
+        dependencies.log(`开发者工具自动恢复成功（第 ${attempt} 次）`)
+        return capability
+      }
+      lastReason = capability.message
+      state.notes.push(`第 ${attempt} 次恢复后仍不可用：${capability.message}`)
+      dependencies.log(`第 ${attempt} 次自动恢复后仍不可用：${capability.message}`)
+    } catch (error) {
+      lastReason = error instanceof Error ? error.message : formatError(error)
+      state.notes.push(`第 ${attempt} 次恢复失败：${lastReason}`)
+      dependencies.log(`第 ${attempt} 次自动恢复失败：${lastReason}`)
+    }
+  }
+  const message = `开发者工具自动恢复失败，已尝试 ${state.attempts} 次。原始阻塞：${initialReason}；最终原因：${lastReason}`
+  state.notes.push(message)
+  return {
+    ok: false,
+    message,
+  }
+}
+
+const existingAutomationConfig = (config: ReviewConfig): ReviewConfig =>
+  config.wsEndpoint || resolveWechatIdeCliPath(config.cliPath)
+    ? config
+    : { ...config, wsEndpoint: `ws://127.0.0.1:${config.automationPort}` }
+
+const connectWithRecovery = async (
+  dependencies: CliDependencies,
+  config: ReviewConfig,
+  state: DevToolsRecoveryState,
+  initialConfig: ReviewConfig = config,
+): Promise<ReviewAdapter> => {
+  let connectionConfig = initialConfig
+  while (true) {
+    try {
+      return await dependencies.connect(connectionConfig)
+    } catch (error) {
+      if (!isDevToolsConnectionError(error)) throw error
+      const recovery = await recoverDevTools(dependencies, config, formatError(error), state)
+      if (!recovery.ok) throw new DevToolsBlockedError(recovery.message)
+      connectionConfig = existingAutomationConfig(config)
+    }
   }
 }
 
@@ -172,6 +271,8 @@ interface RunScenarioOptions {
   mode?: ReviewTriggerMode
   summary?: string
   notes?: string[]
+  recoveryState?: DevToolsRecoveryState
+  initialConfig?: ReviewConfig
 }
 
 const logReportPaths = (
@@ -195,7 +296,7 @@ const writeBlockedReport = (
   reason: string,
   changedFiles: string[],
   scenarios: ReviewScenario[] = [],
-  options: Pick<RunScenarioOptions, 'summary' | 'notes'> = {},
+  options: Pick<RunScenarioOptions, 'summary' | 'notes' | 'recoveryState'> = {},
 ): number => {
   const startedAt = dependencies.now()
   const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
@@ -218,7 +319,7 @@ const writeBlockedReport = (
     previousReportDirs: [],
     outputDir,
     summary: options.summary ?? '页面自动验收被环境阻塞',
-    notes: [reason, ...(options.notes ?? [])],
+    notes: [reason, ...(options.recoveryState?.notes ?? []), ...(options.notes ?? [])],
   })
   const report = createReport(dependencies, runId, [result], scenarios, [iteration])
   const paths = dependencies.writeReport(outputDir, report)
@@ -233,19 +334,75 @@ const runScenarios = async (
   scenarios: ReviewScenario[],
   options: RunScenarioOptions = {},
 ): Promise<number> => {
+  const recoveryState = options.recoveryState ?? createRecoveryState()
   const startedAt = dependencies.now()
   const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
   const outputDir = dependencies.createRunDirectory(runId)
   const results: ScenarioRunResult[] = []
   for (const [index, scenario] of scenarios.entries()) {
-    const adapter = await dependencies.connect(config)
     const scenarioOutput = join(
       outputDir,
       'current-simulator',
       safeScenarioDirectoryName(scenario.name, index),
     )
     mkdirSync(scenarioOutput, { recursive: true })
-    results.push(await dependencies.runScenario(adapter, scenario, { outputDir: scenarioOutput }))
+    let adapter: ReviewAdapter
+    try {
+      adapter = await connectWithRecovery(
+        dependencies,
+        config,
+        recoveryState,
+        options.initialConfig ?? config,
+      )
+    } catch (error) {
+      if (error instanceof DevToolsBlockedError) {
+        return writeBlockedReport(
+          dependencies,
+          error.message,
+          options.changedFiles ?? [],
+          scenarios,
+          { ...options, recoveryState },
+        )
+      }
+      throw error
+    }
+    let result = await dependencies.runScenario(adapter, scenario, { outputDir: scenarioOutput })
+    while (result.status === 'failed' && isDevToolsConnectionError(result.error)) {
+      const recovery = await recoverDevTools(
+        dependencies,
+        config,
+        result.error ?? '场景执行期间自动化连接失败',
+        recoveryState,
+      )
+      if (!recovery.ok) {
+        result = {
+          ...result,
+          status: 'blocked',
+          error: recovery.message,
+        }
+      } else {
+        try {
+          const retryAdapter = await connectWithRecovery(
+            dependencies,
+            config,
+            recoveryState,
+            existingAutomationConfig(config),
+          )
+          const retriedResult = await dependencies.runScenario(retryAdapter, scenario, {
+            outputDir: scenarioOutput,
+          })
+          result = retriedResult
+        } catch (error) {
+          result = {
+            ...result,
+            status: 'blocked',
+            error: `开发者工具恢复后场景重连失败：${formatError(error)}`,
+          }
+        }
+      }
+    }
+    results.push(result)
+    if (result.status === 'blocked') break
   }
   const iterations = options.changedFiles
     ? [
@@ -259,7 +416,7 @@ const runScenarios = async (
           outputDir,
           summary:
             options.summary ?? (options.mode === 'final' ? '本轮页面修改与最终验收' : undefined),
-          notes: options.notes,
+          notes: [...recoveryState.notes, ...(options.notes ?? [])],
         }),
       ]
     : []
@@ -278,6 +435,7 @@ const runChanged = async (
   mode: ReviewTriggerMode,
   options: Pick<RunScenarioOptions, 'summary' | 'notes'> = {},
 ): Promise<number> => {
+  const recoveryState = createRecoveryState()
   const changedFiles = dependencies.readGitChangedFiles()
   const plan = createTriggerPlan({
     mode,
@@ -299,19 +457,23 @@ const runChanged = async (
   }
 
   const capability = await dependencies.checkCliCapability(config)
+  let initialConfig = config
   if (!capability.ok) {
-    return writeBlockedReport(
-      dependencies,
-      capability.message,
-      plan.changedFiles,
-      plan.scenarios,
-      options,
-    )
+    const recovery = await recoverDevTools(dependencies, config, capability.message, recoveryState)
+    if (!recovery.ok) {
+      return writeBlockedReport(dependencies, recovery.message, plan.changedFiles, plan.scenarios, {
+        ...options,
+        recoveryState,
+      })
+    }
+    initialConfig = existingAutomationConfig(config)
   }
 
   const code = await runScenarios(dependencies, config, plan.scenarios, {
     changedFiles: plan.changedFiles,
     mode,
+    recoveryState,
+    initialConfig,
     ...options,
   })
   if (mode === 'final' && code === 0 && !(await dependencies.runQualityGate())) {
@@ -352,7 +514,7 @@ export const runCli = async (argv: string[], dependencies: CliDependencies): Pro
       return capability.ok ? 0 : 1
     }
     if (parsed.command === 'start') {
-      const adapter = await dependencies.connect(config)
+      const adapter = await connectWithRecovery(dependencies, config, createRecoveryState())
       dependencies.log(`自动化连接成功：${await adapter.currentPagePath()}`)
       await adapter.disconnect()
       return 0
@@ -438,13 +600,14 @@ const readServiceJson = async (port: number, path: string): Promise<unknown> =>
 const checkCliCapability = async (
   config: ReviewConfig,
 ): Promise<{ ok: boolean; message: string }> => {
-  if (!config.cliPath) return { ok: false, message: '找不到微信开发者工具 CLI' }
+  if (!config.cliPath && !config.wsEndpoint) {
+    return { ok: false, message: '找不到微信开发者工具 CLI 或自动化 WebSocket 端点' }
+  }
   if (!config.servicePort) {
     if (!config.wsEndpoint) {
       return {
-        ok: false,
-        message:
-          '请设置 WECHAT_DEVTOOLS_SERVICE_PORT 或 WECHAT_AUTOMATION_WS_ENDPOINT 后检查开发者工具',
+        ok: true,
+        message: '微信开发者工具 CLI 可用，验收时将自动启动自动化会话',
       }
     }
     try {
@@ -494,6 +657,7 @@ const defaultDependencies: CliDependencies = {
   resolveConfig: resolveReviewConfig,
   diagnose: diagnoseReviewConfig,
   checkCliCapability,
+  restartDevTools: restartReviewConnection,
   connect: connectReviewAdapter,
   loadScenario,
   runScenario,
