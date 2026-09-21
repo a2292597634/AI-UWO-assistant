@@ -10,6 +10,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
+import { assertPortraitHasTransparency } from './asset-pipeline/portrait-transparency'
 
 export const MAX_PORTRAIT_BYTES = 512 * 1024
 export const MAX_PORTRAIT_EDGE = 512
@@ -271,6 +272,7 @@ export const downloadApprovedPortrait = async (
   if (!inputWidth || !inputHeight || Math.max(inputWidth, inputHeight) > MAX_PORTRAIT_EDGE) {
     throw new Error(`投稿 ${submissionId} 頭像最長邊不可超過 ${MAX_PORTRAIT_EDGE} px`)
   }
+  await assertPortraitHasTransparency(input, `投稿 ${submissionId}`)
 
   const png = await sharp(input).png({ compressionLevel: 9, effort: 10 }).toBuffer()
   const outputMetadata = await sharp(png).metadata()

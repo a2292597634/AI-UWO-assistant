@@ -11,6 +11,7 @@ import {
 import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { planAssetPackageLayout } from './asset-package-builder'
 import { loadSkillIconOverrides } from './source-skill-icons'
+import { assertPortraitHasTransparency } from './portrait-transparency'
 
 export const ASSET_STAGING_DIR = 'data/assets/staging'
 const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', ASSET_STAGING_DIR]
@@ -59,15 +60,26 @@ export const validateReferencedAssetSources = async (
     throw new Error(`缺少引用素材文件：${missingFiles.join(', ')}`)
   }
 
+  const portraitFilenames = new Set(
+    dependencies.roots
+      .flatMap((assetRoot) => assetRoot.officerIds)
+      .filter((id) => id.startsWith('officer_wo_offline_'))
+      .map((id) => `${id}.png`),
+  )
   for (const filename of referencedFiles) {
     const filePath = sourceFiles.get(filename)!
+    let input: Buffer
     try {
-      const metadata = await sharp(readFileSync(filePath)).metadata()
+      input = readFileSync(filePath)
+      const metadata = await sharp(input).metadata()
       if (metadata.format !== 'png') {
         throw new Error(`格式为 ${metadata.format ?? 'unknown'}`)
       }
     } catch {
       throw new Error(`素材无法解码或不是 PNG：${filename}`)
+    }
+    if (portraitFilenames.has(filename)) {
+      await assertPortraitHasTransparency(input, filename)
     }
   }
 }

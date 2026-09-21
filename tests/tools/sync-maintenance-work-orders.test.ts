@@ -104,7 +104,9 @@ const directory = () => {
 }
 
 const portraitLoader = async (): Promise<Buffer> =>
-  sharp({ create: { width: 32, height: 24, channels: 4, background: '#123456' } })
+  sharp({
+    create: { width: 32, height: 24, channels: 4, background: { r: 18, g: 52, b: 86, alpha: 0.5 } },
+  })
     .png()
     .toBuffer()
 
@@ -783,9 +785,14 @@ describe('同步寫入與發布門禁', () => {
     const dir = directory()
     const stagingDir = join(dir, 'staging')
     const source = await sharp({
-      create: { width: 32, height: 24, channels: 4, background: '#123456' },
+      create: {
+        width: 32,
+        height: 24,
+        channels: 4,
+        background: { r: 18, g: 52, b: 86, alpha: 0.5 },
+      },
     })
-      .jpeg()
+      .png()
       .toBuffer()
 
     await runMaintenanceSync({
@@ -805,6 +812,28 @@ describe('同步寫入與發布門禁', () => {
       width: 32,
       height: 24,
     })
+  })
+
+  it('新增工單頭像缺少透明背景時拒絕同步', async () => {
+    const dir = directory()
+    const stagingDir = join(dir, 'staging')
+    const source = await sharp({
+      create: { width: 32, height: 24, channels: 3, background: '#123456' },
+    })
+      .png()
+      .toBuffer()
+
+    await expect(
+      runMaintenanceSync({
+        masterDir: dir,
+        approved: [create()],
+        runGate: async () => {},
+        assetStagingDir: stagingDir,
+        rollbackPaths: [stagingDir],
+        portraitLoader: async () => source,
+      }),
+    ).rejects.toThrow('工單 wo_2 頭像必須保留透明背景')
+    expect(existsSync(join(stagingDir, 'officer_wo_2.png'))).toBe(false)
   })
 
   it('CLI 發布入口依序執行資產準備、資產發布與資料生成', async () => {

@@ -11,12 +11,12 @@ import {
 } from '../../tools/asset-pipeline/setup-assets'
 import { loadSkillIconOverrides } from '../../tools/asset-pipeline/source-skill-icons'
 
-const dependencies = (files: string[]): AssetDependencyIndex => ({
+const dependencies = (files: string[], officerIds: string[] = []): AssetDependencyIndex => ({
   roots: [
     {
       root: 'subpkg-assets-0',
       name: 'assetsCatalog0',
-      officerIds: [],
+      officerIds,
       files,
     },
   ],
@@ -66,6 +66,52 @@ describe('asset source collection', () => {
       const overrides = loadSkillIconOverrides(sourcePath)
 
       expect(overrides.get('skill_skillT0092')).toBe('skill_skill202001.png')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('航海士頭像缺少透明像素時失敗並指出檔名', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-opaque-'))
+    const filename = 'officer_wo_offline_opaque.png'
+    const filePath = join(root, filename)
+    const png = await sharp({
+      create: { width: 2, height: 2, channels: 3, background: '#ffffff' },
+    })
+      .png()
+      .toBuffer()
+    writeFileSync(filePath, png)
+
+    try {
+      await expect(
+        validateReferencedAssetSources(
+          dependencies([filename], ['officer_wo_offline_opaque']),
+          new Map([[filename, filePath]]),
+        ),
+      ).rejects.toThrow('officer_wo_offline_opaque.png')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('歷史投稿頭像即使不透明也不被新增的離線航海士門禁阻擋', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-custom-opaque-'))
+    const filename = 'officer_custom_legacy.png'
+    const filePath = join(root, filename)
+    const png = await sharp({
+      create: { width: 2, height: 2, channels: 3, background: '#ffffff' },
+    })
+      .png()
+      .toBuffer()
+    writeFileSync(filePath, png)
+
+    try {
+      await expect(
+        validateReferencedAssetSources(
+          dependencies([filename], ['officer_custom_legacy']),
+          new Map([[filename, filePath]]),
+        ),
+      ).resolves.toBeUndefined()
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -140,7 +186,12 @@ describe('素材来源完整性校验', () => {
     const filename = 'officer_valid.png'
     const filePath = join(root, filename)
     const png = await sharp({
-      create: { width: 1, height: 1, channels: 4, background: '#ffffff' },
+      create: {
+        width: 1,
+        height: 1,
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 0.5 },
+      },
     })
       .png()
       .toBuffer()
@@ -148,7 +199,10 @@ describe('素材来源完整性校验', () => {
 
     try {
       await expect(
-        validateReferencedAssetSources(dependencies([filename]), new Map([[filename, filePath]])),
+        validateReferencedAssetSources(
+          dependencies([filename], ['officer_valid']),
+          new Map([[filename, filePath]]),
+        ),
       ).resolves.toBeUndefined()
     } finally {
       rmSync(root, { recursive: true, force: true })

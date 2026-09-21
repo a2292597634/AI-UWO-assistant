@@ -89,9 +89,14 @@ describe('custom officer sync', () => {
     const directory = mkdtempSync(join(tmpdir(), 'uwo-sync-portrait-'))
     temporaryDirectories.push(directory)
     const source = await sharp({
-      create: { width: 2, height: 1, channels: 4, background: { r: 32, g: 64, b: 96, alpha: 1 } },
+      create: {
+        width: 2,
+        height: 1,
+        channels: 4,
+        background: { r: 32, g: 64, b: 96, alpha: 0.5 },
+      },
     })
-      .jpeg()
+      .png()
       .toBuffer()
     const invoke = vi.fn().mockResolvedValue({
       ok: true,
@@ -115,5 +120,29 @@ describe('custom officer sync', () => {
     )
     expect(result.width).toBe(2)
     expect(result.height).toBe(1)
+  })
+
+  it('拒絕沒有透明背景的投稿頭像', async () => {
+    const source = await sharp({
+      create: { width: 2, height: 1, channels: 3, background: '#204060' },
+    })
+      .png()
+      .toBuffer()
+    const invoke = vi.fn().mockResolvedValue({
+      ok: true,
+      data: { tempFileURL: 'https://temporary.example/opaque.png' },
+    })
+
+    await expect(
+      downloadApprovedPortrait(approvedRecord('sub_opaque'), 'sync-secret', {
+        invoke,
+        fetcher: async () => ({
+          ok: true,
+          status: 200,
+          arrayBuffer: async () =>
+            source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength),
+        }),
+      }),
+    ).rejects.toThrow('投稿 sub_opaque 頭像必須保留透明背景')
   })
 })

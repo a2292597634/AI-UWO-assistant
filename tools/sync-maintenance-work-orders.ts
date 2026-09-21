@@ -21,6 +21,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import { tmpdir } from 'node:os'
 import sharp from 'sharp'
+import { assertPortraitHasTransparency } from './asset-pipeline/portrait-transparency'
 import type {
   MaintenanceOfficerData,
   ReferenceCandidate,
@@ -534,6 +535,7 @@ const stagePortraits = async (
     const height = metadata.height ?? 0
     if (!width || !height || Math.max(width, height) > 512)
       throw new Error(`工單 ${order.workOrderId} 頭像最長邊不可超過 512 px`)
+    await assertPortraitHasTransparency(input, `工單 ${order.workOrderId}`)
     const png = await sharp(input).png({ compressionLevel: 9, effort: 10 }).toBuffer()
     if (png.length > 512 * 1024) throw new Error(`工單 ${order.workOrderId} 頭像不可超過 512 KB`)
     writeFileSync(join(stagingDir, `${officer.id}.png`), png)
