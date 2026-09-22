@@ -15,6 +15,22 @@ describe('配置管理 Presenter', () => {
     expect(deriveConfigStatus(true, 'config-1')).toBe('unsaved')
   })
 
+  it('新配置狀態使用未命名配置標籤', () => {
+    const view = buildConfigManagerView({
+      configName: '未命名配置',
+      configStatus: 'new',
+      configList: [],
+      unclassifiedConfigs: [],
+      listState: 'idle',
+      listError: null,
+      expanded: false,
+      authStatus: 'guest',
+      activeConfigId: null,
+    })
+
+    expect(view.summary.statusLabel).toBe('未命名配置')
+  })
+
   it('為保存、另存為與重新命名建立一致的命名彈窗資料', () => {
     expect(buildConfigModalData('saveAs', '目前配置')).toEqual({
       showNameModal: true,
@@ -27,6 +43,11 @@ describe('配置管理 Presenter', () => {
 
   it('統一配置名稱的空白與長度校驗', () => {
     expect(validateConfigName('  新配置  ')).toEqual({ ok: true, name: '新配置' })
+    expect(validateConfigName('😀'.repeat(30))).toEqual({ ok: true, name: '😀'.repeat(30) })
+    expect(validateConfigName('😀'.repeat(31))).toEqual({
+      ok: false,
+      message: '配置名稱不可超過 30 個字元',
+    })
     expect(validateConfigName('   ')).toEqual({ ok: false, message: '請輸入配置名稱' })
     expect(validateConfigName('一'.repeat(31))).toEqual({
       ok: false,

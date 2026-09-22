@@ -127,7 +127,7 @@ export function validateConfigName(value: string): ConfigNameValidation {
   if (!name) {
     return { ok: false, message: '請輸入配置名稱' }
   }
-  if (name.length > MAX_CONFIG_NAME_LENGTH) {
+  if ([...name].length > MAX_CONFIG_NAME_LENGTH) {
     return { ok: false, message: `配置名稱不可超過 ${MAX_CONFIG_NAME_LENGTH} 個字元` }
   }
   return { ok: true, name }

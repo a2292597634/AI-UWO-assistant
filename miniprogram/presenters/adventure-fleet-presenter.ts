@@ -73,6 +73,7 @@ export interface AdventureTypeZoneView {
 export interface AdventureFleetPageData {
   occupiedCount: number
   fleetCapacity: number
+  needsReview: boolean
   mode: 'manual' | 'auto'
   // 类型分区
   typeZones: AdventureTypeZoneView[]
@@ -116,6 +117,21 @@ const targetsToMap = (
   Object.fromEntries(
     targets.flatMap((t) => (t.skillId === null ? [] : [[t.skillId, t.targetLevel] as const])),
   )
+
+const hasMissingReferences = (
+  state: FleetState,
+  officers: AdventureOfficerMap,
+  skills: Readonly<Record<string, RuntimeSkill>>,
+): boolean => {
+  if (state.bannedOfficerIds.some((officerId) => !officers[officerId])) return true
+  return state.ships.some((ship) => {
+    const officerIds = [...ship.officerIds, ...ship.lockedOfficerIds, ...ship.removedOfficerIds]
+    return (
+      officerIds.some((officerId) => !officers[officerId]) ||
+      ship.targets.some((target) => target.skillId !== null && !skills[target.skillId])
+    )
+  })
+}
 
 const shipLabelForOfficer = (state: FleetState, officerId: string): string => {
   const ship = state.ships.find((s) => s.officerIds.includes(officerId))
@@ -272,6 +288,9 @@ export const buildAdventureFleetPageData = (
   return {
     occupiedCount: allConfiguredIds.length,
     fleetCapacity: 77,
+    needsReview:
+      state.ships.some((ship) => ship.needsReview) ||
+      hasMissingReferences(state, adventureOfficers, skillRecord),
     mode: globalMode,
     typeZones,
     manualSkills,

@@ -36,6 +36,7 @@ interface AdventurePageConfig {
   onConfigLogin(): Promise<void>
   onConfigSave(): Promise<void>
   onConfigToggle(): void
+  onConfigNew(): void
   onConfigClassify(event: WechatMiniprogram.BaseEvent): Promise<void>
   onConfigRetry(): Promise<void>
   onShareFleet(): Promise<void>
@@ -340,6 +341,31 @@ describe('adventure fleet page safety guard', () => {
     expect(page.data.canRecalculate).toBe(false)
   })
 
+  it('新建冒險配置沿用初始的自動模式與預設追蹤目標', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const defaultTargetIds = page.data.targets.map((target) => target.id)
+
+    page.onConfigNew()
+
+    expect(page.data.mode).toBe('auto')
+    expect(page.data.targets.map((target) => target.id)).toEqual(defaultTargetIds)
+    expect(page.data.targets.every((target) => target.skillId !== null)).toBe(true)
+    expect(page.data.configStatus).toBe('new')
+  })
+
+  it('冒險頁恢復預設隊伍後不會被誤判為未保存', () => {
+    const page = createPageInstance()
+    page.onLoad()
+
+    page.onModeTap({ currentTarget: { dataset: { mode: 'manual' } } } as never)
+    expect(page.data.configStatus).toBe('unsaved')
+
+    page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
+
+    expect(page.data.configStatus).toBe('new')
+  })
+
   it('預設配置全部 28 個有效冒險技能目標', () => {
     const page = createPageInstance()
     page.onLoad()
@@ -642,6 +668,8 @@ describe('adventure fleet share entry', () => {
     expect(adventureWxml.indexOf('<view class="fleet-context">')).toBeLessThan(
       adventureWxml.indexOf('<config-bar'),
     )
+    expect(adventureWxml).toContain('wx:if="{{needsReview}}"')
+    expect(adventureWxml).toContain('需要重新檢查')
   })
 
   it('dirty share action keeps the current fleet and records a share pending action', async () => {

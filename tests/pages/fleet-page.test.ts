@@ -954,6 +954,8 @@ describe('battle fleet context density', () => {
     expect(fleetWxml).toContain('{{currentShip.label}}')
     expect(fleetWxml).not.toContain('currentShip.statusLabel')
     expect(fleetWxml).toContain('已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置')
+    expect(fleetWxml).toContain('wx:if="{{needsReview}}"')
+    expect(fleetWxml).toContain('需要重新檢查')
     expect(fleetWxml).not.toContain('class="section-heading"')
   })
 
@@ -1285,6 +1287,195 @@ describe('fleet config lifecycle', () => {
     expect(page.data.expanded).toBe(false)
   })
 
+  it('載入後以完整服務端記錄同步目前配置列表摘要', async () => {
+    const listedAt = '2026-01-01T00:00:00.000Z'
+    const loadedAt = '2026-01-02T00:00:00.000Z'
+    const fleetState = createFleetState()
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'battle-1',
+                  name: '列表舊名稱',
+                  scope: 'battle',
+                  version: 1,
+                  updatedAt: listedAt,
+                  lastUsedAt: listedAt,
+                },
+              ],
+            },
+          }
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'loadConfig':
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'battle-1',
+                name: '雲端新名稱',
+                scope: 'battle',
+                fleetState,
+                schemaVersion: 1,
+                version: 2,
+                createdAt: listedAt,
+                updatedAt: loadedAt,
+                lastUsedAt: loadedAt,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+
+    expect(page.data.configList).toEqual([
+      expect.objectContaining({
+        configId: 'battle-1',
+        name: '雲端新名稱',
+        version: 2,
+        updatedAt: loadedAt,
+        lastUsedAt: loadedAt,
+      }),
+    ])
+  })
+
+  it('亂序返回的配置載入結果不會覆蓋最後一次選擇', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const fleetState = createFleetState()
+    let resolveA: ((value: unknown) => void) | undefined
+    let resolveB: ((value: unknown) => void) | undefined
+    const record = (configId: string, name: string) => ({
+      configId,
+      name,
+      scope: 'battle',
+      fleetState,
+      schemaVersion: 1,
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+      lastUsedAt: now,
+    })
+
+    mockCallFunction.mockImplementation(
+      ({ data }: { data: { action: string; configId?: string } }) => {
+        switch (data.action) {
+          case 'authenticate':
+            return Promise.resolve({ result: { ok: true, data: { authenticated: true } } })
+          case 'listMyConfigs':
+          case 'listUnclassifiedConfigs':
+            return Promise.resolve({ result: { ok: true, data: [] } })
+          case 'loadConfig':
+            return new Promise((resolve) => {
+              if (data.configId === 'cfg-a') resolveA = resolve
+              else resolveB = resolve
+            })
+          default:
+            throw new Error(`unexpected action: ${data.action}`)
+        }
+      },
+    )
+
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'cfg-a' } } } as never)
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'cfg-b' } } } as never)
+
+    resolveB!({ result: { ok: true, data: record('cfg-b', '第二個配置') } })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    resolveA!({ result: { ok: true, data: record('cfg-a', '第一個配置') } })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(page.data.activeConfigId).toBe('cfg-b')
+    expect(page.data.configName).toBe('第二個配置')
+  })
+
+  it('配置載入失敗後的重試會重試原配置而不是重新載入列表', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const fleetState = createFleetState()
+    let loadCalls = 0
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      switch (data.action) {
+        case 'authenticate':
+          return { result: { ok: true, data: { authenticated: true } } }
+        case 'listMyConfigs':
+        case 'listUnclassifiedConfigs':
+          return { result: { ok: true, data: [] } }
+        case 'loadConfig':
+          loadCalls += 1
+          if (loadCalls === 1) {
+            return { result: { ok: false, code: 'not-found', message: '找不到配置' } }
+          }
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'cfg-retry',
+                name: '重試成功',
+                scope: 'battle',
+                fleetState,
+                schemaVersion: 1,
+                version: 1,
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        default:
+          throw new Error(`unexpected action: ${data.action}`)
+      }
+    })
+
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'cfg-retry' } } } as never)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(page.data.configLoadError).toBe('載入配置失敗')
+    expect(page.data.configListState).toBe('empty')
+
+    await page.onConfigRetry()
+
+    expect(loadCalls).toBe(2)
+    expect(page.data.activeConfigId).toBe('cfg-retry')
+    expect(page.data.configLoadError).toBeNull()
+  })
+
+  it('未保存時另存為會先顯示未保存守衛', async () => {
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate') {
+        return { result: { ok: true, data: { authenticated: true } } }
+      }
+      if (data.action === 'listMyConfigs' || data.action === 'listUnclassifiedConfigs') {
+        return { result: { ok: true, data: [] } }
+      }
+      throw new Error(`unexpected action: ${data.action}`)
+    })
+
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+
+    page.onConfigSaveAs()
+
+    expect(page.data.showUnsavedGuard).toBe(true)
+    expect(page.data.pendingAction).toEqual({ type: 'saveAs' })
+  })
+
   it('保存後以服務端回應的 fleetState 作為新的頁面基準', async () => {
     const now = '2026-01-01T00:00:00.000Z'
     const serverFleetState = createFleetState()
@@ -1468,6 +1659,51 @@ describe('fleet config lifecycle', () => {
     expect(page.data.showNameModal).toBe(false)
     expect(page.data.activeConfigId).toBeNull()
     expect(page.data.configStatus).toBe('new')
+  })
+
+  it('直接另存為時保存未命名草稿不會再次打開名稱彈窗', async () => {
+    const page = createPageInstance()
+    page.onLoad()
+    mockCallFunction
+      .mockResolvedValueOnce({ result: { ok: true, data: { authenticated: true } } })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+    await page.onConfigLogin()
+
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    page.onConfigSaveAs()
+    expect(page.data.pendingAction).toEqual({ type: 'saveAs' })
+
+    page.onUnsavedGuardSave()
+    expect(page.data.showNameModal).toBe(true)
+    expect(page.data.pendingAction).toBeNull()
+
+    const now = '2026-01-01T00:00:00.000Z'
+    mockCallFunction
+      .mockResolvedValueOnce({
+        result: {
+          ok: true,
+          data: {
+            configId: 'cfg-save-as',
+            name: '另存配置',
+            scope: 'battle',
+            fleetState: createFleetState(),
+            schemaVersion: 1,
+            version: 1,
+            createdAt: now,
+            updatedAt: now,
+            lastUsedAt: now,
+          },
+        },
+      })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+      .mockResolvedValueOnce({ result: { ok: true, data: [] } })
+    page.setData({ modalInputValue: '另存配置' })
+
+    await page.onConfigModalConfirm()
+
+    expect(page.data.showNameModal).toBe(false)
+    expect(page.data.pendingAction).toBeNull()
   })
 
   it('executes new config after discarding unsaved changes', () => {

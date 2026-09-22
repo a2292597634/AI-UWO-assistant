@@ -184,6 +184,24 @@ describe('battle fleet presenter', () => {
     expect(view.fleetOverview).toHaveLength(7)
   })
 
+  it('載入失效航海士引用時標記需要重新檢查', () => {
+    const state = createFleetState()
+    state.ships[0]!.officerIds = ['removed-officer']
+
+    const view = buildBattleFleetPageData(
+      state,
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+    )
+
+    expect(view.needsReview).toBe(true)
+    expect(view.currentShip.needsReview).toBe(true)
+    expect(view.fleetOverview[0]?.needsReview).toBe(true)
+  })
+
   it('shows locked officers first without changing the ship officer order', () => {
     const originalState = stateWithCurrentShip()
     const lockedState = lockOfficer(originalState, 'ship-1', 'officer-c').state

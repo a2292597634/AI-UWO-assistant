@@ -353,11 +353,11 @@ function createFleetConfigService(repo) {
    */
   async function dispatch(action, payload, ownerUid) {
     if (!VALID_ACTIONS.has(action)) {
-      return fail('unknown-action', `Unknown action: ${action}`)
+      return fail('unknown-action', `未知配置操作：${action}`)
     }
 
     if (!ownerUid && action !== 'authenticate') {
-      return fail('unauthenticated', 'Login required')
+      return fail('unauthenticated', '請先登入')
     }
 
     switch (action) {
@@ -384,7 +384,7 @@ function createFleetConfigService(repo) {
       case 'setLastUsedConfig':
         return handleSetLastUsedConfig(ownerUid, payload)
       default:
-        return fail('unknown-action', `Unknown action: ${action}`)
+        return fail('unknown-action', `未知配置操作：${action}`)
     }
   }
 
@@ -423,6 +423,18 @@ function createFleetConfigService(repo) {
     }
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
+    const existing = await repo.findByOwnerAndId(ownerUid, configId)
+    if (!existing) return fail('not-found', '找不到配置')
+    if (getStoredScope(existing) !== 'unclassified') {
+      return fail('invalid-state', '此配置已完成分類，無法重複分類')
+    }
+    if (
+      !isSchemaCompatible(existing.schemaVersion) ||
+      !isValidFleetState(existing.fleetState, getMaxTargetsPerShip(scopeResult.scope))
+    ) {
+      return fail('invalid-state', '此舊配置的艦隊資料需要重新檢查')
+    }
+
     const result = await repo.classifyIfVersionAndConstraints(
       ownerUid,
       configId,
@@ -452,20 +464,21 @@ function createFleetConfigService(repo) {
     }
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
     const record = await repo.findByOwnerAndId(ownerUid, configId)
-    if (!record) return fail('not-found', 'Config not found')
+    if (!record) return fail('not-found', '找不到配置')
     if (getStoredScope(record) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
-    // Update lastUsedAt
-    await repo.touchLastUsed(ownerUid, configId, new Date().toISOString(), scopeResult.scope)
+    // 更新最近使用時間，回傳相同值讓頁面同步列表摘要。
+    const lastUsedAt = new Date().toISOString()
+    await repo.touchLastUsed(ownerUid, configId, lastUsedAt, scopeResult.scope)
 
     if (!isSchemaCompatible(record.schemaVersion)) {
-      return fail('invalid-state', `Unsupported schema version: ${record.schemaVersion}`)
+      return fail('invalid-state', `不支援的配置版本：${record.schemaVersion}`)
     }
     if (!isValidFleetState(record.fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
-      return fail('invalid-state', 'Invalid fleet configuration data')
+      return fail('invalid-state', '配置資料無效，請重新檢查')
     }
 
-    return ok(toClientRecord(record))
+    return ok(toClientRecord({ ...record, lastUsedAt }))
   }
 
   async function handleCreateConfig(ownerUid, payload) {
@@ -477,12 +490,12 @@ function createFleetConfigService(repo) {
 
     // Validate name
     if (!name || !isValidConfigName(name)) {
-      return fail('name-required', 'Please enter a config name (1-30 characters)')
+      return fail('name-required', '請輸入配置名稱（1 至 30 個字元）')
     }
 
     // Validate fleet state
     if (!fleetState || !isValidFleetState(fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
-      return fail('invalid-state', 'Invalid fleet configuration data')
+      return fail('invalid-state', '配置資料無效，請重新檢查')
     }
 
     const configId = generateConfigId()
@@ -520,25 +533,25 @@ function createFleetConfigService(repo) {
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     if (!configId || typeof configId !== 'string') {
-      return fail('not-found', 'Config ID is required')
+      return fail('not-found', '需要配置 ID')
     }
 
     if (!fleetState || !isValidFleetState(fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
-      return fail('invalid-state', 'Invalid fleet configuration data')
+      return fail('invalid-state', '配置資料無效，請重新檢查')
     }
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
-    if (!existing) return fail('not-found', 'Config not found')
+    if (!existing) return fail('not-found', '找不到配置')
     if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     if (!isSchemaCompatible(existing.schemaVersion)) {
-      return fail('invalid-state', `Unsupported schema version: ${existing.schemaVersion}`)
+      return fail('invalid-state', `不支援的配置版本：${existing.schemaVersion}`)
     }
 
     const versionToCheck = force ? existing.version : expectedVersion
 
     if (typeof versionToCheck !== 'number') {
-      return fail('conflict', 'Version is required for update')
+      return fail('conflict', '需要配置版本')
     }
 
     const result = await repo.updateIfVersion(ownerUid, configId, versionToCheck, {
@@ -548,7 +561,7 @@ function createFleetConfigService(repo) {
     })
 
     if (!result) {
-      return fail('conflict', 'Config was modified by another device. Reload or force overwrite.')
+      return fail('conflict', '配置已被其他裝置修改，請重新載入或強制覆蓋')
     }
 
     return ok(toClientRecord(result))
@@ -562,11 +575,11 @@ function createFleetConfigService(repo) {
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     if (!name || !isValidConfigName(name)) {
-      return fail('name-required', 'Please enter a config name (1-30 characters)')
+      return fail('name-required', '請輸入配置名稱（1 至 30 個字元）')
     }
 
     if (!fleetState || !isValidFleetState(fleetState, getMaxTargetsPerShip(scopeResult.scope))) {
-      return fail('invalid-state', 'Invalid fleet configuration data')
+      return fail('invalid-state', '配置資料無效，請重新檢查')
     }
 
     const configId = generateConfigId()
@@ -606,19 +619,19 @@ function createFleetConfigService(repo) {
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
 
     if (!configId || typeof configId !== 'string') {
-      return fail('not-found', 'Config ID is required')
+      return fail('not-found', '需要配置 ID')
     }
 
     if (!name || !isValidConfigName(name)) {
-      return fail('name-required', 'Please enter a config name (1-30 characters)')
+      return fail('name-required', '請輸入配置名稱（1 至 30 個字元）')
     }
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
-    if (!existing) return fail('not-found', 'Config not found')
+    if (!existing) return fail('not-found', '找不到配置')
     if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     if (typeof expectedVersion !== 'number') {
-      return fail('conflict', 'Version is required')
+      return fail('conflict', '需要配置版本')
     }
 
     const normalizedName = normalizeConfigName(name)
@@ -636,9 +649,9 @@ function createFleetConfigService(repo) {
         return fail('duplicate-name', '同一類型已有相同名稱的配置')
       }
       if (result.code === 'not-found') {
-        return fail('not-found', 'Config not found')
+        return fail('not-found', '找不到配置')
       }
-      return fail('conflict', 'Config was modified by another device')
+      return fail('conflict', '配置已被其他裝置修改')
     }
 
     return ok(toClientRecord(result.data))
@@ -650,15 +663,15 @@ function createFleetConfigService(repo) {
     const expectedVersion = payload?.expectedVersion
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
     if (!configId || typeof configId !== 'string') {
-      return fail('not-found', 'Config ID is required')
+      return fail('not-found', '需要配置 ID')
     }
 
     if (typeof expectedVersion !== 'number') {
-      return fail('conflict', 'Version is required')
+      return fail('conflict', '需要配置版本')
     }
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
-    if (!existing) return fail('not-found', 'Config not found')
+    if (!existing) return fail('not-found', '找不到配置')
     if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     const deleted = await repo.deleteByOwnerAndId(
@@ -668,7 +681,7 @@ function createFleetConfigService(repo) {
       scopeResult.scope,
     )
     if (!deleted) {
-      return fail('conflict', 'Config was modified by another device')
+      return fail('conflict', '配置已被其他裝置修改')
     }
 
     return ok({ deleted: true })
@@ -679,11 +692,11 @@ function createFleetConfigService(repo) {
     const configId = payload?.configId
     if (!scopeResult.ok) return fail(scopeResult.code, scopeResult.message)
     if (!configId || typeof configId !== 'string') {
-      return fail('not-found', 'Config ID is required')
+      return fail('not-found', '需要配置 ID')
     }
 
     const existing = await repo.findByOwnerAndId(ownerUid, configId)
-    if (!existing) return fail('not-found', 'Config not found')
+    if (!existing) return fail('not-found', '找不到配置')
     if (getStoredScope(existing) !== scopeResult.scope) return fail('not-found', '找不到配置')
 
     await repo.touchLastUsed(ownerUid, configId, new Date().toISOString(), scopeResult.scope)

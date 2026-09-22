@@ -392,6 +392,29 @@ describe('FleetConfigService dispatch', () => {
     })
   })
 
+  it('分類舊記錄前拒絕不符合目標 scope 的艦隊資料', async () => {
+    await repo.insert({
+      configId: 'legacy-invalid',
+      ownerUid: ownerA,
+      name: '無效舊配置',
+      normalizedName: '無效舊配置',
+      fleetState: { preserved: true } as unknown as FleetState,
+      schemaVersion: 1,
+      version: 1,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      lastUsedAt: '2026-01-01T00:00:00.000Z',
+    })
+
+    await expect(
+      dispatch('classifyConfig', {
+        configId: 'legacy-invalid',
+        expectedVersion: 1,
+        targetScope: 'adventure',
+      }),
+    ).resolves.toMatchObject({ ok: false, code: 'invalid-state' })
+  })
+
   it('以另一 scope 讀寫同一配置 ID 時返回 not-found', async () => {
     const created = await createViaService('戰鬥配置', ownerA, 'battle')
     expect(created.ok).toBe(true)
@@ -748,6 +771,8 @@ describe('FleetConfigService dispatch', () => {
       const data = r.data as Record<string, unknown>
       expect(data.name).toBe('載入測試')
       expect(data.fleetState).toBeDefined()
+      const stored = await repo.findByOwnerAndId(ownerA, configId)
+      expect(data.lastUsedAt).toBe(stored?.lastUsedAt)
     }
   })
 

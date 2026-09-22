@@ -120,6 +120,21 @@
   font-size: var(--uwo-font-size-supporting);
 }
 
+.fleet-context__count-wrap {
+  display: flex;
+  flex: 0 0 auto;
+  max-width: 42%;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--uwo-space-1);
+}
+
+.fleet-context__review {
+  color: var(--uwo-color-danger);
+  font-size: var(--uwo-font-size-supporting);
+  text-align: right;
+}
+
 .fleet-context__title {
   font-size: var(--uwo-font-size-emphasis);
   font-weight: 600;

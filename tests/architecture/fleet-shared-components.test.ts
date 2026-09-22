@@ -335,6 +335,7 @@ describe('Task 5 單一配置管理共享元件契約', () => {
       'unclassifiedConfigs',
       'listState',
       'listError',
+      'loadError',
       'expanded',
       'shareStatus',
       'prominentShare',
@@ -352,6 +353,9 @@ describe('Task 5 單一配置管理共享元件契約', () => {
     expect(wxml).toContain('已保存')
     expect(wxml).toContain('尚未保存')
     expect(wxml).toContain('未命名配置')
+    expect(wxml).toMatch(
+      /configStatus === 'saved' \? '已保存' : configStatus === 'new' \? '未命名配置' : '尚未保存'/,
+    )
     expect(wxml).toMatch(/bindtap="onExit"/)
     expect(script).toMatch(/triggerEvent\(\s*['"]exit['"]\s*\)/)
     expect(script).toMatch(/triggerEvent\(\s*['"]share['"]\s*\)/)

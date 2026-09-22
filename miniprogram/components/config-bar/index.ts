@@ -36,6 +36,10 @@ Component({
       type: String,
       value: '',
     },
+    loadError: {
+      type: String,
+      value: '',
+    },
     expanded: {
       type: Boolean,
       value: false,

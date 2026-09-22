@@ -4,7 +4,10 @@
       <text class="fleet-context__eyebrow">戰鬥配隊</text>
       <text class="fleet-context__title">{{currentShip.label}}</text>
     </view>
-    <text class="fleet-context__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
+    <view class="fleet-context__count-wrap">
+      <text class="fleet-context__count">已配置 {{occupiedCount}} / {{fleetCapacity}} 個位置</text>
+      <text wx:if="{{needsReview}}" class="fleet-context__review">需要重新檢查</text>
+    </view>
   </view>
 
   <config-bar
@@ -17,6 +20,7 @@
     unclassified-configs="{{unclassifiedConfigs}}"
     list-state="{{configListState}}"
     list-error="{{configListError}}"
+    load-error="{{configLoadError}}"
     expanded="{{expanded}}"
     share-status="{{shareStatus}}"
     prominent-share="{{true}}"

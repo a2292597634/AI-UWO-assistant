@@ -85,6 +85,7 @@ export interface BattleFleetOverviewView extends BattleFleetShipTabView {
 
 export interface BattleFleetCurrentShipView extends BattleFleetShipTabView {
   mode: FleetShipState['mode']
+  needsReview: boolean
   slots: BattleFleetSlotView[]
   targets: BattleFleetTargetView[]
 }
@@ -97,6 +98,7 @@ export interface BattleFleetCategoryView {
 export interface BattleFleetPageData {
   occupiedCount: number
   fleetCapacity: number
+  needsReview: boolean
   shipTabs: BattleFleetShipTabView[]
   fleetOverview: BattleFleetOverviewView[]
   currentShip: BattleFleetCurrentShipView
@@ -142,6 +144,19 @@ const targetsToMap = (ship: FleetShipState): Record<string, number> =>
       target.skillId === null ? [] : [[target.skillId, target.targetLevel] as const],
     ),
   )
+
+const shipNeedsReview = (
+  ship: FleetShipState,
+  officers: FleetOfficerMap,
+  skills: FleetSkillMap,
+): boolean => {
+  const officerIds = [...ship.officerIds, ...ship.lockedOfficerIds, ...ship.removedOfficerIds]
+  return (
+    ship.needsReview ||
+    officerIds.some((officerId) => !officers[officerId]) ||
+    ship.targets.some((target) => target.skillId !== null && !skills[target.skillId])
+  )
+}
 
 const buildSummaryViews = (
   summaries: readonly ShipSkillSummary[],
@@ -249,7 +264,7 @@ export const buildBattleFleetPageData = (
   }))
   const fleetOverview = state.ships.map((ship) => ({
     ...shipTabs.find((tab) => tab.id === ship.id)!,
-    needsReview: ship.needsReview,
+    needsReview: shipNeedsReview(ship, officers, skills),
   }))
   const allSkillOptions = filterBattleSkills(officers, skills, {
     kind: manualFilters.kind,
@@ -303,11 +318,13 @@ export const buildBattleFleetPageData = (
   return {
     occupiedCount: state.ships.reduce((count, ship) => count + ship.officerIds.length, 0),
     fleetCapacity: 77,
+    needsReview: state.ships.some((ship) => shipNeedsReview(ship, officers, skills)),
     shipTabs,
     fleetOverview,
     currentShip: {
       ...shipTabs.find((tab) => tab.id === currentShip.id)!,
       mode: currentShip.mode,
+      needsReview: shipNeedsReview(currentShip, officers, skills),
       slots: Array.from({ length: 11 }, (_, index) => {
         const officerId = displayOfficerIds[index]
         return {

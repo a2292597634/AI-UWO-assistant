@@ -15,7 +15,7 @@
           <text class="config-bar__count">{{configList.length}} 套</text>
         </view>
         <view class="config-bar__status config-bar__status--{{configStatus}}">
-          <text class="config-bar__status-label">{{configStatus === 'saved' ? '已保存' : '尚未保存'}}</text>
+          <text class="config-bar__status-label">{{configStatus === 'saved' ? '已保存' : configStatus === 'new' ? '未命名配置' : '尚未保存'}}</text>
         </view>
       </view>
       <view class="config-bar__config-row config-bar__config-row--identity">
@@ -55,7 +55,7 @@
     </view>
     <view class="config-bar__summary-meta">
       <text class="config-bar__status config-bar__status--{{configStatus}}">
-        {{configStatus === 'saved' ? '已保存' : '尚未保存'}}
+        {{configStatus === 'saved' ? '已保存' : configStatus === 'new' ? '未命名配置' : '尚未保存'}}
       </text>
       <text class="config-bar__meta-separator">·</text>
       <text class="config-bar__count">{{configList.length}} 套</text>
@@ -109,7 +109,13 @@
     </view>
 
     <view wx:else class="config-bar__list" aria-label="目前配置列表">
-      <view wx:if="{{listState === 'loading'}}" class="config-bar__message">
+      <view wx:if="{{loadError}}" class="config-bar__message config-bar__message--error">
+        <text>{{loadError}}</text>
+        <button class="ui-button ui-button--compact ui-button--secondary config-bar__button config-bar__button--compact" bindtap="onRetry">
+          重試載入配置
+        </button>
+      </view>
+      <view wx:elif="{{listState === 'loading'}}" class="config-bar__message">
         <text>配置載入中</text>
       </view>
       <view wx:elif="{{listState === 'error'}}" class="config-bar__message config-bar__message--error">

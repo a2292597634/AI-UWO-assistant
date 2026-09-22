@@ -104,6 +104,15 @@ describe('adventure fleet presenter target state', () => {
     ])
     expect(page.targets).toHaveLength(2)
   })
+
+  it('載入失效引用時標記需要重新檢查', () => {
+    const state = createFleetState()
+    state.ships[0]!.officerIds = ['removed-officer']
+
+    const page = buildAdventureFleetPageData(state, adventureOfficers, {}, '')
+
+    expect(page.needsReview).toBe(true)
+  })
 })
 
 type FleetState = ReturnType<typeof createFleetState>
