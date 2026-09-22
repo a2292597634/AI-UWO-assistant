@@ -1,7 +1,7 @@
 <view class="trade-page">
   <view class="trade-page__header">
     <text class="trade-page__eyebrow">貿易品資料館</text>
-    <text class="trade-page__title">淡旺季查詢</text>
+    <text class="trade-page__title ui-display-title">淡旺季查詢</text>
     <text class="trade-page__description">查看各港口全年 1–12 月的季節與行情狀態</text>
   </view>
 

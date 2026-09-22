@@ -462,13 +462,13 @@ describe('catalog touch target markup contracts', () => {
     expect(sheetRule).toMatch(
       /border-radius:\s*var\(--uwo-radius-sheet\) var\(--uwo-radius-sheet\) 0 0;/,
     )
-    expect(sheetRule).toMatch(/env\(safe-area-inset-bottom\)/)
+    expect(cssRule('.catalog-page__filter-actions')).toMatch(/env\(safe-area-inset-bottom\)/)
     expect(sheetRule).toMatch(/var\(--uwo-shadow-sheet\)/)
     expect(cssRule('.catalog-page__filter-action--apply')).toMatch(/min-height:\s*88rpx;/)
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-height:\s*64rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-height:\s*88rpx;/)
   })
 
-  it('keeps skill icons inside a compact 64rpx catchtap target without changing the visual icon size', () => {
+  it('技能圖標保持原尺寸並提供 88rpx 的獨立觸控區', () => {
     expect(catalogWxml).toMatch(
       /class="catalog-page__skill-hit-target"[^>]*catchtap="onSkillIconTap"/,
     )
@@ -478,12 +478,12 @@ describe('catalog touch target markup contracts', () => {
     expect(catalogWxml).toContain(
       'role="button" aria-label="查看技能詳情：{{item.passiveSkillNames[sid] || \'技能\'}}"',
     )
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-width:\s*64rpx;/)
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/width:\s*64rpx;/)
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-height:\s*64rpx;/)
-    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*64rpx;/)
-    expect(cssRule('.catalog-page__officer-skills')).toMatch(/height:\s*64rpx;/)
-    expect(cssRule('.catalog-page__officer-skills-content')).toMatch(/height:\s*64rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-width:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/width:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/min-height:\s*88rpx;/)
+    expect(cssRule('.catalog-page__skill-hit-target')).toMatch(/height:\s*88rpx;/)
+    expect(cssRule('.catalog-page__officer-skills')).toMatch(/height:\s*88rpx;/)
+    expect(cssRule('.catalog-page__officer-skills-content')).toMatch(/height:\s*88rpx;/)
   })
 
   it('使用 voyage.tw 比例呈現名鑒人物角標', () => {

@@ -10,7 +10,7 @@
     <view class="harbor-hero__scrim"></view>
     <view class="harbor-hero__copy">
       <text class="harbor-hero__eyebrow">航海資料館</text>
-      <text class="harbor-hero__title">{{title}}</text>
+      <text class="harbor-hero__title ui-display-title">{{title}}</text>
       <text class="harbor-hero__meta">收錄 {{count}} 位航海士</text>
     </view>
   </view>
@@ -25,6 +25,9 @@
         <view
           wx:if="{{index < 5}}"
           class="module-grid__item"
+          hover-class="module-grid__item--pressed"
+          role="button"
+          aria-label="{{item.name}}"
           bindtap="onModuleTap"
           data-route="{{item.route}}"
         >

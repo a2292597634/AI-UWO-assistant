@@ -1,0 +1,30 @@
+{
+  "name": "戰鬥配隊首屏與滾動",
+  "entry": "/subpkg-fleet/pages/index/index",
+  "watchPaths": [
+    "miniprogram/subpkg-fleet/pages/index/",
+    "miniprogram/components/config-bar/",
+    "miniprogram/components/mode-tabs/"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".fleet-context"
+    },
+    {
+      "action": "screenshot",
+      "name": "battle-top"
+    },
+    {
+      "action": "scrollElement",
+      "selector": ".fleet-scroll",
+      "distance": 500
+    },
+    {
+      "action": "screenshot",
+      "name": "battle-middle"
+    }
+  ]
+}

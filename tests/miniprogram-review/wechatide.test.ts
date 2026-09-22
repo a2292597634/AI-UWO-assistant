@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   createWechatIdeAdapter,
@@ -14,6 +14,107 @@ import {
 const projectPath = 'E:/AI UWO assistant'
 
 describe('微信开发者工具 wechatide 适配器', () => {
+  it.each([
+    'no such element: .detail-page',
+    'Element not found: .detail-page',
+    'page is not on top of page stack',
+  ])('转场后重新查询当前页面：%s', async (transitionError) => {
+    let elementQueries = 0
+    const runner: WechatIdeRunner = {
+      async call(tool) {
+        if (tool === 'automation_runtime_info') {
+          return { currentPage: { route: '/pages/catalog/index' } }
+        }
+        if (tool === 'automation_element_action') {
+          elementQueries += 1
+          if (elementQueries === 1) throw new Error(transitionError)
+          return { width: 390, height: 753 }
+        }
+        return undefined
+      },
+    }
+    const adapter = await createWechatIdeAdapter(
+      { projectPath, automationPort: 9420 },
+      { runner, openProject: false },
+    )
+    await expect(adapter.waitFor('.detail-page', 1000)).resolves.toBeUndefined()
+    expect(elementQueries).toBe(2)
+  })
+
+  it('真正缺失的元素在调用方指定期限内失败', async () => {
+    vi.useFakeTimers()
+    try {
+      const runner: WechatIdeRunner = {
+        async call(tool) {
+          if (tool === 'automation_runtime_info') {
+            return { currentPage: { route: '/pages/catalog/index' } }
+          }
+          throw new Error('no such element: .missing')
+        },
+      }
+      const adapter = await createWechatIdeAdapter(
+        { projectPath, automationPort: 9420 },
+        { runner, openProject: false },
+      )
+      let settled = false
+      const pending = adapter.waitFor('.missing', 500).catch((error: unknown) => {
+        settled = true
+        return error
+      })
+      await vi.advanceTimersByTimeAsync(499)
+      expect(settled).toBe(false)
+      await vi.advanceTimersByTimeAsync(1)
+      expect(await pending).toMatchObject({ message: '等待元素超时：.missing' })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('连接失败立即保留原始错误，交给外层恢复而非误报元素缺失', async () => {
+    const failure = new Error('timeout waiting for automator response')
+    const runner: WechatIdeRunner = {
+      async call(tool) {
+        if (tool === 'automation_runtime_info') {
+          return { currentPage: { route: '/pages/catalog/index' } }
+        }
+        throw failure
+      },
+    }
+    const adapter = await createWechatIdeAdapter(
+      { projectPath, automationPort: 9420 },
+      { runner, openProject: false },
+    )
+    await expect(adapter.waitFor('.detail-page', 1000)).rejects.toBe(failure)
+  })
+
+  it('底层元素命令不返回时仍按期限结束，不无限挂起或误报页面通过', async () => {
+    vi.useFakeTimers()
+    try {
+      const runner: WechatIdeRunner = {
+        async call(tool) {
+          if (tool === 'automation_runtime_info') {
+            return { currentPage: { route: '/pages/catalog/index' } }
+          }
+          return new Promise(() => undefined)
+        },
+      }
+      const adapter = await createWechatIdeAdapter(
+        { projectPath, automationPort: 9420 },
+        { runner, openProject: false },
+      )
+      let failure: unknown
+      const pending = adapter.waitFor('.detail-page', 500).catch((error: unknown) => {
+        failure = error
+      })
+      await vi.advanceTimersByTimeAsync(500)
+      expect(failure).toBeInstanceOf(Error)
+      expect(failure).toMatchObject({ message: expect.stringContaining('timeout') })
+      await pending
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('把自定义组件动作映射为页面方法、数据状态与视口截图', async () => {
     const calls: Array<{ tool: string; args: string[] }> = []
     const runner: WechatIdeRunner = {

@@ -91,10 +91,11 @@
 
 .fleet-context {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--uwo-space-3);
-  padding: var(--uwo-space-3) var(--uwo-space-4);
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--uwo-space-2);
+  padding: var(--uwo-space-4) var(--uwo-space-6);
   border-bottom: 2rpx solid var(--uwo-color-border-subtle);
   background: var(--uwo-color-surface);
   color: var(--uwo-color-text-primary);
@@ -103,8 +104,9 @@
 .fleet-context__copy {
   display: flex;
   min-width: 0;
-  flex-direction: column;
-  gap: var(--uwo-space-1);
+  flex-direction: row;
+  align-items: baseline;
+  gap: var(--uwo-space-3);
 }
 
 .fleet-context__eyebrow,
@@ -123,9 +125,9 @@
 .fleet-context__count-wrap {
   display: flex;
   flex: 0 0 auto;
-  max-width: 42%;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
   gap: var(--uwo-space-1);
 }
 
@@ -218,13 +220,13 @@
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--uwo-space-2);
-  padding: 0 var(--uwo-space-4) var(--uwo-space-2);
+  padding: 0 var(--uwo-space-6) var(--uwo-space-4);
 }
 
 .officer-slot {
   position: relative;
   box-sizing: border-box;
-  min-height: 152rpx;
+  min-height: 112rpx;
   padding: var(--uwo-space-1) 0;
   overflow: hidden;
   text-align: center;
@@ -234,6 +236,7 @@
 }
 
 .officer-slot--filled {
+  min-height: 152rpx;
   background: var(--uwo-color-surface);
 }
 
@@ -317,9 +320,9 @@
 .candidate-panel,
 .ban-panel,
 .summary-panel {
-  margin: 0 var(--uwo-space-4) var(--uwo-space-4);
-  padding: var(--uwo-space-4);
-  background: var(--uwo-color-surface-muted);
+  margin: 0 var(--uwo-space-6) var(--uwo-space-4);
+  padding: var(--uwo-space-6);
+  background: var(--uwo-color-surface);
   border: 1rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-card);
 }

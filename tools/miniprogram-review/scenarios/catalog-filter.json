@@ -1,0 +1,51 @@
+{
+  "name": "名冊篩選固定操作區",
+  "entry": "/pages/catalog/index",
+  "watchPaths": ["miniprogram/pages/catalog/"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__filter-trigger"
+    },
+    {
+      "action": "screenshot",
+      "name": "catalog-top"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__filter-trigger"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__filter-body"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".catalog-page__filter-action--apply"
+    },
+    {
+      "action": "screenshot",
+      "name": "filter-top"
+    },
+    {
+      "action": "scrollElement",
+      "selector": ".catalog-page__filter-body",
+      "distance": 1000
+    },
+    {
+      "action": "screenshot",
+      "name": "filter-bottom"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__filter-action--apply"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".catalog-page__filter-sheet",
+      "exists": false
+    }
+  ]
+}

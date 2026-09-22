@@ -7,7 +7,7 @@
 
 .harbor-hero {
   position: relative;
-  height: 240rpx;
+  height: 280rpx;
   overflow: hidden;
   background: linear-gradient(
     125deg,
@@ -55,7 +55,7 @@
   flex-direction: column;
   width: calc(100% - var(--uwo-space-12));
   max-width: 520rpx;
-  padding: var(--uwo-space-8) var(--uwo-space-6) 0;
+  padding: var(--uwo-space-12) var(--uwo-space-8) 0;
   color: var(--uwo-color-surface);
 }
 
@@ -69,7 +69,6 @@
 .harbor-hero__title {
   margin-top: var(--uwo-space-2);
   color: var(--uwo-color-surface);
-  font-family: var(--uwo-font-family-display);
   font-size: var(--uwo-font-size-page-title);
   font-weight: 700;
   letter-spacing: 4rpx;
@@ -84,7 +83,7 @@
 }
 
 .feature-hub {
-  padding: var(--uwo-space-8) var(--uwo-space-6) var(--uwo-space-12);
+  padding: var(--uwo-space-8) var(--uwo-space-8) var(--uwo-space-12);
 }
 
 .feature-hub__heading {
@@ -111,6 +110,7 @@
 .module-grid {
   display: flex;
   flex-wrap: wrap;
+  row-gap: var(--uwo-space-6);
 }
 
 .module-grid__item {
@@ -119,13 +119,16 @@
   align-items: center;
   justify-content: flex-start;
   width: 33.333333%;
-  min-height: 156rpx;
-  padding: var(--uwo-space-2) 0;
+  min-height: 176rpx;
+  padding: var(--uwo-space-3) var(--uwo-space-1);
   border-radius: var(--uwo-radius-control);
 }
 
-.module-grid__item:active {
-  background: rgba(185, 149, 82, 0.14);
+.module-grid__item:active,
+.module-grid__item--pressed {
+  background: var(--uwo-color-surface-muted);
+  transform: translateY(2rpx);
+  opacity: 0.88;
 }
 
 .module-grid__badge {
@@ -134,6 +137,9 @@
   justify-content: center;
   width: 112rpx;
   height: 112rpx;
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
+  background: var(--uwo-color-surface);
 }
 
 .module-grid__icon,
@@ -166,17 +172,18 @@
 }
 
 .module-grid__name {
-  margin-top: var(--uwo-space-2);
+  margin-top: var(--uwo-space-3);
   color: var(--uwo-color-text-primary);
-  font-size: var(--uwo-font-size-supporting);
+  font-size: var(--uwo-font-size-body);
+  font-weight: 600;
   line-height: 1.4;
   text-align: center;
   overflow-wrap: anywhere;
 }
 
 .feature-hub__secondary {
-  margin-top: var(--uwo-space-4);
-  padding-top: var(--uwo-space-4);
+  margin-top: var(--uwo-space-8);
+  padding-top: var(--uwo-space-6);
   border-top: 2rpx solid var(--uwo-color-border-subtle);
 }
 

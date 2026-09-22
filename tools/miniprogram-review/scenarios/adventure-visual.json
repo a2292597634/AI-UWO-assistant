@@ -1,0 +1,30 @@
+{
+  "name": "冒險配隊首屏與滾動",
+  "entry": "/pages/adventure-fleet/index",
+  "watchPaths": [
+    "miniprogram/pages/adventure-fleet/",
+    "miniprogram/components/config-bar/",
+    "miniprogram/components/mode-tabs/"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".fleet-context"
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-top"
+    },
+    {
+      "action": "scrollElement",
+      "selector": ".fleet-scroll",
+      "distance": 650
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-middle"
+    }
+  ]
+}

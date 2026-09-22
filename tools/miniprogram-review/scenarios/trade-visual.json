@@ -1,0 +1,39 @@
+{
+  "name": "貿易品分類搜尋與清除",
+  "entry": "/subpkg-trade/pages/index/index",
+  "watchPaths": ["miniprogram/subpkg-trade/pages/index/"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".trade-result"
+    },
+    {
+      "action": "screenshot",
+      "name": "trade-top"
+    },
+    {
+      "action": "input",
+      "selector": ".trade-search",
+      "value": "茄子"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".trade-result"
+    },
+    {
+      "action": "assertText",
+      "selector": ".trade-result",
+      "contains": "茄子"
+    },
+    {
+      "action": "screenshot",
+      "name": "trade-search"
+    },
+    {
+      "action": "clearInput",
+      "selector": ".trade-search"
+    }
+  ]
+}

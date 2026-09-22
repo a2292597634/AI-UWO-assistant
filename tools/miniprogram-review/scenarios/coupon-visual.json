@@ -1,0 +1,17 @@
+{
+  "name": "兌換碼表單與禁用說明",
+  "entry": "/subpkg-coupon/pages/redemption/index",
+  "watchPaths": ["miniprogram/subpkg-coupon/pages/redemption/"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".coupon-redemption__actions"
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-top"
+    }
+  ]
+}

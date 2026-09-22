@@ -11,7 +11,7 @@
   </view>
 
   <config-bar
-    style="display: block; min-height: 144rpx; flex: 0 0 auto;"
+    style="display: block; flex: 0 0 auto;"
     config-name="{{configName}}"
     config-status="{{configStatus}}"
     auth-status="{{authStatus}}"

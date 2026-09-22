@@ -1,7 +1,7 @@
 <view class="coupon-redemption-page">
   <view class="coupon-redemption__header">
     <text class="coupon-redemption__eyebrow">航海助手</text>
-    <text class="coupon-redemption__title">兌換碼</text>
+    <text class="coupon-redemption__title ui-display-title">兌換碼</text>
     <text class="coupon-redemption__intro">由官方服務代為提交兌換碼，獎勵將發送至遊戲內信箱。</text>
   </view>
 
@@ -18,7 +18,7 @@
     <view wx:else class="coupon-redemption__empty">
       <text class="coupon-redemption__empty-title">尚未選擇玩家設定</text>
       <text class="coupon-redemption__empty-copy">先保存伺服器與遊戲內暱稱，兌換時即可直接帶入。</text>
-      <button class="ui-button ui-button--compact ui-button--secondary coupon-redemption__compact-button coupon-redemption__button" bindtap="onOpenSettings">新增玩家設定</button>
+      <button class="ui-button ui-button--primary coupon-redemption__button" bindtap="onOpenSettings">新增玩家設定</button>
     </view>
 
     <view class="coupon-redemption__form">
@@ -40,6 +40,7 @@
   </view>
 
   <view class="coupon-redemption__actions">
+    <text wx:if="{{!activeProfile}}" class="coupon-redemption__action-hint">請先新增或選擇玩家設定</text>
     <button
       class="ui-button ui-button--primary coupon-redemption__submit"
       loading="{{isSubmitting}}"

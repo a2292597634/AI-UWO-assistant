@@ -186,21 +186,25 @@
 .skill-list {
   display: flex;
   flex-direction: column;
+  padding: 0 var(--uwo-space-4);
+  background: var(--uwo-color-surface);
+  border: 1rpx solid var(--uwo-color-border-subtle);
+  border-radius: var(--uwo-radius-card);
 }
 
 .skill-card {
   display: flex;
   align-items: center;
   min-height: 112rpx;
-  margin-bottom: var(--uwo-space-2);
-  padding: var(--uwo-space-4);
-  background: var(--uwo-color-surface);
-  border: 2rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-control);
+  margin-bottom: 0;
+  padding: var(--uwo-space-4) 0;
+  background: transparent;
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
 }
 
 .skill-card:last-child {
   margin-bottom: 0;
+  border-bottom: 0;
 }
 
 .skill-card:active {
@@ -269,6 +273,7 @@
   flex-wrap: wrap;
   align-items: center;
   margin-top: var(--uwo-space-2);
+  gap: var(--uwo-space-1) 0;
   font-size: var(--uwo-font-size-minimum-action);
 }
 
@@ -360,7 +365,7 @@
 }
 
 .report-error-action {
-  padding: var(--uwo-space-5) var(--uwo-space-4) 0;
+  padding: var(--uwo-space-6) var(--uwo-space-4) 0;
 }
 
 .report-error-button {
@@ -369,7 +374,7 @@
   background: var(--uwo-color-surface);
   border: 2rpx solid var(--uwo-color-border-strong);
   border-radius: var(--uwo-radius-control);
-  font-size: var(--uwo-font-size-action);
+  font-size: var(--uwo-font-size-body);
 }
 
 .page-spacer {

@@ -1,0 +1,17 @@
+{
+  "name": "首頁五個平行入口",
+  "entry": "/pages/home/index",
+  "watchPaths": ["miniprogram/pages/home/"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".module-grid__item"
+    },
+    {
+      "action": "screenshot",
+      "name": "home-top"
+    }
+  ]
+}

@@ -124,7 +124,7 @@ describe('首頁功能入口', () => {
   })
 
   it('收斂 Hero 並保留資料錯誤回報次級入口的結構鉤子', () => {
-    expect(homeWxss).toContain('height: 240rpx')
+    expect(homeWxss).toContain('height: 280rpx')
     expect(homeWxml).toContain('module-grid--secondary')
     expect(homeWxml).toContain('資料回報')
   })

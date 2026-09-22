@@ -16,7 +16,7 @@ interface WechatIdeResponse {
 }
 
 export interface WechatIdeRunner {
-  call(tool: string, args: string[]): Promise<unknown>
+  call(tool: string, args: string[], options?: { timeoutMs: number }): Promise<unknown>
 }
 
 export interface WechatIdeAdapterOptions {
@@ -98,7 +98,7 @@ const isWechatIdeConnectionError = (error: unknown): boolean =>
   )
 
 const createDefaultRunner = (cliPath: string): WechatIdeRunner => ({
-  async call(tool, args) {
+  async call(tool, args, options) {
     let output: string
     try {
       const result = await execFileAsync(
@@ -122,11 +122,20 @@ const createDefaultRunner = (cliPath: string): WechatIdeRunner => ({
           maxBuffer: 16 * 1024 * 1024,
           windowsVerbatimArguments: true,
           windowsHide: true,
+          timeout: options?.timeoutMs ?? 30000,
         },
       )
       output = commandOutput(result.stdout, result.stderr)
     } catch (error) {
-      const commandError = error as { stdout?: unknown; stderr?: unknown; message?: unknown }
+      const commandError = error as {
+        stdout?: unknown
+        stderr?: unknown
+        message?: unknown
+        killed?: boolean
+      }
+      if (commandError.killed) {
+        throw new WechatIdeToolError(`wechatide command timeout：${tool}`, tool)
+      }
       output = commandOutput(commandError.stdout, commandError.stderr)
       if (!output) {
         throw new WechatIdeToolError(
@@ -273,7 +282,10 @@ const normalizeSelector = (selector: string): string => {
 
 const isMissingElementError = (error: unknown): boolean =>
   error instanceof Error &&
-  /no such element|找不到元素|waitForSelector timeout/i.test(error.message)
+  /no such element|Element not found:|找不到元素|waitForSelector timeout/i.test(error.message)
+
+const isStalePageError = (error: unknown): boolean =>
+  error instanceof Error && /page is not on top of page stack/i.test(error.message)
 
 const elementArgs = (
   projectPath: string,
@@ -422,19 +434,44 @@ const createAdapter = (projectPath: string, runner: WechatIdeRunner): ReviewAdap
       await waitForComponent(runner, projectPath, selectorOrDuration, timeoutMs)
       return
     }
-    try {
-      await runner.call(
-        'automation_element_action',
-        elementArgs(projectPath, selectorOrDuration, 'size', {
-          'wait-for-selector': normalizeSelector(selectorOrDuration),
-        }),
-      )
-    } catch (error) {
-      if (isMissingElementError(error)) {
-        throw errorWithCause(`等待元素超时：${selectorOrDuration}`, error)
+    const deadline = Date.now() + timeoutMs
+    let lastError: unknown
+    while (Date.now() < deadline) {
+      let queryTimer: ReturnType<typeof setTimeout> | undefined
+      try {
+        // 转场期间工具内部的等待可能持有旧页面；每轮独立调用以重新获取当前页。
+        const remainingMs = Math.max(1, deadline - Date.now())
+        await Promise.race([
+          runner.call(
+            'automation_element_action',
+            elementArgs(projectPath, selectorOrDuration, 'size'),
+            { timeoutMs: remainingMs },
+          ),
+          new Promise<never>((_, reject) => {
+            queryTimer = setTimeout(
+              () =>
+                reject(
+                  new WechatIdeToolError(
+                    'wechatide element query timeout',
+                    'automation_element_action',
+                  ),
+                ),
+              remainingMs,
+            )
+          }),
+        ])
+        return
+      } catch (error) {
+        if (!isMissingElementError(error) && !isStalePageError(error)) throw error
+        lastError = error
+      } finally {
+        if (queryTimer) clearTimeout(queryTimer)
       }
-      throw error
+      await new Promise((resolveDelay) =>
+        setTimeout(resolveDelay, Math.min(250, Math.max(0, deadline - Date.now()))),
+      )
     }
+    throw errorWithCause(`等待元素超时：${selectorOrDuration}`, lastError)
   },
   async queryElement(selector) {
     if (componentSelectorKind(selector)) return await componentReady(runner, projectPath, selector)

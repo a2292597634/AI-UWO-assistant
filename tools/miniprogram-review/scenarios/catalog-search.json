@@ -1,6 +1,7 @@
 {
   "name": "航海士目录搜寻与详情",
   "entry": "/pages/catalog/index",
+  "watchPaths": ["miniprogram/pages/catalog/", "miniprogram/subpkg-detail/pages/detail/"],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [

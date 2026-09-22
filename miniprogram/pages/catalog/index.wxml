@@ -125,13 +125,14 @@
   </view>
 
   <view wx:if="{{filterSheetOpen}}" class="catalog-page__filter-mask" bindtap="cancelFilterSheet">
-    <scroll-view class="catalog-page__filter-sheet" scroll-y catchtap="stopFilterSheetPropagation">
+    <view class="catalog-page__filter-sheet" catchtap="stopFilterSheetPropagation">
       <view class="catalog-page__filter-handle"></view>
       <view class="catalog-page__filter-heading">
-        <text class="catalog-page__filter-title ui-display-title">{{filterSheetMode === 'skill' ? '篩選技能' : '篩選航海士'}}</text>
+        <text class="catalog-page__filter-title">{{filterSheetMode === 'skill' ? '篩選技能' : '篩選航海士'}}</text>
         <text class="catalog-page__filter-count">{{filterDraftCount}} {{filterSheetMode === 'skill' ? '項技能符合條件' : '位航海士符合條件'}}</text>
       </view>
 
+      <scroll-view class="catalog-page__filter-body" scroll-y>
       <block wx:if="{{filterSheetMode === 'officer'}}">
       <view class="catalog-page__filter-section">
         <text class="catalog-page__filter-section-title">稀有度</text>
@@ -203,12 +204,13 @@
 
        <view wx:if="{{filterDraftHasActiveFilters}}" class="catalog-page__filter-note">已選條件會在套用後更新{{filterSheetMode === 'skill' ? '技能結果' : '名冊'}}。</view>
       <view wx:else class="catalog-page__filter-note">目前未設定篩選條件。</view>
+      </scroll-view>
       <view class="catalog-page__filter-actions">
         <view class="catalog-page__filter-action catalog-page__filter-action--secondary" bindtap="clearDraftFilters">清除全部</view>
         <view class="catalog-page__filter-action catalog-page__filter-action--secondary" bindtap="cancelFilterSheet">取消</view>
         <view class="catalog-page__filter-action catalog-page__filter-action--apply" bindtap="applyDraftFilters">套用篩選</view>
       </view>
-    </scroll-view>
+    </view>
   </view>
 
   <skill-sheet skill="{{sheetSkill}}" bind:dismiss="onSheetDismiss" bind:reverselookup="onReverseLookup" />
