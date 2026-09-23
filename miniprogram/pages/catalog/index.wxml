@@ -32,10 +32,10 @@
         <view class="catalog-page__officer-info">
           <view class="catalog-page__officer-heading">
             <text class="catalog-page__officer-name">{{item.name}}</text>
-          </view>
-          <view class="catalog-page__officer-meta">
-            <text class="catalog-page__officer-job">{{item.jobName}}</text>
-            <text class="catalog-page__officer-gender">{{item.genderLabel}}</text>
+            <view class="catalog-page__officer-meta">
+              <text class="catalog-page__officer-job">{{item.jobName}}</text>
+              <text class="catalog-page__officer-gender">{{item.genderLabel}}</text>
+            </view>
           </view>
           <scroll-view class="catalog-page__officer-skills" scroll-x="true" enable-flex>
             <view class="catalog-page__officer-skills-content">
@@ -47,6 +47,7 @@
                     category-name="{{item.activeSkillCategories[sid]}}"
                     level="{{item.skillLevels ? item.skillLevels[sid] : 0}}"
                     asset-ready="{{item.assetReady}}"
+                    large="{{true}}"
                   />
                 </view>
                 <text class="catalog-page__skill-more" wx:if="{{item.activeSkills.length > 3}}">+{{item.activeSkills.length - 3}}</text>
@@ -60,6 +61,7 @@
                     category-name="{{item.passiveSkillCategories[sid]}}"
                     level="{{item.skillLevels ? item.skillLevels[sid] : 0}}"
                     asset-ready="{{item.assetReady}}"
+                    large="{{true}}"
                   />
                 </view>
                 <text class="catalog-page__skill-more" wx:if="{{item.passiveSkills.length > 3}}">+{{item.passiveSkills.length - 3}}</text>

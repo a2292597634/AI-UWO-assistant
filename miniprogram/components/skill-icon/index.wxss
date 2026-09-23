@@ -13,6 +13,13 @@
   background: var(--uwo-color-surface-muted);
 }
 
+.skill-icon--large,
+.skill-icon--large .skill-icon__image,
+.skill-icon--large .skill-icon__fallback {
+  width: 72rpx;
+  height: 72rpx;
+}
+
 .skill-icon__fallback {
   display: flex;
   align-items: center;

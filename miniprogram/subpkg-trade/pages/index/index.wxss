@@ -139,10 +139,10 @@
 
 .trade-result {
   display: flex;
-  align-items: flex-start;
-  gap: var(--uwo-space-3);
-  margin-bottom: var(--uwo-space-3);
-  padding: var(--uwo-space-6);
+  align-items: center;
+  gap: var(--uwo-space-2);
+  margin-bottom: var(--uwo-space-2);
+  padding: var(--uwo-space-2);
   border: 1rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-card);
   background: var(--uwo-color-surface);
@@ -154,11 +154,11 @@
 
 .trade-result__icon-wrap {
   display: flex;
-  flex: 0 0 96rpx;
+  flex: 0 0 112rpx;
   align-items: center;
   justify-content: center;
-  width: 96rpx;
-  height: 96rpx;
+  width: 112rpx;
+  height: 112rpx;
   border-radius: var(--uwo-radius-control);
   background: var(--uwo-color-surface-muted);
   overflow: hidden;
@@ -186,7 +186,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--uwo-space-3);
+  gap: var(--uwo-space-2);
 }
 
 .trade-result__name {
@@ -210,10 +210,10 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  margin-top: var(--uwo-space-2);
+  margin-top: var(--uwo-space-1);
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-supporting);
-  line-height: 1.45;
+  line-height: 1.3;
 }
 
 .trade-result__separator {
@@ -224,13 +224,13 @@
 .trade-result__seasons {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--uwo-space-2) var(--uwo-space-4);
-  margin-top: var(--uwo-space-3);
+  gap: var(--uwo-space-1) var(--uwo-space-2);
+  margin-top: var(--uwo-space-1);
 }
 
 .trade-result__season {
   font-size: var(--uwo-font-size-supporting);
-  line-height: 1.45;
+  line-height: 1.3;
 }
 
 .trade-result__season--peak {

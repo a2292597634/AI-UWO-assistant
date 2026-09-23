@@ -29,6 +29,10 @@ Component({
       type: Boolean,
       value: false,
     },
+    large: {
+      type: Boolean,
+      value: false,
+    },
   },
 
   data: {

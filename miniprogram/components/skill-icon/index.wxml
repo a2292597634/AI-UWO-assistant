@@ -1,4 +1,4 @@
-<view class="skill-icon" role="img" aria-label="{{skillName || '技能'}}">
+<view class="skill-icon {{large ? 'skill-icon--large' : ''}}" role="img" aria-label="{{skillName || '技能'}}">
   <image
     wx:if="{{assetReady && iconPath && !imageFailed}}"
     class="skill-icon__image"

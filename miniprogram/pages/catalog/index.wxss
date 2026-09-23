@@ -130,9 +130,9 @@
 
 .catalog-page__officer-row {
   display: flex;
-  min-height: 124rpx;
-  margin-bottom: var(--uwo-space-3);
-  padding: var(--uwo-space-4);
+  min-height: 144rpx;
+  margin-bottom: var(--uwo-space-2);
+  padding: var(--uwo-space-2);
   border: 1rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-card);
   background: var(--uwo-color-surface);
@@ -140,10 +140,10 @@
 
 .catalog-page__officer-portrait {
   position: relative;
-  flex: 0 0 104rpx;
-  width: 104rpx;
-  height: 104rpx;
-  margin-right: var(--uwo-space-4);
+  flex: 0 0 128rpx;
+  width: 128rpx;
+  height: 128rpx;
+  margin-right: var(--uwo-space-2);
   overflow: hidden;
   border-radius: var(--uwo-radius-control);
   background: var(--uwo-color-surface-muted);
@@ -203,10 +203,13 @@
 .catalog-page__officer-heading {
   display: flex;
   align-items: center;
-  min-height: 36rpx;
+  min-width: 0;
+  min-height: 40rpx;
+  gap: var(--uwo-space-2);
 }
 
 .catalog-page__officer-name {
+  min-width: 0;
   overflow: hidden;
   color: var(--uwo-color-text-primary);
   font-size: var(--uwo-font-size-emphasis);
@@ -218,7 +221,9 @@
 .catalog-page__officer-meta {
   display: flex;
   align-items: center;
-  margin-top: var(--uwo-space-2);
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-supporting);
 }
@@ -231,13 +236,12 @@
 }
 
 .catalog-page__officer-gender {
-  margin-left: var(--uwo-space-3);
+  margin-left: var(--uwo-space-2);
 }
 
 .catalog-page__officer-skills {
   width: 100%;
   height: 88rpx;
-  margin-top: var(--uwo-space-2);
   white-space: nowrap;
 }
 
@@ -264,7 +268,6 @@
   width: 88rpx;
   min-height: 88rpx;
   height: 88rpx;
-  margin-right: var(--uwo-space-1);
 }
 
 .catalog-page__skill-more {
