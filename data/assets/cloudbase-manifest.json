@@ -1,6 +1,6 @@
 {
-  "releaseId": "maintenance-756fe5d9f2b01a27-6b686142a7ad",
-  "manifestDigest": "6b686142a7ad33f4eea7678994e3e6968f97a029f451221c8664983098b0b5c9",
+  "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+  "manifestDigest": "f03056b93d4c1faf6343beaf5d4789d720d5c646d8fa035306043514c4ccf038",
   "contentVersion": "maintenance-756fe5d9f2b01a27",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
@@ -25441,13 +25441,13 @@
     {
       "sourcePath": "officer_wo_mtttzwza_ecnsvvum.png",
       "filename": "officer_wo_mtttzwza_ecnsvvum.png",
-      "sha256": "692e4604fc72209a62bbbc2bbddbf380fa458bb6c82d1fc1c63d11e309be8f1b",
-      "bytes": 95060,
+      "sha256": "fb4179641ec7b616f7ed837930e8f14dc13704687436a581d0fc17150b8f836e",
+      "bytes": 102927,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_wo_mtttzwza_ecnsvvum.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_wo_mtttzwza_ecnsvvum.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-df032d8f2a03",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_wo_mtttzwza_ecnsvvum.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_mtttzwza_ecnsvvum.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_mtttzwza_ecnsvvum.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_mtttzwza_ecnsvvum.png"
     },
     {
       "sourcePath": "skill_wo_mtttzwza_ecnsvvum_candidate_1788942048188_0.png",
@@ -25529,79 +25529,79 @@
     {
       "sourcePath": "officer_wo_offline_melati.png",
       "filename": "officer_wo_offline_melati.png",
-      "sha256": "a19a9d470a027325811f66cfcdd4ec4b61442e1e98f73f1a44f706034dd602f2",
-      "bytes": 51758,
+      "sha256": "dec7e0ef847324249ea792c573c8cd8df69bd657bdf86e03339a3b7321dcaacb",
+      "bytes": 51760,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_melati.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_melati.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-6b686142a7ad",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_melati.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_melati.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_melati.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_melati.png"
     },
     {
       "sourcePath": "officer_wo_offline_antonio_malatesta.png",
       "filename": "officer_wo_offline_antonio_malatesta.png",
-      "sha256": "c408539b643dbdd4964dea3575dc56ffe5deb817cf12ac8fc22ee113bf89fcff",
-      "bytes": 39876,
+      "sha256": "756fd88087d3d839686831a91bda030f5c1434d062a8f64e732652a5a74d119e",
+      "bytes": 39874,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_antonio_malatesta.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_antonio_malatesta.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-6b686142a7ad",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_antonio_malatesta.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_antonio_malatesta.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_antonio_malatesta.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_antonio_malatesta.png"
     },
     {
       "sourcePath": "officer_wo_offline_louise_de_poisson.png",
       "filename": "officer_wo_offline_louise_de_poisson.png",
-      "sha256": "b8b505042ce332bd6cb0d7f8344e0f270f03b70d382ccd09a8d7ca1e0fa32bdf",
-      "bytes": 33191,
+      "sha256": "38b3ee88520c1c6c912bfa2edf8772fb436b5304adf04bebe9ba7b261e675e92",
+      "bytes": 33190,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_louise_de_poisson.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_louise_de_poisson.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-6b686142a7ad",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_louise_de_poisson.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_louise_de_poisson.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_louise_de_poisson.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_louise_de_poisson.png"
     },
     {
       "sourcePath": "officer_wo_offline_valentina_morel.png",
       "filename": "officer_wo_offline_valentina_morel.png",
-      "sha256": "7f47d22da09b31490479a07fcb51c19de98d4f1254f6a851bc6c10496fda27c0",
-      "bytes": 49601,
+      "sha256": "52e2b4939478d5e7690d00b73f3ff2fb2288c989b58557b007ac7fb4e9e2aa5c",
+      "bytes": 49605,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_valentina_morel.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_valentina_morel.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-6b686142a7ad",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_valentina_morel.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_valentina_morel.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_valentina_morel.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_valentina_morel.png"
     },
     {
       "sourcePath": "officer_wo_offline_giacomo_de_campania.png",
       "filename": "officer_wo_offline_giacomo_de_campania.png",
-      "sha256": "3e5c8330d7238d1a31035a2837fe256edbaf5e9d05a3fbdbf7e9fa468cda483e",
-      "bytes": 44650,
+      "sha256": "7b056daf3c16b15d2373eaefe2dfdfbb0fbaf73facbda62dd2dccc9c2fdfc323",
+      "bytes": 44652,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_giacomo_de_campania.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_giacomo_de_campania.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-6b686142a7ad",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-6b686142a7ad/officer_wo_offline_giacomo_de_campania.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_giacomo_de_campania.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_giacomo_de_campania.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_wo_offline_giacomo_de_campania.png"
     },
     {
       "sourcePath": "officer_custom_singuack.png",
       "filename": "officer_custom_singuack.png",
-      "sha256": "a6ecb9c71dbc104d75f0f70d4d47d532ae0140809fd3f6b95b6668fee37f48f3",
-      "bytes": 28147,
+      "sha256": "69e22c39251820ba30e0f132cc7e7bcc9291682af37a265d7599d282cbc57bd0",
+      "bytes": 24832,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_custom_singuack.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_custom_singuack.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-df032d8f2a03",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_custom_singuack.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_singuack.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_singuack.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_singuack.png"
     },
     {
       "sourcePath": "officer_custom_piyale.png",
       "filename": "officer_custom_piyale.png",
-      "sha256": "48299a387d3d47ce70689688272c650abdcdd6530f7f9b65bb62cf87ecb9098f",
-      "bytes": 33937,
+      "sha256": "ce97a77a111cc617e310d8599aaafaa22974b504318ec2ca9492a20320a6e26d",
+      "bytes": 29930,
       "contentType": "image/png",
-      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_custom_piyale.png",
-      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_custom_piyale.png",
-      "releaseId": "maintenance-756fe5d9f2b01a27-df032d8f2a03",
-      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-df032d8f2a03/officer_custom_piyale.png"
+      "cloudPath": "assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_piyale.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_piyale.png",
+      "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_piyale.png"
     }
   ]
 }

@@ -231,7 +231,7 @@ describe('配隊分享圖布局測量', () => {
     expect(lastRow[0]!.x).toBeLessThan(firstRow[4]!.x)
   })
 
-  it('航海士框沿用 voyage.tw 滿格分層與左下類型角標', () => {
+  it('航海士框沿用透明頭像滿格分層與左下類型角標', () => {
     const visuals = getOfficerVisualRects({ x: 32, y: 120, width: 132, height: 128 })
 
     expect(visuals.frame.width).toBe(84)
