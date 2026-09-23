@@ -63,7 +63,7 @@ export const validateReferencedAssetSources = async (
   const portraitFilenames = new Set(
     dependencies.roots
       .flatMap((assetRoot) => assetRoot.officerIds)
-      .filter((id) => id.startsWith('officer_wo_offline_'))
+      .filter((id) => id.startsWith('officer_'))
       .map((id) => `${id}.png`),
   )
   for (const filename of referencedFiles) {

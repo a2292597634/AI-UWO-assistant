@@ -94,7 +94,7 @@ describe('asset source collection', () => {
     }
   })
 
-  it('歷史投稿頭像即使不透明也不被新增的離線航海士門禁阻擋', async () => {
+  it('投稿航海士頭像缺少透明背景時也必須被素材門禁拒絕', async () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-assets-custom-opaque-'))
     const filename = 'officer_custom_legacy.png'
     const filePath = join(root, filename)
@@ -111,7 +111,7 @@ describe('asset source collection', () => {
           dependencies([filename], ['officer_custom_legacy']),
           new Map([[filename, filePath]]),
         ),
-      ).resolves.toBeUndefined()
+      ).rejects.toThrow('officer_custom_legacy.png 頭像必須保留透明背景')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

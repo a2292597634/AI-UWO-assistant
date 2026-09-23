@@ -62,7 +62,7 @@ voyage.tw 的人物單格以 `60×60px` 為基準：
 分享圖維持既有 `84px` 邏輯人物格與布局，不改船隻、分組、技能欄數或內容高度。`getOfficerVisualRects` 改為輸出：
 
 - `frame`：品質背景完整人物格。
-- `portrait`：與 `frame` 相同矩形，不再額外縮進。
+- `portrait`：與 `frame` 相同矩形，依靠頭像素材自身的透明邊角露出品質背景；不在 Renderer 內縮或繪製額外邊框。
 - `rarity`：與 `frame` 相同矩形，使用完整透明稀有度素材。
 - `type`：尺寸依 `frameSize × 16 / 60` 計算（`84px` 約為 `22px`），左下約 `4px` 內縮。
 
