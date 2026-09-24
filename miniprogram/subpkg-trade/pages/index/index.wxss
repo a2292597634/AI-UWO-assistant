@@ -103,34 +103,36 @@
 
 .trade-filters {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--uwo-space-2);
-  padding: 0 var(--uwo-space-6) var(--uwo-space-4);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--uwo-space-1);
+  padding: 0 var(--uwo-space-3) var(--uwo-space-4);
 }
 
 .trade-filter {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--uwo-space-1);
-  min-height: 88rpx;
-  padding: var(--uwo-space-2) var(--uwo-space-1);
+  min-height: 80rpx;
+  padding: var(--uwo-space-1);
   border: 1rpx solid var(--uwo-color-border-subtle);
   border-radius: var(--uwo-radius-control);
   background: var(--uwo-color-surface);
   color: var(--uwo-color-text-secondary);
-  font-size: var(--uwo-font-size-minimum-action);
+  font-size: var(--uwo-font-size-supporting);
   line-height: 1.3;
   text-align: center;
 }
 
 .trade-filter__icon {
-  flex: 0 0 32rpx;
-  width: 32rpx;
-  height: 32rpx;
+  flex: 0 0 36rpx;
+  width: 36rpx;
+  height: 36rpx;
 }
 
 .trade-filter__label {
+  line-height: 1.2;
   white-space: nowrap;
 }
 

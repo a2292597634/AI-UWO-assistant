@@ -31,7 +31,7 @@
 
 - `miniprogram/subpkg-trade/pages/index/index.ts`：分類 ViewModel 增加 `iconPath`。
 - `miniprogram/subpkg-trade/pages/index/index.wxml`：每個分類按鈕顯示對應圖示；「全部」不顯示分類圖示。
-- `miniprogram/subpkg-trade/pages/index/index.wxss`：改為四欄按鈕排列，增加圖示尺寸和間距。
+- `miniprogram/subpkg-trade/pages/index/index.wxss`：使用五欄按鈕排列，圖示置上、文字置下，控制篩選區行數並保留圖文尺寸。
 - `miniprogram/subpkg-trade/presenters/trade-season-presenter.ts`：詳情標題 ViewModel 增加 `categoryIconPath`。
 - `miniprogram/subpkg-trade/pages/detail/index.ts`：空 ViewModel 為 `categoryIconPath` 提供空值。
 - `miniprogram/subpkg-trade/pages/detail/index.wxml`：在分類文字旁顯示分類圖示。
@@ -97,7 +97,7 @@ export const getTradeCategoryIconPath = (categoryId: string): string | null
 
 - [x] **Step 4: 更新篩選布局**
 
-使用四欄 `grid-template-columns`。按鈕採水平圖示加文字，使用 `32rpx` 圖示、`4rpx` 間距、最小 `88rpx` 高度和 Foundation 的間距 Token；文字使用不小於 `22rpx` 的字級。確保最長的「工業製品」在 320px 視寬仍完整可讀。
+使用五欄 `grid-template-columns`，按鈕採圖示在上、文字在下。圖示使用 `36rpx`、文字使用 `24rpx`、按鈕最小高度 `80rpx`，並使用 Foundation 的間距 Token 和緊湊欄間距；篩選區水平邊距使用 `--uwo-space-3`。21 個選項應由 6 行減為 5 行，並確保最長的「工業製品」在 320px 視寬仍完整可讀。
 
 ### Task 3: 把相同分類圖示加入詳情並擴充驗收場景
 
