@@ -37,6 +37,7 @@ const emptyView: TradeDetailPageState = {
   title: {
     name: '',
     iconPath: '',
+    categoryIconPath: null,
     categoryName: '',
     rankLabel: '',
     peakLabel: '',

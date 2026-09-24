@@ -38,7 +38,16 @@
         data-category-id="{{item.id}}"
         role="button"
         aria-label="{{item.name}}"
-      >{{item.name}}</view>
+      >
+        <image
+          wx:if="{{item.iconPath}}"
+          class="trade-filter__icon"
+          src="{{item.iconPath}}"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
+        <text class="trade-filter__label">{{item.name}}</text>
+      </view>
     </view>
 
     <view class="trade-results" aria-live="polite">

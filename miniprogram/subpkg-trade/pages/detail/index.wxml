@@ -26,7 +26,16 @@
           <text class="trade-detail__eyebrow">貿易品詳情</text>
           <text class="trade-detail__title">{{title.name}}</text>
           <view class="trade-detail__meta">
-            <text>{{title.categoryName}}</text>
+            <view class="trade-detail__category">
+              <image
+                wx:if="{{title.categoryIconPath}}"
+                class="trade-detail__category-icon"
+                src="{{title.categoryIconPath}}"
+                mode="aspectFit"
+                aria-hidden="true"
+              />
+              <text>{{title.categoryName}}</text>
+            </view>
             <text class="trade-detail__separator">·</text>
             <text>{{title.rankLabel}}</text>
           </view>

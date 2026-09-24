@@ -1,13 +1,23 @@
 {
-  "name": "貿易品分類搜尋與清除",
+  "name": "貿易品分類、搜尋與詳情",
   "entry": "/subpkg-trade/pages/index/index",
-  "watchPaths": ["miniprogram/subpkg-trade/pages/index/"],
+  "watchPaths": [
+    "miniprogram/subpkg-trade/pages/index/",
+    "miniprogram/subpkg-trade/pages/detail/",
+    "miniprogram/subpkg-trade/presenters/trade-season-presenter.ts",
+    "miniprogram/subpkg-trade/trade-category-icons.ts",
+    "miniprogram/subpkg-trade/assets/category-icons/"
+  ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
     {
       "action": "waitFor",
       "selector": ".trade-result"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".trade-filter__icon"
     },
     {
       "action": "screenshot",
@@ -34,6 +44,36 @@
     {
       "action": "clearInput",
       "selector": ".trade-search"
+    },
+    {
+      "action": "input",
+      "selector": ".trade-search",
+      "value": "茄子"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".trade-result"
+    },
+    {
+      "action": "tap",
+      "selector": ".trade-result"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".trade-detail__category-icon"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".trade-detail__category-icon"
+    },
+    {
+      "action": "assertText",
+      "selector": ".trade-detail__category",
+      "contains": "食品"
+    },
+    {
+      "action": "screenshot",
+      "name": "trade-detail-category"
     }
   ]
 }

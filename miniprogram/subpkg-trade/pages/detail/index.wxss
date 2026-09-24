@@ -83,6 +83,18 @@
   opacity: 0.86;
 }
 
+.trade-detail__category {
+  display: flex;
+  align-items: center;
+  gap: var(--uwo-space-1);
+}
+
+.trade-detail__category-icon {
+  flex: 0 0 32rpx;
+  width: 32rpx;
+  height: 32rpx;
+}
+
 .trade-detail__separator {
   margin: 0 var(--uwo-space-2);
   color: var(--uwo-color-accent-brass);

@@ -87,7 +87,11 @@ describe('trade page', () => {
 
     expect(page.data.searchText).toBe('')
     expect(page.data.visibleGoods.length).toBeGreaterThan(0)
-    expect(page.data.categories).toContainEqual({ id: '06', name: '酒類' })
+    expect(page.data.categories).toContainEqual({
+      id: '06',
+      name: '酒類',
+      iconPath: '/subpkg-trade/assets/category-icons/06.png',
+    })
     expect(page.data.pageError).toBeNull()
     expect(page.data.visibleGoods).toContainEqual(
       expect.objectContaining({

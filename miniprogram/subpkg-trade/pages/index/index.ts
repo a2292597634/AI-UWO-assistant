@@ -1,5 +1,6 @@
 import { queryTradeGoods } from '../../domain/trade-query'
 import { getTradeGoods, getTradeReference } from '../../runtime/trade-data-store'
+import { getTradeCategoryIconPath } from '../../trade-category-icons'
 import type {
   RuntimeTradeGoodIndexEntry,
   RuntimeTradeReference,
@@ -16,7 +17,7 @@ interface TradeListItem extends RuntimeTradeGoodIndexEntry {
 interface TradePageData {
   searchText: string
   activeCategoryId: string | null
-  categories: Array<{ id: string; name: string }>
+  categories: Array<{ id: string; name: string; iconPath: string | null }>
   visibleGoods: TradeListItem[]
   resultCount: number
   pageError: string | null
@@ -101,7 +102,11 @@ Page({
   onLoad() {
     try {
       const reference = getTradeReference()
-      const categories = reference.tradeTypes.map((type) => ({ id: type.id, name: type.name }))
+      const categories = reference.tradeTypes.map((type) => ({
+        id: type.id,
+        name: type.name,
+        iconPath: getTradeCategoryIconPath(type.id),
+      }))
 
       this.setData({
         categories,

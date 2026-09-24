@@ -1,11 +1,13 @@
 import { buildTradePortMatrix } from '../domain/trade-season'
 import type { TradePortMatrixView } from '../domain/trade-season'
+import { getTradeCategoryIconPath } from '../trade-category-icons'
 import type { RuntimeTradeGoodDetail, RuntimeTradeReference } from '../../contracts/runtime-data'
 
 export interface TradeDetailPageState {
   title: {
     name: string
     iconPath: string
+    categoryIconPath: string | null
     categoryName: string
     rankLabel: string
     peakLabel: string
@@ -55,6 +57,7 @@ export const presentTradeDetail = (
     title: {
       name: detail.name,
       iconPath: detail.iconPath,
+      categoryIconPath: getTradeCategoryIconPath(detail.categoryId),
       categoryName: detail.categoryName,
       rankLabel: detail.rank === null ? '等級待補' : `名產 Lv.${detail.rank}`,
       peakLabel: seasonSummary(detail.peakSeasonIds, reference),
