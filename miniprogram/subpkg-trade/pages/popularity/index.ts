@@ -1,9 +1,5 @@
-import {
-  findNextMajorEvent,
-  forecastMajorEvents,
-  forecastOngoingMajorEvents,
-} from '../../domain/major-event-forecast'
-import { gameDateBounds, gameDateKey, gameHourStartUnixSeconds } from '../../game-time'
+import { forecastMajorEvents, forecastOngoingMajorEvents } from '../../domain/major-event-forecast'
+import { gameHourStartUnixSeconds } from '../../game-time'
 import {
   presentMajorEvent,
   presentMajorEventJourney,
@@ -20,16 +16,6 @@ import type {
   RuntimeMajorEventReference,
   RuntimeTradeReference,
 } from '../../../contracts/runtime-data'
-
-interface MajorEventDateOption {
-  dateKey: string
-  label: string
-}
-
-interface MajorEventFilterOption {
-  id: string
-  name: string
-}
 
 interface MajorEventPageItem extends MajorEventListViewItem {
   accessibilityLabel: string
@@ -63,17 +49,8 @@ interface MajorEventPageData {
   activeView: 'matrix' | 'journey'
   horizonHours: 24 | 72 | 168
   nowUnixSeconds: number
-  selectedDateKey: string
-  dateOptions: MajorEventDateOption[]
   segmentIndex: number
   segmentCount: number
-  selectedZoneId: string | null
-  selectedEventTypeId: string | null
-  openFilterMenu: 'zone' | 'eventType' | null
-  zoneFilterLabel: string
-  eventFilterLabel: string
-  zoneOptions: MajorEventFilterOption[]
-  eventTypeOptions: MajorEventFilterOption[]
   eventItems: MajorEventPageItem[]
   matrix: MajorEventPageMatrix | null
   journey: MajorEventPageJourney[]
@@ -83,9 +60,6 @@ interface MajorEventPageData {
   emptyMessage: string | null
   pageError: string | null
   detailEventSnapshot: MajorEventPageItem | null
-  nextOccurrenceResult: MajorEventPageItem | null
-  nextOccurrenceSearched: boolean
-  nextOccurrenceMessage: string | null
   failedRegionIconIds: string[]
   failedCategoryIconIds: string[]
 }
@@ -103,14 +77,10 @@ interface MajorEventPageConfig {
   onPullDownRefresh(): Promise<void>
   onHorizonTap(event: WechatMiniprogram.BaseEvent): void
   onViewTap(event: WechatMiniprogram.BaseEvent): void
-  onDateTap(event: WechatMiniprogram.BaseEvent): void
   onSegmentTap(event: WechatMiniprogram.BaseEvent): void
-  onAreaFilterTap(event: WechatMiniprogram.BaseEvent): void
-  onEventFilterTap(event: WechatMiniprogram.BaseEvent): void
   onEventTap(event: WechatMiniprogram.BaseEvent): void
   onCloseDetail(): void
   onDetailSheetTap(): void
-  onNextOccurrenceTap(): void
   onRegionIconError(event: WechatMiniprogram.BaseEvent): void
   onCategoryIconError(event: WechatMiniprogram.BaseEvent): void
 }
@@ -124,7 +94,7 @@ interface MajorEventPageContext extends MajorEventPageController {
 const SLOTS_PER_MATRIX_SEGMENT = 7
 const SECONDS_PER_HOUR = 3600
 const ERROR_MESSAGE = '大流行資料暫時無法載入，請更新小程序後再試'
-const EMPTY_HORIZON_MESSAGE = '所選範圍內沒有符合條件的大流行預測'
+const EMPTY_HORIZON_MESSAGE = '所選範圍內沒有大流行日程'
 
 const getEventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unknown> => {
   const dataset = (event as { currentTarget?: { dataset?: unknown } } | undefined)?.currentTarget
@@ -132,26 +102,6 @@ const getEventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unk
   return dataset !== null && typeof dataset === 'object' && !Array.isArray(dataset)
     ? (dataset as Record<string, unknown>)
     : {}
-}
-
-const buildGameDateOptions = (
-  nowUnixSeconds: number,
-  horizonHours: number,
-): MajorEventDateOption[] => {
-  const endUnixSeconds = nowUnixSeconds + horizonHours * 3600
-  const dates: MajorEventDateOption[] = []
-  let dateKey = gameDateKey(nowUnixSeconds)
-  let bounds = gameDateBounds(dateKey)
-
-  while (bounds !== null && bounds.start < endUnixSeconds) {
-    if (bounds.end > nowUnixSeconds) {
-      dates.push({ dateKey, label: dateKey.replace(/-/g, '/') })
-    }
-    dateKey = gameDateKey(bounds.end)
-    bounds = gameDateBounds(dateKey)
-  }
-
-  return dates
 }
 
 const totalMatrixSlotCount = (nowUnixSeconds: number, horizonHours: number): number =>
@@ -162,26 +112,6 @@ const totalMatrixSlotCount = (nowUnixSeconds: number, horizonHours: number): num
 
 const matrixSegmentCount = (nowUnixSeconds: number, horizonHours: number): number =>
   Math.ceil(totalMatrixSlotCount(nowUnixSeconds, horizonHours) / SLOTS_PER_MATRIX_SEGMENT)
-
-const firstSegmentForGameDate = (
-  dateKey: string,
-  nowUnixSeconds: number,
-  horizonHours: number,
-): number => {
-  const bounds = gameDateBounds(dateKey)
-  if (bounds === null) return 0
-  const rangeStartUnixSeconds = gameHourStartUnixSeconds(nowUnixSeconds)
-  const totalSlotCount = totalMatrixSlotCount(nowUnixSeconds, horizonHours)
-  const segmentCount = Math.ceil(totalSlotCount / SLOTS_PER_MATRIX_SEGMENT)
-  for (let index = 0; index < segmentCount; index += 1) {
-    const slotOffset = index * SLOTS_PER_MATRIX_SEGMENT
-    const slotCount = Math.min(SLOTS_PER_MATRIX_SEGMENT, totalSlotCount - slotOffset)
-    const start = rangeStartUnixSeconds + slotOffset * SECONDS_PER_HOUR
-    const end = start + slotCount * SECONDS_PER_HOUR
-    if (start < bounds.end && end > bounds.start) return index
-  }
-  return 0
-}
 
 const validateMajorEventReference = (value: unknown): RuntimeMajorEventReference => {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -294,17 +224,12 @@ const copyEventSnapshot = (item: MajorEventPageItem): MajorEventPageItem => ({
 const pageMatrix = (
   matrix: MajorEventMatrixView,
   reference: RuntimeMajorEventReference,
-  selectedZoneId: string | null,
   failedRegionIds: ReadonlySet<string>,
   failedCategoryIds: ReadonlySet<string>,
 ): MajorEventPageMatrix => ({
   ...matrix,
   rows: matrix.rows
-    .filter(
-      (row) =>
-        (selectedZoneId === null || selectedZoneId === row.zoneId) &&
-        row.slots.some((slot) => slot.events.length > 0),
-    )
+    .filter((row) => row.slots.some((slot) => slot.events.length > 0))
     .map((row) => ({
       ...row,
       iconFailed: failedRegionIds.has(row.zoneId),
@@ -333,22 +258,6 @@ const pageJourney = (
     })),
   }))
 
-const emptyHorizonMessage = (
-  horizonHours: number,
-  zoneId: string | null,
-  eventTypeId: string | null,
-  reference: RuntimeMajorEventReference,
-): string => {
-  const zoneName = reference.zones.find((zone) => zone.id === zoneId)?.name
-  const eventTypeName = reference.eventTypes.find((event) => event.id === eventTypeId)?.name
-  if (zoneId !== null && eventTypeId !== null) {
-    return `未來 ${horizonHours} 小時內，${zoneName ?? zoneId}沒有${eventTypeName ?? eventTypeId}預測`
-  }
-  if (zoneId !== null) return `未來 ${horizonHours} 小時內，${zoneName ?? zoneId}海域沒有大流行預測`
-  if (eventTypeName) return `未來 ${horizonHours} 小時內，沒有符合「${eventTypeName}」的預測`
-  return EMPTY_HORIZON_MESSAGE
-}
-
 const refreshPage = (
   page: MajorEventPageContext,
   nowUnixSeconds = Math.floor(Date.now() / 1000),
@@ -368,26 +277,19 @@ const refreshPage = (
 
   try {
     const now = Math.floor(nowUnixSeconds)
-    const dates = buildGameDateOptions(now, page.data.horizonHours)
-    const dateStillAvailable = dates.some((date) => date.dateKey === page.data.selectedDateKey)
-    const selectedDateKey = dateStillAvailable
-      ? page.data.selectedDateKey
-      : (dates[0]?.dateKey ?? '')
     const totalSlotCount = totalMatrixSlotCount(now, page.data.horizonHours)
     const segmentCount = Math.ceil(totalSlotCount / SLOTS_PER_MATRIX_SEGMENT)
-    const segmentIndex = dateStillAvailable
-      ? Math.min(Math.max(page.data.segmentIndex, 0), segmentCount - 1)
-      : 0
+    const segmentIndex = Math.min(Math.max(page.data.segmentIndex, 0), segmentCount - 1)
     const occurrences = forecastMajorEvents(reference, {
       nowUnixSeconds: now,
       horizonHours: page.data.horizonHours,
-      zoneId: page.data.selectedZoneId,
-      eventTypeId: page.data.selectedEventTypeId,
+      zoneId: null,
+      eventTypeId: null,
     })
     const ongoingOccurrences = forecastOngoingMajorEvents(reference, {
       nowUnixSeconds: now,
-      zoneId: page.data.selectedZoneId,
-      eventTypeId: page.data.selectedEventTypeId,
+      zoneId: null,
+      eventTypeId: null,
     })
     const failedCategories = new Set(page.data.failedCategoryIconIds)
     const failedRegions = new Set(page.data.failedRegionIconIds)
@@ -406,7 +308,6 @@ const refreshPage = (
         rangeStartUnixSeconds,
       ),
       reference,
-      page.data.selectedZoneId,
       failedRegions,
       failedCategories,
     )
@@ -431,12 +332,10 @@ const refreshPage = (
     const ongoingVisibleCount = matrix.rows
       .flatMap((row) => row.slots.flatMap((slot) => slot.events))
       .filter((event) => event.isOngoingCandidate).length
-    const summaryLabel = `未來 ${page.data.horizonHours} 小時 · ${occurrences.length} 筆預測 · ${zoneCount}/${reference.zones.length} 海域`
+    const summaryLabel = `未來 ${page.data.horizonHours} 小時 · ${occurrences.length} 項日程 · ${zoneCount}/${reference.zones.length} 個海域`
 
     page.setData({
       nowUnixSeconds: now,
-      dateOptions: dates,
-      selectedDateKey,
       segmentIndex,
       segmentCount,
       eventItems,
@@ -445,29 +344,8 @@ const refreshPage = (
       summaryLabel,
       ongoingVisibleCount,
       sourceVerifiedLabel: reference.sourceVerifiedOn.replace(/-/g, '/'),
-      emptyMessage:
-        occurrences.length === 0
-          ? emptyHorizonMessage(
-              page.data.horizonHours,
-              page.data.selectedZoneId,
-              page.data.selectedEventTypeId,
-              reference,
-            )
-          : null,
+      emptyMessage: occurrences.length === 0 ? EMPTY_HORIZON_MESSAGE : null,
       pageError: null,
-      zoneOptions: [
-        { id: '', name: '全部海域' },
-        ...reference.zones.map((zone) => ({ id: zone.id, name: zone.name })),
-      ],
-      eventTypeOptions: [
-        { id: '', name: '全部類型' },
-        ...reference.eventTypes.map((event) => ({ id: event.id, name: event.name })),
-      ],
-      zoneFilterLabel:
-        reference.zones.find((zone) => zone.id === page.data.selectedZoneId)?.name ?? '全部海域',
-      eventFilterLabel:
-        reference.eventTypes.find((event) => event.id === page.data.selectedEventTypeId)?.name ??
-        '全部類型',
     })
   } catch {
     page.setData({
@@ -532,8 +410,6 @@ const updateIconFallbacks = (page: MajorEventPageContext): void => {
     eventItems: page.data.eventItems.map(replaceItem),
     detailEventSnapshot:
       page.data.detailEventSnapshot === null ? null : replaceItem(page.data.detailEventSnapshot),
-    nextOccurrenceResult:
-      page.data.nextOccurrenceResult === null ? null : replaceItem(page.data.nextOccurrenceResult),
   })
 }
 
@@ -542,17 +418,8 @@ Page({
     activeView: 'matrix',
     horizonHours: 72,
     nowUnixSeconds: 0,
-    selectedDateKey: '',
-    dateOptions: [],
     segmentIndex: 0,
     segmentCount: 11,
-    selectedZoneId: null,
-    selectedEventTypeId: null,
-    openFilterMenu: null,
-    zoneFilterLabel: '全部海域',
-    eventFilterLabel: '全部類型',
-    zoneOptions: [],
-    eventTypeOptions: [],
     eventItems: [],
     matrix: null,
     journey: [],
@@ -562,9 +429,6 @@ Page({
     emptyMessage: null,
     pageError: null,
     detailEventSnapshot: null,
-    nextOccurrenceResult: null,
-    nextOccurrenceSearched: false,
-    nextOccurrenceMessage: null,
     failedRegionIconIds: [],
     failedCategoryIconIds: [],
   } as MajorEventPageData,
@@ -577,7 +441,7 @@ Page({
     try {
       page.majorEventReference = validateMajorEventReference(getMajorEventReference())
       page.tradeReference = validateTradeReference(getTradeReference())
-      wx.setNavigationBarTitle({ title: '大流行預測' })
+      wx.setNavigationBarTitle({ title: '大流行時刻表' })
       refreshPage(page)
     } catch {
       page.setData({
@@ -619,11 +483,6 @@ Page({
       horizonHours,
       segmentCount: matrixSegmentCount(page.data.nowUnixSeconds, horizonHours),
       segmentIndex: 0,
-      selectedDateKey: '',
-      nextOccurrenceSearched: false,
-      nextOccurrenceResult: null,
-      nextOccurrenceMessage: null,
-      openFilterMenu: null,
     })
     refreshPage(page)
   },
@@ -632,28 +491,8 @@ Page({
     const view = getEventDataset(event).view
     if (view === 'matrix' || view === 'journey') {
       const page = this as unknown as MajorEventPageContext
-      page.setData({ activeView: view, openFilterMenu: null })
+      page.setData({ activeView: view })
     }
-  },
-
-  onDateTap(event: WechatMiniprogram.BaseEvent) {
-    const page = this as unknown as MajorEventPageContext
-    const dateKey = getEventDataset(event).dateKey
-    if (
-      typeof dateKey !== 'string' ||
-      !page.data.dateOptions.some((date) => date.dateKey === dateKey)
-    ) {
-      return
-    }
-    page.setData({
-      selectedDateKey: dateKey,
-      segmentIndex: firstSegmentForGameDate(
-        dateKey,
-        page.data.nowUnixSeconds,
-        page.data.horizonHours,
-      ),
-    })
-    refreshPage(page, page.data.nowUnixSeconds)
   },
 
   onSegmentTap(event: WechatMiniprogram.BaseEvent) {
@@ -668,53 +507,11 @@ Page({
     refreshPage(page, page.data.nowUnixSeconds)
   },
 
-  onAreaFilterTap(event: WechatMiniprogram.BaseEvent) {
-    const page = this as unknown as MajorEventPageContext
-    const dataset = getEventDataset(event)
-    if (typeof dataset.zoneId !== 'string') {
-      page.setData({
-        openFilterMenu: page.data.openFilterMenu === 'zone' ? null : 'zone',
-      })
-      return
-    }
-    const zoneId = dataset.zoneId === '' ? null : dataset.zoneId
-    page.setData({
-      selectedZoneId: zoneId,
-      openFilterMenu: null,
-      nextOccurrenceSearched: false,
-      nextOccurrenceResult: null,
-      nextOccurrenceMessage: null,
-    })
-    refreshPage(page)
-  },
-
-  onEventFilterTap(event: WechatMiniprogram.BaseEvent) {
-    const page = this as unknown as MajorEventPageContext
-    const dataset = getEventDataset(event)
-    if (typeof dataset.eventTypeId !== 'string') {
-      page.setData({
-        openFilterMenu: page.data.openFilterMenu === 'eventType' ? null : 'eventType',
-      })
-      return
-    }
-    const eventTypeId = dataset.eventTypeId === '' ? null : dataset.eventTypeId
-    page.setData({
-      selectedEventTypeId: eventTypeId,
-      openFilterMenu: null,
-      nextOccurrenceSearched: false,
-      nextOccurrenceResult: null,
-      nextOccurrenceMessage: null,
-    })
-    refreshPage(page)
-  },
-
   onEventTap(event: WechatMiniprogram.BaseEvent) {
     const page = this as unknown as MajorEventPageContext
     const eventKey = getEventDataset(event).eventKey
     if (typeof eventKey !== 'string') return
-    const selected =
-      page.data.eventItems.find((item) => item.key === eventKey) ??
-      (page.data.nextOccurrenceResult?.key === eventKey ? page.data.nextOccurrenceResult : null)
+    const selected = page.data.eventItems.find((item) => item.key === eventKey)
     if (selected === null || selected === undefined) return
     page.setData({
       detailEventSnapshot: copyEventSnapshot(selected),
@@ -729,49 +526,6 @@ Page({
   },
 
   onDetailSheetTap() {},
-
-  onNextOccurrenceTap() {
-    const page = this as unknown as MajorEventPageContext
-    if (
-      page.majorEventReference === null ||
-      page.tradeReference === null ||
-      page.data.selectedZoneId === null ||
-      page.data.selectedEventTypeId === null
-    ) {
-      page.setData({
-        nextOccurrenceSearched: false,
-        nextOccurrenceResult: null,
-        nextOccurrenceMessage: null,
-      })
-      return
-    }
-    try {
-      const occurrence = findNextMajorEvent(page.majorEventReference, {
-        nowUnixSeconds: page.data.nowUnixSeconds,
-        zoneId: page.data.selectedZoneId,
-        eventTypeId: page.data.selectedEventTypeId,
-      })
-      page.setData({
-        nextOccurrenceResult:
-          occurrence === null
-            ? null
-            : pageItem(
-                presentMajorEvent(occurrence, page.tradeReference),
-                page.majorEventReference,
-                new Set(page.data.failedRegionIconIds),
-                new Set(page.data.failedCategoryIconIds),
-              ),
-        nextOccurrenceSearched: true,
-        nextOccurrenceMessage: occurrence === null ? '約 16 天內沒有符合條件的預測' : null,
-      })
-    } catch {
-      page.setData({
-        pageError: ERROR_MESSAGE,
-        nextOccurrenceResult: null,
-        nextOccurrenceSearched: false,
-      })
-    }
-  },
 
   onRegionIconError(event: WechatMiniprogram.BaseEvent) {
     const page = this as unknown as MajorEventPageContext

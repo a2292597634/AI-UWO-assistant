@@ -15,7 +15,7 @@
       aria-hidden="true"
     />
     <text class="major-events-header__brand">航海資料館</text>
-    <text class="major-events-header__title ui-display-title">大流行預測</text>
+    <text class="major-events-header__title ui-display-title">大流行時刻表</text>
     <text class="major-events-header__subtitle">海域時刻與貿易品類情報</text>
   </view>
 
@@ -30,31 +30,31 @@
     >{{ongoingVisibleCount}} 筆可能進行（僅目前時段）</text>
     <text class="major-events-summary__updated">來源核對日期：{{sourceVerifiedLabel}}</text>
 
-    <view class="major-events-range" aria-label="預測範圍">
+    <view class="major-events-range" aria-label="時刻表範圍">
       <view
         class="major-events-range__option major-events-range__option--one-day {{horizonHours === 24 ? 'major-events-range__option--active' : ''}}"
         bindtap="onHorizonTap"
         data-horizon-hours="24"
         role="button"
-        aria-label="查看未來 24 小時"
+        aria-label="查看未來 24 小時日程"
       >24 小時</view>
       <view
         class="major-events-range__option {{horizonHours === 72 ? 'major-events-range__option--active' : ''}}"
         bindtap="onHorizonTap"
         data-horizon-hours="72"
         role="button"
-        aria-label="查看未來 3 天"
+        aria-label="查看未來 3 天日程"
       >3 天</view>
       <view
         class="major-events-range__option major-events-range__option--seven-day {{horizonHours === 168 ? 'major-events-range__option--active' : ''}}"
         bindtap="onHorizonTap"
         data-horizon-hours="168"
         role="button"
-        aria-label="查看未來 7 天"
+        aria-label="查看未來 7 天日程"
       >7 天</view>
     </view>
 
-    <view class="major-events-view-switch" aria-label="預測檢視方式">
+    <view class="major-events-view-switch" aria-label="時刻表檢視方式">
       <view
         class="major-events-view-switch__option {{activeView === 'matrix' ? 'major-events-view-switch__option--active' : ''}}"
         bindtap="onViewTap"
@@ -67,27 +67,11 @@
         bindtap="onViewTap"
         data-view="journey"
         role="button"
-        aria-label="行程列表"
-      >行程列表</view>
+        aria-label="日程列表"
+      >日程列表</view>
     </view>
 
     <view wx:if="{{activeView === 'matrix'}}" class="matrix-controls">
-      <scroll-view class="major-events-dates" scroll-x enhanced show-scrollbar="{{false}}">
-        <view class="major-events-dates__list">
-          <view
-            wx:for="{{dateOptions}}"
-            wx:key="dateKey"
-            wx:for-item="dateOption"
-            wx:for-index="dateIndex"
-            class="major-events-dates__chip major-events-dates__chip--day-{{dateIndex}} {{dateOption.dateKey === selectedDateKey ? 'major-events-dates__chip--active' : ''}}"
-            bindtap="onDateTap"
-            data-date-key="{{dateOption.dateKey}}"
-            role="button"
-            aria-label="跳到 {{dateOption.label}} 的預測時段"
-          >{{dateOption.label}}</view>
-        </view>
-      </scroll-view>
-
       <view class="matrix-segment-control">
         <view
           class="matrix-segment-control__arrow matrix-segment-control__arrow--previous {{segmentIndex === 0 ? 'matrix-segment-control__arrow--disabled' : ''}}"
@@ -110,92 +94,6 @@
       <text wx:if="{{matrix}}" class="matrix-segment-control__time-range">{{matrix.segmentStartLabel}} — {{matrix.segmentEndLabel}}</text>
     </view>
 
-    <view class="major-events-filters">
-      <view
-        class="major-events-filter major-events-filter--zone"
-        bindtap="onAreaFilterTap"
-        role="button"
-        aria-expanded="{{openFilterMenu === 'zone'}}"
-        aria-label="海域篩選：{{zoneFilterLabel}}"
-      >
-        <text class="major-events-filter__caption">海域</text>
-        <text class="major-events-filter__value">{{zoneFilterLabel}}</text>
-        <text class="major-events-filter__chevron" aria-hidden="true">⌄</text>
-      </view>
-      <view
-        class="major-events-filter major-events-filter--event-type"
-        bindtap="onEventFilterTap"
-        role="button"
-        aria-expanded="{{openFilterMenu === 'eventType'}}"
-        aria-label="事件類型篩選：{{eventFilterLabel}}"
-      >
-        <text class="major-events-filter__caption">事件類型</text>
-        <text class="major-events-filter__value">{{eventFilterLabel}}</text>
-        <text class="major-events-filter__chevron" aria-hidden="true">⌄</text>
-      </view>
-    </view>
-
-    <scroll-view
-      wx:if="{{openFilterMenu === 'zone'}}"
-      class="major-events-filter-menu major-events-filter-menu--zone"
-      scroll-y
-      enhanced
-      show-scrollbar="{{false}}"
-      role="listbox"
-      aria-label="選擇海域"
-    >
-      <view
-        wx:for="{{zoneOptions}}"
-        wx:key="id"
-        wx:for-item="filterOption"
-        class="major-events-filter-menu__option major-events-filter-menu__option--zone-{{filterOption.id}} {{filterOption.id === (selectedZoneId || '') ? 'major-events-filter-menu__option--active' : ''}}"
-        bindtap="onAreaFilterTap"
-        data-zone-id="{{filterOption.id}}"
-        role="option"
-        aria-selected="{{filterOption.id === (selectedZoneId || '')}}"
-      >{{filterOption.name}}</view>
-    </scroll-view>
-    <scroll-view
-      wx:if="{{openFilterMenu === 'eventType'}}"
-      class="major-events-filter-menu major-events-filter-menu--event-type"
-      scroll-y
-      enhanced
-      show-scrollbar="{{false}}"
-      role="listbox"
-      aria-label="選擇事件類型"
-    >
-      <view
-        wx:for="{{eventTypeOptions}}"
-        wx:key="id"
-        wx:for-item="filterOption"
-        class="major-events-filter-menu__option major-events-filter-menu__option--event-type-{{filterOption.id}} {{filterOption.id === (selectedEventTypeId || '') ? 'major-events-filter-menu__option--active' : ''}}"
-        bindtap="onEventFilterTap"
-        data-event-type-id="{{filterOption.id}}"
-        role="option"
-        aria-selected="{{filterOption.id === (selectedEventTypeId || '')}}"
-      >{{filterOption.name}}</view>
-    </scroll-view>
-
-    <button
-      class="ui-button ui-button--secondary major-events-next-button"
-      disabled="{{!selectedZoneId || !selectedEventTypeId}}"
-      bindtap="onNextOccurrenceTap"
-    >查下一次（約 16 天內）</button>
-
-    <view wx:if="{{nextOccurrenceSearched}}" class="major-events-next-result">
-      <view wx:if="{{nextOccurrenceResult}}" class="major-events-next-result__match">
-        <text class="major-events-next-result__label">下一次預測</text>
-        <view
-          class="major-events-next-result__event"
-          bindtap="onEventTap"
-          data-event-key="{{nextOccurrenceResult.key}}"
-          role="button"
-          aria-label="{{nextOccurrenceResult.accessibilityLabel}}"
-        >{{nextOccurrenceResult.dateLabel}} {{nextOccurrenceResult.timeLabel}} · {{nextOccurrenceResult.zoneName}} · {{nextOccurrenceResult.eventTypeName}}</view>
-      </view>
-      <text wx:else class="major-events-next-result__empty">{{nextOccurrenceMessage}}</text>
-    </view>
-
     <view wx:if="{{pageError}}" class="major-events-error" role="alert">
       <text class="major-events-error__title">資料暫時無法載入</text>
       <text class="major-events-error__message">{{pageError}}</text>
@@ -204,7 +102,7 @@
     <view wx:if="{{!pageError && activeView === 'matrix' && matrix}}" class="matrix-section">
       <view class="matrix-section__heading">
         <text class="matrix-section__title">海域時刻矩陣</text>
-        <text class="matrix-section__hint">每格為一小時預測</text>
+        <text class="matrix-section__hint">每格代表一小時</text>
       </view>
       <view class="matrix-frame">
         <image
@@ -225,7 +123,7 @@
               >{{headerSlot.timeLabel}}</view>
             </view>
             <view wx:if="{{matrix.rows.length === 0}}" class="matrix__empty-state" role="status">
-              此七個時段暫無預測
+              此七個時段沒有大流行日程
             </view>
             <view
               wx:for="{{matrix.rows}}"
@@ -281,12 +179,12 @@
           </view>
         </scroll-view>
       </view>
-      <text class="matrix-section__note">時刻表為週期預測；目前時段可含「可能進行」候選；城鎮活動或預算會使實際狀態不同；同時最多兩種，預算耗盡或滿兩小時即結束。</text>
+      <text class="matrix-section__note">本時刻表依遊戲週期排列；目前時段可能仍在進行。城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。</text>
     </view>
 
     <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">
       <view class="matrix-section__heading">
-        <text class="matrix-section__title">大流行情程</text>
+        <text class="matrix-section__title">大流行日程</text>
         <text class="matrix-section__hint">依東八區日期排序</text>
       </view>
       <view wx:if="{{emptyMessage}}" class="major-events-empty">{{emptyMessage}}</view>
@@ -403,7 +301,7 @@
       <view class="major-event-detail__handle" aria-hidden="true"></view>
       <view class="major-event-detail__heading">
         <view>
-          <text class="major-event-detail__eyebrow">預測事件詳情</text>
+          <text class="major-event-detail__eyebrow">大流行詳情</text>
           <text
             class="major-event-detail__title"
             style="color: var({{detailEventSnapshot.eventColorToken}})"
@@ -412,7 +310,7 @@
         <button class="ui-button ui-button--secondary major-event-detail__close" bindtap="onCloseDetail" aria-label="關閉事件詳情">關閉</button>
       </view>
       <view class="major-event-detail__time-block">
-        <text class="major-event-detail__section-label">預測時間</text>
+        <text class="major-event-detail__section-label">發生時刻</text>
         <text class="major-event-detail__date-time">{{detailEventSnapshot.dateLabel}} {{detailEventSnapshot.timeLabel}} {{detailEventSnapshot.minuteLabel}}</text>
         <text class="major-event-detail__zone">{{detailEventSnapshot.zoneName}}</text>
       </view>
@@ -446,7 +344,7 @@
         </view>
       </view>
       <text wx:if="{{detailEventSnapshot.isOngoingCandidate}}" class="major-event-detail__note">此事件依兩小時上限推算可能仍在進行；實際狀態受事件預算和城鎮活動影響。</text>
-      <text wx:else class="major-event-detail__note">本頁預測觸發時刻，不預測持續時間。</text>
+      <text wx:else class="major-event-detail__note">時刻依遊戲週期；城鎮活動或事件預算可能影響實際狀態。</text>
     </view>
   </view>
 </view>

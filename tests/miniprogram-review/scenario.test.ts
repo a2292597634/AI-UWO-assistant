@@ -15,7 +15,7 @@ afterEach(() => {
 })
 
 describe('小程序验收场景', () => {
-  it('covers the major-event matrix, journey, filters, detail, and next match', () => {
+  it('covers the major-event schedule matrix, journey, detail, and simplified controls', () => {
     const majorEvent = loadScenario(
       resolve('tools/miniprogram-review/scenarios/major-event-forecast.json'),
     )
@@ -38,6 +38,10 @@ describe('小程序验收场景', () => {
     expect(selectors).toEqual(
       expect.arrayContaining([
         '.major-events-page',
+        '.major-events-header__title',
+        '.major-events-dates',
+        '.major-events-filters',
+        '.major-events-next-button',
         '.major-events-summary__timezone',
         '.matrix__slot-head',
         '.matrix__slot-head--current',
@@ -46,18 +50,25 @@ describe('小程序验收场景', () => {
         '.matrix__event-target',
         '.matrix__event-tag',
         '.major-events-range__option--seven-day',
-        '.major-events-dates__chip--day-1',
         '.matrix-segment-control__arrow--next',
         '.major-events-view-switch__option--journey',
         '.journey__event',
         '.major-event-detail',
-        '.major-events-filter--zone',
-        '.major-events-filter-menu__option--zone-zone_37',
-        '.major-events-filter--event-type',
-        '.major-events-filter-menu__option--event-type-pop1',
-        '.major-events-next-result',
       ]),
     )
+    expect(majorEvent.name).toBe('大流行時刻表矩陣')
+    expect(majorEvent.steps).toContainEqual({
+      action: 'assertText',
+      selector: '.major-events-header__title',
+      contains: '大流行時刻表',
+    })
+    for (const selector of [
+      '.major-events-dates',
+      '.major-events-filters',
+      '.major-events-next-button',
+    ]) {
+      expect(majorEvent.steps).toContainEqual({ action: 'assertExists', selector, exists: false })
+    }
     expect(majorEvent.steps).toContainEqual({
       action: 'assertExists',
       selector: '.matrix__slot-head--current',
@@ -71,7 +82,7 @@ describe('小程序验收场景', () => {
     expect(majorEvent.steps).toContainEqual({
       action: 'assertText',
       selector: '.matrix-section__note',
-      contains: '週期預測',
+      contains: '遊戲週期',
     })
     expect(majorEvent.steps).toContainEqual({
       action: 'tap',
@@ -86,36 +97,9 @@ describe('小程序验收场景', () => {
         'major-event-matrix-selected-row',
         'major-event-journey',
         'major-event-detail',
-        'major-event-next-match',
       ]),
     )
     expect(majorEvent.steps.every((step) => step.action !== 'input')).toBe(true)
-  })
-
-  it('shows a filtered empty forecast state in the major-event scenario set', () => {
-    const empty = loadScenario(
-      resolve('tools/miniprogram-review/scenarios/major-event-filter-empty.json'),
-    )
-    const selectors = empty.steps.flatMap((step) => ('selector' in step ? [step.selector] : []))
-    const screenshots = empty.steps.flatMap((step) =>
-      step.action === 'screenshot' ? [step.name] : [],
-    )
-
-    expect(empty.state).toBe('empty')
-    expect(selectors).toEqual(
-      expect.arrayContaining([
-        '.major-events-range__option--one-day',
-        '.major-events-filter--zone',
-        '.major-events-filter-menu__option--zone-zone_57',
-        '.major-events-filter--event-type',
-        '.major-events-filter-menu__option--event-type-pop2',
-      ]),
-    )
-    expect(empty.steps).toContainEqual({
-      action: 'waitFor',
-      durationMs: 500,
-    })
-    expect(screenshots).toContain('major-event-filter-empty')
   })
 
   it('shows the sixth homepage entrance and watches its local icon', () => {
@@ -127,7 +111,7 @@ describe('小程序验收场景', () => {
     expect(steps).toContainEqual({
       action: 'assertText',
       selector: '.module-grid',
-      contains: '大流行預測',
+      contains: '大流行時刻表',
     })
   })
 

@@ -114,7 +114,7 @@ describe('首頁功能入口', () => {
     })
     expect(homePage.data.modules[4]).toMatchObject({
       id: 'major-events',
-      name: '大流行預測',
+      name: '大流行時刻表',
       iconPath: '/assets/ui/feature-major-events.png',
       iconFailed: false,
       route: '/subpkg-trade/pages/popularity/index',
@@ -142,7 +142,7 @@ describe('首頁功能入口', () => {
 
     expect(page.data.modules[4]).toMatchObject({
       id: 'major-events',
-      name: '大流行預測',
+      name: '大流行時刻表',
       iconFailed: true,
     })
     page.onModuleTap({

@@ -39,7 +39,7 @@ describe('major-event feature integration contract', () => {
     const homeWxml = readFileSync('miniprogram/pages/home/index.wxml', 'utf8')
 
     expect(homeSource).toContain("id: 'major-events'")
-    expect(homeSource).toContain("name: '大流行預測'")
+    expect(homeSource).toContain("name: '大流行時刻表'")
     expect(homeSource).toContain("route: '/subpkg-trade/pages/popularity/index'")
     expect(homeWxml).toContain('index < 6')
     expect(homeWxml).toContain('module-grid__icon-fallback')

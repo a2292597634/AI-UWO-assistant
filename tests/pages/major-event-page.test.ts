@@ -21,28 +21,15 @@ vi.mock('../../miniprogram/subpkg-trade/runtime/trade-data-store', () => ({
   getTradeReference: storeMocks.getTradeReference,
 }))
 
-interface MajorEventDateOption {
-  dateKey: string
-  label: string
-}
-
 interface MajorEventPageState {
   activeView: 'matrix' | 'journey'
   horizonHours: 24 | 72 | 168
   nowUnixSeconds: number
-  selectedDateKey: string
-  dateOptions: MajorEventDateOption[]
   segmentIndex: number
   segmentCount: number
-  selectedZoneId: string | null
-  selectedEventTypeId: string | null
-  openFilterMenu: 'zone' | 'eventType' | null
   eventItems: MajorEventListViewItem[]
   pageError: string | null
   detailEventSnapshot: MajorEventListViewItem | null
-  nextOccurrenceResult: MajorEventListViewItem | null
-  nextOccurrenceSearched: boolean
-  nextOccurrenceMessage: string | null
   failedRegionIconIds: string[]
   failedCategoryIconIds: string[]
   emptyMessage: string | null
@@ -89,13 +76,9 @@ interface MajorEventPageConfig {
   onPullDownRefresh(): Promise<void>
   onHorizonTap(event: WechatMiniprogram.BaseEvent): void
   onViewTap(event: WechatMiniprogram.BaseEvent): void
-  onDateTap(event: WechatMiniprogram.BaseEvent): void
   onSegmentTap(event: WechatMiniprogram.BaseEvent): void
-  onAreaFilterTap(event: WechatMiniprogram.BaseEvent): void
-  onEventFilterTap(event: WechatMiniprogram.BaseEvent): void
   onEventTap(event: WechatMiniprogram.BaseEvent): void
   onCloseDetail(): void
-  onNextOccurrenceTap(): void
   onRegionIconError(event: WechatMiniprogram.BaseEvent): void
   onCategoryIconError(event: WechatMiniprogram.BaseEvent): void
 }
@@ -148,7 +131,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('大流行預測頁控制器', () => {
+describe('大流行時刻表頁控制器', () => {
   it('loads local references and starts with the three-day matrix', () => {
     const page = createPageInstance()
 
@@ -159,27 +142,14 @@ describe('大流行預測頁控制器', () => {
     expect(page.data.segmentCount).toBe(11)
     expect(page.data.nowUnixSeconds).toBe(Math.floor(Date.now() / 1000))
     expect(page.data.eventItems.length).toBeGreaterThan(0)
+    expect(new Set(page.data.eventItems.map((event) => event.zoneId)).size).toBeGreaterThan(1)
+    expect(new Set(page.data.eventItems.map((event) => event.eventTypeId)).size).toBeGreaterThan(1)
     expect(page.data.pageError).toBeNull()
     expect(page.data.summaryLabel).toContain('未來 72 小時')
+    expect(page.data.summaryLabel).toContain('項日程')
+    expect(page.data.summaryLabel).not.toContain('預測')
     expect(page.data.sourceVerifiedLabel).toBe('2026/09/24')
-    expect(wxStub.setNavigationBarTitle).toHaveBeenCalledWith({ title: '大流行預測' })
-  })
-
-  it('builds date options in UTC+8 regardless of the device time zone', () => {
-    vi.stubEnv('TZ', 'America/Los_Angeles')
-    try {
-      vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
-      const page = createPageInstance()
-
-      page.onLoad()
-
-      expect(page.data.dateOptions[0]).toEqual({
-        dateKey: '2026-09-25',
-        label: '2026/09/25',
-      })
-    } finally {
-      vi.unstubAllEnvs()
-    }
+    expect(wxStub.setNavigationBarTitle).toHaveBeenCalledWith({ title: '大流行時刻表' })
   })
 
   it.each([
@@ -230,7 +200,7 @@ describe('大流行預測頁控制器', () => {
     page.onHorizonTap(pageEvent({ horizonHours: '24' }))
     expect(page.data.horizonHours).toBe(24)
     expect(page.data.segmentCount).toBe(4)
-    expect(page.data.dateOptions.length).toBeGreaterThanOrEqual(1)
+    expect(page.data.segmentIndex).toBe(0)
 
     page.onHorizonTap(pageEvent({ horizonHours: '72' }))
     expect(page.data.segmentCount).toBe(11)
@@ -238,8 +208,22 @@ describe('大流行預測頁控制器', () => {
     page.onHorizonTap(pageEvent({ horizonHours: '168' }))
     expect(page.data.horizonHours).toBe(168)
     expect(page.data.segmentCount).toBe(24)
-    expect(page.data.dateOptions.length).toBeGreaterThanOrEqual(7)
-    expect(page.data.dateOptions.length).toBeLessThanOrEqual(8)
+    expect(page.data.segmentIndex).toBe(0)
+  })
+
+  it('preserves the selected six-hour segment on refresh and resets when changing range', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onHorizonTap(pageEvent({ horizonHours: '168' }))
+    page.onSegmentTap(pageEvent({ delta: '1' }))
+    expect(page.data.segmentIndex).toBe(1)
+
+    page.onShow()
+    expect(page.data.segmentIndex).toBe(1)
+
+    page.onHorizonTap(pageEvent({ horizonHours: '24' }))
+    expect(page.data.segmentIndex).toBe(0)
+    page.onHide()
   })
 
   it('shows seven whole-hour columns from the current UTC+8 hour and only future triggers', () => {
@@ -322,7 +306,7 @@ describe('大流行預測頁控制器', () => {
     })
   })
 
-  it('hides sea regions without current-page events and keeps the hour header when filtered empty', () => {
+  it('hides sea regions without current-segment events and keeps the hour header', () => {
     const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
     vi.setSystemTime(new Date(nowUnixSeconds * 1000))
     const page = createPageInstance()
@@ -331,31 +315,7 @@ describe('大流行預測頁控制器', () => {
     const visibleRows = page.data.matrix?.rows ?? []
     expect(visibleRows.length).toBeGreaterThan(0)
     expect(visibleRows.every((row) => row.slots.some((slot) => slot.events.length > 0))).toBe(true)
-    const emptyZone = reference.zones.find(
-      (zone) => !visibleRows.some((row) => row.zoneId === zone.id),
-    )
-    if (emptyZone === undefined)
-      throw new Error('expected a sea with no event in the visible segment')
-
-    page.onAreaFilterTap(pageEvent({ zoneId: emptyZone.id }))
-
-    expect(page.data.matrix?.rows).toEqual([])
     expect(page.data.matrix?.headerSlots).toHaveLength(7)
-  })
-
-  it('keeps an upcoming-empty state separate when only a possible ongoing event exists', () => {
-    vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
-    const page = createPageInstance()
-    page.onLoad()
-    page.onHorizonTap(pageEvent({ horizonHours: '24' }))
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_34' }))
-    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop5' }))
-
-    expect(
-      page.data.matrix?.rows[0]?.slots[0]?.events.some((event) => event.isOngoingCandidate),
-    ).toBe(true)
-    expect(page.data.journey).toEqual([])
-    expect(page.data.emptyMessage).toContain('未來 24 小時內')
   })
 
   it('clears the possible-ongoing count when a later refresh fails', () => {
@@ -387,88 +347,24 @@ describe('大流行預測頁控制器', () => {
     expect(starts).toEqual(Array.from({ length: 24 }, (_, index) => ANCHOR + index * 3600))
   })
 
-  it('jumps to the first intersecting segment and keeps filters when changing views', () => {
-    vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
+  it('keeps segment navigation and switches views without date or event filters', () => {
     const page = createPageInstance()
     page.onLoad()
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_37' }))
-    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop1' }))
     page.onSegmentTap(pageEvent({ delta: '1' }))
-
-    const targetDate = page.data.dateOptions[2]
-    if (targetDate === undefined) throw new Error('expected at least three local date options')
-    page.onDateTap(pageEvent({ dateKey: targetDate.dateKey }))
-    expect(page.data.selectedDateKey).toBe(targetDate.dateKey)
-    expect(page.data.segmentIndex).toBe(5)
+    expect(page.data.segmentIndex).toBe(1)
 
     page.onViewTap(pageEvent({ view: 'journey' }))
     expect(page.data.activeView).toBe('journey')
-    expect(page.data.selectedZoneId).toBe('zone_37')
-    expect(page.data.selectedEventTypeId).toBe('pop1')
 
     page.onViewTap(pageEvent({ view: 'matrix' }))
     expect(page.data.activeView).toBe('matrix')
-    expect(page.data.selectedZoneId).toBe('zone_37')
-    expect(page.data.selectedEventTypeId).toBe('pop1')
   })
 
-  it('opens app-owned filter menus and applies the selected zone and event type', () => {
+  it('keeps a detail snapshot after a minute refresh and closes the sheet', () => {
     const page = createPageInstance()
     page.onLoad()
-
-    page.onAreaFilterTap(pageEvent())
-    expect(page.data.openFilterMenu).toBe('zone')
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_37' }))
-    expect(page.data.selectedZoneId).toBe('zone_37')
-    expect(page.data.openFilterMenu).toBeNull()
-
-    page.onEventFilterTap(pageEvent())
-    expect(page.data.openFilterMenu).toBe('eventType')
-    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop1' }))
-    expect(page.data.selectedEventTypeId).toBe('pop1')
-    expect(page.data.openFilterMenu).toBeNull()
-  })
-
-  it('shows a next-event result only after both filters are selected', () => {
-    const page = createPageInstance()
-    page.onLoad()
-    page.onNextOccurrenceTap()
-    expect(page.data.nextOccurrenceSearched).toBe(false)
-    expect(page.data.nextOccurrenceResult).toBeNull()
-
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_37' }))
-    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop1' }))
-    page.onNextOccurrenceTap()
-    expect(page.data.nextOccurrenceSearched).toBe(true)
-    expect(page.data.nextOccurrenceResult).not.toBeNull()
-  })
-
-  it('shows a clear no-result message when no matching event occurs within 379 hours', () => {
-    vi.setSystemTime(new Date((ANCHOR + 1) * 1000))
-    const noNext = structuredClone(reference)
-    const event = noNext.eventTypes.find((item) => item.id === 'pop1')
-    if (event === undefined) throw new Error('expected pop1 in runtime reference')
-    event.periodHours = 10000
-    storeMocks.getMajorEventReference.mockReturnValue(noNext)
-    const page = createPageInstance()
-    page.onLoad()
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_37' }))
-    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop1' }))
-
-    page.onNextOccurrenceTap()
-
-    expect(page.data.nextOccurrenceSearched).toBe(true)
-    expect(page.data.nextOccurrenceResult).toBeNull()
-    expect(page.data.nextOccurrenceMessage).toContain('約 16 天')
-  })
-
-  it('keeps a detail snapshot after a minute refresh and closes without losing filters', () => {
-    const page = createPageInstance()
-    page.onLoad()
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_37' }))
-    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop1' }))
     const selected = page.data.eventItems[0]
-    if (selected === undefined) throw new Error('expected a matching event for details')
+    if (selected === undefined) throw new Error('expected a scheduled event for details')
 
     const structuredCloneOriginal = globalThis.structuredClone
     vi.stubGlobal('structuredClone', undefined)
@@ -487,8 +383,7 @@ describe('大流行預測頁控制器', () => {
     expect(page.data.detailEventSnapshot).toEqual(snapshot)
     page.onCloseDetail()
     expect(page.data.detailEventSnapshot).toBeNull()
-    expect(page.data.selectedZoneId).toBe('zone_37')
-    expect(page.data.selectedEventTypeId).toBe('pop1')
+    expect(page.data.segmentIndex).toBe(0)
   })
 
   it('keeps event details independent of device timezone offset badges', () => {
@@ -521,19 +416,9 @@ describe('大流行預測頁控制器', () => {
     expect(page.data.matrix?.rows.find((row) => row.zoneId === item.zoneId)?.iconFailed).toBe(true)
     expect(page.data.eventItems[0]?.categories[0]?.name).toBe(item.categories[0]?.name)
   })
-
-  it('retains filters and reports a deliberate empty state', () => {
-    const page = createPageInstance()
-    page.onLoad()
-    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_999' }))
-
-    expect(page.data.eventItems).toEqual([])
-    expect(page.data.emptyMessage).toContain('海域')
-    expect(page.data.selectedZoneId).toBe('zone_999')
-  })
 })
 
-describe('大流行預測頁 markup contract', () => {
+describe('大流行時刻表頁 markup contract', () => {
   const pageDirectory = resolve('miniprogram/subpkg-trade/pages/popularity')
   const wxml = readFileSync(resolve(pageDirectory, 'index.wxml'), 'utf8')
   const wxss = readFileSync(resolve(pageDirectory, 'index.wxss'), 'utf8')
@@ -543,10 +428,16 @@ describe('大流行預測頁 markup contract', () => {
     expect(wxml).toContain('matrix__slot')
     expect(wxml).toContain('matrix__zone-row')
     expect(wxml).toContain('journey__time-group')
-    expect(wxml).toContain('major-events-filter-menu')
-    expect(wxml).toContain('data-zone-id')
-    expect(wxml).toContain('data-event-type-id')
-    expect(wxml).toContain('aria-expanded')
+    expect(wxml).toContain('大流行時刻表')
+    expect(wxml).not.toContain('預測')
+    expect(wxml).not.toContain('major-events-dates')
+    expect(wxml).not.toContain('major-events-filters')
+    expect(wxml).not.toContain('major-events-filter-menu')
+    expect(wxml).not.toContain('major-events-next-button')
+    expect(wxml).not.toContain('major-events-next-result')
+    expect(wxml).toContain('major-events-range__option--one-day')
+    expect(wxml).toContain('major-events-view-switch__option--journey')
+    expect(wxml).toContain('matrix-segment-control__arrow--next')
     expect(wxml).toContain('data-event-key')
     expect(wxml).toContain('binderror="onRegionIconError"')
     expect(wxml).toContain('binderror="onCategoryIconError"')
@@ -582,10 +473,10 @@ describe('大流行預測頁 markup contract', () => {
     expect(wxml).not.toContain('showDetailUtcOffset')
     expect(wxml).toContain('aria-hidden="true"')
     expect(wxml).toContain(
-      '時刻表為週期預測；目前時段可含「可能進行」候選；城鎮活動或預算會使實際狀態不同；同時最多兩種，預算耗盡或滿兩小時即結束。',
+      '本時刻表依遊戲週期排列；目前時段可能仍在進行。城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。',
     )
     expect(wxml).toContain('實際狀態受事件預算和城鎮活動影響')
-    expect(wxml).toContain('本頁預測觸發時刻，不預測持續時間。')
+    expect(wxml).toContain('時刻依遊戲週期；城鎮活動或事件預算可能影響實際狀態。')
     expect(wxss).toContain('var(--uwo-color-canvas)')
     expect(wxss).toContain('88rpx')
     expect(wxss).toMatch(/\.major-event-tag__status\s*\{[^}]*color:\s*var\(--uwo-color-ink\)/s)

@@ -36,7 +36,7 @@ Page({
       },
       {
         id: 'major-events',
-        name: '大流行預測',
+        name: '大流行時刻表',
         iconPath: '/assets/ui/feature-major-events.png',
         route: '/subpkg-trade/pages/popularity/index',
         iconFailed: false,

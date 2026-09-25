@@ -12,7 +12,7 @@
     {
       "action": "assertText",
       "selector": ".module-grid",
-      "contains": "大流行預測"
+      "contains": "大流行時刻表"
     },
     {
       "action": "screenshot",

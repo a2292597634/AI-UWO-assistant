@@ -1,5 +1,5 @@
 {
-  "name": "大流行預測矩陣",
+  "name": "大流行時刻表矩陣",
   "entry": "/subpkg-trade/pages/popularity/index",
   "watchPaths": [
     "miniprogram/subpkg-trade/pages/popularity/",
@@ -10,6 +10,26 @@
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
     { "action": "waitFor", "selector": ".major-events-page" },
+    {
+      "action": "assertText",
+      "selector": ".major-events-header__title",
+      "contains": "大流行時刻表"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".major-events-dates",
+      "exists": false
+    },
+    {
+      "action": "assertExists",
+      "selector": ".major-events-filters",
+      "exists": false
+    },
+    {
+      "action": "assertExists",
+      "selector": ".major-events-next-button",
+      "exists": false
+    },
     {
       "action": "assertText",
       "selector": ".major-events-summary__timezone",
@@ -29,7 +49,7 @@
     {
       "action": "assertText",
       "selector": ".matrix-section__note",
-      "contains": "週期預測"
+      "contains": "遊戲週期"
     },
     { "action": "screenshot", "name": "major-event-matrix" },
     { "action": "tap", "selector": ".matrix-segment-control__arrow--next" },
@@ -45,7 +65,6 @@
     { "action": "scrollPage", "distance": 600 },
     { "action": "screenshot", "name": "major-event-matrix-selected-row" },
     { "action": "tap", "selector": ".major-events-range__option--seven-day" },
-    { "action": "tap", "selector": ".major-events-dates__chip--day-1" },
     { "action": "tap", "selector": ".matrix-segment-control__arrow--next" },
     { "action": "tap", "selector": ".major-events-view-switch__option--journey" },
     { "action": "waitFor", "selector": ".journey__event", "timeoutMs": 5000 },
@@ -53,14 +72,6 @@
     { "action": "tap", "selector": ".journey__event" },
     { "action": "waitFor", "selector": ".major-event-detail", "timeoutMs": 5000 },
     { "action": "screenshot", "name": "major-event-detail" },
-    { "action": "tap", "selector": ".major-event-detail__close" },
-    { "action": "scrollPage", "distance": -100000 },
-    { "action": "tap", "selector": ".major-events-filter--zone" },
-    { "action": "tap", "selector": ".major-events-filter-menu__option--zone-zone_37" },
-    { "action": "tap", "selector": ".major-events-filter--event-type" },
-    { "action": "tap", "selector": ".major-events-filter-menu__option--event-type-pop1" },
-    { "action": "tap", "selector": ".major-events-next-button" },
-    { "action": "waitFor", "selector": ".major-events-next-result", "timeoutMs": 5000 },
-    { "action": "screenshot", "name": "major-event-next-match" }
+    { "action": "tap", "selector": ".major-event-detail__close" }
   ]
 }
