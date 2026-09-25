@@ -54,6 +54,10 @@ Design Foundation 不能只依賴 Agent 主動搜尋 `docs/`。P3 必須在根�
 | `success` | `--uwo-color-success` | `#596257` | 已達成、已保存 |
 | `warning` | `--uwo-color-warning` | `#7A541C` | 未達成、需復核 |
 | `danger` | `--uwo-color-danger` | `#8B3A3A` | 錯誤、刪除與全局排除 |
+| `event-brass` | `--uwo-color-event-brass` | `#85661F` | 大流行事件分類籤：贊助、節慶 |
+| `event-rust` | `--uwo-color-event-rust` | `#923F38` | 大流行事件分類籤：戰爭、洪水、傳染病 |
+| `event-forest` | `--uwo-color-event-forest` | `#526F54` | 大流行事件分類籤：奢侈、開發 |
+| `event-sea` | `--uwo-color-event-sea` | `#32677E` | 大流行事件分類籤：繁榮 |
 | `border-subtle` | `--uwo-color-border-subtle` | `#C8BDA4` | 普通分隔 |
 | `border-strong` | `--uwo-color-border-strong` | `#8C7E63` | 表單、按鈕與焦點邊界 |
 
@@ -62,6 +66,7 @@ Design Foundation 不能只依賴 Agent 主動搜尋 `docs/`。P3 必須在根�
 - `accent-brass` 不用作淺色背景上的小號正文；此情境使用 `accent-text`。
 - 正常正文與背景的對比度以 4.5:1 為底線。
 - 同一頁最多使用一個主要強調色；狀態色只表達狀態，不與主要強調色競爭。
+- `event-*` Token 僅用於大流行事件分類籤和相同類型的小型圖形標記，不用作操作按鈕或成功／警告／錯誤狀態；淺色籤文字使用 `surface`，對比至少 4.5:1，事件名稱仍須可讀。
 - 成功、警告與錯誤不能只依賴色相差異，必須同時提供可見文字或明確圖形語義。
 - 不為按下、焦點或陰影新增另一套品牌色；使用既有 Token、透明度、位移與邊界表達互動狀態。
 

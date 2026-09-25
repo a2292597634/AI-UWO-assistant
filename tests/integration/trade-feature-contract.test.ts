@@ -36,7 +36,7 @@ describe('trade feature integration contract', () => {
     expect(appConfig.subpackages).toContainEqual({
       root: 'subpkg-trade',
       name: 'trade',
-      pages: ['pages/index/index', 'pages/detail/index'],
+      pages: ['pages/index/index', 'pages/detail/index', 'pages/popularity/index'],
     })
     expect(homeSource).toContain("id: 'trade-goods'")
     expect(homeSource).toContain("route: '/subpkg-trade/pages/index/index'")

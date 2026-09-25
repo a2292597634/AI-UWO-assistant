@@ -162,6 +162,31 @@ export interface RuntimeTradeReference {
   glyphs: RuntimeTradeGlyphs
 }
 
+export interface RuntimeMajorEventType {
+  id: string
+  name: string
+  periodHours: number
+  tradeTypeIds: string[]
+}
+
+export interface RuntimeMajorEventZone {
+  id: string
+  name: string
+  phaseHours: number
+  delaySeconds: number
+  iconPath: string
+}
+
+export interface RuntimeMajorEventReference {
+  sourceSnapshot: string
+  sourceVersion: string
+  sourceManifestSha256: string
+  sourceVerifiedOn: string
+  anchorEpochSeconds: number
+  eventTypes: RuntimeMajorEventType[]
+  zones: RuntimeMajorEventZone[]
+}
+
 // ── Asset dependencies (miniprogram/generated/asset-dependencies.js) ──
 
 export interface RuntimeAssetRootDependency {

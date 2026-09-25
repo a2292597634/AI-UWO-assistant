@@ -1,0 +1,227 @@
+{
+  "sourceSnapshot": "voyage-tw-2026052501-trade-20260904",
+  "sourceVersion": "2026052501",
+  "sourceManifestSha256": "ccb1a0d53adf9d07322ee68c19cb2f1a772b76aeac660e30bd4c0ca72b3f5064",
+  "sourceVerifiedOn": "2026-09-24",
+  "anchorEpochSeconds": 1670889600,
+  "eventTypes": [
+    {
+      "id": "pop1",
+      "name": "奢侈",
+      "periodHours": 379,
+      "tradeTypeIds": ["tradetype17", "tradetype13", "tradetype15"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop1; lang_1.js:pop1"
+      }
+    },
+    {
+      "id": "pop2",
+      "name": "繁榮",
+      "periodHours": 337,
+      "tradeTypeIds": ["tradetype18", "tradetype16", "tradetype14"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop2; lang_1.js:pop2"
+      }
+    },
+    {
+      "id": "pop3",
+      "name": "開發",
+      "periodHours": 311,
+      "tradeTypeIds": ["tradetype09", "tradetype08", "tradetype03", "tradetype06"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop3; lang_1.js:pop3"
+      }
+    },
+    {
+      "id": "pop4",
+      "name": "贊助",
+      "periodHours": 269,
+      "tradeTypeIds": ["tradetype10", "tradetype13", "tradetype14"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop4; lang_1.js:pop4"
+      }
+    },
+    {
+      "id": "pop5",
+      "name": "戰爭",
+      "periodHours": 241,
+      "tradeTypeIds": ["tradetype03", "tradetype20", "tradetype19"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop5; lang_1.js:pop5"
+      }
+    },
+    {
+      "id": "pop6",
+      "name": "洪水",
+      "periodHours": 223,
+      "tradeTypeIds": ["tradetype09", "tradetype01", "tradetype12"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop6; lang_1.js:pop6"
+      }
+    },
+    {
+      "id": "pop7",
+      "name": "傳染病",
+      "periodHours": 199,
+      "tradeTypeIds": ["tradetype11", "tradetype04", "tradetype05"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop7; lang_1.js:pop7"
+      }
+    },
+    {
+      "id": "pop8",
+      "name": "節慶",
+      "periodHours": 179,
+      "tradeTypeIds": ["tradetype07", "tradetype01", "tradetype02"],
+      "sourceRefs": {
+        "voyageTw": "map.js:popular() modulus; json.js:popular_trade.pop8; lang_1.js:pop8"
+      }
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone_37",
+      "name": "北海",
+      "phaseHours": 0,
+      "delaySeconds": 0,
+      "regionIconId": "zone_37",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_37 (z,d); lang_1.js:zone_37" }
+    },
+    {
+      "id": "zone_41",
+      "name": "東地中海",
+      "phaseHours": -1,
+      "delaySeconds": 60,
+      "regionIconId": "zone_41",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_41 (z,d); lang_1.js:zone_41" }
+    },
+    {
+      "id": "zone_57",
+      "name": "南歐&西地中海",
+      "phaseHours": -2,
+      "delaySeconds": 0,
+      "regionIconId": "zone_57",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_57 (z,d); lang_1.js:zone_57" }
+    },
+    {
+      "id": "zone_21",
+      "name": "西非",
+      "phaseHours": -3,
+      "delaySeconds": 60,
+      "regionIconId": "zone_21",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_21 (z,d); lang_1.js:zone_21" }
+    },
+    {
+      "id": "zone_22",
+      "name": "南非",
+      "phaseHours": -4,
+      "delaySeconds": 60,
+      "regionIconId": "zone_22",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_22 (z,d); lang_1.js:zone_22" }
+    },
+    {
+      "id": "zone_23",
+      "name": "東非",
+      "phaseHours": -5,
+      "delaySeconds": 180,
+      "regionIconId": "zone_23",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_23 (z,d); lang_1.js:zone_23" }
+    },
+    {
+      "id": "zone_58",
+      "name": "阿拉伯&西印度",
+      "phaseHours": -6,
+      "delaySeconds": 180,
+      "regionIconId": "zone_58",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_58 (z,d); lang_1.js:zone_58" }
+    },
+    {
+      "id": "zone_59",
+      "name": "東印度&印度支那",
+      "phaseHours": -7,
+      "delaySeconds": 240,
+      "regionIconId": "zone_59",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_59 (z,d); lang_1.js:zone_59" }
+    },
+    {
+      "id": "zone_50",
+      "name": "南亞",
+      "phaseHours": -8,
+      "delaySeconds": 240,
+      "regionIconId": "zone_50",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_50 (z,d); lang_1.js:zone_50" }
+    },
+    {
+      "id": "zone_53",
+      "name": "東亞",
+      "phaseHours": -9,
+      "delaySeconds": 240,
+      "regionIconId": "zone_53",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_53 (z,d); lang_1.js:zone_53" }
+    },
+    {
+      "id": "zone_54",
+      "name": "東北亞",
+      "phaseHours": -10,
+      "delaySeconds": 300,
+      "regionIconId": "zone_54",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_54 (z,d); lang_1.js:zone_54" }
+    },
+    {
+      "id": "zone_33",
+      "name": "大洋洲",
+      "phaseHours": -11,
+      "delaySeconds": 360,
+      "regionIconId": "zone_33",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_33 (z,d); lang_1.js:zone_33" }
+    },
+    {
+      "id": "zone_63",
+      "name": "大洋洲東部",
+      "phaseHours": -12,
+      "delaySeconds": 360,
+      "regionIconId": "zone_63",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_63 (z,d); lang_1.js:zone_63" }
+    },
+    {
+      "id": "zone_34",
+      "name": "北極海",
+      "phaseHours": -13,
+      "delaySeconds": 390,
+      "regionIconId": "zone_34",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_34 (z,d); lang_1.js:zone_34" }
+    },
+    {
+      "id": "zone_18",
+      "name": "西南美",
+      "phaseHours": -14,
+      "delaySeconds": 600,
+      "regionIconId": "zone_18",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_18 (z,d); lang_1.js:zone_18" }
+    },
+    {
+      "id": "zone_60",
+      "name": "美東",
+      "phaseHours": -15,
+      "delaySeconds": 600,
+      "regionIconId": "zone_60",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_60 (z,d); lang_1.js:zone_60" }
+    },
+    {
+      "id": "zone_20",
+      "name": "西北美",
+      "phaseHours": -16,
+      "delaySeconds": 480,
+      "regionIconId": "zone_20",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_20 (z,d); lang_1.js:zone_20" }
+    },
+    {
+      "id": "zone_55",
+      "name": "太平洋",
+      "phaseHours": -17,
+      "delaySeconds": 420,
+      "regionIconId": "zone_55",
+      "sourceRefs": { "voyageTw": "json.js:pop_zone.zone_55 (z,d); lang_1.js:zone_55" }
+    }
+  ]
+}

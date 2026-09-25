@@ -138,6 +138,9 @@ const createFixtureSources = async (sourceRoot: string) => {
     sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
       .png()
       .toFile(join(sourceRoot, 'feature-coupon-source.png')),
+    sharp({ create: { width: 320, height: 320, channels: 4, background: '#b08a3eff' } })
+      .png()
+      .toFile(join(sourceRoot, 'feature-major-events-source.png')),
     sharp({ create: { width: 750, height: 320, channels: 3, background: '#e8dfce' } })
       .png()
       .toFile(join(sourceRoot, 'config-paper-texture-source.png')),
@@ -171,6 +174,7 @@ describe('buildUiAssets', () => {
       'feature-adventure-fleet',
       'feature-data-maintenance',
       'feature-coupon',
+      'feature-major-events',
     ]
 
     expect(grade?.trimBounds).toEqual({ left: 2, top: 0, width: 20, height: 23 })
@@ -234,6 +238,7 @@ describe('buildUiAssets', () => {
       'feature-adventure-fleet',
       'feature-data-maintenance',
       'feature-coupon',
+      'feature-major-events',
     ]
     const featureFiles = report.files.filter((file) => featureIds.includes(file.id))
     const configPaperTexture = files.find((file) => file.id === 'config-paper-texture')
@@ -255,7 +260,7 @@ describe('buildUiAssets', () => {
     })
     expect(shareActionIcon?.byteSize).toBeLessThanOrEqual(12 * 1024)
 
-    expect(featureFiles).toHaveLength(6)
+    expect(featureFiles).toHaveLength(7)
     expect(
       featureFiles.every((file) => {
         const bounds = file.outputTransparentBounds

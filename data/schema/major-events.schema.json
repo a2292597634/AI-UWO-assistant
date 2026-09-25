@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sourceSnapshot",
+    "sourceVersion",
+    "sourceManifestSha256",
+    "sourceVerifiedOn",
+    "anchorEpochSeconds",
+    "eventTypes",
+    "zones"
+  ],
+  "properties": {
+    "sourceSnapshot": { "type": "string", "minLength": 1 },
+    "sourceVersion": { "type": "string", "pattern": "^[0-9]{10}$" },
+    "sourceManifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "sourceVerifiedOn": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "anchorEpochSeconds": { "type": "integer", "const": 1670889600 },
+    "eventTypes": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/eventType" }
+    },
+    "zones": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": { "$ref": "#/$defs/zone" }
+    }
+  },
+  "$defs": {
+    "sourceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voyageTw"],
+      "properties": {
+        "voyageTw": { "type": "string", "minLength": 1 }
+      }
+    },
+    "eventType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "periodHours", "tradeTypeIds", "sourceRefs"],
+      "properties": {
+        "id": { "enum": ["pop1", "pop2", "pop3", "pop4", "pop5", "pop6", "pop7", "pop8"] },
+        "name": { "type": "string", "minLength": 1 },
+        "periodHours": { "type": "integer", "minimum": 1 },
+        "tradeTypeIds": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^tradetype(0[1-9]|1[0-9]|20)$" }
+        },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    },
+    "zone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "phaseHours", "delaySeconds", "regionIconId", "sourceRefs"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^zone_[0-9]+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "phaseHours": { "type": "integer", "minimum": -17, "maximum": 0 },
+        "delaySeconds": { "type": "integer", "minimum": 0, "maximum": 600 },
+        "regionIconId": { "type": "string", "pattern": "^zone_[0-9]+$" },
+        "sourceRefs": { "$ref": "#/$defs/sourceRefs" }
+      }
+    }
+  }
+}

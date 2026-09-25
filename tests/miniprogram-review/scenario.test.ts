@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { loadScenario, parseScenario } from '../../tools/miniprogram-review/scenario'
@@ -15,6 +15,93 @@ afterEach(() => {
 })
 
 describe('小程序验收场景', () => {
+  it('covers the major-event matrix, journey, filters, detail, and next match', () => {
+    const majorEvent = loadScenario(
+      resolve('tools/miniprogram-review/scenarios/major-event-forecast.json'),
+    )
+    const selectors = majorEvent.steps.flatMap((step) =>
+      'selector' in step ? [step.selector] : [],
+    )
+    const screenshots = majorEvent.steps.flatMap((step) =>
+      step.action === 'screenshot' ? [step.name] : [],
+    )
+
+    expect(majorEvent.entry).toBe('/subpkg-trade/pages/popularity/index')
+    expect(majorEvent.watchPaths).toEqual(
+      expect.arrayContaining([
+        'miniprogram/subpkg-trade/pages/popularity/',
+        'miniprogram/subpkg-trade/assets/major-events/',
+        'miniprogram/subpkg-trade/assets/category-icons/',
+      ]),
+    )
+    expect(majorEvent.devices).toEqual(['iphone-small', 'iphone-standard', 'android-large'])
+    expect(selectors).toEqual(
+      expect.arrayContaining([
+        '.major-events-page',
+        '.matrix__event-tag',
+        '.major-events-range__option--seven-day',
+        '.major-events-dates__chip--day-1',
+        '.matrix-segment-control__arrow--next',
+        '.major-events-view-switch__option--journey',
+        '.journey__event',
+        '.major-event-detail',
+        '.major-events-filter--zone',
+        '.major-events-filter-menu__option--zone-zone_37',
+        '.major-events-filter--event-type',
+        '.major-events-filter-menu__option--event-type-pop1',
+        '.major-events-next-result',
+      ]),
+    )
+    expect(screenshots).toEqual(
+      expect.arrayContaining([
+        'major-event-matrix',
+        'major-event-matrix-events',
+        'major-event-matrix-detail',
+        'major-event-matrix-selected-row',
+        'major-event-journey',
+        'major-event-detail',
+        'major-event-next-match',
+      ]),
+    )
+    expect(majorEvent.steps.every((step) => step.action !== 'input')).toBe(true)
+  })
+
+  it('shows a filtered empty forecast state in the major-event scenario set', () => {
+    const empty = loadScenario(
+      resolve('tools/miniprogram-review/scenarios/major-event-filter-empty.json'),
+    )
+    const selectors = empty.steps.flatMap((step) => ('selector' in step ? [step.selector] : []))
+    const screenshots = empty.steps.flatMap((step) =>
+      step.action === 'screenshot' ? [step.name] : [],
+    )
+
+    expect(empty.state).toBe('empty')
+    expect(selectors).toEqual(
+      expect.arrayContaining([
+        '.major-events-range__option--one-day',
+        '.major-events-filter--zone',
+        '.major-events-filter-menu__option--zone-zone_57',
+        '.major-events-filter--event-type',
+        '.major-events-filter-menu__option--event-type-pop2',
+        '.major-events-empty',
+      ]),
+    )
+    expect(screenshots).toContain('major-event-filter-empty')
+  })
+
+  it('shows the sixth homepage entrance and watches its local icon', () => {
+    const home = loadScenario(resolve('tools/miniprogram-review/scenarios/home-visual.json'))
+    const steps = home.steps
+
+    expect(home.name).toBe('首頁六個主要入口')
+    expect(home.watchPaths).toContain('miniprogram/assets/ui/feature-major-events.png')
+    expect(steps).toContainEqual({
+      action: 'assertText',
+      selector: '.module-grid',
+      contains: '大流行預測',
+    })
+  })
+
   it('接受 watchPaths 并规范化路径分隔符', () => {
     const scenario = parseScenario({
       name: '目录搜寻',

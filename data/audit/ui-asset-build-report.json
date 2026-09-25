@@ -156,6 +156,28 @@
       }
     },
     {
+      "id": "feature-major-events",
+      "output": "feature-major-events.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 2119,
+      "sha256": "e5975b8632057f3ecf527472d346b48c82432f419b6021e1e5dad64fc4bcc534",
+      "sourceTransparentBounds": {
+        "left": 19,
+        "top": 19,
+        "width": 282,
+        "height": 282
+      },
+      "outputTransparentBounds": {
+        "left": 5,
+        "top": 6,
+        "width": 86,
+        "height": 84
+      }
+    },
+    {
       "id": "feature-officer-catalog",
       "output": "feature-officer-catalog.png",
       "group": "feature",
@@ -742,8 +764,8 @@
   ],
   "groupBytes": {
     "banner": 181503,
-    "feature": 16922,
+    "feature": 19041,
     "original-ui": 51351
   },
-  "totalBytes": 249776
+  "totalBytes": 251895
 }

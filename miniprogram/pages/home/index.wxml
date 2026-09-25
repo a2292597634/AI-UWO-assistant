@@ -23,7 +23,7 @@
     <view class="module-grid">
       <block wx:for="{{modules}}" wx:key="id">
         <view
-          wx:if="{{index < 5}}"
+          wx:if="{{index < 6}}"
           class="module-grid__item"
           hover-class="module-grid__item--pressed"
           role="button"

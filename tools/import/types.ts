@@ -206,6 +206,33 @@ export interface CanonicalTradeDataset {
   glyphs: CanonicalTradeGlyphs
 }
 
+export interface CanonicalMajorEventType {
+  id: 'pop1' | 'pop2' | 'pop3' | 'pop4' | 'pop5' | 'pop6' | 'pop7' | 'pop8'
+  name: string
+  periodHours: number
+  tradeTypeIds: string[]
+  sourceRefs: CanonicalReferenceSourceRefs
+}
+
+export interface CanonicalMajorEventZone {
+  id: string
+  name: string
+  phaseHours: number
+  delaySeconds: number
+  regionIconId: string
+  sourceRefs: CanonicalReferenceSourceRefs
+}
+
+export interface CanonicalMajorEventsDataset {
+  sourceSnapshot: string
+  sourceVersion: string
+  sourceManifestSha256: string
+  sourceVerifiedOn: string
+  anchorEpochSeconds: number
+  eventTypes: CanonicalMajorEventType[]
+  zones: CanonicalMajorEventZone[]
+}
+
 export interface TradeTransformAnomaly {
   entityId: string
   field: string

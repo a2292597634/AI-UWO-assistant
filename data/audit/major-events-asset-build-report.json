@@ -1,0 +1,181 @@
+{
+  "files": [
+    {
+      "kind": "ornament",
+      "output": "compass-rose.png",
+      "width": 160,
+      "height": 160,
+      "byteSize": 2449,
+      "sha256": "1d5b58df30b82b182f3be0e9128aadbec0e0f83eda694179ef483f68d453cb59"
+    },
+    {
+      "kind": "ornament",
+      "output": "journey-harbor-footer.png",
+      "width": 750,
+      "height": 180,
+      "byteSize": 2407,
+      "sha256": "ee3db4c290ed997c713af64fc214f7b0474849ee6ffefdc1b7329020887f8af9"
+    },
+    {
+      "kind": "ornament",
+      "output": "matrix-ship-engraving.png",
+      "width": 320,
+      "height": 180,
+      "byteSize": 4143,
+      "sha256": "6b60a7ba287711549d5d3d17cac1cc7391172b66a8feb699a83abf817a4d3e46"
+    },
+    {
+      "kind": "texture",
+      "output": "paper-chart-tile.png",
+      "width": 512,
+      "height": 512,
+      "byteSize": 7384,
+      "sha256": "7513b4eb6ee107ea10ac7437b78af7535329988324b50bffc9f03fbbf0ae6c5b"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-18.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 658,
+      "sha256": "3e4e9cb4330260e40e9ff7843b8b86bf563919dee3a0aec77b54b55a35ded263"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-20.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 957,
+      "sha256": "c158d823169b205bf7f31213abb4add998077c0f26261410f1d2303c84dcd8e8"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-21.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 782,
+      "sha256": "720affe8b9742fd40ccacea6906039a4ff1209887b671495dcafc9d05cbd1089"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-22.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 715,
+      "sha256": "1b6dd7158cf66dce030dce921621a699a13aab0a17838a7d5b746b748ac49f3e"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-23.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 858,
+      "sha256": "86d00c45d2cb89011db122c093285c244791ce7dad2aacf3362aaaf837aa1aad"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-33.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 790,
+      "sha256": "5eacb80c00ba895fd4d50a895aca6a2da431846aed833f6cc6ec32aa2254865e"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-34.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 699,
+      "sha256": "1dad57e1d5600bd656acf4307433e572d7c31c8385eea6916d689a155616216a"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-37.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 772,
+      "sha256": "0915f8a871f6397debab61ff9ddeddae94e152ca8d7d9dad89a3a4b468cdda80"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-41.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 710,
+      "sha256": "5851c417b661421b4a5ca3a4687ffac2061cd0136424919eb49a2510f1c7e5d1"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-50.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 826,
+      "sha256": "1e0f8f1d4274ca53c52ec4decbd76bf8aa5bdc5b6a562ef9901ca1f4f3c9ba56"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-53.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 1028,
+      "sha256": "5f93fba7563118f46e8a86ae85811f6a3c04ef625dbc53d4538f1d30960e9684"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-54.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 831,
+      "sha256": "844baea8b521f70ed8362a2aa3cfda7630ed6031bee436a3222d9f1a64203429"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-55.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 882,
+      "sha256": "553d0c3dfe81f10d8e343e194667e3150446463a6287896be831f6cee5c639db"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-57.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 747,
+      "sha256": "d42013d55a9bd84fb3e3b220881635269d22dd531d18d0deb7fbff5e7079b569"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-58.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 995,
+      "sha256": "e904192d1eb0cef3e25f4f3b571e6e8c3f30d476c9205a8ebf1c1307833cc9a4"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-59.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 717,
+      "sha256": "321bf174bed2d7042c1fdc3bde912ca4893e72d9f5d30fe278a8fa1c1817f4fe"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-60.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 730,
+      "sha256": "94b71b58ee7d6556c84c7940f0497e01945f96771306102751234c825a06993f"
+    },
+    {
+      "kind": "region",
+      "output": "region-zone-63.png",
+      "width": 64,
+      "height": 64,
+      "byteSize": 841,
+      "sha256": "7bc01d30fcf9aab2e6cb6a561f43180cb765dbd786e3535ac80d7ebcac00d82f"
+    }
+  ],
+  "totalBytes": 30921
+}

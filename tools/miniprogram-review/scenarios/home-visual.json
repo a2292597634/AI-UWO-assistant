@@ -1,13 +1,18 @@
 {
-  "name": "首頁五個平行入口",
+  "name": "首頁六個主要入口",
   "entry": "/pages/home/index",
-  "watchPaths": ["miniprogram/pages/home/"],
+  "watchPaths": ["miniprogram/pages/home/", "miniprogram/assets/ui/feature-major-events.png"],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
     {
       "action": "waitFor",
       "selector": ".module-grid__item"
+    },
+    {
+      "action": "assertText",
+      "selector": ".module-grid",
+      "contains": "大流行預測"
     },
     {
       "action": "screenshot",

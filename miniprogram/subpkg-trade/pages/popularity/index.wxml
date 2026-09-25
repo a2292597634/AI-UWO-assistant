@@ -1,0 +1,438 @@
+<view class="major-events-page">
+  <view class="major-events-page__paper" aria-hidden="true"></view>
+
+  <view class="major-events-header">
+    <image
+      class="major-events-header__ship"
+      src="/subpkg-trade/assets/major-events/matrix-ship-engraving.png"
+      mode="aspectFit"
+      aria-hidden="true"
+    />
+    <image
+      class="major-events-header__compass"
+      src="/subpkg-trade/assets/major-events/compass-rose.png"
+      mode="aspectFit"
+      aria-hidden="true"
+    />
+    <text class="major-events-header__brand">航海資料館</text>
+    <text class="major-events-header__title ui-display-title">大流行預測</text>
+    <text class="major-events-header__subtitle">海域時刻與貿易品類情報</text>
+  </view>
+
+  <view class="major-events-content">
+    <view class="major-events-summary" aria-live="polite">
+      <text class="major-events-summary__label">{{summaryLabel}}</text>
+      <text class="major-events-summary__timezone">依裝置時間</text>
+    </view>
+    <text class="major-events-summary__updated">來源核對日期：{{sourceVerifiedLabel}}</text>
+
+    <view class="major-events-range" aria-label="預測範圍">
+      <view
+        class="major-events-range__option major-events-range__option--one-day {{horizonHours === 24 ? 'major-events-range__option--active' : ''}}"
+        bindtap="onHorizonTap"
+        data-horizon-hours="24"
+        role="button"
+        aria-label="查看未來 24 小時"
+      >24 小時</view>
+      <view
+        class="major-events-range__option {{horizonHours === 72 ? 'major-events-range__option--active' : ''}}"
+        bindtap="onHorizonTap"
+        data-horizon-hours="72"
+        role="button"
+        aria-label="查看未來 3 天"
+      >3 天</view>
+      <view
+        class="major-events-range__option major-events-range__option--seven-day {{horizonHours === 168 ? 'major-events-range__option--active' : ''}}"
+        bindtap="onHorizonTap"
+        data-horizon-hours="168"
+        role="button"
+        aria-label="查看未來 7 天"
+      >7 天</view>
+    </view>
+
+    <view class="major-events-view-switch" aria-label="預測檢視方式">
+      <view
+        class="major-events-view-switch__option {{activeView === 'matrix' ? 'major-events-view-switch__option--active' : ''}}"
+        bindtap="onViewTap"
+        data-view="matrix"
+        role="button"
+        aria-label="時刻矩陣"
+      >時刻矩陣</view>
+      <view
+        class="major-events-view-switch__option major-events-view-switch__option--journey {{activeView === 'journey' ? 'major-events-view-switch__option--active' : ''}}"
+        bindtap="onViewTap"
+        data-view="journey"
+        role="button"
+        aria-label="行程列表"
+      >行程列表</view>
+    </view>
+
+    <view wx:if="{{activeView === 'matrix'}}" class="matrix-controls">
+      <scroll-view class="major-events-dates" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="major-events-dates__list">
+          <view
+            wx:for="{{dateOptions}}"
+            wx:key="dateKey"
+            wx:for-item="dateOption"
+            wx:for-index="dateIndex"
+            class="major-events-dates__chip major-events-dates__chip--day-{{dateIndex}} {{dateOption.dateKey === selectedDateKey ? 'major-events-dates__chip--active' : ''}}"
+            bindtap="onDateTap"
+            data-date-key="{{dateOption.dateKey}}"
+            role="button"
+            aria-label="跳到 {{dateOption.label}} 的預測時段"
+          >{{dateOption.label}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="matrix-segment-control">
+        <view
+          class="matrix-segment-control__arrow matrix-segment-control__arrow--previous {{segmentIndex === 0 ? 'matrix-segment-control__arrow--disabled' : ''}}"
+          bindtap="onSegmentTap"
+          data-delta="-1"
+          role="button"
+          aria-disabled="{{segmentIndex === 0}}"
+          aria-label="上一個六小時時段"
+        >‹</view>
+        <text class="matrix-segment-control__index">第 {{segmentIndex + 1}} / {{segmentCount}} 段</text>
+        <view
+          class="matrix-segment-control__arrow matrix-segment-control__arrow--next {{segmentIndex >= segmentCount - 1 ? 'matrix-segment-control__arrow--disabled' : ''}}"
+          bindtap="onSegmentTap"
+          data-delta="1"
+          role="button"
+          aria-disabled="{{segmentIndex >= segmentCount - 1}}"
+          aria-label="下一個六小時時段"
+        >›</view>
+      </view>
+      <text wx:if="{{matrix}}" class="matrix-segment-control__time-range">{{matrix.segmentStartLabel}} — {{matrix.segmentEndLabel}}</text>
+    </view>
+
+    <view class="major-events-filters">
+      <view
+        class="major-events-filter major-events-filter--zone"
+        bindtap="onAreaFilterTap"
+        role="button"
+        aria-expanded="{{openFilterMenu === 'zone'}}"
+        aria-label="海域篩選：{{zoneFilterLabel}}"
+      >
+        <text class="major-events-filter__caption">海域</text>
+        <text class="major-events-filter__value">{{zoneFilterLabel}}</text>
+        <text class="major-events-filter__chevron" aria-hidden="true">⌄</text>
+      </view>
+      <view
+        class="major-events-filter major-events-filter--event-type"
+        bindtap="onEventFilterTap"
+        role="button"
+        aria-expanded="{{openFilterMenu === 'eventType'}}"
+        aria-label="事件類型篩選：{{eventFilterLabel}}"
+      >
+        <text class="major-events-filter__caption">事件類型</text>
+        <text class="major-events-filter__value">{{eventFilterLabel}}</text>
+        <text class="major-events-filter__chevron" aria-hidden="true">⌄</text>
+      </view>
+    </view>
+
+    <scroll-view
+      wx:if="{{openFilterMenu === 'zone'}}"
+      class="major-events-filter-menu major-events-filter-menu--zone"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      role="listbox"
+      aria-label="選擇海域"
+    >
+      <view
+        wx:for="{{zoneOptions}}"
+        wx:key="id"
+        wx:for-item="filterOption"
+        class="major-events-filter-menu__option major-events-filter-menu__option--zone-{{filterOption.id}} {{filterOption.id === (selectedZoneId || '') ? 'major-events-filter-menu__option--active' : ''}}"
+        bindtap="onAreaFilterTap"
+        data-zone-id="{{filterOption.id}}"
+        role="option"
+        aria-selected="{{filterOption.id === (selectedZoneId || '')}}"
+      >{{filterOption.name}}</view>
+    </scroll-view>
+    <scroll-view
+      wx:if="{{openFilterMenu === 'eventType'}}"
+      class="major-events-filter-menu major-events-filter-menu--event-type"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      role="listbox"
+      aria-label="選擇事件類型"
+    >
+      <view
+        wx:for="{{eventTypeOptions}}"
+        wx:key="id"
+        wx:for-item="filterOption"
+        class="major-events-filter-menu__option major-events-filter-menu__option--event-type-{{filterOption.id}} {{filterOption.id === (selectedEventTypeId || '') ? 'major-events-filter-menu__option--active' : ''}}"
+        bindtap="onEventFilterTap"
+        data-event-type-id="{{filterOption.id}}"
+        role="option"
+        aria-selected="{{filterOption.id === (selectedEventTypeId || '')}}"
+      >{{filterOption.name}}</view>
+    </scroll-view>
+
+    <button
+      class="ui-button ui-button--secondary major-events-next-button"
+      disabled="{{!selectedZoneId || !selectedEventTypeId}}"
+      bindtap="onNextOccurrenceTap"
+    >查下一次（約 16 天內）</button>
+
+    <view wx:if="{{nextOccurrenceSearched}}" class="major-events-next-result">
+      <view wx:if="{{nextOccurrenceResult}}" class="major-events-next-result__match">
+        <text class="major-events-next-result__label">下一次預測</text>
+        <view
+          class="major-events-next-result__event"
+          bindtap="onEventTap"
+          data-event-key="{{nextOccurrenceResult.key}}"
+          role="button"
+          aria-label="{{nextOccurrenceResult.accessibilityLabel}}"
+        >{{nextOccurrenceResult.dateLabel}} {{nextOccurrenceResult.timeLabel}} · {{nextOccurrenceResult.zoneName}} · {{nextOccurrenceResult.eventTypeName}}</view>
+      </view>
+      <text wx:else class="major-events-next-result__empty">{{nextOccurrenceMessage}}</text>
+    </view>
+
+    <view wx:if="{{pageError}}" class="major-events-error" role="alert">
+      <text class="major-events-error__title">資料暫時無法載入</text>
+      <text class="major-events-error__message">{{pageError}}</text>
+    </view>
+
+    <view wx:if="{{!pageError && activeView === 'matrix' && matrix}}" class="matrix-section">
+      <view class="matrix-section__heading">
+        <text class="matrix-section__title">海域時刻矩陣</text>
+        <text class="matrix-section__hint">每格為一小時預測</text>
+      </view>
+      <view wx:if="{{emptyMessage}}" class="major-events-empty">{{emptyMessage}}</view>
+      <view class="matrix-frame">
+        <image
+          class="matrix-frame__compass"
+          src="/subpkg-trade/assets/major-events/compass-rose.png"
+          mode="aspectFit"
+          aria-hidden="true"
+        />
+        <scroll-view class="matrix-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="matrix-table">
+            <view class="matrix__header-row">
+              <view class="matrix__zone-head">海域</view>
+              <view
+                wx:for="{{matrix.rows[0].slots}}"
+                wx:key="index"
+                wx:for-item="headerSlot"
+                class="matrix__slot-head"
+              >{{headerSlot.timeLabel}}</view>
+            </view>
+            <view
+              wx:for="{{matrix.rows}}"
+              wx:key="zoneId"
+              wx:for-item="zoneRow"
+              class="matrix__zone-row"
+            >
+              <view class="matrix__zone-cell">
+                <image
+                  wx:if="{{!zoneRow.iconFailed}}"
+                  class="matrix__zone-icon"
+                  src="{{zoneRow.iconPath}}"
+                  mode="aspectFit"
+                  lazy-load="{{true}}"
+                  binderror="onRegionIconError"
+                  data-zone-id="{{zoneRow.zoneId}}"
+                  aria-hidden="true"
+                />
+                <image
+                  wx:else
+                  class="matrix__zone-icon matrix__zone-icon--fallback"
+                  src="/subpkg-trade/assets/major-events/compass-rose.png"
+                  mode="aspectFit"
+                  aria-hidden="true"
+                />
+                <text class="matrix__zone-name">{{zoneRow.zoneName}}</text>
+              </view>
+              <view
+                wx:for="{{zoneRow.slots}}"
+                wx:key="index"
+                wx:for-item="slot"
+                class="matrix__slot"
+              >
+                <view wx:if="{{slot.events.length === 0}}" class="matrix__empty-mark" aria-hidden="true">—</view>
+                <view
+                  wx:for="{{slot.events}}"
+                  wx:key="key"
+                  wx:for-item="eventItem"
+                  class="major-event-tag matrix__event-tag"
+                  style="background-color: var({{eventItem.eventColorToken}})"
+                  bindtap="onEventTap"
+                  data-event-key="{{eventItem.key}}"
+                  role="button"
+                  aria-label="{{eventItem.accessibilityLabel}}"
+                >
+                  <text class="major-event-tag__name">{{eventItem.eventTypeName}}</text>
+                  <text class="major-event-tag__time">{{eventItem.timeLabel}}</text>
+                  <text wx:if="{{eventItem.isExactHour}}" class="major-event-tag__exact-hour">整點</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">
+      <view class="matrix-section__heading">
+        <text class="matrix-section__title">大流行情程</text>
+        <text class="matrix-section__hint">依裝置本地日期排序</text>
+      </view>
+      <view wx:if="{{emptyMessage}}" class="major-events-empty">{{emptyMessage}}</view>
+      <view wx:for="{{journey}}" wx:key="dateKey" wx:for-item="dayGroup" class="journey-day">
+        <text class="journey-day__date">{{dayGroup.dateLabel}}</text>
+        <view class="journey-day__timeline">
+          <view
+            wx:for="{{dayGroup.timeGroups}}"
+            wx:key="timeLabel"
+            wx:for-item="timeGroup"
+            class="journey__time-group"
+          >
+            <view class="journey__time-marker">
+              <view class="journey__dot" aria-hidden="true"></view>
+              <text class="journey__time">{{timeGroup.timeLabel}}</text>
+            </view>
+            <view
+              wx:for="{{timeGroup.events}}"
+              wx:key="key"
+              wx:for-item="eventItem"
+              class="journey__event"
+              bindtap="onEventTap"
+              data-event-key="{{eventItem.key}}"
+              role="button"
+              aria-label="{{eventItem.accessibilityLabel}}"
+            >
+              <view class="journey__event-heading">
+                <text class="journey__event-name">{{eventItem.eventTypeName}}</text>
+                <text class="journey__event-minute">{{eventItem.minuteLabel}}</text>
+              </view>
+              <view class="journey__event-zone">
+                <image
+                  wx:if="{{!eventItem.zoneIconFailed}}"
+                  class="journey__zone-icon"
+                  src="{{eventItem.zoneIconPath}}"
+                  mode="aspectFit"
+                  lazy-load="{{true}}"
+                 binderror="onRegionIconError"
+                  data-zone-id="{{eventItem.zoneId}}"
+                  aria-hidden="true"
+                />
+                <image
+                  wx:else
+                  class="journey__zone-icon journey__zone-icon--fallback"
+                  src="/subpkg-trade/assets/major-events/compass-rose.png"
+                  mode="aspectFit"
+                  aria-hidden="true"
+                />
+                <text>{{eventItem.zoneName}}</text>
+              </view>
+              <view class="journey__categories">
+                <view
+                  wx:for="{{eventItem.categories}}"
+                  wx:key="id"
+                  wx:for-item="category"
+                  class="journey__category"
+                >
+                  <image
+                    wx:if="{{!category.iconFailed}}"
+                    class="journey__category-icon"
+                    src="{{category.iconPath}}"
+                    mode="aspectFit"
+                    lazy-load="{{true}}"
+                    binderror="onCategoryIconError"
+                    data-category-id="{{category.id}}"
+                    aria-hidden="true"
+                  />
+                  <image
+                    wx:else
+                    class="journey__category-icon journey__category-icon--fallback"
+                    src="/subpkg-trade/assets/major-events/compass-rose.png"
+                    mode="aspectFit"
+                    aria-hidden="true"
+                  />
+                  <text class="journey__category-name">{{category.name}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <image
+        class="journey__harbor"
+        src="/subpkg-trade/assets/major-events/journey-harbor-footer.png"
+        mode="widthFix"
+        aria-hidden="true"
+      />
+      <image
+        class="journey__compass-watermark"
+        src="/subpkg-trade/assets/major-events/compass-rose.png"
+        mode="aspectFit"
+        aria-hidden="true"
+      />
+    </view>
+  </view>
+
+  <view wx:if="{{detailEventSnapshot}}" class="major-event-detail-overlay" bindtap="onCloseDetail">
+    <view
+      class="major-event-detail"
+      role="dialog"
+      aria-modal="true"
+      aria-label="{{detailEventSnapshot.eventTypeName}}事件詳情"
+      catchtap="onDetailSheetTap"
+    >
+      <image
+        class="major-event-detail__watermark"
+        src="/subpkg-trade/assets/major-events/compass-rose.png"
+        mode="aspectFit"
+        aria-hidden="true"
+      />
+      <view class="major-event-detail__handle" aria-hidden="true"></view>
+      <view class="major-event-detail__heading">
+        <view>
+          <text class="major-event-detail__eyebrow">預測事件詳情</text>
+          <text class="major-event-detail__title">{{detailEventSnapshot.eventTypeName}}</text>
+        </view>
+        <button class="ui-button ui-button--secondary major-event-detail__close" bindtap="onCloseDetail" aria-label="關閉事件詳情">關閉</button>
+      </view>
+      <view class="major-event-detail__time-block">
+        <text class="major-event-detail__section-label">預測時間</text>
+        <text class="major-event-detail__date-time">{{detailEventSnapshot.dateLabel}} {{detailEventSnapshot.timeLabel}} {{detailEventSnapshot.minuteLabel}}</text>
+        <text wx:if="{{showDetailUtcOffset}}" class="major-event-detail__utc">{{detailEventSnapshot.utcOffsetLabel}}</text>
+        <text class="major-event-detail__zone">{{detailEventSnapshot.zoneName}}</text>
+      </view>
+      <view class="major-event-detail__category-block">
+        <text class="major-event-detail__section-label">受影響交易品類</text>
+        <view class="major-event-detail__categories">
+          <view
+            wx:for="{{detailEventSnapshot.categories}}"
+            wx:key="id"
+            wx:for-item="category"
+            class="major-event-detail__category"
+          >
+            <image
+              wx:if="{{!category.iconFailed}}"
+              class="major-event-detail__category-icon"
+              src="{{category.iconPath}}"
+              mode="aspectFit"
+              binderror="onCategoryIconError"
+              data-category-id="{{category.id}}"
+              aria-hidden="true"
+            />
+            <image
+              wx:else
+              class="major-event-detail__category-icon major-event-detail__category-icon--fallback"
+              src="/subpkg-trade/assets/major-events/compass-rose.png"
+              mode="aspectFit"
+              aria-hidden="true"
+            />
+            <text>{{category.name}}</text>
+          </view>
+        </view>
+      </view>
+      <text class="major-event-detail__note">本頁預測觸發時刻，不預測持續時間。</text>
+    </view>
+  </view>
+</view>

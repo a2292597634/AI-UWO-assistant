@@ -13,7 +13,11 @@ import {
   writeAssetDependencyIndex,
 } from './asset-dependencies'
 import { writeTradeRuntimeData } from './build-trade-runtime-data'
-import type { CanonicalDatasetHeader, CanonicalTradeDataset } from '../import/types'
+import type {
+  CanonicalDatasetHeader,
+  CanonicalMajorEventsDataset,
+  CanonicalTradeDataset,
+} from '../import/types'
 import { loadPublishedAssetManifest } from '../asset-pipeline/publish-assets'
 import { loadAssetReuseLocations } from '../asset-pipeline/cloudbase-manifest'
 import { loadCanonicalOfficers } from './load-officers'
@@ -22,6 +26,7 @@ import {
   buildMaintenanceReferenceData,
 } from './build-officer-reference-data'
 import { loadSkillIconOverrides } from '../asset-pipeline/source-skill-icons'
+import { buildMajorEventReference } from './build-major-event-runtime-data'
 
 const CANONICAL_DIR = 'data/master'
 const OUTPUT_DIR = 'miniprogram/generated'
@@ -59,6 +64,9 @@ const generate = (): void => {
     `${CANONICAL_DIR}/dictionaries.json`,
   )
   const tradeDataset = readJson<CanonicalTradeDataset>(`${CANONICAL_DIR}/trade-goods.json`)
+  const majorEventsDataset = readJson<CanonicalMajorEventsDataset>(
+    `${CANONICAL_DIR}/major-events.json`,
+  )
   const publishedManifest = loadPublishedAssetManifest(PUBLISHED_MANIFEST_PATH)
   const reusedAssetLocations = existsSync(REUSED_ASSET_LOCATIONS_PATH)
     ? loadAssetReuseLocations(REUSED_ASSET_LOCATIONS_PATH)
@@ -165,6 +173,15 @@ const generate = (): void => {
     TRADE_SUBPKG_DIR,
     assetDependencies,
     runtimeAssetManifest,
+  )
+  const majorEventReference = buildMajorEventReference(
+    majorEventsDataset,
+    `${TRADE_SUBPKG_DIR}/assets/major-events`,
+  )
+  writeFileSync(
+    `${TRADE_SUBPKG_DIR}/major-event-reference.js`,
+    `module.exports = ${JSON.stringify(majorEventReference)}\n`,
+    'utf8',
   )
   writeMaintenanceOfficerIndex(
     officers,

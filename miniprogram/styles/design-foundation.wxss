@@ -10,6 +10,10 @@ page {
   --uwo-color-success: #596257;
   --uwo-color-warning: #7a541c;
   --uwo-color-danger: #8b3a3a;
+  --uwo-color-event-brass: #85661f;
+  --uwo-color-event-rust: #923f38;
+  --uwo-color-event-forest: #526f54;
+  --uwo-color-event-sea: #32677e;
   --uwo-color-border-subtle: #c8bda4;
   --uwo-color-border-strong: #8c7e63;
 

@@ -19,7 +19,7 @@
     {
       "root": "subpkg-trade",
       "name": "trade",
-      "pages": ["pages/index/index", "pages/detail/index"]
+      "pages": ["pages/index/index", "pages/detail/index", "pages/popularity/index"]
     },
     {
       "root": "subpkg-coupon",

@@ -11,6 +11,8 @@ import { createSchemaValidator } from './create-schema-validator'
 import { renderAuditDocs } from './render-audit-docs'
 import { validateTradeDataset } from '../import/validate-trades'
 import type { CanonicalTradeDataset } from '../import/types'
+import { validateMajorEvents } from './validate-major-events'
+import type { CanonicalMajorEventsDataset } from '../import/types'
 
 const outputDir = 'docs/data-audit'
 
@@ -81,6 +83,10 @@ const audit = (): {
   const tradeDataset = readJson<CanonicalTradeDataset>('data/master/trade-goods.json')
   allFindings.push(...schemaValidator.validate('trade-goods', tradeDataset))
   allFindings.push(...validateTradeDataset(tradeDataset))
+
+  const majorEventsDataset = readJson<CanonicalMajorEventsDataset>('data/master/major-events.json')
+  allFindings.push(...schemaValidator.validate('major-events', majorEventsDataset))
+  allFindings.push(...validateMajorEvents(majorEventsDataset, tradeDataset))
 
   const canonicalFindings = validateCanonicalDataset(canonicalDataset)
   allFindings.push(...canonicalFindings)

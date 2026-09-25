@@ -35,6 +35,13 @@ Page({
         iconFailed: false,
       },
       {
+        id: 'major-events',
+        name: '大流行預測',
+        iconPath: '/assets/ui/feature-major-events.png',
+        route: '/subpkg-trade/pages/popularity/index',
+        iconFailed: false,
+      },
+      {
         id: 'coupon-redemption',
         name: '兌換碼',
         iconPath: '/assets/ui/feature-coupon.png',

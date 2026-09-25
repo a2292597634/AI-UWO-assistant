@@ -1,0 +1,24 @@
+{
+  "name": "大流行預測篩選空狀態",
+  "entry": "/subpkg-trade/pages/popularity/index",
+  "watchPaths": [
+    "miniprogram/subpkg-trade/pages/popularity/",
+    "miniprogram/subpkg-trade/assets/major-events/",
+    "miniprogram/subpkg-trade/assets/category-icons/"
+  ],
+  "state": "empty",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": ".major-events-page" },
+    { "action": "tap", "selector": ".major-events-range__option--one-day" },
+    { "action": "tap", "selector": ".major-events-filter--zone" },
+    { "action": "tap", "selector": ".major-events-filter-menu__option--zone-zone_57" },
+    { "action": "tap", "selector": ".major-events-filter--event-type" },
+    { "action": "tap", "selector": ".major-events-filter-menu__option--event-type-pop2" },
+    { "action": "waitFor", "selector": ".major-events-empty", "timeoutMs": 5000 },
+    { "action": "scrollPage", "distance": 100000 },
+    { "action": "assertVisible", "selector": ".major-events-empty" },
+    { "action": "assertText", "selector": ".major-events-empty", "contains": "未來 24 小時內" },
+    { "action": "screenshot", "name": "major-event-filter-empty" }
+  ]
+}

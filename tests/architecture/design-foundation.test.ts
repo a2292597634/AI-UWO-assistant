@@ -43,6 +43,34 @@ const COLOR_TOKENS = {
   '--uwo-color-border-strong': '#8c7e63',
 } as const
 
+const EVENT_COLOR_TOKENS = {
+  '--uwo-color-event-brass': '#85661f',
+  '--uwo-color-event-rust': '#923f38',
+  '--uwo-color-event-forest': '#526f54',
+  '--uwo-color-event-sea': '#32677e',
+} as const
+
+const relativeLuminance = (hex: string): number => {
+  const channels = hex
+    .slice(1)
+    .match(/.{2}/g)
+    ?.map((channel) => Number.parseInt(channel, 16) / 255)
+  if (channels === undefined || channels.length !== 3) throw new Error(`Invalid color: ${hex}`)
+  const [red, green, blue] = channels.map((channel) =>
+    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+  )
+  return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!
+}
+
+const contrastRatio = (foreground: string, background: string): number => {
+  const foregroundLuminance = relativeLuminance(foreground)
+  const backgroundLuminance = relativeLuminance(background)
+  return (
+    (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+    (Math.min(foregroundLuminance, backgroundLuminance) + 0.05)
+  )
+}
+
 describe('Design Foundation 文件入口', () => {
   it.each(['AGENTS.md', 'CLAUDE.md'])('%s 在 UI 編碼前強制讀取同一份規格', (file) => {
     const content = readProjectFile(file)
@@ -65,6 +93,18 @@ describe('Design Foundation 全局入口與 Token', () => {
 
     for (const [token, value] of Object.entries(COLOR_TOKENS)) {
       expect(foundation).toContain(`${token}: ${value};`)
+    }
+  })
+
+  it('定義事件分類色 Token，且淺色籤文字對比至少 4.5:1', () => {
+    const foundation = readProjectFile('miniprogram/styles/design-foundation.wxss')
+    const spec = readProjectFile(SPEC_PATH)
+
+    for (const [token, value] of Object.entries(EVENT_COLOR_TOKENS)) {
+      expect(foundation).toContain(`${token}: ${value};`)
+      expect(foundation.match(new RegExp(`${token}:`, 'g'))).toHaveLength(1)
+      expect(spec).toContain(token)
+      expect(contrastRatio('#f5efe0', value)).toBeGreaterThanOrEqual(4.5)
     }
   })
 

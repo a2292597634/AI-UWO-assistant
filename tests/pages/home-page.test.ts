@@ -39,7 +39,19 @@ const wxStub = {
 const createPageInstance = (): HomePageInstance => {
   const instance = Object.create(homePage) as HomePageInstance
   instance.data = structuredClone(homePage.data)
-  instance.setData = (update) => Object.assign(instance.data, update)
+  instance.setData = (update) => {
+    for (const [key, value] of Object.entries(update)) {
+      const moduleIconMatch = /^modules\[(\d+)\]\.iconFailed$/.exec(key)
+      if (moduleIconMatch) {
+        const moduleIndex = Number(moduleIconMatch[1])
+        if (instance.data.modules[moduleIndex] !== undefined) {
+          instance.data.modules[moduleIndex]!.iconFailed = value === true
+        }
+      } else {
+        Object.assign(instance.data, { [key]: value })
+      }
+    }
+  }
   return instance
 }
 
@@ -76,15 +88,17 @@ describe('首頁功能入口', () => {
     expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/subpkg-fleet/pages/index/index' })
   })
 
-  it('顯示主要模組並將資料錯誤回報降級為次級入口', () => {
+  it('顯示六個主要模組並將資料錯誤回報降級為次級入口', () => {
     expect(homePage.data.modules.map((module) => module.id)).toEqual([
       'officer-catalog',
       'battle-fleet',
       'adventure-fleet',
       'trade-goods',
+      'major-events',
       'coupon-redemption',
       'error-report',
     ])
+    expect(homePage.data.modules).toHaveLength(7)
     expect(homePage.data.modules[3]).toMatchObject({
       name: '交易品淡旺季查询',
       iconPath: '/assets/ui/feature-trade-goods.png',
@@ -99,6 +113,13 @@ describe('首頁功能入口', () => {
       iconPath: '/assets/ui/feature-adventure-fleet.png',
     })
     expect(homePage.data.modules[4]).toMatchObject({
+      id: 'major-events',
+      name: '大流行預測',
+      iconPath: '/assets/ui/feature-major-events.png',
+      iconFailed: false,
+      route: '/subpkg-trade/pages/popularity/index',
+    })
+    expect(homePage.data.modules[5]).toMatchObject({
       id: 'coupon-redemption',
       name: '兌換碼',
       iconPath: '/assets/ui/feature-coupon.png',
@@ -110,9 +131,27 @@ describe('首頁功能入口', () => {
       route: '/pages/officer-editor/index',
       iconPath: '/assets/ui/feature-data-maintenance.png',
     })
-    expect(homeWxml).toContain('index < 5')
+    expect(homeWxml).toContain('index < 6')
     expect(homeWxml).toContain("item.id === 'error-report'")
     expect(homeWxss).toMatch(/width:\s*33\.333333%/)
+  })
+
+  it('keeps the major-event entry visible and navigable after its icon fails', () => {
+    const page = createPageInstance()
+    page.onModuleIconError({ currentTarget: { dataset: { index: '4' } } } as never)
+
+    expect(page.data.modules[4]).toMatchObject({
+      id: 'major-events',
+      name: '大流行預測',
+      iconFailed: true,
+    })
+    page.onModuleTap({
+      currentTarget: { dataset: { route: page.data.modules[4]?.route } },
+    } as never)
+    expect(wxStub.navigateTo).toHaveBeenCalledWith({
+      url: '/subpkg-trade/pages/popularity/index',
+    })
+    expect(homeWxml).toContain('module-grid__icon-fallback')
   })
 
   it('不以 Emoji、Unicode 或首字作為正式圖標回退', () => {
