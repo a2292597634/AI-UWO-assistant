@@ -14,6 +14,8 @@ page {
   --uwo-color-event-rust: #923f38;
   --uwo-color-event-forest: #526f54;
   --uwo-color-event-sea: #32677e;
+  --uwo-color-event-schedule-green: #10d62e;
+  --uwo-color-time-current-hour: #e4d21b;
   --uwo-color-border-subtle: #c8bda4;
   --uwo-color-border-strong: #8c7e63;
 

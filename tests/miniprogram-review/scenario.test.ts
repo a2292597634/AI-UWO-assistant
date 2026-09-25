@@ -38,6 +38,12 @@ describe('小程序验收场景', () => {
     expect(selectors).toEqual(
       expect.arrayContaining([
         '.major-events-page',
+        '.major-events-summary__timezone',
+        '.matrix__slot-head',
+        '.matrix__slot-head--current',
+        '.matrix__slot--current',
+        '.matrix-section__note',
+        '.matrix__event-target',
         '.matrix__event-tag',
         '.major-events-range__option--seven-day',
         '.major-events-dates__chip--day-1',
@@ -52,6 +58,26 @@ describe('小程序验收场景', () => {
         '.major-events-next-result',
       ]),
     )
+    expect(majorEvent.steps).toContainEqual({
+      action: 'assertExists',
+      selector: '.matrix__slot-head--current',
+      exists: true,
+    })
+    expect(majorEvent.steps).toContainEqual({
+      action: 'assertText',
+      selector: '.major-events-summary__timezone',
+      contains: '東八區時間',
+    })
+    expect(majorEvent.steps).toContainEqual({
+      action: 'assertText',
+      selector: '.matrix-section__note',
+      contains: '週期預測',
+    })
+    expect(majorEvent.steps).toContainEqual({
+      action: 'tap',
+      selector: '.matrix__event-target',
+    })
+    expect(selectors.some((selector) => /past|lookback|回看/i.test(selector))).toBe(false)
     expect(screenshots).toEqual(
       expect.arrayContaining([
         'major-event-matrix',

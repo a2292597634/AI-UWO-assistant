@@ -40,7 +40,6 @@ interface MajorEventPageState {
   eventItems: MajorEventListViewItem[]
   pageError: string | null
   detailEventSnapshot: MajorEventListViewItem | null
-  showDetailUtcOffset: boolean
   nextOccurrenceResult: MajorEventListViewItem | null
   nextOccurrenceSearched: boolean
   nextOccurrenceMessage: string | null
@@ -51,7 +50,12 @@ interface MajorEventPageState {
     rows: Array<{
       zoneId: string
       iconFailed: boolean
-      slots: Array<{ events: Array<{ key: string }> }>
+      slots: Array<{
+        startUnixSeconds: number
+        timeLabel: string
+        isCurrentHour: boolean
+        events: Array<{ key: string; triggerAtUnixSeconds: number }>
+      }>
     }>
   } | null
   journey: Array<{
@@ -138,13 +142,30 @@ describe('大流行預測頁控制器', () => {
 
     expect(page.data.activeView).toBe('matrix')
     expect(page.data.horizonHours).toBe(72)
-    expect(page.data.segmentCount).toBe(12)
+    expect(page.data.segmentCount).toBe(11)
     expect(page.data.nowUnixSeconds).toBe(Math.floor(Date.now() / 1000))
     expect(page.data.eventItems.length).toBeGreaterThan(0)
     expect(page.data.pageError).toBeNull()
     expect(page.data.summaryLabel).toContain('未來 72 小時')
     expect(page.data.sourceVerifiedLabel).toBe('2026/09/24')
     expect(wxStub.setNavigationBarTitle).toHaveBeenCalledWith({ title: '大流行預測' })
+  })
+
+  it('builds date options in UTC+8 regardless of the device time zone', () => {
+    vi.stubEnv('TZ', 'America/Los_Angeles')
+    try {
+      vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
+      const page = createPageInstance()
+
+      page.onLoad()
+
+      expect(page.data.dateOptions[0]).toEqual({
+        dateKey: '2026-09-25',
+        label: '2026/09/25',
+      })
+    } finally {
+      vi.unstubAllEnvs()
+    }
   })
 
   it.each([
@@ -188,7 +209,7 @@ describe('大流行預測頁控制器', () => {
     expect(page.data.pageError).toBeNull()
   })
 
-  it('rebuilds four, twelve, and twenty-eight six-hour segments for each horizon', () => {
+  it('rebuilds four, eleven, and twenty-four seven-slot segments for each horizon', () => {
     const page = createPageInstance()
     page.onLoad()
 
@@ -198,16 +219,73 @@ describe('大流行預測頁控制器', () => {
     expect(page.data.dateOptions.length).toBeGreaterThanOrEqual(1)
 
     page.onHorizonTap(pageEvent({ horizonHours: '72' }))
-    expect(page.data.segmentCount).toBe(12)
+    expect(page.data.segmentCount).toBe(11)
 
     page.onHorizonTap(pageEvent({ horizonHours: '168' }))
     expect(page.data.horizonHours).toBe(168)
-    expect(page.data.segmentCount).toBe(28)
+    expect(page.data.segmentCount).toBe(24)
     expect(page.data.dateOptions.length).toBeGreaterThanOrEqual(7)
     expect(page.data.dateOptions.length).toBeLessThanOrEqual(8)
   })
 
+  it('shows seven whole-hour columns from the current UTC+8 hour and only future triggers', () => {
+    const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
+    vi.setSystemTime(new Date(nowUnixSeconds * 1000))
+    const page = createPageInstance()
+
+    page.onLoad()
+
+    const slots = page.data.matrix?.rows[0]?.slots
+    expect(slots).toHaveLength(7)
+    expect(slots?.map((slot) => slot.timeLabel)).toEqual([
+      '10:00',
+      '11:00',
+      '12:00',
+      '13:00',
+      '14:00',
+      '15:00',
+      '16:00',
+    ])
+    expect(slots?.map((slot) => slot.isCurrentHour)).toEqual([
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ])
+    expect(
+      page.data.eventItems.every((event) => event.triggerAtUnixSeconds >= nowUnixSeconds),
+    ).toBe(true)
+    expect(page.data.eventItems.find((event) => event.zoneId === 'zone_53')).toMatchObject({
+      eventTypeId: 'pop1',
+      timeLabel: '11:04',
+    })
+    expect(page.data.eventItems.find((event) => event.zoneId === 'zone_54')).toMatchObject({
+      eventTypeId: 'pop5',
+      timeLabel: '11:05',
+    })
+  })
+
+  it('splits an aligned twenty-four-hour range into non-overlapping hour slots', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onHorizonTap(pageEvent({ horizonHours: '24' }))
+
+    const starts: number[] = []
+    for (let index = 0; index < page.data.segmentCount; index += 1) {
+      starts.push(...(page.data.matrix?.rows[0]?.slots.map((slot) => slot.startUnixSeconds) ?? []))
+      if (index + 1 < page.data.segmentCount) page.onSegmentTap(pageEvent({ delta: '1' }))
+    }
+
+    expect(starts).toHaveLength(24)
+    expect(new Set(starts).size).toBe(24)
+    expect(starts).toEqual(Array.from({ length: 24 }, (_, index) => ANCHOR + index * 3600))
+  })
+
   it('jumps to the first intersecting segment and keeps filters when changing views', () => {
+    vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
     const page = createPageInstance()
     page.onLoad()
     page.onAreaFilterTap(pageEvent({ zoneId: 'zone_37' }))
@@ -218,7 +296,7 @@ describe('大流行預測頁控制器', () => {
     if (targetDate === undefined) throw new Error('expected at least three local date options')
     page.onDateTap(pageEvent({ dateKey: targetDate.dateKey }))
     expect(page.data.selectedDateKey).toBe(targetDate.dateKey)
-    expect(page.data.segmentIndex).toBeGreaterThan(0)
+    expect(page.data.segmentIndex).toBe(5)
 
     page.onViewTap(pageEvent({ view: 'journey' }))
     expect(page.data.activeView).toBe('journey')
@@ -310,29 +388,20 @@ describe('大流行預測頁控制器', () => {
     expect(page.data.selectedEventTypeId).toBe('pop1')
   })
 
-  it('shows the UTC offset for an ambiguous local event without a matching sibling', () => {
-    vi.stubEnv('TZ', 'America/New_York')
-    try {
-      const page = createPageInstance()
-      page.onLoad()
-      const selected = page.data.eventItems[0]
-      if (selected === undefined) throw new Error('expected a forecast event')
-      Object.assign(selected, {
-        triggerAtUnixSeconds: Date.UTC(2026, 10, 1, 5, 30) / 1000,
-        dateKey: '2026-11-01',
-        dateLabel: '2026/11/01',
-        timeLabel: '01:30',
-        utcOffsetLabel: 'UTC-04:00',
-      })
-      page.data.eventItems = [selected]
+  it('keeps event details independent of device timezone offset badges', () => {
+    const page = createPageInstance()
+    page.onLoad()
+    const selected = page.data.eventItems[0]
+    if (selected === undefined) throw new Error('expected a forecast event')
 
-      page.onEventTap(pageEvent({ eventKey: selected.key }))
+    page.onEventTap(pageEvent({ eventKey: selected.key }))
 
-      expect(page.data.showDetailUtcOffset).toBe(true)
-      expect(page.data.detailEventSnapshot?.utcOffsetLabel).toBe('UTC-04:00')
-    } finally {
-      vi.unstubAllEnvs()
-    }
+    expect(page.data.detailEventSnapshot).toMatchObject({
+      key: selected.key,
+      dateKey: selected.dateKey,
+      timeLabel: selected.timeLabel,
+    })
+    expect(page.data).not.toHaveProperty('showDetailUtcOffset')
   })
 
   it('marks failed region and category icons and keeps their text labels available', () => {
@@ -379,10 +448,31 @@ describe('大流行預測頁 markup contract', () => {
     expect(wxml).toContain('binderror="onRegionIconError"')
     expect(wxml).toContain('binderror="onCategoryIconError"')
     expect(wxml).toContain('aria-label="{{eventItem.accessibilityLabel}}"')
-    expect(wxml).toContain('{{eventItem.timeLabel}}</text>')
-    expect(wxml).toContain('wx:if="{{eventItem.isExactHour}}"')
-    expect(wxml).not.toContain('{{eventItem.timeLabel}} {{eventItem.minuteLabel}}')
+    expect(wxml).toContain('東八區時間')
+    expect(wxml).toContain('依東八區日期排序')
+    expect(wxml).not.toContain('依裝置時間')
+    expect(wxml).toContain('{{eventItem.eventTypeName}}</text>')
+    expect(wxml).toContain('headerSlot.isCurrentHour')
+    expect(wxml).toContain('slot.isCurrentHour')
+    expect(wxml).not.toContain('major-event-tag__time')
+    expect(wxml).not.toContain('major-event-tag__exact-hour')
+    const matrixMarkup = wxml.slice(
+      wxml.indexOf('class="matrix-section"'),
+      wxml.indexOf('class="journey-section"'),
+    )
+    expect(matrixMarkup).not.toContain('{{eventItem.timeLabel}} {{eventItem.minuteLabel}}')
+    expect(matrixMarkup).not.toContain('eventItem.eventColorToken')
+    expect(matrixMarkup).not.toContain('matrix__empty-mark')
+    expect(matrixMarkup).toMatch(
+      /class="matrix__event-target"[\s\S]*?bindtap="onEventTap"[\s\S]*?role="button"/,
+    )
+    expect(wxml).toContain('style="color: var({{eventItem.eventColorToken}})"')
+    expect(wxml).toContain('style="color: var({{detailEventSnapshot.eventColorToken}})"')
+    expect(wxml).not.toContain('showDetailUtcOffset')
     expect(wxml).toContain('aria-hidden="true"')
+    expect(wxml).toContain(
+      '時刻表為週期預測；城鎮活動優先時大流行可能不發生；同時最多兩種，預算耗盡或滿兩小時即結束。',
+    )
     expect(wxml).toContain('本頁預測觸發時刻，不預測持續時間。')
     expect(wxss).toContain('var(--uwo-color-canvas)')
     expect(wxss).toContain('88rpx')
@@ -390,8 +480,18 @@ describe('大流行預測頁 markup contract', () => {
     expect(wxss).toContain('paper-chart-tile.png')
     expect(wxss).toContain('overflow-x: hidden')
     expect(wxss).toContain('.matrix-scroll')
-    expect(wxss).toContain('.major-event-tag__time')
+    expect(wxss).toContain('.matrix__event-tag')
+    expect(wxss).toContain('.matrix__slot--current')
+    expect(wxss).toContain('.matrix__slot-head--current')
+    expect(wxss).not.toContain('.matrix__empty-mark')
+    expect(wxss).toMatch(/\.matrix__event-target\s*{[^}]*min-height:\s*88rpx/s)
+    expect(wxss).toMatch(/\.matrix__event-tag\s*{[^}]*min-height:\s*40rpx/s)
+    expect(wxss).toContain('var(--uwo-color-event-schedule-green)')
+    expect(wxss).toContain('var(--uwo-color-time-current-hour)')
+    expect(wxss).toContain('.major-event-tag__name')
+    expect(wxss).not.toContain('.major-event-tag__time')
+    expect(wxss).not.toContain('.major-event-tag__exact-hour')
     expect(wxss).toContain('text-overflow: ellipsis')
-    expect(wxss).toContain('width: 744rpx')
+    expect(wxss).toContain('width: 832rpx')
   })
 })

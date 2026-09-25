@@ -10,6 +10,27 @@
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
     { "action": "waitFor", "selector": ".major-events-page" },
+    {
+      "action": "assertText",
+      "selector": ".major-events-summary__timezone",
+      "contains": "東八區時間"
+    },
+    { "action": "waitFor", "selector": ".matrix__slot-head" },
+    {
+      "action": "assertExists",
+      "selector": ".matrix__slot-head--current",
+      "exists": true
+    },
+    {
+      "action": "assertExists",
+      "selector": ".matrix__slot--current",
+      "exists": true
+    },
+    {
+      "action": "assertText",
+      "selector": ".matrix-section__note",
+      "contains": "週期預測"
+    },
     { "action": "screenshot", "name": "major-event-matrix" },
     { "action": "tap", "selector": ".matrix-segment-control__arrow--next" },
     { "action": "tap", "selector": ".matrix-segment-control__arrow--next" },
@@ -17,7 +38,7 @@
     { "action": "tap", "selector": ".matrix-segment-control__arrow--next" },
     { "action": "waitFor", "selector": ".matrix__event-tag", "timeoutMs": 5000 },
     { "action": "screenshot", "name": "major-event-matrix-events" },
-    { "action": "tap", "selector": ".matrix__event-tag" },
+    { "action": "tap", "selector": ".matrix__event-target" },
     { "action": "waitFor", "selector": ".major-event-detail", "timeoutMs": 5000 },
     { "action": "screenshot", "name": "major-event-matrix-detail" },
     { "action": "tap", "selector": ".major-event-detail__close" },

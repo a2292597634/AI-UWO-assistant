@@ -1,6 +1,6 @@
 import { findNextMajorEvent, forecastMajorEvents } from '../../domain/major-event-forecast'
+import { gameDateBounds, gameDateKey, gameHourStartUnixSeconds } from '../../game-time'
 import {
-  isRepeatedLocalWallTime,
   presentMajorEvent,
   presentMajorEventJourney,
   presentMajorEventMatrix,
@@ -29,7 +29,6 @@ interface MajorEventFilterOption {
 
 interface MajorEventPageItem extends MajorEventListViewItem {
   accessibilityLabel: string
-  isExactHour: boolean
   zoneIconPath: string
   zoneIconFailed: boolean
   categories: Array<MajorEventListViewItem['categories'][number] & { iconFailed: boolean }>
@@ -79,7 +78,6 @@ interface MajorEventPageData {
   emptyMessage: string | null
   pageError: string | null
   detailEventSnapshot: MajorEventPageItem | null
-  showDetailUtcOffset: boolean
   nextOccurrenceResult: MajorEventPageItem | null
   nextOccurrenceSearched: boolean
   nextOccurrenceMessage: string | null
@@ -118,7 +116,8 @@ interface MajorEventPageContext extends MajorEventPageController {
   minuteTimer: ReturnType<typeof setTimeout> | null
 }
 
-const SEGMENT_HOURS = 6
+const SLOTS_PER_MATRIX_SEGMENT = 7
+const SECONDS_PER_HOUR = 3600
 const ERROR_MESSAGE = '大流行資料暫時無法載入，請更新小程序後再試'
 const EMPTY_HORIZON_MESSAGE = '所選範圍內沒有符合條件的大流行預測'
 
@@ -130,62 +129,50 @@ const getEventDataset = (event: WechatMiniprogram.BaseEvent): Record<string, unk
     : {}
 }
 
-const pad2 = (value: number): string => String(value).padStart(2, '0')
-
-const toLocalDateOption = (date: Date): MajorEventDateOption => {
-  const year = String(date.getFullYear()).padStart(4, '0')
-  const month = pad2(date.getMonth() + 1)
-  const day = pad2(date.getDate())
-  return {
-    dateKey: `${year}-${month}-${day}`,
-    label: `${year}/${month}/${day}`,
-  }
-}
-
-const buildLocalDateOptions = (
+const buildGameDateOptions = (
   nowUnixSeconds: number,
   horizonHours: number,
 ): MajorEventDateOption[] => {
   const endUnixSeconds = nowUnixSeconds + horizonHours * 3600
-  const cursor = new Date(nowUnixSeconds * 1000)
-  cursor.setHours(0, 0, 0, 0)
   const dates: MajorEventDateOption[] = []
+  let dateKey = gameDateKey(nowUnixSeconds)
+  let bounds = gameDateBounds(dateKey)
 
-  while (cursor.getTime() / 1000 < endUnixSeconds) {
-    const nextDay = new Date(cursor)
-    nextDay.setDate(nextDay.getDate() + 1)
-    if (nextDay.getTime() / 1000 > nowUnixSeconds) dates.push(toLocalDateOption(cursor))
-    cursor.setTime(nextDay.getTime())
+  while (bounds !== null && bounds.start < endUnixSeconds) {
+    if (bounds.end > nowUnixSeconds) {
+      dates.push({ dateKey, label: dateKey.replace(/-/g, '/') })
+    }
+    dateKey = gameDateKey(bounds.end)
+    bounds = gameDateBounds(dateKey)
   }
 
   return dates
 }
 
-const localDateBounds = (dateKey: string): { start: number; end: number } | null => {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey)
-  if (match === null) return null
-  const year = Number(match[1])
-  const month = Number(match[2])
-  const day = Number(match[3])
-  const startDate = new Date(year, month - 1, day)
-  const endDate = new Date(year, month - 1, day + 1)
-  return {
-    start: startDate.getTime() / 1000,
-    end: endDate.getTime() / 1000,
-  }
-}
+const totalMatrixSlotCount = (nowUnixSeconds: number, horizonHours: number): number =>
+  Math.ceil(
+    (nowUnixSeconds + horizonHours * SECONDS_PER_HOUR - gameHourStartUnixSeconds(nowUnixSeconds)) /
+      SECONDS_PER_HOUR,
+  )
 
-const firstSegmentForLocalDate = (
+const matrixSegmentCount = (nowUnixSeconds: number, horizonHours: number): number =>
+  Math.ceil(totalMatrixSlotCount(nowUnixSeconds, horizonHours) / SLOTS_PER_MATRIX_SEGMENT)
+
+const firstSegmentForGameDate = (
   dateKey: string,
   nowUnixSeconds: number,
   horizonHours: number,
 ): number => {
-  const bounds = localDateBounds(dateKey)
+  const bounds = gameDateBounds(dateKey)
   if (bounds === null) return 0
-  const segmentCount = horizonHours / SEGMENT_HOURS
+  const rangeStartUnixSeconds = gameHourStartUnixSeconds(nowUnixSeconds)
+  const totalSlotCount = totalMatrixSlotCount(nowUnixSeconds, horizonHours)
+  const segmentCount = Math.ceil(totalSlotCount / SLOTS_PER_MATRIX_SEGMENT)
   for (let index = 0; index < segmentCount; index += 1) {
-    const start = nowUnixSeconds + index * SEGMENT_HOURS * 3600
-    const end = start + SEGMENT_HOURS * 3600
+    const slotOffset = index * SLOTS_PER_MATRIX_SEGMENT
+    const slotCount = Math.min(SLOTS_PER_MATRIX_SEGMENT, totalSlotCount - slotOffset)
+    const start = rangeStartUnixSeconds + slotOffset * SECONDS_PER_HOUR
+    const end = start + slotCount * SECONDS_PER_HOUR
     if (start < bounds.end && end > bounds.start) return index
   }
   return 0
@@ -284,7 +271,6 @@ const pageItem = (
   return {
     ...item,
     accessibilityLabel: `${item.zoneName}，${item.eventTypeName}，${item.dateLabel} ${item.timeLabel} ${item.minuteLabel}`,
-    isExactHour: item.minuteLabel === '整點',
     zoneIconPath: zone?.iconPath ?? '/subpkg-trade/assets/major-events/compass-rose.png',
     zoneIconFailed: failedRegionIds.has(item.zoneId),
     categories: item.categories.map((category) => ({
@@ -369,12 +355,13 @@ const refreshPage = (
 
   try {
     const now = Math.floor(nowUnixSeconds)
-    const dates = buildLocalDateOptions(now, page.data.horizonHours)
+    const dates = buildGameDateOptions(now, page.data.horizonHours)
     const dateStillAvailable = dates.some((date) => date.dateKey === page.data.selectedDateKey)
     const selectedDateKey = dateStillAvailable
       ? page.data.selectedDateKey
       : (dates[0]?.dateKey ?? '')
-    const segmentCount = page.data.horizonHours / SEGMENT_HOURS
+    const totalSlotCount = totalMatrixSlotCount(now, page.data.horizonHours)
+    const segmentCount = Math.ceil(totalSlotCount / SLOTS_PER_MATRIX_SEGMENT)
     const segmentIndex = dateStillAvailable
       ? Math.min(Math.max(page.data.segmentIndex, 0), segmentCount - 1)
       : 0
@@ -386,9 +373,19 @@ const refreshPage = (
     })
     const failedCategories = new Set(page.data.failedCategoryIconIds)
     const failedRegions = new Set(page.data.failedRegionIconIds)
-    const segmentStartUnixSeconds = now + segmentIndex * SEGMENT_HOURS * 3600
+    const rangeStartUnixSeconds = gameHourStartUnixSeconds(now)
+    const slotOffset = segmentIndex * SLOTS_PER_MATRIX_SEGMENT
+    const slotCount = Math.min(SLOTS_PER_MATRIX_SEGMENT, totalSlotCount - slotOffset)
+    const segmentStartUnixSeconds = rangeStartUnixSeconds + slotOffset * SECONDS_PER_HOUR
     const matrix = pageMatrix(
-      presentMajorEventMatrix(occurrences, reference, trade, segmentStartUnixSeconds),
+      presentMajorEventMatrix(
+        occurrences,
+        reference,
+        trade,
+        segmentStartUnixSeconds,
+        slotCount,
+        rangeStartUnixSeconds,
+      ),
       reference,
       page.data.selectedZoneId,
       failedRegions,
@@ -516,7 +513,7 @@ Page({
     selectedDateKey: '',
     dateOptions: [],
     segmentIndex: 0,
-    segmentCount: 12,
+    segmentCount: 11,
     selectedZoneId: null,
     selectedEventTypeId: null,
     openFilterMenu: null,
@@ -532,7 +529,6 @@ Page({
     emptyMessage: null,
     pageError: null,
     detailEventSnapshot: null,
-    showDetailUtcOffset: false,
     nextOccurrenceResult: null,
     nextOccurrenceSearched: false,
     nextOccurrenceMessage: null,
@@ -587,7 +583,7 @@ Page({
     const page = this as unknown as MajorEventPageContext
     page.setData({
       horizonHours,
-      segmentCount: horizonHours / SEGMENT_HOURS,
+      segmentCount: matrixSegmentCount(page.data.nowUnixSeconds, horizonHours),
       segmentIndex: 0,
       selectedDateKey: '',
       nextOccurrenceSearched: false,
@@ -617,7 +613,7 @@ Page({
     }
     page.setData({
       selectedDateKey: dateKey,
-      segmentIndex: firstSegmentForLocalDate(
+      segmentIndex: firstSegmentForGameDate(
         dateKey,
         page.data.nowUnixSeconds,
         page.data.horizonHours,
@@ -688,7 +684,6 @@ Page({
     if (selected === null || selected === undefined) return
     page.setData({
       detailEventSnapshot: copyEventSnapshot(selected),
-      showDetailUtcOffset: isRepeatedLocalWallTime(selected.triggerAtUnixSeconds),
     })
   },
 
@@ -696,7 +691,6 @@ Page({
     const page = this as unknown as MajorEventPageContext
     page.setData({
       detailEventSnapshot: null,
-      showDetailUtcOffset: false,
     })
   },
 

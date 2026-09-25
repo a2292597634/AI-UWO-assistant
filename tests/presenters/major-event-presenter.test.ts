@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
-  isRepeatedLocalWallTime,
   presentMajorEvent,
   presentMajorEventJourney,
   presentMajorEventMatrix,
@@ -13,8 +12,6 @@ import { getTradeCategoryIconPath } from '../../miniprogram/subpkg-trade/trade-c
 const eventReference = getMajorEventReference()
 const tradeReference = getTradeReference()
 
-const unixSeconds = (date: Date): number => Math.floor(date.getTime() / 1000)
-
 const occurrence = (overrides: Partial<MajorEventOccurrence> = {}): MajorEventOccurrence => ({
   key: 'zone_37:pop1:1790255190',
   eventTypeId: 'pop1',
@@ -22,7 +19,7 @@ const occurrence = (overrides: Partial<MajorEventOccurrence> = {}): MajorEventOc
   zoneId: 'zone_37',
   zoneName: '北海',
   tradeTypeIds: ['17'],
-  triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 24, 13, 6, 30)),
+  triggerAtUnixSeconds: Date.parse('2026-09-24T05:06:30Z') / 1000,
   delaySeconds: 390,
   ...overrides,
 })
@@ -75,14 +72,14 @@ describe('大流行 Presenter', () => {
   it('rounds source delay to the displayed minute and marks exact-hour events', () => {
     const delayed = presentMajorEvent(
       occurrence({
-        triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 24, 13, 6, 30)),
+        triggerAtUnixSeconds: Date.parse('2026-09-24T05:06:30Z') / 1000,
         delaySeconds: 390,
       }),
       tradeReference,
     )
     const exactHour = presentMajorEvent(
       occurrence({
-        triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 24, 13, 0, 0)),
+        triggerAtUnixSeconds: Date.parse('2026-09-24T05:00:00Z') / 1000,
         delaySeconds: 0,
       }),
       tradeReference,
@@ -94,10 +91,10 @@ describe('大流行 Presenter', () => {
     expect(exactHour.minuteLabel).toBe('整點')
   })
 
-  it('derives local date and hour from the absolute trigger time across midnight', () => {
+  it('derives the UTC+8 date and hour from the absolute trigger time across midnight', () => {
     const view = presentMajorEvent(
       occurrence({
-        triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 25, 0, 6, 30)),
+        triggerAtUnixSeconds: Date.parse('2026-09-24T16:06:30Z') / 1000,
         delaySeconds: 390,
       }),
       tradeReference,
@@ -106,19 +103,25 @@ describe('大流行 Presenter', () => {
     expect(view.dateKey).toBe('2026-09-25')
     expect(view.dateLabel).toBe('2026/09/25')
     expect(view.timeLabel).toBe('00:07')
-    expect(view.utcOffsetLabel).toMatch(/^UTC[+-]\d{2}:\d{2}$/)
   })
 
-  it('detects a repeated local DST time from the event timestamp alone', () => {
-    vi.stubEnv('TZ', 'America/New_York')
+  it('formats event time in UTC+8 regardless of the device time zone', () => {
+    vi.stubEnv('TZ', 'America/Los_Angeles')
     try {
-      const firstOneThirty = Date.UTC(2026, 10, 1, 5, 30) / 1000
-      const secondOneThirty = Date.UTC(2026, 10, 1, 6, 30) / 1000
-      const uniqueTwoThirty = Date.UTC(2026, 10, 1, 7, 30) / 1000
+      const view = presentMajorEvent(
+        occurrence({
+          triggerAtUnixSeconds: Date.parse('2026-09-25T03:04:00Z') / 1000,
+          delaySeconds: 240,
+        }),
+        tradeReference,
+      )
 
-      expect(isRepeatedLocalWallTime(firstOneThirty)).toBe(true)
-      expect(isRepeatedLocalWallTime(secondOneThirty)).toBe(true)
-      expect(isRepeatedLocalWallTime(uniqueTwoThirty)).toBe(false)
+      expect(view).toMatchObject({
+        dateKey: '2026-09-25',
+        dateLabel: '2026/09/25',
+        timeLabel: '11:04',
+      })
+      expect(view).not.toHaveProperty('utcOffsetLabel')
     } finally {
       vi.unstubAllEnvs()
     }
@@ -142,8 +145,8 @@ describe('大流行 Presenter', () => {
     ).toThrow(/pop1.*99/)
   })
 
-  it('groups six forecast-hour slots by zone and preserves empty slots', () => {
-    const segmentStart = unixSeconds(new Date(2026, 8, 24, 13, 0, 0))
+  it('groups seven aligned hour slots by zone and marks the current hour', () => {
+    const segmentStart = Date.parse('2026-09-24T05:00:00Z') / 1000
     const matrix = presentMajorEventMatrix(
       [
         occurrence({ triggerAtUnixSeconds: segmentStart + 5 * 3600 + 15 }),
@@ -153,17 +156,37 @@ describe('大流行 Presenter', () => {
       eventReference,
       tradeReference,
       segmentStart,
+      7,
+      segmentStart,
     )
 
     expect(matrix.segmentStartLabel).toBe('2026/09/24 13:00')
-    expect(matrix.segmentEndLabel).toBe('2026/09/24 19:00')
+    expect(matrix.segmentEndLabel).toBe('2026/09/24 20:00')
     expect(matrix.rows).toHaveLength(18)
     expect(matrix.rows[0]).toMatchObject({
       zoneId: 'zone_37',
       zoneName: '北海',
       iconPath: '/subpkg-trade/assets/major-events/region-zone-37.png',
     })
-    expect(matrix.rows[0]?.slots).toHaveLength(6)
+    expect(matrix.rows[0]?.slots).toHaveLength(7)
+    expect(matrix.rows[0]?.slots.map((slot) => slot.timeLabel)).toEqual([
+      '13:00',
+      '14:00',
+      '15:00',
+      '16:00',
+      '17:00',
+      '18:00',
+      '19:00',
+    ])
+    expect(matrix.rows[0]?.slots.map((slot) => slot.isCurrentHour)).toEqual([
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ])
     expect(matrix.rows[0]?.slots[0]?.events.map((event) => event.triggerAtUnixSeconds)).toEqual([
       segmentStart + 30,
       segmentStart + 60,
@@ -175,9 +198,19 @@ describe('大流行 Presenter', () => {
     )
   })
 
+  it('rejects a matrix segment outside the one-to-seven slot range', () => {
+    const segmentStart = Date.parse('2026-09-24T05:00:00Z') / 1000
+    expect(() =>
+      presentMajorEventMatrix([], eventReference, tradeReference, segmentStart, 0, segmentStart),
+    ).toThrow(/槽數/)
+    expect(() =>
+      presentMajorEventMatrix([], eventReference, tradeReference, segmentStart, 8, segmentStart),
+    ).toThrow(/槽數/)
+  })
+
   it('groups journey rows by local date and shares same-minute time headings', () => {
     const sameDateFirst = occurrence({
-      triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 24, 13, 6, 30)),
+      triggerAtUnixSeconds: Date.parse('2026-09-24T05:06:30Z') / 1000,
     })
     const sameDateSecond = occurrence({
       key: 'zone_41:pop2:1790255190',
@@ -185,11 +218,11 @@ describe('大流行 Presenter', () => {
       eventTypeName: '繁榮',
       zoneId: 'zone_41',
       zoneName: '東地中海',
-      triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 24, 13, 6, 30)),
+      triggerAtUnixSeconds: Date.parse('2026-09-24T05:06:30Z') / 1000,
     })
     const nextDate = occurrence({
       key: 'zone_37:pop1:1790299590',
-      triggerAtUnixSeconds: unixSeconds(new Date(2026, 8, 25, 0, 6, 30)),
+      triggerAtUnixSeconds: Date.parse('2026-09-24T16:06:30Z') / 1000,
     })
     const journey = presentMajorEventJourney(
       [nextDate, sameDateSecond, sameDateFirst],

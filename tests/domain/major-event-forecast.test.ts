@@ -47,6 +47,44 @@ const onlyZone = (delaySeconds = 0, phaseHours = 0): RuntimeMajorEventZone[] => 
 ]
 
 describe('大流行預測 Domain', () => {
+  it('matches the supplied game schedule sample and excludes an already-triggered event', () => {
+    const reference = sourceReference
+    const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
+    const current = forecastMajorEvents(reference, {
+      nowUnixSeconds,
+      horizonHours: 24,
+    })
+    const expectedStarts = [
+      ['zone_53', 'pop1', '2026-09-25T11:04:00+08:00'],
+      ['zone_54', 'pop5', '2026-09-25T11:05:00+08:00'],
+      ['zone_59', 'pop5', '2026-09-25T13:04:00+08:00'],
+      ['zone_22', 'pop5', '2026-09-25T15:01:00+08:00'],
+    ] as const
+
+    for (const [zoneId, eventTypeId, triggerAt] of expectedStarts) {
+      expect(current).toContainEqual(
+        expect.objectContaining({
+          zoneId,
+          eventTypeId,
+          triggerAtUnixSeconds: Date.parse(triggerAt) / 1000,
+        }),
+      )
+    }
+
+    const earlier = forecastMajorEvents(reference, {
+      nowUnixSeconds: nowUnixSeconds - 3 * 3600,
+      horizonHours: 24,
+      zoneId: 'zone_34',
+      eventTypeId: 'pop5',
+    })
+    const alreadyTriggered = earlier.find(
+      (event) => event.triggerAtUnixSeconds === Date.parse('2026-09-25T09:06:30+08:00') / 1000,
+    )
+    expect(alreadyTriggered).toBeDefined()
+    expect(current).not.toContainEqual(alreadyTriggered)
+    expect(current.every((event) => event.triggerAtUnixSeconds >= nowUnixSeconds)).toBe(true)
+  })
+
   it.each(sourceReference.eventTypes.map(({ id, periodHours }) => ({ id, periodHours })))(
     '按來源週期計算 $id 命中，前後相鄰小時不誤判',
     ({ id, periodHours }) => {

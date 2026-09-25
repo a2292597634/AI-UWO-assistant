@@ -22,7 +22,7 @@
   <view class="major-events-content">
     <view class="major-events-summary" aria-live="polite">
       <text class="major-events-summary__label">{{summaryLabel}}</text>
-      <text class="major-events-summary__timezone">依裝置時間</text>
+      <text class="major-events-summary__timezone">東八區時間</text>
     </view>
     <text class="major-events-summary__updated">來源核對日期：{{sourceVerifiedLabel}}</text>
 
@@ -218,7 +218,7 @@
                 wx:for="{{matrix.rows[0].slots}}"
                 wx:key="index"
                 wx:for-item="headerSlot"
-                class="matrix__slot-head"
+                class="matrix__slot-head {{headerSlot.isCurrentHour ? 'matrix__slot-head--current' : ''}}"
               >{{headerSlot.timeLabel}}</view>
             </view>
             <view
@@ -251,35 +251,34 @@
                 wx:for="{{zoneRow.slots}}"
                 wx:key="index"
                 wx:for-item="slot"
-                class="matrix__slot"
+                class="matrix__slot {{slot.isCurrentHour ? 'matrix__slot--current' : ''}}"
               >
-                <view wx:if="{{slot.events.length === 0}}" class="matrix__empty-mark" aria-hidden="true">—</view>
                 <view
-                  wx:for="{{slot.events}}"
-                  wx:key="key"
-                  wx:for-item="eventItem"
-                  class="major-event-tag matrix__event-tag"
-                  style="background-color: var({{eventItem.eventColorToken}})"
-                  bindtap="onEventTap"
-                  data-event-key="{{eventItem.key}}"
-                  role="button"
-                  aria-label="{{eventItem.accessibilityLabel}}"
-                >
+                wx:for="{{slot.events}}"
+                wx:key="key"
+                wx:for-item="eventItem"
+                class="matrix__event-target"
+                bindtap="onEventTap"
+                data-event-key="{{eventItem.key}}"
+                role="button"
+                aria-label="{{eventItem.accessibilityLabel}}"
+              >
+                <view class="major-event-tag matrix__event-tag">
                   <text class="major-event-tag__name">{{eventItem.eventTypeName}}</text>
-                  <text class="major-event-tag__time">{{eventItem.timeLabel}}</text>
-                  <text wx:if="{{eventItem.isExactHour}}" class="major-event-tag__exact-hour">整點</text>
                 </view>
+              </view>
               </view>
             </view>
           </view>
         </scroll-view>
       </view>
+      <text class="matrix-section__note">時刻表為週期預測；城鎮活動優先時大流行可能不發生；同時最多兩種，預算耗盡或滿兩小時即結束。</text>
     </view>
 
     <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">
       <view class="matrix-section__heading">
         <text class="matrix-section__title">大流行情程</text>
-        <text class="matrix-section__hint">依裝置本地日期排序</text>
+        <text class="matrix-section__hint">依東八區日期排序</text>
       </view>
       <view wx:if="{{emptyMessage}}" class="major-events-empty">{{emptyMessage}}</view>
       <view wx:for="{{journey}}" wx:key="dateKey" wx:for-item="dayGroup" class="journey-day">
@@ -306,7 +305,10 @@
               aria-label="{{eventItem.accessibilityLabel}}"
             >
               <view class="journey__event-heading">
-                <text class="journey__event-name">{{eventItem.eventTypeName}}</text>
+                <text
+                  class="journey__event-name"
+                  style="color: var({{eventItem.eventColorToken}})"
+                >{{eventItem.eventTypeName}}</text>
                 <text class="journey__event-minute">{{eventItem.minuteLabel}}</text>
               </view>
               <view class="journey__event-zone">
@@ -393,14 +395,16 @@
       <view class="major-event-detail__heading">
         <view>
           <text class="major-event-detail__eyebrow">預測事件詳情</text>
-          <text class="major-event-detail__title">{{detailEventSnapshot.eventTypeName}}</text>
+          <text
+            class="major-event-detail__title"
+            style="color: var({{detailEventSnapshot.eventColorToken}})"
+          >{{detailEventSnapshot.eventTypeName}}</text>
         </view>
         <button class="ui-button ui-button--secondary major-event-detail__close" bindtap="onCloseDetail" aria-label="關閉事件詳情">關閉</button>
       </view>
       <view class="major-event-detail__time-block">
         <text class="major-event-detail__section-label">預測時間</text>
         <text class="major-event-detail__date-time">{{detailEventSnapshot.dateLabel}} {{detailEventSnapshot.timeLabel}} {{detailEventSnapshot.minuteLabel}}</text>
-        <text wx:if="{{showDetailUtcOffset}}" class="major-event-detail__utc">{{detailEventSnapshot.utcOffsetLabel}}</text>
         <text class="major-event-detail__zone">{{detailEventSnapshot.zoneName}}</text>
       </view>
       <view class="major-event-detail__category-block">

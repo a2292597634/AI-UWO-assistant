@@ -50,6 +50,11 @@ const EVENT_COLOR_TOKENS = {
   '--uwo-color-event-sea': '#32677e',
 } as const
 
+const GAME_SCHEDULE_COLOR_TOKENS = {
+  '--uwo-color-event-schedule-green': '#10d62e',
+  '--uwo-color-time-current-hour': '#e4d21b',
+} as const
+
 const relativeLuminance = (hex: string): number => {
   const channels = hex
     .slice(1)
@@ -105,6 +110,18 @@ describe('Design Foundation 全局入口與 Token', () => {
       expect(foundation.match(new RegExp(`${token}:`, 'g'))).toHaveLength(1)
       expect(spec).toContain(token)
       expect(contrastRatio('#f5efe0', value)).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('定義遊戲時刻表事件綠與目前時段黃，深色文字對比至少 4.5:1', () => {
+    const foundation = readProjectFile('miniprogram/styles/design-foundation.wxss')
+    const spec = readProjectFile(SPEC_PATH)
+
+    for (const [token, value] of Object.entries(GAME_SCHEDULE_COLOR_TOKENS)) {
+      expect(foundation).toContain(`${token}: ${value};`)
+      expect(foundation.match(new RegExp(`${token}:`, 'g'))).toHaveLength(1)
+      expect(spec).toContain(token)
+      expect(contrastRatio('#26332f', value)).toBeGreaterThanOrEqual(4.5)
     }
   })
 

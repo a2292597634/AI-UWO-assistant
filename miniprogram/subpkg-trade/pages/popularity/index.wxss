@@ -376,6 +376,15 @@
   font-size: var(--uwo-font-size-minimum-action);
 }
 
+.matrix-section__note {
+  display: block;
+  margin-top: var(--uwo-space-2);
+  padding: 0 var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.45;
+}
+
 .matrix-frame {
   position: relative;
   overflow: hidden;
@@ -402,13 +411,13 @@
 }
 
 .matrix-table {
-  width: 744rpx;
+  width: 832rpx;
 }
 
 .matrix__header-row,
 .matrix__zone-row {
   display: flex;
-  width: 744rpx;
+  width: 832rpx;
 }
 
 .matrix__zone-head,
@@ -441,6 +450,12 @@
   border-bottom: 1rpx solid var(--uwo-color-border-subtle);
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-minimum-action);
+}
+
+.matrix__slot-head--current {
+  background-color: var(--uwo-color-time-current-hour);
+  color: var(--uwo-color-ink);
+  font-weight: 700;
 }
 
 .matrix__zone-cell {
@@ -480,10 +495,8 @@
   background-color: rgba(232, 223, 206, 0.34);
 }
 
-.matrix__empty-mark {
-  color: var(--uwo-color-text-secondary);
-  font-size: var(--uwo-font-size-supporting);
-  text-align: center;
+.matrix__slot--current {
+  background-color: var(--uwo-color-time-current-hour);
 }
 
 .major-event-tag {
@@ -500,34 +513,30 @@
   text-align: center;
 }
 
+.matrix__event-target {
+  display: flex;
+  width: 100%;
+  min-height: 88rpx;
+  flex: 0 0 88rpx;
+  align-items: center;
+  justify-content: center;
+}
+
+.matrix__event-tag {
+  width: 100%;
+  min-height: 40rpx;
+  padding: 0 var(--uwo-space-1);
+  border-color: var(--uwo-color-ink);
+  background-color: var(--uwo-color-event-schedule-green);
+  color: var(--uwo-color-ink);
+}
+
 .major-event-tag__name {
   max-width: 100%;
   overflow: hidden;
   font-size: var(--uwo-font-size-minimum-action);
   font-weight: 600;
   line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.major-event-tag__time {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  font-size: var(--uwo-font-size-minimum-action);
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.major-event-tag__exact-hour {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  color: rgba(245, 239, 224, 0.9);
-  font-size: var(--uwo-font-size-minimum-action);
-  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -719,7 +728,6 @@
 .major-event-detail__title,
 .major-event-detail__section-label,
 .major-event-detail__date-time,
-.major-event-detail__utc,
 .major-event-detail__zone,
 .major-event-detail__note {
   position: relative;
@@ -769,7 +777,6 @@
   line-height: 1.45;
 }
 
-.major-event-detail__utc,
 .major-event-detail__zone {
   margin-top: var(--uwo-space-1);
   color: var(--uwo-color-text-secondary);

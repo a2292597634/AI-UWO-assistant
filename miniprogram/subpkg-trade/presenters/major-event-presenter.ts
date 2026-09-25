@@ -4,6 +4,7 @@ import type {
   RuntimeMajorEventZone,
   RuntimeTradeReference,
 } from '../../contracts/runtime-data'
+import { toGameTimeDate } from '../game-time'
 import { getTradeCategoryIconPath } from '../trade-category-icons'
 
 export interface MajorEventCategoryView {
@@ -17,7 +18,6 @@ export interface MajorEventListViewItem extends MajorEventOccurrence {
   dateLabel: string
   timeLabel: string
   minuteLabel: string
-  utcOffsetLabel: string
   eventColorToken: string
   categories: MajorEventCategoryView[]
 }
@@ -26,6 +26,7 @@ export interface MajorEventMatrixSlot {
   index: number
   startUnixSeconds: number
   timeLabel: string
+  isCurrentHour: boolean
   events: MajorEventListViewItem[]
 }
 
@@ -68,14 +69,11 @@ const EVENT_COLOR_TOKENS: Readonly<Record<string, string>> = {
 
 const pad2 = (value: number): string => String(value).padStart(2, '0')
 
-const localDateParts = (unixSeconds: number) => {
-  const date = new Date(unixSeconds * 1000)
-  if (!Number.isFinite(date.getTime())) {
-    throw new Error(`無效的大流行觸發時間：${unixSeconds}`)
-  }
-  const year = String(date.getFullYear()).padStart(4, '0')
-  const month = pad2(date.getMonth() + 1)
-  const day = pad2(date.getDate())
+const gameDateParts = (unixSeconds: number) => {
+  const date = toGameTimeDate(unixSeconds)
+  const year = String(date.getUTCFullYear()).padStart(4, '0')
+  const month = pad2(date.getUTCMonth() + 1)
+  const day = pad2(date.getUTCDate())
   return {
     date,
     dateKey: `${year}-${month}-${day}`,
@@ -83,73 +81,9 @@ const localDateParts = (unixSeconds: number) => {
   }
 }
 
-const localTimeLabel = (date: Date, minute: number): string =>
-  `${pad2(date.getHours())}:${pad2(minute)}`
-
-const utcOffsetLabel = (date: Date): string => {
-  const offsetMinutes = -date.getTimezoneOffset()
-  const sign = offsetMinutes < 0 ? '-' : '+'
-  const absoluteMinutes = Math.abs(offsetMinutes)
-  return `UTC${sign}${pad2(Math.floor(absoluteMinutes / 60))}:${pad2(absoluteMinutes % 60)}`
-}
-
-export const isRepeatedLocalWallTime = (unixSeconds: number): boolean => {
-  const target = new Date(unixSeconds * 1000)
-  if (!Number.isFinite(target.getTime())) return false
-
-  const targetParts = [
-    target.getFullYear(),
-    target.getMonth(),
-    target.getDate(),
-    target.getHours(),
-    target.getMinutes(),
-    target.getSeconds(),
-    target.getMilliseconds(),
-  ]
-  const wallClockTimestamp = Date.UTC(
-    target.getFullYear(),
-    target.getMonth(),
-    target.getDate(),
-    target.getHours(),
-    target.getMinutes(),
-    target.getSeconds(),
-    target.getMilliseconds(),
-  )
-  const offsetCandidates = new Set<number>()
-  const searchRadiusMilliseconds = 4 * 60 * 60 * 1000
-  const sampleIntervalMilliseconds = 15 * 60 * 1000
-
-  for (
-    let offset = -searchRadiusMilliseconds;
-    offset <= searchRadiusMilliseconds;
-    offset += sampleIntervalMilliseconds
-  ) {
-    offsetCandidates.add(new Date(target.getTime() + offset).getTimezoneOffset())
-  }
-
-  for (const offsetMinutes of offsetCandidates) {
-    if (offsetMinutes === target.getTimezoneOffset()) continue
-    const candidate = new Date(wallClockTimestamp + offsetMinutes * 60 * 1000)
-    if (
-      candidate.getFullYear() === targetParts[0] &&
-      candidate.getMonth() === targetParts[1] &&
-      candidate.getDate() === targetParts[2] &&
-      candidate.getHours() === targetParts[3] &&
-      candidate.getMinutes() === targetParts[4] &&
-      candidate.getSeconds() === targetParts[5] &&
-      candidate.getMilliseconds() === targetParts[6] &&
-      candidate.getTimezoneOffset() !== target.getTimezoneOffset()
-    ) {
-      return true
-    }
-  }
-
-  return false
-}
-
 const dateTimeLabel = (unixSeconds: number): string => {
-  const { date, dateLabel } = localDateParts(unixSeconds)
-  return `${dateLabel} ${localTimeLabel(date, date.getMinutes())}`
+  const { date, dateLabel } = gameDateParts(unixSeconds)
+  return `${dateLabel} ${pad2(date.getUTCHours())}:${pad2(date.getUTCMinutes())}`
 }
 
 export const presentMajorEvent = (
@@ -161,9 +95,9 @@ export const presentMajorEvent = (
     throw new Error(`大流行事件缺少色彩 Token：${occurrence.eventTypeId}`)
   }
 
-  const { date, dateKey, dateLabel } = localDateParts(occurrence.triggerAtUnixSeconds)
+  const { date, dateKey, dateLabel } = gameDateParts(occurrence.triggerAtUnixSeconds)
   const displayedMinute = Math.round(occurrence.delaySeconds / 60)
-  const timeLabel = localTimeLabel(date, displayedMinute)
+  const timeLabel = `${pad2(date.getUTCHours())}:${pad2(displayedMinute)}`
   const minuteLabel = displayedMinute === 0 ? '整點' : `${pad2(displayedMinute)} 分`
 
   const categories = occurrence.tradeTypeIds.map((categoryId): MajorEventCategoryView => {
@@ -181,7 +115,6 @@ export const presentMajorEvent = (
     dateLabel,
     timeLabel,
     minuteLabel,
-    utcOffsetLabel: utcOffsetLabel(date),
     eventColorToken: colorToken,
     categories,
   }
@@ -192,17 +125,25 @@ export const presentMajorEventMatrix = (
   reference: RuntimeMajorEventReference,
   tradeReference: RuntimeTradeReference,
   segmentStartUnixSeconds: number,
+  slotCount: number,
+  currentHourStartUnixSeconds: number,
 ): MajorEventMatrixView => {
   if (!Number.isFinite(segmentStartUnixSeconds)) {
     throw new Error(`無效的大流行矩陣段起點：${segmentStartUnixSeconds}`)
   }
+  if (!Number.isInteger(slotCount) || slotCount < 1 || slotCount > 7) {
+    throw new Error(`大流行矩陣槽數必須介於 1 至 7：${slotCount}`)
+  }
+  if (!Number.isFinite(currentHourStartUnixSeconds)) {
+    throw new Error(`無效的大流行目前時段：${currentHourStartUnixSeconds}`)
+  }
 
-  const segmentEndUnixSeconds = segmentStartUnixSeconds + 6 * 3600
+  const segmentEndUnixSeconds = segmentStartUnixSeconds + slotCount * 3600
   const rows = reference.zones.map((zone: RuntimeMajorEventZone): MajorEventMatrixZoneRow => ({
     zoneId: zone.id,
     zoneName: zone.name,
     iconPath: zone.iconPath,
-    slots: Array.from({ length: 6 }, (_, index): MajorEventMatrixSlot => {
+    slots: Array.from({ length: slotCount }, (_, index): MajorEventMatrixSlot => {
       const startUnixSeconds = segmentStartUnixSeconds + index * 3600
       const slotEvents = occurrences
         .map((event, originalIndex) => ({ event, originalIndex }))
@@ -222,6 +163,7 @@ export const presentMajorEventMatrix = (
         index,
         startUnixSeconds,
         timeLabel: dateTimeLabel(startUnixSeconds).slice(-5),
+        isCurrentHour: startUnixSeconds === currentHourStartUnixSeconds,
         events: slotEvents,
       }
     }),
