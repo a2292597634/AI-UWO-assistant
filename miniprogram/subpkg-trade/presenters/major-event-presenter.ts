@@ -18,15 +18,19 @@ export interface MajorEventListViewItem extends MajorEventOccurrence {
   dateLabel: string
   timeLabel: string
   minuteLabel: string
+  isOngoingCandidate: boolean
   eventColorToken: string
   categories: MajorEventCategoryView[]
 }
 
-export interface MajorEventMatrixSlot {
+export interface MajorEventMatrixHeaderSlot {
   index: number
   startUnixSeconds: number
   timeLabel: string
   isCurrentHour: boolean
+}
+
+export interface MajorEventMatrixSlot extends MajorEventMatrixHeaderSlot {
   events: MajorEventListViewItem[]
 }
 
@@ -42,6 +46,7 @@ export interface MajorEventMatrixView {
   segmentEndUnixSeconds: number
   segmentStartLabel: string
   segmentEndLabel: string
+  headerSlots: MajorEventMatrixHeaderSlot[]
   rows: MajorEventMatrixZoneRow[]
 }
 
@@ -89,6 +94,7 @@ const dateTimeLabel = (unixSeconds: number): string => {
 export const presentMajorEvent = (
   occurrence: MajorEventOccurrence,
   tradeReference: RuntimeTradeReference,
+  isOngoingCandidate = false,
 ): MajorEventListViewItem => {
   const colorToken = EVENT_COLOR_TOKENS[occurrence.eventTypeId]
   if (colorToken === undefined) {
@@ -115,13 +121,15 @@ export const presentMajorEvent = (
     dateLabel,
     timeLabel,
     minuteLabel,
+    isOngoingCandidate,
     eventColorToken: colorToken,
     categories,
   }
 }
 
 export const presentMajorEventMatrix = (
-  occurrences: readonly MajorEventOccurrence[],
+  futureOccurrences: readonly MajorEventOccurrence[],
+  ongoingOccurrences: readonly MajorEventOccurrence[],
   reference: RuntimeMajorEventReference,
   tradeReference: RuntimeTradeReference,
   segmentStartUnixSeconds: number,
@@ -139,32 +147,69 @@ export const presentMajorEventMatrix = (
   }
 
   const segmentEndUnixSeconds = segmentStartUnixSeconds + slotCount * 3600
+  const headerSlots = Array.from({ length: slotCount }, (_, index): MajorEventMatrixHeaderSlot => {
+    const startUnixSeconds = segmentStartUnixSeconds + index * 3600
+    return {
+      index,
+      startUnixSeconds,
+      timeLabel: dateTimeLabel(startUnixSeconds).slice(-5),
+      isCurrentHour: startUnixSeconds === currentHourStartUnixSeconds,
+    }
+  })
+  const eventTypeOrder = new Map(reference.eventTypes.map((event, index) => [event.id, index]))
   const rows = reference.zones.map((zone: RuntimeMajorEventZone): MajorEventMatrixZoneRow => ({
     zoneId: zone.id,
     zoneName: zone.name,
     iconPath: zone.iconPath,
-    slots: Array.from({ length: slotCount }, (_, index): MajorEventMatrixSlot => {
-      const startUnixSeconds = segmentStartUnixSeconds + index * 3600
-      const slotEvents = occurrences
+    slots: headerSlots.map((slot): MajorEventMatrixSlot => {
+      const slotEvents = new Map<
+        string,
+        { event: MajorEventOccurrence; isOngoingCandidate: boolean }
+      >()
+      futureOccurrences
         .map((event, originalIndex) => ({ event, originalIndex }))
         .filter(
           ({ event }) =>
             event.zoneId === zone.id &&
-            Math.floor((event.triggerAtUnixSeconds - segmentStartUnixSeconds) / 3600) === index,
+            Math.floor((event.triggerAtUnixSeconds - segmentStartUnixSeconds) / 3600) ===
+              slot.index,
         )
         .sort(
           (left, right) =>
             left.event.triggerAtUnixSeconds - right.event.triggerAtUnixSeconds ||
             left.originalIndex - right.originalIndex,
         )
-        .map(({ event }) => presentMajorEvent(event, tradeReference))
+        .forEach(({ event }) => slotEvents.set(event.key, { event, isOngoingCandidate: false }))
+
+      if (slot.isCurrentHour) {
+        ongoingOccurrences
+          .filter((event) => event.zoneId === zone.id)
+          .forEach((event) => {
+            const existing = slotEvents.get(event.key)
+            slotEvents.set(event.key, {
+              event,
+              isOngoingCandidate: existing?.isOngoingCandidate ?? true,
+            })
+          })
+      }
+
+      const orderedEvents = [...slotEvents.values()].sort((left, right) => {
+        if (slot.isCurrentHour) {
+          return (
+            (eventTypeOrder.get(left.event.eventTypeId) ?? Number.MAX_SAFE_INTEGER) -
+              (eventTypeOrder.get(right.event.eventTypeId) ?? Number.MAX_SAFE_INTEGER) ||
+            left.event.triggerAtUnixSeconds - right.event.triggerAtUnixSeconds
+          )
+        }
+        return left.event.triggerAtUnixSeconds - right.event.triggerAtUnixSeconds
+      })
+      const visibleEvents = slot.isCurrentHour ? orderedEvents.slice(0, 2) : orderedEvents
 
       return {
-        index,
-        startUnixSeconds,
-        timeLabel: dateTimeLabel(startUnixSeconds).slice(-5),
-        isCurrentHour: startUnixSeconds === currentHourStartUnixSeconds,
-        events: slotEvents,
+        ...slot,
+        events: visibleEvents.map(({ event, isOngoingCandidate }) =>
+          presentMajorEvent(event, tradeReference, isOngoingCandidate),
+        ),
       }
     }),
   }))
@@ -174,6 +219,7 @@ export const presentMajorEventMatrix = (
     segmentEndUnixSeconds,
     segmentStartLabel: dateTimeLabel(segmentStartUnixSeconds),
     segmentEndLabel: dateTimeLabel(segmentEndUnixSeconds),
+    headerSlots,
     rows,
   }
 }

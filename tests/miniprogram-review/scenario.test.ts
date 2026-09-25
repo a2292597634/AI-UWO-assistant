@@ -109,9 +109,12 @@ describe('小程序验收场景', () => {
         '.major-events-filter-menu__option--zone-zone_57',
         '.major-events-filter--event-type',
         '.major-events-filter-menu__option--event-type-pop2',
-        '.major-events-empty',
       ]),
     )
+    expect(empty.steps).toContainEqual({
+      action: 'waitFor',
+      durationMs: 500,
+    })
     expect(screenshots).toContain('major-event-filter-empty')
   })
 

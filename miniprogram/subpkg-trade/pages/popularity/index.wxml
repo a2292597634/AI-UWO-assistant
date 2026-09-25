@@ -24,6 +24,10 @@
       <text class="major-events-summary__label">{{summaryLabel}}</text>
       <text class="major-events-summary__timezone">東八區時間</text>
     </view>
+    <text
+      wx:if="{{!pageError && activeView === 'matrix' && ongoingVisibleCount > 0}}"
+      class="major-events-summary__ongoing"
+    >{{ongoingVisibleCount}} 筆可能進行（僅目前時段）</text>
     <text class="major-events-summary__updated">來源核對日期：{{sourceVerifiedLabel}}</text>
 
     <view class="major-events-range" aria-label="預測範圍">
@@ -202,7 +206,6 @@
         <text class="matrix-section__title">海域時刻矩陣</text>
         <text class="matrix-section__hint">每格為一小時預測</text>
       </view>
-      <view wx:if="{{emptyMessage}}" class="major-events-empty">{{emptyMessage}}</view>
       <view class="matrix-frame">
         <image
           class="matrix-frame__compass"
@@ -215,11 +218,14 @@
             <view class="matrix__header-row">
               <view class="matrix__zone-head">海域</view>
               <view
-                wx:for="{{matrix.rows[0].slots}}"
+                wx:for="{{matrix.headerSlots}}"
                 wx:key="index"
                 wx:for-item="headerSlot"
                 class="matrix__slot-head {{headerSlot.isCurrentHour ? 'matrix__slot-head--current' : ''}}"
               >{{headerSlot.timeLabel}}</view>
+            </view>
+            <view wx:if="{{matrix.rows.length === 0}}" class="matrix__empty-state" role="status">
+              此七個時段暫無預測
             </view>
             <view
               wx:for="{{matrix.rows}}"
@@ -254,25 +260,28 @@
                 class="matrix__slot {{slot.isCurrentHour ? 'matrix__slot--current' : ''}}"
               >
                 <view
-                wx:for="{{slot.events}}"
-                wx:key="key"
-                wx:for-item="eventItem"
-                class="matrix__event-target"
-                bindtap="onEventTap"
-                data-event-key="{{eventItem.key}}"
-                role="button"
-                aria-label="{{eventItem.accessibilityLabel}}"
-              >
-                <view class="major-event-tag matrix__event-tag">
-                  <text class="major-event-tag__name">{{eventItem.eventTypeName}}</text>
+                  wx:for="{{slot.events}}"
+                  wx:key="key"
+                  wx:for-item="eventItem"
+                  class="matrix__event-target"
+                  bindtap="onEventTap"
+                  data-event-key="{{eventItem.key}}"
+                  role="button"
+                  aria-label="{{eventItem.accessibilityLabel}}"
+                >
+                  <view
+                    class="major-event-tag matrix__event-tag {{eventItem.isOngoingCandidate ? 'matrix__event-tag--ongoing' : ''}}"
+                  >
+                    <text class="major-event-tag__name">{{eventItem.eventTypeName}}</text>
+                    <text wx:if="{{eventItem.isOngoingCandidate}}" class="major-event-tag__status">可能進行</text>
+                  </view>
                 </view>
-              </view>
               </view>
             </view>
           </view>
         </scroll-view>
       </view>
-      <text class="matrix-section__note">時刻表為週期預測；城鎮活動優先時大流行可能不發生；同時最多兩種，預算耗盡或滿兩小時即結束。</text>
+      <text class="matrix-section__note">時刻表為週期預測；目前時段可含「可能進行」候選；城鎮活動或預算會使實際狀態不同；同時最多兩種，預算耗盡或滿兩小時即結束。</text>
     </view>
 
     <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">
@@ -436,7 +445,8 @@
           </view>
         </view>
       </view>
-      <text class="major-event-detail__note">本頁預測觸發時刻，不預測持續時間。</text>
+      <text wx:if="{{detailEventSnapshot.isOngoingCandidate}}" class="major-event-detail__note">此事件依兩小時上限推算可能仍在進行；實際狀態受事件預算和城鎮活動影響。</text>
+      <text wx:else class="major-event-detail__note">本頁預測觸發時刻，不預測持續時間。</text>
     </view>
   </view>
 </view>

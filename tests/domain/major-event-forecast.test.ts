@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   findNextMajorEvent,
   forecastMajorEvents,
+  forecastOngoingMajorEvents,
 } from '../../miniprogram/subpkg-trade/domain/major-event-forecast'
 import { getMajorEventReference } from '../../miniprogram/subpkg-trade/runtime/major-event-data-store'
 import type {
@@ -47,6 +48,46 @@ const onlyZone = (delaySeconds = 0, phaseHours = 0): RuntimeMajorEventZone[] => 
 ]
 
 describe('大流行預測 Domain', () => {
+  it('returns the Arctic War as a possible ongoing candidate for the supplied UTC+8 sample', () => {
+    const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
+    const candidates = forecastOngoingMajorEvents(sourceReference, { nowUnixSeconds })
+    const arcticWar = candidates.find(
+      (event) => event.zoneId === 'zone_34' && event.eventTypeId === 'pop5',
+    )
+
+    expect(arcticWar?.triggerAtUnixSeconds).toBe(Date.parse('2026-09-25T09:06:30+08:00') / 1000)
+    expect(candidates.every((event) => event.triggerAtUnixSeconds < nowUnixSeconds)).toBe(true)
+    expect(candidates.every((event) => event.triggerAtUnixSeconds > nowUnixSeconds - 7200)).toBe(
+      true,
+    )
+    expect(
+      forecastOngoingMajorEvents(sourceReference, {
+        nowUnixSeconds,
+        zoneId: 'zone_34',
+        eventTypeId: 'pop5',
+      }),
+    ).toEqual([arcticWar])
+  })
+
+  it('excludes candidates at the two-hour cutoff while retaining the event one second before it', () => {
+    const event = onlyEvent('pop1')[0]
+    if (event === undefined) throw new Error('expected pop1 in runtime reference')
+    const reference = withFixture({
+      eventTypes: [{ ...event, periodHours: 379 }],
+      zones: onlyZone(),
+    })
+
+    const oneSecondBeforeCutoff = forecastOngoingMajorEvents(reference, {
+      nowUnixSeconds: ANCHOR + 7199,
+    })
+    const exactlyAtCutoff = forecastOngoingMajorEvents(reference, {
+      nowUnixSeconds: ANCHOR + 7200,
+    })
+
+    expect(oneSecondBeforeCutoff.map((item) => item.triggerAtUnixSeconds)).toEqual([ANCHOR])
+    expect(exactlyAtCutoff.map((item) => item.triggerAtUnixSeconds)).not.toContain(ANCHOR)
+  })
+
   it('matches the supplied game schedule sample and excludes an already-triggered event', () => {
     const reference = sourceReference
     const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000

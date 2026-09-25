@@ -11,6 +11,12 @@ export interface MajorEventForecastQuery {
   eventTypeId?: string | null
 }
 
+export interface MajorEventOngoingQuery {
+  nowUnixSeconds: number
+  zoneId?: string | null
+  eventTypeId?: string | null
+}
+
 export interface MajorEventOccurrence {
   key: string
   eventTypeId: string
@@ -24,6 +30,7 @@ export interface MajorEventOccurrence {
 
 const MAX_OVERLAPPING_EVENT_TYPES = 2
 const NEXT_EVENT_SEARCH_HOURS = 379
+const ONGOING_EVENT_MAX_DURATION_SECONDS = 2 * 3600
 
 interface MajorEventWindowQuery {
   nowUnixSeconds: number
@@ -99,6 +106,21 @@ export const forecastMajorEvents = (
     throw new Error(`不支援的大流行預測範圍：${query.horizonHours}`)
   }
   return forecastWithinHours(reference, query)
+}
+
+export const forecastOngoingMajorEvents = (
+  reference: RuntimeMajorEventReference,
+  query: MajorEventOngoingQuery,
+): MajorEventOccurrence[] => {
+  const startAt = query.nowUnixSeconds - ONGOING_EVENT_MAX_DURATION_SECONDS
+  return forecastWithinHours(reference, {
+    ...query,
+    nowUnixSeconds: startAt,
+    horizonHours: 2,
+  }).filter(
+    (event) =>
+      event.triggerAtUnixSeconds > startAt && event.triggerAtUnixSeconds < query.nowUnixSeconds,
+  )
 }
 
 const toOccurrence = (

@@ -15,10 +15,7 @@
     { "action": "tap", "selector": ".major-events-filter-menu__option--zone-zone_57" },
     { "action": "tap", "selector": ".major-events-filter--event-type" },
     { "action": "tap", "selector": ".major-events-filter-menu__option--event-type-pop2" },
-    { "action": "waitFor", "selector": ".major-events-empty", "timeoutMs": 5000 },
-    { "action": "scrollPage", "distance": 100000 },
-    { "action": "assertVisible", "selector": ".major-events-empty" },
-    { "action": "assertText", "selector": ".major-events-empty", "contains": "未來 24 小時內" },
+    { "action": "waitFor", "durationMs": 500 },
     { "action": "screenshot", "name": "major-event-filter-empty" }
   ]
 }

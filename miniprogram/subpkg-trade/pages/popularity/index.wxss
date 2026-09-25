@@ -115,6 +115,15 @@
   line-height: 1.4;
 }
 
+.major-events-summary__ongoing {
+  display: block;
+  margin: 0 0 var(--uwo-space-1);
+  padding-left: var(--uwo-space-1);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-minimum-action);
+  line-height: 1.4;
+}
+
 .major-events-range,
 .major-events-view-switch {
   display: flex;
@@ -420,6 +429,21 @@
   width: 832rpx;
 }
 
+.matrix__empty-state {
+  display: flex;
+  width: 832rpx;
+  min-height: 104rpx;
+  align-items: center;
+  justify-content: center;
+  padding: var(--uwo-space-4);
+  border-bottom: 1rpx solid var(--uwo-color-border-subtle);
+  background-color: var(--uwo-color-surface-muted);
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  line-height: 1.5;
+  text-align: center;
+}
+
 .matrix__zone-head,
 .matrix__zone-cell {
   display: flex;
@@ -531,6 +555,11 @@
   color: var(--uwo-color-ink);
 }
 
+.matrix__event-tag--ongoing {
+  min-height: 72rpx;
+  padding: var(--uwo-space-1);
+}
+
 .major-event-tag__name {
   max-width: 100%;
   overflow: hidden;
@@ -539,6 +568,15 @@
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.major-event-tag__status {
+  max-width: 100%;
+  color: var(--uwo-color-ink);
+  font-size: var(--uwo-font-size-minimum-action);
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
 }
 
 .journey-day {

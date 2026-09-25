@@ -1,4 +1,8 @@
-import { findNextMajorEvent, forecastMajorEvents } from '../../domain/major-event-forecast'
+import {
+  findNextMajorEvent,
+  forecastMajorEvents,
+  forecastOngoingMajorEvents,
+} from '../../domain/major-event-forecast'
 import { gameDateBounds, gameDateKey, gameHourStartUnixSeconds } from '../../game-time'
 import {
   presentMajorEvent,
@@ -74,6 +78,7 @@ interface MajorEventPageData {
   matrix: MajorEventPageMatrix | null
   journey: MajorEventPageJourney[]
   summaryLabel: string
+  ongoingVisibleCount: number
   sourceVerifiedLabel: string
   emptyMessage: string | null
   pageError: string | null
@@ -268,9 +273,10 @@ const pageItem = (
   failedCategoryIds: ReadonlySet<string>,
 ): MajorEventPageItem => {
   const zone = reference.zones.find((candidate) => candidate.id === item.zoneId)
+  const ongoingLabel = item.isOngoingCandidate ? '，可能仍在進行' : ''
   return {
     ...item,
-    accessibilityLabel: `${item.zoneName}，${item.eventTypeName}，${item.dateLabel} ${item.timeLabel} ${item.minuteLabel}`,
+    accessibilityLabel: `${item.zoneName}，${item.eventTypeName}${ongoingLabel}，${item.dateLabel} ${item.timeLabel} ${item.minuteLabel}`,
     zoneIconPath: zone?.iconPath ?? '/subpkg-trade/assets/major-events/compass-rose.png',
     zoneIconFailed: failedRegionIds.has(item.zoneId),
     categories: item.categories.map((category) => ({
@@ -293,11 +299,13 @@ const pageMatrix = (
   failedCategoryIds: ReadonlySet<string>,
 ): MajorEventPageMatrix => ({
   ...matrix,
-  rows: (() => {
-    const selectedRows = matrix.rows.filter(
-      (row) => selectedZoneId === null || selectedZoneId === row.zoneId,
+  rows: matrix.rows
+    .filter(
+      (row) =>
+        (selectedZoneId === null || selectedZoneId === row.zoneId) &&
+        row.slots.some((slot) => slot.events.length > 0),
     )
-    return (selectedRows.length > 0 ? selectedRows : matrix.rows).map((row) => ({
+    .map((row) => ({
       ...row,
       iconFailed: failedRegionIds.has(row.zoneId),
       slots: row.slots.map((slot) => ({
@@ -306,8 +314,7 @@ const pageMatrix = (
           pageItem(item, reference, failedRegionIds, failedCategoryIds),
         ),
       })),
-    }))
-  })(),
+    })),
 })
 
 const pageJourney = (
@@ -349,7 +356,13 @@ const refreshPage = (
   const reference = page.majorEventReference
   const trade = page.tradeReference
   if (reference === null || trade === null) {
-    page.setData({ pageError: ERROR_MESSAGE, matrix: null, journey: [], eventItems: [] })
+    page.setData({
+      pageError: ERROR_MESSAGE,
+      matrix: null,
+      journey: [],
+      eventItems: [],
+      ongoingVisibleCount: 0,
+    })
     return
   }
 
@@ -371,6 +384,11 @@ const refreshPage = (
       zoneId: page.data.selectedZoneId,
       eventTypeId: page.data.selectedEventTypeId,
     })
+    const ongoingOccurrences = forecastOngoingMajorEvents(reference, {
+      nowUnixSeconds: now,
+      zoneId: page.data.selectedZoneId,
+      eventTypeId: page.data.selectedEventTypeId,
+    })
     const failedCategories = new Set(page.data.failedCategoryIconIds)
     const failedRegions = new Set(page.data.failedRegionIconIds)
     const rangeStartUnixSeconds = gameHourStartUnixSeconds(now)
@@ -380,6 +398,7 @@ const refreshPage = (
     const matrix = pageMatrix(
       presentMajorEventMatrix(
         occurrences,
+        ongoingOccurrences,
         reference,
         trade,
         segmentStartUnixSeconds,
@@ -397,10 +416,21 @@ const refreshPage = (
       failedRegions,
       failedCategories,
     )
-    const eventItems = occurrences.map((event) =>
-      pageItem(presentMajorEvent(event, trade), reference, failedRegions, failedCategories),
-    )
+    const ongoingKeys = new Set(ongoingOccurrences.map((event) => event.key))
+    const eventItems = [...ongoingOccurrences, ...occurrences]
+      .sort((left, right) => left.triggerAtUnixSeconds - right.triggerAtUnixSeconds)
+      .map((event) =>
+        pageItem(
+          presentMajorEvent(event, trade, ongoingKeys.has(event.key)),
+          reference,
+          failedRegions,
+          failedCategories,
+        ),
+      )
     const zoneCount = new Set(occurrences.map((event) => event.zoneId)).size
+    const ongoingVisibleCount = matrix.rows
+      .flatMap((row) => row.slots.flatMap((slot) => slot.events))
+      .filter((event) => event.isOngoingCandidate).length
     const summaryLabel = `未來 ${page.data.horizonHours} 小時 · ${occurrences.length} 筆預測 · ${zoneCount}/${reference.zones.length} 海域`
 
     page.setData({
@@ -413,6 +443,7 @@ const refreshPage = (
       matrix,
       journey,
       summaryLabel,
+      ongoingVisibleCount,
       sourceVerifiedLabel: reference.sourceVerifiedOn.replace(/-/g, '/'),
       emptyMessage:
         occurrences.length === 0
@@ -443,6 +474,7 @@ const refreshPage = (
       eventItems: [],
       matrix: null,
       journey: [],
+      ongoingVisibleCount: 0,
       emptyMessage: null,
       pageError: ERROR_MESSAGE,
     })
@@ -525,6 +557,7 @@ Page({
     matrix: null,
     journey: [],
     summaryLabel: '',
+    ongoingVisibleCount: 0,
     sourceVerifiedLabel: '',
     emptyMessage: null,
     pageError: null,
@@ -552,6 +585,7 @@ Page({
         eventItems: [],
         matrix: null,
         journey: [],
+        ongoingVisibleCount: 0,
         emptyMessage: null,
       })
     }

@@ -47,6 +47,10 @@ interface MajorEventPageState {
   failedCategoryIconIds: string[]
   emptyMessage: string | null
   matrix: {
+    headerSlots: Array<{
+      timeLabel: string
+      isCurrentHour: boolean
+    }>
     rows: Array<{
       zoneId: string
       iconFailed: boolean
@@ -54,16 +58,26 @@ interface MajorEventPageState {
         startUnixSeconds: number
         timeLabel: string
         isCurrentHour: boolean
-        events: Array<{ key: string; triggerAtUnixSeconds: number }>
+        events: Array<{
+          key: string
+          eventTypeId: string
+          triggerAtUnixSeconds: number
+          isOngoingCandidate: boolean
+        }>
       }>
     }>
   } | null
   journey: Array<{
     timeGroups: Array<{
-      events: Array<{ key: string; categories: Array<{ id: string; iconFailed: boolean }> }>
+      events: Array<{
+        key: string
+        triggerAtUnixSeconds: number
+        categories: Array<{ id: string; iconFailed: boolean }>
+      }>
     }>
   }>
   summaryLabel: string
+  ongoingVisibleCount: number
   sourceVerifiedLabel: string
 }
 
@@ -256,7 +270,9 @@ describe('大流行預測頁控制器', () => {
       false,
     ])
     expect(
-      page.data.eventItems.every((event) => event.triggerAtUnixSeconds >= nowUnixSeconds),
+      page.data.eventItems
+        .filter((event) => !event.isOngoingCandidate)
+        .every((event) => event.triggerAtUnixSeconds >= nowUnixSeconds),
     ).toBe(true)
     expect(page.data.eventItems.find((event) => event.zoneId === 'zone_53')).toMatchObject({
       eventTypeId: 'pop1',
@@ -266,6 +282,93 @@ describe('大流行預測頁控制器', () => {
       eventTypeId: 'pop5',
       timeLabel: '11:05',
     })
+  })
+
+  it('shows the recent Arctic War only as a possible ongoing event in the current matrix slot', () => {
+    const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
+    vi.setSystemTime(new Date(nowUnixSeconds * 1000))
+    const page = createPageInstance()
+
+    page.onLoad()
+
+    expect(page.data.ongoingVisibleCount).toBeGreaterThan(0)
+    expect(page.data.summaryLabel).not.toContain('可能進行')
+    page.onViewTap(pageEvent({ view: 'journey' }))
+    expect(page.data.activeView).toBe('journey')
+    expect(page.data.ongoingVisibleCount).toBeGreaterThan(0)
+    page.onViewTap(pageEvent({ view: 'matrix' }))
+
+    const arcticRow = page.data.matrix?.rows.find((row) => row.zoneId === 'zone_34')
+    const ongoing = arcticRow?.slots[0]?.events.find((event) => event.eventTypeId === 'pop5')
+    expect(page.data.matrix?.headerSlots).toHaveLength(7)
+    expect(ongoing).toMatchObject({
+      timeLabel: '09:07',
+      isOngoingCandidate: true,
+    })
+    expect(arcticRow?.slots[1]?.events.some((event) => event.key === ongoing?.key)).toBe(false)
+    expect(
+      page.data.journey.every((day) =>
+        day.timeGroups.every((group) =>
+          group.events.every((event) => event.triggerAtUnixSeconds >= nowUnixSeconds),
+        ),
+      ),
+    ).toBe(true)
+
+    page.onEventTap(pageEvent({ eventKey: ongoing?.key }))
+    expect(page.data.detailEventSnapshot).toMatchObject({
+      eventTypeId: 'pop5',
+      isOngoingCandidate: true,
+      triggerAtUnixSeconds: Date.parse('2026-09-25T09:06:30+08:00') / 1000,
+    })
+  })
+
+  it('hides sea regions without current-page events and keeps the hour header when filtered empty', () => {
+    const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
+    vi.setSystemTime(new Date(nowUnixSeconds * 1000))
+    const page = createPageInstance()
+    page.onLoad()
+
+    const visibleRows = page.data.matrix?.rows ?? []
+    expect(visibleRows.length).toBeGreaterThan(0)
+    expect(visibleRows.every((row) => row.slots.some((slot) => slot.events.length > 0))).toBe(true)
+    const emptyZone = reference.zones.find(
+      (zone) => !visibleRows.some((row) => row.zoneId === zone.id),
+    )
+    if (emptyZone === undefined)
+      throw new Error('expected a sea with no event in the visible segment')
+
+    page.onAreaFilterTap(pageEvent({ zoneId: emptyZone.id }))
+
+    expect(page.data.matrix?.rows).toEqual([])
+    expect(page.data.matrix?.headerSlots).toHaveLength(7)
+  })
+
+  it('keeps an upcoming-empty state separate when only a possible ongoing event exists', () => {
+    vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
+    const page = createPageInstance()
+    page.onLoad()
+    page.onHorizonTap(pageEvent({ horizonHours: '24' }))
+    page.onAreaFilterTap(pageEvent({ zoneId: 'zone_34' }))
+    page.onEventFilterTap(pageEvent({ eventTypeId: 'pop5' }))
+
+    expect(
+      page.data.matrix?.rows[0]?.slots[0]?.events.some((event) => event.isOngoingCandidate),
+    ).toBe(true)
+    expect(page.data.journey).toEqual([])
+    expect(page.data.emptyMessage).toContain('未來 24 小時內')
+  })
+
+  it('clears the possible-ongoing count when a later refresh fails', () => {
+    vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
+    const page = createPageInstance()
+    page.onLoad()
+    expect(page.data.ongoingVisibleCount).toBeGreaterThan(0)
+
+    Reflect.set(page, 'tradeReference', null)
+    page.onHorizonTap(pageEvent({ horizonHours: '24' }))
+
+    expect(page.data.pageError).toBe('大流行資料暫時無法載入，請更新小程序後再試')
+    expect(page.data.ongoingVisibleCount).toBe(0)
   })
 
   it('splits an aligned twenty-four-hour range into non-overlapping hour slots', () => {
@@ -466,16 +569,26 @@ describe('大流行預測頁 markup contract', () => {
     expect(matrixMarkup).toMatch(
       /class="matrix__event-target"[\s\S]*?bindtap="onEventTap"[\s\S]*?role="button"/,
     )
+    expect(matrixMarkup).toContain('matrix.headerSlots')
+    expect(matrixMarkup).toContain('eventItem.isOngoingCandidate')
+    expect(matrixMarkup).toContain('matrix__empty-state')
+    expect(wxml).toContain('可能進行')
+    expect(wxml).toMatch(
+      /wx:if="\{\{!pageError && activeView === 'matrix' && ongoingVisibleCount > 0\}\}"/,
+    )
+    expect(wxml).toContain('（僅目前時段）')
     expect(wxml).toContain('style="color: var({{eventItem.eventColorToken}})"')
     expect(wxml).toContain('style="color: var({{detailEventSnapshot.eventColorToken}})"')
     expect(wxml).not.toContain('showDetailUtcOffset')
     expect(wxml).toContain('aria-hidden="true"')
     expect(wxml).toContain(
-      '時刻表為週期預測；城鎮活動優先時大流行可能不發生；同時最多兩種，預算耗盡或滿兩小時即結束。',
+      '時刻表為週期預測；目前時段可含「可能進行」候選；城鎮活動或預算會使實際狀態不同；同時最多兩種，預算耗盡或滿兩小時即結束。',
     )
+    expect(wxml).toContain('實際狀態受事件預算和城鎮活動影響')
     expect(wxml).toContain('本頁預測觸發時刻，不預測持續時間。')
     expect(wxss).toContain('var(--uwo-color-canvas)')
     expect(wxss).toContain('88rpx')
+    expect(wxss).toMatch(/\.major-event-tag__status\s*\{[^}]*color:\s*var\(--uwo-color-ink\)/s)
     expect(wxss).toContain('env(safe-area-inset-bottom)')
     expect(wxss).toContain('paper-chart-tile.png')
     expect(wxss).toContain('overflow-x: hidden')

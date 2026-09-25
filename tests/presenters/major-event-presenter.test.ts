@@ -149,10 +149,20 @@ describe('大流行 Presenter', () => {
     const segmentStart = Date.parse('2026-09-24T05:00:00Z') / 1000
     const matrix = presentMajorEventMatrix(
       [
-        occurrence({ triggerAtUnixSeconds: segmentStart + 5 * 3600 + 15 }),
-        occurrence({ triggerAtUnixSeconds: segmentStart + 60 }),
-        occurrence({ triggerAtUnixSeconds: segmentStart + 30 }),
+        occurrence({
+          key: `zone_37:pop1:${segmentStart + 5 * 3600 + 15}`,
+          triggerAtUnixSeconds: segmentStart + 5 * 3600 + 15,
+        }),
+        occurrence({
+          key: `zone_37:pop1:${segmentStart + 60}`,
+          triggerAtUnixSeconds: segmentStart + 60,
+        }),
+        occurrence({
+          key: `zone_37:pop1:${segmentStart + 30}`,
+          triggerAtUnixSeconds: segmentStart + 30,
+        }),
       ],
+      [],
       eventReference,
       tradeReference,
       segmentStart,
@@ -201,11 +211,99 @@ describe('大流行 Presenter', () => {
   it('rejects a matrix segment outside the one-to-seven slot range', () => {
     const segmentStart = Date.parse('2026-09-24T05:00:00Z') / 1000
     expect(() =>
-      presentMajorEventMatrix([], eventReference, tradeReference, segmentStart, 0, segmentStart),
+      presentMajorEventMatrix(
+        [],
+        [],
+        eventReference,
+        tradeReference,
+        segmentStart,
+        0,
+        segmentStart,
+      ),
     ).toThrow(/槽數/)
     expect(() =>
-      presentMajorEventMatrix([], eventReference, tradeReference, segmentStart, 8, segmentStart),
+      presentMajorEventMatrix(
+        [],
+        [],
+        eventReference,
+        tradeReference,
+        segmentStart,
+        8,
+        segmentStart,
+      ),
     ).toThrow(/槽數/)
+  })
+
+  it('places a possible ongoing event in the current slot without changing future events', () => {
+    const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
+    const currentHourStart = Date.parse('2026-09-25T10:00:00+08:00') / 1000
+    const candidate = occurrence({
+      key: 'zone_34:pop5:1790298390',
+      eventTypeId: 'pop5',
+      eventTypeName: '戰爭',
+      zoneId: 'zone_34',
+      zoneName: '北極海',
+      triggerAtUnixSeconds: Date.parse('2026-09-25T09:06:30+08:00') / 1000,
+      delaySeconds: 390,
+    })
+    const future = occurrence({
+      key: 'zone_53:pop1:1790305440',
+      eventTypeId: 'pop1',
+      eventTypeName: '奢侈',
+      zoneId: 'zone_53',
+      zoneName: '東亞',
+      triggerAtUnixSeconds: Date.parse('2026-09-25T11:04:00+08:00') / 1000,
+      delaySeconds: 240,
+    })
+    const matrix = presentMajorEventMatrix(
+      [future],
+      [candidate],
+      eventReference,
+      tradeReference,
+      currentHourStart,
+      7,
+      currentHourStart,
+    )
+
+    expect(matrix.headerSlots).toHaveLength(7)
+    expect(matrix.headerSlots[0]).toMatchObject({ timeLabel: '10:00', isCurrentHour: true })
+    expect(matrix.rows.find((row) => row.zoneId === 'zone_34')?.slots[0]?.events).toMatchObject([
+      expect.objectContaining({ eventTypeId: 'pop5', isOngoingCandidate: true }),
+    ])
+    expect(matrix.rows.find((row) => row.zoneId === 'zone_53')?.slots[1]?.events).toMatchObject([
+      expect.objectContaining({ eventTypeId: 'pop1', isOngoingCandidate: false }),
+    ])
+    expect(matrix.rows.find((row) => row.zoneId === 'zone_34')?.slots[1]?.events).toEqual([])
+    expect(nowUnixSeconds).toBeGreaterThan(candidate.triggerAtUnixSeconds)
+  })
+
+  it('keeps at most two combined current-slot event types in source priority order', () => {
+    const segmentStart = Date.parse('2026-09-25T10:00:00+08:00') / 1000
+    const event = (eventTypeId: string, triggerAtUnixSeconds: number): MajorEventOccurrence => {
+      const sourceType = eventReference.eventTypes.find((item) => item.id === eventTypeId)
+      if (sourceType === undefined) throw new Error(`missing event type ${eventTypeId}`)
+      return occurrence({
+        key: `zone_37:${eventTypeId}:${triggerAtUnixSeconds}`,
+        eventTypeId,
+        eventTypeName: sourceType.name,
+        triggerAtUnixSeconds,
+        tradeTypeIds: sourceType.tradeTypeIds,
+      })
+    }
+    const matrix = presentMajorEventMatrix(
+      [event('pop5', segmentStart + 1800), event('pop4', segmentStart + 2400)],
+      [event('pop1', segmentStart - 1800), event('pop2', segmentStart - 1200)],
+      eventReference,
+      tradeReference,
+      segmentStart,
+      7,
+      segmentStart,
+    )
+
+    expect(matrix.rows[0]?.slots[0]?.events.map((item) => item.eventTypeId)).toEqual([
+      'pop1',
+      'pop2',
+    ])
   })
 
   it('groups journey rows by local date and shares same-minute time headings', () => {
