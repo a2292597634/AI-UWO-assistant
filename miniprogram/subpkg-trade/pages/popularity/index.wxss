@@ -115,15 +115,6 @@
   line-height: 1.4;
 }
 
-.major-events-summary__ongoing {
-  display: block;
-  margin: 0 0 var(--uwo-space-1);
-  padding-left: var(--uwo-space-1);
-  color: var(--uwo-color-text-secondary);
-  font-size: var(--uwo-font-size-minimum-action);
-  line-height: 1.4;
-}
-
 .major-events-range,
 .major-events-view-switch {
   display: flex;
@@ -441,11 +432,6 @@
   color: var(--uwo-color-ink);
 }
 
-.matrix__event-tag--ongoing {
-  min-height: 72rpx;
-  padding: var(--uwo-space-1);
-}
-
 .major-event-tag__name {
   max-width: 100%;
   overflow: hidden;
@@ -454,15 +440,6 @@
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.major-event-tag__status {
-  max-width: 100%;
-  color: var(--uwo-color-ink);
-  font-size: var(--uwo-font-size-minimum-action);
-  font-weight: 600;
-  line-height: 1.15;
-  text-align: center;
 }
 
 .journey-day {

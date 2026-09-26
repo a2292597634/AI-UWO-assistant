@@ -55,7 +55,6 @@ interface MajorEventPageData {
   matrix: MajorEventPageMatrix | null
   journey: MajorEventPageJourney[]
   summaryLabel: string
-  ongoingVisibleCount: number
   sourceVerifiedLabel: string
   emptyMessage: string | null
   pageError: string | null
@@ -203,10 +202,9 @@ const pageItem = (
   failedCategoryIds: ReadonlySet<string>,
 ): MajorEventPageItem => {
   const zone = reference.zones.find((candidate) => candidate.id === item.zoneId)
-  const ongoingLabel = item.isOngoingCandidate ? '，可能仍在進行' : ''
   return {
     ...item,
-    accessibilityLabel: `${item.zoneName}，${item.eventTypeName}${ongoingLabel}，${item.dateLabel} ${item.timeLabel} ${item.minuteLabel}`,
+    accessibilityLabel: `${item.zoneName}，${item.eventTypeName}，${item.dateLabel} ${item.timeLabel} ${item.minuteLabel}`,
     zoneIconPath: zone?.iconPath ?? '/subpkg-trade/assets/major-events/compass-rose.png',
     zoneIconFailed: failedRegionIds.has(item.zoneId),
     categories: item.categories.map((category) => ({
@@ -270,7 +268,6 @@ const refreshPage = (
       matrix: null,
       journey: [],
       eventItems: [],
-      ongoingVisibleCount: 0,
     })
     return
   }
@@ -329,9 +326,6 @@ const refreshPage = (
         ),
       )
     const zoneCount = new Set(occurrences.map((event) => event.zoneId)).size
-    const ongoingVisibleCount = matrix.rows
-      .flatMap((row) => row.slots.flatMap((slot) => slot.events))
-      .filter((event) => event.isOngoingCandidate).length
     const summaryLabel = `未來 ${page.data.horizonHours} 小時 · ${occurrences.length} 項日程 · ${zoneCount}/${reference.zones.length} 個海域`
 
     page.setData({
@@ -342,7 +336,6 @@ const refreshPage = (
       matrix,
       journey,
       summaryLabel,
-      ongoingVisibleCount,
       sourceVerifiedLabel: reference.sourceVerifiedOn.replace(/-/g, '/'),
       emptyMessage: occurrences.length === 0 ? EMPTY_HORIZON_MESSAGE : null,
       pageError: null,
@@ -352,7 +345,6 @@ const refreshPage = (
       eventItems: [],
       matrix: null,
       journey: [],
-      ongoingVisibleCount: 0,
       emptyMessage: null,
       pageError: ERROR_MESSAGE,
     })
@@ -424,7 +416,6 @@ Page({
     matrix: null,
     journey: [],
     summaryLabel: '',
-    ongoingVisibleCount: 0,
     sourceVerifiedLabel: '',
     emptyMessage: null,
     pageError: null,
@@ -449,7 +440,6 @@ Page({
         eventItems: [],
         matrix: null,
         journey: [],
-        ongoingVisibleCount: 0,
         emptyMessage: null,
       })
     }

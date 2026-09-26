@@ -24,10 +24,6 @@
       <text class="major-events-summary__label">{{summaryLabel}}</text>
       <text class="major-events-summary__timezone">東八區時間</text>
     </view>
-    <text
-      wx:if="{{!pageError && activeView === 'matrix' && ongoingVisibleCount > 0}}"
-      class="major-events-summary__ongoing"
-    >{{ongoingVisibleCount}} 筆可能進行（僅目前時段）</text>
     <text class="major-events-summary__updated">來源核對日期：{{sourceVerifiedLabel}}</text>
 
     <view class="major-events-range" aria-label="時刻表範圍">
@@ -168,10 +164,9 @@
                   aria-label="{{eventItem.accessibilityLabel}}"
                 >
                   <view
-                    class="major-event-tag matrix__event-tag {{eventItem.isOngoingCandidate ? 'matrix__event-tag--ongoing' : ''}}"
+                    class="major-event-tag matrix__event-tag"
                   >
                     <text class="major-event-tag__name">{{eventItem.eventTypeName}}</text>
-                    <text wx:if="{{eventItem.isOngoingCandidate}}" class="major-event-tag__status">可能進行</text>
                   </view>
                 </view>
               </view>
@@ -179,7 +174,7 @@
           </view>
         </scroll-view>
       </view>
-      <text class="matrix-section__note">本時刻表依遊戲週期排列；目前時段可能仍在進行。城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。</text>
+      <text class="matrix-section__note">本時刻表依遊戲週期排列；城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。</text>
     </view>
 
     <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">
@@ -343,8 +338,7 @@
           </view>
         </view>
       </view>
-      <text wx:if="{{detailEventSnapshot.isOngoingCandidate}}" class="major-event-detail__note">此事件依兩小時上限推算可能仍在進行；實際狀態受事件預算和城鎮活動影響。</text>
-      <text wx:else class="major-event-detail__note">時刻依遊戲週期；城鎮活動或事件預算可能影響實際狀態。</text>
+      <text class="major-event-detail__note">時刻依遊戲週期；城鎮活動或事件預算會影響實際狀態。</text>
     </view>
   </view>
 </view>

@@ -64,7 +64,6 @@ interface MajorEventPageState {
     }>
   }>
   summaryLabel: string
-  ongoingVisibleCount: number
   sourceVerifiedLabel: string
 }
 
@@ -268,18 +267,17 @@ describe('大流行時刻表頁控制器', () => {
     })
   })
 
-  it('shows the recent Arctic War only as a possible ongoing event in the current matrix slot', () => {
+  it('keeps the recent Arctic War in the current matrix slot without ongoing wording', () => {
     const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
     vi.setSystemTime(new Date(nowUnixSeconds * 1000))
     const page = createPageInstance()
 
     page.onLoad()
 
-    expect(page.data.ongoingVisibleCount).toBeGreaterThan(0)
+    expect(page.data.eventItems.some((event) => event.isOngoingCandidate)).toBe(true)
     expect(page.data.summaryLabel).not.toContain('可能進行')
     page.onViewTap(pageEvent({ view: 'journey' }))
     expect(page.data.activeView).toBe('journey')
-    expect(page.data.ongoingVisibleCount).toBeGreaterThan(0)
     page.onViewTap(pageEvent({ view: 'matrix' }))
 
     const arcticRow = page.data.matrix?.rows.find((row) => row.zoneId === 'zone_34')
@@ -318,17 +316,17 @@ describe('大流行時刻表頁控制器', () => {
     expect(page.data.matrix?.headerSlots).toHaveLength(7)
   })
 
-  it('clears the possible-ongoing count when a later refresh fails', () => {
+  it('clears ongoing candidates when a later refresh fails', () => {
     vi.setSystemTime(new Date(Date.parse('2026-09-25T10:47:00+08:00')))
     const page = createPageInstance()
     page.onLoad()
-    expect(page.data.ongoingVisibleCount).toBeGreaterThan(0)
+    expect(page.data.eventItems.some((event) => event.isOngoingCandidate)).toBe(true)
 
     Reflect.set(page, 'tradeReference', null)
     page.onHorizonTap(pageEvent({ horizonHours: '24' }))
 
     expect(page.data.pageError).toBe('大流行資料暫時無法載入，請更新小程序後再試')
-    expect(page.data.ongoingVisibleCount).toBe(0)
+    expect(page.data.eventItems).toHaveLength(0)
   })
 
   it('splits an aligned twenty-four-hour range into non-overlapping hour slots', () => {
@@ -461,25 +459,24 @@ describe('大流行時刻表頁 markup contract', () => {
       /class="matrix__event-target"[\s\S]*?bindtap="onEventTap"[\s\S]*?role="button"/,
     )
     expect(matrixMarkup).toContain('matrix.headerSlots')
-    expect(matrixMarkup).toContain('eventItem.isOngoingCandidate')
     expect(matrixMarkup).toContain('matrix__empty-state')
-    expect(wxml).toContain('可能進行')
-    expect(wxml).toMatch(
-      /wx:if="\{\{!pageError && activeView === 'matrix' && ongoingVisibleCount > 0\}\}"/,
-    )
-    expect(wxml).toContain('（僅目前時段）')
+    expect(wxml).not.toContain('可能進行')
+    expect(wxml).not.toContain('可能仍在進行')
+    expect(wxml).not.toContain('ongoingVisibleCount')
     expect(wxml).toContain('style="color: var({{eventItem.eventColorToken}})"')
     expect(wxml).toContain('style="color: var({{detailEventSnapshot.eventColorToken}})"')
     expect(wxml).not.toContain('showDetailUtcOffset')
     expect(wxml).toContain('aria-hidden="true"')
     expect(wxml).toContain(
-      '本時刻表依遊戲週期排列；目前時段可能仍在進行。城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。',
+      '本時刻表依遊戲週期排列；城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。',
     )
-    expect(wxml).toContain('實際狀態受事件預算和城鎮活動影響')
-    expect(wxml).toContain('時刻依遊戲週期；城鎮活動或事件預算可能影響實際狀態。')
+    expect(wxml).toContain('城鎮活動或事件預算會影響實際狀態')
+    expect(wxml).toContain('時刻依遊戲週期；城鎮活動或事件預算會影響實際狀態。')
     expect(wxss).toContain('var(--uwo-color-canvas)')
     expect(wxss).toContain('88rpx')
-    expect(wxss).toMatch(/\.major-event-tag__status\s*\{[^}]*color:\s*var\(--uwo-color-ink\)/s)
+    expect(wxss).not.toContain('.major-event-tag__status')
+    expect(wxss).not.toContain('.matrix__event-tag--ongoing')
+    expect(wxss).not.toContain('.major-events-summary__ongoing')
     expect(wxss).toContain('env(safe-area-inset-bottom)')
     expect(wxss).toContain('paper-chart-tile.png')
     expect(wxss).toContain('overflow-x: hidden')
