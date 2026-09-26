@@ -1,7 +1,16 @@
 {
   "name": "首頁六個主要入口",
   "entry": "/pages/home/index",
-  "watchPaths": ["miniprogram/pages/home/", "miniprogram/assets/ui/feature-major-events.png"],
+  "watchPaths": [
+    "miniprogram/pages/home/",
+    "miniprogram/assets/ui/feature-officer-catalog.png",
+    "miniprogram/assets/ui/feature-battle-fleet.png",
+    "miniprogram/assets/ui/feature-adventure-fleet.png",
+    "miniprogram/assets/ui/feature-trade-goods.png",
+    "miniprogram/assets/ui/feature-major-events.png",
+    "miniprogram/assets/ui/feature-coupon.png",
+    "miniprogram/assets/ui/feature-data-maintenance.png"
+  ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
