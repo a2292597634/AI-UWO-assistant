@@ -11998,7 +11998,7 @@
       "id": "town20103",
       "name": "薩馬賴",
       "regionName": null,
-      "seasonProfileId": "6",
+      "seasonProfileId": "0",
       "sourceRefs": {
         "voyageTw": "town20103"
       }
@@ -12880,7 +12880,7 @@
       "id": "townU018",
       "name": "馬列",
       "regionName": null,
-      "seasonProfileId": "6",
+      "seasonProfileId": "0",
       "sourceRefs": {
         "voyageTw": "townU018"
       }
