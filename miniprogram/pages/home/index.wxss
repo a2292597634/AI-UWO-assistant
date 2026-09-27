@@ -137,9 +137,8 @@
   justify-content: center;
   width: 112rpx;
   height: 112rpx;
-  border: 1rpx solid var(--uwo-color-border-subtle);
-  border-radius: var(--uwo-radius-card);
-  background: var(--uwo-color-surface);
+  border: none;
+  background: transparent;
 }
 
 .module-grid__icon,
