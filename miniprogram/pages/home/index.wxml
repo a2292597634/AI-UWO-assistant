@@ -34,7 +34,7 @@
           <view class="module-grid__badge">
             <image
               wx:if="{{!item.iconFailed}}"
-              class="module-grid__icon"
+              class="module-grid__icon {{item.id === 'battle-fleet' || item.id === 'adventure-fleet' ? 'module-grid__icon--large' : ''}}"
               src="{{item.iconPath}}"
               mode="aspectFit"
               binderror="onModuleIconError"
