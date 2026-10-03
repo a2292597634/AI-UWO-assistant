@@ -1,5 +1,9 @@
 # 品質門禁與測試有效性修復實施計畫
 
+> **2026-10-03 銷項更新：** F1–F2／R20、R24、R25 的程式修復與正式回歸已完成，修復提交為 `4ac55f9`（已在 main）。完整 Node22 門禁本輪重跑通過：2443＋100 項測試。UI／設備驗收尚有缺口，不能標全案通過。
+>
+> 本文件下方保留原實施步驟及歷史勾選框；當前狀態以 [銷項記錄與驗收追蹤](../../audits/2026-10-03-review-repair-closeout.md) 為準。E 盤工作目錄已同步修復提交，現於 codex/phase-51-review-closeout；原 phase-50 取證工作樹保留。
+
 > **給執行代理：** 使用 `superpowers:subagent-driven-development` 或 `superpowers:executing-plans` 執行F1／F2；遵循總計畫全局約束。F1是後續UI批次final的前置，F2可獨立完成。
 
 **目標：** 修復R20、R24、R25；沒有驗收場景的頁面不能被整批綠燈掩蓋，測試必須會拒絕所承諾辨識的受損實作。

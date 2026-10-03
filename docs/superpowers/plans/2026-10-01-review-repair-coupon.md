@@ -1,5 +1,9 @@
 # 兌換碼結果與玩家綁定修復實施計畫
 
+> **2026-10-03 銷項更新：** D1／R10、R21、R23 的程式修復與正式回歸已完成，修復提交為 `4ac55f9`（已在 main）。完整 Node22 門禁本輪重跑通過：2443＋100 項測試。UI／設備驗收尚有缺口，不能標全案通過。
+>
+> 本文件下方保留原實施步驟及歷史勾選框；當前狀態以 [銷項記錄與驗收追蹤](../../audits/2026-10-03-review-repair-closeout.md) 為準。E 盤工作目錄已同步修復提交，現於 codex/phase-51-review-closeout；原 phase-50 取證工作樹保留。
+
 > **給執行代理：** 使用 `superpowers:subagent-driven-development` 或 `superpowers:executing-plans` 執行 D1；遵循總計畫全局約束，UI驗收使用F1本地fixture，禁止真實兌換。
 
 **目標：** 一次修復 R10、R21、R23，使玩家、請求及結果關聯一致，保留已知失敗和結果未知的差別。

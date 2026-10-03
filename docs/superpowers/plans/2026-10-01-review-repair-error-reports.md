@@ -1,5 +1,9 @@
 # 錯誤回報流程修復實施計畫
 
+> **2026-10-03 銷項更新：** C1–C3／R08、R09、R11、R22 的程式修復與正式回歸已完成，修復提交為 `4ac55f9`（已在 main）。完整 Node22 門禁本輪重跑通過：2443＋100 項測試。UI／設備驗收尚有缺口，不能標全案通過。
+>
+> 本文件下方保留原實施步驟及歷史勾選框；當前狀態以 [銷項記錄與驗收追蹤](../../audits/2026-10-03-review-repair-closeout.md) 為準。E 盤工作目錄已同步修復提交，現於 codex/phase-51-review-closeout；原 phase-50 取證工作樹保留。
+
 > **給執行代理：** 使用 `superpowers:subagent-driven-development` 或 `superpowers:executing-plans` 按 C1→C3 執行；遵循總計畫全局約束。動態 UI 驗收依賴 F1 的本地 fixture，不能連真實回報資料。
 
 **目標：** 修復 R08、R09、R11、R22，使審核者讀到完整證據，篩選與狀態機一致。
