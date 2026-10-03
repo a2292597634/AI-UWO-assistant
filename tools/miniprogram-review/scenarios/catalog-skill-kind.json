@@ -60,6 +60,10 @@
       "selector": ".catalog-page__filter-action--apply"
     },
     {
+      "action": "waitFor",
+      "durationMs": 1000
+    },
+    {
       "action": "assertExists",
       "selector": ".catalog-page__skill-expanded",
       "exists": false
@@ -105,6 +109,10 @@
     {
       "action": "tap",
       "selector": ".catalog-page__filter-action--apply"
+    },
+    {
+      "action": "waitFor",
+      "durationMs": 1000
     },
     {
       "action": "assertExists",

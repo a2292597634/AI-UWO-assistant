@@ -4,6 +4,7 @@
   "fixture": "coupon-success",
   "watchPaths": [
     "miniprogram/subpkg-coupon/pages/redemption/",
+    "miniprogram/subpkg-coupon/pages/settings/",
     "miniprogram/runtime/coupon-redemption-service.ts",
     "miniprogram/presenters/coupon-redemption-presenter.ts",
     "tools/miniprogram-review/fixtures.ts"
@@ -44,6 +45,14 @@
     {
       "action": "waitFor",
       "selector": ".coupon-settings__profile"
+    },
+    {
+      "action": "waitFor",
+      "durationMs": 1000
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-player-settings"
     },
     {
       "action": "tap",
