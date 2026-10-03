@@ -64,6 +64,8 @@
 
   <config-conflict-modal
     visible="{{showConflictDialog}}"
+    config-name="{{conflictConfigName}}"
+    can-force="{{conflictCanForce}}"
     bind:reload="onConflictReload"
     bind:force="onConflictForceOverwrite"
     bind:cancel="onConflictCancel"
@@ -139,8 +141,8 @@
           </view>
         </block>
         <view wx:if="{{!canRecalculate}}" class="target-panel__empty">
-          <text class="target-panel__empty-title">尚未設定目標</text>
-          <text class="target-panel__notice">請從下方技能篩選選擇技能加入目標</text>
+          <text class="target-panel__empty-title">尚無可重算目標</text>
+          <text class="target-panel__notice">{{recalculateDisabledReason}}</text>
         </view>
         <view class="target-actions">
           <button class="ui-button ui-button--primary" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>

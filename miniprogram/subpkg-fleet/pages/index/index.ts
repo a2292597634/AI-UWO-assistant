@@ -1,7 +1,13 @@
 import {
+  canForceOverwrite,
+  type FleetConfigConflict,
+  type FleetConflictAction,
+} from '../../../domain/fleet-config-conflict'
+import {
   addOfficerToShip,
   assignSkillToFirstOpenTarget,
   createFleetState,
+  getBattleOptimizationTargets,
   excludeOfficerFromShip,
   lockOfficer,
   moveOfficerToShip,
@@ -94,6 +100,8 @@ interface FleetPageData extends BattleFleetPageData {
   pendingAction: PendingFleetAction | null
   configLimitReached: boolean
   showConflictDialog: boolean
+  conflictConfigName: string
+  conflictCanForce: boolean
   proposalPreview: FleetProposalPreviewView | null
   canUndoProposal: boolean
   shareStatus: FleetShareStatus
@@ -129,6 +137,7 @@ interface FleetPageState {
   pendingAction: PendingFleetAction | null
   configOperationVersion: number
   configListRequestVersion: number
+  conflictContext: FleetConfigConflict | null
   retryLoadConfigId: string | null
   proposal: FleetProposal | null
   undoFleetState: FleetState | null
@@ -202,6 +211,7 @@ const getState = (page: object): FleetPageState => {
 }
 
 const beginConfigOperation = (state: FleetPageState): number => {
+  state.conflictContext = null
   state.configOperationVersion += 1
   return state.configOperationVersion
 }
@@ -252,6 +262,7 @@ const emptyPageData: FleetPageData = {
   skillCategories: [],
   targets: [],
   canRecalculate: false,
+  recalculateDisabledReason: '請先設定至少一個 Lv.1 以上的戰鬥技能目標',
   bannedOfficers: [],
   skillSummary: [],
   manualKind: 'all',
@@ -283,6 +294,8 @@ const emptyPageData: FleetPageData = {
   pendingAction: null,
   configLimitReached: false,
   showConflictDialog: false,
+  conflictConfigName: '',
+  conflictCanForce: false,
   proposalPreview: null,
   canUndoProposal: false,
   shareStatus: 'idle',
@@ -374,6 +387,12 @@ const render = (page: FleetPageLike, startAssetLoading = true): Promise<void> =>
       : null,
     canUndoProposal: state.undoFleetState !== null,
     configStatus: deriveConfigStatus(state.isDirty, state.activeConfigId ?? ''),
+    conflictCanForce:
+      state.conflictContext !== null &&
+      canForceOverwrite(state.conflictContext, {
+        configId: state.activeConfigId,
+        fleetSnapshot: serializeFleetState(state.fleet),
+      }),
   })
 
   void startAssetLoading
@@ -423,15 +442,22 @@ const syncConfigRecordToList = (
   })
 }
 
-const restoreSavedFleetState = (page: FleetPageLike, state: FleetPageState): void => {
-  const restored = state.savedFleetState ? parseFleetState(state.savedFleetState) : null
-  if (!restored) return
+const restoreSavedFleetState = (page: FleetPageLike, state: FleetPageState): boolean => {
+  const restored = state.savedFleetState
+    ? parseFleetState(state.savedFleetState, CONFIG_SCOPE)
+    : null
+  if (!restored) {
+    showError('無法還原保存基線，請保存目前修改或取消操作')
+    return false
+  }
+  clearConflict(page, state)
   invalidateConfigOperation(state)
   state.fleet = restored
   state.proposal = null
   state.undoFleetState = null
   state.isDirty = false
   void render(page)
+  return true
 }
 
 const updateTargets = (
@@ -560,7 +586,7 @@ const generateShareImage = async (page: FleetPageLike): Promise<void> => {
 
 // ── Unsaved changes guard ──
 
-const resolvePendingAction = (page: FleetPageLike): void => {
+const resolvePendingAction = async (page: FleetPageLike): Promise<void> => {
   const state = getState(page)
   const pending = state.pendingAction
   if (!pending) return
@@ -571,7 +597,7 @@ const resolvePendingAction = (page: FleetPageLike): void => {
 
   switch (pending.type) {
     case 'load':
-      doLoadConfig(page, pending.targetConfigId!)
+      await doLoadConfig(page, pending.targetConfigId!)
       break
     case 'new':
       doNewConfig(page)
@@ -608,18 +634,52 @@ const checkUnsavedAndProceed = (page: FleetPageLike, action: PendingFleetAction)
       page.setData({ pendingAction: null })
       return generateShareImage(page)
     }
-    resolvePendingAction(page)
+    return resolvePendingAction(page)
   }
   return Promise.resolve()
 }
 
 // ── Config operations ──
 
-const handleConfigError = (page: FleetPageLike, error: unknown): void => {
+const clearConflict = (page: FleetPageLike, state: FleetPageState): void => {
+  state.conflictContext = null
+  page.setData({ showConflictDialog: false, conflictConfigName: '', conflictCanForce: false })
+}
+
+const captureConflict = (
+  state: FleetPageState,
+  action: FleetConflictAction,
+  config = {
+    configId: state.activeConfigId!,
+    name: state.configName,
+    version: state.configVersion,
+  },
+): FleetConfigConflict => ({
+  action,
+  configId: config.configId,
+  configName: config.name,
+  expectedVersion: config.version,
+  fleetSnapshot: serializeFleetState(state.fleet),
+})
+
+const handleConfigError = (
+  page: FleetPageLike,
+  error: unknown,
+  conflict?: FleetConfigConflict,
+): void => {
   console.error('fleet-config error:', error)
   if (error instanceof FleetConfigError) {
-    if (error.code === 'conflict') {
-      page.setData({ showConflictDialog: true })
+    if (error.code === 'conflict' && conflict) {
+      const state = getState(page)
+      state.conflictContext = conflict
+      page.setData({
+        showConflictDialog: true,
+        conflictConfigName: conflict.configName,
+        conflictCanForce: canForceOverwrite(conflict, {
+          configId: state.activeConfigId,
+          fleetSnapshot: serializeFleetState(state.fleet),
+        }),
+      })
       return
     }
     showError(error.message)
@@ -632,6 +692,7 @@ const handleConfigError = (page: FleetPageLike, error: unknown): void => {
 
 const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void> => {
   const state = getState(page)
+  clearConflict(page, state)
   const operationVersion = beginConfigOperation(state)
   page.setData({ configLoadError: null })
   try {
@@ -668,6 +729,7 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
 
 const doNewConfig = (page: FleetPageLike): void => {
   const state = getState(page)
+  clearConflict(page, state)
   invalidateConfigOperation(state)
   state.fleet = createDefaultBattleFleetState()
   state.proposal = null
@@ -694,6 +756,7 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
   const state = getState(page)
   const configId = state.activeConfigId
   if (!configId) return
+  const conflict = captureConflict(state, 'delete')
   const operationVersion = beginConfigOperation(state)
   try {
     await state.configService.deleteConfig(CONFIG_SCOPE, configId, state.configVersion)
@@ -703,7 +766,7 @@ const doDeleteConfig = async (page: FleetPageLike): Promise<void> => {
     await refreshConfigList(state, page)
   } catch (e) {
     if (!isCurrentConfigOperation(state, operationVersion)) return
-    handleConfigError(page, e)
+    handleConfigError(page, e, conflict)
   }
 }
 
@@ -776,8 +839,18 @@ const onAfterLogin = async (page: FleetPageLike): Promise<void> => {
   }
 
   // Otherwise load the last-used config
+  const fleetSnapshot = serializeFleetState(state.fleet)
+  const operationVersion = state.configOperationVersion
   const refreshed = await refreshConfigList(state, page)
   if (!refreshed) return
+  // 等待列表期間的新編輯或配置操作不能被登入延續覆蓋。
+  if (
+    !isCurrentConfigOperation(state, operationVersion) ||
+    fleetSnapshot !== serializeFleetState(state.fleet)
+  ) {
+    if (state.isDirty) openNameModal(page, 'saveAs')
+    return
+  }
   const list = state.configList
   if (list.length === 0) {
     // No saved configs
@@ -794,8 +867,18 @@ const onAfterLogin = async (page: FleetPageLike): Promise<void> => {
 
 const handleConflictReload = async (page: FleetPageLike): Promise<void> => {
   const state = getState(page)
-  const configId = state.activeConfigId
-  if (!configId) return
+  const conflict = state.conflictContext
+  if (!conflict) return
+  const configId = conflict.configId
+  const canReloadCurrent =
+    conflict.action !== 'classify' &&
+    configId === state.activeConfigId &&
+    conflict.fleetSnapshot === serializeFleetState(state.fleet)
+  clearConflict(page, state)
+  if (!canReloadCurrent) {
+    await refreshConfigList(state, page)
+    return
+  }
   const operationVersion = beginConfigOperation(state)
   page.setData({ showConflictDialog: false })
   try {
@@ -830,8 +913,18 @@ const handleConflictReload = async (page: FleetPageLike): Promise<void> => {
 
 const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> => {
   const state = getState(page)
-  const configId = state.activeConfigId
-  if (!configId) return
+  const conflict = state.conflictContext
+  const isAuthorized = (): boolean =>
+    state.conflictContext === conflict &&
+    conflict !== null &&
+    canForceOverwrite(conflict, {
+      configId: state.activeConfigId,
+      fleetSnapshot: serializeFleetState(state.fleet),
+    })
+  if (!conflict || !isAuthorized()) {
+    clearConflict(page, state)
+    return
+  }
   page.setData({ showConflictDialog: false })
   // Second confirmation via wx.showModal
   wx.showModal({
@@ -839,14 +932,20 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
     content: '將以本地配置覆蓋雲端最新版本，無法復原。確定要繼續？',
     confirmText: '強制覆蓋',
     success: async (res) => {
-      if (!res.confirm) return
+      if (!res.confirm || !isAuthorized()) {
+        clearConflict(page, state)
+        return
+      }
+      // 再次確認期間也必須維持同一配置及同一捕獲內容。
+      const fleetState = cloneFleetState(state.fleet)
+      clearConflict(page, state)
       const operationVersion = beginConfigOperation(state)
       try {
         const record = await state.configService.updateConfig({
           scope: CONFIG_SCOPE,
-          configId,
-          expectedVersion: state.configVersion,
-          fleetState: state.fleet,
+          configId: conflict.configId,
+          expectedVersion: conflict.expectedVersion,
+          fleetState,
           force: true,
         })
         if (!isCurrentConfigOperation(state, operationVersion)) return
@@ -860,7 +959,7 @@ const handleConflictForceOverwrite = async (page: FleetPageLike): Promise<void> 
         showError('已強制覆蓋保存')
       } catch (e) {
         if (!isCurrentConfigOperation(state, operationVersion)) return
-        handleConfigError(page, e)
+        handleConfigError(page, e, conflict)
       }
     },
   })
@@ -900,6 +999,7 @@ Page({
       pendingAction: null,
       configOperationVersion: 0,
       configListRequestVersion: 0,
+      conflictContext: null,
       retryLoadConfigId: null,
       proposal: null,
       undoFleetState: null,
@@ -1005,15 +1105,17 @@ Page({
       return
     }
 
+    const conflict = captureConflict(state, 'classify', config)
     const operationVersion = beginConfigOperation(state)
     try {
       await state.configService.classifyConfig(config.configId, config.version, targetScope)
       if (!isCurrentConfigOperation(state, operationVersion)) return
+      clearConflict(this, state)
       const refreshed = await refreshConfigList(state, this)
       if (refreshed) showError('配置已分類')
     } catch (e) {
       if (!isCurrentConfigOperation(state, operationVersion)) return
-      handleConfigError(this, e)
+      handleConfigError(this, e, conflict)
     }
   },
 
@@ -1021,7 +1123,7 @@ Page({
     const state = getState(this)
     if (state.authStatus !== 'authenticated') return
     if (state.retryLoadConfigId) {
-      await doLoadConfig(this, state.retryLoadConfigId)
+      await checkUnsavedAndProceed(this, { type: 'load', targetConfigId: state.retryLoadConfigId })
       return
     }
     await refreshConfigList(state, this)
@@ -1058,6 +1160,7 @@ Page({
     }
 
     // Overwrite existing
+    const conflict = captureConflict(state, 'update')
     const operationVersion = beginConfigOperation(state)
     try {
       const record = await state.configService.updateConfig({
@@ -1068,6 +1171,7 @@ Page({
         force: false,
       })
       if (!isCurrentConfigOperation(state, operationVersion)) return
+      clearConflict(this, state)
       applySavedConfig(this, state, record)
       this.setData({
         configName: record.name,
@@ -1076,7 +1180,7 @@ Page({
       showError('已保存')
     } catch (e) {
       if (!isCurrentConfigOperation(state, operationVersion)) return
-      handleConfigError(this, e)
+      handleConfigError(this, e, conflict)
     }
   },
 
@@ -1151,6 +1255,7 @@ Page({
 
     this.setData({ showNameModal: false })
 
+    const conflict = action === 'rename' ? captureConflict(state, 'rename') : undefined
     const operationVersion = beginConfigOperation(state)
     try {
       if (action === 'saveAs') {
@@ -1161,14 +1266,16 @@ Page({
         }
         const record = await state.configService.saveAsConfig(CONFIG_SCOPE, name, state.fleet)
         if (!isCurrentConfigOperation(state, operationVersion)) return
+        clearConflict(this, state)
         applySavedConfig(this, state, record)
         this.setData({
           activeConfigId: record.configId,
           configName: record.name,
           configStatus: 'saved',
         })
-        await refreshConfigList(state, this)
-        resolvePendingAction(this)
+        const refreshed = await refreshConfigList(state, this)
+        if (!refreshed || !isCurrentConfigOperation(state, operationVersion)) return
+        await resolvePendingAction(this)
         showError('已保存為新配置')
       } else if (action === 'rename') {
         if (!state.activeConfigId) return
@@ -1179,6 +1286,7 @@ Page({
           name,
         )
         if (!isCurrentConfigOperation(state, operationVersion)) return
+        clearConflict(this, state)
         state.configName = record.name
         state.configVersion = record.version
         syncConfigRecordToList(this, state, record)
@@ -1190,7 +1298,7 @@ Page({
       }
     } catch (e) {
       if (!isCurrentConfigOperation(state, operationVersion)) return
-      handleConfigError(this, e)
+      handleConfigError(this, e, conflict)
     }
   },
 
@@ -1210,6 +1318,7 @@ Page({
     const state = getState(this)
     // Save first, then resolve pending
     void (async () => {
+      const conflict = state.activeConfigId ? captureConflict(state, 'update') : undefined
       const operationVersion = beginConfigOperation(state)
       try {
         if (state.activeConfigId) {
@@ -1221,6 +1330,7 @@ Page({
             force: false,
           })
           if (!isCurrentConfigOperation(state, operationVersion)) return
+          clearConflict(this, state)
           applySavedConfig(this, state, record)
         } else {
           // 需要名稱，無法直接保存，改走另存為。
@@ -1239,7 +1349,7 @@ Page({
         resolvePendingAction(this)
       } catch (e) {
         if (!isCurrentConfigOperation(state, operationVersion)) return
-        handleConfigError(this, e)
+        handleConfigError(this, e, conflict)
       }
     })()
   },
@@ -1247,11 +1357,8 @@ Page({
   onUnsavedGuardDiscard() {
     const state = getState(this)
     const pending = state.pendingAction
-    if (pending?.type === 'saveAs' || pending?.type === 'rename') {
-      restoreSavedFleetState(this, state)
-    } else if (pending?.type !== 'share') {
-      state.isDirty = false
-    }
+    if (!pending) return
+    if (pending.type !== 'share' && !restoreSavedFleetState(this, state)) return
     resolvePendingAction(this)
   },
 
@@ -1274,8 +1381,15 @@ Page({
     handleConflictForceOverwrite(this).catch(() => {})
   },
 
+  onUnload() {
+    const state = getState(this)
+    state.configListRequestVersion += 1
+    clearConflict(this, state)
+    invalidateConfigOperation(state)
+  },
+
   onConflictCancel() {
-    this.setData({ showConflictDialog: false })
+    clearConflict(this, getState(this))
   },
 
   // ── Prevent tap-through for native input inside modals ──
@@ -1443,8 +1557,9 @@ Page({
   onRecalculate() {
     const state = getState(this)
     const current = state.fleet.ships.find((ship) => ship.id === state.currentShipId)!
-    if (!current.targets.some((target) => target.skillId !== null)) {
-      showError('請先設定至少一個有效的戰鬥技能目標')
+    const targets = getBattleOptimizationTargets(current.targets)
+    if (targets.length === 0) {
+      showError('請先設定至少一個 Lv.1 以上的戰鬥技能目標')
       return
     }
     const otherShipOfficerIds = state.fleet.ships
@@ -1452,11 +1567,7 @@ Page({
       .flatMap((ship) => ship.officerIds)
     const result = solveBattleTargets({
       officers: state.officers,
-      targets: current.targets.flatMap((target) =>
-        target.skillId === null
-          ? []
-          : [{ skillId: target.skillId, targetLevel: target.targetLevel }],
-      ),
+      targets,
       lockedOfficerIds: current.lockedOfficerIds,
       excludedOfficerIds: [...state.fleet.bannedOfficerIds, ...current.removedOfficerIds],
       occupiedByOtherShips: otherShipOfficerIds,

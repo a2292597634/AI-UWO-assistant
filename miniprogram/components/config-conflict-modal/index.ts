@@ -4,6 +4,8 @@ Component({
   },
 
   properties: {
+    configName: { type: String, value: '' },
+    canForce: { type: Boolean, value: false },
     visible: {
       type: Boolean,
       value: false,
@@ -18,6 +20,7 @@ Component({
     },
 
     onForce() {
+      if (!this.properties.canForce) return
       this.triggerEvent('force')
     },
 

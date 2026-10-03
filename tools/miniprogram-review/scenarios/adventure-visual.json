@@ -2,9 +2,18 @@
   "name": "冒險配隊首屏與滾動",
   "entry": "/pages/adventure-fleet/index",
   "watchPaths": [
+    "miniprogram/contracts/fleet-config.ts",
     "miniprogram/pages/adventure-fleet/",
     "miniprogram/components/config-bar/",
-    "miniprogram/components/mode-tabs/"
+    "miniprogram/components/mode-tabs/",
+    "miniprogram/components/skill-sheet/",
+    "miniprogram/components/entity-search-picker/",
+    "miniprogram/components/skill-picker-sheet/",
+    "miniprogram/components/config-conflict-modal/",
+    "miniprogram/presenters/skill-sheet.ts",
+    "miniprogram/presenters/adventure-fleet-presenter.ts",
+    "miniprogram/domain/adventure-fleet.ts",
+    "miniprogram/domain/fleet-config-conflict.ts"
   ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],

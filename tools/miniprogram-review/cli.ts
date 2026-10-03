@@ -1,3 +1,4 @@
+import { installReviewFixture, parseReviewFixtureName, type ReviewFixtureName } from './fixtures'
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { get } from 'node:http'
@@ -12,7 +13,7 @@ import {
   restartReviewConnection,
   type ReviewAdapter,
 } from './adapter'
-import { diagnoseReviewConfig, resolveReviewConfig } from './config'
+import { diagnoseReviewConfig, resolveReviewConfig, readRegisteredPagePaths } from './config'
 import {
   buildReviewReport,
   writeReviewReport,
@@ -37,6 +38,7 @@ interface ParsedArguments extends ReviewConfigArgs {
   command: string
   scenario?: string
   page?: string
+  fixture?: ReviewFixtureName
   mode?: string
   summary?: string
   notes?: string[]
@@ -75,6 +77,7 @@ export interface CliDependencies {
   runQualityGate(): Promise<boolean>
   now(): Date
   randomId(): string
+  readRegisteredPagePaths?(projectRoot: string): string[]
   listScenarioPaths?(): string[]
   listPreviousReportDirs?(): string[]
 }
@@ -96,6 +99,7 @@ class DevToolsBlockedError extends Error {
 }
 
 const optionNames: Record<string, keyof ParsedArguments> = {
+  '--fixture': 'fixture',
   '--scenario': 'scenario',
   '--page': 'page',
   '--project': 'projectPath',
@@ -126,6 +130,7 @@ const parseArguments = (argv: string[]): ParsedArguments => {
     }
     Object.assign(parsed, { [key]: value })
   }
+  if (parsed.fixture) parsed.fixture = parseReviewFixtureName(parsed.fixture)
   return parsed
 }
 
@@ -271,6 +276,9 @@ interface RunScenarioOptions {
   mode?: ReviewTriggerMode
   summary?: string
   notes?: string[]
+  fixture?: ReviewFixtureName
+  unmatchedPageFiles?: string[]
+  unmatchedPagePaths?: string[]
   recoveryState?: DevToolsRecoveryState
   initialConfig?: ReviewConfig
 }
@@ -296,7 +304,10 @@ const writeBlockedReport = (
   reason: string,
   changedFiles: string[],
   scenarios: ReviewScenario[] = [],
-  options: Pick<RunScenarioOptions, 'summary' | 'notes' | 'recoveryState'> = {},
+  options: Pick<
+    RunScenarioOptions,
+    'summary' | 'notes' | 'recoveryState' | 'unmatchedPageFiles' | 'unmatchedPagePaths'
+  > = {},
 ): number => {
   const startedAt = dependencies.now()
   const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
@@ -322,10 +333,59 @@ const writeBlockedReport = (
     notes: [reason, ...(options.recoveryState?.notes ?? []), ...(options.notes ?? [])],
   })
   const report = createReport(dependencies, runId, [result], scenarios, [iteration])
+  report.coverage.unmatchedPageFiles = options.unmatchedPageFiles ?? []
+  report.coverage.unmatchedPagePaths = options.unmatchedPagePaths ?? []
+  for (const file of report.coverage.unmatchedPageFiles) dependencies.log(`未覆蓋文件：${file}`)
+  for (const page of report.coverage.unmatchedPagePaths) dependencies.log(`未覆蓋路由：${page}`)
   const paths = dependencies.writeReport(outputDir, report)
   dependencies.log(reason)
   logReportPaths(dependencies, paths, [result])
   return 1
+}
+
+const executeScenario = async (
+  dependencies: CliDependencies,
+  adapter: ReviewAdapter,
+  scenario: ReviewScenario,
+  outputDir: string,
+  fixture?: ReviewFixtureName,
+): Promise<ScenarioRunResult> => {
+  const name = fixture ?? scenario.fixture
+  let disconnected = false
+  const disconnect = adapter.disconnect.bind(adapter)
+  // runner、例外與恢復都經同一還原邊界，避免重跑前留下 mock。
+  adapter.disconnect = async () => {
+    if (!disconnected) {
+      await adapter.restoreFixture?.()
+      await disconnect()
+      disconnected = true
+    }
+  }
+  let result: ScenarioRunResult
+  try {
+    if (name) await installReviewFixture(adapter, name)
+    result = await dependencies.runScenario(adapter, scenario, { outputDir })
+  } catch (error) {
+    result = {
+      scenario: scenario.name,
+      pagePath: scenario.entry,
+      state: scenario.state,
+      status: name ? 'blocked' : 'failed',
+      steps: [],
+      screenshots: [],
+      error: formatError(error),
+    }
+  }
+  try {
+    await adapter.disconnect()
+  } catch (error) {
+    result = {
+      ...result,
+      status: 'blocked',
+      error: `fixture 或連接恢復失敗：${formatError(error)}`,
+    }
+  }
+  return result
 }
 
 const runScenarios = async (
@@ -366,7 +426,13 @@ const runScenarios = async (
       }
       throw error
     }
-    let result = await dependencies.runScenario(adapter, scenario, { outputDir: scenarioOutput })
+    let result = await executeScenario(
+      dependencies,
+      adapter,
+      scenario,
+      scenarioOutput,
+      options.fixture,
+    )
     while (result.status === 'failed' && isDevToolsConnectionError(result.error)) {
       const recovery = await recoverDevTools(
         dependencies,
@@ -388,9 +454,13 @@ const runScenarios = async (
             recoveryState,
             existingAutomationConfig(config),
           )
-          const retriedResult = await dependencies.runScenario(retryAdapter, scenario, {
-            outputDir: scenarioOutput,
-          })
+          const retriedResult = await executeScenario(
+            dependencies,
+            retryAdapter,
+            scenario,
+            scenarioOutput,
+            options.fixture,
+          )
           result = retriedResult
         } catch (error) {
           result = {
@@ -433,14 +503,31 @@ const runChanged = async (
   dependencies: CliDependencies,
   config: ReviewConfig,
   mode: ReviewTriggerMode,
-  options: Pick<RunScenarioOptions, 'summary' | 'notes'> = {},
+  options: Pick<RunScenarioOptions, 'summary' | 'notes' | 'fixture'> = {},
 ): Promise<number> => {
   const recoveryState = createRecoveryState()
   const changedFiles = dependencies.readGitChangedFiles()
+  let registeredPagePaths: string[] | undefined
+  if (changedFiles.some((file) => file.replace(/\\/g, '/') === 'miniprogram/app.json')) {
+    try {
+      registeredPagePaths = (dependencies.readRegisteredPagePaths ?? readRegisteredPagePaths)(
+        config.projectPath,
+      )
+    } catch (error) {
+      return writeBlockedReport(
+        dependencies,
+        `無法讀取註冊路由：${formatError(error)}`,
+        changedFiles,
+        [],
+        options,
+      )
+    }
+  }
   const plan = createTriggerPlan({
     mode,
     changedFiles,
     scenarios: loadAllScenarios(dependencies),
+    registeredPagePaths,
   })
   if (plan.outcome === 'skipped') {
     dependencies.log(plan.reason ?? '未发现页面相关变更，已跳过自动验收')
@@ -452,7 +539,11 @@ const runChanged = async (
       plan.reason ?? '页面自动验收被阻塞',
       plan.changedFiles,
       plan.scenarios,
-      options,
+      {
+        ...options,
+        unmatchedPageFiles: plan.unmatchedPageFiles,
+        unmatchedPagePaths: plan.unmatchedPagePaths,
+      },
     )
   }
 
@@ -521,27 +612,36 @@ export const runCli = async (argv: string[], dependencies: CliDependencies): Pro
     }
     if (parsed.command === 'inspect') {
       if (!parsed.page) throw new Error('inspect 必须提供 --page')
-      return await runScenarios(dependencies, config, [
-        {
-          name: `检查 ${parsed.page}`,
-          entry: parsed.page,
-          state: 'normal',
-          devices: ['iphone-standard'],
-          steps: [{ action: 'screenshot', name: 'inspect' }],
-        },
-      ])
+      return await runScenarios(
+        dependencies,
+        config,
+        [
+          {
+            name: `检查 ${parsed.page}`,
+            entry: parsed.page,
+            state: 'normal',
+            devices: ['iphone-standard'],
+            steps: [{ action: 'screenshot', name: 'inspect' }],
+          },
+        ],
+        { fixture: parsed.fixture },
+      )
     }
     if (parsed.command === 'run') {
       if (!parsed.scenario) throw new Error('run 必须提供 --scenario')
-      return await runScenarios(dependencies, config, [
-        dependencies.loadScenario(scenarioPath(dependencies.cwd, parsed.scenario)),
-      ])
+      return await runScenarios(
+        dependencies,
+        config,
+        [dependencies.loadScenario(scenarioPath(dependencies.cwd, parsed.scenario))],
+        { fixture: parsed.fixture },
+      )
     }
     if (parsed.command === 'changed') {
       if (!triggerMode) throw new Error('changed 必须提供 --mode iterate 或 --mode final')
       return await runChanged(dependencies, config, triggerMode, {
         summary: parsed.summary,
         notes: parsed.notes,
+        fixture: parsed.fixture,
       })
     }
     if (!parsed.page) throw new Error('review 必须提供 --page')
@@ -550,7 +650,7 @@ export const runCli = async (argv: string[], dependencies: CliDependencies): Pro
       .map((path) => dependencies.loadScenario(path))
       .filter((scenario) => scenario.entry === parsed.page)
     if (scenarios.length === 0) throw new Error(`找不到页面验收场景：${parsed.page}`)
-    return await runScenarios(dependencies, config, scenarios)
+    return await runScenarios(dependencies, config, scenarios, { fixture: parsed.fixture })
   } catch (error) {
     dependencies.log(formatError(error))
     return 1

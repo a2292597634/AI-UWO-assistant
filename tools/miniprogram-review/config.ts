@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
 import type { DiagnosticItem, ReviewConfig, ReviewConfigArgs } from './types'
@@ -87,4 +87,30 @@ export const diagnoseReviewConfig = (
     diagnostics.push({ code: 'READY', level: 'info', message: '小程序自动化环境配置完整' })
   }
   return diagnostics
+}
+
+export const readRegisteredPagePaths = (projectRoot: string): string[] => {
+  const project = JSON.parse(readFileSync(join(projectRoot, 'project.config.json'), 'utf8')) as {
+    miniprogramRoot?: string
+  }
+  const app = JSON.parse(
+    readFileSync(
+      resolve(projectRoot, project.miniprogramRoot ?? 'miniprogram', 'app.json'),
+      'utf8',
+    ),
+  ) as {
+    pages?: string[]
+    subpackages?: Array<{ root: string; pages: string[] }>
+    subPackages?: Array<{ root: string; pages: string[] }>
+  }
+  return [
+    ...new Set(
+      [
+        ...(app.pages ?? []),
+        ...[...(app.subpackages ?? []), ...(app.subPackages ?? [])].flatMap((subpackage) =>
+          subpackage.pages.map((page) => `${subpackage.root}/${page}`),
+        ),
+      ].map((page) => '/' + page.replace(/^\/+/, '')),
+    ),
+  ].sort()
 }

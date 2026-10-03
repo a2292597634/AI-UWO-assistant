@@ -1,8 +1,43 @@
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { diagnoseReviewConfig, resolveReviewConfig } from '../../tools/miniprogram-review/config'
+import {
+  diagnoseReviewConfig,
+  resolveReviewConfig,
+  readRegisteredPagePaths,
+} from '../../tools/miniprogram-review/config'
 
 describe('小程序验收配置', () => {
+  it('從 miniprogramRoot 合併主包與全部分包路由並去重', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-review-route-'))
+    try {
+      mkdirSync(join(root, 'custom'))
+      writeFileSync(
+        join(root, 'project.config.json'),
+        JSON.stringify({ miniprogramRoot: 'custom/' }),
+      )
+      writeFileSync(
+        join(root, 'custom', 'app.json'),
+        JSON.stringify({
+          pages: ['pages/catalog/index'],
+          subpackages: [
+            { root: 'subpkg-detail', pages: ['pages/detail/index'] },
+            { root: 'subpkg-admin', pages: ['pages/review/index'] },
+          ],
+        }),
+      )
+      expect(readRegisteredPagePaths(root)).toEqual([
+        '/pages/catalog/index',
+        '/subpkg-admin/pages/review/index',
+        '/subpkg-detail/pages/detail/index',
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('显式参数覆盖环境变量，自动化端口默认 9420', () => {
     const config = resolveReviewConfig({
       cwd: 'E:/project',

@@ -5,6 +5,8 @@ import { renderReviewReportHtml, toReportAssetPath } from './report-html'
 import type { ScenarioRunResult } from './runner'
 
 export interface ReviewCoverage {
+  unmatchedPageFiles?: string[]
+  unmatchedPagePaths?: string[]
   covered: string[]
   exempted: Array<{ target: string; reason: string }>
   manual: string[]
@@ -112,9 +114,14 @@ export const buildReviewReport = (input: ReviewReportInput): ReviewReport => {
   return {
     runId: input.runId,
     generatedAt: input.generatedAt.toISOString(),
-    status: statusForReport(input.results, iterations),
+    status:
+      input.coverage.unmatchedPageFiles?.length || input.coverage.unmatchedPagePaths?.length
+        ? 'blocked'
+        : statusForReport(input.results, iterations),
     git: input.git,
     coverage: {
+      unmatchedPageFiles: uniqueSorted(input.coverage.unmatchedPageFiles ?? []),
+      unmatchedPagePaths: uniqueSorted(input.coverage.unmatchedPagePaths ?? []),
       covered: sorted(input.coverage.covered),
       exempted: [...input.coverage.exempted].sort((left, right) =>
         left.target.localeCompare(right.target),
@@ -199,6 +206,14 @@ ${list(iteration.notes)}`
 ## 修改过程
 
 ${iterationSections || '- 本次运行未附带修改轮次。'}
+
+## 未覆蓋文件
+
+${list(report.coverage.unmatchedPageFiles ?? [])}
+
+## 未覆蓋路由
+
+${list(report.coverage.unmatchedPagePaths ?? [])}
 
 ## 已覆盖
 

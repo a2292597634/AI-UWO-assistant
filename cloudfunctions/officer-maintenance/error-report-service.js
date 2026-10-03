@@ -179,7 +179,7 @@ function createErrorReportService(repo, options) {
       return fail('review-reply-required', '請填寫管理員回覆')
     }
     if (action === 'requestReportInfo') {
-      return update(payload, ['pending', 'accepted'], (record) => ({
+      return update(payload, ['pending', 'needsInfo', 'accepted'], (record) => ({
         status: 'needsInfo',
         reviewReply: reply,
         history: appendHistory(record, historyEntry(record, 'infoRequested', 'admin', reply)),

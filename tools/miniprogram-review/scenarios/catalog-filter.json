@@ -1,7 +1,14 @@
 {
   "name": "名冊篩選固定操作區",
   "entry": "/pages/catalog/index",
-  "watchPaths": ["miniprogram/pages/catalog/"],
+  "watchPaths": [
+    "miniprogram/pages/catalog/",
+    "miniprogram/components/skill-sheet/",
+    "miniprogram/presenters/skill-sheet.ts",
+    "miniprogram/presenters/catalog-page-state.ts",
+    "miniprogram/presenters/catalog-presenter.ts",
+    "miniprogram/domain/catalog-query.ts"
+  ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [

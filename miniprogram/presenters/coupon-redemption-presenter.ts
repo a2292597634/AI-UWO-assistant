@@ -1,7 +1,7 @@
 import {
   getServerName,
   type CouponProfileStore,
-  type CouponRedemptionResult,
+  type CouponRedemptionServiceCode,
 } from '../contracts/coupon-redemption'
 
 export interface CouponSettingsProfileViewModel {
@@ -40,7 +40,10 @@ export const buildCouponSettingsViewModel = (
   emptyMessage: '尚未新增玩家設定',
 })
 
-export const getCouponResultViewModel = (result: CouponRedemptionResult): CouponResultViewModel => {
+export const getCouponResultViewModel = (result: {
+  code: CouponRedemptionServiceCode
+  message: string
+}): CouponResultViewModel => {
   if (result.code === 'success') {
     return {
       statusClass: 'ui-status--achieved',

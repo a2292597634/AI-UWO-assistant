@@ -1,9 +1,13 @@
+import { loadCanonicalOfficers } from '../../tools/data-pipeline/load-officers'
 import { afterEach, describe, expect, it } from 'vitest'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { buildOfficerReferenceData } from '../../tools/data-pipeline/build-officer-reference-data'
+import {
+  buildOfficerReferenceData,
+  buildMaintenanceReferenceData,
+} from '../../tools/data-pipeline/build-officer-reference-data'
 
 const fixture = <T>(name: string): T =>
   JSON.parse(readFileSync(`tests/fixtures/canonical/${name}.json`, 'utf8')) as T
@@ -44,4 +48,14 @@ describe('officer reference data snapshot', () => {
     writeFileSync(join(directory, 'skills.json'), JSON.stringify(fixture('skills')))
     expect(buildOfficerReferenceData(directory)).toEqual(buildOfficerReferenceData(directory))
   })
+})
+
+it('正式服務端 reference 與 maintenance 索引涵蓋合併集合', () => {
+  const expected = loadCanonicalOfficers().map((item) => item.id)
+  expect(buildOfficerReferenceData().officerIds).toEqual(expected)
+  expect(buildMaintenanceReferenceData().officerIds).toEqual(expected)
+  const generated = JSON.parse(
+    readFileSync('cloudfunctions/officer-maintenance/reference-data.json', 'utf8'),
+  )
+  expect(generated.officerIds).toEqual(expected)
 })

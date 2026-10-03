@@ -72,6 +72,7 @@ interface MajorEventPageConfig {
   onLoad(): void
   onShow(): void
   onHide(): void
+  onUnload(): void
   onPullDownRefresh(): Promise<void>
   onHorizonTap(event: WechatMiniprogram.BaseEvent): void
   onViewTap(event: WechatMiniprogram.BaseEvent): void
@@ -131,6 +132,51 @@ afterEach(() => {
 })
 
 describe('大流行時刻表頁控制器', () => {
+  it('未先 hide 的 unload 也停止分鐘刷新；重複卸載安全', async () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onShow()
+    const updates = vi.spyOn(page, 'setData')
+    page.onUnload()
+    page.onUnload()
+    await vi.advanceTimersByTimeAsync(120_000)
+    expect(updates).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+  it('hide 後已排隊的舊 callback 不更新也不重排程', () => {
+    const timer = vi.spyOn(globalThis, 'setTimeout')
+    try {
+      const page = createPageInstance()
+      page.onLoad()
+      page.onShow()
+      const callback = timer.mock.calls[timer.mock.calls.length - 1]![0] as () => void
+      page.onHide()
+      const updates = vi.spyOn(page, 'setData')
+      callback()
+      expect(updates).not.toHaveBeenCalled()
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      timer.mockRestore()
+    }
+  })
+  it('重複 show 只保留一個 timer；hide 後 show 即時刷新', async () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onShow()
+    page.onShow()
+    expect(vi.getTimerCount()).toBe(1)
+    page.onHide()
+    const updates = vi.spyOn(page, 'setData')
+    await vi.advanceTimersByTimeAsync(120_000)
+    expect(updates).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(0)
+    page.onShow()
+    expect(updates).toHaveBeenCalledTimes(1)
+    expect(page.data.nowUnixSeconds).toBe(Math.floor(Date.now() / 1000))
+    expect(vi.getTimerCount()).toBe(1)
+    page.onHide()
+  })
+
   it('loads local references and starts with the three-day matrix', () => {
     const page = createPageInstance()
 

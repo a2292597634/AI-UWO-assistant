@@ -1,0 +1,90 @@
+{
+  "name": "冒險目標選擇器與技能詳情交接",
+  "entry": "/pages/adventure-fleet/index",
+  "watchPaths": [
+    "miniprogram/pages/adventure-fleet/",
+    "miniprogram/components/skill-picker-sheet/",
+    "miniprogram/components/skill-sheet/"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".fleet-context"
+    },
+    {
+      "action": "scrollElement",
+      "selector": ".fleet-scroll",
+      "distance": 450
+    },
+    {
+      "action": "tap",
+      "selector": ".target-actions .ui-button--secondary"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".skill-picker-sheet--sheet"
+    },
+    {
+      "action": "input",
+      "selector": ".skill-picker-sheet--sheet .skill-picker-sheet__search",
+      "value": "採集"
+    },
+    {
+      "action": "assertText",
+      "selector": ".skill-picker-sheet--sheet .skill-picker-sheet__name",
+      "contains": "採集"
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-picker-before-detail"
+    },
+    {
+      "action": "tap",
+      "selector": ".skill-picker-sheet--sheet .skill-picker-sheet__detail[data-id='skill_skillT0172']"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".skill-sheet"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".skill-sheet__close"
+    },
+    {
+      "action": "assertText",
+      "selector": ".skill-sheet__name",
+      "equals": "觀測後採集"
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-skill-detail-visible"
+    },
+    {
+      "action": "tap",
+      "selector": ".skill-sheet__close"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".skill-picker-sheet--sheet"
+    },
+    {
+      "action": "assertText",
+      "selector": ".skill-picker-sheet--sheet .skill-picker-sheet__name",
+      "contains": "採集"
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-picker-resumed"
+    },
+    {
+      "action": "tap",
+      "selector": ".skill-picker-sheet--sheet .skill-picker-sheet__select[data-id='skill_skillT0172']"
+    },
+    {
+      "action": "screenshot",
+      "name": "adventure-picked-positive-target"
+    }
+  ]
+}

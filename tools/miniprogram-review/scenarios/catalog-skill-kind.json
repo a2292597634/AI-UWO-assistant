@@ -1,0 +1,141 @@
+{
+  "name": "技能關係主被動篩選與持有者",
+  "entry": "/pages/catalog/index",
+  "watchPaths": [
+    "miniprogram/pages/catalog/",
+    "miniprogram/presenters/catalog-presenter.ts",
+    "miniprogram/domain/catalog-query.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "tap",
+      "selector": ".catalog-page__mode-tab[data-mode='skill']"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__skill-row"
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__result-count",
+      "contains": "項技能"
+    },
+    {
+      "action": "screenshot",
+      "name": "skill-kind-all"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__skill-row"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__skill-expanded"
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__skill-expanded-heading",
+      "contains": "持有此技能的航海士"
+    },
+    {
+      "action": "screenshot",
+      "name": "skill-kind-all-owners"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__filter-trigger"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__filter-body"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__skill-kind[data-kind='passive']"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__filter-action--apply"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".catalog-page__skill-expanded",
+      "exists": false
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__skill-row-kind",
+      "equals": "被"
+    },
+    {
+      "action": "screenshot",
+      "name": "skill-kind-passive"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__skill-row"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__skill-expanded"
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__skill-expanded-heading",
+      "contains": "持有此技能的航海士"
+    },
+    {
+      "action": "screenshot",
+      "name": "skill-kind-passive-owners"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__filter-trigger"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__filter-body"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__skill-kind[data-kind='active']"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__filter-action--apply"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".catalog-page__skill-expanded",
+      "exists": false
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__skill-row-kind",
+      "equals": "主"
+    },
+    {
+      "action": "screenshot",
+      "name": "skill-kind-active"
+    },
+    {
+      "action": "tap",
+      "selector": ".catalog-page__skill-row"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".catalog-page__skill-expanded"
+    },
+    {
+      "action": "assertText",
+      "selector": ".catalog-page__skill-expanded-heading",
+      "contains": "持有此技能的航海士"
+    },
+    {
+      "action": "screenshot",
+      "name": "skill-kind-active-owners"
+    }
+  ]
+}

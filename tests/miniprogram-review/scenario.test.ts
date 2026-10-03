@@ -15,6 +15,19 @@ afterEach(() => {
 })
 
 describe('小程序验收场景', () => {
+  it('場景 fixture 僅接受固定名稱且拒绝任意脚本欄位', () => {
+    const input = {
+      name: 'fixture',
+      entry: '/pages/catalog/index',
+      state: 'normal',
+      devices: ['iphone-standard'],
+      steps: [{ action: 'screenshot', name: 'fixture' }],
+    }
+    expect(parseScenario({ ...input, fixture: 'coupon-success' }).fixture).toBe('coupon-success')
+    expect(() => parseScenario({ ...input, fixture: 'evil.js' })).toThrow('不支持')
+    expect(() => parseScenario({ ...input, script: 'evil.js' })).toThrow('未知字段')
+  })
+
   it('covers the major-event schedule matrix, journey, detail, and simplified controls', () => {
     const majorEvent = loadScenario(
       resolve('tools/miniprogram-review/scenarios/major-event-forecast.json'),

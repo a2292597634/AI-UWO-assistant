@@ -100,7 +100,7 @@
             <text class="catalog-page__skill-row-category">{{item.categoryName}}</text>
           </view>
           <view class="catalog-page__skill-row-badges">
-            <text class="catalog-page__skill-row-kind {{item.kind === 'active' ? 'catalog-page__skill-row-kind--active' : 'catalog-page__skill-row-kind--passive'}}">{{item.kind === 'active' ? '主' : '被'}}</text>
+            <text class="catalog-page__skill-row-kind catalog-page__skill-row-kind--{{item.kind}}">{{item.kindLabel}}</text>
             <text class="catalog-page__skill-row-count">{{item.officerCount}} 位</text>
           </view>
         </view>

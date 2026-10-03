@@ -392,6 +392,38 @@ describe('FleetConfigService dispatch', () => {
     })
   })
 
+  it('分類前置讀取後版本變動的 CAS 衝突保留舊配置與 active A', async () => {
+    const now = '2026-01-01T00:00:00.000Z'
+    const active = await createViaService('目前配置')
+    expect(active.ok).toBe(true)
+    if (!active.ok) return
+    const activeId = active.data.configId as string
+    const original = structuredClone(await repo.findByOwnerAndId(ownerA, activeId))
+    await repo.insert({
+      configId: 'L',
+      ownerUid: ownerA,
+      name: '舊配置',
+      fleetState: createFleetState(),
+      schemaVersion: 1,
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+      lastUsedAt: now,
+    })
+    const classify = repo.classifyIfVersionAndConstraints.bind(repo)
+    repo.classifyIfVersionAndConstraints = async (...args) => {
+      // service 已完成 find；原子提交前另一次更新只提升版本，仍保持未分類。
+      await repo.updateIfVersion(ownerA, 'L', 1, {})
+      return classify(...args)
+    }
+    await expect(
+      dispatch('classifyConfig', { configId: 'L', expectedVersion: 1, targetScope: 'battle' }),
+    ).resolves.toMatchObject({ ok: false, code: 'conflict' })
+    expect(await repo.findByOwnerAndId(ownerA, 'L')).toMatchObject({ version: 2 })
+    expect(await repo.findByOwnerAndId(ownerA, 'L', 'unclassified')).not.toBeNull()
+    expect(await repo.findByOwnerAndId(ownerA, activeId)).toEqual(original)
+  })
+
   it('分類舊記錄前拒絕不符合目標 scope 的艦隊資料', async () => {
     await repo.insert({
       configId: 'legacy-invalid',

@@ -48,17 +48,27 @@ describe('parseLanguageMap', () => {
   })
 
   it('handles a gap between ranges by extracting what it can', () => {
-    // lang_js[1] is split across two ranges with a gap in between
-    const range0 = 'lang_js[1]={"skill100043":"神之手腕",'
-    // ... gap (missing content) ...
-    const range1 = '"lang80":"英語"}'
-
-    const result = parseLanguageMap([range0, range1])
-
-    // Should extract whatever key-value pairs it can parse
-    // The partial JSON won't parse, so it falls back to per-key extraction
+    const ranges = [
+      'lang_js[1]={"skill100043":"神之手腕","broken":"半個',
+      '被截去結尾的殘片,"lang80":"英語"}',
+    ]
+    expect(() => JSON.parse(ranges.join('').replace(/^lang_js\[1\]=/, ''))).toThrow()
+    const result = parseLanguageMap(ranges)
     expect(result.skill100043).toBe('神之手腕')
-    // The key spanning the gap may or may not be recoverable
+    expect(result.lang80).toBe('英語')
+    expect(result.broken).toBeUndefined()
+  })
+
+  it('缺口兩側保留逸出引號與 Unicode，拒絕截斷值', () => {
+    const ranges = [
+      String.raw`lang_js[1]={"quote":"a\"b","broken":"半個`,
+      String.raw`缺口,"unicode":"\u822a\u6d77"}`,
+    ]
+    expect(() => JSON.parse(ranges.join('').replace(/^lang_js\[1\]=/, ''))).toThrow()
+    const result = parseLanguageMap(ranges)
+    expect(result.quote).toBe('a"b')
+    expect(result.unicode).toBe('航海')
+    expect(result.broken).toBeUndefined()
   })
 
   it('extracts officer display names, job names, city names, and skill descriptions', () => {

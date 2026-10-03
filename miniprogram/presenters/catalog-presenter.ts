@@ -192,83 +192,57 @@ export interface SkillCheckRowView {
   iconPath: string
   categoryName: string
   categoryId: string
-  kind: 'active' | 'passive'
+  kind: 'active' | 'passive' | 'mixed'
+  kindLabel: '主' | '被' | '主及被'
+  officerCountByKind: { active: number; passive: number }
   officerCount: number
 }
 
 // ── Skill checklist functions ──
 
-/**
- * Build a deduplicated skill list from all catalog entries.
- * Each skill appears once; officerCount is the number of officers who have it.
- * If a skill appears in both active and passive contexts, it is listed once
- * with the kind of its first occurrence.
- */
+/** 每個技能只顯示一列，按關係 kind 保存持有者集合並以 union 計算全部人數。 */
 export function buildSkillCheckList(
   catalog: readonly RuntimeCatalogEntry[],
   skills: Readonly<Record<string, RuntimeSkill>>,
 ): SkillCheckRowView[] {
-  const skillMap = new Map<string, SkillCheckRowView>()
-  const officerCounts = new Map<string, number>()
-
+  const ownersBySkill = new Map<string, { active: Set<string>; passive: Set<string> }>()
   for (const officer of catalog) {
-    const seen = new Set<string>()
-
-    for (const sid of officer.activeSkills ?? []) {
-      if (seen.has(sid)) continue
-      seen.add(sid)
-
-      officerCounts.set(sid, (officerCounts.get(sid) ?? 0) + 1)
-
-      if (!skillMap.has(sid)) {
-        const sk = skills[sid]
-        if (sk) {
-          skillMap.set(sid, {
-            skillId: sid,
-            name: sk.n,
-            iconPath: sk.ip,
-            categoryName: sk.cn,
-            categoryId: sk.cat,
-            kind: 'active',
-            officerCount: 0,
-          })
+    for (const kind of ['active', 'passive'] as const) {
+      const relations = kind === 'active' ? officer.activeSkills : officer.passiveSkills
+      for (const sid of relations ?? []) {
+        if (!skills[sid]) continue
+        const owners = ownersBySkill.get(sid) ?? {
+          active: new Set<string>(),
+          passive: new Set<string>(),
         }
-      }
-    }
-
-    for (const sid of officer.passiveSkills ?? []) {
-      if (seen.has(sid)) continue
-      seen.add(sid)
-
-      officerCounts.set(sid, (officerCounts.get(sid) ?? 0) + 1)
-
-      if (!skillMap.has(sid)) {
-        const sk = skills[sid]
-        if (sk) {
-          skillMap.set(sid, {
-            skillId: sid,
-            name: sk.n,
-            iconPath: sk.ip,
-            categoryName: sk.cn,
-            categoryId: sk.cat,
-            kind: 'passive',
-            officerCount: 0,
-          })
-        }
+        owners[kind].add(officer.id)
+        ownersBySkill.set(sid, owners)
       }
     }
   }
-
-  // Merge officer counts
-  for (const [skillId, row] of skillMap) {
-    row.officerCount = officerCounts.get(skillId) ?? 0
-  }
-
-  // Sort by category then name
-  return Array.from(skillMap.values()).sort((a, b) => {
+  const rows: SkillCheckRowView[] = [...ownersBySkill.entries()].map(([skillId, owners]) => {
+    const sk = skills[skillId]!
+    const kind =
+      owners.active.size > 0 && owners.passive.size > 0
+        ? 'mixed'
+        : owners.active.size > 0
+          ? 'active'
+          : 'passive'
+    return {
+      skillId,
+      name: sk.n,
+      iconPath: sk.ip,
+      categoryName: sk.cn,
+      categoryId: sk.cat,
+      kind,
+      kindLabel: kind === 'mixed' ? '主及被' : kind === 'active' ? '主' : '被',
+      officerCountByKind: { active: owners.active.size, passive: owners.passive.size },
+      officerCount: new Set([...owners.active, ...owners.passive]).size,
+    }
+  })
+  return rows.sort((a, b) => {
     const catCmp = a.categoryName.localeCompare(b.categoryName, 'zh-Hans-CN')
-    if (catCmp !== 0) return catCmp
-    return a.name.localeCompare(b.name, 'zh-Hans-CN')
+    return catCmp !== 0 ? catCmp : a.name.localeCompare(b.name, 'zh-Hans-CN')
   })
 }
 
@@ -285,7 +259,7 @@ export function filterSkillCheckList(
   let result: readonly SkillCheckRowView[] = list
 
   if (kind !== 'all') {
-    result = result.filter((s) => s.kind === kind)
+    result = result.filter((s) => s.officerCountByKind[kind] > 0)
   }
 
   if (categories.length > 0) {
@@ -300,7 +274,18 @@ export function filterSkillCheckList(
     )
   }
 
-  return result as SkillCheckRowView[]
+  // 每次投影建立獨立副本，避免當前篩選改寫完整清單的 kind／人數。
+  return result.map((row) => ({
+    ...row,
+    officerCountByKind: { ...row.officerCountByKind },
+    ...(kind === 'all'
+      ? {}
+      : {
+          kind,
+          kindLabel: kind === 'active' ? ('主' as const) : ('被' as const),
+          officerCount: row.officerCountByKind[kind],
+        }),
+  }))
 }
 
 // ── Expanded officers view ──
@@ -320,13 +305,14 @@ export interface SkillCheckExpandedOfficerView {
 export function getOfficersForSkill(
   skillId: string,
   catalog: readonly RuntimeCatalogEntry[],
+  kind: 'all' | 'active' | 'passive' = 'all',
 ): SkillCheckExpandedOfficerView[] {
   const results: SkillCheckExpandedOfficerView[] = []
 
   for (const officer of catalog) {
     const has =
-      (officer.activeSkills?.includes(skillId) ?? false) ||
-      (officer.passiveSkills?.includes(skillId) ?? false)
+      (kind !== 'passive' && (officer.activeSkills?.includes(skillId) ?? false)) ||
+      (kind !== 'active' && (officer.passiveSkills?.includes(skillId) ?? false))
     if (!has) continue
 
     results.push({

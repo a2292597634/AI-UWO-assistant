@@ -56,6 +56,14 @@ describe('航海士錯誤回報狀態轉移', () => {
     expect(canTransitionErrorReport('accepted', 'markFixed', 'admin')).toBe(true)
   })
 
+  it('管理員可從需要補充再次要求補充；擁有者不可審核', () => {
+    expect(canTransitionErrorReport('needsInfo', 'requestInfo', 'admin')).toBe(true)
+    expect(canTransitionErrorReport('accepted', 'requestInfo', 'admin')).toBe(true)
+    for (const status of ['pending', 'needsInfo', 'accepted', 'fixed', 'rejected'] as const) {
+      expect(canTransitionErrorReport(status, 'requestInfo', 'owner')).toBe(false)
+    }
+  })
+
   it('只允許擁有者從要求補充返回待確認', () => {
     expect(canTransitionErrorReport('needsInfo', 'supplement', 'owner')).toBe(true)
     expect(canTransitionErrorReport('needsInfo', 'supplement', 'admin')).toBe(false)

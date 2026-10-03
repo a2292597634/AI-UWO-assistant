@@ -24,7 +24,7 @@
     "data:audit:check": "tsx tools/data-audit/run-data-audit.ts --check",
     "data:audit:write": "tsx tools/data-audit/run-data-audit.ts --write",
     "data:schema:check": "vitest run tests/data-contract",
-    "data:check": "npm run data:audit:check && npm run data:schema:check",
+    "data:check": "npm run data:audit:check && npm run data:schema:check && tsx tools/data-audit/check-master-dataset.ts",
     "check:runtime-network": "tsx tools/quality/check-runtime-network.ts",
     "check:miniprogram-size": "tsx tools/quality/check-miniprogram-package-size.ts",
     "check:architecture": "vitest run tests/architecture",

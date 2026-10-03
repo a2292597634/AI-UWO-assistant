@@ -167,8 +167,11 @@ Page({
   async onSubmitSupplement() {
     if (this.data.submittingSupplement) return
     const text = this.data.supplementText.trim()
-    if (!text) {
-      wx.showToast({ title: '請填寫補充內容', icon: 'none' })
+    const sourceUrl = this.data.supplementSourceUrl.trim()
+    const hasContent =
+      text.length > 0 || sourceUrl.length > 0 || this.data.supplementTempPaths.length > 0
+    if (!hasContent) {
+      wx.showToast({ title: '請填寫補充內容、來源網址或提供截圖', icon: 'none' })
       return
     }
     const current = this.data.rows.find(({ reportId }) => reportId === this.data.supplementReportId)
@@ -184,7 +187,7 @@ Page({
         revision: current.revision,
         updatedAt: current.updatedAt,
         text,
-        sourceUrl: this.data.supplementSourceUrl.trim(),
+        sourceUrl,
         screenshotFileIds,
       })
       const names = new Map(getCatalog().map(({ id, name }) => [id, name]))

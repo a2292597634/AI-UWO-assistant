@@ -1,3 +1,4 @@
+import { parseReviewFixtureName } from './fixtures'
 import { readFileSync } from 'node:fs'
 
 import type { ReviewDevice, ReviewScenario, ReviewState, ReviewStep } from './types'
@@ -187,7 +188,11 @@ const parseStep = (value: unknown, index: number): ReviewStep => {
 
 export const parseScenario = (value: unknown): ReviewScenario => {
   const record = expectRecord(value, '场景')
-  rejectUnknownKeys(record, ['name', 'entry', 'watchPaths', 'state', 'devices', 'steps'], '场景')
+  rejectUnknownKeys(
+    record,
+    ['name', 'entry', 'watchPaths', 'fixture', 'state', 'devices', 'steps'],
+    '场景',
+  )
   const state = expectString(record.state, '数据状态')
   if (!STATES.has(state as ReviewState)) throw new Error(`不支持的数据状态：${state}`)
   if (!Array.isArray(record.devices) || record.devices.length === 0) {
@@ -206,6 +211,9 @@ export const parseScenario = (value: unknown): ReviewScenario => {
     name: expectString(record.name, '场景名称'),
     entry: expectPagePath(record.entry, '入口页面'),
     ...(record.watchPaths === undefined ? {} : { watchPaths: expectWatchPaths(record.watchPaths) }),
+    ...(record.fixture === undefined
+      ? {}
+      : { fixture: parseReviewFixtureName(expectString(record.fixture, 'fixture')) }),
     state: state as ReviewState,
     devices,
     steps: record.steps.map(parseStep),

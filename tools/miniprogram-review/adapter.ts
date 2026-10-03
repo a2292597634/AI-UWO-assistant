@@ -11,6 +11,7 @@ import MiniProgram from 'miniprogram-automator/out/MiniProgram'
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript'
 
 import type { ReviewConfig } from './types'
+import { createFixtureLifecycle, type ReviewFixtureName } from './fixtures'
 import {
   createWechatIdeAdapter,
   resolveWechatIdeCliPath,
@@ -123,6 +124,8 @@ export const prepareReviewProject = async (projectPath: string): Promise<string>
 }
 
 export interface ReviewAdapter {
+  installFixture?(name: ReviewFixtureName): Promise<void>
+  restoreFixture?(): Promise<void>
   navigate(path: string): Promise<void>
   reLaunch(path: string): Promise<void>
   switchTab(path: string): Promise<void>
@@ -166,6 +169,7 @@ export interface ReviewConnectionRecoveryRuntime {
 }
 
 interface AutomatorMiniProgram {
+  evaluate?(source: string): Promise<unknown>
   navigateTo(path: string): Promise<unknown>
   reLaunch(path: string): Promise<unknown>
   switchTab(path: string): Promise<unknown>
@@ -584,98 +588,106 @@ export const restartReviewConnection = async (
 export const createAutomatorAdapter = (
   miniProgram: AutomatorMiniProgram,
   options: AutomatorAdapterOptions = {},
-): ReviewAdapter => ({
-  async navigate(path) {
-    await route(miniProgram, 'navigateTo', path)
-  },
-  async reLaunch(path) {
-    await route(miniProgram, 'reLaunch', path)
-  },
-  async switchTab(path) {
-    await route(miniProgram, 'switchTab', path)
-  },
-  async tap(selector) {
-    await (await element(miniProgram, selector)).tap()
-  },
-  async input(selector, value) {
-    const target = await element(miniProgram, selector)
-    if (!target.input) throw new Error(`元素不支持输入：${selector}`)
-    await target.input(value)
-  },
-  async clearInput(selector) {
-    const target = await element(miniProgram, selector)
-    if (!target.input) throw new Error(`元素不支持输入：${selector}`)
-    await target.input('')
-  },
-  async scrollPage(distance) {
-    await miniProgram.pageScrollTo(distance)
-  },
-  async scrollElement(selector, distance) {
-    const target = await element(miniProgram, selector)
-    if (!target.scrollTo) throw new Error(`元素不支持滚动：${selector}`)
-    await target.scrollTo(0, distance)
-  },
-  async waitFor(selectorOrDuration, timeoutMs = 5000) {
-    if (typeof selectorOrDuration === 'number') {
-      await withTimeout(
-        new Promise((resolveDelay) => setTimeout(resolveDelay, selectorOrDuration)),
-        timeoutMs,
-        `等待 ${selectorOrDuration} 毫秒超时`,
-      )
-      return
-    }
-    const deadline = Date.now() + timeoutMs
-    while (Date.now() < deadline) {
-      try {
-        const page = await currentPage(miniProgram)
-        if (await findElement(page, selectorOrDuration)) return
-      } catch (error) {
-        if (isDevToolsConnectionError(error)) throw error
-        // 页面转场期间 currentPage 或元素查询可能暂时失败；下一轮重新获取顶层页面。
-        void error
-      }
-      await new Promise((resolveDelay) =>
-        setTimeout(resolveDelay, Math.min(100, Math.max(1, deadline - Date.now()))),
-      )
-    }
-    throw new Error(`等待元素超时：${selectorOrDuration}`)
-  },
-  async queryElement(selector) {
-    return Boolean(await findElement(await currentPage(miniProgram), selector))
-  },
-  async isVisible(selector) {
-    const target = await findElement(await currentPage(miniProgram), selector)
-    if (!target) return false
-    const size = await target.size()
-    return size.width > 0 && size.height > 0
-  },
-  async readText(selector) {
-    return await (await element(miniProgram, selector)).text()
-  },
-  async screenshot(path) {
-    const captureScreenshot =
-      options.screenshot ??
-      (async (targetPath: string) => miniProgram.screenshot({ path: targetPath }))
-    let lastError: unknown
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      try {
-        await captureScreenshot(path)
+): ReviewAdapter => {
+  const lifecycle = createFixtureLifecycle(async (source) => {
+    if (!miniProgram.evaluate) throw new Error('automator 不支持安全 evaluate fixture')
+    return miniProgram.evaluate(source)
+  })
+  return {
+    ...lifecycle,
+    async navigate(path) {
+      await route(miniProgram, 'navigateTo', path)
+    },
+    async reLaunch(path) {
+      await route(miniProgram, 'reLaunch', path)
+    },
+    async switchTab(path) {
+      await route(miniProgram, 'switchTab', path)
+    },
+    async tap(selector) {
+      await (await element(miniProgram, selector)).tap()
+    },
+    async input(selector, value) {
+      const target = await element(miniProgram, selector)
+      if (!target.input) throw new Error(`元素不支持输入：${selector}`)
+      await target.input(value)
+    },
+    async clearInput(selector) {
+      const target = await element(miniProgram, selector)
+      if (!target.input) throw new Error(`元素不支持输入：${selector}`)
+      await target.input('')
+    },
+    async scrollPage(distance) {
+      await miniProgram.pageScrollTo(distance)
+    },
+    async scrollElement(selector, distance) {
+      const target = await element(miniProgram, selector)
+      if (!target.scrollTo) throw new Error(`元素不支持滚动：${selector}`)
+      await target.scrollTo(0, distance)
+    },
+    async waitFor(selectorOrDuration, timeoutMs = 5000) {
+      if (typeof selectorOrDuration === 'number') {
+        await withTimeout(
+          new Promise((resolveDelay) => setTimeout(resolveDelay, selectorOrDuration)),
+          timeoutMs,
+          `等待 ${selectorOrDuration} 毫秒超时`,
+        )
         return
-      } catch (error) {
-        lastError = error
-        if (attempt === 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, 3000))
       }
-    }
-    throw lastError instanceof Error ? lastError : new Error('截图失败')
-  },
-  async currentPagePath() {
-    const path = (await currentPage(miniProgram)).path
-    return path.startsWith('/') ? path : `/${path}`
-  },
-  async disconnect() {
-    miniProgram.disconnect()
-  },
-})
+      const deadline = Date.now() + timeoutMs
+      while (Date.now() < deadline) {
+        try {
+          const page = await currentPage(miniProgram)
+          if (await findElement(page, selectorOrDuration)) return
+        } catch (error) {
+          if (isDevToolsConnectionError(error)) throw error
+          // 页面转场期间 currentPage 或元素查询可能暂时失败；下一轮重新获取顶层页面。
+          void error
+        }
+        await new Promise((resolveDelay) =>
+          setTimeout(resolveDelay, Math.min(100, Math.max(1, deadline - Date.now()))),
+        )
+      }
+      throw new Error(`等待元素超时：${selectorOrDuration}`)
+    },
+    async queryElement(selector) {
+      return Boolean(await findElement(await currentPage(miniProgram), selector))
+    },
+    async isVisible(selector) {
+      const target = await findElement(await currentPage(miniProgram), selector)
+      if (!target) return false
+      const size = await target.size()
+      return size.width > 0 && size.height > 0
+    },
+    async readText(selector) {
+      return await (await element(miniProgram, selector)).text()
+    },
+    async screenshot(path) {
+      const captureScreenshot =
+        options.screenshot ??
+        (async (targetPath: string) => miniProgram.screenshot({ path: targetPath }))
+      let lastError: unknown
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          await captureScreenshot(path)
+          return
+        } catch (error) {
+          lastError = error
+          if (attempt === 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, 3000))
+        }
+      }
+      throw lastError instanceof Error ? lastError : new Error('截图失败')
+    },
+    async currentPagePath() {
+      const path = (await currentPage(miniProgram)).path
+      return path.startsWith('/') ? path : `/${path}`
+    },
+    async disconnect() {
+      await lifecycle.restoreFixture()
+      miniProgram.disconnect()
+    },
+  }
+}
 
 export const connectReviewAdapter = async (config: ReviewConfig): Promise<ReviewAdapter> => {
   if (!config.wsEndpoint && resolveWechatIdeCliPath(config.cliPath)) {

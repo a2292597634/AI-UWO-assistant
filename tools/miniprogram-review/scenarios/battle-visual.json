@@ -2,9 +2,18 @@
   "name": "戰鬥配隊首屏與滾動",
   "entry": "/subpkg-fleet/pages/index/index",
   "watchPaths": [
+    "miniprogram/contracts/fleet-config.ts",
     "miniprogram/subpkg-fleet/pages/index/",
     "miniprogram/components/config-bar/",
-    "miniprogram/components/mode-tabs/"
+    "miniprogram/components/mode-tabs/",
+    "miniprogram/components/skill-sheet/",
+    "miniprogram/components/entity-search-picker/",
+    "miniprogram/components/skill-picker-sheet/",
+    "miniprogram/components/config-conflict-modal/",
+    "miniprogram/presenters/skill-sheet.ts",
+    "miniprogram/presenters/battle-fleet-presenter.ts",
+    "miniprogram/domain/battle-fleet.ts",
+    "miniprogram/domain/fleet-config-conflict.ts"
   ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],

@@ -5,6 +5,7 @@ import {
   assignSkillToFirstOpenTarget,
   banOfficer,
   createFleetState,
+  getBattleOptimizationTargets,
   excludeOfficerFromShip,
   filterBattleSkills,
   getOfficerStatus,
@@ -326,5 +327,25 @@ describe('ship skill summary', () => {
       totalLevel: 0,
       contributorOfficerIds: [],
     })
+  })
+})
+
+describe('戰鬥正數目標投影', () => {
+  it('只送正數且有技能的目標，保留原有 Lv.0 記錄', () => {
+    const targets = [
+      { id: 'zero', skillId: 'skill-zero', targetLevel: 0 },
+      { id: 'positive', skillId: 'skill-positive', targetLevel: 2 },
+      { id: 'empty', skillId: null, targetLevel: 1 },
+    ]
+    const original = structuredClone(targets)
+    expect(getBattleOptimizationTargets(targets)).toEqual([
+      { skillId: 'skill-positive', targetLevel: 2 },
+    ])
+    expect(targets).toEqual(original)
+  })
+  it('全零目標投影為空', () => {
+    expect(
+      getBattleOptimizationTargets([{ id: 'zero', skillId: 'skill-zero', targetLevel: 0 }]),
+    ).toEqual([])
   })
 })

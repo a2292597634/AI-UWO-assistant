@@ -471,3 +471,11 @@ export const getOfficerStatus = (
   if (owner.id === currentShipId) return 'current'
   return 'occupied'
 }
+
+/** Lv.0 保留為配置目標，但本次重算僅使用已選技能的正數目標。 */
+export const getBattleOptimizationTargets = (targets: readonly FleetTarget[]) =>
+  targets.flatMap((target) =>
+    target.skillId !== null && target.targetLevel > 0
+      ? [{ skillId: target.skillId, targetLevel: target.targetLevel }]
+      : [],
+  )

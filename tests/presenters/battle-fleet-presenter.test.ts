@@ -277,3 +277,26 @@ describe('battle fleet presenter', () => {
     ])
   })
 })
+
+describe('戰鬥零目標重算入口', () => {
+  it.each([0, 2])('Lv.%i 保留顯示，但只有正數可重算', (level) => {
+    const state = createFleetState()
+    state.ships[0]!.targets = [{ id: 'legacy', skillId: 'skill-main', targetLevel: level }]
+    const view = buildBattleFleetPageData(
+      state,
+      officers,
+      skills,
+      dictionaries,
+      'ship-1',
+      emptyFilters,
+      null,
+    )
+    expect(view.targets[0]).toMatchObject({
+      id: 'legacy',
+      skillId: 'skill-main',
+      targetLevel: level,
+    })
+    expect(view.canRecalculate).toBe(level > 0)
+    if (level === 0) expect(view.recalculateDisabledReason).toMatch(/Lv\.1/)
+  })
+})

@@ -73,6 +73,7 @@ interface MajorEventPageConfig {
   onLoad(): void
   onShow(): void
   onHide(): void
+  onUnload(): void
   onPullDownRefresh(): Promise<void>
   onHorizonTap(event: WechatMiniprogram.BaseEvent): void
   onViewTap(event: WechatMiniprogram.BaseEvent): void
@@ -87,6 +88,7 @@ interface MajorEventPageConfig {
 interface MajorEventPageContext extends MajorEventPageController {
   majorEventReference: RuntimeMajorEventReference | null
   tradeReference: RuntimeTradeReference | null
+  isPageVisible: boolean
   minuteTimer: ReturnType<typeof setTimeout> | null
 }
 
@@ -358,9 +360,11 @@ const clearMinuteTimer = (page: MajorEventPageContext): void => {
 
 const scheduleMinuteRefresh = (page: MajorEventPageContext): void => {
   clearMinuteTimer(page)
+  if (!page.isPageVisible) return
   const delay = 60_000 - (Date.now() % 60_000)
   page.minuteTimer = setTimeout(() => {
     page.minuteTimer = null
+    if (!page.isPageVisible) return
     refreshPage(page)
     scheduleMinuteRefresh(page)
   }, delay)
@@ -429,6 +433,7 @@ Page({
     page.majorEventReference = null
     page.tradeReference = null
     page.minuteTimer = null
+    page.isPageVisible = false
     try {
       page.majorEventReference = validateMajorEventReference(getMajorEventReference())
       page.tradeReference = validateTradeReference(getTradeReference())
@@ -447,13 +452,22 @@ Page({
 
   onShow() {
     const page = this as unknown as MajorEventPageContext
+    page.isPageVisible = true
     if (page.majorEventReference === null || page.tradeReference === null) return
     refreshPage(page)
     scheduleMinuteRefresh(page)
   },
 
   onHide() {
-    clearMinuteTimer(this as unknown as MajorEventPageContext)
+    const page = this as unknown as MajorEventPageContext
+    page.isPageVisible = false
+    clearMinuteTimer(page)
+  },
+
+  onUnload() {
+    const page = this as unknown as MajorEventPageContext
+    page.isPageVisible = false
+    clearMinuteTimer(page)
   },
 
   async onPullDownRefresh() {

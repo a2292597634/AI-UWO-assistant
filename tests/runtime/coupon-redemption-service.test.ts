@@ -70,5 +70,7 @@ describe('兌換碼 Runtime service adapter', () => {
 
     expect(error).toMatchObject({ code: 'unknown' })
     expect((error as Error).message).not.toContain('secret')
+    expect((error as Error).message).toBe('結果未確認，請先到官方頁面確認再嘗試。')
+    expect(mockCallFunction).toHaveBeenCalledTimes(1)
   })
 })

@@ -1,0 +1,71 @@
+{
+  "name": "兌換離線結果：兌換成功",
+  "entry": "/subpkg-coupon/pages/redemption/index",
+  "fixture": "coupon-success",
+  "watchPaths": [
+    "miniprogram/subpkg-coupon/pages/redemption/",
+    "miniprogram/runtime/coupon-redemption-service.ts",
+    "miniprogram/presenters/coupon-redemption-presenter.ts",
+    "tools/miniprogram-review/fixtures.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".coupon-redemption__submit"
+    },
+    {
+      "action": "tap",
+      "selector": ".coupon-redemption__submit"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".coupon-redemption__result-profile"
+    },
+    {
+      "action": "assertText",
+      "selector": ".ui-status__label",
+      "equals": "兌換成功"
+    },
+    {
+      "action": "assertText",
+      "selector": ".coupon-redemption__result-profile",
+      "contains": "fixture-user-a"
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-result-success"
+    },
+    {
+      "action": "tap",
+      "selector": ".coupon-redemption__change"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".coupon-settings__profile"
+    },
+    {
+      "action": "tap",
+      "selector": "button[data-id='fixture-player-b']"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".coupon-redemption__profile-name"
+    },
+    {
+      "action": "assertText",
+      "selector": ".coupon-redemption__profile-name",
+      "equals": "fixture-user-b"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".coupon-redemption__status",
+      "exists": false
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-switched-player-b"
+    }
+  ]
+}

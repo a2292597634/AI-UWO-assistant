@@ -1,3 +1,8 @@
+import { loadOfficerMasterCollections } from './data-pipeline/load-officers'
+import {
+  assertProjectPath,
+  getMaintenanceRollbackPaths,
+} from './data-pipeline/generated-output-paths'
 /** 核准維護工單同步：完整記憶體轉換、驗證、可回復原子替換與發布門禁。 */
 import { execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -16,7 +21,7 @@ import {
   openSync,
   closeSync,
 } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import { tmpdir } from 'node:os'
@@ -135,11 +140,7 @@ const validateMaster = (master: MaintenanceMaster): void => {
   const findings = [
     ...validator.validate('officers', master.officers),
     ...validator.validate('dictionaries', master.dictionaries),
-    // 現有 schema 尚未收錄既有 levelInfo；單獨檢查它並沿用其餘 schema 邊界。
-    ...validator.validate(
-      'skills',
-      master.skills.map(({ levelInfo: _levelInfo, ...skill }) => skill),
-    ),
+    ...validator.validate('skills', master.skills),
   ]
   if (findings.length)
     throw new Error(
@@ -543,27 +544,19 @@ const stagePortraits = async (
 }
 const MASTER_NAMES = ['officers', 'skills', 'dictionaries', 'dataset'] as const
 
-const DEFAULT_ROLLBACK_PATHS = [
-  join(ROOT, 'data/assets/staging'),
-  join(ROOT, 'data/assets/cloudbase-manifest.json'),
-  join(ROOT, 'data/assets/asset-dependencies.json'),
-  join(ROOT, 'miniprogram/generated'),
-  join(ROOT, 'miniprogram/subpkg-detail'),
-  join(ROOT, 'miniprogram/subpkg-trade'),
-  join(ROOT, 'miniprogram/subpkg-maintenance/maintenance-officers.js'),
-  join(ROOT, 'cloudfunctions/officer-custom/reference-data.json'),
-  join(ROOT, 'cloudfunctions/officer-maintenance/reference-data.json'),
-] as const
-
 interface RollbackSnapshot {
   sourcePath: string
   backupPath: string
   existed: boolean
 }
 
-const snapshotPaths = (paths: readonly string[]): { root: string; entries: RollbackSnapshot[] } => {
+const snapshotPaths = (
+  paths: readonly string[],
+  projectRoot: string,
+): { root: string; projectRoot: string; entries: RollbackSnapshot[] } => {
   const root = mkdtempSync(join(tmpdir(), 'uwo-maintenance-rollback-'))
-  const entries = paths.map((sourcePath, index) => {
+  const entries = paths.map((rawPath, index) => {
+    const sourcePath = assertProjectPath(projectRoot, rawPath)
     const backupPath = join(root, String(index))
     const existed = existsSync(sourcePath)
     if (existed) {
@@ -572,12 +565,16 @@ const snapshotPaths = (paths: readonly string[]): { root: string; entries: Rollb
     }
     return { sourcePath, backupPath, existed }
   })
-  return { root, entries }
+  return { root, projectRoot, entries }
 }
 
-const restorePaths = (snapshot: { entries: readonly RollbackSnapshot[] }): void => {
+const restorePaths = (snapshot: {
+  projectRoot: string
+  entries: readonly RollbackSnapshot[]
+}): void => {
   for (const entry of snapshot.entries) {
-    rmSync(entry.sourcePath, { recursive: true, force: true })
+    const sourcePath = assertProjectPath(snapshot.projectRoot, entry.sourcePath)
+    rmSync(sourcePath, { recursive: true, force: true })
     if (!entry.existed) continue
     if (statSync(entry.backupPath).isDirectory())
       cpSync(entry.backupPath, entry.sourcePath, { recursive: true })
@@ -598,19 +595,35 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
     options.approved ??
     cloudData(await invoke({ action: 'listApprovedForSync', syncToken: options.syncToken }))
   if (!Array.isArray(fetched)) throw new Error('核准工單清單格式無效')
+  const projectRoot =
+    basename(masterDir) === 'master' && basename(dirname(masterDir)) === 'data'
+      ? resolve(masterDir, '../..')
+      : masterDir
+  const rollbackPaths = options.rollbackPaths ?? getMaintenanceRollbackPaths(projectRoot)
+  for (const path of rollbackPaths) assertProjectPath(projectRoot, path)
   const lockPath = join(masterDir, '.maintenance-sync.lock')
   const lock = openSync(lockPath, 'wx')
   const transaction = randomUUID()
-  const replacements: { path: string; temp: string; backup: string; replaced: boolean }[] = []
-  const rollbackPaths =
-    options.rollbackPaths ??
-    (masterDir === resolve(join(ROOT, 'data/master')) ? DEFAULT_ROLLBACK_PATHS : [])
-  const workspaceSnapshot = snapshotPaths(rollbackPaths)
+  const replacements: {
+    path: string
+    temp: string
+    backup: string
+    existed: boolean
+    replaced: boolean
+  }[] = []
+  const workspaceSnapshot = snapshotPaths(rollbackPaths, projectRoot)
   let publishedSuccessfully = false
   try {
-    const master = Object.fromEntries(
-      MASTER_NAMES.map((name) => [name, readJson(join(masterDir, `${name}.json`))]),
-    ) as unknown as MaintenanceMaster
+    const collections = loadOfficerMasterCollections(masterDir)
+    const master = {
+      ...Object.fromEntries(
+        MASTER_NAMES.filter((name) => name !== 'officers').map((name) => [
+          name,
+          readJson(join(masterDir, `${name}.json`)),
+        ]),
+      ),
+      officers: [...collections.official, ...collections.custom],
+    } as unknown as MaintenanceMaster
     const result = applyApprovedWorkOrders(master, fetched as ApprovedWorkOrder[])
     if (fetched.length === 0) return { master: result, published: [] as string[] }
     const dataChanged = !isDeepStrictEqual(result, master)
@@ -631,13 +644,28 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
         loader,
       )
     }
-    for (const name of MASTER_NAMES) {
+    const writeback = {
+      ...result,
+      officers: result.officers.filter(
+        (officer) => collections.sourceFileById.get(officer.id) !== 'custom-officers',
+      ),
+      'custom-officers': result.officers.filter(
+        (officer) => collections.sourceFileById.get(officer.id) === 'custom-officers',
+      ),
+    }
+    for (const name of [...MASTER_NAMES, 'custom-officers'] as const) {
       const path = join(masterDir, `${name}.json`)
+      const existed = existsSync(path)
+      if (
+        (!existed && name === 'custom-officers' && writeback[name].length === 0) ||
+        (existed && isDeepStrictEqual(readJson(path), writeback[name]))
+      )
+        continue
       const temp = `${path}.${transaction}.tmp`
       const backup = `${path}.${transaction}.backup`
-      replacements.push({ path, temp, backup, replaced: false })
-      writeFileSync(temp, JSON.stringify(result[name], null, 2) + '\n', { flag: 'wx' })
-      writeFileSync(backup, readFileSync(path), { flag: 'wx' })
+      replacements.push({ path, temp, backup, existed, replaced: false })
+      writeFileSync(temp, JSON.stringify(writeback[name], null, 2) + '\n', { flag: 'wx' })
+      if (existed) writeFileSync(backup, readFileSync(path), { flag: 'wx' })
     }
     for (const file of replacements) {
       renameSync(file.temp, file.path)
@@ -683,7 +711,10 @@ export const runMaintenanceSync = async (options: MaintenanceSyncOptions = {}) =
     if (!publishedSuccessfully) {
       restorePaths(workspaceSnapshot)
       for (const file of [...replacements].reverse())
-        if (file.replaced) renameSync(file.backup, file.path)
+        if (file.replaced) {
+          if (file.existed) renameSync(file.backup, file.path)
+          else unlinkSync(file.path)
+        }
     }
     throw error
   } finally {

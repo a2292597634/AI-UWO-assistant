@@ -98,6 +98,65 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals())
 
 describe('我的錯誤回報', () => {
+  it.each([
+    { text: '僅文字', sourceUrl: '', paths: [], screenshots: [] },
+    { text: '', sourceUrl: 'https://example.invalid/source', paths: [], screenshots: [] },
+    { text: '', sourceUrl: '', paths: ['/tmp/evidence.png'], screenshots: ['cloud://evidence'] },
+  ])(
+    '補充可以只提供 $text $sourceUrl $paths 任一證據',
+    async ({ text, sourceUrl, paths, screenshots }) => {
+      listMine.mockResolvedValue([report('needsInfo')])
+      uploadScreenshots.mockResolvedValue(screenshots)
+      appendSupplement.mockResolvedValue(
+        report('pending', { reportId: 'report_needsInfo', revision: 2 }),
+      )
+      const page = await loadPage()
+      await page.loadReports()
+      page.onOpenSupplement({ currentTarget: { dataset: { id: 'report_needsInfo' } } } as never)
+      page.setData({
+        supplementText: text,
+        supplementSourceUrl: sourceUrl,
+        supplementTempPaths: paths,
+      })
+      await page.onSubmitSupplement()
+      expect(appendSupplement).toHaveBeenCalledWith(
+        expect.objectContaining({ text, sourceUrl, screenshotFileIds: screenshots }),
+      )
+      expect(page.data.rows[0]).toMatchObject({ status: 'pending', canSupplement: false })
+      expect(page.data.supplementReportId).toBe('')
+    },
+  )
+
+  it('文字與網址皆為空白且無圖時保留編輯並拒絕提交', async () => {
+    listMine.mockResolvedValue([report('needsInfo')])
+    const page = await loadPage()
+    await page.loadReports()
+    page.onOpenSupplement({ currentTarget: { dataset: { id: 'report_needsInfo' } } } as never)
+    page.setData({ supplementText: '  ', supplementSourceUrl: ' \n ' })
+    await page.onSubmitSupplement()
+    expect(appendSupplement).not.toHaveBeenCalled()
+    expect(uploadScreenshots).not.toHaveBeenCalled()
+    expect(page.data.supplementReportId).toBe('report_needsInfo')
+    expect(wx.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ title: '請填寫補充內容、來源網址或提供截圖' }),
+    )
+  })
+
+  it('服務端拒絕無效補充時保留草稿與 needsInfo 狀態', async () => {
+    listMine.mockResolvedValue([report('needsInfo')])
+    uploadScreenshots.mockResolvedValue([])
+    appendSupplement.mockRejectedValue(new Error('補充資料格式無效'))
+    const page = await loadPage()
+    await page.loadReports()
+    page.onOpenSupplement({ currentTarget: { dataset: { id: 'report_needsInfo' } } } as never)
+    page.setData({ supplementText: '文字', supplementSourceUrl: 'not-a-url' })
+    await page.onSubmitSupplement()
+    expect(page.data.rows[0]?.status).toBe('needsInfo')
+    expect(page.data.supplementSourceUrl).toBe('not-a-url')
+    expect(page.data.supplementReportId).toBe('report_needsInfo')
+    expect(page.data.submittingSupplement).toBe(false)
+    expect(wx.showToast).toHaveBeenCalledWith({ title: '補充資料格式無效', icon: 'none' })
+  })
   it('顯示五種文字狀態、管理員回覆、空列表與重試入口', () => {
     const wxml = readFileSync(
       resolve(__dirname, '../../miniprogram/subpkg-maintenance/pages/work-orders/index.wxml'),

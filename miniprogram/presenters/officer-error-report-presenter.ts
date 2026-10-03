@@ -3,12 +3,44 @@ import type {
   MaintenanceOfficerData,
 } from '../contracts/officer-maintenance'
 import type {
+  OfficerErrorReport,
   OfficerErrorReportDraft,
   OfficerErrorReportValidationError,
 } from '../contracts/officer-error-report'
 import type { RuntimeCatalogEntry, RuntimeDictionaryItem } from '../contracts/runtime-data'
 import { buildOfficerVisuals } from './officer-visuals'
 import type { OfficerVisualPaths } from './officer-visuals'
+
+export interface ErrorReportEvidence {
+  readonly id: string
+  readonly text: string
+  readonly sourceUrl: string
+  readonly screenshotFileIds: readonly string[]
+  readonly createdAt: string
+  readonly isOriginal: boolean
+}
+
+/** 獨立投影原始與歷次證據，不改動回報及歷史記錄。 */
+export const buildErrorReportEvidence = (
+  report: OfficerErrorReport,
+): readonly ErrorReportEvidence[] => [
+  {
+    id: `${report.reportId}:original`,
+    text: [report.description, report.supplement].filter((value) => value.length > 0).join('\n\n'),
+    sourceUrl: report.sourceUrl,
+    screenshotFileIds: [...report.screenshotFileIds],
+    createdAt: report.createdAt,
+    isOriginal: true,
+  },
+  ...report.supplements.map((supplement, index) => ({
+    id: `${report.reportId}:supplement:${String(index + 1)}`,
+    text: supplement.text,
+    sourceUrl: supplement.sourceUrl,
+    screenshotFileIds: [...supplement.screenshotFileIds],
+    createdAt: supplement.createdAt,
+    isOriginal: false,
+  })),
+]
 
 export interface OfficerReportOfficerOption {
   readonly id: string

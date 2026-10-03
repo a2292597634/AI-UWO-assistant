@@ -424,6 +424,11 @@
   color: var(--uwo-color-warning);
 }
 
+.catalog-page__skill-row-kind--mixed {
+  background: var(--uwo-color-surface-muted);
+  color: var(--uwo-color-text-primary);
+}
+
 .catalog-page__skill-row-count {
   margin-top: var(--uwo-space-2);
   color: var(--uwo-color-text-secondary);

@@ -1,3 +1,5 @@
+import { loadCanonicalOfficers } from '../../tools/data-pipeline/load-officers'
+import { checkMasterDataset } from '../../tools/data-audit/check-master-dataset'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
@@ -12,11 +14,17 @@ import type { CanonicalOfficer, CanonicalSkill, DictionaryItem } from '../../too
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T
 
 // Use full canonical data for integration tests
-const officers = readJson<CanonicalOfficer[]>('data/master/officers.json')
+const officers = loadCanonicalOfficers('data/master')
 const skills = readJson<CanonicalSkill[]>('data/master/skills.json')
 const dictionaries = readJson<Record<string, DictionaryItem[]>>('data/master/dictionaries.json')
 
 describe('Full data integrity', () => {
+  it('正式合併集合通過完整契約且自訂修理列入主動', () => {
+    expect(checkMasterDataset().filter((finding) => finding.severity === 'error')).toEqual([])
+    const catalog = buildCatalog(officers, skills, dictionaries)
+    for (const id of ['officer_custom_singuack', 'officer_custom_piyale'])
+      expect(catalog.find((item) => item.id === id)?.activeSkills).toContain('skill_skill400089')
+  })
   it('keeps every canonical skill level in the single-digit skill-level range', () => {
     for (const officer of officers) {
       for (const relation of officer.skills) {

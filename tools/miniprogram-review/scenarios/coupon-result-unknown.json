@@ -1,0 +1,46 @@
+{
+  "name": "兌換離線結果：需復核",
+  "entry": "/subpkg-coupon/pages/redemption/index",
+  "fixture": "coupon-unknown",
+  "watchPaths": [
+    "miniprogram/subpkg-coupon/pages/redemption/",
+    "miniprogram/runtime/coupon-redemption-service.ts",
+    "miniprogram/presenters/coupon-redemption-presenter.ts",
+    "tools/miniprogram-review/fixtures.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".coupon-redemption__submit"
+    },
+    {
+      "action": "tap",
+      "selector": ".coupon-redemption__submit"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".coupon-redemption__result-profile"
+    },
+    {
+      "action": "assertText",
+      "selector": ".ui-status__label",
+      "equals": "需復核"
+    },
+    {
+      "action": "assertText",
+      "selector": ".coupon-redemption__result-profile",
+      "contains": "fixture-user-a"
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-result-unknown"
+    },
+    {
+      "action": "assertText",
+      "selector": ".coupon-redemption__result-message",
+      "contains": "請先到官方頁面確認"
+    }
+  ]
+}

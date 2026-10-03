@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as fleetConfigContracts from '../../miniprogram/contracts/fleet-config'
 import { createFleetState } from '../../miniprogram/domain/battle-fleet'
 
 interface FleetTestData {
@@ -89,6 +90,7 @@ interface FleetPageConfig {
   onConflictReload(): Promise<void>
   onConflictForceOverwrite(): Promise<void>
   onConflictCancel(): void
+  onUnload(): void
   onShareFleet(): Promise<void>
   onSharePreviewClose(): void
   onShareImage(): Promise<void>
@@ -864,7 +866,7 @@ describe('battle fleet target safety', () => {
 
     expect(page.data.proposalPreview).toBeNull()
     expect(wxStub.showToast).toHaveBeenCalledWith({
-      title: '請先設定至少一個有效的戰鬥技能目標',
+      title: '請先設定至少一個 Lv.1 以上的戰鬥技能目標',
       icon: 'none',
     })
   })
@@ -1069,8 +1071,8 @@ describe('battle fleet target controls', () => {
   it('uses the skill picker as the only add entry and keeps target controls compact', () => {
     expect(fleetWxml).toContain('disabled="{{!canRecalculate}}"')
     expect(fleetWxml).toContain('<text class="panel-heading__hint">僅計算目前船</text>')
-    expect(fleetWxml).toContain('尚未設定目標')
-    expect(fleetWxml).toContain('請從下方技能篩選選擇技能加入目標')
+    expect(fleetWxml).toContain('尚無可重算目標')
+    expect(fleetWxml).toContain('{{recalculateDisabledReason}}')
     expect(fleetWxml).not.toContain('bindtap="onAddTarget"')
     expect(fleetWxml).toMatch(
       /<block wx:for="\{\{targets\}\}" wx:key="id">\s*<view wx:if="\{\{item\.configured\}\}" class="target-row">/,
@@ -1768,5 +1770,960 @@ describe('fleet config lifecycle', () => {
 
     expect(page.data.showNameModal).toBe(false)
     expect(page.data.pendingAction).toBeNull()
+  })
+})
+
+describe('配置衝突綁定操作與對象', () => {
+  const now = '2026-01-01T00:00:00.000Z'
+  const setupConflict = async (action: string = 'classifyConfig') => {
+    const fleetState = createFleetState()
+    fleetState.ships.forEach((ship) => {
+      ship.mode = 'auto'
+    })
+    const records = new Map([
+      [
+        'A',
+        {
+          configId: 'A',
+          name: '目前配置',
+          scope: 'battle',
+          fleetState: structuredClone(fleetState),
+          schemaVersion: 1,
+          version: 1,
+          createdAt: now,
+          updatedAt: now,
+          lastUsedAt: now,
+        },
+      ],
+      [
+        'L',
+        {
+          configId: 'L',
+          name: '舊配置',
+          scope: 'unclassified',
+          fleetState: structuredClone(fleetState),
+          schemaVersion: 1,
+          version: 1,
+          createdAt: now,
+          updatedAt: now,
+          lastUsedAt: now,
+        },
+      ],
+    ])
+    const writes: unknown[] = []
+    mockCallFunction.mockImplementation(
+      async ({
+        data,
+      }: {
+        data: {
+          action: string
+          configId: string
+          force?: boolean
+          fleetState?: ReturnType<typeof createFleetState>
+        }
+      }) => {
+        if (data.action === 'authenticate')
+          return { result: { ok: true, data: { authenticated: true } } }
+        if (data.action === 'listMyConfigs')
+          return {
+            result: {
+              ok: true,
+              data: [records.get('A')].map((record) => {
+                const { configId, name, scope, version, updatedAt, lastUsedAt } = record!
+                return { configId, name, scope, version, updatedAt, lastUsedAt }
+              }),
+            },
+          }
+        if (data.action === 'listUnclassifiedConfigs')
+          return {
+            result: {
+              ok: true,
+              data: [records.get('L')].map((record) => {
+                const { configId, name, scope, version, updatedAt, lastUsedAt } = record!
+                return { configId, name, scope, version, updatedAt, lastUsedAt }
+              }),
+            },
+          }
+        if (data.action === 'loadConfig')
+          return { result: { ok: true, data: structuredClone(records.get(data.configId)) } }
+        if (data.action === action && !data.force) {
+          // 模擬前置讀取後、CAS 提交前另一裝置變更版本，L 仍未分類。
+          const current = records.get(data.configId)!
+          records.set(data.configId, { ...current, version: current.version + 1 })
+          return { result: { ok: false, code: 'conflict', message: '版本衝突' } }
+        }
+        if (data.action === 'updateConfig') {
+          writes.push(structuredClone(data))
+          const current = records.get(data.configId)!
+          const updated = {
+            ...current,
+            fleetState: structuredClone(data.fleetState!),
+            version: current.version + 1,
+          }
+          records.set(data.configId, updated)
+          return { result: { ok: true, data: updated } }
+        }
+        throw new Error(`unexpected action: ${data.action}`)
+      },
+    )
+    wxStub.showModal.mockImplementation(
+      (options: { success?: (result: { confirm: boolean }) => void }) =>
+        options.success?.({ confirm: true }),
+    )
+    const page = createPageInstance()
+    page.onLoad()
+    await page.onConfigLogin()
+    return { page, records, writes }
+  }
+
+  it('載入 A 後分類 L 的 CAS 衝突不得 force 更新 A', async () => {
+    const { page, records, writes } = await setupConflict()
+    const original = structuredClone(records.get('A'))
+    await page.onConfigClassify({
+      currentTarget: { dataset: { id: 'L', scope: 'battle' } },
+    } as never)
+    expect(page.data.showConflictDialog).toBe(true)
+    expect(records.get('L')).toMatchObject({ version: 2, scope: 'unclassified' })
+    page.onConflictForceOverwrite()
+    await vi.waitFor(() => expect(page.data.showConflictDialog).toBe(false))
+    expect(writes).toHaveLength(0)
+    expect(records.get('A')).toEqual(original)
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'updateConfig'),
+    ).toHaveLength(0)
+  })
+  it('分類衝突刷新 L 清單，不重新載入或放棄 active A', async () => {
+    const { page, records } = await setupConflict()
+    const original = structuredClone(records.get('A'))
+    await page.onConfigClassify({
+      currentTarget: { dataset: { id: 'L', scope: 'battle' } },
+    } as never)
+    expect(page.data.conflictConfigName).toBe('舊配置')
+    expect(page.data.conflictCanForce).toBe(false)
+    mockCallFunction.mockClear()
+    page.onConflictReload()
+    await vi.waitFor(() =>
+      expect(
+        mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'listMyConfigs'),
+      ).toHaveLength(1),
+    )
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'listUnclassifiedConfigs'),
+    ).toHaveLength(1)
+    await vi.waitFor(() => expect(page.data.configListState).toBe('ready'))
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'loadConfig'),
+    ).toHaveLength(0)
+    expect(records.get('A')).toEqual(original)
+    expect(page.data.activeConfigId).toBe('A')
+  })
+
+  it.each(['renameConfig', 'deleteConfig'])(
+    '%s 衝突即使 active ID 相同也不能覆蓋',
+    async (action) => {
+      const { page, records, writes } = await setupConflict(action)
+      if (action === 'renameConfig') {
+        page.onConfigRename()
+        page.onConfigNameInput({ detail: { value: '新名稱' } } as never)
+        await page.onConfigModalConfirm()
+      } else {
+        page.onConfigDelete()
+        await vi.waitFor(() => expect(page.data.showConflictDialog).toBe(true))
+      }
+      const original = structuredClone(records.get('A'))
+      expect(page.data.showConflictDialog).toBe(true)
+      expect(page.data.conflictCanForce).toBe(false)
+      page.onConflictForceOverwrite()
+      expect(writes).toHaveLength(0)
+      expect(records.get('A')).toEqual(original)
+    },
+  )
+
+  it('合法 update 衝突 force 仍保存同一配置與捕獲快照', async () => {
+    const { page, records, writes } = await setupConflict('updateConfig')
+    page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+    await page.onConfigSave()
+    expect(page.data.conflictConfigName).toBe('目前配置')
+    expect(page.data.conflictCanForce).toBe(true)
+    page.onConflictForceOverwrite()
+    await vi.waitFor(() => expect(page.data.configStatus).toBe('saved'))
+    expect(writes).toHaveLength(1)
+    expect(writes[0]).toMatchObject({
+      configId: 'A',
+      expectedVersion: 1,
+      force: true,
+      fleetState: {
+        ships: [
+          expect.objectContaining({ mode: 'manual' }),
+          ...records.get('A')!.fleetState.ships.slice(1),
+        ],
+      },
+    })
+    expect(page.data.conflictConfigName).toBe('')
+    expect(page.data.showConflictDialog).toBe(false)
+  })
+
+  it('衝突彈窗期間編輯使舊 force 授權與按鈕失效', async () => {
+    const { page, writes } = await setupConflict('updateConfig')
+    await page.onConfigSave()
+    page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+    expect(page.data.conflictCanForce).toBe(false)
+    page.onConflictForceOverwrite()
+    expect(writes).toHaveLength(0)
+    expect(page.data.mode).toBe('manual')
+    expect(page.data.configStatus).toBe('unsaved')
+  })
+
+  it.each(['edit', 'switch', 'cancel', 'unload'])(
+    '第二次確認等待期間 %s 使舊 force 無法提交',
+    async (change) => {
+      const { page, records, writes } = await setupConflict('updateConfig')
+      await page.onConfigSave()
+      let confirm!: (result: { confirm: boolean }) => void
+      wxStub.showModal.mockImplementation((options: { success?: typeof confirm }) => {
+        confirm = options.success!
+      })
+      page.onConflictForceOverwrite()
+      if (change === 'edit')
+        page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+      if (change === 'switch') {
+        records.set('B', { ...records.get('A')!, configId: 'B', name: '另一配置' })
+        page.onConfigLoad({ currentTarget: { dataset: { id: 'B' } } } as never)
+        await vi.waitFor(() => expect(page.data.activeConfigId).toBe('B'))
+      }
+      if (change === 'cancel') page.onConflictCancel()
+      if (change === 'unload') page.onUnload()
+      confirm({ confirm: true })
+      expect(writes).toHaveLength(0)
+    },
+  )
+
+  it('衝突後新編輯再刷新只更新清單，保留新草稿', async () => {
+    const { page, writes } = await setupConflict('updateConfig')
+    await page.onConfigSave()
+    page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+    mockCallFunction.mockClear()
+    page.onConflictReload()
+    await vi.waitFor(() =>
+      expect(
+        mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'listMyConfigs'),
+      ).toHaveLength(1),
+    )
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'listUnclassifiedConfigs'),
+    ).toHaveLength(1)
+    await vi.waitFor(() => expect(page.data.configListState).toBe('ready'))
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'loadConfig'),
+    ).toHaveLength(0)
+    expect(page.data.mode).toBe('manual')
+    expect(page.data.configStatus).toBe('unsaved')
+    expect(writes).toHaveLength(0)
+  })
+})
+
+describe('登入延續與重試保護草稿回歸', () => {
+  it.each([false, true])('登入等待列表時新編輯保留草稿，非空列表=%s', async (hasConfig) => {
+    let resolveList!: (value: unknown) => void
+    const waitingList = new Promise((resolve) => {
+      resolveList = resolve
+    })
+    mockCallFunction.mockImplementation(({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate')
+        return Promise.resolve({ result: { ok: true, data: { authenticated: true } } })
+      if (data.action === 'listMyConfigs') return waitingList
+      if (data.action === 'listUnclassifiedConfigs')
+        return Promise.resolve({ result: { ok: true, data: [] } })
+      if (data.action === 'loadConfig')
+        return Promise.resolve({
+          result: {
+            ok: true,
+            data: {
+              configId: 'other',
+              name: '雲端配置',
+              scope: 'battle',
+              version: 1,
+              schemaVersion: 1,
+              fleetState: createFleetState(),
+              createdAt: '2026-10-01T00:00:00.000Z',
+              updatedAt: '2026-10-01T00:00:00.000Z',
+              lastUsedAt: '2026-10-01T00:00:00.000Z',
+            },
+          },
+        })
+      throw new Error('未預期操作')
+    })
+    const page = createPageInstance()
+    await page.onLoad()
+    const login = page.onConfigLogin()
+    await vi.waitFor(() =>
+      expect(mockCallFunction.mock.calls.some(([arg]) => arg.data.action === 'listMyConfigs')).toBe(
+        true,
+      ),
+    )
+    page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+    expect(page.data.configStatus).toBe('unsaved')
+    resolveList({
+      result: {
+        ok: true,
+        data: hasConfig
+          ? [
+              {
+                configId: 'other',
+                name: '雲端配置',
+                scope: 'battle',
+                version: 1,
+                updatedAt: '2026-10-01T00:00:00.000Z',
+                lastUsedAt: '2026-10-01T00:00:00.000Z',
+              },
+            ]
+          : [],
+      },
+    })
+    await login
+    expect(page.data.mode).toBe('manual')
+    expect(page.data.configStatus).toBe('unsaved')
+    expect(page.data.activeConfigId).toBeNull()
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'loadConfig'),
+    ).toHaveLength(0)
+  })
+
+  it.each(['discard', 'save'] as const)(
+    '載入失敗後編輯，取消保留草稿，%s 後才重試原配置',
+    async (choice) => {
+      let loadCalls = 0
+      const now = '2026-10-01T00:00:00.000Z'
+      mockCallFunction.mockImplementation(
+        async ({
+          data,
+        }: {
+          data: {
+            action: string
+            configId?: string
+            fleetState?: ReturnType<typeof createFleetState>
+          }
+        }) => {
+          if (data.action === 'authenticate')
+            return { result: { ok: true, data: { authenticated: true } } }
+          if (data.action === 'listMyConfigs' || data.action === 'listUnclassifiedConfigs')
+            return { result: { ok: true, data: [] } }
+          if (data.action === 'saveAsConfig')
+            return {
+              result: {
+                ok: true,
+                data: {
+                  configId: 'saved-draft',
+                  name: '新草稿',
+                  scope: 'battle',
+                  version: 1,
+                  schemaVersion: 1,
+                  fleetState: data.fleetState,
+                  createdAt: now,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              },
+            }
+          if (data.action === 'loadConfig') {
+            loadCalls += 1
+            if (loadCalls === 1)
+              return { result: { ok: false, code: 'not-found', message: '找不到配置' } }
+            return {
+              result: {
+                ok: true,
+                data: {
+                  configId: data.configId,
+                  name: '原重試目標',
+                  scope: 'battle',
+                  version: 1,
+                  schemaVersion: 1,
+                  fleetState: createFleetState(),
+                  createdAt: now,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              },
+            }
+          }
+          throw new Error(`未預期操作：${data.action}`)
+        },
+      )
+      const page = createPageInstance()
+      await page.onLoad()
+      await page.onConfigLogin()
+      page.onConfigLoad({ currentTarget: { dataset: { id: 'retry-original' } } } as never)
+      await vi.waitFor(() => expect(page.data.configLoadError).toBe('載入配置失敗'))
+      page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+      await page.onConfigRetry()
+      expect(page.data.showUnsavedGuard).toBe(true)
+      expect(page.data.pendingAction).toEqual({ type: 'load', targetConfigId: 'retry-original' })
+      expect(loadCalls).toBe(1)
+      page.onUnsavedGuardCancel()
+      expect(page.data.mode).toBe('manual')
+      expect(page.data.configStatus).toBe('unsaved')
+      await page.onConfigRetry()
+      expect(loadCalls).toBe(1)
+      if (choice === 'discard') page.onUnsavedGuardDiscard()
+      else {
+        await page.onUnsavedGuardSave()
+        expect(page.data.showNameModal).toBe(true)
+        expect(loadCalls).toBe(1)
+        page.onConfigNameInput({ detail: { value: '新草稿' } } as never)
+        await page.onConfigModalConfirm()
+      }
+      await vi.waitFor(() => expect(page.data.activeConfigId).toBe('retry-original'))
+      expect(loadCalls).toBe(2)
+      expect(page.data.configStatus).toBe('saved')
+    },
+  )
+})
+
+describe('登入列表延續失效回歸', () => {
+  it('列表等待中編輯後卸載，不再開命名視窗或載入配置', async () => {
+    let resolveList!: (value: unknown) => void
+    const waitingList = new Promise((resolve) => {
+      resolveList = resolve
+    })
+    mockCallFunction.mockImplementation(({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate')
+        return Promise.resolve({ result: { ok: true, data: { authenticated: true } } })
+      if (data.action === 'listMyConfigs') return waitingList
+      if (data.action === 'listUnclassifiedConfigs')
+        return Promise.resolve({ result: { ok: true, data: [] } })
+      throw new Error(`不應載入配置：${data.action}`)
+    })
+    const page = createPageInstance()
+    await page.onLoad()
+    const login = page.onConfigLogin()
+    await vi.waitFor(() =>
+      expect(mockCallFunction.mock.calls.some(([arg]) => arg.data.action === 'listMyConfigs')).toBe(
+        true,
+      ),
+    )
+    page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+    page.onUnload()
+    const updates = vi.spyOn(page, 'setData')
+    resolveList({ result: { ok: true, data: [] } })
+    await login
+    expect(updates).not.toHaveBeenCalled()
+    expect(page.data.showNameModal).toBe(false)
+    expect(page.data.mode).toBe('manual')
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'loadConfig'),
+    ).toHaveLength(0)
+  })
+})
+
+describe('保存後列表刷新仍保護新草稿', () => {
+  it.each(['edit', 'unload'] as const)(
+    '保存草稿後refresh等待中 %s 不再啟動pending load',
+    async (change) => {
+      let resolveList!: (value: unknown) => void
+      const waitingList = new Promise((resolve) => {
+        resolveList = resolve
+      })
+      let listCalls = 0
+      let loadCalls = 0
+      const now = '2026-10-01T00:00:00.000Z'
+      mockCallFunction.mockImplementation(
+        async ({
+          data,
+        }: {
+          data: { action: string; fleetState?: ReturnType<typeof createFleetState> }
+        }) => {
+          if (data.action === 'authenticate')
+            return { result: { ok: true, data: { authenticated: true } } }
+          if (data.action === 'listUnclassifiedConfigs') return { result: { ok: true, data: [] } }
+          if (data.action === 'listMyConfigs') {
+            listCalls += 1
+            return listCalls === 2 ? waitingList : { result: { ok: true, data: [] } }
+          }
+          if (data.action === 'loadConfig') {
+            loadCalls += 1
+            return { result: { ok: false, code: 'not-found', message: '找不到配置' } }
+          }
+          if (data.action === 'saveAsConfig')
+            return {
+              result: {
+                ok: true,
+                data: {
+                  configId: 'saved-draft',
+                  name: '保存草稿',
+                  scope: 'battle',
+                  version: 1,
+                  schemaVersion: 1,
+                  fleetState: data.fleetState,
+                  createdAt: now,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              },
+            }
+          throw new Error(`未預期操作：${data.action}`)
+        },
+      )
+      const page = createPageInstance()
+      await page.onLoad()
+      await page.onConfigLogin()
+      page.onConfigLoad({ currentTarget: { dataset: { id: 'retry-original' } } } as never)
+      await vi.waitFor(() => expect(page.data.configLoadError).toBe('載入配置失敗'))
+      page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+      await page.onConfigRetry()
+      expect(page.data.showUnsavedGuard).toBe(true)
+      await page.onUnsavedGuardSave()
+      page.onConfigNameInput({ detail: { value: '保存草稿' } } as never)
+      const saving = page.onConfigModalConfirm()
+      await vi.waitFor(() => expect(listCalls).toBe(2))
+      expect(page.data.activeConfigId).toBe('saved-draft')
+      if (change === 'edit')
+        page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'auto' } } as never)
+      else page.onUnload()
+      const updates = vi.spyOn(page, 'setData')
+      resolveList({ result: { ok: true, data: [] } })
+      await saving
+      expect(loadCalls).toBe(1)
+      if (change === 'edit') {
+        expect(page.data.mode).toBe('auto')
+        expect(page.data.configStatus).toBe('unsaved')
+      } else expect(updates).not.toHaveBeenCalled()
+    },
+  )
+})
+
+describe('配置列表与重試亂序回歸', () => {
+  it('較新重試列表先回覆，舊登入列表不能覆蓋或發起載入', async () => {
+    let resolveOld!: (value: unknown) => void
+    const waiting = new Promise((resolve) => {
+      resolveOld = resolve
+    })
+    let calls = 0
+    const summary = (configId: string) => ({
+      configId,
+      name: configId,
+      scope: 'battle',
+      version: 1,
+      updatedAt: '2026-10-01T00:00:00.000Z',
+      lastUsedAt: '2026-10-01T00:00:00.000Z',
+    })
+    mockCallFunction.mockImplementation(async ({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate')
+        return { result: { ok: true, data: { authenticated: true } } }
+      if (data.action === 'listUnclassifiedConfigs') return { result: { ok: true, data: [] } }
+      if (data.action === 'listMyConfigs')
+        return ++calls === 1 ? waiting : { result: { ok: true, data: [summary('new-list')] } }
+      throw new Error(`不應載入：${data.action}`)
+    })
+    const page = createPageInstance()
+    await page.onLoad()
+    const login = page.onConfigLogin()
+    await vi.waitFor(() => expect(calls).toBe(1))
+    await page.onConfigRetry()
+    resolveOld({ result: { ok: true, data: [summary('old-list')] } })
+    await login
+    expect(page.data.configList).toEqual([summary('new-list')])
+    expect(
+      mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'loadConfig'),
+    ).toHaveLength(0)
+  })
+
+  it('原配置連續載入兩次失敗後，仍可第三次重試成功', async () => {
+    let loads = 0
+    const now = '2026-10-01T00:00:00.000Z'
+    mockCallFunction.mockImplementation(
+      async ({ data }: { data: { action: string; configId?: string } }) => {
+        if (data.action === 'authenticate')
+          return { result: { ok: true, data: { authenticated: true } } }
+        if (data.action === 'listMyConfigs' || data.action === 'listUnclassifiedConfigs')
+          return { result: { ok: true, data: [] } }
+        if (data.action === 'loadConfig') {
+          loads += 1
+          if (loads < 3) return { result: { ok: false, code: 'not-found', message: '找不到配置' } }
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: data.configId,
+                name: '重試成功',
+                scope: 'battle',
+                version: 1,
+                schemaVersion: 1,
+                fleetState: createFleetState(),
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        }
+        throw new Error(`未預期操作：${data.action}`)
+      },
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'retry-original' } } } as never)
+    await vi.waitFor(() => expect(page.data.configLoadError).toBe('載入配置失敗'))
+    await page.onConfigRetry()
+    expect(loads).toBe(2)
+    expect(page.data.configLoadError).toBe('載入配置失敗')
+    await page.onConfigRetry()
+    expect(loads).toBe(3)
+    expect(page.data.activeConfigId).toBe('retry-original')
+  })
+
+  it('兩次載入逆序回覆只保留最後選取配置', async () => {
+    const resolvers = new Map<string, (value: unknown) => void>()
+    const now = '2026-10-01T00:00:00.000Z'
+    mockCallFunction.mockImplementation(
+      async ({ data }: { data: { action: string; configId?: string } }) => {
+        if (data.action === 'authenticate')
+          return { result: { ok: true, data: { authenticated: true } } }
+        if (data.action === 'listMyConfigs' || data.action === 'listUnclassifiedConfigs')
+          return { result: { ok: true, data: [] } }
+        if (data.action === 'loadConfig')
+          return new Promise((resolve) => {
+            resolvers.set(data.configId!, resolve)
+          })
+        throw new Error(`未預期操作：${data.action}`)
+      },
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'A' } } } as never)
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'B' } } } as never)
+    const result = (configId: string) => ({
+      result: {
+        ok: true,
+        data: {
+          configId,
+          name: configId,
+          scope: 'battle',
+          version: 1,
+          schemaVersion: 1,
+          fleetState: createFleetState(),
+          createdAt: now,
+          updatedAt: now,
+          lastUsedAt: now,
+        },
+      },
+    })
+    resolvers.get('B')!(result('B'))
+    await vi.waitFor(() => expect(page.data.activeConfigId).toBe('B'))
+    resolvers.get('A')!(result('A'))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(page.data.activeConfigId).toBe('B')
+  })
+})
+
+describe('放棄修改先還原保存基線', () => {
+  const setupBaseline = async () => {
+    const fleetState = createFleetState()
+    fleetState.ships.forEach((ship) => {
+      ship.mode = 'auto'
+    })
+    fleetState.ships[0]!.targets = [
+      { id: 'saved-target', skillId: 'skill_skill400591', targetLevel: 1 },
+    ]
+    const now = '2026-10-01T00:00:00.000Z'
+    mockCallFunction.mockImplementation(
+      async ({ data }: { data: { action: string; configId?: string } }) => {
+        if (data.action === 'authenticate')
+          return { result: { ok: true, data: { authenticated: true } } }
+        if (data.action === 'listMyConfigs')
+          return {
+            result: {
+              ok: true,
+              data: [
+                {
+                  configId: 'baseline',
+                  name: '保存基線',
+                  scope: 'battle',
+                  version: 1,
+                  updatedAt: now,
+                  lastUsedAt: now,
+                },
+              ],
+            },
+          }
+        if (data.action === 'listUnclassifiedConfigs') return { result: { ok: true, data: [] } }
+        if (data.action === 'loadConfig' && data.configId === 'baseline')
+          return {
+            result: {
+              ok: true,
+              data: {
+                configId: 'baseline',
+                name: '保存基線',
+                scope: 'battle',
+                version: 1,
+                schemaVersion: 1,
+                fleetState: structuredClone(fleetState),
+                createdAt: now,
+                updatedAt: now,
+                lastUsedAt: now,
+              },
+            },
+          }
+        if (data.action === 'loadConfig' || data.action === 'deleteConfig')
+          return { result: { ok: false, code: 'network', message: '暫時無法完成操作' } }
+        throw new Error(`未預期操作：${data.action}`)
+      },
+    )
+    wxStub.showModal.mockImplementation(
+      (options: { success?: (result: { confirm: boolean }) => void }) =>
+        options.success?.({ confirm: true }),
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    return page
+  }
+  const request = (page: ReturnType<typeof createPageInstance>, action: string) => {
+    if (action === 'delete') page.onConfigDelete()
+    else page.onConfigLoad({ currentTarget: { dataset: { id: 'failed-target' } } } as never)
+  }
+
+  it.each(['load', 'delete'])(
+    '編輯後 %s 放棄，即使服務失敗也已回到基線且可新建',
+    async (action) => {
+      const page = await setupBaseline()
+      const baselineTargets = structuredClone(page.data.targets)
+      page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+      request(page, action)
+      expect(page.data.showUnsavedGuard).toBe(true)
+      page.onUnsavedGuardCancel()
+      expect(page.data.mode).toBe('manual')
+      expect(page.data.configStatus).toBe('unsaved')
+      request(page, action)
+      page.onUnsavedGuardDiscard()
+      await vi.waitFor(() =>
+        expect(
+          mockCallFunction.mock.calls.filter(
+            ([arg]) =>
+              arg.data.action === (action === 'delete' ? 'deleteConfig' : 'loadConfig') &&
+              (action === 'delete' || arg.data.configId === 'failed-target'),
+          ),
+        ).toHaveLength(1),
+      )
+      expect(page.data.mode).toBe('auto')
+      expect(page.data.targets).toEqual(baselineTargets)
+      expect(page.data.configStatus).toBe('saved')
+      expect(page.data.proposalPreview).toBeNull()
+      expect(page.data.canUndoProposal).toBe(false)
+      expect(page.data.showUnsavedGuard).toBe(false)
+      if (action === 'load') {
+        await vi.waitFor(() => expect(page.data.configLoadError).toBe('載入配置失敗'))
+        await page.onConfigRetry()
+        expect(page.data.showUnsavedGuard).toBe(false)
+        expect(
+          mockCallFunction.mock.calls.filter(
+            ([arg]) => arg.data.action === 'loadConfig' && arg.data.configId === 'failed-target',
+          ),
+        ).toHaveLength(2)
+      }
+      page.onConfigNew()
+      expect(page.data.showUnsavedGuard).toBe(false)
+      expect(page.data.activeConfigId).toBeNull()
+    },
+  )
+
+  it.each(['preview', 'undo'])('放棄清除實際 %s 提案狀態，失敗後不可復活舊內容', async (kind) => {
+    const page = await setupBaseline()
+    const baselineTargets = structuredClone(page.data.targets)
+    page.onTargetLevelBlur({
+      currentTarget: { dataset: { id: 'saved-target' } },
+      detail: { value: '2' },
+    } as never)
+    page.onRecalculate()
+    expect(page.data.proposalPreview).not.toBeNull()
+    if (kind === 'undo') {
+      page.onProposalApply()
+      expect(page.data.canUndoProposal).toBe(true)
+    }
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'failed-target' } } } as never)
+    expect(page.data.showUnsavedGuard).toBe(true)
+    page.onUnsavedGuardDiscard()
+    await vi.waitFor(() => expect(page.data.configLoadError).toBe('載入配置失敗'))
+    expect(page.data.targets).toEqual(baselineTargets)
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.canUndoProposal).toBe(false)
+    page.onUndoProposal()
+    expect(page.data.targets).toEqual(baselineTargets)
+    expect(page.data.configStatus).toBe('saved')
+  })
+
+  it.each(['load', 'new', 'delete', 'rename', 'saveAs'])(
+    '%s 還原失敗保留守衛、草稿與原 pending，不執行後續操作',
+    async (action) => {
+      const page = await setupBaseline()
+      page.onModeTap({ currentTarget: { dataset: {} }, detail: { mode: 'manual' } } as never)
+      if (action === 'new') page.onConfigNew()
+      else if (action === 'rename') page.onConfigRename()
+      else if (action === 'saveAs') page.onConfigSaveAs()
+      else request(page, action)
+      const pending = structuredClone(page.data.pendingAction)
+      const loadCount = mockCallFunction.mock.calls.filter(
+        ([arg]) => arg.data.action === 'loadConfig',
+      ).length
+      // 只替代解析失敗邊界，實際 Controller、守衛與 pending 操作仍照常執行。
+      const parser = vi.spyOn(fleetConfigContracts, 'parseFleetState').mockReturnValueOnce(null)
+      try {
+        page.onUnsavedGuardDiscard()
+        expect(page.data.showUnsavedGuard).toBe(true)
+        expect(page.data.pendingAction).toEqual(pending)
+        expect(page.data.configStatus).toBe('unsaved')
+        expect(page.data.mode).toBe('manual')
+        expect(page.data.activeConfigId).toBe('baseline')
+        expect(page.data.showNameModal).toBe(false)
+        expect(
+          mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'loadConfig'),
+        ).toHaveLength(loadCount)
+        expect(
+          mockCallFunction.mock.calls.filter(([arg]) => arg.data.action === 'deleteConfig'),
+        ).toHaveLength(0)
+        expect(wxStub.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ title: expect.stringMatching(/還原/) }),
+        )
+      } finally {
+        parser.mockRestore()
+      }
+      page.onUnsavedGuardDiscard()
+      expect(page.data.showUnsavedGuard).toBe(false)
+      if (action === 'saveAs' || action === 'rename') {
+        expect(page.data.showNameModal).toBe(true)
+        expect(page.data.mode).toBe('auto')
+        expect(page.data.configStatus).toBe('saved')
+      }
+    },
+  )
+})
+
+describe('合法舊戰鬥配置的 Lv.0 目標', () => {
+  const setupZeroConfig = async (mixed = false, legacy = false) => {
+    const fleetState = createFleetState()
+    fleetState.ships[0]!.mode = 'auto'
+    fleetState.ships[0]!.targets = [{ id: 'zero', skillId: 'skill_skill400591', targetLevel: 0 }]
+    if (mixed)
+      fleetState.ships[0]!.targets.push({
+        id: 'positive',
+        skillId: 'skill_skill200681',
+        targetLevel: 2,
+      })
+    const now = '2026-10-01T00:00:00.000Z'
+    let record = {
+      configId: 'zero-config',
+      name: '舊零目標配置',
+      scope: legacy ? 'unclassified' : 'battle',
+      version: 1,
+      schemaVersion: 1,
+      fleetState,
+      createdAt: now,
+      updatedAt: now,
+      lastUsedAt: now,
+    }
+    const summary = () => {
+      const { configId, name, scope, version, updatedAt, lastUsedAt } = record
+      return { configId, name, scope, version, updatedAt, lastUsedAt }
+    }
+    const writes: ReturnType<typeof createFleetState>[] = []
+    mockCallFunction.mockImplementation(
+      async ({
+        data,
+      }: {
+        data: { action: string; fleetState: ReturnType<typeof createFleetState> }
+      }) => {
+        if (data.action === 'authenticate')
+          return { result: { ok: true, data: { authenticated: true } } }
+        if (data.action === 'listMyConfigs')
+          return { result: { ok: true, data: record.scope === 'battle' ? [summary()] : [] } }
+        if (data.action === 'listUnclassifiedConfigs')
+          return { result: { ok: true, data: record.scope === 'unclassified' ? [summary()] : [] } }
+        if (data.action === 'classifyConfig') {
+          record = { ...record, scope: 'battle', version: record.version + 1 }
+          return { result: { ok: true, data: structuredClone(record) } }
+        }
+        if (data.action === 'loadConfig')
+          return { result: { ok: true, data: structuredClone(record) } }
+        if (data.action === 'updateConfig') {
+          writes.push(structuredClone(data.fleetState))
+          record = {
+            ...record,
+            fleetState: structuredClone(data.fleetState),
+            version: record.version + 1,
+          }
+          return { result: { ok: true, data: structuredClone(record) } }
+        }
+        throw new Error(`未預期操作：${data.action}`)
+      },
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+    await page.onConfigLogin()
+    return { page, writes }
+  }
+
+  it('全零目標載入後保留 Lv.0 並停用重算，說明需正數目標', async () => {
+    const { page } = await setupZeroConfig()
+    expect(page.data.targets).toEqual([expect.objectContaining({ id: 'zero', targetLevel: 0 })])
+    expect(page.data.canRecalculate).toBe(false)
+    expect(page.data.recalculateDisabledReason).toMatch(/Lv\.1/)
+    expect(page.data.configStatus).toBe('saved')
+  })
+  it('直接觸發全零重算也不拋例外、不建立提案、不改配置', async () => {
+    const { page } = await setupZeroConfig()
+    const original = structuredClone(page.data.targets)
+    expect(() => page.onRecalculate()).not.toThrow()
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.targets).toEqual(original)
+    expect(page.data.configStatus).toBe('saved')
+    expect(wxStub.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ title: expect.stringMatching(/Lv\.1/) }),
+    )
+  })
+  it('混合 Lv.0 與正數仍產生只含正數目標的提案', async () => {
+    const { page } = await setupZeroConfig(true)
+    const original = structuredClone(page.data.targets)
+    expect(() => page.onRecalculate()).not.toThrow()
+    expect(page.data.proposalPreview).toMatchObject({
+      targetCount: 1,
+      targetDiffs: [expect.objectContaining({ skillId: 'skill_skill200681', targetLevel: 2 })],
+    })
+    expect(page.data.targets).toEqual(original)
+    expect(page.data.configStatus).toBe('saved')
+  })
+  it('舊 Lv.0 配置分類、載入、保存仍保留零，設正數後可重算', async () => {
+    const { page, writes } = await setupZeroConfig(false, true)
+    await page.onConfigClassify({
+      currentTarget: { dataset: { id: 'zero-config', scope: 'battle' } },
+    } as never)
+    page.onConfigLoad({ currentTarget: { dataset: { id: 'zero-config' } } } as never)
+    await vi.waitFor(() => expect(page.data.activeConfigId).toBe('zero-config'))
+    expect(page.data.targets[0]).toMatchObject({ targetLevel: 0 })
+    await page.onConfigSave()
+    expect(writes).toHaveLength(1)
+    expect(writes[0]!.ships[0]!.targets[0]!.targetLevel).toBe(0)
+    page.onTargetLevelBlur({
+      currentTarget: { dataset: { id: 'zero' } },
+      detail: { value: '2' },
+    } as never)
+    expect(page.data.targets[0]).toMatchObject({ targetLevel: 2 })
+    expect(page.data.canRecalculate).toBe(true)
+    expect(() => page.onRecalculate()).not.toThrow()
+    expect(page.data.proposalPreview).toMatchObject({
+      targetCount: 1,
+      targetDiffs: [expect.objectContaining({ targetLevel: 2 })],
+    })
+  })
+  it.each(['-1', '1.5'])('實際輸入 %s 被拒絕，原合法零配置保持不變', async (value) => {
+    const { page } = await setupZeroConfig()
+    const original = structuredClone(page.data.targets)
+    page.onTargetLevelBlur({
+      currentTarget: { dataset: { id: 'zero' } },
+      detail: { value },
+    } as never)
+    expect(page.data.targets).toEqual(original)
+    expect(page.data.configStatus).toBe('saved')
   })
 })

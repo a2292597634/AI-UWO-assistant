@@ -4,6 +4,7 @@ import type {
   CanonicalOfficer,
   CanonicalSkillRelation,
   SourceOfficer,
+  SourceCorrection,
   SourceSkillMetadata,
   TransformAnomaly,
 } from './types'
@@ -106,6 +107,7 @@ export const transformOfficers = (
   _fieldInventory: unknown,
   enumInventory: SourceEnumValue[],
   mappingTable: SkillMappingRecord[],
+  corrections: readonly SourceCorrection[] = [],
 ): { officers: CanonicalOfficer[]; anomalies: TransformAnomaly[] } => {
   // Clear the global unknown enum tracker for deterministic output
   unknownEnumSet.clear()
@@ -162,15 +164,35 @@ export const transformOfficers = (
       cityIds: (src.city || []).flatMap((cityValue) => {
         // Skip empty strings
         if (cityValue === '') return []
-        if (isOfficerShapedCity(cityValue)) {
+        const correction = corrections.find(
+          (item) =>
+            item.entityType === 'officer' &&
+            item.entityId === sourceId &&
+            item.field === 'city' &&
+            item.sourceValue === cityValue &&
+            item.status === 'approved' &&
+            item.action === 'remove' &&
+            item.correctedValue === null,
+        )
+        if (correction) {
           anomalies.push({
             officerId: sourceId,
             field: 'city',
             value: cityValue,
             disposition: 'warning',
-            reason: `Source city value ${cityValue} is officer-shaped; may be a valid internal reference.`,
+            reason: `已套用 approved remove：${correction.reason}（${correction.source}，${correction.verifiedAt}）`,
           })
-          // Still include it — officer-shaped doesn't mean it's not a valid city reference
+          return []
+        }
+        if (isOfficerShapedCity(cityValue) || !knownEnums.has(`city\0${cityValue}`)) {
+          anomalies.push({
+            officerId: sourceId,
+            field: 'city',
+            value: cityValue,
+            disposition: 'rejected',
+            reason: `來源 ${sourceId}.city 值 ${cityValue} 缺少 approved 處置證據，禁止自動收錄為城市。`,
+          })
+          return []
         }
         checkKnown(knownEnums, 'city', cityValue, sourceId, anomalies)
         return [canonicalId('city', cityValue)]

@@ -9,7 +9,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-import { getCatalog } from '../../miniprogram/runtime/main-data-store'
+import * as mainStore from '../../miniprogram/runtime/main-data-store'
+import type {
+  SkillCheckRowView,
+  SkillCheckExpandedOfficerView,
+} from '../../miniprogram/presenters/catalog-presenter'
+import { getCatalog, getSkills } from '../../miniprogram/runtime/main-data-store'
 
 interface CatalogPageData {
   visibleRows: Array<{
@@ -22,6 +27,10 @@ interface CatalogPageData {
   selectedRarities: string[]
   searchText: string
   skillCheckSearchText: string
+  skillCheckRows: SkillCheckRowView[]
+  expandedSkillId: string | null
+  expandedOfficers: SkillCheckExpandedOfficerView[]
+  expandedSkillMap: Record<string, boolean>
   skillCheckKind: 'all' | 'active' | 'passive'
   skillCheckCategoryMap: Record<string, boolean>
   activeMode: 'officer' | 'skill'
@@ -50,6 +59,9 @@ interface CatalogPageConfig {
   toggleFilter(event: WechatMiniprogram.BaseEvent): void
   onSearchInput(event: WechatMiniprogram.Input): void
   loadMore(): Promise<void>
+  onSkillCheckKindTap(event: WechatMiniprogram.BaseEvent): void
+  onSkillCheckTap(event: WechatMiniprogram.BaseEvent): void
+  onPortraitLayerError(event: WechatMiniprogram.BaseEvent): void
   onPortraitError(event: WechatMiniprogram.BaseEvent): void
 }
 
@@ -76,10 +88,18 @@ const createPageInstance = (): CatalogPageInstance => {
   instance.data = structuredClone(catalogPage.data)
   instance.setData = (update) => {
     for (const [key, value] of Object.entries(update)) {
-      const match = /^visibleRows\[(\d+)\]$/.exec(key)
+      const match =
+        /^visibleRows\[(\d+)\](?:\.(portraitFail|frameFail|rarityIconFail|typeIconFail))?$/.exec(
+          key,
+        )
       if (match) {
-        instance.data.visibleRows[Number(match[1])] =
-          value as CatalogPageData['visibleRows'][number]
+        if (match[2])
+          (instance.data.visibleRows[Number(match[1])] as unknown as Record<string, unknown>)[
+            match[2]
+          ] = value
+        else
+          instance.data.visibleRows[Number(match[1])] =
+            value as CatalogPageData['visibleRows'][number]
       } else {
         Object.assign(instance.data, { [key]: value })
       }
@@ -132,6 +152,77 @@ beforeEach(() => {
 })
 
 describe('catalog Page instance isolation', () => {
+  it('合成mixed技能 all→passive→active：切換清舊展開，再展開只列當前kind持有者', async () => {
+    const base = getCatalog()[0]!
+    const sid = Object.keys(getSkills())[0]!
+    vi.spyOn(mainStore, 'getCatalog').mockReturnValue([
+      { ...base, id: 'officer_a', activeSkills: [sid], passiveSkills: [] },
+      { ...base, id: 'officer_b', activeSkills: [], passiveSkills: [sid] },
+    ])
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+    page.onModeTap(modeEvent('skill'))
+    expect(page.data.skillCheckRows[0]).toMatchObject({ kind: 'mixed', officerCount: 2 })
+    const tap = { currentTarget: { dataset: { skillId: sid } } } as never
+    page.onSkillCheckTap(tap)
+    expect(page.data.expandedOfficers).toHaveLength(2)
+    for (const [kind, owner] of [
+      ['passive', 'officer_b'],
+      ['active', 'officer_a'],
+    ] as const) {
+      page.onSkillCheckKindTap(draftSkillKindEvent(kind))
+      expect(page.data.expandedSkillId).toBeNull()
+      expect(page.data.expandedSkillMap).toEqual({})
+      expect(page.data.expandedOfficers).toEqual([])
+      expect(page.data.skillCheckRows[0]).toMatchObject({ kind, officerCount: 1 })
+      page.onSkillCheckTap(tap)
+      expect(page.data.expandedOfficers.map(({ officerId }) => officerId)).toEqual([owner])
+    }
+    page.openFilterSheet()
+    page.onDraftSkillKindTap(draftSkillKindEvent('all'))
+    page.applyDraftFilters()
+    expect(page.data.expandedSkillId).toBeNull()
+    expect(page.data.skillCheckRows[0]).toMatchObject({ kind: 'mixed', officerCount: 2 })
+  })
+
+  it.each(['portraitFail', 'frameFail', 'rarityIconFail', 'typeIconFail'])(
+    '630 列圖片失敗 %s 僅傳局部旗標且保持捲動資料',
+    async (layer) => {
+      const page = createPageInstance()
+      await loadCatalogPage(page)
+      for (let index = 0; index < 20; index += 1) await page.loadMore()
+      expect(page.data.visibleRows).toHaveLength(630)
+      const ids = page.data.visibleRows.map(({ id }) => id)
+      const updates = vi.spyOn(page, 'setData')
+      const event = { currentTarget: { dataset: { index: 0, layer } } } as never
+      if (layer === 'portraitFail') page.onPortraitError(event)
+      else page.onPortraitLayerError(event)
+      const payload = updates.mock.calls[updates.mock.calls.length - 1]![0]
+      expect(Buffer.byteLength(JSON.stringify(payload), 'utf8')).toBeLessThan(1024 * 1024)
+      expect(payload).toEqual({ [`visibleRows[0].${layer}`]: true })
+      expect((page.data.visibleRows[0] as unknown as Record<string, unknown>)[layer]).toBe(true)
+      expect(page.data.visibleRows.map(({ id }) => id)).toEqual(ids)
+      expect(page.data.visibleRows).toHaveLength(630)
+      updates.mockClear()
+      if (layer === 'portraitFail') page.onPortraitError(event)
+      else page.onPortraitLayerError(event)
+      expect(updates).not.toHaveBeenCalled()
+    },
+  )
+  it('拒绝非法圖片 index 與非白名單 layer', async () => {
+    const page = createPageInstance()
+    await loadCatalogPage(page)
+    const updates = vi.spyOn(page, 'setData')
+    for (const index of [-1, 0.5, 30, NaN, Infinity, null, '', true, 'bad']) {
+      const event = { currentTarget: { dataset: { index, layer: 'frameFail' } } } as never
+      page.onPortraitError(event)
+      page.onPortraitLayerError(event)
+    }
+    for (const layer of ['portraitFail', 'name', '__proto__', 'frameFail.deep'])
+      page.onPortraitLayerError({ currentTarget: { dataset: { index: 0, layer } } } as never)
+    expect(updates).not.toHaveBeenCalled()
+  })
+
   it('loads normally when the lifecycle provides no query options', async () => {
     const page = createPageInstance()
 
@@ -333,6 +424,7 @@ describe('catalog information architecture', () => {
 })
 
 afterEach(() => {
+  vi.restoreAllMocks()
   vi.useRealTimers()
 })
 
@@ -366,6 +458,17 @@ const cssRule = (selector: string): string => {
 }
 
 describe('catalog touch target markup contracts', () => {
+  it('技能badge讀kindLabel，mixed使用中性Token', () => {
+    expect(catalogWxml).toContain('{{item.kindLabel}}')
+    expect(catalogWxml).toContain('catalog-page__skill-row-kind--{{item.kind}}')
+    expect(cssRule('.catalog-page__skill-row-kind--mixed')).toContain(
+      'var(--uwo-color-surface-muted)',
+    )
+    expect(cssRule('.catalog-page__skill-row-kind--mixed')).toContain(
+      'var(--uwo-color-text-primary)',
+    )
+  })
+
   it('renders exactly two content modes and one search input per mode', () => {
     expect(catalogWxml).toContain('class="catalog-page__mode-tabs"')
     expect([...catalogWxml.matchAll(/data-mode="(?:officer|skill)"/g)]).toHaveLength(2)

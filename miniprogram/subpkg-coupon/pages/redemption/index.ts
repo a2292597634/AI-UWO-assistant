@@ -2,7 +2,7 @@ import {
   getServerName,
   validateCouponRedemptionInput,
   type CouponProfile,
-  type CouponRedemptionResult,
+  type CouponRedemptionServiceCode,
 } from '../../../contracts/coupon-redemption'
 import {
   getCouponRedemptionService,
@@ -14,8 +14,12 @@ import { getCouponResultViewModel } from '../../../presenters/coupon-redemption-
 const DEFAULT_COUPON_CODE = 'FULLMOON2026'
 
 const asProfile = (value: CouponProfile | undefined): CouponProfile | null => value ?? null
+const profileIdentity = (profile: CouponProfile | null): string =>
+  profile ? JSON.stringify([profile.id, profile.name, profile.gameServerId, profile.userNo]) : ''
 
 Page({
+  requestVersion: 0,
+  isUnloaded: false,
   data: {
     couponNo: DEFAULT_COUPON_CODE,
     activeProfile: null as CouponProfile | null,
@@ -23,9 +27,13 @@ Page({
     submitDisabled: true,
     isSubmitting: false,
     result: null as ReturnType<typeof getCouponResultViewModel> | null,
+    resultProfile: null as CouponProfile | null,
+    resultServerName: '',
   },
 
   onLoad() {
+    this.requestVersion = 0
+    this.isUnloaded = false
     this.refreshProfile()
   },
 
@@ -33,23 +41,34 @@ Page({
     this.refreshProfile()
   },
 
+  onUnload() {
+    this.isUnloaded = true
+    this.requestVersion += 1
+  },
+
   refreshProfile() {
     const store = createCouponProfileStore(wx).load()
     const activeProfile = asProfile(
       store.profiles.find((profile) => profile.id === store.activeProfileId),
     )
+    const changed = profileIdentity(activeProfile) !== profileIdentity(this.data.activeProfile)
+    if (changed) this.requestVersion += 1
+    const isSubmitting = changed ? false : this.data.isSubmitting
     this.setData({
       activeProfile,
       activeServerName: activeProfile ? getServerName(activeProfile.gameServerId) : '',
-      submitDisabled: !activeProfile || this.data.isSubmitting,
+      submitDisabled: !activeProfile || isSubmitting,
+      ...(changed ? { result: null, resultProfile: null, resultServerName: '', isSubmitting } : {}),
     })
   },
 
   onCouponInput(event: WechatMiniprogram.Input) {
+    if (this.data.isSubmitting) return
     this.setData({ couponNo: event.detail.value })
   },
 
   onOpenSettings() {
+    if (this.data.isSubmitting) return
     wx.navigateTo({ url: '/subpkg-coupon/pages/settings/index' })
   },
 
@@ -61,9 +80,10 @@ Page({
       return
     }
 
+    const resultProfile = { ...this.data.activeProfile }
     const input = {
-      gameServerId: this.data.activeProfile.gameServerId,
-      userNo: this.data.activeProfile.userNo,
+      gameServerId: resultProfile.gameServerId,
+      userNo: resultProfile.userNo,
       couponNo: this.data.couponNo,
     }
     const validation = validateCouponRedemptionInput(input)
@@ -72,22 +92,42 @@ Page({
       return
     }
 
-    this.setData({ isSubmitting: true, submitDisabled: true, result: null })
+    const requestVersion = ++this.requestVersion
+    const isCurrent = () =>
+      !this.isUnloaded &&
+      requestVersion === this.requestVersion &&
+      profileIdentity(resultProfile) === profileIdentity(this.data.activeProfile)
+    this.setData({
+      isSubmitting: true,
+      submitDisabled: true,
+      result: null,
+      resultProfile: null,
+      resultServerName: '',
+    })
     try {
       const result = await getCouponRedemptionService().submit(input)
-      this.setData({ result: getCouponResultViewModel(result) })
+      if (!isCurrent()) return
+      this.setData({
+        result: getCouponResultViewModel(result),
+        resultProfile,
+        resultServerName: getServerName(resultProfile.gameServerId),
+      })
     } catch (error) {
-      const result: CouponRedemptionResult = {
-        code: 'unknown',
-        message:
-          error instanceof CouponRedemptionError
-            ? error.message
-            : '結果未確認，請先到官方頁面確認再嘗試。',
-      }
-      this.setData({ result: getCouponResultViewModel(result) })
+      if (!isCurrent()) return
+      const result: { code: CouponRedemptionServiceCode; message: string } =
+        error instanceof CouponRedemptionError
+          ? { code: error.code, message: error.message }
+          : { code: 'unknown', message: '結果未確認，請先到官方頁面確認再嘗試。' }
+      this.setData({
+        result: getCouponResultViewModel(result),
+        resultProfile,
+        resultServerName: getServerName(resultProfile.gameServerId),
+      })
     } finally {
-      this.setData({ couponNo: '', isSubmitting: false })
-      this.refreshProfile()
+      if (isCurrent()) {
+        this.setData({ couponNo: '', isSubmitting: false })
+        this.refreshProfile()
+      }
     }
   },
 })

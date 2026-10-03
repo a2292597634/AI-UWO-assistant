@@ -4,28 +4,62 @@
   "additionalProperties": false,
   "required": ["id", "name", "categoryId", "description", "iconId", "sourceRefs"],
   "properties": {
-    "id": { "type": "string", "minLength": 1 },
-    "name": { "type": "string", "minLength": 1 },
-    "categoryId": { "type": "string", "minLength": 1 },
-    "description": { "type": "string", "minLength": 1 },
-    "iconId": { "type": ["string", "null"], "minLength": 1 },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "categoryId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "iconId": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
     "sourceRefs": {
       "type": "object",
       "additionalProperties": false,
       "oneOf": [
         {
           "required": ["voyageTw"],
-          "properties": { "voyageTw": { "type": "string", "minLength": 1 } }
+          "properties": {
+            "voyageTw": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         },
         {
           "required": ["workOrderId"],
-          "properties": { "workOrderId": { "type": "string", "minLength": 1 } }
+          "properties": {
+            "workOrderId": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       ],
       "properties": {
-        "voyageTw": { "type": "string", "minLength": 1 },
-        "workOrderId": { "type": "string", "minLength": 1 }
+        "voyageTw": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workOrderId": {
+          "type": "string",
+          "minLength": 1
+        }
       }
+    },
+    "levelInfo": {
+      "type": "string"
     }
   }
 }

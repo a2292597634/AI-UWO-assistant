@@ -4,23 +4,63 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "contentVersion", "updatedAt", "sourceSnapshot", "counts"],
   "properties": {
-    "schemaVersion": { "type": "string", "minLength": 1 },
-    "contentVersion": { "type": "string", "minLength": 1 },
-    "updatedAt": { "type": "string", "format": "date-time", "pattern": "Z$" },
-    "sourceSnapshot": { "type": "string", "minLength": 1 },
+    "schemaVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contentVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "sourceSnapshot": {
+      "type": "string",
+      "minLength": 1
+    },
     "counts": {
       "type": "object",
       "additionalProperties": false,
       "required": ["officers", "skills", "assets", "dictionaryItems"],
       "properties": {
-        "officers": { "type": "integer", "minimum": 0 },
-        "skills": { "type": "integer", "minimum": 0 },
-        "assets": { "type": "integer", "minimum": 0 },
-        "dictionaryItems": { "type": "integer", "minimum": 0 },
-        "tradeGoods": { "type": "integer", "minimum": 0 },
-        "tradePorts": { "type": "integer", "minimum": 0 },
-        "tradeSeasonProfiles": { "type": "integer", "minimum": 0 }
+        "officers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assets": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dictionaryItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tradeGoods": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tradePorts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tradeSeasonProfiles": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
+    },
+    "auditStatus": {
+      "enum": ["verified", "unverified"]
+    },
+    "auditNotes": {
+      "type": "string"
     }
   }
 }

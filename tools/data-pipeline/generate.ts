@@ -1,4 +1,17 @@
-import { readFileSync, mkdirSync, existsSync, unlinkSync, writeFileSync } from 'node:fs'
+import { checkMasterDataset } from '../data-audit/check-master-dataset'
+import {
+  readFileSync,
+  mkdirSync,
+  existsSync,
+  unlinkSync,
+  writeFileSync,
+  mkdtempSync,
+  cpSync,
+  rmSync,
+} from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, dirname, resolve } from 'node:path'
+import { DATA_GENERATION_OUTPUT_PATHS, assertProjectPath } from './generated-output-paths'
 import type { CanonicalSkill, DictionaryItem } from '../import/types'
 import {
   writeRuntimeData,
@@ -29,16 +42,6 @@ import { loadSkillIconOverrides } from '../asset-pipeline/source-skill-icons'
 import { buildMajorEventReference } from './build-major-event-runtime-data'
 
 const CANONICAL_DIR = 'data/master'
-const OUTPUT_DIR = 'miniprogram/generated'
-const FLEET_OUTPUT_DIR = 'miniprogram/subpkg-fleet/generated'
-const SUBPKG_DIR = 'miniprogram/subpkg-detail'
-const TRADE_SUBPKG_DIR = 'miniprogram/subpkg-trade'
-const MAINTENANCE_SUBPKG_DIR = 'miniprogram/subpkg-maintenance'
-const DATA_ASSETS_DIR = 'data/assets'
-const ASSET_DEPENDENCY_PATH = `${DATA_ASSETS_DIR}/asset-dependencies.json`
-const LEGACY_DEPENDENCY_PATH = 'miniprogram/generated/asset-dependencies.js'
-const OFFICER_REFERENCE_DATA_PATH = 'cloudfunctions/officer-custom/reference-data.json'
-const MAINTENANCE_REFERENCE_DATA_PATH = 'cloudfunctions/officer-maintenance/reference-data.json'
 const PUBLISHED_MANIFEST_PATH =
   process.env.CLOUDBASE_ASSET_MANIFEST_PATH ?? 'data/assets/cloudbase-manifest.json'
 const REUSED_ASSET_LOCATIONS_PATH =
@@ -46,7 +49,23 @@ const REUSED_ASSET_LOCATIONS_PATH =
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
 
-const generate = (): void => {
+const buildGeneratedOutputs = (stageRoot: string): void => {
+  const OUTPUT_DIR = join(stageRoot, 'miniprogram/generated')
+  const FLEET_OUTPUT_DIR = join(stageRoot, 'miniprogram/subpkg-fleet/generated')
+  const SUBPKG_DIR = join(stageRoot, 'miniprogram/subpkg-detail')
+  const TRADE_SUBPKG_DIR = join(stageRoot, 'miniprogram/subpkg-trade')
+  const MAINTENANCE_SUBPKG_DIR = join(stageRoot, 'miniprogram/subpkg-maintenance')
+  const DATA_ASSETS_DIR = join(stageRoot, 'data/assets')
+  const ASSET_DEPENDENCY_PATH = join(DATA_ASSETS_DIR, 'asset-dependencies.json')
+  const LEGACY_DEPENDENCY_PATH = join(OUTPUT_DIR, 'asset-dependencies.js')
+  const OFFICER_REFERENCE_DATA_PATH = join(
+    stageRoot,
+    'cloudfunctions/officer-custom/reference-data.json',
+  )
+  const MAINTENANCE_REFERENCE_DATA_PATH = join(
+    stageRoot,
+    'cloudfunctions/officer-maintenance/reference-data.json',
+  )
   console.log('=== Runtime Data Generator ===\n')
 
   // Safety: block generation from candidate data
@@ -55,6 +74,9 @@ const generate = (): void => {
       'Runtime data must not be generated from canonical-candidates. Use data/master instead.',
     )
   }
+
+  const errors = checkMasterDataset(CANONICAL_DIR).filter((finding) => finding.severity === 'error')
+  if (errors.length) throw new Error(`正式 master 校驗失敗：${errors[0].code} ${errors[0].path}`)
 
   console.log(`Reading canonical data from ${CANONICAL_DIR}/...`)
   const officers = loadCanonicalOfficers(CANONICAL_DIR)
@@ -111,6 +133,8 @@ const generate = (): void => {
   mkdirSync(SUBPKG_DIR, { recursive: true })
   mkdirSync(TRADE_SUBPKG_DIR, { recursive: true })
   mkdirSync(DATA_ASSETS_DIR, { recursive: true })
+  mkdirSync(dirname(OFFICER_REFERENCE_DATA_PATH), { recursive: true })
+  mkdirSync(dirname(MAINTENANCE_REFERENCE_DATA_PATH), { recursive: true })
   writeFileSync(OFFICER_REFERENCE_DATA_PATH, JSON.stringify(officerReferenceData, null, 2) + '\n')
   writeFileSync(
     MAINTENANCE_REFERENCE_DATA_PATH,
@@ -176,7 +200,7 @@ const generate = (): void => {
   )
   const majorEventReference = buildMajorEventReference(
     majorEventsDataset,
-    `${TRADE_SUBPKG_DIR}/assets/major-events`,
+    'miniprogram/subpkg-trade/assets/major-events',
   )
   writeFileSync(
     `${TRADE_SUBPKG_DIR}/major-event-reference.js`,
@@ -191,6 +215,39 @@ const generate = (): void => {
   )
 
   console.log(`\nDone. Generated CDN release ${publishedManifest.releaseId}.`)
+}
+
+/** 所有產物先在暫存目錄構建；完整成功後才替換正式集合，替換錯誤亦回復。 */
+export const generate = (): void => {
+  const root = resolve('.')
+  const stage = mkdtempSync(join(tmpdir(), 'uwo-data-generation-'))
+  const backups: Array<{ target: string; backup: string; existed: boolean }> = []
+  try {
+    buildGeneratedOutputs(stage)
+    for (const [index, path] of DATA_GENERATION_OUTPUT_PATHS.entries()) {
+      const target = assertProjectPath(root, resolve(root, path))
+      const source = join(stage, path)
+      if (!existsSync(source)) throw new Error(`生成產物缺失：${path}`)
+      const backup = join(stage, `backup-${index}`)
+      const existed = existsSync(target)
+      if (existed) cpSync(target, backup, { recursive: true })
+      backups.push({ target, backup, existed })
+      mkdirSync(dirname(target), { recursive: true })
+      rmSync(target, { recursive: true, force: true })
+      cpSync(source, target, { recursive: true })
+    }
+  } catch (error) {
+    for (const { target, backup, existed } of backups.reverse()) {
+      rmSync(assertProjectPath(root, target), { recursive: true, force: true })
+      if (existed) {
+        mkdirSync(dirname(target), { recursive: true })
+        cpSync(backup, target, { recursive: true })
+      }
+    }
+    throw error
+  } finally {
+    rmSync(stage, { recursive: true, force: true })
+  }
 }
 
 if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/data-pipeline/generate.ts')) {

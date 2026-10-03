@@ -1,3 +1,4 @@
+import type { ReviewFixtureName } from './fixtures'
 export interface ReviewConfig {
   projectPath: string
   cliPath?: string
@@ -46,6 +47,7 @@ export interface ReviewScenario {
   name: string
   entry: string
   watchPaths?: string[]
+  fixture?: ReviewFixtureName
   state: ReviewState
   devices: ReviewDevice[]
   steps: ReviewStep[]

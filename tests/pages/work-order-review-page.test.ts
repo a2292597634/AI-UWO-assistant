@@ -19,16 +19,32 @@ vi.mock('../../miniprogram/runtime/main-data-store', () => ({
 
 interface TestPage {
   data: {
-    reports: Array<{ reportId: string; status: string; statusLabel: string }>
+    activeStatus: string
+    reports: Array<{
+      reportId: string
+      status: string
+      statusLabel: string
+      evidence: Array<{
+        text: string
+        sourceUrl: string
+        screenshotFileIds: string[]
+        isOriginal: boolean
+      }>
+    }>
     selectedReportId: string
     reviewReply: string
     datasetVersion: string
     loading: boolean
     actionLoading: boolean
     loadError: string
+    evidenceImageErrors: Record<string, boolean>
   }
   setData(update: Record<string, unknown>): void
   loadReports(): Promise<void>
+  onStatusTap(event: WechatMiniprogram.BaseEvent): void
+  onUnload(): void
+  onPreviewEvidence(event: WechatMiniprogram.BaseEvent): void
+  onEvidenceImageError(event: WechatMiniprogram.BaseEvent): void
   onSelectReport(event: WechatMiniprogram.BaseEvent): void
   onReviewReplyInput(event: WechatMiniprogram.Input): void
   onDatasetVersionInput(event: WechatMiniprogram.Input): void
@@ -64,6 +80,7 @@ const loadPage = async (): Promise<TestPage> => {
     showToast: vi.fn(),
     showLoading: vi.fn(),
     hideLoading: vi.fn(),
+    previewImage: vi.fn(),
   })
   vi.stubGlobal('Page', (definition: TestPage) => {
     page = {
@@ -80,12 +97,153 @@ const loadPage = async (): Promise<TestPage> => {
 
 beforeEach(() => {
   vi.resetModules()
-  vi.clearAllMocks()
+  vi.resetAllMocks()
   service.listAdmin.mockResolvedValue([report()])
 })
 afterEach(() => vi.unstubAllGlobals())
 
 describe('管理員錯誤回報審核', () => {
+  it('原始與每次補充的每張圖片可預覽，非目前報告附件遭拒絕', async () => {
+    const original = {
+      ...report(),
+      screenshotFileIds: ['cloud://original'],
+      supplement: '原始补充',
+      supplements: [
+        {
+          text: '補充一',
+          sourceUrl: '',
+          screenshotFileIds: ['cloud://one', 'cloud://two'],
+          createdAt: 't2',
+        },
+        {
+          text: '',
+          sourceUrl: 'https://example.invalid/link',
+          screenshotFileIds: ['cloud://three'],
+          createdAt: 't3',
+        },
+      ],
+    }
+    const snapshot = structuredClone(original)
+    service.listAdmin.mockResolvedValue([original])
+    const page = await loadPage()
+    await page.loadReports()
+    expect(page.data.reports[0]?.evidence).toMatchObject([
+      {
+        text: '技能資料有誤\n\n原始补充',
+        screenshotFileIds: ['cloud://original'],
+        isOriginal: true,
+      },
+      { text: '補充一', screenshotFileIds: ['cloud://one', 'cloud://two'], isOriginal: false },
+      {
+        text: '',
+        sourceUrl: 'https://example.invalid/link',
+        screenshotFileIds: ['cloud://three'],
+        isOriginal: false,
+      },
+    ])
+    const urls = ['cloud://original', 'cloud://one', 'cloud://two', 'cloud://three']
+    for (const fileId of urls) {
+      page.onPreviewEvidence({
+        currentTarget: { dataset: { reportId: 'report_1', fileId } },
+      } as never)
+      expect(wx.previewImage).toHaveBeenLastCalledWith(
+        expect.objectContaining({ current: fileId, urls }),
+      )
+    }
+    page.onPreviewEvidence({
+      currentTarget: { dataset: { reportId: 'report_1', fileId: 'cloud://foreign' } },
+    } as never)
+    page.onPreviewEvidence({
+      currentTarget: { dataset: { reportId: 'foreign', fileId: urls[0] } },
+    } as never)
+    expect(wx.previewImage).toHaveBeenCalledTimes(4)
+    const options = vi.mocked(wx.previewImage).mock.calls[0]?.[0]
+    options?.fail?.({ errMsg: '圖片無法開啟' })
+    expect(wx.showToast).toHaveBeenCalledWith({ title: '圖片預覽失敗，請稍後再試', icon: 'none' })
+    page.onEvidenceImageError({ currentTarget: { dataset: { fileId: urls[0] } } } as never)
+    expect(page.data.evidenceImageErrors[urls[0]!]).toBe(true)
+    page.onStatusTap({ currentTarget: { dataset: { status: 'fixed' } } } as never)
+    page.onPreviewEvidence({
+      currentTarget: { dataset: { reportId: 'report_1', fileId: urls[0] } },
+    } as never)
+    expect(wx.previewImage).toHaveBeenCalledTimes(4)
+    expect(original).toEqual(snapshot)
+  })
+  const deferred = () => {
+    let resolve!: (value: ReturnType<typeof report>[]) => void
+    let reject!: (reason: Error) => void
+    const promise = new Promise<ReturnType<typeof report>[]>((yes, no) => {
+      resolve = yes
+      reject = no
+    })
+    return { promise, resolve, reject }
+  }
+  const selectStatus = (page: TestPage, status: string) =>
+    page.onStatusTap({ currentTarget: { dataset: { status } } } as never)
+
+  it.each(['records', 'empty', 'error'])(
+    '舊 pending 的 %s 回覆不得覆蓋最新 accepted',
+    async (kind) => {
+      const page = await loadPage()
+      const pending = deferred()
+      const accepted = deferred()
+      service.listAdmin.mockReturnValueOnce(pending.promise).mockReturnValueOnce(accepted.promise)
+      const old = page.loadReports()
+      selectStatus(page, 'accepted')
+      accepted.resolve([report('accepted')])
+      await accepted.promise
+      await Promise.resolve()
+      if (kind === 'error') pending.reject(new Error('舊錯誤'))
+      else pending.resolve(kind === 'empty' ? [] : [report()])
+      await old
+      expect(page.data.reports.map((item) => item.status)).toEqual(['accepted'])
+      expect(page.data.loadError).toBe('')
+      expect(page.data.loading).toBe(false)
+    },
+  )
+
+  it('切換立即清列表與選擇，舊 finally 不清最新 loading，最新錯誤可重試', async () => {
+    const page = await loadPage()
+    await page.loadReports()
+    page.onSelectReport({ currentTarget: { dataset: { id: 'report_1' } } } as never)
+    const old = deferred()
+    const latest = deferred()
+    service.listAdmin.mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise)
+    const first = page.loadReports()
+    selectStatus(page, 'accepted')
+    expect(page.data.reports).toEqual([])
+    expect(page.data.selectedReportId).toBe('')
+    old.resolve([])
+    await first
+    expect(page.data.loading).toBe(true)
+    latest.reject(new Error('最新載入失敗'))
+    await latest.promise.catch(() => {})
+    await Promise.resolve()
+    expect(page.data.loadError).toBe('最新載入失敗')
+    service.listAdmin.mockResolvedValueOnce([report('accepted')])
+    await page.loadReports()
+    expect(page.data.reports[0]?.status).toBe('accepted')
+    expect(page.data.loadError).toBe('')
+  })
+
+  it('切回同一狀態仍只採用最後請求且卸載後不更新任何資料', async () => {
+    const page = await loadPage()
+    const first = deferred()
+    const second = deferred()
+    service.listAdmin.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+    const request = page.loadReports()
+    selectStatus(page, 'pending')
+    first.resolve([report()])
+    await request
+    expect(page.data.reports).toEqual([])
+    expect(page.data.loading).toBe(true)
+    page.onUnload()
+    const snapshot = structuredClone(page.data)
+    second.reject(new Error('卸載後錯誤'))
+    await second.promise.catch(() => {})
+    await Promise.resolve()
+    expect(page.data).toEqual(snapshot)
+  })
   it('顯示各狀態篩選、原始回報與只處理不直接修改資料的提示', () => {
     const wxml = readFileSync(
       resolve(__dirname, '../../miniprogram/subpkg-maintenance/pages/work-order-review/index.wxml'),
@@ -129,6 +287,47 @@ describe('管理員錯誤回報審核', () => {
     expect(service.requestInfo).toHaveBeenCalledWith(
       expect.objectContaining({ reply: '請補上來源畫面', revision: 1, updatedAt: 't1' }),
     )
+  })
+
+  it('需要補充的回報再次要求補充保留完整證據並刷新版本', async () => {
+    const previous = {
+      ...report('needsInfo'),
+      revision: 2,
+      supplement: '原始補充',
+      supplements: [
+        { text: '補充內容', sourceUrl: '', screenshotFileIds: ['cloud://proof'], createdAt: 't1' },
+      ],
+    }
+    service.listAdmin.mockResolvedValue([previous])
+    const page = await loadPage()
+    page.setData({ activeStatus: 'needsInfo' })
+    await page.loadReports()
+    page.onSelectReport({ currentTarget: { dataset: { id: 'report_1' } } } as never)
+    page.onReviewReplyInput({ detail: { value: '請補完整截圖' } } as never)
+    service.requestInfo.mockResolvedValue({
+      ...previous,
+      reviewReply: '請補完整截圖',
+      revision: 3,
+      updatedAt: 't2',
+    })
+    await page.onRequestInfo()
+    expect(service.requestInfo).toHaveBeenCalledWith({
+      reportId: 'report_1',
+      revision: 2,
+      updatedAt: 't1',
+      reply: '請補完整截圖',
+    })
+    expect(page.data.reports[0]).toMatchObject({
+      status: 'needsInfo',
+      revision: 3,
+      updatedAt: 't2',
+      evidence: [
+        { text: '技能資料有誤\n\n原始補充' },
+        { text: '補充內容', screenshotFileIds: ['cloud://proof'] },
+      ],
+    })
+    expect(page.data.actionLoading).toBe(false)
+    expect(page.data.selectedReportId).toBe('')
   })
 
   it('已修正必填資料版本，操作期間禁止重複提交', async () => {

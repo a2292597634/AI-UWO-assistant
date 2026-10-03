@@ -72,15 +72,15 @@ describe('buildCatalog', () => {
   })
 
   it('omits skillLevels when all skills are level 1', () => {
-    const catalog = buildCatalog(officers, skills, dictionaries)
-    // Find an officer with all level 1 skills or create one
-    const noLevelsOfficer = catalog.find(
-      (o) => o.skillLevels === undefined || Object.keys(o.skillLevels).length === 0,
-    )
-    // At least one officer should have all level 1 skills
-    if (noLevelsOfficer) {
-      expect(noLevelsOfficer.skillLevels).toBeUndefined()
+    const officer = {
+      ...officers[0]!,
+      id: 'officer_level_one',
+      skills: officers[0]!.skills.map((relation) => ({ ...relation, level: 1 })),
     }
+    const catalog = buildCatalog([officer], skills, dictionaries)
+    expect(catalog).toHaveLength(1)
+    expect(catalog[0]!.id).toBe('officer_level_one')
+    expect(catalog[0]!.skillLevels).toBeUndefined()
   })
 })
 

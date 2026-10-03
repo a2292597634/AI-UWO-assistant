@@ -6,8 +6,7 @@ import { validateTradeDataset } from './validate-trades'
 import type { CanonicalTradeDataset } from './types'
 
 const RAW_DIR = 'archive/voyage-tw-2026052501-trade-20260904/raw-data'
-const CANDIDATE_PATH =
-  'archive/voyage-tw-2026052501-trade-20260904/canonical-candidates/trade-goods.json'
+const CANDIDATE_PATH = 'artifacts/import-candidates/trades/trade-goods.json'
 const MASTER_PATH = 'data/master/trade-goods.json'
 
 const readRequired = (path: string): string => {

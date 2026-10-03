@@ -1,0 +1,64 @@
+{
+  "name": "錯誤回報離線審核：完整原始與歷次證據",
+  "entry": "/subpkg-maintenance/pages/work-order-review/index",
+  "fixture": "error-report-review",
+  "watchPaths": [
+    "miniprogram/subpkg-maintenance/pages/work-order-review/",
+    "miniprogram/presenters/officer-error-report-presenter.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": ".review-card" },
+    { "action": "assertText", "selector": ".review-card__name", "equals": "達納·卡洛斯" },
+    {
+      "action": "assertText",
+      "selector": "view[data-evidence-id='fixture-report-1:original']",
+      "contains": "原始補充"
+    },
+    {
+      "action": "assertExists",
+      "selector": "view[data-evidence-id='fixture-report-1:original'] image"
+    },
+    { "action": "screenshot", "name": "error-report-original" },
+    {
+      "action": "assertText",
+      "selector": "view[data-evidence-id='fixture-report-1:supplement:1']",
+      "contains": "第一次補充"
+    },
+    {
+      "action": "assertExists",
+      "selector": "view[data-evidence-id='fixture-report-1:supplement:1'] image"
+    },
+    { "action": "scrollElement", "selector": ".review-page", "distance": 420 },
+    {
+      "action": "assertText",
+      "selector": "view[data-evidence-id='fixture-report-1:supplement:2']",
+      "contains": "https://example.invalid/second"
+    },
+    {
+      "action": "assertExists",
+      "selector": "view[data-evidence-id='fixture-report-1:supplement:3'] image"
+    },
+    {
+      "action": "assertText",
+      "selector": "view[data-evidence-id='fixture-report-1:supplement:4']",
+      "contains": "此筆補充沒有內容"
+    },
+    { "action": "screenshot", "name": "error-report-supplements" },
+    { "action": "tap", "selector": ".review-card" },
+    { "action": "scrollElement", "selector": ".review-page", "distance": 1000 },
+    { "action": "assertExists", "selector": ".review-actions" },
+    { "action": "input", "selector": ".review-textarea", "value": "請提供遊戲內完整截圖" },
+    { "action": "tap", "selector": ".review-actions__request-info" },
+    { "action": "tap", "selector": ".status-tab[data-status='needsInfo']" },
+    { "action": "waitFor", "selector": ".review-card" },
+    { "action": "tap", "selector": ".review-card" },
+    { "action": "scrollElement", "selector": ".review-page", "distance": 1000 },
+    { "action": "input", "selector": ".review-textarea", "value": "請再補上完整文字" },
+    { "action": "tap", "selector": ".review-actions__request-info" },
+    { "action": "waitFor", "selector": ".review-card" },
+    { "action": "assertText", "selector": ".review-card__status", "equals": "需要補充" },
+    { "action": "screenshot", "name": "error-report-request-info-again" }
+  ]
+}

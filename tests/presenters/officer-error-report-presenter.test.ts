@@ -5,11 +5,13 @@ import type {
 } from '../../miniprogram/contracts/officer-maintenance'
 import type { RuntimeCatalogEntry } from '../../miniprogram/contracts/runtime-data'
 import {
+  buildErrorReportEvidence,
   buildOfficerReportOptions,
   mapOfficerReportFieldErrors,
   presentOfficerReportIdentity,
   searchOfficerReportOptions,
 } from '../../miniprogram/presenters/officer-error-report-presenter'
+import type { OfficerErrorReport } from '../../miniprogram/contracts/officer-error-report'
 
 const catalogEntry: RuntimeCatalogEntry = {
   id: 'officer_1',
@@ -87,6 +89,74 @@ const dictionaries: MaintenanceDictionaries = {
 }
 
 describe('航海士錯誤回報 Presenter', () => {
+  it('證據投影完整保留原文、空補充、網址和所有圖片且不修改原報告', () => {
+    const report: OfficerErrorReport = {
+      reportId: 'r1',
+      officerId: 'officer_1',
+      errorTypes: ['text'],
+      description: '原始描述\n第二行',
+      supplement: '原始補充',
+      suggestedCorrection: '正確文字',
+      sourceUrl: 'https://example.invalid/original',
+      screenshotFileIds: ['cloud://original'],
+      status: 'pending',
+      reviewReply: null,
+      fixedDatasetVersion: null,
+      revision: 4,
+      createdAt: 't0',
+      updatedAt: 't4',
+      history: [],
+      supplements: [
+        { text: '第一次補充', sourceUrl: '', screenshotFileIds: [], createdAt: 't1' },
+        {
+          text: '',
+          sourceUrl: 'https://example.invalid/link',
+          screenshotFileIds: ['cloud://extra'],
+          createdAt: 't2',
+        },
+        { text: '', sourceUrl: '', screenshotFileIds: [], createdAt: 't3' },
+      ],
+    }
+    const original = structuredClone(report)
+    const evidence = buildErrorReportEvidence(report)
+    expect(evidence).toEqual([
+      {
+        id: 'r1:original',
+        text: '原始描述\n第二行\n\n原始補充',
+        sourceUrl: report.sourceUrl,
+        screenshotFileIds: ['cloud://original'],
+        createdAt: 't0',
+        isOriginal: true,
+      },
+      {
+        id: 'r1:supplement:1',
+        text: '第一次補充',
+        sourceUrl: '',
+        screenshotFileIds: [],
+        createdAt: 't1',
+        isOriginal: false,
+      },
+      {
+        id: 'r1:supplement:2',
+        text: '',
+        sourceUrl: 'https://example.invalid/link',
+        screenshotFileIds: ['cloud://extra'],
+        createdAt: 't2',
+        isOriginal: false,
+      },
+      {
+        id: 'r1:supplement:3',
+        text: '',
+        sourceUrl: '',
+        screenshotFileIds: [],
+        createdAt: 't3',
+        isOriginal: false,
+      },
+    ])
+    expect(evidence[0]?.screenshotFileIds).not.toBe(report.screenshotFileIds)
+    expect(evidence[2]?.screenshotFileIds).not.toBe(report.supplements[1]?.screenshotFileIds)
+    expect(report).toEqual(original)
+  })
   it('候選與身份卡共用稀有度分層頭像', () => {
     const option = buildOfficerReportOptions([catalogEntry])[0]!
     const identity = presentOfficerReportIdentity(catalogEntry, maintenanceData, dictionaries)

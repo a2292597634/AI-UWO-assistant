@@ -231,6 +231,8 @@ ${iconSymbols}
   <section class="section" aria-labelledby="scenario-heading"><h2 id="scenario-heading">场景与步骤</h2>${scenarios}</section>
 
   <section class="section" aria-labelledby="coverage-heading"><h2 id="coverage-heading">覆盖与人工核验</h2><div class="coverage-grid">
+    <article class="coverage-card"><h3>未覆蓋文件</h3>${listItems(report.coverage.unmatchedPageFiles ?? [])}</article>
+    <article class="coverage-card"><h3>未覆蓋路由</h3>${listItems(report.coverage.unmatchedPagePaths ?? [])}</article>
     <article class="coverage-card"><h3>已覆盖</h3>${listItems(report.coverage.covered)}</article>
     <article class="coverage-card"><h3>豁免</h3>${report.coverage.exempted.length ? `<ul>${report.coverage.exempted.map((item) => `<li><strong>${escapeHtml(item.target)}</strong>：${escapeHtml(item.reason)}</li>`).join('')}</ul>` : '<p class="muted">无</p>'}</article>
     <article class="coverage-card"><h3>待人工设备</h3>${listItems(report.coverage.manual)}</article>

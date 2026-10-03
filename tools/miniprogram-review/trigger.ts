@@ -9,12 +9,15 @@ export interface TriggerPlan {
   mode: ReviewTriggerMode
   changedFiles: string[]
   pageFiles: string[]
+  unmatchedPageFiles: string[]
+  unmatchedPagePaths: string[]
   scenarios: ReviewScenario[]
   outcome: TriggerOutcome
   reason?: string
 }
 
 const pageExtensions = new Set([
+  '.json',
   '.wxml',
   '.wxss',
   '.ts',
@@ -28,6 +31,8 @@ const pageExtensions = new Set([
 ])
 
 const generatedPathPatterns = [
+  /^miniprogram\/subpkg-fleet\/generated(?:\/|$)/,
+  /^miniprogram\/subpkg-trade\/major-event-reference\.js$/,
   /^miniprogram\/generated(?:\/|$)/,
   /^miniprogram\/subpkg-detail\/details-[^/]+\.js$/,
   /^miniprogram\/subpkg-detail\/detail-index\.js$/,
@@ -83,6 +88,7 @@ export const isPageRelatedPath = (value: string): boolean => {
   if (!path || path === 'miniprogram/app.json' || isGeneratedPath(path)) {
     return path === 'miniprogram/app.json'
   }
+  if (path === 'tools/miniprogram-review/fixtures.ts') return true
   if (sharedFleetShareAssetPatterns.some((pattern) => pattern.test(path))) return true
   if (!path.startsWith('miniprogram/')) return false
   return pageExtensions.has(pathPosix.extname(path).toLowerCase())
@@ -150,16 +156,45 @@ export const createTriggerPlan = (input: {
   mode: ReviewTriggerMode
   changedFiles: string[]
   scenarios: ReviewScenario[]
+  registeredPagePaths?: readonly string[]
 }): TriggerPlan => {
   const changedFiles = uniqueSorted(
     input.changedFiles.map((value) => tryNormalize(value)).filter(Boolean) as string[],
   )
   const pageFiles = changedFiles.filter(isPageRelatedPath)
+  const routeChanged = pageFiles.some(isRouteChange)
+  const unmatchedPageFiles = pageFiles.filter(
+    (file) =>
+      !isRouteChange(file) &&
+      !input.scenarios.some((scenario) => scenarioMatches(scenario, [file])),
+  )
+  const routePath = (value: string): string => '/' + value.replace(/^\/+/, '').split('?')[0]
+  const unmatchedPagePaths = routeChanged
+    ? uniqueSorted([...(input.registeredPagePaths ?? [])].map(routePath)).filter(
+        (page) =>
+          !input.scenarios.some((scenario) => {
+            if (routePath(scenario.entry) === page) return true
+            const directory = `miniprogram/${pathPosix.dirname(page.slice(1))}/`
+            return (
+              scenario.watchPaths?.some(
+                (watch) => tryNormalize(watch)?.replace(/\/$/, '') === directory.slice(0, -1),
+              ) &&
+              scenario.steps.some(
+                (step) =>
+                  (step.action === 'navigate' || step.action === 'switchTab') &&
+                  routePath(step.path) === page,
+              )
+            )
+          }),
+      )
+    : []
+  const gaps = { unmatchedPageFiles, unmatchedPagePaths }
   if (pageFiles.length === 0) {
     return {
       mode: input.mode,
       changedFiles,
       pageFiles,
+      ...gaps,
       scenarios: [],
       outcome: input.mode === 'iterate' ? 'skipped' : 'blocked',
       reason:
@@ -177,6 +212,7 @@ export const createTriggerPlan = (input: {
       mode: input.mode,
       changedFiles,
       pageFiles,
+      ...gaps,
       scenarios: [],
       outcome: 'blocked',
       reason: '页面变更没有匹配到验收场景，请为场景补充 watchPaths',
@@ -187,8 +223,19 @@ export const createTriggerPlan = (input: {
     mode: input.mode,
     changedFiles,
     pageFiles,
+    ...gaps,
     scenarios:
       input.mode === 'iterate' ? chooseIterateScenarios(matched) : sortFinalScenarios(matched),
-    outcome: 'run',
+    outcome:
+      unmatchedPageFiles.length ||
+      unmatchedPagePaths.length ||
+      (routeChanged && !input.registeredPagePaths)
+        ? 'blocked'
+        : 'run',
+    ...(unmatchedPageFiles.length ||
+    unmatchedPagePaths.length ||
+    (routeChanged && !input.registeredPagePaths)
+      ? { reason: '頁面變更存在未覆蓋文件或路由，請補充驗收場景；路由變更必須讀取 app.json' }
+      : {}),
   }
 }

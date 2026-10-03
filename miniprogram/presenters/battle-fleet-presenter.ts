@@ -20,6 +20,7 @@ import type { OfficerVisualPaths } from './officer-visuals'
 import {
   filterBattleSkills,
   getOfficerStatus,
+  getBattleOptimizationTargets,
   getShipStatus,
   summarizeShipSkills,
 } from '../domain/battle-fleet'
@@ -111,6 +112,7 @@ export interface BattleFleetPageData {
   skillCategories: BattleFleetCategoryView[]
   targets: BattleFleetTargetView[]
   canRecalculate: boolean
+  recalculateDisabledReason: string
   bannedOfficers: BattleFleetOfficerView[]
   currentShipExcludedOfficers?: BattleFleetExcludedOfficerView[]
   skillSummary: BattleFleetSkillSummaryView[]
@@ -309,6 +311,7 @@ export const buildBattleFleetPageData = (
       : []
   })
   const targetViews = buildTargetViews(currentShip, skills)
+  const canRecalculate = getBattleOptimizationTargets(currentShip.targets).length > 0
   const lockedIds = new Set(currentShip.lockedOfficerIds)
   const displayOfficerIds = [
     ...currentShip.officerIds.filter((officerId) => lockedIds.has(officerId)),
@@ -351,7 +354,8 @@ export const buildBattleFleetPageData = (
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
     targets: targetViews,
-    canRecalculate: targetViews.some((target) => target.skillId !== null),
+    canRecalculate,
+    recalculateDisabledReason: canRecalculate ? '' : '請先設定至少一個 Lv.1 以上的戰鬥技能目標',
     bannedOfficers,
     currentShipExcludedOfficers,
     skillSummary: buildSummaryViews(currentSummary, officers),

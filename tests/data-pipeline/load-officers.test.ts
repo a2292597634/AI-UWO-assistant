@@ -3,7 +3,10 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { loadCanonicalOfficers } from '../../tools/data-pipeline/load-officers'
+import {
+  loadCanonicalOfficers,
+  loadOfficerMasterCollections,
+} from '../../tools/data-pipeline/load-officers'
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
 
@@ -67,4 +70,17 @@ describe('canonical officer source loader', () => {
     temporaryMasters.push(invalidDirectory)
     expect(() => loadCanonicalOfficers(invalidDirectory)).toThrow(/sourceRefs/i)
   })
+})
+
+it('合併讀取仍保留官方／自訂文件歸屬', () => {
+  const directory = createMaster(customOfficer('sub_origin'))
+  temporaryMasters.push(directory)
+  const result = loadOfficerMasterCollections(directory)
+  expect(result.official.map((item) => item.id)).toEqual([officialFixture[0].id])
+  expect(result.custom.map((item) => item.id)).toEqual(['officer_custom_sub_origin'])
+  expect([...result.sourceFileById]).toEqual([
+    [officialFixture[0].id, 'officers'],
+    ['officer_custom_sub_origin', 'custom-officers'],
+  ])
+  expect(loadCanonicalOfficers(directory)).toEqual([...result.official, ...result.custom])
 })

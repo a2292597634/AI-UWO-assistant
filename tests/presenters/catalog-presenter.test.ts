@@ -1,3 +1,4 @@
+import { getCatalog, getSkills } from '../../miniprogram/runtime/main-data-store'
 /**
  * Catalog Presenter Tests
  */
@@ -10,6 +11,9 @@ import {
   createCatalogPageData,
   buildCatalogFilterOptions,
   PAGE_SIZE,
+  buildSkillCheckList,
+  filterSkillCheckList,
+  getOfficersForSkill,
 } from '../../miniprogram/presenters/catalog-presenter'
 import { buildOfficerVisuals } from '../../miniprogram/presenters/officer-visuals'
 import type { RuntimeCatalogEntry, RuntimeSkill } from '../../miniprogram/contracts/runtime-data'
@@ -309,5 +313,82 @@ describe('createCatalogPageData', () => {
 describe('PAGE_SIZE', () => {
   it('is 30', () => {
     expect(PAGE_SIZE).toBe(30)
+  })
+})
+
+describe('技能關係 kind 完整投影', () => {
+  const mixedFixture = () => {
+    const base = getCatalog()[0]!
+    const skills = getSkills()
+    const sid = Object.keys(skills)[0]!
+    const catalog: RuntimeCatalogEntry[] = [
+      { ...base, id: 'officer_a', activeSkills: [sid], passiveSkills: [] },
+      { ...base, id: 'officer_b', activeSkills: [], passiveSkills: [sid] },
+    ]
+    return { sid, skills, catalog }
+  }
+  it('同技能主被動各一位：all 只列一次且 union 計數；kind 篩選與展開均獨立', () => {
+    const { sid, skills, catalog } = mixedFixture()
+    const rows = buildSkillCheckList(catalog, skills)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({
+      kind: 'mixed',
+      kindLabel: '主及被',
+      officerCount: 2,
+      officerCountByKind: { active: 1, passive: 1 },
+    })
+    for (const [kind, label, owner] of [
+      ['active', '主', 'officer_a'],
+      ['passive', '被', 'officer_b'],
+    ] as const) {
+      expect(filterSkillCheckList(rows, kind, [], '')[0]).toMatchObject({
+        kind,
+        kindLabel: label,
+        officerCount: 1,
+      })
+      expect(getOfficersForSkill(sid, catalog, kind).map(({ officerId }) => officerId)).toEqual([
+        owner,
+      ])
+    }
+    expect(
+      getOfficersForSkill(sid, catalog)
+        .map(({ officerId }) => officerId)
+        .sort(),
+    ).toEqual(['officer_a', 'officer_b'])
+  })
+  it('同 owner 兩種kind與重複關係各自去重，union 不能加總', () => {
+    const { sid, skills, catalog } = mixedFixture()
+    catalog.push({
+      ...catalog[0]!,
+      id: 'officer_c',
+      activeSkills: [sid, sid],
+      passiveSkills: [sid, sid],
+    })
+    const rows = buildSkillCheckList(catalog, skills)
+    expect(rows[0]).toMatchObject({
+      kind: 'mixed',
+      officerCount: 3,
+      officerCountByKind: { active: 2, passive: 2 },
+    })
+    expect(filterSkillCheckList(rows, 'active', [], '')[0]!.officerCount).toBe(2)
+    expect(filterSkillCheckList(rows, 'passive', [], '')[0]!.officerCount).toBe(2)
+    expect(getOfficersForSkill(sid, catalog).map(({ officerId }) => officerId)).toHaveLength(3)
+  })
+  it('篩選回傳投影副本且保留category/text AND；all→passive→active 不改完整清單', () => {
+    const { skills, catalog } = mixedFixture()
+    const rows = buildSkillCheckList(catalog, skills)
+    const before = structuredClone(rows)
+    const all = filterSkillCheckList(rows, 'all', [], '')
+    const passive = filterSkillCheckList(rows, 'passive', [rows[0]!.categoryId], rows[0]!.name)
+    const active = filterSkillCheckList(rows, 'active', [], '')
+    expect(all).not.toBe(rows)
+    expect(all[0]).not.toBe(rows[0])
+    expect(passive[0]).not.toBe(rows[0])
+    expect(active[0]).not.toBe(rows[0])
+    passive[0]!.officerCountByKind.passive = 99
+    expect(rows).toEqual(before)
+    expect(filterSkillCheckList(rows, 'passive', ['不存在分類'], '')).toEqual([])
+    expect(filterSkillCheckList(rows, 'passive', [], '不存在技能文字')).toEqual([])
+    expect(filterSkillCheckList(rows, 'all', [], '')[0]!.kind).toBe('mixed')
   })
 })

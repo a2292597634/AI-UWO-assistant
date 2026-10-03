@@ -242,6 +242,8 @@ export interface TradeTransformAnomaly {
 }
 
 export interface CanonicalDatasetHeader {
+  auditStatus?: 'verified' | 'unverified'
+  auditNotes?: string
   schemaVersion: string
   contentVersion: string
   updatedAt: string
@@ -310,6 +312,20 @@ export interface UnknownEnum {
   path: string
   value: string
   officerId: string
+}
+
+/** 已有來源修正表的明確處置證據；不得從形狀自動提升關係。 */
+export interface SourceCorrection {
+  entityType: string
+  entityId: string
+  field: string
+  sourceValue: string
+  action: string
+  correctedValue: string | null
+  reason: string
+  source: string
+  verifiedAt: string
+  status: string
 }
 
 export interface TransformAnomaly {

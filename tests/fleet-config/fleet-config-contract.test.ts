@@ -342,3 +342,28 @@ describe('Constants', () => {
     expect(SCHEMA_VERSION).toBe(1)
   })
 })
+
+describe('依配隊 scope 解析保存基線', () => {
+  const withTargets = (count: number) => {
+    const fleet = createFleetState()
+    fleet.ships[0]!.targets = Array.from({ length: count }, (_, i) => ({
+      id: `target-${i}`,
+      skillId: `skill_${i}`,
+      targetLevel: 0,
+    }))
+    return fleet
+  }
+  it.each([28, 30])('冒險的 %i 個不同 Lv.0 目標可完整還原', (count) => {
+    const fleet = withTargets(count)
+    expect(parseFleetState(serializeFleetState(fleet), 'adventure')).toEqual(fleet)
+  })
+  it.each([
+    { scope: 'adventure' as const, count: 31 },
+    { scope: 'battle' as const, count: 21 },
+  ])('$scope 拒絕 $count 個目標', ({ scope, count }) => {
+    expect(parseFleetState(serializeFleetState(withTargets(count)), scope)).toBeNull()
+  })
+  it('省略 scope 仍遵循戰鬥 20 個目標上限', () => {
+    expect(parseFleetState(serializeFleetState(withTargets(21)))).toBeNull()
+  })
+})

@@ -169,7 +169,7 @@ export const validateCandidates = (
 
     // City IDs: reject officer-shaped
     for (const [ci, cityId] of officer.recruitment.cityIds.entries()) {
-      if (cityId.startsWith('officer_')) {
+      if (cityId.startsWith('officer_') || /^city_chas/i.test(cityId)) {
         findings.push(
           makeFinding(
             'DATA_CITY_VALUE_REJECTED',

@@ -53,19 +53,32 @@ const parseOfficerArray = (value: unknown, sourceName: string): CanonicalOfficer
   })
 }
 
-/** Load official officers followed by approved custom officers in master-file order. */
-export const loadCanonicalOfficers = (masterDir = 'data/master'): CanonicalOfficer[] => {
-  const officialPath = `${masterDir}/${OFFICIAL_FILE}`
-  const official = parseOfficerArray(readJson(officialPath), OFFICIAL_FILE)
+export interface OfficerMasterCollections {
+  official: CanonicalOfficer[]
+  custom: CanonicalOfficer[]
+  sourceFileById: ReadonlyMap<string, 'officers' | 'custom-officers'>
+}
+
+/** 載入合併集合並保留原 master 文件歸屬；不改 ID 或來源引用。 */
+export const loadOfficerMasterCollections = (masterDir: string): OfficerMasterCollections => {
+  const official = parseOfficerArray(readJson(`${masterDir}/${OFFICIAL_FILE}`), OFFICIAL_FILE)
   const customPath = `${masterDir}/${CUSTOM_FILE}`
   const custom = existsSync(customPath) ? parseOfficerArray(readJson(customPath), CUSTOM_FILE) : []
-
-  const all = [...official, ...custom]
-  const seenIds = new Set<string>()
-  for (const officer of all) {
-    if (seenIds.has(officer.id)) throw new Error(`Duplicate officer ID: ${officer.id}`)
-    seenIds.add(officer.id)
+  const sourceFileById = new Map<string, 'officers' | 'custom-officers'>()
+  for (const [source, rows] of [
+    ['officers', official],
+    ['custom-officers', custom],
+  ] as const) {
+    for (const officer of rows) {
+      if (sourceFileById.has(officer.id)) throw new Error(`Duplicate officer ID: ${officer.id}`)
+      sourceFileById.set(officer.id, source)
+    }
   }
+  return { official, custom, sourceFileById }
+}
 
-  return all
+/** 官方接自訂，維持既有讀取介面及原文件順序。 */
+export const loadCanonicalOfficers = (masterDir = 'data/master'): CanonicalOfficer[] => {
+  const collections = loadOfficerMasterCollections(masterDir)
+  return [...collections.official, ...collections.custom]
 }

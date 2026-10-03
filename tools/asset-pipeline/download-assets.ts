@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import {
   isVoyageTwOfficerSourceRefs,
   type CanonicalOfficer,
+  type CanonicalSkill,
   type CanonicalTradeDataset,
   type CanonicalTradeGood,
 } from '../import/types'
@@ -234,6 +235,26 @@ export const downloadAssets = async (
 
 // ── Build entry list from canonical data ──
 
+// 手動技能沒有 voyage.tw 圖片來源，交由既有 staging／reuse／fallback 流程處理。
+export const buildVoyageSkillData = (
+  skills: readonly CanonicalSkill[],
+  overrides: ReadonlyMap<string, string>,
+) =>
+  skills.flatMap((skill) => {
+    const id = skill.sourceRefs.voyageTw
+    if (typeof id !== 'string' || id.length === 0) return []
+    return [
+      {
+        id,
+        imageOverrideId:
+          overrides
+            .get(skill.id)
+            ?.replace(/^skill_/, '')
+            .replace(/\.png$/, '') ?? null,
+      },
+    ]
+  })
+
 export const buildAssetEntries = (
   officers: Array<{ canonicalId: string; sourceId: string }>,
   skillData: Array<{ id: string; imageOverrideId?: string | null }>,
@@ -285,7 +306,7 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
 
   // Read canonical data to build asset list
   const officers = loadCanonicalOfficers('data/master')
-  const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8'))
+  const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8')) as CanonicalSkill[]
   const tradeDataset = JSON.parse(
     readFileSync('data/master/trade-goods.json', 'utf8'),
   ) as CanonicalTradeDataset
@@ -302,16 +323,7 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/asset-pipeline/download
       canonicalId: o.id,
       sourceId: o.sourceRefs.voyageTw,
     }))
-  const skillList: Array<{ id: string; imageOverrideId: string | null }> = skills.map(
-    (s: { sourceRefs: { voyageTw: string }; iconId: string | null }) => ({
-      id: s.sourceRefs.voyageTw,
-      imageOverrideId:
-        skillIconOverrides
-          .get(`skill_${s.sourceRefs.voyageTw}`)
-          ?.replace(/^skill_/, '')
-          .replace(/\.png$/, '') ?? null,
-    }),
-  )
+  const skillList = buildVoyageSkillData(skills, skillIconOverrides)
 
   const entries = [
     ...buildAssetEntries(officerData, skillList, limit ? limit * 2 : undefined),

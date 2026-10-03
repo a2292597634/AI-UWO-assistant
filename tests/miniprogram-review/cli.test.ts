@@ -68,6 +68,135 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
 })
 
 describe('小程序验收 CLI', () => {
+  it('斷言失敗也先恢復 fixture 再 disconnect，且不重啟', async () => {
+    const events: string[] = []
+    const restartDevTools = vi.fn()
+    const deps = dependencies({
+      restartDevTools,
+      connect: async () =>
+        ({
+          installFixture: async () => {
+            events.push('install')
+          },
+          restoreFixture: async () => {
+            events.push('restore')
+          },
+          disconnect: async () => {
+            events.push('disconnect')
+          },
+        }) as never,
+      runScenario: async () => {
+        events.push('run')
+        throw new Error('文字斷言失敗')
+      },
+    })
+    expect(
+      await runCli(['run', '--scenario', 'catalog', '--fixture', 'coupon-success'], deps),
+    ).toBe(1)
+    expect(events).toEqual(['install', 'run', 'restore', 'disconnect'])
+    expect(restartDevTools).not.toHaveBeenCalled()
+  })
+  it('恢復重跑前還原，每次新連接重新安裝 fixture', async () => {
+    const events: string[] = []
+    let runs = 0
+    const deps = dependencies({
+      restartDevTools: async () => {
+        events.push('restart')
+      },
+      connect: async () =>
+        ({
+          installFixture: async () => {
+            events.push('install')
+          },
+          restoreFixture: async () => {
+            events.push('restore')
+          },
+          disconnect: async () => {
+            events.push('disconnect')
+          },
+        }) as never,
+      runScenario: async () => ({
+        scenario: 'fixture',
+        pagePath: '/pages/catalog/index',
+        state: 'normal',
+        status: runs++ === 0 ? 'failed' : 'passed',
+        error: runs === 1 ? 'Connection closed' : undefined,
+        steps: [],
+        screenshots: ['C:/review/fixture.png'],
+      }),
+    })
+    expect(
+      await runCli(['run', '--scenario', 'catalog', '--fixture', 'coupon-success'], deps),
+    ).toBe(0)
+    expect(events).toEqual([
+      'install',
+      'restore',
+      'disconnect',
+      'restart',
+      'install',
+      'restore',
+      'disconnect',
+    ])
+  })
+
+  it('混合缺口保存於報告，且不连接環境或執行門禁', async () => {
+    const writeReport = vi.fn((..._args: Parameters<CliDependencies['writeReport']>) => ({
+      htmlPath: 'C:/review/report.html',
+      jsonPath: 'C:/review/report.json',
+      markdownPath: 'C:/review/report.md',
+    }))
+    const connect = vi.fn()
+    const deps = dependencies({
+      writeReport,
+      connect,
+      readGitChangedFiles: () => [
+        'miniprogram/pages/catalog/index.wxml',
+        'miniprogram/pages/missing/index.json',
+      ],
+      listScenarioPaths: () => ['catalog'],
+    })
+    expect(await runCli(['changed', '--mode', 'final'], deps)).toBe(1)
+    expect(connect).not.toHaveBeenCalled()
+    expect(writeReport.mock.calls[0]?.[1]?.coverage.unmatchedPageFiles).toEqual([
+      'miniprogram/pages/missing/index.json',
+    ])
+  })
+  it('fixture 安裝失敗時不得開目標頁，先還原再 disconnect', async () => {
+    const events: string[] = []
+    const runScenario = vi.fn()
+    const deps = dependencies({
+      runScenario,
+      connect: async () =>
+        ({
+          installFixture: async () => {
+            events.push('install')
+            throw new Error('mock 不可用')
+          },
+          restoreFixture: async () => {
+            events.push('restore')
+          },
+          disconnect: async () => {
+            events.push('disconnect')
+          },
+        }) as never,
+    })
+    expect(
+      await runCli(['run', '--scenario', 'catalog', '--fixture', 'coupon-success'], deps),
+    ).toBe(1)
+    expect(runScenario).not.toHaveBeenCalled()
+    expect(events).toEqual(['install', 'restore', 'restore', 'disconnect'])
+  })
+  it('fixture 拒绝任意脚本名稱', async () => {
+    const connect = vi.fn()
+    expect(
+      await runCli(
+        ['run', '--scenario', 'catalog', '--fixture', 'evil.js'],
+        dependencies({ connect }),
+      ),
+    ).toBe(2)
+    expect(connect).not.toHaveBeenCalled()
+  })
+
   it('Windows 质量门禁使用 npm.cmd，避免原生 Node 找不到 npm', () => {
     expect(getQualityGateCommand('win32')).toEqual({
       command: 'cmd.exe',

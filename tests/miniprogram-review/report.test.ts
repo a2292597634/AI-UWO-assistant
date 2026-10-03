@@ -41,11 +41,33 @@ const fixedInput = {
 }
 
 describe('小程序验收报告', () => {
+  it('即使候選場景已通過，文件及路由缺口仍阻塞並顯示於 HTML 與 JSON', () => {
+    const report = buildReviewReport({
+      ...fixedInput,
+      coverage: {
+        ...fixedInput.coverage,
+        unmatchedPageFiles: ['miniprogram/pages/missing/index.json'],
+        unmatchedPagePaths: ['/pages/missing/index'],
+      },
+    })
+    expect(report.status).toBe('blocked')
+    expect(report.coverage.unmatchedPageFiles).toEqual(['miniprogram/pages/missing/index.json'])
+    const html = renderReviewReportHtml(report, 'C:/review/run')
+    expect(html).toContain('<h3>未覆蓋文件</h3>')
+    expect(html).toContain('<h3>未覆蓋路由</h3>')
+    expect(html).toContain('/pages/missing/index')
+    expect(JSON.parse(JSON.stringify(report)).coverage.unmatchedPagePaths).toEqual([
+      '/pages/missing/index',
+    ])
+  })
+
   it('区分已覆盖、豁免和待人工核验', () => {
     const report = buildReviewReport(fixedInput)
 
     expect(report.coverage).toEqual({
       ...fixedInput.coverage,
+      unmatchedPageFiles: [],
+      unmatchedPagePaths: [],
       manual: ['android-large', 'iphone-small'],
       manualStates: ['empty', 'error', 'loading', 'long-text'],
     })

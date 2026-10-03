@@ -5,12 +5,12 @@
       <text class="config-conflict-modal__title">配置衝突</text>
     </view>
     <view class="config-conflict-modal__body">
-      <text class="config-conflict-modal__text">雲端配置已被其他裝置更新，請選擇如何處理。</text>
+      <text class="config-conflict-modal__text">「{{configName}}」已被其他裝置更新。{{canForce ? '可重新載入雲端版本，或覆蓋為本次保存的內容。' : '請刷新此配置後重試原操作。'}}</text>
     </view>
     <view class="config-conflict-modal__actions">
       <button class="ui-button ui-button--secondary config-conflict-modal__button" bindtap="onCancel">取消</button>
-      <button class="ui-button ui-button--secondary config-conflict-modal__button" bindtap="onReload">重新載入</button>
-      <button class="ui-button ui-button--danger config-conflict-modal__button" bindtap="onForce">覆蓋雲端</button>
+      <button class="ui-button ui-button--secondary config-conflict-modal__button" bindtap="onReload">{{canForce ? '重新載入' : '刷新配置'}}</button>
+      <button wx:if="{{canForce}}" class="ui-button ui-button--danger config-conflict-modal__button" bindtap="onForce">覆蓋雲端</button>
     </view>
   </view>
 </block>

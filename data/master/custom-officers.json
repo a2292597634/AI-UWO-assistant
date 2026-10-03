@@ -81,7 +81,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,
@@ -211,7 +211,7 @@
       },
       {
         "skillId": "skill_skill400089",
-        "kind": "passive",
+        "kind": "active",
         "sourceGroup": "sk2",
         "slot": 0,
         "unlockLevel": 1,

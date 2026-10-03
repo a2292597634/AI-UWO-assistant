@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { DATA_GENERATION_OUTPUT_PATHS } from '../../tools/data-pipeline/generated-output-paths'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   mkdtempSync,
@@ -842,5 +844,140 @@ describe('同步寫入與發布門禁', () => {
       events.push(name)
     })
     expect(events).toEqual(['assets:setup', 'assets:publish', 'data:generate'])
+  })
+})
+
+describe('正式預設生成回復範圍', () => {
+  it.each(['data:generate', 'assets:manifest:check', 'verify'] as const)(
+    '%s 失敗回復 fleet、全部產物及缺檔狀態',
+    async (failedGate) => {
+      const root = mkdtempSync(join(tmpdir(), 'uwo-default-rollback-'))
+      directories.push(root)
+      const masterDir = join(root, 'data/master')
+      mkdirSync(masterDir, { recursive: true })
+      for (const [name, value] of Object.entries(master()))
+        writeFileSync(join(masterDir, `${name}.json`), JSON.stringify(value))
+      const outputs = DATA_GENERATION_OUTPUT_PATHS.map((path) =>
+        path === 'miniprogram/generated' ? join(root, path, 'catalog.js') : join(root, path),
+      )
+      for (const path of outputs) {
+        mkdirSync(join(path, '..'), { recursive: true })
+        writeFileSync(path, '既有產物')
+      }
+      const absent = outputs.pop()!
+      rmSync(absent)
+      const page = join(root, 'miniprogram/subpkg-detail/pages/detail/index.ts')
+      mkdirSync(join(page, '..'), { recursive: true })
+      writeFileSync(page, '人工頁面')
+      const paths = [
+        ...outputs,
+        ...Object.keys(master()).map((name) => join(masterDir, `${name}.json`)),
+        page,
+      ]
+      const hashes = paths.map((path) =>
+        createHash('sha256').update(readFileSync(path)).digest('hex'),
+      )
+      await expect(
+        runMaintenanceSync({
+          masterDir,
+          approved: [order()],
+          runGate: (name) => {
+            if (name === 'data:generate') {
+              for (const path of [...outputs, absent]) {
+                mkdirSync(join(path, '..'), { recursive: true })
+                writeFileSync(path, '失敗後新產物')
+              }
+            }
+            if (name === failedGate) throw new Error('隔離門禁失敗')
+          },
+        }),
+      ).rejects.toThrow('隔離門禁失敗')
+      expect(
+        paths.map((path) => createHash('sha256').update(readFileSync(path)).digest('hex')),
+      ).toEqual(hashes)
+      expect(existsSync(absent)).toBe(false)
+    },
+  )
+})
+
+describe('自訂主資料來源文件寫回', () => {
+  const setup = () => {
+    const dir = directory()
+    const custom = {
+      ...master().officers[0],
+      id: 'officer_custom_test',
+      name: '自訂航海士',
+      sourceRefs: { submissionId: 'submission_test' },
+    }
+    writeFileSync(join(dir, 'custom-officers.json'), JSON.stringify([custom]))
+    const dataset = master().dataset
+    dataset.counts.officers = 2
+    writeFileSync(join(dir, 'dataset.json'), JSON.stringify(dataset))
+    const customOrder = order({
+      targetOfficerId: custom.id,
+      baseSnapshot: { ...structuredClone(data), name: custom.name },
+      reviewedData: { ...structuredClone(data), name: '自訂修訂' },
+    })
+    return { dir, customOrder }
+  }
+  it('自訂核准更新保留來源、官方 byte 不變、合併計數與重跑冪等', async () => {
+    const { dir, customOrder } = setup()
+    const official = readFileSync(join(dir, 'officers.json'))
+    const first = await runMaintenanceSync({
+      masterDir: dir,
+      approved: [customOrder],
+      runGate: () => {},
+    })
+    expect(readFileSync(join(dir, 'officers.json'))).toEqual(official)
+    const custom = JSON.parse(readFileSync(join(dir, 'custom-officers.json'), 'utf8'))
+    expect(custom).toHaveLength(1)
+    expect(custom[0]).toMatchObject({
+      id: 'officer_custom_test',
+      name: '自訂修訂',
+      sourceRefs: { submissionId: 'submission_test' },
+    })
+    expect(first.master.dataset.counts.officers).toBe(2)
+    const before = readFileSync(join(dir, 'custom-officers.json'))
+    const second = await runMaintenanceSync({
+      masterDir: dir,
+      approved: [customOrder],
+      runGate: () => {},
+    })
+    expect(second.master).toEqual(first.master)
+    expect(readFileSync(join(dir, 'custom-officers.json'))).toEqual(before)
+  })
+  it('custom 已替換後門禁失敗完整回復兩文件與 dataset', async () => {
+    const { dir, customOrder } = setup()
+    const paths = ['officers', 'custom-officers', 'dataset'].map((name) =>
+      join(dir, `${name}.json`),
+    )
+    const bytes = paths.map((path) => readFileSync(path))
+    await expect(
+      runMaintenanceSync({
+        masterDir: dir,
+        approved: [customOrder],
+        runGate: () => {
+          expect(JSON.parse(readFileSync(join(dir, 'custom-officers.json'), 'utf8'))[0].name).toBe(
+            '自訂修訂',
+          )
+          throw new Error('custom gate failed')
+        },
+      }),
+    ).rejects.toThrow('custom gate failed')
+    expect(paths.map((path) => readFileSync(path))).toEqual(bytes)
+  })
+  it('跨文件 ID 重複與未知目標均拒絕，無寫入', async () => {
+    const { dir, customOrder } = setup()
+    await expect(
+      runMaintenanceSync({
+        masterDir: dir,
+        approved: [{ ...customOrder, targetOfficerId: 'officer_unknown' }],
+        runGate: () => {},
+      }),
+    ).rejects.toThrow()
+    writeFileSync(join(dir, 'custom-officers.json'), JSON.stringify([master().officers[0]]))
+    await expect(
+      runMaintenanceSync({ masterDir: dir, approved: [order()], runGate: () => {} }),
+    ).rejects.toThrow(/Duplicate officer ID/)
   })
 })

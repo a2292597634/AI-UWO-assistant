@@ -17,3 +17,6 @@ miniprogram/assets/*.png
 miniprogram/subpkg-a*/imgs/*.png
 data/assets/source-asset-manifest.json
 data/assets/staging/
+
+# 離線匯入候選，不自動提升至正式主資料
+/artifacts/import-candidates/

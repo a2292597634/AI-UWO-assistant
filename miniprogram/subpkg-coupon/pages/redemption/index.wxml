@@ -12,7 +12,7 @@
         <text class="coupon-redemption__profile-name">{{activeProfile.name}}</text>
         <text class="coupon-redemption__profile-meta">{{activeServerName}} ・ {{activeProfile.userNo}}</text>
       </view>
-      <button class="ui-button ui-button--compact ui-button--secondary coupon-redemption__compact-button coupon-redemption__change" bindtap="onOpenSettings">切換</button>
+      <button class="ui-button ui-button--compact ui-button--secondary coupon-redemption__compact-button coupon-redemption__change" disabled="{{isSubmitting}}" bindtap="onOpenSettings">切換</button>
     </view>
 
     <view wx:else class="coupon-redemption__empty">
@@ -28,14 +28,16 @@
         value="{{couponNo}}"
         placeholder="請輸入含連字號的兌換碼"
         maxlength="50"
+        disabled="{{isSubmitting}}"
         bindinput="onCouponInput"
       />
       <text class="coupon-redemption__hint">兌換碼只會用於本次提交，不會保存。</text>
     </view>
 
     <view wx:if="{{result}}" class="ui-status {{result.statusClass}} coupon-redemption__status">
+      <text wx:if="{{resultProfile}}" class="coupon-redemption__status-message coupon-redemption__result-profile">本次玩家：{{resultProfile.name}} ・ {{resultServerName}} ・ {{resultProfile.userNo}}</text>
       <text class="ui-status__label">{{result.label}}</text>
-      <text class="coupon-redemption__status-message">{{result.message}}</text>
+      <text class="coupon-redemption__status-message coupon-redemption__result-message">{{result.message}}</text>
     </view>
   </view>
 

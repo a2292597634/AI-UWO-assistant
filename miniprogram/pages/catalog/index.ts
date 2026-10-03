@@ -40,6 +40,14 @@ type SkillCheckKind = 'all' | 'active' | 'passive'
 const eventDataset = (e: WechatMiniprogram.BaseEvent): Record<string, unknown> =>
   (e.currentTarget.dataset as unknown as Record<string, unknown>) ?? {}
 
+/** 圖片事件只接受有限整數索引，拒绝空值及任意物件轉型。 */
+const visibleRowIndex = (value: unknown, length: number): number | undefined => {
+  if (typeof value !== 'number' && typeof value !== 'string') return undefined
+  if (typeof value === 'string' && value.trim() === '') return undefined
+  const index = Number(value)
+  return Number.isInteger(index) && index >= 0 && index < length ? index : undefined
+}
+
 // ── 頁面實例狀態（非響應式） ──
 
 interface CatalogPageState {
@@ -741,12 +749,18 @@ Page({
     )
     state._filteredSkillList = filtered
     state._skillCheckVisible = 30
+    state._expandedSkillId = null
+    state._expandedOfficers = []
 
     const catMap: Record<string, boolean> = {}
     for (const cat of state._skillCheckCategories) catMap[cat] = true
 
     const slice = filtered.slice(0, state._skillCheckVisible)
     this.setData({
+      expandedSkillId: null,
+      expandedSkillMap: {},
+      expandedOfficers: [],
+      expandedOfficerAssetReady: false,
       skillCheckRows: slice,
       skillCheckTotal: filtered.length,
       skillCheckHasMore: filtered.length > state._skillCheckVisible,
@@ -796,7 +810,7 @@ Page({
     }
 
     // 展開：尋找擁有此技能的航海士
-    const officers = getOfficersForSkill(skillId, state._enrichedCatalog)
+    const officers = getOfficersForSkill(skillId, state._enrichedCatalog, state._skillCheckKind)
     state._expandedSkillId = skillId
     state._expandedOfficers = officers
 
@@ -856,34 +870,26 @@ Page({
   // ── 圖片錯誤 ──
 
   onPortraitError(e: WechatMiniprogram.BaseEvent) {
-    const idx = Number(eventDataset(e)['index'])
-    if (isNaN(idx)) return
+    const idx = visibleRowIndex(eventDataset(e)['index'], this.data.visibleRows.length)
+    if (idx === undefined) return
 
     const item = this.data.visibleRows[idx] as CatalogRowView | undefined
     if (!item || item.portraitFail) return
 
-    this.setData({
-      visibleRows: this.data.visibleRows.map((row, rowIndex) =>
-        rowIndex === idx ? { ...row, portraitFail: true } : row,
-      ),
-    })
+    this.setData({ [`visibleRows[${idx}].portraitFail`]: true })
   },
 
   onPortraitLayerError(e: WechatMiniprogram.BaseEvent) {
     const dataset = eventDataset(e)
-    const idx = Number(dataset['index'])
+    const idx = visibleRowIndex(dataset['index'], this.data.visibleRows.length)
     const layer = getDatasetString(dataset, 'layer')
-    if (isNaN(idx) || !layer) return
+    if (idx === undefined || !layer) return
     if (layer !== 'frameFail' && layer !== 'rarityIconFail' && layer !== 'typeIconFail') return
 
     const item = this.data.visibleRows[idx] as CatalogRowView | undefined
     if (!item || item[layer]) return
 
-    this.setData({
-      visibleRows: this.data.visibleRows.map((row, rowIndex) =>
-        rowIndex === idx ? { ...row, [layer]: true } : row,
-      ),
-    })
+    this.setData({ [`visibleRows[${idx}].${layer}`]: true })
   },
 
   // ── 導航 ──

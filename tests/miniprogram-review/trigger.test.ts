@@ -21,6 +21,51 @@ const scenario = (
 })
 
 describe('小程序页面变更触发器', () => {
+  it.each(['iterate', 'final'] as const)('混合覆蓋在 %s 逐頁阻塞並保留候選場景', (mode) => {
+    const plan = createTriggerPlan({
+      mode,
+      changedFiles: [
+        'miniprogram/pages/catalog/index.wxml',
+        'miniprogram/subpkg-maintenance/pages/work-order-review/index.wxml',
+      ],
+      scenarios: [scenario('catalog', 1)],
+    })
+    expect(plan.outcome).toBe('blocked')
+    expect(plan.unmatchedPageFiles).toEqual([
+      'miniprogram/subpkg-maintenance/pages/work-order-review/index.wxml',
+    ])
+    expect(plan.scenarios.map(({ name }) => name)).toEqual(['catalog'])
+  })
+
+  it('路由要求獨立覆蓋，導航覆蓋必須明確 watch 目標頁目錄', () => {
+    const detail = '/subpkg-detail/pages/detail/index'
+    const catalog = {
+      ...scenario('catalog', 1),
+      steps: [{ action: 'navigate' as const, path: detail }],
+    }
+    const input = {
+      mode: 'final' as const,
+      changedFiles: ['miniprogram/app.json'],
+      registeredPagePaths: ['/pages/catalog/index', detail],
+      scenarios: [catalog],
+    }
+    expect(createTriggerPlan(input).unmatchedPagePaths).toEqual([detail])
+    expect(createTriggerPlan(input).outcome).toBe('blocked')
+    expect(
+      createTriggerPlan({
+        ...input,
+        scenarios: [{ ...catalog, watchPaths: ['miniprogram/subpkg-detail/pages/detail/'] }],
+      }).outcome,
+    ).toBe('run')
+    expect(createTriggerPlan({ ...input, registeredPagePaths: undefined }).outcome).toBe('blocked')
+  })
+
+  it('頁面 JSON 觸發而所有生成分包均排除', () => {
+    expect(isPageRelatedPath('miniprogram/pages/catalog/index.json')).toBe(true)
+    expect(isPageRelatedPath('miniprogram/components/picker/index.json')).toBe(true)
+    expect(isPageRelatedPath('miniprogram/subpkg-fleet/generated/fleet.js')).toBe(false)
+    expect(isPageRelatedPath('miniprogram/subpkg-trade/major-event-reference.js')).toBe(false)
+  })
   it('只把页面相关变更送入最小迭代场景', () => {
     const plan = createTriggerPlan({
       mode: 'iterate',

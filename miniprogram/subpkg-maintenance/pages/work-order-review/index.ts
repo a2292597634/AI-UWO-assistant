@@ -7,6 +7,8 @@ import {
   OfficerErrorReportError,
 } from '../../../runtime/officer-error-report-service'
 import { getCatalog } from '../../../runtime/main-data-store'
+import { buildErrorReportEvidence } from '../../../presenters/officer-error-report-presenter'
+import type { ErrorReportEvidence } from '../../../presenters/officer-error-report-presenter'
 
 const STATUS_LABELS: Readonly<Record<OfficerErrorReportStatus, string>> = {
   pending: '待確認',
@@ -19,15 +21,18 @@ const STATUS_LABELS: Readonly<Record<OfficerErrorReportStatus, string>> = {
 interface AdminReport extends OfficerErrorReport {
   readonly officerName: string
   readonly statusLabel: string
+  readonly evidence: readonly ErrorReportEvidence[]
 }
 
 const present = (report: OfficerErrorReport, names: ReadonlyMap<string, string>): AdminReport => ({
   ...report,
   officerName: names.get(report.officerId) ?? report.officerId,
   statusLabel: STATUS_LABELS[report.status],
+  evidence: buildErrorReportEvidence(report),
 })
 
 Page({
+  listRequestVersion: 0,
   data: {
     statusTabs: [
       { id: 'pending', label: '待確認' },
@@ -44,6 +49,7 @@ Page({
     loading: false,
     actionLoading: false,
     loadError: '',
+    evidenceImageErrors: {} as Record<string, boolean>,
   },
 
   onLoad() {
@@ -52,11 +58,15 @@ Page({
   },
 
   async loadReports() {
-    if (this.data.loading) return
+    const requestedStatus = this.data.activeStatus
+    const requestVersion = ++this.listRequestVersion
+    const isCurrent = () =>
+      requestVersion === this.listRequestVersion && requestedStatus === this.data.activeStatus
     this.setData({ loading: true, loadError: '' })
     try {
       const names = new Map(getCatalog().map(({ id, name }) => [id, name]))
-      const records = await getOfficerErrorReportService().listAdmin(this.data.activeStatus)
+      const records = await getOfficerErrorReportService().listAdmin(requestedStatus)
+      if (!isCurrent()) return
       const reports = records.map((record) => present(record, names))
       const selectedReportId = reports.some(
         ({ reportId }) => reportId === this.data.selectedReportId,
@@ -65,12 +75,17 @@ Page({
         : ''
       this.setData({ reports, selectedReportId })
     } catch (error) {
+      if (!isCurrent()) return
       this.setData({
         loadError: error instanceof Error ? error.message : '審核列表載入失敗，請重試',
       })
     } finally {
-      this.setData({ loading: false })
+      if (isCurrent()) this.setData({ loading: false })
     }
+  },
+
+  onUnload() {
+    this.listRequestVersion += 1
   },
 
   onStatusTap(event: WechatMiniprogram.BaseEvent) {
@@ -78,6 +93,8 @@ Page({
     if (!Object.prototype.hasOwnProperty.call(STATUS_LABELS, status)) return
     this.setData({
       activeStatus: status,
+      reports: [],
+      evidenceImageErrors: {},
       selectedReportId: '',
       reviewReply: '',
       datasetVersion: '',
@@ -87,6 +104,31 @@ Page({
 
   onRetry() {
     void this.loadReports()
+  },
+
+  onPreviewEvidence(event: WechatMiniprogram.BaseEvent) {
+    const reportId = String(event.currentTarget.dataset['reportId'] ?? '')
+    const fileId = String(event.currentTarget.dataset['fileId'] ?? '')
+    const report = this.data.reports.find((item) => item.reportId === reportId)
+    if (!report) return
+    const urls = [...new Set(report.evidence.flatMap((item) => [...item.screenshotFileIds]))]
+    if (!urls.includes(fileId)) return
+    wx.previewImage({
+      current: fileId,
+      urls,
+      fail: () => wx.showToast({ title: '圖片預覽失敗，請稍後再試', icon: 'none' }),
+    })
+  },
+
+  onEvidenceImageError(event: WechatMiniprogram.BaseEvent) {
+    const fileId = String(event.currentTarget.dataset['fileId'] ?? '')
+    if (
+      !this.data.reports.some((report) =>
+        report.evidence.some((item) => item.screenshotFileIds.includes(fileId)),
+      )
+    )
+      return
+    this.setData({ evidenceImageErrors: { ...this.data.evidenceImageErrors, [fileId]: true } })
   },
 
   onSelectReport(event: WechatMiniprogram.BaseEvent) {

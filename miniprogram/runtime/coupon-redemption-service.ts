@@ -7,7 +7,6 @@ import {
 } from '../contracts/coupon-redemption'
 
 const UNKNOWN_RESULT_MESSAGE = '結果未確認，請先到官方頁面確認再嘗試。'
-const NETWORK_MESSAGE = '兌換服務暫時無法連線，請稍後再試。'
 
 export class CouponRedemptionError extends Error {
   readonly code: CouponRedemptionServiceCode | 'unknown'
@@ -95,13 +94,14 @@ const callFunction = async (input: CouponRedemptionInput): Promise<CouponRedempt
       data: input,
     })
   } catch {
-    throw new CouponRedemptionError('unknown', NETWORK_MESSAGE)
+    throw createUnknownError()
   }
 
   if (!isRecord(rawResponse) || !isRecord(rawResponse.result)) throw createUnknownError()
   const result = rawResponse.result
   if (result.ok === false) {
     if (!isValidFailure(result)) throw createUnknownError()
+    if (result.code === 'unknown') throw createUnknownError()
     throw new CouponRedemptionError(result.code, result.message)
   }
   if (!isValidSuccess(result)) throw createUnknownError()

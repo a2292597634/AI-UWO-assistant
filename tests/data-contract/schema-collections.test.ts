@@ -79,6 +79,33 @@ describe('canonical collection schema validation', () => {
     ).toContainEqual(expect.objectContaining({ code: 'SCHEMA_ADDITIONAL_PROPERTY' }))
   })
 
+  it('接受 levelInfo 但仍拒絕未宣告技能字段', () => {
+    const skill = {
+      id: 'skill_test',
+      name: '測試技能',
+      categoryId: 'skill_category_repair',
+      description: '測試說明',
+      levelInfo: 'Lv1: 1%',
+      iconId: null,
+      sourceRefs: { workOrderId: 'wo_test:skill' },
+    }
+    expect(validator.validate('skills', skill)).toEqual([])
+    expect(validator.validate('skills', { ...skill, unexpected: true })).toContainEqual(
+      expect.objectContaining({ code: 'SCHEMA_ADDITIONAL_PROPERTY' }),
+    )
+  })
+
+  it('正式 dataset 的審計欄位保持嚴格 schema', () => {
+    const dataset = readJson<Record<string, unknown>>('data/master/dataset.json')
+    expect(validator.validate('dataset', dataset)).toEqual([])
+    expect(validator.validate('dataset', { ...dataset, auditStatus: 'guessed' })).toContainEqual(
+      expect.objectContaining({ code: 'SCHEMA_ENUM' }),
+    )
+    expect(validator.validate('dataset', { ...dataset, unexpected: true })).toContainEqual(
+      expect.objectContaining({ code: 'SCHEMA_ADDITIONAL_PROPERTY' }),
+    )
+  })
+
   it('validates the actual master officer collection', () => {
     const officers = readJson<unknown>('data/master/officers.json')
     expect(validator.validate('officers', officers)).toEqual([])

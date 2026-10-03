@@ -118,14 +118,17 @@ const serializeShip = (ship: FleetShipState): Record<string, unknown> => ({
  * Parse a serialized FleetState JSON string back into a FleetState object.
  * Returns null if the payload is structurally invalid.
  */
-export const parseFleetState = (encoded: string): FleetState | null => {
+export const parseFleetState = (
+  encoded: string,
+  scope: ClassifiedConfigScope = 'battle',
+): FleetState | null => {
   let raw: unknown
   try {
     raw = JSON.parse(encoded)
   } catch {
     return null
   }
-  if (!isValidSerializedFleetState(raw)) return null
+  if (!isValidSerializedFleetState(raw, getMaxTargetsPerShip(scope))) return null
   const data = raw as SerializedFleetState
   return {
     ships: data.ships.map(parseShip),

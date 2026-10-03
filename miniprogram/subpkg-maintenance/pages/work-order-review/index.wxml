@@ -12,9 +12,21 @@
   <view wx:if="{{!loading && !loadError && !reports.length}}" class="review-message">此狀態目前沒有回報。</view>
   <view wx:for="{{reports}}" wx:key="reportId" class="review-card {{selectedReportId === item.reportId ? 'review-card--selected' : ''}}" data-id="{{item.reportId}}" bindtap="onSelectReport">
     <view class="review-card__heading"><text class="review-card__name">{{item.officerName}}</text><text class="review-card__status">{{item.statusLabel}}</text></view>
-    <view class="review-block"><text class="review-block__label">錯誤說明</text><text>{{item.description}}</text></view>
     <view class="review-block"><text class="review-block__label">建議的正確內容</text><text>{{item.suggestedCorrection}}</text></view>
-    <view wx:if="{{item.sourceUrl}}" class="review-block"><text class="review-block__label">來源網址</text><text class="review-block__value">{{item.sourceUrl}}</text></view>
+    <view wx:for="{{item.evidence}}" wx:for-item="evidence" wx:for-index="evidenceIndex" wx:key="id" data-evidence-id="{{evidence.id}}" class="review-evidence">
+      <text class="review-evidence__title">{{evidence.isOriginal ? '原始回報（錯誤說明與補充）' : '第 ' + evidenceIndex + ' 次補充'}}</text>
+      <text class="review-evidence__time">{{evidence.createdAt}}</text>
+      <text wx:if="{{evidence.text}}" class="review-evidence__text">{{evidence.text}}</text>
+      <view wx:if="{{evidence.sourceUrl}}" class="review-block"><text class="review-block__label">來源網址</text><text class="review-block__value" selectable>{{evidence.sourceUrl}}</text></view>
+      <view wx:if="{{evidence.screenshotFileIds.length}}" class="review-evidence__images">
+        <view wx:for="{{evidence.screenshotFileIds}}" wx:for-item="fileId" wx:for-index="imageIndex" wx:key="*this" class="review-evidence__image-item">
+          <image class="review-evidence__image" src="{{fileId}}" mode="aspectFit" data-report-id="{{item.reportId}}" data-file-id="{{fileId}}" catchtap="onPreviewEvidence" binderror="onEvidenceImageError" />
+          <text wx:if="{{evidenceImageErrors[fileId]}}" class="review-evidence__error">截圖 {{imageIndex + 1}} 載入失敗，點擊重試預覽</text>
+          <text wx:else class="review-evidence__caption">截圖 {{imageIndex + 1}} · 點擊預覽</text>
+        </view>
+      </view>
+      <text wx:if="{{!evidence.text && !evidence.sourceUrl && !evidence.screenshotFileIds.length}}" class="review-evidence__time">此筆補充沒有內容。</text>
+    </view>
     <text class="review-card__meta">回報編號：{{item.reportId}} · 更新：{{item.updatedAt}}</text>
   </view>
   <view wx:if="{{selectedReportId}}" class="review-actions">
@@ -22,7 +34,7 @@
     <textarea class="review-textarea" value="{{reviewReply}}" maxlength="500" placeholder="管理員回覆；要求補充或不採納時必填" bindinput="onReviewReplyInput"></textarea>
     <input wx:if="{{activeStatus === 'accepted'}}" class="review-input" value="{{datasetVersion}}" placeholder="修正資料版本（標記已修正時必填）" bindinput="onDatasetVersionInput" />
     <view class="review-actions__buttons">
-      <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--secondary" disabled="{{actionLoading}}" bindtap="onRequestInfo">要求補充</button>
+      <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--secondary review-actions__request-info" disabled="{{actionLoading}}" bindtap="onRequestInfo">要求補充</button>
       <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--primary" disabled="{{actionLoading}}" bindtap="onAccept">採納</button>
       <button wx:if="{{activeStatus === 'pending' || activeStatus === 'needsInfo'}}" class="ui-button ui-button--secondary" disabled="{{actionLoading}}" bindtap="onReject">不採納</button>
       <button wx:if="{{activeStatus === 'accepted'}}" class="ui-button ui-button--primary" loading="{{actionLoading}}" disabled="{{actionLoading}}" bindtap="onMarkFixed">標記已修正</button>
