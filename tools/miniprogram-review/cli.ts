@@ -207,7 +207,7 @@ const recoverDevTools = async (
 }
 
 const existingAutomationConfig = (config: ReviewConfig): ReviewConfig =>
-  config.wsEndpoint || resolveWechatIdeCliPath(config.cliPath)
+  config.wsEndpoint || (!config.requiresComponentScope && resolveWechatIdeCliPath(config.cliPath))
     ? config
     : { ...config, wsEndpoint: `ws://127.0.0.1:${config.automationPort}` }
 
@@ -220,7 +220,13 @@ const connectWithRecovery = async (
   let connectionConfig = initialConfig
   while (true) {
     try {
-      return await dependencies.connect(connectionConfig)
+      try {
+        return await dependencies.connect(connectionConfig)
+      } finally {
+        // 啟動器可能返回其他端口；失敗恢复也不得回到原請求端口。
+        config.automationPort = connectionConfig.automationPort
+        if (connectionConfig.wsEndpoint) config.wsEndpoint = connectionConfig.wsEndpoint
+      }
     } catch (error) {
       if (!isDevToolsConnectionError(error)) throw error
       const recovery = await recoverDevTools(dependencies, config, formatError(error), state)
@@ -356,9 +362,19 @@ const executeScenario = async (
   // runner、例外與恢復都經同一還原邊界，避免重跑前留下 mock。
   adapter.disconnect = async () => {
     if (!disconnected) {
-      await adapter.restoreFixture?.()
-      await disconnect()
       disconnected = true
+      try {
+        await adapter.restoreFixture?.()
+      } catch (error) {
+        // 還原失敗仍須釋放連接，並保留最初的還原錯誤。
+        try {
+          await disconnect()
+        } catch {
+          // 斷線錯誤不得覆蓋還原失敗的原因。
+        }
+        throw error
+      }
+      await disconnect()
     }
   }
   let result: ScenarioRunResult
@@ -388,6 +404,13 @@ const executeScenario = async (
   return result
 }
 
+const needsComponentScope = (scenarios: ReviewScenario[]): boolean =>
+  scenarios.some((scenario) =>
+    scenario.steps.some(
+      (step) => 'selector' in step && /skill-picker-sheet|skill-sheet/.test(step.selector),
+    ),
+  )
+
 const runScenarios = async (
   dependencies: CliDependencies,
   config: ReviewConfig,
@@ -399,7 +422,12 @@ const runScenarios = async (
   const runId = `${startedAt.toISOString().replace(/[:.]/g, '')}-${dependencies.randomId()}`
   const outputDir = dependencies.createRunDirectory(runId)
   const results: ScenarioRunResult[] = []
+  const requiresComponentScope = needsComponentScope(scenarios)
+  let componentSessionStarted = false
   for (const [index, scenario] of scenarios.entries()) {
+    const scenarioConfig: ReviewConfig = requiresComponentScope
+      ? { ...config, requiresComponentScope: true }
+      : config
     const scenarioOutput = join(
       outputDir,
       'current-simulator',
@@ -410,10 +438,20 @@ const runScenarios = async (
     try {
       adapter = await connectWithRecovery(
         dependencies,
-        config,
+        scenarioConfig,
         recoveryState,
-        options.initialConfig ?? config,
+        scenarioConfig.requiresComponentScope && componentSessionStarted
+          ? existingAutomationConfig(scenarioConfig)
+          : scenarioConfig === config
+            ? (options.initialConfig ?? config)
+            : { ...(options.initialConfig ?? config), requiresComponentScope: true },
       )
+      if (scenarioConfig.requiresComponentScope) {
+        componentSessionStarted = true
+        config.automationPort = scenarioConfig.automationPort
+        if (config.wsEndpoint && scenarioConfig.wsEndpoint)
+          config.wsEndpoint = scenarioConfig.wsEndpoint
+      }
     } catch (error) {
       if (error instanceof DevToolsBlockedError) {
         return writeBlockedReport(
@@ -436,7 +474,7 @@ const runScenarios = async (
     while (result.status === 'failed' && isDevToolsConnectionError(result.error)) {
       const recovery = await recoverDevTools(
         dependencies,
-        config,
+        scenarioConfig,
         result.error ?? '场景执行期间自动化连接失败',
         recoveryState,
       )
@@ -450,9 +488,9 @@ const runScenarios = async (
         try {
           const retryAdapter = await connectWithRecovery(
             dependencies,
-            config,
+            scenarioConfig,
             recoveryState,
-            existingAutomationConfig(config),
+            existingAutomationConfig(scenarioConfig),
           )
           const retriedResult = await executeScenario(
             dependencies,
@@ -470,6 +508,11 @@ const runScenarios = async (
           }
         }
       }
+    }
+    if (scenarioConfig.requiresComponentScope) {
+      config.automationPort = scenarioConfig.automationPort
+      if (config.wsEndpoint && scenarioConfig.wsEndpoint)
+        config.wsEndpoint = scenarioConfig.wsEndpoint
     }
     results.push(result)
     if (result.status === 'blocked') break
@@ -547,6 +590,8 @@ const runChanged = async (
     )
   }
 
+  // 預檢恢復也必須使用整批所需通道，不能先啟動 nativeCLI 再切換 SDK。
+  if (needsComponentScope(plan.scenarios)) config = { ...config, requiresComponentScope: true }
   const capability = await dependencies.checkCliCapability(config)
   let initialConfig = config
   if (!capability.ok) {

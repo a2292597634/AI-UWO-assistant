@@ -68,6 +68,151 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
 })
 
 describe('小程序验收 CLI', () => {
+  it('混合技能場景整批沿用元件作用域通道，不切換 nativeCLI 與 SDK 窗口', async () => {
+    const connections: Array<Record<string, unknown>> = []
+    const deps = dependencies({
+      listScenarioPaths: () => ['share.json', 'picker.json'],
+      loadScenario: (path) => ({
+        name: path,
+        entry: '/pages/adventure-fleet/index',
+        state: 'normal',
+        devices: ['iphone-standard'],
+        steps: path.includes('picker')
+          ? [{ action: 'waitFor', selector: '.skill-picker-sheet--sheet' }]
+          : [{ action: 'screenshot', name: 'share' }],
+      }),
+      connect: async (config) => {
+        connections.push({ ...config })
+        return { disconnect: async () => undefined } as never
+      },
+    })
+    expect(await runCli(['review', '--page', '/pages/adventure-fleet/index'], deps)).toBe(0)
+    expect(connections).toHaveLength(2)
+    expect(connections.every((config) => config.requiresComponentScope === true)).toBe(true)
+    expect(connections[1]?.wsEndpoint).toBe('ws://127.0.0.1:9420')
+  })
+
+  it.each([false, true])('中途恢復後下一場景重用新端點，explicitWS=%s', async (explicitWS) => {
+    const connections: Array<Record<string, unknown>> = []
+    const restartDevTools = vi.fn(async (config) => {
+      config.automationPort = 9447
+      if (config.wsEndpoint) config.wsEndpoint = 'ws://127.0.0.1:9447'
+    })
+    let runs = 0
+    const deps = dependencies({
+      resolveConfig: () => ({
+        projectPath: 'E:/project',
+        cliPath: 'D:/微信web开发者工具/cli.bat',
+        automationPort: 9420,
+        ...(explicitWS ? { wsEndpoint: 'ws://127.0.0.1:9420' } : {}),
+      }),
+      restartDevTools,
+      listScenarioPaths: () => ['picker.json', 'detail.json'],
+      loadScenario: () => ({
+        name: '技能元件',
+        entry: '/pages/adventure-fleet/index',
+        state: 'normal',
+        devices: ['iphone-standard'],
+        steps: [{ action: 'waitFor', selector: '.skill-sheet' }],
+      }),
+      connect: async (config) => {
+        connections.push({ ...config })
+        return { disconnect: async () => undefined } as never
+      },
+      runScenario: async (_adapter, scenario) => ({
+        scenario: scenario.name,
+        pagePath: scenario.entry,
+        state: scenario.state,
+        status: runs++ === 0 ? 'failed' : 'passed',
+        steps: [],
+        screenshots: ['C:/review/current-simulator/skill.png'],
+        ...(runs === 1 ? { error: 'Connection closed' } : {}),
+      }),
+    })
+    expect(await runCli(['review', '--page', '/pages/adventure-fleet/index'], deps)).toBe(0)
+    expect(connections).toHaveLength(3)
+    expect(connections[2]?.wsEndpoint).toBe('ws://127.0.0.1:9447')
+    expect(restartDevTools).toHaveBeenCalledTimes(1)
+  })
+
+  it('正式 CLI 在 fixture 還原失敗時仍 disconnect，報告保留原始恢復錯誤', async () => {
+    const events: string[] = []
+    const failure = new Error('fixture 恢復失敗：原始原因')
+    const writeReport = vi.fn(dependencies().writeReport)
+    const deps = dependencies({
+      writeReport,
+      connect: async () =>
+        ({
+          restoreFixture: async () => {
+            events.push('restore')
+            throw failure
+          },
+          disconnect: async () => {
+            events.push('disconnect')
+          },
+        }) as never,
+    })
+    expect(await runCli(['run', '--scenario', 'catalog'], deps)).toBe(1)
+    expect(events).toEqual(['restore', 'disconnect'])
+    const report = writeReport.mock.calls[0]?.[1]
+    expect(report?.results[0]?.error).toContain(failure.message)
+  })
+  it.each([9420, 9447])('多個技能場景重用實際端口 %i，不反覆重啟', async (actualPort) => {
+    const connections: Array<Record<string, unknown>> = []
+    const restartDevTools = vi.fn()
+    const deps = dependencies({
+      restartDevTools,
+      readRegisteredPagePaths: () => ['/pages/adventure-fleet/index'],
+      listScenarioPaths: () => ['picker.json', 'detail.json'],
+      loadScenario: () => ({
+        name: '技能元件',
+        entry: '/pages/adventure-fleet/index',
+        state: 'normal',
+        devices: ['iphone-standard'],
+        steps: [{ action: 'waitFor', selector: '.skill-sheet' }],
+      }),
+      connect: async (config) => {
+        connections.push({ ...config })
+        if (connections.length === 1) config.automationPort = actualPort
+        if (connections.length > 1 && !config.wsEndpoint) throw new Error('自动化端口已被占用')
+        return { disconnect: async () => undefined } as never
+      },
+    })
+    expect(await runCli(['review', '--page', '/pages/adventure-fleet/index'], deps)).toBe(0)
+    expect(connections).toHaveLength(2)
+    expect(connections[1]).toMatchObject({
+      requiresComponentScope: true,
+      wsEndpoint: `ws://127.0.0.1:${actualPort}`,
+    })
+    expect(restartDevTools).not.toHaveBeenCalled()
+  })
+  it('技能彈窗場景選用能查詢元件內部的正式適配器，恢復時保留能力需求', async () => {
+    const connections: Array<Record<string, unknown>> = []
+    const recoveries: Array<Record<string, unknown>> = []
+    let attempts = 0
+    const deps = dependencies({
+      loadScenario: () => ({
+        name: '技能彈窗',
+        entry: '/pages/adventure-fleet/index',
+        state: 'normal',
+        devices: ['iphone-standard'],
+        steps: [{ action: 'waitFor', selector: '.skill-picker-sheet--sheet' }],
+      }),
+      connect: async (config) => {
+        connections.push({ ...config })
+        if (attempts++ === 0) throw new Error('Connection closed')
+        return { disconnect: async () => undefined } as never
+      },
+      restartDevTools: async (config) => {
+        recoveries.push({ ...config })
+      },
+    })
+    expect(await runCli(['run', '--scenario', 'adventure-skill-picker-detail'], deps)).toBe(0)
+    expect(connections).toHaveLength(2)
+    expect(connections.every((config) => config.requiresComponentScope === true)).toBe(true)
+    expect(recoveries[0]).toMatchObject({ requiresComponentScope: true })
+    expect(connections[1]).toMatchObject({ wsEndpoint: 'ws://127.0.0.1:9420' })
+  })
   it('斷言失敗也先恢復 fixture 再 disconnect，且不重啟', async () => {
     const events: string[] = []
     const restartDevTools = vi.fn()
@@ -442,6 +587,45 @@ describe('小程序验收 CLI', () => {
     expect(restartDevTools).toHaveBeenCalledOnce()
     expect(capabilityChecks).toBe(2)
     expect(firstConnectionConfig?.wsEndpoint).toBe('ws://127.0.0.1:9420')
+  })
+
+  it('changed 預檢恢復也保留整批元件能力及工具返回的實際端口', async () => {
+    let capabilityChecks = 0
+    const recoveries: Array<Record<string, unknown>> = []
+    const connections: Array<Record<string, unknown>> = []
+    const code = await runCli(
+      ['changed', '--mode', 'iterate'],
+      dependencies({
+        listScenarioPaths: () => ['picker.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/adventure-fleet/index.wxml'],
+        loadScenario: () => ({
+          name: '技能彈窗',
+          entry: '/pages/adventure-fleet/index',
+          state: 'normal',
+          devices: [],
+          steps: [{ action: 'waitFor', selector: '.skill-picker-sheet--sheet' }],
+        }),
+        checkCliCapability: async () => ({
+          ok: capabilityChecks++ > 0,
+          message: '开发者工具服务端口不可访问',
+        }),
+        restartDevTools: async (config) => {
+          recoveries.push({ ...config })
+          config.automationPort = 9447
+        },
+        connect: async (config) => {
+          connections.push({ ...config })
+          return { disconnect: async () => undefined } as never
+        },
+      }),
+    )
+    expect(code).toBe(0)
+    expect(recoveries[0]).toMatchObject({ requiresComponentScope: true })
+    expect(connections[0]).toMatchObject({
+      requiresComponentScope: true,
+      automationPort: 9447,
+      wsEndpoint: 'ws://127.0.0.1:9447',
+    })
   })
 
   it('初次连接阻塞恢复后使用现有自动化端点重连', async () => {

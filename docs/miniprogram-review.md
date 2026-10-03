@@ -1,6 +1,6 @@
 # 小程序 AI 自主页面验收
 
-本工具在 Windows 上优先使用微信开发者工具随附的 `wechatide.cmd` 技能接口连接项目窗口；找不到该接口时回退到 `miniprogram-automator`。两种方式都支持进入页面、点击、输入、滚动、断言并截图。自动化结果写入 `artifacts/miniprogram-review/`，该目录不会提交 Git。`report.html` 是主报告，打开后直接显示场景和修改过程截图；`report.json`、`report.md` 用于机器读取和兼容脚本。
+本工具在 Windows 上通常优先使用微信开发者工具随附的 `wechatide.cmd` 技能接口连接项目窗口；显式 WebSocket、找不到该接口或批次包含需要组件作用域查询的技能弹窗场景时，使用 `miniprogram-automator`。包含组件场景的整批统一使用 SDK。SDK 启动优先探测并使用官方 `cli agent start`，不支持时回退到旧 `cli auto` 路径。自动化结果写入 `artifacts/miniprogram-review/`，该目录不会提交 Git。`report.html` 是主报告，打开后直接显示场景和修改过程截图；`report.json`、`report.md` 用于机器读取和兼容脚本。
 
 ## 首次设置
 
@@ -53,7 +53,7 @@ npm run devtools:changed -- --mode final --summary "目录页布局最终验收"
 - `review`：运行入口路径相符的全部已保存场景。
 - `changed`：根据当前 Git 页面变更选择场景，并生成带修改过程和截图的迭代报告；`--mode` 必须是 `iterate` 或 `final`，可用 `--summary` 和重复的 `--note` 补充修改说明。
 
-除 `doctor` 外，实际启动和页面验收命令在发现开发者工具环境阻塞时，会自动尝试最多 2 次恢复。配置了 CLI 时，恢复顺序是关闭旧自动化会话、使用相同项目和端口重新启动开发者工具、重新连接并继续当前场景；只有 WebSocket 端点时则只尝试重新连接，不会假装可以启动开发者工具。恢复成功后只重跑当前未完成场景；已经完成的场景不会重复执行。元素找不到、文字断言失败等页面问题不会触发重启。
+除 `doctor` 外，实际启动和页面验收命令在发现开发者工具环境阻塞时，会自动尝试最多 2 次恢复。配置了 CLI 时，恢复顺序是关闭旧自动化会话、使用相同项目和查询能力重新启动、读取实际端口后重新连接并继续当前场景；只有 WebSocket 端点时则只尝试重新连接，不会假装可以启动开发者工具。恢复成功后只重跑当前未完成场景；已经完成的场景不会重复执行。元素找不到、文字断言失败等页面问题不会触发重启。
 
 艦隊分享圖场景：
 
@@ -119,12 +119,14 @@ npm run devtools:run -- --scenario adventure-fleet-share
 
 ## 故障恢复
 
+启动、端点、组件查询及防回归的唯一规范见 [页面验收规范 8.6](superpowers/specs/2026-09-16-miniprogram-review-html-report-design.md#86-sdk-启动组件查询与防回归规则规范性)；本次原因及验收证据见 [2026-10-03 修复记录](audits/2026-10-03-ui-automation-scope-repair.md)。
+
 - 找不到 CLI：设置 `WECHAT_DEVTOOLS_CLI` 为 `cli.bat` 的绝对路径。
-- Windows 若 `cli.bat` 同目录存在 `wechatide.cmd`，验收会自动优先使用新版接口；它可以直接操作启用 TypeScript 编译插件的原始工程。
+- Windows 若 `cli.bat` 同目录存在 `wechatide.cmd`，普通批次优先使用新版窗口接口；包含技能弹窗组件场景的批次统一使用 SDK。新增其他组件场景时须同步扩展能力识别，不能假定已有技能选择器检测会自动覆盖。
 - 无法连接：确认开发者工具已登录、项目窗口已打开，并在安全设置开启服务端口。
 - 首次启动卡在授权：确认已开启「自动化接口打开工具时默认信任项目」，再关闭并重新打开项目。
-- 端口占用：设置另一个 `WECHAT_AUTOMATION_PORT`，然后重新运行。
-- 找不到元素：查看失败步骤和 `failure-step-NNN.png`，确认选择器及页面状态。
+- 端口占用：先区分启动入口。`agent start` 可以复用现有服务，实际 `autoPort` 可能不同于请求值，后续连接以返回值为准；旧 `auto` 路径占用时再设置另一个 `WECHAT_AUTOMATION_PORT`。不要把普通 TCP 监听当作 SDK 已就绪。
+- 找不到元素：查看失败步骤和 `failure-step-NNN.png`，确认选择器、页面状态及是否位于自定义组件内部。组件内部使用真实组件作用域，禁止用 `>>>`／`/deep/` 根节点误命中或业务 handler 绕过 UI。
 - 登录或授权失效：由用户在开发者工具处理一次，再重复原命令。
 
 实际验收命令遇到连接阻塞时，会自动执行以下恢复顺序：
@@ -135,5 +137,15 @@ npm run devtools:run -- --scenario adventure-fleet-share
 4. 恢复成功后重跑当前场景，最多尝试 2 次。
 
 两次仍失败时，命令会生成 `blocked` 报告并返回非零退出码。`doctor` 保持只读，不会自动重启；只有缺少 CLI、首次扫码登录、项目授权或服务端口权限时，才需要用户在开发者工具中处理一次。页面断言失败不会触发这套恢复流程。
+
+SDK 持续超时时，先记录启动入口、工具版本、请求／实际端口及失败层，再做最小对照：读取 `Tool.getInfo` 的 SDKVersion、当前页及一个真实元素。`doctor` 尚未自动完成这三项检查，其通过、首页截图、更新完成或重启完成均不能替代 SDK 场景证据。系统内存不足等原因需要单独证据，不能将其直接当作全部超时原因。
+
+修改适配器、恢复流程或升级工具后，最小检查通过再运行默认冒险页整批回归，读取三个场景的 HTML 及截图：
+
+```powershell
+npm run devtools:review -- --page /pages/adventure-fleet/index
+```
+
+显式 `--ws-endpoint` 仅用于对照，不替代默认启动验收；其他设备、状态及页面仍按实际覆盖结果记录。
 
 `miniprogram-automator@0.12.1` 包含较旧传递依赖，只能用于可信本机项目，不得暴露端口或用它执行不受信任的场景。

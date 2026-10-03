@@ -5,6 +5,8 @@ export interface ReviewConfig {
   servicePort?: number
   automationPort: number
   wsEndpoint?: string
+  /** 場景包含技能元件內部元素時，使用原生 SDK 作用域查詢。 */
+  requiresComponentScope?: boolean
 }
 
 export interface DiagnosticItem {

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { existsSync, rmSync } from 'node:fs'
 import { cp, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { createConnection } from 'node:net'
@@ -144,6 +144,8 @@ export interface ReviewAdapter {
 }
 
 interface AutomatorElement {
+  nodeId?: unknown
+  $$(selector: string): Promise<AutomatorElement[]>
   tap(): Promise<void>
   input?(value: string): Promise<void>
   scrollTo?(x: number, y: number): Promise<void>
@@ -154,6 +156,7 @@ interface AutomatorElement {
 interface AutomatorPage {
   path: string
   $(selector: string): Promise<AutomatorElement | null>
+  $$(selector: string): Promise<AutomatorElement[]>
   getElementByXpath?(selector: string): Promise<AutomatorElement | null>
   waitFor(condition: string | number): Promise<void>
 }
@@ -194,10 +197,14 @@ const route = async (
   // 新版开发者工具在 auto 刚启动时还没有当前 webview 元数据；
   // miniprogram-automator 的 changeRoute 会先读取当前页面，导致首个 reLaunch 被提前阻断。
   if (miniProgram.callWxMethod) {
-    await miniProgram.callWxMethod(method, { url: path })
+    await withTimeout(
+      miniProgram.callWxMethod(method, { url: path }),
+      5000,
+      'automator response timeout（導航）',
+    )
     return
   }
-  await miniProgram[method](path)
+  await withTimeout(miniProgram[method](path), 5000, 'automator response timeout（導航）')
 }
 
 const findElement = async (
@@ -210,14 +217,39 @@ const findElement = async (
       ? selector
       : undefined
   if (xpath) return page.getElementByXpath ? page.getElementByXpath(xpath) : null
-  return page.$(selector)
+  // SDK 的 $ 會吞掉協議錯誤；使用 $$ 保留連線錯誤，並逐層进入自訂元件。
+  if (!page.$$) return page.$(selector)
+  const direct = await page.$$(selector)
+  if (direct[0]) return direct[0]
+  const pending = (await page.$$('*')).filter((candidate) => candidate.nodeId != null)
+  const visited = new Set<unknown>()
+  while (pending.length > 0) {
+    const component = pending.shift()!
+    if (visited.has(component.nodeId)) continue
+    visited.add(component.nodeId)
+    const matches = await component.$$(selector)
+    if (matches[0]) return matches[0]
+    pending.push(...(await component.$$('*')).filter((candidate) => candidate.nodeId != null))
+  }
+  return null
 }
+
+const findCurrentElement = async (
+  miniProgram: AutomatorMiniProgram,
+  selector: string,
+  timeoutMs = 5000,
+): Promise<AutomatorElement | null> =>
+  withTimeout(
+    (async () => findElement(await currentPage(miniProgram), selector))(),
+    timeoutMs,
+    `automator response timeout（元素查詢）：${selector}`,
+  )
 
 const element = async (
   miniProgram: AutomatorMiniProgram,
   selector: string,
 ): Promise<AutomatorElement> => {
-  const target = await findElement(await currentPage(miniProgram), selector)
+  const target = await findCurrentElement(miniProgram, selector)
   if (!target) throw new Error(`找不到元素：${selector}`)
   return target
 }
@@ -298,6 +330,7 @@ export const shouldBypassLegacyVersionCheck = (info: {
 
 export const buildWindowsBatchLaunch = (
   config: ReviewConfig,
+  mode: 'legacy' | 'agent' = 'legacy',
 ): { executable: string; args: string[] } => {
   const servicePort = config.servicePort ? ` --port ${config.servicePort}` : ''
   const cliPath = quotePowerShellLiteral(config.cliPath ?? '')
@@ -308,9 +341,68 @@ export const buildWindowsBatchLaunch = (
       '-NoProfile',
       '-NonInteractive',
       '-Command',
-      // 旧版 Windows CLI 的 auto 会原子地打开项目并启动自动化端点；先 open 再 auto 会互相抢占项目窗口。
-      `& ${cliPath} auto --project ${projectPath} --auto-port ${config.automationPort} --trust-project${servicePort}`,
+      // 新版 agent start 保留已編譯窗口；舊版 auto 仍維持原啟動方式。
+      `& ${cliPath} ${mode === 'agent' ? 'agent start' : 'auto'} --project ${projectPath} --auto-port ${config.automationPort} --trust-project${servicePort}`,
     ],
+  }
+}
+
+const windowsAutomationHelp = new Map<string, Promise<string>>()
+
+const readWindowsAutomationHelp = (cliPath: string): Promise<string> => {
+  const cached = windowsAutomationHelp.get(cliPath)
+  if (cached) return cached
+  const pending = new Promise<string>((resolveHelp) => {
+    execFile(
+      'C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        `& ${quotePowerShellLiteral(cliPath)} agent start --help`,
+      ],
+      { windowsHide: true, timeout: 5000, encoding: 'utf8' },
+      (error, stdout) => resolveHelp(error ? '' : stdout),
+    )
+  })
+  windowsAutomationHelp.set(cliPath, pending)
+  return pending
+}
+
+export const prepareWindowsAutomationLaunch = async (
+  config: ReviewConfig,
+  helpOutput?: string,
+): Promise<{ executable: string; args: string[]; mode: 'legacy' | 'agent' }> => {
+  const help = helpOutput ?? (config.cliPath ? await readWindowsAutomationHelp(config.cliPath) : '')
+  // 通用 help 可能列出 agent 群組；必須確認 start 子命令和端口參數。
+  const agentStart = /^cli agent start\s*$/m.test(help) && help.includes('--auto-port')
+  const projectPath = agentStart
+    ? config.projectPath
+    : await prepareReviewProject(config.projectPath)
+  const mode = agentStart ? 'agent' : 'legacy'
+  return { ...buildWindowsBatchLaunch({ ...config, projectPath }, mode), mode }
+}
+
+export const resolveStartedAutomationPort = (output: string): number => {
+  const block = output.match(/\{\s*"command"\s*:\s*"agent-start"[\s\S]*?\}/)?.[0]
+  const result = block ? (JSON.parse(block) as { status?: unknown; autoPort?: unknown }) : {}
+  if (result.status !== 'ok') {
+    throw new Error('开发者工具 CLI 启动失败：未返回明确成功状态，无法确认實際自動化端口')
+  }
+  const port = result.autoPort
+  if (typeof port !== 'number' || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('开发者工具 CLI 启动失败：未返回有效實際自動化端口')
+  }
+  return port
+}
+
+export const applyStartedAutomationPort = (config: ReviewConfig, output: string): void => {
+  config.automationPort = resolveStartedAutomationPort(output)
+  if (config.wsEndpoint) {
+    const bareEndpoint = /^ws:\/\/[^/]+$/.test(config.wsEndpoint)
+    const endpoint = new URL(config.wsEndpoint)
+    endpoint.port = String(config.automationPort)
+    config.wsEndpoint = bareEndpoint ? endpoint.toString().replace(/\/$/, '') : endpoint.toString()
   }
 }
 
@@ -469,13 +561,40 @@ const waitForTcpPortState = async (
 }
 
 const launchWindowsBatchCli = async (config: ReviewConfig): Promise<unknown> => {
+  const launch = await prepareWindowsAutomationLaunch(config)
+  if (launch.mode === 'agent') {
+    const output = await new Promise<string>((resolveLaunch, rejectLaunch) => {
+      execFile(
+        launch.executable,
+        launch.args,
+        { windowsHide: true, timeout: 45000, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 },
+        (error, stdout, stderr) => {
+          if (stdout) process.stdout.write(stdout)
+          if (stderr) process.stderr.write(stderr)
+          if (error) {
+            rejectLaunch(new Error(`微信开发者工具 CLI 启动失败：${error.message}`))
+          } else {
+            resolveLaunch(stdout)
+          }
+        },
+      )
+    })
+    // 工具可能沿用其他實際端口；後續查詢、截圖與恢复必須使用返回值。
+    applyStartedAutomationPort(config, output)
+    const session = (await connectFreshWindowsSession(
+      `ws://127.0.0.1:${config.automationPort}`,
+    )) as MiniProgram
+    await waitForPageReadyWithCleanup(
+      createAutomatorAdapter(session as unknown as AutomatorMiniProgram),
+      async () => session.disconnect(),
+    )
+    return session
+  }
   if (await isTcpPortReachable(config.automationPort)) {
     throw new Error(
       `自动化端口已被占用：${config.automationPort}。请关闭旧会话或设置 WECHAT_AUTOMATION_PORT 后重试`,
     )
   }
-  const projectPath = await prepareReviewProject(config.projectPath)
-  const launch = buildWindowsBatchLaunch({ ...config, projectPath })
   const child = spawn(launch.executable, launch.args, {
     stdio: 'inherit',
     windowsHide: true,
@@ -556,7 +675,10 @@ export const restartReviewConnection = async (
   config: ReviewConfig,
   runtime?: ReviewConnectionRecoveryRuntime,
 ): Promise<void> => {
-  const useWechatIde = !config.wsEndpoint && Boolean(resolveWechatIdeCliPath(config.cliPath))
+  const useWechatIde =
+    !config.requiresComponentScope &&
+    !config.wsEndpoint &&
+    Boolean(resolveWechatIdeCliPath(config.cliPath))
   const recoveryRuntime: ReviewConnectionRecoveryRuntime =
     runtime ??
     (useWechatIde
@@ -585,14 +707,34 @@ export const restartReviewConnection = async (
   await recoveryRuntime.launchSession(config)
 }
 
+export const captureScreenshotWithCleanup = async (
+  miniProgram: Pick<AutomatorMiniProgram, 'screenshot' | 'disconnect'>,
+  path: string,
+): Promise<void> => {
+  try {
+    await withTimeout(miniProgram.screenshot({ path }), 5000, 'automator response timeout（截圖）')
+  } finally {
+    miniProgram.disconnect()
+  }
+}
+
 export const createAutomatorAdapter = (
   miniProgram: AutomatorMiniProgram,
   options: AutomatorAdapterOptions = {},
 ): ReviewAdapter => {
   const lifecycle = createFixtureLifecycle(async (source) => {
     if (!miniProgram.evaluate) throw new Error('automator 不支持安全 evaluate fixture')
-    return miniProgram.evaluate(source)
+    return withTimeout(miniProgram.evaluate(source), 5000, 'automator response timeout（fixture）')
   })
+  const elementAction = async <T>(
+    selector: string,
+    action: (target: AutomatorElement) => Promise<T>,
+  ): Promise<T> =>
+    withTimeout(
+      (async () => action(await element(miniProgram, selector)))(),
+      5000,
+      `automator response timeout（元素動作）：${selector}`,
+    )
   return {
     ...lifecycle,
     async navigate(path) {
@@ -605,25 +747,32 @@ export const createAutomatorAdapter = (
       await route(miniProgram, 'switchTab', path)
     },
     async tap(selector) {
-      await (await element(miniProgram, selector)).tap()
+      await elementAction(selector, (target) => target.tap())
     },
     async input(selector, value) {
-      const target = await element(miniProgram, selector)
-      if (!target.input) throw new Error(`元素不支持输入：${selector}`)
-      await target.input(value)
+      await elementAction(selector, async (target) => {
+        if (!target.input) throw new Error(`元素不支持输入：${selector}`)
+        await target.input(value)
+      })
     },
     async clearInput(selector) {
-      const target = await element(miniProgram, selector)
-      if (!target.input) throw new Error(`元素不支持输入：${selector}`)
-      await target.input('')
+      await elementAction(selector, async (target) => {
+        if (!target.input) throw new Error(`元素不支持输入：${selector}`)
+        await target.input('')
+      })
     },
     async scrollPage(distance) {
-      await miniProgram.pageScrollTo(distance)
+      await withTimeout(
+        miniProgram.pageScrollTo(distance),
+        5000,
+        'automator response timeout（整頁滾動）',
+      )
     },
     async scrollElement(selector, distance) {
-      const target = await element(miniProgram, selector)
-      if (!target.scrollTo) throw new Error(`元素不支持滚动：${selector}`)
-      await target.scrollTo(0, distance)
+      await elementAction(selector, async (target) => {
+        if (!target.scrollTo) throw new Error(`元素不支持滚动：${selector}`)
+        await target.scrollTo(0, distance)
+      })
     },
     async waitFor(selectorOrDuration, timeoutMs = 5000) {
       if (typeof selectorOrDuration === 'number') {
@@ -637,8 +786,14 @@ export const createAutomatorAdapter = (
       const deadline = Date.now() + timeoutMs
       while (Date.now() < deadline) {
         try {
-          const page = await currentPage(miniProgram)
-          if (await findElement(page, selectorOrDuration)) return
+          if (
+            await findCurrentElement(
+              miniProgram,
+              selectorOrDuration,
+              Math.max(1, deadline - Date.now()),
+            )
+          )
+            return
         } catch (error) {
           if (isDevToolsConnectionError(error)) throw error
           // 页面转场期间 currentPage 或元素查询可能暂时失败；下一轮重新获取顶层页面。
@@ -651,16 +806,22 @@ export const createAutomatorAdapter = (
       throw new Error(`等待元素超时：${selectorOrDuration}`)
     },
     async queryElement(selector) {
-      return Boolean(await findElement(await currentPage(miniProgram), selector))
+      return Boolean(await findCurrentElement(miniProgram, selector))
     },
     async isVisible(selector) {
-      const target = await findElement(await currentPage(miniProgram), selector)
-      if (!target) return false
-      const size = await target.size()
-      return size.width > 0 && size.height > 0
+      return withTimeout(
+        (async () => {
+          const target = await findCurrentElement(miniProgram, selector)
+          if (!target) return false
+          const size = await target.size()
+          return size.width > 0 && size.height > 0
+        })(),
+        5000,
+        `automator response timeout（元素可見性）：${selector}`,
+      )
     },
     async readText(selector) {
-      return await (await element(miniProgram, selector)).text()
+      return elementAction(selector, (target) => target.text())
     },
     async screenshot(path) {
       const captureScreenshot =
@@ -669,7 +830,12 @@ export const createAutomatorAdapter = (
       let lastError: unknown
       for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
-          await captureScreenshot(path)
+          // 獨立會話包含連接、工具資訊及截圖各 5 秒；整體也有截止期限。
+          await withTimeout(
+            captureScreenshot(path),
+            15000,
+            'automator response timeout（截圖會話）',
+          )
           return
         } catch (error) {
           lastError = error
@@ -679,18 +845,27 @@ export const createAutomatorAdapter = (
       throw lastError instanceof Error ? lastError : new Error('截图失败')
     },
     async currentPagePath() {
-      const path = (await currentPage(miniProgram)).path
+      const path = (
+        await withTimeout(currentPage(miniProgram), 5000, 'automator response timeout（當前頁）')
+      ).path
       return path.startsWith('/') ? path : `/${path}`
     },
     async disconnect() {
-      await lifecycle.restoreFixture()
-      miniProgram.disconnect()
+      try {
+        await lifecycle.restoreFixture()
+      } finally {
+        miniProgram.disconnect()
+      }
     },
   }
 }
 
 export const connectReviewAdapter = async (config: ReviewConfig): Promise<ReviewAdapter> => {
-  if (!config.wsEndpoint && resolveWechatIdeCliPath(config.cliPath)) {
+  if (
+    !config.requiresComponentScope &&
+    !config.wsEndpoint &&
+    resolveWechatIdeCliPath(config.cliPath)
+  ) {
     return await createWechatIdeAdapter(config)
   }
   const miniProgram = config.wsEndpoint
@@ -708,11 +883,7 @@ export const connectReviewAdapter = async (config: ReviewConfig): Promise<Review
     screenshot: async (path) => {
       const { connection } = await connectWithInfo(screenshotEndpoint)
       const screenshotMiniProgram = new MiniProgram(connection)
-      try {
-        await screenshotMiniProgram.screenshot({ path })
-      } finally {
-        screenshotMiniProgram.disconnect()
-      }
+      await captureScreenshotWithCleanup(screenshotMiniProgram, path)
     },
   })
   return adapter

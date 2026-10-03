@@ -2,7 +2,9 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+import { runScenario } from '../../tools/miniprogram-review/runner'
 
 import {
   buildWindowsBatchLaunch,
@@ -10,6 +12,10 @@ import {
   createAutomatorAdapter,
   isDevToolsConnectionError,
   prepareReviewProject,
+  prepareWindowsAutomationLaunch,
+  resolveStartedAutomationPort,
+  applyStartedAutomationPort,
+  captureScreenshotWithCleanup,
   restartReviewConnection,
   shouldBypassLegacyVersionCheck,
   waitForPageReady,
@@ -17,6 +23,96 @@ import {
 } from '../../tools/miniprogram-review/adapter'
 
 describe('miniprogram-automator 适配器', () => {
+  it('恢復已有 WebSocket 會話時，同步實際端口到原端點', () => {
+    const config = {
+      projectPath: 'E:/project',
+      automationPort: 9448,
+      wsEndpoint: 'ws://127.0.0.1:9448',
+    }
+    applyStartedAutomationPort(config, '{"command":"agent-start","status":"ok","autoPort":9447}')
+    expect(config.automationPort).toBe(9447)
+    expect(config.wsEndpoint).toBe('ws://127.0.0.1:9447')
+    config.wsEndpoint = 'ws://localhost:9448/protocol/'
+    applyStartedAutomationPort(config, '{"command":"agent-start","status":"ok","autoPort":9447}')
+    expect(config.wsEndpoint).toBe('ws://localhost:9447/protocol/')
+  })
+
+  it('使用 agent start 返回的實際端口，而非 requestedAutoPort', () => {
+    expect(
+      resolveStartedAutomationPort(
+        '√ started\n{"command":"agent-start","status":"ok","autoPort":9447,"requestedAutoPort":9448}\n',
+      ),
+    ).toBe(9447)
+  })
+
+  it('啟動未返回有效實際端口時明確失敗，不猜測請求端口', () => {
+    for (const autoPort of [undefined, 0, 65536, '9447']) {
+      expect(() =>
+        resolveStartedAutomationPort(
+          JSON.stringify({
+            command: 'agent-start',
+            status: 'ok',
+            autoPort,
+            requestedAutoPort: 9448,
+          }),
+        ),
+      ).toThrow('實際自動化端口')
+    }
+  })
+
+  it('啟動回應未明確成功時拒絕端口，不連接失敗或狀態缺失的會話', () => {
+    for (const status of ['error', 'failed', undefined]) {
+      expect(() =>
+        resolveStartedAutomationPort(
+          JSON.stringify({ command: 'agent-start', status, autoPort: 9447 }),
+        ),
+      ).toThrow('启动失败')
+    }
+  })
+
+  it('支援 agent start 時連接原 TypeScript 專案，不另開簡化鏡像', async () => {
+    const projectPath = await mkdtemp(join(tmpdir(), 'uwo-agent-start-'))
+    try {
+      await writeFile(
+        join(projectPath, 'project.config.json'),
+        JSON.stringify({ setting: { useCompilerPlugins: ['typescript'] } }),
+      )
+      await mkdir(join(projectPath, 'miniprogram'))
+      await writeFile(join(projectPath, 'miniprogram', 'app.ts'), 'const value: number = 1')
+      const config = {
+        projectPath,
+        cliPath: 'D:/微信web开发者工具/cli.bat',
+        automationPort: 9447,
+      }
+      const launch = await prepareWindowsAutomationLaunch(
+        config,
+        'cli agent start\nStart persistent agent automation server\n--auto-port Automation port',
+      )
+      expect(launch.args[launch.args.length - 1]).toContain(' agent start --project ')
+      expect(launch.args[launch.args.length - 1]).toContain(projectPath)
+      expect(launch.args[launch.args.length - 1]).not.toContain('uwo-miniprogram-review-')
+      expect(launch.args[launch.args.length - 1]).toContain('--auto-port 9447')
+      await expect(readFile(join(projectPath, 'miniprogram', 'app.ts'), 'utf8')).resolves.toContain(
+        ': number',
+      )
+    } finally {
+      await rm(projectPath, { recursive: true, force: true })
+    }
+  })
+
+  it('舊 CLI 的通用 help 不冒充 agent start 能力，仍使用原 auto 入口', async () => {
+    const launch = await prepareWindowsAutomationLaunch(
+      {
+        projectPath: 'E:/AI UWO assistant/不存在的舊測試專案',
+        cliPath: 'D:/微信web开发者工具/cli.bat',
+        automationPort: 9420,
+      },
+      'cli\nCommands:\ncli auto Enable automation\ncli agent Agent commands',
+    )
+    expect(launch.args[launch.args.length - 1]).toContain(' auto --project ')
+    expect(launch.args[launch.args.length - 1]).not.toContain(' agent start ')
+  })
+
   it('将可重入场景入口映射为 reLaunch', async () => {
     const calls: string[] = []
     const miniProgram = {
@@ -209,6 +305,128 @@ describe('miniprogram-automator 适配器', () => {
     await adapter.screenshot('C:/review/page.png')
 
     expect(attempts).toBe(2)
+  })
+
+  it('整頁滾動掛起時在動作期限內失敗', async () => {
+    vi.useFakeTimers()
+    try {
+      const adapter = createAutomatorAdapter({
+        pageScrollTo: () => new Promise(() => undefined),
+      } as never)
+      let settled = false
+      const pending = adapter.scrollPage(600).catch((error: unknown) => {
+        settled = true
+        return error
+      })
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(settled).toBe(true)
+      expect(await pending).toMatchObject({ message: expect.stringContaining('timeout') })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('兩次截圖均掛起時仍在有限期限內失敗', async () => {
+    vi.useFakeTimers()
+    try {
+      const adapter = createAutomatorAdapter({
+        screenshot: () => new Promise(() => undefined),
+      } as never)
+      let settled = false
+      const pending = adapter.screenshot('C:/review/page.png').catch((error: unknown) => {
+        settled = true
+        return error
+      })
+      await vi.advanceTimersByTimeAsync(33000)
+      expect(settled).toBe(true)
+      expect(await pending).toMatchObject({ message: expect.stringContaining('timeout') })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('獨立截圖會話掛起時釋放連接並保留超時錯誤', async () => {
+    vi.useFakeTimers()
+    try {
+      let disconnected = false
+      let settled = false
+      const pending = captureScreenshotWithCleanup(
+        {
+          screenshot: () => new Promise(() => undefined),
+          disconnect: () => {
+            disconnected = true
+          },
+        },
+        'C:/review/page.png',
+      ).catch((error: unknown) => {
+        settled = true
+        return error
+      })
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(settled).toBe(true)
+      expect(disconnected).toBe(true)
+      expect(await pending).toMatchObject({ message: expect.stringContaining('timeout') })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('失敗現場截圖掛起仍結束場景、保留原錯誤並釋放所有連接', async () => {
+    vi.useFakeTimers()
+    try {
+      const failure = new Error('automator response timeout（元素查詢）')
+      let disconnected = false
+      let screenshotDisconnects = 0
+      const adapter = createAutomatorAdapter(
+        {
+          callWxMethod: async () => undefined,
+          currentPage: async () => ({
+            path: 'pages/adventure-fleet/index',
+            $$: async () => {
+              throw failure
+            },
+          }),
+          disconnect: () => {
+            disconnected = true
+          },
+        } as never,
+        {
+          screenshot: (path) =>
+            captureScreenshotWithCleanup(
+              {
+                screenshot: () => new Promise(() => undefined),
+                disconnect: () => {
+                  screenshotDisconnects += 1
+                },
+              },
+              path,
+            ),
+        },
+      )
+      let settled = false
+      const pending = runScenario(
+        adapter,
+        {
+          name: '失敗截圖連接清理',
+          entry: '/pages/adventure-fleet/index',
+          state: 'normal',
+          devices: [],
+          steps: [{ action: 'assertExists', selector: '.skill-sheet' }],
+        },
+        { outputDir: 'C:/review/run' },
+      ).then((result) => {
+        settled = true
+        return result
+      })
+      await vi.advanceTimersByTimeAsync(33000)
+      expect(settled).toBe(true)
+      expect(await pending).toMatchObject({ status: 'failed', error: failure.message })
+      expect((await pending).failureScreenshot).toBeUndefined()
+      expect(screenshotDisconnects).toBe(2)
+      expect(disconnected).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('支持使用独立会话执行截图，避免当前会话查询后截图超时', async () => {
