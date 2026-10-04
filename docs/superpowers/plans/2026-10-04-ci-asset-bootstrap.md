@@ -42,4 +42,10 @@
 
 ## 整合限制
 
+### 首次實際 Actions 續修
+
+`0f715c9` 推送後的 [Actions 37172569922](https://github.com/a2292597634/AI-UWO-assistant/actions/runs/37172569922) 已完成素材準備，181 文件／2480 測試全部通過。後續 `assets:ui:check` 首次執行到，因 `UI_ASSET_OUTPUT_DRIFT: uwo-bg-grade-4.png` 失敗；原日誌保留於 `.superpowers/ui-scope-20261003/phase55-first-ci-failure.log`。
+
+該門禁比較解碼後像素，並非只比 PNG 容器位元組。相同 committed 素材、Sharp 0.35.3 鎖檔在乾淨 Windows 副本通過、Ubuntu runner 失敗，目前證據指向原生影像處理平台差異。改用 `windows-2022` 作為與既有素材基線一致的 CI 驗證平台，保留完整 `npm run verify` 及所有素材／資料門禁；不改圖片、報告、演算法或依賴，不提高像素容差。此配置需以新一輪真 Actions 結果驗證。
+
 本輪修復尚未提交前，不能聲稱 GitHub CI 已通過。新提交需上傳後以實際 Actions 結果驗證；原長列表、真機、CloudBase 寫入等待驗事項不在本輪範圍。
