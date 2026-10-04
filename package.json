@@ -35,6 +35,7 @@
     "import:run:trade": "tsx tools/import/run-trade-import.ts",
     "data:generate": "tsx tools/data-pipeline/generate.ts",
     "assets:download": "tsx tools/asset-pipeline/download-assets.ts",
+    "assets:ci": "tsx tools/asset-pipeline/prepare-ci-assets.ts",
     "assets:setup": "tsx tools/asset-pipeline/setup-assets.ts",
     "assets:manifest:check": "tsx tools/asset-pipeline/publish-assets.ts --check",
     "assets:publish": "tsx tools/asset-pipeline/publish-assets.ts --publish",
