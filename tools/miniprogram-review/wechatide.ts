@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path'
 
 import type { ReviewAdapter } from './adapter'
 import type { ReviewConfig } from './types'
+import { runtimeInfoSource, normalizeRuntimeMeasurement, type ReviewLaunchRecord } from './evidence'
 
 const execFileAsync = promisify(execFile)
 const DEFAULT_CLIENT_NAME = 'Codex'
@@ -348,10 +349,25 @@ const waitForComponent = async (
   throw new Error(`等待元素超时：${selector}`)
 }
 
-const createAdapter = (projectPath: string, runner: WechatIdeRunner): ReviewAdapter => {
+const createAdapter = (
+  projectPath: string,
+  runner: WechatIdeRunner,
+  launchRecord?: ReviewLaunchRecord,
+): ReviewAdapter => {
   const lifecycle = createFixtureLifecycle((source) => evaluateRuntime(runner, projectPath, source))
   return {
     ...lifecycle,
+    getReviewLaunchRecord: () => launchRecord,
+    async getReviewRuntimeInfo() {
+      const measured = await evaluateRuntime(runner, projectPath, runtimeInfoSource)
+      return {
+        adapter: 'wechatide',
+        endpoint: null,
+        devToolsVersion: null,
+        ...normalizeRuntimeMeasurement(measured),
+        pagePath: await readCurrentPage(runner, projectPath),
+      }
+    },
     async navigate(path) {
       await runner.call('automation_navigate', [
         ...projectArgs(projectPath),
@@ -542,7 +558,17 @@ export const createWechatIdeAdapter = async (
   const runner = options.runner ?? createDefaultRunner(cliPath as string)
   if (options.openProject !== false) await callOpenProject(runner, config.projectPath)
   await waitForCurrentPage(runner, config.projectPath)
-  return createAdapter(config.projectPath, runner)
+  return createAdapter(
+    config.projectPath,
+    runner,
+    options.openProject === false
+      ? undefined
+      : {
+          projectRoot: config.projectPath,
+          executionRoot: config.projectPath,
+          endpoint: null,
+        },
+  )
 }
 
 export const restartWechatIdeSession = async (config: ReviewConfig): Promise<void> => {

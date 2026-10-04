@@ -1,7 +1,10 @@
-import { basename, isAbsolute, relative, resolve, sep } from 'node:path'
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path'
+import { statSync } from 'node:fs'
+import { assertSafeInputPath } from '../workflow/read-inputs'
 
-import type { ReviewReport, ReviewResultStatus } from './report'
+import { PRODUCT_EXTERNAL_GAPS, type ReviewReport, type ReviewCheckStatus } from './report'
 import type { ScenarioRunResult, StepRunResult } from './runner'
+import { evidenceSummary } from './evidence'
 
 const actionLabels: Record<string, string> = {
   navigate: '跳转页面',
@@ -12,16 +15,18 @@ const actionLabels: Record<string, string> = {
   scrollPage: '滚动页面',
   scrollElement: '滚动元素',
   waitFor: '等待',
+  waitUntil: '條件等待',
   assertExists: '存在断言',
   assertVisible: '可见断言',
   assertText: '文字断言',
   screenshot: '截图',
 }
 
-const statusLabels: Record<ReviewResultStatus, string> = {
+const statusLabels: Record<ReviewCheckStatus, string> = {
   passed: '通过',
   failed: '失败',
   blocked: '阻塞',
+  'not-run': '未執行',
 }
 
 const escapeHtml = (value: string): string =>
@@ -49,15 +54,27 @@ export const toReportAssetPath = (outputDir: string, assetPath: string): string 
   return assetRelative.split(sep).join('/')
 }
 
-const statusIcon = (status: ReviewResultStatus): string => `status-${status}`
+const statusIcon = (status: ReviewCheckStatus): string =>
+  `status-${status === 'not-run' ? 'blocked' : status}`
 
 const icon = (name: string, label: string): string =>
   `<svg class="icon icon-${escapeHtml(name)}" role="img" aria-label="${escapeHtml(label)}"><use href="#${escapeHtml(name)}"></use></svg>`
 
-const statusBadge = (status: ReviewResultStatus): string =>
-  `<span class="status-badge status-${status}">${icon(statusIcon(status), statusLabels[status])}${escapeHtml(statusLabels[status])}</span>`
+const statusBadge = (status: ReviewCheckStatus): string =>
+  `<span class="status-badge status-${status === 'not-run' ? 'blocked' : status}">${icon(statusIcon(status), statusLabels[status])}${escapeHtml(statusLabels[status])}</span>`
 
 const formatTime = (value: string | undefined): string => value ?? '未记录'
+const historicalReportLink = (outputDir: string, path: string): string => {
+  let href: string | undefined
+  try {
+    const safePath = assertSafeInputPath(dirname(resolve(outputDir)), path)
+    if (statSync(safePath).isFile())
+      href = relative(resolve(outputDir), safePath).split(sep).map(encodeURIComponent).join('/')
+  } catch {
+    /* 不可安全定位的歷史地址只展示文字。 */
+  }
+  return href ? '<a href="' + escapeHtml(href) + '">歷史報告</a>' : '歷史報告：' + escapeHtml(path)
+}
 
 const renderAsset = (outputDir: string, assetPath: string, label: string): string => {
   const relativePath = toReportAssetPath(outputDir, assetPath)
@@ -80,7 +97,7 @@ const renderStep = (outputDir: string, step: StepRunResult, index: number): stri
     ? `<div class="step-evidence">${renderAsset(outputDir, step.screenshotPath, `步骤 ${index + 1}`)}</div>`
     : ''
   return `<li class="step step-${step.status}">
-    <div class="step-heading">${icon(`icon-${step.action}`, action)}<span class="step-number">${index + 1}</span><span class="step-action">${escapeHtml(action)}</span><span class="step-duration">${step.durationMs} ms</span><span class="step-status">${escapeHtml(step.status === 'passed' ? '通过' : '失败')}</span></div>
+    <div class="step-heading">${icon(step.action === 'waitUntil' ? 'icon-waitFor' : `icon-${step.action}`, action)}<span class="step-number">${index + 1}</span><span class="step-action">${escapeHtml(action)}</span><span class="step-duration">${step.durationMs} ms</span><span class="step-status">${escapeHtml(step.status === 'passed' ? '通过' : '失败')}</span></div>
     <div class="step-meta"><span>开始：${escapeHtml(formatTime(step.startedAt))}</span></div>
     ${error}${screenshot}
   </li>`
@@ -99,7 +116,8 @@ const renderScenario = (outputDir: string, result: ScenarioRunResult): string =>
     : ''
   return `<details class="scenario-card"${result.status === 'failed' || result.status === 'blocked' ? ' open' : ''}>
     <summary><span class="summary-title">${escapeHtml(result.scenario)}</span>${statusBadge(result.status)}<span class="summary-page">${escapeHtml(result.pagePath)}</span></summary>
-    <div class="scenario-body"><div class="scenario-meta"><span>数据状态：${escapeHtml(result.state)}</span><span>步骤：${result.steps.length}</span></div>${error}${steps}${screenshots}${failure}</div>
+    <div class="scenario-body"><div class="scenario-meta"><span>数据状态：${escapeHtml(result.state)}</span><span>步骤：${result.steps.length}</span></div>${error}${steps}${screenshots}${failure}
+    ${(result.screenshotEvidence ?? []).map((entry) => '<details><summary>截圖身份：' + escapeHtml(entry.evidence.scenario.screenshotKey) + '</summary>' + listItems(evidenceSummary(entry.evidence)) + '</details>').join('')}</div>
   </details>`
 }
 
@@ -120,12 +138,25 @@ const renderIteration = (
   const notes = iteration.notes.length
     ? `<ul class="notes">${iteration.notes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul>`
     : '<p class="muted">没有补充修改说明。</p>'
+  const comparisons = (iteration.comparisons ?? [])
+    .map(
+      (pair) => `<article class="coverage-card">
+    <h4>${escapeHtml(pair.scenario)}／${escapeHtml(pair.screenshotKey)}：${escapeHtml(pair.comparison.status)}</h4>
+    ${listItems(pair.comparison.reasons)}
+    <div class="iteration-evidence-grid"><div><h4>修改前身份</h4>
+      ${pair.before ? renderAsset(outputDir, pair.before, '修改前') : '<p class="evidence-missing">缺修改前同條件證據。</p>'}
+      ${listItems(evidenceSummary(pair.beforeEvidence))}</div>
+    <div><h4>修改後身份</h4>${renderAsset(outputDir, pair.after, '修改後')}${listItems(evidenceSummary(pair.afterEvidence))}</div></div>
+    ${pair.historicalReport ? '<p>' + historicalReportLink(outputDir, pair.historicalReport) + '</p>' : ''}
+    </article>`,
+    )
+    .join('')
   return `<li class="iteration-card iteration-${iteration.status}">
     <div class="iteration-heading"><span class="iteration-index">第 ${index + 1} 轮</span>${statusBadge(iteration.status)}<time>${escapeHtml(formatTime(iteration.startedAt))}</time></div>
     <h3>${escapeHtml(iteration.summary)}</h3>
     <p class="iteration-finished">结束：${escapeHtml(formatTime(iteration.finishedAt))}</p>
     <h4>变更文件</h4>${changedFiles}
-    <div class="iteration-evidence-grid">${before}${after}</div>
+    ${comparisons || '<div class="iteration-evidence-grid">' + before + after + '</div>'}
     <h4>修改说明</h4>${notes}
   </li>`
 }
@@ -151,7 +182,7 @@ const iconSymbols = `
 
 const styles = `
 :root{color-scheme:light;--ink:#26332f;--canvas:#e7deca;--surface:#f5efe0;--surface-strong:#fffaf0;--brass:#b99552;--danger:#8b3a3a;--blocked:#7a5a2a;--muted:#6b7169;--line:#d3c5a8;--shadow:0 10px 28px rgba(38,51,47,.12)}
-*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Microsoft JhengHei",sans-serif;line-height:1.55}main{max-width:1180px;margin:0 auto;padding:24px 18px 56px}.report-header{background:var(--ink);color:#fffaf0;border-radius:20px;padding:28px 30px;box-shadow:var(--shadow)}.eyebrow{margin:0 0 6px;color:#e1c98f;font-size:13px;letter-spacing:.12em}.report-header h1{margin:0;font-size:clamp(24px,4vw,38px);line-height:1.2}.header-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}.run-id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#e8dfc8;font-size:13px}.status-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap;background:#d8e4d5;color:#20482d}.status-failed{background:#f1d4d0;color:var(--danger)}.status-blocked{background:#f1dfb6;color:var(--blocked)}.report-header .status-passed{background:#d8e4d5;color:#20482d}.report-header .status-failed{background:#f1d4d0;color:#7e2929}.report-header .status-blocked{background:#f1dfb6;color:#6e4a18}.icon{width:17px;height:17px;display:inline-block;flex:none;vertical-align:-3px}.icon-definitions{position:absolute;width:0;height:0;overflow:hidden}.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:18px;color:#e8dfc8;font-size:13px}.section{margin-top:24px}.section h2{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:22px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.summary-card,.scenario-card,.iteration-card,.coverage-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.summary-card{padding:16px}.summary-card .value{font-size:32px;font-weight:800;line-height:1}.summary-card .label{display:block;margin-top:8px;color:var(--muted);font-size:13px}.summary-card .icon{width:22px;height:22px;color:var(--brass)}.timeline{padding-left:0;list-style:none;margin:0;display:grid;gap:14px}.iteration-card{padding:20px}.iteration-heading{display:flex;align-items:center;flex-wrap:wrap;gap:9px}.iteration-index{font-weight:800;font-size:18px}.iteration-heading time,.iteration-finished{color:var(--muted);font-size:13px}.iteration-card h3{margin:12px 0 2px;font-size:19px}.iteration-card h4,.evidence-section h4{margin:16px 0 8px;font-size:13px;color:var(--muted);letter-spacing:.03em}.file-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;list-style:none}.file-chips li{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:999px;background:#e9ddc2;padding:5px 10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}.iteration-evidence-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.iteration-evidence{min-width:0}.screenshot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.screenshot-link{display:flex;flex-direction:column;gap:5px;color:var(--ink);text-decoration:none;font-size:12px;min-width:0}.screenshot-link img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;background:#d9ccb1;border:1px solid var(--line);border-radius:11px;cursor:zoom-in}.screenshot-link>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.evidence-missing{margin:0;padding:12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px}.notes{margin:0;padding-left:20px}.empty-state{padding:18px;border:1px dashed var(--line);border-radius:14px;background:rgba(245,239,224,.7);color:var(--muted)}.scenario-list{display:grid;gap:10px}.scenario-card{overflow:hidden}.scenario-card summary{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:15px 17px;cursor:pointer;list-style:none}.scenario-card summary::-webkit-details-marker{display:none}.scenario-card summary::before{content:"＋";color:var(--brass);font-size:18px}.scenario-card[open] summary::before{content:"−"}.summary-title{font-weight:800}.summary-page{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;margin-left:auto}.scenario-body{padding:0 17px 18px}.scenario-meta{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:13px}.scenario-error,.step-error{color:var(--danger);background:#f7e2dc;border-left:3px solid var(--danger);padding:9px 11px;margin:12px 0}.step-list{display:grid;gap:8px;margin:15px 0 0;padding:0;list-style:none}.step{padding:11px 12px;border-radius:11px;background:var(--surface-strong);border:1px solid var(--line)}.step-failed{border-color:#d69b92;background:#fff4ef}.step-heading{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.step-heading .icon{color:var(--brass)}.step-number{font-weight:800}.step-duration{margin-left:auto;color:var(--muted);font-size:12px}.step-status{font-size:12px;font-weight:700;color:#286038}.step-failed .step-status{color:var(--danger)}.step-meta{color:var(--muted);font-size:12px;margin-top:4px}.step-evidence{margin-top:10px;max-width:180px}.evidence-section{margin-top:18px}.muted{margin:8px 0;color:var(--muted);font-size:13px}.coverage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.coverage-card{padding:16px}.coverage-card h3{margin:0 0 8px;font-size:16px}.coverage-card ul{margin:0;padding-left:20px}.raw-report{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}.raw-report summary{cursor:pointer;font-weight:700}.raw-report pre{max-height:480px;overflow:auto;background:var(--surface-strong);padding:14px;border-radius:10px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}.report-footer{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}dialog{border:0;border-radius:16px;padding:0;max-width:min(92vw,980px);background:#17231f;color:#fffaf0;box-shadow:0 20px 70px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(18,25,23,.72)}.lightbox-inner{padding:14px}.lightbox-inner img{display:block;max-width:88vw;max-height:78vh;margin:auto;object-fit:contain}.lightbox-caption{margin:9px 0 0;color:#e8dfc8;font-size:13px}.lightbox-close{display:block;margin:0 0 0 auto;border:1px solid #d8c89f;background:transparent;color:#fffaf0;border-radius:8px;padding:5px 10px;cursor:pointer}@media(max-width:620px){main{padding:12px 10px 40px}.report-header{padding:22px 20px;border-radius:15px}.summary-page{width:100%;margin-left:0}.scenario-card summary{padding:13px}.step-duration{margin-left:0}}
+*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Microsoft JhengHei",sans-serif;line-height:1.55}main{max-width:1180px;margin:0 auto;padding:24px 18px 56px}.report-header{background:var(--ink);color:#fffaf0;border-radius:20px;padding:28px 30px;box-shadow:var(--shadow)}.eyebrow{margin:0 0 6px;color:#e1c98f;font-size:13px;letter-spacing:.12em}.report-header h1{margin:0;font-size:clamp(24px,4vw,38px);line-height:1.2}.header-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}.run-id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#e8dfc8;font-size:13px}.status-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap;background:#d8e4d5;color:#20482d}.status-failed{background:#f1d4d0;color:var(--danger)}.status-blocked{background:#f1dfb6;color:var(--blocked)}.report-header .status-passed{background:#d8e4d5;color:#20482d}.report-header .status-failed{background:#f1d4d0;color:#7e2929}.report-header .status-blocked{background:#f1dfb6;color:#6e4a18}.icon{width:17px;height:17px;display:inline-block;flex:none;vertical-align:-3px}.icon-definitions{position:absolute;width:0;height:0;overflow:hidden}.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:18px;color:#e8dfc8;font-size:13px}.section{margin-top:24px}.section h2{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:22px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.summary-card,.scenario-card,.iteration-card,.coverage-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.summary-card{padding:16px}.summary-card .value{font-size:32px;font-weight:800;line-height:1}.summary-card .label{display:block;margin-top:8px;color:var(--muted);font-size:13px}.summary-card .icon{width:22px;height:22px;color:var(--brass)}.timeline{padding-left:0;list-style:none;margin:0;display:grid;gap:14px}.iteration-card{padding:20px}.iteration-heading{display:flex;align-items:center;flex-wrap:wrap;gap:9px}.iteration-index{font-weight:800;font-size:18px}.iteration-heading time,.iteration-finished{color:var(--muted);font-size:13px}.iteration-card h3{margin:12px 0 2px;font-size:19px}.iteration-card h4,.evidence-section h4{margin:16px 0 8px;font-size:13px;color:var(--muted);letter-spacing:.03em}.file-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;list-style:none}.file-chips li{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:999px;background:#e9ddc2;padding:5px 10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}.iteration-evidence-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.iteration-evidence{min-width:0}.screenshot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.screenshot-link{display:flex;flex-direction:column;gap:5px;color:var(--ink);text-decoration:none;font-size:12px;min-width:0}.screenshot-link img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;background:#d9ccb1;border:1px solid var(--line);border-radius:11px;cursor:zoom-in}.screenshot-link>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.evidence-missing{margin:0;padding:12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px}.notes{margin:0;padding-left:20px}.empty-state{padding:18px;border:1px dashed var(--line);border-radius:14px;background:rgba(245,239,224,.7);color:var(--muted)}.scenario-list{display:grid;gap:10px}.scenario-card{overflow:hidden}.scenario-card summary{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:15px 17px;cursor:pointer;list-style:none}.scenario-card summary::-webkit-details-marker{display:none}.scenario-card summary::before{content:"＋";color:var(--brass);font-size:18px}.scenario-card[open] summary::before{content:"−"}.summary-title{font-weight:800}.summary-page{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;margin-left:auto}.scenario-body{padding:0 17px 18px}.scenario-meta{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:13px}.scenario-error,.step-error{color:var(--danger);background:#f7e2dc;border-left:3px solid var(--danger);padding:9px 11px;margin:12px 0}.step-list{display:grid;gap:8px;margin:15px 0 0;padding:0;list-style:none}.step{padding:11px 12px;border-radius:11px;background:var(--surface-strong);border:1px solid var(--line)}.step-failed{border-color:#d69b92;background:#fff4ef}.step-heading{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.step-heading .icon{color:var(--brass)}.step-number{font-weight:800}.step-duration{margin-left:auto;color:var(--muted);font-size:12px}.step-status{font-size:12px;font-weight:700;color:#286038}.step-failed .step-status{color:var(--danger)}.step-meta{color:var(--muted);font-size:12px;margin-top:4px}.step-evidence{margin-top:10px;max-width:180px}.evidence-section{margin-top:18px}.muted{margin:8px 0;color:var(--muted);font-size:13px}.coverage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.coverage-card{padding:16px;overflow-wrap:anywhere}.coverage-card h3{margin:0 0 8px;font-size:16px}.coverage-card ul{margin:0;padding-left:20px}.raw-report{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}.raw-report summary{cursor:pointer;font-weight:700}.raw-report pre{max-height:480px;overflow:auto;background:var(--surface-strong);padding:14px;border-radius:10px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}.report-footer{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}dialog{border:0;border-radius:16px;padding:0;max-width:min(92vw,980px);background:#17231f;color:#fffaf0;box-shadow:0 20px 70px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(18,25,23,.72)}.lightbox-inner{padding:14px}.lightbox-inner img{display:block;max-width:88vw;max-height:78vh;margin:auto;object-fit:contain}.lightbox-caption{margin:9px 0 0;color:#e8dfc8;font-size:13px}.lightbox-close{display:block;margin:0 0 0 auto;border:1px solid #d8c89f;background:transparent;color:#fffaf0;border-radius:8px;padding:5px 10px;cursor:pointer}@media(max-width:620px){main{padding:12px 10px 40px}.report-header{padding:22px 20px;border-radius:15px}.summary-page{width:100%;margin-left:0}.scenario-card summary{padding:13px}.step-duration{margin-left:0}}
 `
 
 const lightboxScript = `
@@ -218,6 +249,12 @@ ${iconSymbols}
     <div class="header-row">${statusBadge(report.status)}<span class="run-id">运行编号：${escapeHtml(report.runId)}</span></div>
     <div class="meta-grid"><span>生成时间：${escapeHtml(report.generatedAt)}</span><span>Git commit：${escapeHtml(report.git.commit)}</span><span>工作区：${report.git.dirty ? '有未提交修改' : '干净'}</span><span>场景数：${report.results.length}</span></div>
   </header>
+
+  <section class="section"><h2>分層結果</h2><p>整體結論範圍：本輪要求的檢查。</p><div class="coverage-grid">
+    <article class="coverage-card"><h3>頁面檢查</h3>${statusBadge(report.checks.page.status)}</article>
+    <article class="coverage-card"><h3>倉庫門禁</h3>${statusBadge(report.checks.repository.status)}<p>${escapeHtml(report.checks.repository.command)}</p><p>${escapeHtml(report.checks.repository.evidence ?? '未提供')}</p></article>
+    <article class="coverage-card"><h3>外部驗收</h3>${report.checks.external.length ? listItems(report.checks.external.map((c) => c.id + '：' + statusLabels[c.status])) : '<p>未執行</p>'}</article>
+  </div><p>產品外部缺口仍待獨立證據：${escapeHtml(PRODUCT_EXTERNAL_GAPS.join('；'))}。本報告不代表發布驗收通過。</p></section>
 
   <section class="section" aria-labelledby="summary-heading"><h2 id="summary-heading">验收摘要</h2><div class="summary-grid">
     <article class="summary-card">${icon('status-passed', '已覆盖')}<div class="value">${report.coverage.covered.length}</div><span class="label">已覆盖</span></article>

@@ -1,13 +1,18 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { buildReviewReport, writeReviewReport } from '../../tools/miniprogram-review/report'
+import {
+  buildReviewReport,
+  writeReviewReport,
+  overallReviewStatus,
+} from '../../tools/miniprogram-review/report'
 import {
   renderReviewReportHtml,
   toReportAssetPath,
 } from '../../tools/miniprogram-review/report-html'
+import { evidence } from './evidence-fixture'
 
 const temporaryDirectories: string[] = []
 
@@ -41,6 +46,114 @@ const fixedInput = {
 }
 
 describe('小程序验收报告', () => {
+  it('歷史報告只能連結報告根內的普通檔案，地址可直接開啟', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-history-link-'))
+    temporaryDirectories.push(root)
+    const dir = join(root, 'current'),
+      previous = join(root, 'previous')
+    mkdirSync(dir)
+    mkdirSync(previous)
+    const history = join(previous, 'report.html')
+    writeFileSync(history, 'old')
+    const report = buildReviewReport({
+      ...fixedInput,
+      iterations: [
+        {
+          id: 'history',
+          startedAt: fixedInput.generatedAt,
+          status: 'passed',
+          changedFiles: [],
+          afterScreenshots: [join(dir, 'after.png')],
+          comparisons: [
+            {
+              scenario: '目錄',
+              screenshotKey: 'catalog',
+              after: join(dir, 'after.png'),
+              historicalReport: history,
+              comparison: { status: 'historical', reasons: ['舊身份未知'] },
+            },
+          ],
+        },
+      ],
+    })
+    expect(renderReviewReportHtml(report, dir)).toContain('href="../previous/report.html"')
+    report.iterations[0].comparisons![0].historicalReport = join(root, '../outside.html')
+    expect(renderReviewReportHtml(report, dir)).not.toContain('href="../../outside.html"')
+  })
+  it('未執行門禁使用待驗收徽章，不能顯示通過的綠色樣式', () => {
+    const html = renderReviewReportHtml(buildReviewReport(fixedInput), 'C:/review/run')
+    const pending = html.match(/<span class="status-badge [^"]+">[^]*?未執行<\/span>/)?.[0]
+    expect(pending).toContain('status-badge status-blocked')
+  })
+  it('逐張圖片直接展示來源、fixture、實測尺寸及基線判定', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uwo-identity-report-'))
+    temporaryDirectories.push(dir)
+    const after = evidence('2')
+    const image = join(dir, 'after.png')
+    const report = buildReviewReport({
+      ...fixedInput,
+      results: [
+        { ...fixedInput.results[0], screenshotEvidence: [{ path: image, evidence: after }] },
+      ],
+      iterations: [
+        {
+          id: 'identity',
+          startedAt: fixedInput.generatedAt,
+          changedFiles: [],
+          status: 'passed',
+          afterScreenshots: [image],
+          comparisons: [
+            {
+              scenario: '目錄',
+              screenshotKey: 'catalog',
+              after: image,
+              afterEvidence: after,
+              beforeEvidence: evidence(),
+              comparison: { status: 'historical', reasons: ['缺修改前同條件證據。'] },
+            },
+          ],
+        },
+      ],
+    })
+    const paths = writeReviewReport(dir, report)
+    for (const p of [paths.htmlPath, paths.markdownPath]) {
+      const content = readFileSync(p, 'utf8')
+      for (const text of ['候選 SHA-256', 'fixture', '390', '3.17.0', '缺修改前同條件證據'])
+        expect(content).toContain(text)
+    }
+  })
+  it('必需的外部檢查未執行，整體為未執行而非通過', () => {
+    expect(
+      overallReviewStatus({
+        mode: 'final',
+        page: { status: 'passed', required: true },
+        repository: { status: 'passed', required: true, command: 'npm run verify' },
+        external: [{ id: 'device', status: 'not-run', required: true }],
+      }),
+    ).toBe('not-run')
+  })
+  it('三層結果在 HTML／JSON／Markdown 一致，無頁面範圍如實未執行', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uwo-layered-'))
+    temporaryDirectories.push(dir)
+    const report = buildReviewReport({
+      ...fixedInput,
+      results: [],
+      checks: {
+        mode: 'final',
+        page: { status: 'not-run', required: false },
+        repository: { status: 'failed', required: true, command: 'npm run verify' },
+        external: [{ id: '真機', status: 'not-run', required: false }],
+      },
+    })
+    const paths = writeReviewReport(dir, report)
+    expect(report.status).toBe('failed')
+    expect(JSON.parse(readFileSync(paths.jsonPath, 'utf8')).checks.repository.status).toBe('failed')
+    for (const p of [paths.htmlPath, paths.markdownPath]) {
+      const content = readFileSync(p, 'utf8')
+      for (const text of ['頁面檢查', '倉庫門禁', '外部驗收', '未執行', '本輪要求的檢查'])
+        expect(content).toContain(text)
+    }
+  })
   it('即使候選場景已通過，文件及路由缺口仍阻塞並顯示於 HTML 與 JSON', () => {
     const report = buildReviewReport({
       ...fixedInput,

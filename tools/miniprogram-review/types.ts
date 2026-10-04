@@ -1,4 +1,6 @@
 import type { ReviewFixtureName } from './fixtures'
+import type { ReviewLaunchRecord } from './evidence'
+import type { ReviewWaitCondition } from './wait-condition'
 export interface ReviewConfig {
   projectPath: string
   cliPath?: string
@@ -7,6 +9,8 @@ export interface ReviewConfig {
   wsEndpoint?: string
   /** 場景包含技能元件內部元素時，使用原生 SDK 作用域查詢。 */
   requiresComponentScope?: boolean
+  /** 僅本次工具成功啟動後填入；CLI 不接受使用者注入此欄位。 */
+  launchRecord?: ReviewLaunchRecord
 }
 
 export interface DiagnosticItem {
@@ -39,6 +43,7 @@ export type ReviewStep =
   | { action: 'scrollElement'; selector: string; distance: number }
   | { action: 'waitFor'; selector: string; timeoutMs?: number }
   | { action: 'waitFor'; durationMs: number }
+  | { action: 'waitUntil'; condition: ReviewWaitCondition; timeoutMs?: number }
   | { action: 'assertExists'; selector: string; exists?: boolean }
   | { action: 'assertVisible'; selector: string }
   | { action: 'assertText'; selector: string; equals: string }

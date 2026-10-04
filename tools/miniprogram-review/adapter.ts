@@ -13,6 +13,12 @@ import { ModuleKind, ScriptTarget, transpileModule } from 'typescript'
 import type { ReviewConfig } from './types'
 import { createFixtureLifecycle, type ReviewFixtureName } from './fixtures'
 import {
+  runtimeInfoSource,
+  normalizeRuntimeMeasurement,
+  type ReviewRuntimeInfo,
+  type ReviewLaunchRecord,
+} from './evidence'
+import {
   createWechatIdeAdapter,
   resolveWechatIdeCliPath,
   restartWechatIdeSession,
@@ -124,6 +130,8 @@ export const prepareReviewProject = async (projectPath: string): Promise<string>
 }
 
 export interface ReviewAdapter {
+  getReviewRuntimeInfo?(): Promise<ReviewRuntimeInfo>
+  getReviewLaunchRecord?(): ReviewLaunchRecord | undefined
   installFixture?(name: ReviewFixtureName): Promise<void>
   restoreFixture?(): Promise<void>
   navigate(path: string): Promise<void>
@@ -163,6 +171,9 @@ interface AutomatorPage {
 
 export interface AutomatorAdapterOptions {
   screenshot?: (path: string) => Promise<void>
+  endpoint?: string
+  toolVersion?: string | null
+  launchRecord?: ReviewLaunchRecord
 }
 
 export interface ReviewConnectionRecoveryRuntime {
@@ -372,7 +383,12 @@ const readWindowsAutomationHelp = (cliPath: string): Promise<string> => {
 export const prepareWindowsAutomationLaunch = async (
   config: ReviewConfig,
   helpOutput?: string,
-): Promise<{ executable: string; args: string[]; mode: 'legacy' | 'agent' }> => {
+): Promise<{
+  executable: string
+  args: string[]
+  mode: 'legacy' | 'agent'
+  executionRoot: string
+}> => {
   const help = helpOutput ?? (config.cliPath ? await readWindowsAutomationHelp(config.cliPath) : '')
   // 通用 help 可能列出 agent 群組；必須確認 start 子命令和端口參數。
   const agentStart = /^cli agent start\s*$/m.test(help) && help.includes('--auto-port')
@@ -380,7 +396,11 @@ export const prepareWindowsAutomationLaunch = async (
     ? config.projectPath
     : await prepareReviewProject(config.projectPath)
   const mode = agentStart ? 'agent' : 'legacy'
-  return { ...buildWindowsBatchLaunch({ ...config, projectPath }, mode), mode }
+  return {
+    ...buildWindowsBatchLaunch({ ...config, projectPath }, mode),
+    mode,
+    executionRoot: projectPath,
+  }
 }
 
 export const resolveStartedAutomationPort = (output: string): number => {
@@ -410,6 +430,7 @@ interface AutomationInfo {
   version?: unknown
   SDKVersion?: unknown
 }
+const sessionInfo = new WeakMap<object, AutomationInfo>()
 
 const connectWithInfo = async (
   wsEndpoint: string,
@@ -465,7 +486,9 @@ const connectVersionCompatible = async (wsEndpoint: string): Promise<unknown> =>
       if (!shouldBypassLegacyVersionCheck(info) && !info.SDKVersion) {
         throw new Error('开发者工具未返回 SDKVersion，无法确认自动化兼容性')
       }
-      return new MiniProgram(connection)
+      const session = new MiniProgram(connection)
+      sessionInfo.set(session, info)
+      return session
     } catch (error) {
       connection.dispose()
       throw error
@@ -524,8 +547,14 @@ const connectFreshWindowsSession = async (wsEndpoint: string): Promise<unknown> 
     let connection: Connection | undefined
     try {
       connection = await createConnectionWithTimeout(wsEndpoint, 1000, '连接新启动的自动化会话超时')
-      await withTimeout(connection.send('Tool.getInfo'), 5000, '读取开发者工具版本超时')
-      return new MiniProgram(connection)
+      const info = (await withTimeout(
+        connection.send('Tool.getInfo'),
+        5000,
+        '读取开发者工具版本超时',
+      )) as AutomationInfo
+      const session = new MiniProgram(connection)
+      sessionInfo.set(session, info)
+      return session
     } catch (error) {
       if (connection) disposeFailedAutomationConnection(connection)
       lastError = error
@@ -588,6 +617,11 @@ const launchWindowsBatchCli = async (config: ReviewConfig): Promise<unknown> => 
       createAutomatorAdapter(session as unknown as AutomatorMiniProgram),
       async () => session.disconnect(),
     )
+    config.launchRecord = {
+      projectRoot: config.projectPath,
+      executionRoot: launch.executionRoot,
+      endpoint: `ws://127.0.0.1:${config.automationPort}`,
+    }
     return session
   }
   if (await isTcpPortReachable(config.automationPort)) {
@@ -620,6 +654,11 @@ const launchWindowsBatchCli = async (config: ReviewConfig): Promise<unknown> => 
     if (launchExitError) {
       ;(session as MiniProgram).disconnect()
       throw launchExitError
+    }
+    config.launchRecord = {
+      projectRoot: config.projectPath,
+      executionRoot: launch.executionRoot,
+      endpoint: wsEndpoint,
     }
     return session
   } catch (error) {
@@ -737,6 +776,26 @@ export const createAutomatorAdapter = (
     )
   return {
     ...lifecycle,
+    getReviewLaunchRecord: () => options.launchRecord,
+    async getReviewRuntimeInfo() {
+      const measured = miniProgram.evaluate
+        ? await withTimeout(
+            miniProgram.evaluate(runtimeInfoSource),
+            5000,
+            'automator response timeout（身份探測）',
+          )
+        : undefined
+      const path = (
+        await withTimeout(currentPage(miniProgram), 5000, 'automator response timeout（身份頁面）')
+      ).path
+      return {
+        adapter: 'sdk',
+        endpoint: options.endpoint ?? null,
+        devToolsVersion: options.toolVersion ?? null,
+        ...normalizeRuntimeMeasurement(measured),
+        pagePath: '/' + path.replace(/^\/+/, ''),
+      }
+    },
     async navigate(path) {
       await route(miniProgram, 'navigateTo', path)
     },
@@ -868,6 +927,7 @@ export const connectReviewAdapter = async (config: ReviewConfig): Promise<Review
   ) {
     return await createWechatIdeAdapter(config)
   }
+  const attaching = Boolean(config.wsEndpoint)
   const miniProgram = config.wsEndpoint
     ? await connectVersionCompatible(config.wsEndpoint)
     : config.cliPath?.toLowerCase().endsWith('.bat')
@@ -879,7 +939,18 @@ export const connectReviewAdapter = async (config: ReviewConfig): Promise<Review
           trustProject: true,
         })
   const screenshotEndpoint = config.wsEndpoint ?? `ws://127.0.0.1:${config.automationPort}`
+  if (!attaching && !config.launchRecord)
+    config.launchRecord = {
+      projectRoot: config.projectPath,
+      executionRoot: await prepareReviewProject(config.projectPath),
+      endpoint: screenshotEndpoint,
+    }
+  const info = sessionInfo.get(miniProgram as object)
   const adapter = createAutomatorAdapter(miniProgram as unknown as AutomatorMiniProgram, {
+    endpoint: screenshotEndpoint,
+    toolVersion: typeof info?.version === 'string' ? info.version : null,
+    launchRecord:
+      config.launchRecord?.endpoint === screenshotEndpoint ? config.launchRecord : undefined,
     screenshot: async (path) => {
       const { connection } = await connectWithInfo(screenshotEndpoint)
       const screenshotMiniProgram = new MiniProgram(connection)

@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import type { ReviewAdapter } from './adapter'
 import type { ReviewResultStatus } from './report'
 import type { ReviewScenario, ReviewStep } from './types'
+import { screenshotEvidence, unknownRuntime, type ReviewEvidence } from './evidence'
+import { waitForCondition } from './wait-condition'
 
 export interface StepRunResult {
   action: ReviewStep['action']
@@ -20,6 +22,7 @@ export interface ScenarioRunResult {
   status: ReviewResultStatus
   steps: StepRunResult[]
   screenshots: string[]
+  screenshotEvidence?: Array<{ path: string; evidence: ReviewEvidence }>
   failedStep?: number
   failureScreenshot?: string
   error?: string
@@ -28,6 +31,7 @@ export interface ScenarioRunResult {
 export interface RunScenarioContext {
   outputDir: string
   now?: () => Date
+  evidenceSource?: ReviewEvidence['source']
 }
 
 const requireElement = async (adapter: ReviewAdapter, selector: string): Promise<void> => {
@@ -80,6 +84,36 @@ const executeStep = async (
       if ('selector' in step) await adapter.waitFor(step.selector, step.timeoutMs)
       else await adapter.waitFor(step.durationMs, step.durationMs + 1000)
       return undefined
+    case 'waitUntil': {
+      const c = step.condition
+      let observed: unknown
+      const probe = async (): Promise<boolean> => {
+        if (c.kind === 'exists') {
+          observed = await adapter.queryElement(c.selector)
+          return observed === c.exists
+        }
+        if (c.kind === 'page') {
+          observed = '/' + (await adapter.currentPagePath()).replace(/^\/+/, '')
+          return observed === c.path
+        }
+        if (!(await adapter.queryElement(c.selector))) {
+          observed = '文字節點尚未存在'
+          return false
+        }
+        const text = await adapter.readText(c.selector)
+        observed = text
+        return 'equals' in c ? text === c.equals : text.includes(c.contains)
+      }
+      await waitForCondition({
+        probe,
+        timeoutMs: step.timeoutMs ?? 5000,
+        pollMs: 100,
+        stableSamples: 2,
+        description: JSON.stringify(c),
+        lastObservation: () => observed,
+      })
+      return undefined
+    }
     case 'assertExists': {
       const actual = await adapter.queryElement(step.selector)
       const expected = step.exists ?? true
@@ -140,7 +174,32 @@ export const runScenario = async (
           status: 'passed',
           ...(screenshotPath ? { screenshotPath } : {}),
         })
-        if (screenshotPath) result.screenshots.push(screenshotPath)
+        if (screenshotPath) {
+          result.screenshots.push(screenshotPath)
+          if (context.evidenceSource && step.action === 'screenshot') {
+            const runtime = (await adapter.getReviewRuntimeInfo?.()) ?? unknownRuntime()
+            const selector = scenario.steps
+              .slice(0, index)
+              .reverse()
+              .find((s) => 'selector' in s)
+            const elementProbed =
+              selector && 'selector' in selector
+                ? await adapter.queryElement(selector.selector)
+                : false
+            const source = {
+              ...context.evidenceSource,
+              binding:
+                elementProbed && runtime.pagePath
+                  ? context.evidenceSource.binding
+                  : ('unverified' as const),
+            }
+            result.screenshotEvidence ??= []
+            result.screenshotEvidence.push({
+              path: screenshotPath,
+              evidence: screenshotEvidence(source, scenario, step.name, runtime),
+            })
+          }
+        }
       } catch (error) {
         const message = formatError(error)
         result.status = 'failed'

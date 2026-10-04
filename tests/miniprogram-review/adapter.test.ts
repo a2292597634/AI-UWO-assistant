@@ -23,6 +23,20 @@ import {
 } from '../../tools/miniprogram-review/adapter'
 
 describe('miniprogram-automator 适配器', () => {
+  it('身份使用實際 evaluate 視窗與 SDK 回覆，未提供版本保持 null', async () => {
+    const adapter = createAutomatorAdapter({
+      evaluate: async () => ({ sdkVersion: '3.17.0', width: 390, height: 753 }),
+      currentPage: async () => ({ path: 'pages/catalog/index' }),
+    } as never)
+    expect(await adapter.getReviewRuntimeInfo?.()).toMatchObject({
+      adapter: 'sdk',
+      sdkVersion: '3.17.0',
+      width: 390,
+      height: 753,
+      pagePath: '/pages/catalog/index',
+      devToolsVersion: null,
+    })
+  })
   it('恢復已有 WebSocket 會話時，同步實際端口到原端點', () => {
     const config = {
       projectPath: 'E:/project',

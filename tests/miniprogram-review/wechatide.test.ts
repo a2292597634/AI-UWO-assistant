@@ -14,6 +14,27 @@ import {
 const projectPath = 'E:/AI UWO assistant'
 
 describe('微信开发者工具 wechatide 适配器', () => {
+  it('實測身份來自固定 evaluate；attach 不產生啟動綁定', async () => {
+    const runner: WechatIdeRunner = {
+      async call(tool) {
+        if (tool === 'automation_runtime_info')
+          return { currentPage: { route: 'pages/catalog/index' } }
+        if (tool === 'automation_evaluate') return { sdkVersion: '3.17.0', width: 390, height: 753 }
+        return undefined
+      },
+    }
+    const adapter = await createWechatIdeAdapter(
+      { projectPath, automationPort: 9420 },
+      { runner, openProject: false },
+    )
+    expect(await adapter.getReviewRuntimeInfo?.()).toMatchObject({
+      adapter: 'wechatide',
+      sdkVersion: '3.17.0',
+      width: 390,
+      height: 753,
+    })
+    expect(adapter.getReviewLaunchRecord?.()).toBeUndefined()
+  })
   it.each([
     'no such element: .detail-page',
     'Element not found: .detail-page',

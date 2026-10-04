@@ -49,7 +49,7 @@ const REUSED_ASSET_LOCATIONS_PATH =
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T
 
-const buildGeneratedOutputs = (stageRoot: string): void => {
+export const buildGeneratedOutputs = (stageRoot: string): void => {
   const OUTPUT_DIR = join(stageRoot, 'miniprogram/generated')
   const FLEET_OUTPUT_DIR = join(stageRoot, 'miniprogram/subpkg-fleet/generated')
   const SUBPKG_DIR = join(stageRoot, 'miniprogram/subpkg-detail')

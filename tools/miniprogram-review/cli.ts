@@ -17,12 +17,14 @@ import { diagnoseReviewConfig, resolveReviewConfig, readRegisteredPagePaths } fr
 import {
   buildReviewReport,
   writeReviewReport,
+  overallReviewStatus,
   type ReviewIterationInput,
   type ReviewReport,
 } from './report'
 import { createIterationInput } from './iteration'
 import { readGitChangedFiles } from './git'
-import { runScenario, type ScenarioRunResult } from './runner'
+import { runScenario, type ScenarioRunResult, type RunScenarioContext } from './runner'
+import { captureReviewSource, type ReviewEvidence } from './evidence'
 import { loadScenario } from './scenario'
 import { createTriggerPlan, type ReviewTriggerMode } from './trigger'
 import { resolveWechatIdeCliPath } from './wechatide'
@@ -61,7 +63,7 @@ export interface CliDependencies {
   runScenario(
     adapter: ReviewAdapter,
     scenario: ReviewScenario,
-    context: { outputDir: string },
+    context: RunScenarioContext,
   ): Promise<ScenarioRunResult>
   writeReport(
     outputDir: string,
@@ -80,6 +82,7 @@ export interface CliDependencies {
   readRegisteredPagePaths?(projectRoot: string): string[]
   listScenarioPaths?(): string[]
   listPreviousReportDirs?(): string[]
+  captureSource?: typeof captureReviewSource
 }
 
 const MAX_DEVTOOLS_RECOVERY_ATTEMPTS = 2
@@ -225,6 +228,7 @@ const connectWithRecovery = async (
       } finally {
         // 啟動器可能返回其他端口；失敗恢复也不得回到原請求端口。
         config.automationPort = connectionConfig.automationPort
+        config.launchRecord = connectionConfig.launchRecord
         if (connectionConfig.wsEndpoint) config.wsEndpoint = connectionConfig.wsEndpoint
       }
     } catch (error) {
@@ -312,7 +316,7 @@ const writeBlockedReport = (
   scenarios: ReviewScenario[] = [],
   options: Pick<
     RunScenarioOptions,
-    'summary' | 'notes' | 'recoveryState' | 'unmatchedPageFiles' | 'unmatchedPagePaths'
+    'summary' | 'notes' | 'mode' | 'recoveryState' | 'unmatchedPageFiles' | 'unmatchedPagePaths'
   > = {},
 ): number => {
   const startedAt = dependencies.now()
@@ -339,6 +343,9 @@ const writeBlockedReport = (
     notes: [reason, ...(options.recoveryState?.notes ?? []), ...(options.notes ?? [])],
   })
   const report = createReport(dependencies, runId, [result], scenarios, [iteration])
+  report.checks.mode = options.mode ?? 'iterate'
+  report.checks.repository.required = options.mode === 'final'
+  report.status = overallReviewStatus(report.checks)
   report.coverage.unmatchedPageFiles = options.unmatchedPageFiles ?? []
   report.coverage.unmatchedPagePaths = options.unmatchedPagePaths ?? []
   for (const file of report.coverage.unmatchedPageFiles) dependencies.log(`未覆蓋文件：${file}`)
@@ -355,6 +362,8 @@ const executeScenario = async (
   scenario: ReviewScenario,
   outputDir: string,
   fixture?: ReviewFixtureName,
+  config?: ReviewConfig,
+  beforeConnection?: ReturnType<typeof captureReviewSource>,
 ): Promise<ScenarioRunResult> => {
   const name = fixture ?? scenario.fixture
   let disconnected = false
@@ -378,15 +387,32 @@ const executeScenario = async (
     }
   }
   let result: ScenarioRunResult
+  const root = config?.projectPath ?? dependencies.cwd
+  let source: ReturnType<typeof captureReviewSource> | undefined
+  let sourcePhase = true
   try {
+    const launch = adapter.getReviewLaunchRecord?.()
+    source = dependencies.captureSource?.(root, launch?.executionRoot ?? root)
+    const evidenceSource: ReviewEvidence['source'] | undefined = source
+      ? {
+          ...source,
+          unchangedDuringRun: true,
+          binding: launch?.projectRoot === root ? 'launch-recorded' : 'unverified',
+        }
+      : undefined
+    sourcePhase = false
     if (name) await installReviewFixture(adapter, name)
-    result = await dependencies.runScenario(adapter, scenario, { outputDir })
+    result = await dependencies.runScenario(
+      adapter,
+      name ? { ...scenario, fixture: name } : scenario,
+      { outputDir, evidenceSource },
+    )
   } catch (error) {
     result = {
       scenario: scenario.name,
       pagePath: scenario.entry,
       state: scenario.state,
-      status: name ? 'blocked' : 'failed',
+      status: sourcePhase || name ? 'blocked' : 'failed',
       steps: [],
       screenshots: [],
       error: formatError(error),
@@ -401,13 +427,39 @@ const executeScenario = async (
       error: `fixture 或連接恢復失敗：${formatError(error)}`,
     }
   }
+  if (source && dependencies.captureSource) {
+    try {
+      const end = dependencies.captureSource(root, source.executionRoot)
+      const originalEnd = dependencies.captureSource(root, root)
+      const unchanged =
+        source.candidateSha256 === end.candidateSha256 &&
+        (!beforeConnection || beforeConnection.candidateSha256 === originalEnd.candidateSha256)
+      for (const entry of result.screenshotEvidence ?? [])
+        entry.evidence.source.unchangedDuringRun = unchanged
+      if (!unchanged) {
+        result.status = 'failed'
+        result.error =
+          (result.error ? result.error + '；' : '') + '來源在頁面執行期間變動，證據不能判定通過。'
+      }
+    } catch (error) {
+      for (const entry of result.screenshotEvidence ?? [])
+        entry.evidence.source.unchangedDuringRun = false
+      result.status = 'blocked'
+      result.error =
+        (result.error ? result.error + '；' : '') + '來源身份核對失敗：' + formatError(error)
+    }
+  }
   return result
 }
 
 const needsComponentScope = (scenarios: ReviewScenario[]): boolean =>
   scenarios.some((scenario) =>
     scenario.steps.some(
-      (step) => 'selector' in step && /skill-picker-sheet|skill-sheet/.test(step.selector),
+      (step) =>
+        ('selector' in step && /skill-picker-sheet|skill-sheet/.test(step.selector)) ||
+        (step.action === 'waitUntil' &&
+          'selector' in step.condition &&
+          /skill-picker-sheet|skill-sheet/.test(step.condition.selector)),
     ),
   )
 
@@ -435,6 +487,7 @@ const runScenarios = async (
     )
     mkdirSync(scenarioOutput, { recursive: true })
     let adapter: ReviewAdapter
+    const beforeConnection = dependencies.captureSource?.(config.projectPath, config.projectPath)
     try {
       adapter = await connectWithRecovery(
         dependencies,
@@ -448,6 +501,7 @@ const runScenarios = async (
       )
       if (scenarioConfig.requiresComponentScope) {
         componentSessionStarted = true
+        config.launchRecord = scenarioConfig.launchRecord
         config.automationPort = scenarioConfig.automationPort
         if (config.wsEndpoint && scenarioConfig.wsEndpoint)
           config.wsEndpoint = scenarioConfig.wsEndpoint
@@ -470,6 +524,8 @@ const runScenarios = async (
       scenario,
       scenarioOutput,
       options.fixture,
+      scenarioConfig,
+      beforeConnection,
     )
     while (result.status === 'failed' && isDevToolsConnectionError(result.error)) {
       const recovery = await recoverDevTools(
@@ -498,6 +554,8 @@ const runScenarios = async (
             scenario,
             scenarioOutput,
             options.fixture,
+            scenarioConfig,
+            beforeConnection,
           )
           result = retriedResult
         } catch (error) {
@@ -510,6 +568,7 @@ const runScenarios = async (
       }
     }
     if (scenarioConfig.requiresComponentScope) {
+      config.launchRecord = scenarioConfig.launchRecord
       config.automationPort = scenarioConfig.automationPort
       if (config.wsEndpoint && scenarioConfig.wsEndpoint)
         config.wsEndpoint = scenarioConfig.wsEndpoint
@@ -534,6 +593,25 @@ const runScenarios = async (
       ]
     : []
   const report = createReport(dependencies, runId, results, scenarios, iterations)
+  report.checks.mode = options.mode ?? 'iterate'
+  report.checks.repository.required = options.mode === 'final'
+  if (options.mode === 'final' && report.checks.page.status === 'passed') {
+    try {
+      report.checks.repository.status = (await dependencies.runQualityGate()) ? 'passed' : 'failed'
+    } catch (error) {
+      report.checks.repository.status = 'blocked'
+      report.checks.repository.evidence = formatError(error)
+    }
+  }
+  report.status = overallReviewStatus(report.checks)
+  dependencies.log(
+    '本輪要求的檢查：頁面 ' +
+      report.checks.page.status +
+      '；倉庫 ' +
+      report.checks.repository.status +
+      '；外部驗收未執行；整體 ' +
+      report.status,
+  )
   const paths = dependencies.writeReport(outputDir, report)
   logReportPaths(dependencies, paths, results)
   return report.status === 'passed' ? 0 : 1
@@ -562,7 +640,7 @@ const runChanged = async (
         `無法讀取註冊路由：${formatError(error)}`,
         changedFiles,
         [],
-        options,
+        { ...options, mode },
       )
     }
   }
@@ -584,6 +662,7 @@ const runChanged = async (
       plan.scenarios,
       {
         ...options,
+        mode,
         unmatchedPageFiles: plan.unmatchedPageFiles,
         unmatchedPagePaths: plan.unmatchedPagePaths,
       },
@@ -599,24 +678,20 @@ const runChanged = async (
     if (!recovery.ok) {
       return writeBlockedReport(dependencies, recovery.message, plan.changedFiles, plan.scenarios, {
         ...options,
+        mode,
         recoveryState,
       })
     }
     initialConfig = existingAutomationConfig(config)
   }
 
-  const code = await runScenarios(dependencies, config, plan.scenarios, {
+  return await runScenarios(dependencies, config, plan.scenarios, {
     changedFiles: plan.changedFiles,
     mode,
     recoveryState,
     initialConfig,
     ...options,
   })
-  if (mode === 'final' && code === 0 && !(await dependencies.runQualityGate())) {
-    dependencies.log('页面自动验收通过，但仓库质量门禁失败')
-    return 1
-  }
-  return code
 }
 
 export const runCli = async (argv: string[], dependencies: CliDependencies): Promise<number> => {
@@ -807,6 +882,7 @@ const defaultDependencies: CliDependencies = {
   loadScenario,
   runScenario,
   writeReport: writeReviewReport,
+  captureSource: captureReviewSource,
   createRunDirectory: (runId) => join(root, 'artifacts', 'miniprogram-review', runId),
   readGitState: () => ({
     commit: execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim(),

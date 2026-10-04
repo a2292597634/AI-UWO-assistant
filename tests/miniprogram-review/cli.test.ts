@@ -9,6 +9,7 @@ import {
   type CliDependencies,
 } from '../../tools/miniprogram-review/cli'
 import type { ReviewReport } from '../../tools/miniprogram-review/report'
+import { evidence } from './evidence-fixture'
 
 const temporaryDirectories: string[] = []
 
@@ -68,6 +69,110 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
 })
 
 describe('小程序验收 CLI', () => {
+  it('final 未匹配頁面的阻塞報告保留 final 範圍與必需未跑門禁', async () => {
+    const writeReport = vi.fn(dependencies().writeReport)
+    const deps = dependencies({
+      writeReport,
+      readGitChangedFiles: () => ['miniprogram/pages/missing/index.wxml'],
+      listScenarioPaths: () => ['catalog.json'],
+    })
+    expect(await runCli(['changed', '--mode', 'final'], deps)).toBe(1)
+    expect(writeReport.mock.calls[0][1].checks).toMatchObject({
+      mode: 'final',
+      repository: { required: true, status: 'not-run' },
+    })
+  })
+  it.each([2, 3])('來源擷取第 %s 次失敗仍清理並留下本 run 阻塞報告', async (failAt) => {
+    const disconnect = vi.fn(async () => undefined),
+      restoreFixture = vi.fn(async () => undefined)
+    const writeReport = vi.fn(dependencies().writeReport)
+    let reads = 0
+    const deps = dependencies({
+      writeReport,
+      connect: async () => ({ disconnect, restoreFixture }) as never,
+      captureSource: () => {
+        if (++reads === failAt) throw new Error('來源檔案讀取失敗')
+        return evidence().source
+      },
+    })
+    expect(await runCli(['run', '--scenario', 'catalog'], deps)).toBe(1)
+    expect(disconnect).toHaveBeenCalledTimes(1)
+    expect(restoreFixture).toHaveBeenCalledTimes(1)
+    expect(writeReport).toHaveBeenCalledTimes(1)
+    expect(writeReport.mock.calls[0][1].status).toBe('blocked')
+    expect(writeReport.mock.calls[0][1].results[0].error).toContain('來源檔案讀取失敗')
+  })
+  it('同批 SDK 下一場景沿用本次成功啟動紀錄，來源變動拒絕通過', async () => {
+    const connections: unknown[] = []
+    const writeReport = vi.fn(dependencies().writeReport)
+    let sourceReads = 0
+    const deps = dependencies({
+      listScenarioPaths: () => ['a.json', 'b.json'],
+      writeReport,
+      loadScenario: () => ({
+        name: '技能',
+        entry: '/pages/adventure-fleet/index',
+        state: 'normal',
+        devices: ['iphone-standard'],
+        steps: [
+          {
+            action: 'waitUntil',
+            condition: { kind: 'exists', selector: '.skill-sheet', exists: false },
+          },
+        ],
+      }),
+      captureSource: () => ({
+        ...evidence().source,
+        candidateSha256: ++sourceReads < 7 ? 'fixed' : 'changed',
+      }),
+      connect: async (config) => {
+        if (!config.wsEndpoint)
+          config.launchRecord = {
+            projectRoot: config.projectPath,
+            executionRoot: config.projectPath,
+            endpoint: 'ws://127.0.0.1:9420',
+          }
+        connections.push(config.launchRecord)
+        return {
+          disconnect: async () => undefined,
+          getReviewLaunchRecord: () => config.launchRecord,
+        } as never
+      },
+    })
+    expect(await runCli(['review', '--page', '/pages/adventure-fleet/index'], deps)).toBe(1)
+    expect(connections).toHaveLength(2)
+    expect(connections.every(Boolean)).toBe(true)
+    expect(writeReport.mock.calls[0][1].results[1].error).toContain('來源')
+  })
+  it.each([false, 'throw'])('final 倉庫門禁 %s 必須写入同 run 最終報告', async (outcome) => {
+    const writeReport = vi.fn(dependencies().writeReport)
+    const deps = dependencies({
+      readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxml'],
+      listScenarioPaths: () => ['catalog.json'],
+      writeReport,
+      runQualityGate: async () => {
+        if (outcome === 'throw') throw new Error('gate unavailable')
+        return false
+      },
+    })
+    expect(await runCli(['changed', '--mode', 'final'], deps)).toBe(1)
+    const report = writeReport.mock.calls[writeReport.mock.calls.length - 1]?.[1]
+    expect(report?.checks.page.status).toBe('passed')
+    expect(report?.checks.repository.status).toBe(outcome === 'throw' ? 'blocked' : 'failed')
+    expect(report?.status).toBe(outcome === 'throw' ? 'blocked' : 'failed')
+  })
+  it('iterate 未執行的倉庫門禁不冒充通過', async () => {
+    const writeReport = vi.fn(dependencies().writeReport)
+    const deps = dependencies({
+      readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxml'],
+      listScenarioPaths: () => ['catalog.json'],
+      writeReport,
+    })
+    expect(await runCli(['changed', '--mode', 'iterate'], deps)).toBe(0)
+    expect(
+      writeReport.mock.calls[writeReport.mock.calls.length - 1]?.[1].checks.repository.status,
+    ).toBe('not-run')
+  })
   it('混合技能場景整批沿用元件作用域通道，不切換 nativeCLI 與 SDK 窗口', async () => {
     const connections: Array<Record<string, unknown>> = []
     const deps = dependencies({

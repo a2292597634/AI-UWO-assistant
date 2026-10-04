@@ -1,19 +1,20 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from 'node:fs'
-import { isAbsolute, join, relative, resolve, sep } from 'node:path'
-
+import { copyFileSync, mkdirSync, readFileSync, statSync } from 'node:fs'
+import { join } from 'node:path'
+import { assertSafeInputPath } from '../workflow/read-inputs'
+import {
+  compareReviewEvidence,
+  isReviewEvidence,
+  type ReviewEvidence,
+  type ScreenshotComparison,
+} from './evidence'
 import type { ReviewIterationInput, ReviewResultStatus } from './report'
 import type { ScenarioRunResult } from './runner'
-
 interface StoredScenarioResult {
   scenario?: unknown
   pagePath?: unknown
   screenshots?: unknown
+  screenshotEvidence?: unknown
 }
-
-interface StoredReport {
-  results?: unknown
-}
-
 export interface IterationInput {
   id: string
   startedAt: Date
@@ -25,119 +26,164 @@ export interface IterationInput {
   summary?: string
   notes?: string[]
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const isInsideDirectory = (directory: string, candidate: string): boolean => {
-  const relativePath = relative(resolve(directory), resolve(candidate))
-  return Boolean(
-    relativePath &&
-    !isAbsolute(relativePath) &&
-    relativePath !== '..' &&
-    !relativePath.startsWith(`..${sep}`),
-  )
-}
-
-const readStoredResults = (reportDir: string): StoredScenarioResult[] => {
-  const reportPath = join(reportDir, 'report.json')
-  if (!existsSync(reportPath)) return []
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
+const safeFile = (dir: string, path: unknown): path is string => {
+  if (typeof path !== 'string') return false
   try {
-    const parsed = JSON.parse(readFileSync(reportPath, 'utf8')) as StoredReport
-    if (!Array.isArray(parsed.results)) return []
-    return parsed.results.filter(isRecord) as StoredScenarioResult[]
+    return statSync(assertSafeInputPath(dir, path)).isFile()
+  } catch {
+    return false
+  }
+}
+const readStoredResults = (dir: string): StoredScenarioResult[] => {
+  const path = join(dir, 'report.json')
+  if (!safeFile(dir, path)) return []
+  try {
+    const r = JSON.parse(readFileSync(path, 'utf8')) as { results?: unknown }
+    return Array.isArray(r.results) ? r.results.filter(isRecord) : []
   } catch {
     return []
   }
 }
-
-const screenshotFromResult = (
-  result: StoredScenarioResult,
-  reportDir: string,
-): string | undefined => {
-  if (!Array.isArray(result.screenshots)) return undefined
-  for (const value of result.screenshots) {
-    if (typeof value !== 'string' || !isInsideDirectory(reportDir, value)) continue
-    try {
-      if (statSync(value).isFile()) return value
-    } catch {
-      // 文件在报告生成后被删除时，继续尝试下一张截图。
-    }
+const safeId = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '-') || 'iteration'
+const copyBaseline = (dir: string, id: string, n: number, source: string): string | undefined => {
+  const dest = join(dir, 'iterations', safeId(id) + '-before' + (n ? '-' + n : '') + '.png')
+  try {
+    assertSafeInputPath(dir, dest)
+    mkdirSync(join(dir, 'iterations'), { recursive: true })
+    copyFileSync(source, dest)
+    return dest
+  } catch {
+    return undefined
   }
-  return undefined
 }
-
-const safeIterationId = (id: string): string =>
-  id.replace(/[^A-Za-z0-9_-]/g, '-').replace(/^-+|-+$/g, '') || 'iteration'
-
+const findComparison = (
+  dir: string,
+  scenario: string,
+  after: ReviewEvidence,
+): ScreenshotComparison | undefined => {
+  let selected: ScreenshotComparison | undefined
+  for (const r of readStoredResults(dir)) {
+    if (Array.isArray(r.screenshotEvidence))
+      for (const entry of r.screenshotEvidence) {
+        if (!isRecord(entry) || !isReviewEvidence(entry.evidence) || !safeFile(dir, entry.path))
+          continue
+        const before = entry.evidence
+        if (
+          before.scenario.pagePath !== after.scenario.pagePath ||
+          before.scenario.screenshotKey !== after.scenario.screenshotKey
+        )
+          continue
+        const pair: ScreenshotComparison = {
+          scenario,
+          screenshotKey: after.scenario.screenshotKey,
+          before: entry.path,
+          after: '',
+          beforeEvidence: before,
+          afterEvidence: after,
+          comparison: compareReviewEvidence(before, after),
+          historicalReport: join(dir, 'report.html'),
+        }
+        if (before.scenario.scenarioSha256 === after.scenario.scenarioSha256) {
+          if (pair.comparison.status === 'comparable') return pair
+          if (
+            !selected ||
+            selected.beforeEvidence?.scenario.scenarioSha256 !== after.scenario.scenarioSha256
+          )
+            selected = pair
+        } else selected ??= pair
+      }
+    if (
+      r.scenario === scenario &&
+      r.pagePath === after.scenario.pagePath &&
+      Array.isArray(r.screenshots) &&
+      r.screenshots.some((p) => safeFile(dir, p))
+    )
+      selected ??= {
+        scenario,
+        screenshotKey: after.scenario.screenshotKey,
+        after: '',
+        comparison: compareReviewEvidence(undefined, after),
+        historicalReport: join(dir, 'report.html'),
+      }
+  }
+  return selected
+}
 export const copyTrustedBaseline = (input: {
   previousReportDir: string
   outputDir: string
   pagePath: string
   scenario: string
   iterationId?: string
+  afterEvidence?: ReviewEvidence
+  ordinal?: number
 }): string | undefined => {
-  const previousResult = readStoredResults(input.previousReportDir).find(
-    (result) => result.scenario === input.scenario && result.pagePath === input.pagePath,
-  )
-  if (!previousResult) return undefined
-  const source = screenshotFromResult(previousResult, input.previousReportDir)
-  if (!source) return undefined
-  const iterationsDir = join(input.outputDir, 'iterations')
-  mkdirSync(iterationsDir, { recursive: true })
-  const destination = join(
-    iterationsDir,
-    `${safeIterationId(input.iterationId ?? 'iteration')}-before.png`,
-  )
-  try {
-    copyFileSync(source, destination)
-    return destination
-  } catch {
-    return undefined
-  }
+  if (!input.afterEvidence) return undefined
+  const pair = findComparison(input.previousReportDir, input.scenario, input.afterEvidence)
+  return pair?.comparison.status === 'comparable' && pair.before
+    ? copyBaseline(
+        input.outputDir,
+        input.iterationId ?? 'iteration',
+        input.ordinal ?? 0,
+        pair.before,
+      )
+    : undefined
 }
-
-const unique = (values: string[]): string[] => [...new Set(values)]
-
 const statusForResults = (results: ScenarioRunResult[]): ReviewResultStatus => {
-  if (results.some((result) => result.status === 'blocked')) return 'blocked'
-  if (results.some((result) => result.status === 'failed')) return 'failed'
-  if (results.some((result) => result.status === 'passed' && result.screenshots.length === 0)) {
-    return 'failed'
-  }
-  return 'passed'
+  if (results.some((r) => r.status === 'failed')) return 'failed'
+  if (results.some((r) => r.status === 'blocked')) return 'blocked'
+  return results.some((r) => r.status === 'passed' && !r.screenshots.length) ? 'failed' : 'passed'
 }
-
 export const createIterationInput = (input: IterationInput): ReviewIterationInput => {
-  let beforeScreenshot: string | undefined
-  for (const result of input.results) {
-    if (beforeScreenshot) break
-    for (const previousReportDir of input.previousReportDirs) {
-      beforeScreenshot = copyTrustedBaseline({
-        previousReportDir,
-        outputDir: input.outputDir,
-        pagePath: result.pagePath,
+  const comparisons: ScreenshotComparison[] = []
+  for (const result of input.results)
+    for (const after of result.screenshotEvidence ?? []) {
+      let pair: ScreenshotComparison | undefined
+      for (const dir of input.previousReportDirs) {
+        if (dir === input.outputDir) continue
+        const found = findComparison(dir, result.scenario, after.evidence)
+        if (found && (!pair || found.comparison.status === 'comparable')) pair = found
+        if (pair?.comparison.status === 'comparable') break
+      }
+      pair ??= {
         scenario: result.scenario,
-        iterationId: input.id,
-      })
-      if (beforeScreenshot) break
+        screenshotKey: after.evidence.scenario.screenshotKey,
+        after: after.path,
+        afterEvidence: after.evidence,
+        comparison: { status: 'historical', reasons: ['缺修改前同條件證據。'] },
+      }
+      pair.after = after.path
+      if (pair.comparison.status === 'comparable' && pair.before) {
+        pair.before = copyBaseline(input.outputDir, input.id, comparisons.length, pair.before)
+        if (!pair.before)
+          pair.comparison = { status: 'historical', reasons: ['可信圖片複製失敗。'] }
+      } else delete pair.before
+      comparisons.push(pair)
     }
-  }
-
+  const beforeScreenshot = comparisons.find((p) => p.before)?.before
   return {
     id: input.id,
     startedAt: input.startedAt,
     finishedAt: input.finishedAt,
     summary: input.summary,
-    changedFiles: unique(input.changedFiles).sort((left, right) => left.localeCompare(right)),
+    changedFiles: [...new Set(input.changedFiles)].sort(),
     status: statusForResults(input.results),
     ...(beforeScreenshot ? { beforeScreenshot } : {}),
-    afterScreenshots: unique(
-      input.results.flatMap((result) => [
-        ...result.screenshots,
-        ...(result.failureScreenshot ? [result.failureScreenshot] : []),
-      ]),
-    ),
-    notes: [...(input.notes ?? [])],
+    comparisons,
+    afterScreenshots: [
+      ...new Set(
+        input.results.flatMap((r) => [
+          ...r.screenshots,
+          ...(r.failureScreenshot ? [r.failureScreenshot] : []),
+        ]),
+      ),
+    ],
+    notes: [
+      ...(input.notes ?? []),
+      ...comparisons
+        .filter((p) => p.comparison.status !== 'comparable')
+        .map((p) => p.scenario + '／' + p.screenshotKey + '：' + p.comparison.reasons.join('；')),
+    ],
   }
 }

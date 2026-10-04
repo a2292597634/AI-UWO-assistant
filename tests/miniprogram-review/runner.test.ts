@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import type { ReviewAdapter } from '../../tools/miniprogram-review/adapter'
 import { runScenario } from '../../tools/miniprogram-review/runner'
 import type { ReviewScenario } from '../../tools/miniprogram-review/types'
+import { evidence } from './evidence-fixture'
 
 const scenario: ReviewScenario = {
   name: '目录交互',
@@ -42,6 +43,74 @@ const createRecordingAdapter = (
 })
 
 describe('小程序验收场景执行器', () => {
+  it('waitUntil 等待文字節點出現與正確 path，保留後續斷言', async () => {
+    let reads = 0
+    const calls: string[] = []
+    const adapter = {
+      ...createRecordingAdapter(calls),
+      queryElement: async () => ++reads > 1,
+      readText: async () => 'ready',
+      currentPagePath: async () => 'pages/catalog/index',
+    }
+    const result = await runScenario(
+      adapter,
+      {
+        ...scenario,
+        steps: [
+          {
+            action: 'waitUntil',
+            condition: { kind: 'text', selector: '.title', equals: 'ready' },
+            timeoutMs: 1000,
+          },
+          {
+            action: 'waitUntil',
+            condition: { kind: 'page', path: '/pages/catalog/index' },
+            timeoutMs: 1000,
+          },
+          { action: 'assertText', selector: '.title', equals: 'ready' },
+        ],
+      },
+      { outputDir: 'C:/review/run' },
+    )
+    expect(result.status).toBe('passed')
+    expect(result.steps.map((s) => s.action)).toEqual(['waitUntil', 'waitUntil', 'assertText'])
+    expect(calls[calls.length - 1]).toBe('disconnect')
+  })
+  it('消失等待不吞掉查詢協議錯誤', async () => {
+    const result = await runScenario(
+      {
+        ...createRecordingAdapter([]),
+        queryElement: async () => {
+          throw new Error('Connection closed')
+        },
+      },
+      {
+        ...scenario,
+        steps: [
+          { action: 'waitUntil', condition: { kind: 'exists', selector: '.sheet', exists: false } },
+        ],
+      },
+      { outputDir: 'C:/review/run' },
+    )
+    expect(result.error).toBe('Connection closed')
+  })
+  it('每張截圖綁定自己的步驟、fixture 與實測 runtime', async () => {
+    const adapter = {
+      ...createRecordingAdapter([]),
+      getReviewRuntimeInfo: async () => evidence().runtime,
+    }
+    const result = await runScenario(
+      adapter,
+      { ...scenario, fixture: 'coupon-success' },
+      { outputDir: 'C:/review/run', evidenceSource: evidence().source },
+    )
+    expect(result.screenshotEvidence?.[0].evidence.scenario).toMatchObject({
+      screenshotKey: 'detail-bottom',
+      fixtureName: 'coupon-success',
+      fixtureSha256: expect.any(String),
+    })
+    expect(result.screenshotEvidence?.[0].evidence.runtime.width).toBe(390)
+  })
   it('以 reLaunch 重置已经打开的场景入口，避免同页 navigateTo 抛出对象错误', async () => {
     const calls: string[] = []
     const adapter = {

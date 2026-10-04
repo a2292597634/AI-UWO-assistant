@@ -15,6 +15,29 @@ afterEach(() => {
 })
 
 describe('小程序验收场景', () => {
+  it('waitUntil 只接受有界安全條件，拒絕互斥值和未知欄位', () => {
+    const input = {
+      name: 'wait',
+      entry: '/pages/catalog/index',
+      state: 'normal',
+      devices: ['iphone-standard'],
+    }
+    const step = {
+      action: 'waitUntil',
+      condition: { kind: 'exists', selector: '.sheet', exists: false },
+      timeoutMs: 5000,
+    }
+    expect(parseScenario({ ...input, steps: [step] }).steps[0]).toEqual(step)
+    for (const condition of [
+      { kind: 'text', selector: '.text', equals: 'a', contains: 'b' },
+      { kind: 'page', path: '/../unsafe' },
+      { kind: 'exists', selector: '.x', exists: 'false' },
+      { kind: 'exists', selector: '.x', exists: false, script: 'evil' },
+    ])
+      expect(() => parseScenario({ ...input, steps: [{ ...step, condition }] })).toThrow()
+    for (const timeoutMs of [0, 30001, 1.5])
+      expect(() => parseScenario({ ...input, steps: [{ ...step, timeoutMs }] })).toThrow()
+  })
   it('場景 fixture 僅接受固定名稱且拒绝任意脚本欄位', () => {
     const input = {
       name: 'fixture',

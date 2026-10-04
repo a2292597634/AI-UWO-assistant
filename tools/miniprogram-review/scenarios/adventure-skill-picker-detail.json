@@ -66,6 +66,11 @@
       "selector": ".skill-sheet__close"
     },
     {
+      "action": "waitUntil",
+      "condition": { "kind": "exists", "selector": ".skill-sheet", "exists": false },
+      "timeoutMs": 5000
+    },
+    {
       "action": "waitFor",
       "selector": ".skill-picker-sheet--sheet"
     },

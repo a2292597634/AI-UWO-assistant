@@ -1,6 +1,8 @@
 # UWO Assistant — 航海士資料查詢微信小程序
 
-原生微信小程序 + TypeScript + Glass-Easel。离线优先，运行时无网络请求。
+原生微信小程序 + TypeScript + Glass-Easel。本地查詢優先；既有雲端功能與 CDN 受精確掃描器邊界管控。
+
+最高約束以 [AGENTS.md](AGENTS.md) 為準，開發現況、證據與剩餘外部驗收見 [current-state](docs/development/current-state.md)，本文件不另設衝突規則。
 
 ## 语言规范
 
@@ -14,9 +16,9 @@
 pages → presenters → domain/runtime → contracts → generated
 ```
 
-数据链路：`voyage.tw → tools/import → data/master → tools/data-pipeline → miniprogram/generated`
+数据链路：`archive → tools/import → artifacts/import-candidates/officers → 審核採納 → data/master → tools/data-pipeline → generated`；archive 只讀。
 
-素材链路：`voyage.tw → tools/asset-pipeline → miniprogram/assets → subpkg-a0~a9/imgs`
+素材鏈路以現有 master、發布 manifest／CDN 和頁面素材工具為準；歷史 V1 分包策略保留其當時日期，不等同當前完整架構。
 
 ## 技能等级与角标规范
 
@@ -49,15 +51,16 @@ pages → presenters → domain/runtime → contracts → generated
 
 ## 常用命令
 
-| 命令                    | 用途                                                                          |
-| ----------------------- | ----------------------------------------------------------------------------- |
-| `npm run verify`        | 全量门禁（format + lint + typecheck + test + 网络边界 + 数据审计 + 生成检查） |
-| `npm run pipeline:full` | import → assets:full → data:generate                                          |
-| `npm test`              | Vitest                                                                        |
+| 命令                    | 用途                                                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `npm run verify`        | Node 22 全量門禁：預檢、format:check、lint、typecheck、test、網路／體積／素材／manifest、資料及只讀生成檢查 |
+| `npm run pipeline:full` | import 產候選；assets:full／data:generate 仍使用現有 master，不自動採納                                     |
+| `npm test`              | Vitest                                                                                                      |
 
 ## 一坑一注
 
 - **流水线顺序**：必须先 `assets:full` 再 `data:generate`，运行数据依赖素材已存在。
 - **分包图片**：不要加 preloadRule（超 2MB 限制），不要手动 loadSubpackage（API 不可用）。现状已验证可行。详情见上述参考文档。
-- **离线优先**：运行时禁止网络请求，`check:runtime-network` 会拦截。
+- **網路邊界**：默認禁止網路；例外僅依 `tools/quality/check-runtime-network.ts` 的現有精確檔案／API／CDN 規則，不新增例外。
+- **命令副作用**：預檢與 generate:check 只讀候選；data:generate／format 寫回；assets:ci 在隔離副本準備三张 manifest 校驗 PNG。命令詳情及新報告 schema 2 見 current-state，doctor 不代表完整 UI readiness。
 - **头像显示一致性**：所有页面头像层级统一为 z-index: 1=frame, 2=portrait, 3=rarity(top-left), 4=type(bottom-left)。稀有度图标约为头像尺寸的 65%，类型图标约 26%。容器暗色背景 #2f302b（或对应页面的暗色背景）。不可简化为纯肖像图——必须包含 frame + rarity + type 三层。

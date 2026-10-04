@@ -2,7 +2,11 @@
 
 《Uncharted Waters Origin》國際服航海士資料查詢微信小程序。
 
+開發規則見 [AGENTS](AGENTS.md)；當前版本、流程能力、驗收證據與未完成項集中在 [開發現況](docs/development/current-state.md)。
+
 ## 本機安裝
+
+使用 Node `>=22 <23`、npm `>=10`；不由工具自動切換或安裝環境。
 
 ```powershell
 npm.cmd ci
@@ -14,21 +18,25 @@ npm.cmd ci
 npm.cmd run verify
 ```
 
-此命令依序檢查格式、ESLint、TypeScript、Vitest、運行時網路邊界、資料審計、生成確定性。
+此命令依序執行只讀預檢、格式檢查、ESLint、TypeScript、Vitest、網路邊界、套件體積、UI／重大事件素材、發布 manifest、資料審計及只讀生成檢查。
+
+`generate:check` 比較兩次暫存輸出與當前候選，合法待提交產物不因與 Git index 不同而失敗；漂移、非確定、輸入變動、構建失敗分開報告。`format` 與 `data:generate` 會寫回，預檢和生成檢查不會。乾淨 checkout 缺少三張 CI PNG 時，在該隔離副本執行 `assets:ci`，不盲目覆寫原工作區。
 
 ### 單獨驗證命令
 
-| 命令                             | 說明                   |
-| -------------------------------- | ---------------------- |
-| `npm run format:check`           | Prettier 格式檢查      |
-| `npm run lint`                   | ESLint 檢查            |
-| `npm run typecheck`              | TypeScript 型別檢查    |
-| `npm test`                       | 全部單元/契約測試      |
-| `npm run check:runtime-network`  | 檢查運行碼不含遠端請求 |
-| `npm run data:check`             | 資料審計 + Schema 檢查 |
-| `npm run generate:check`         | 驗證生成產物確定性     |
-| `npm run check:architecture`     | 架構邊界與依賴方向     |
-| `npm run check:runtime-contract` | 生成資料契約驗證       |
+| 命令                                         | 說明                                              |
+| -------------------------------------------- | ------------------------------------------------- |
+| `npm run workflow:preflight`                 | 只讀環境／輸入預檢                                |
+| `npm run workflow:preflight -- --scope page` | 頁面配置／公共私有基礎庫診斷，實際 SDK 探測未執行 |
+| `npm run format:check`                       | Prettier 格式檢查                                 |
+| `npm run lint`                               | ESLint 檢查                                       |
+| `npm run typecheck`                          | TypeScript 型別檢查                               |
+| `npm test`                                   | 全部單元/契約測試                                 |
+| `npm run check:runtime-network`              | 檢查現有精確 CloudBase／CDN 網路例外邊界          |
+| `npm run data:check`                         | 資料審計 + Schema 檢查                            |
+| `npm run generate:check`                     | 驗證生成產物確定性                                |
+| `npm run check:architecture`                 | 架構邊界與依賴方向                                |
+| `npm run check:runtime-contract`             | 生成資料契約驗證                                  |
 
 ## 專案架構
 
@@ -78,7 +86,7 @@ npm run import:download   # 下載 json_char.js 和 lang_1.js
 npm run import:run        # 解析、轉換、校驗、輸出候選資料
 ```
 
-匯入結果輸出至 `archive/voyage-tw-2026052501/canonical-candidates/`。
+匯入結果輸出至 `artifacts/import-candidates/officers`。候選須審核採納後才維護 master；archive 只讀。`pipeline:full` 的 import 產候選，後續素材和生成使用現有 master，不自動採納。
 
 ## 資料生成
 
@@ -103,6 +111,8 @@ npm run data:generate     # 從 data/master/ 生成所有運行資料
 首次編譯後確認首頁顯示「航海助手」與「航海士名鑑」，且控制台沒有登入、網路、路由或 TypeScript 錯誤。
 
 AI 可透過 `miniprogram-automator` 自行操作、截圖及驗收頁面；首次設定與命令參閱[小程序 AI 自主頁面驗收](docs/miniprogram-review.md)。
+
+doctor 的配置／CLI 診斷、實際 SDK／頁面／元素探測、完整場景及外部驗收分開記錄。schema 2 報告含逐圖來源、fixture、實測尺寸／SDK 與 page／repository／external 分層結果；未執行的倉庫門禁不稱通過。頁面流程細節只以 [HTML 頁面規範](docs/superpowers/specs/2026-09-16-miniprogram-review-html-report-design.md) 為準。
 
 ### 兌換碼
 

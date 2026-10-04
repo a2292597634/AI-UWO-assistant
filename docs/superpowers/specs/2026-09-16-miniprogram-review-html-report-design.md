@@ -100,9 +100,20 @@ export interface ReviewIteration {
 
 ### 4.2 总体报告
 
-`ReviewReport.status` 扩展为 `'passed' | 'failed' | 'blocked'`，让环境问题无法被误读为页面通过。若场景断言或交互失败，整体为 `failed`；开发者工具未登录、端口未开启、项目未打开或设备切换不可用，整体为 `blocked`。旧消费者只把 `status === 'passed'` 当成功即可保持安全兼容；CLI 仍返回非零退出码表示失败或阻塞。`ReviewReport.iterations` 规范化为空数组而不是 `undefined`，确保 JSON 字段稳定。
+`ReviewReport.status` 使用 `'passed' | 'failed' | 'blocked' | 'not-run'`。場景及迭代仍保留原三種狀態。schema version 2 的整體結論由本輪必需檢查決定：任一 failed → failed；其次 blocked；沒有必需項或必需項未跑 → not-run；其餘才 passed。舊消費者只把 `status === 'passed'` 當成功即可安全相容；CLI 返回非零表示失败、阻塞或必需項未執行。iterations 仍規範化為穩定陣列。
 
-报告 JSON 顶层字段为：`runId`、`generatedAt`、`status`、`git`、`coverage`、`iterations`、`results`。不把 HTML 拼接结果写入 JSON。
+報告 JSON 頂層字段為：`schemaVersion`、`runId`、`generatedAt`、`status`、`checks`、`git`、`coverage`、`iterations`、`results`。不把 HTML 拼接结果写入 JSON。
+
+### 4.3 截圖身份與分層結果（2026-10-05 已實施）
+
+- 每個截圖步驟在 `screenshotEvidence` 保存來源根／實際執行根、完整 Git HEAD／候選 SHA-256、執行期間來源穩定性、啟動綁定、場景 hash、截圖鍵、狀態輸入、fixture 實作 hash，以及實際 SDK／視窗尺寸／頁面。拿不到的欄位寫 null，展示「未知」。
+- 候選 hash 覆蓋實際 miniprogram 源碼、產物、素材、公共／私有編譯配置及 TypeScript 編譯副本映射。個人配置原文、appid、權杖不寫入報告。開始與結束核對來源；變動或核對失敗不能通過。
+- `launch-recorded` 只在本輪成功啟動指定根、同端點並取得實際頁面及元素探測時成立。既有 attach 或 doctor 不獲得該身份；這仍不是微信正式編譯包驗證。
+- 每個 `comparisons` 圖片對按頁面、場景 hash、截圖鍵獨立選基線，並檢查 fixture／狀態／實測尺寸／SDK／通道。before／after commit、內容 hash、絕對副本路徑或端點可不同，來源各自展示。
+- 缺身份的舊報告可讀；未知狀態／尺寸／SDK／無啟動綁定降為 historical。不同場景、fixture 或已知條件不一致為 incompatible。只複製 comparable 且安全存在的普通圖片；不將一張首圖冒充所有修改的 before。無可信基線仍执行 after 並顯示缺口。
+- `checks` 明示 mode、page、repository、external，各檢查有 required 和 passed／failed／blocked／not-run。iterate、run、review 未執行倉庫門禁時如實 not-run；changed final 的門禁必需，阻塞報告也保留 final 身份。無頁面變更的 changed final 仍依 8.3 返回阻塞，不能宣稱頁面已驗收。
+- final 品質門禁完成或拋錯後，用同 runId／outputDir 寫入主報告；拋錯為 blocked，失敗為 failed。HTML／JSON／Markdown／CLI 同步顯示三層結果。報告檔先在同目錄寫暫存再替換，寫入失敗不回退稱 passed。
+- 整體通過的範圍固定為「本輪要求的檢查」。另固定展示產品設備、真雲、QR／上傳包、長列表、性能與資料語義缺口，不能因 external 均非必需就稱發布通過。歷史報告保持原樣。
 
 ## 5. HTML 信息架构
 
@@ -220,7 +231,7 @@ npm run devtools:changed -- --mode final
 ### 8.3 两种模式与退出语义
 
 - `iterate`：只运行受影响页面的最小场景，优先快速截图和关键交互；不执行全仓库 `npm run verify`。没有页面相关变更时输出“跳过自动验收”的明确 no-op 结果并返回 `0`，不启动或连接 `miniprogram-automator`。
-- `final`：运行所有受影响页面的已保存场景，覆盖点击、输入、滚动、文字断言和关键截图；随后由 AI 执行 `npm run verify`。如果页面变更存在但没有可匹配场景，或开发者工具不可用，结果为 `blocked`/非零退出码，AI 不得回复“页面已完成”。没有页面相关变更时，命令返回非零并提示“未检测到页面变更，无法用本次命令证明页面已验收”，需要用户/AI 显式运行 `devtools:review -- --page` 才能得到最终证据。
+- `final`：运行所有受影响页面的已保存场景，覆盖点击、输入、滚动、文字断言和关键截图；頁面通過後由工具執行 `npm run verify`，完成或失敗後才寫本 run 最終報告。如果页面变更存在但没有可匹配场景，或开发者工具不可用，结果为 `blocked`/非零退出码，AI 不得回复“页面已完成”。没有页面相关变更时，命令返回非零并提示“未检测到页面变更，无法用本次命令证明页面已验收”，需要用户/AI 显式运行 `devtools:review -- --page` 才能得到最终证据。
 - 两种模式都复用本机开发者工具会话：Windows 上若 `cli.bat` 同目录存在 `wechatide.cmd`，通常优先使用新版项目窗口接口；显式 WebSocket、没有新版接口或场景批次需要组件作用域查询时，使用 `miniprogram-automator`。包含组件作用域场景的整批统一使用 SDK，避免在场景间切换窗口接口和 SDK。每个场景完成后释放客户端连接，后续场景复用实际端点；新版窗口接口保留用户项目窗口。SDK 启动入口与端口规则见 8.6。若连接能力检查或场景执行遇到环境阻塞，按 8.5 的有限恢复流程尝试重启并重连。
 
 ### 8.4 调用时机规则
@@ -255,7 +266,7 @@ npm run devtools:changed -- --mode final
 4. **批次通道保持一致。** 执行前识别整批所需查询能力，包含组件作用域场景时整批使用 SDK；`changed` 的预检恢复也必须保留该需求，不能等到进入场景后才切换通道。当前实现根据技能弹窗选择器识别该需求；新增其他组件内部场景时，必须同步扩展能力识别和回归覆盖，不能假定现有识别已覆盖所有组件。场景格式尚未提供能力声明字段，不得编造该字段已经生效。
 5. **分层诊断，有限重试。** 排查时记录启动入口、工具版本、请求／实际端口及失败层（启动、连接、页面就绪、元素查询、交互）。对 SDK 通道先做最小检查：`Tool.getInfo` 中的 SDKVersion、当前页及一个真实元素；只有工具版本或首页截图不能证明该通道可用。查询、交互、fixture 及连接等待有明确期限；fixture 还原失败仍释放连接并保留原始错误。重试上限沿用 8.5，不叠加无界进程或会话。
 6. **环境原因必须有独立证据。** 内存不足、登录失效或版本差异分别记录；未经对照验证，不得将其中一项宣称为所有超时的唯一原因。最小检查通过后再扩大场景范围，按实际 HTML、步骤和截图判定结果，未测设备及状态继续列为人工核验。
-7. **区分元素出现、渲染更新和转场完成。** `tap` 返回或目标元素可查询，不保证 `setData` 已显示、也不保证 `navigateTo` 的转场已结束。消失断言失败但随后截图显示正确状态时，先做时序对照；跳转后立即返回导致路由重叠时，记录工具的 route queue／routeDone 日志。优先等待可观测的完成条件；当前场景格式只有元素出现和定时等待，在缺少可用完成信号时允许目标元素出现后加入有界短等待，须记录实际版本、失败／通过对照及局限，不得宣称固定时长能保证所有设备。2026-10-03 的名册应用筛选及兑换设置返回场景使用 1000ms 等待，在 SDK 3.17.0 的当前模拟器实测通过；原消失、文字及玩家身份断言必须保留。不得用延长 RPC 超时、删除断言或调用业务 handler 掩盖失败。
+7. **区分元素出现、渲染更新和转场完成。** `tap` 返回或目标元素可查询，不保证 `setData` 已显示、也不保证 `navigateTo` 的转场已结束。消失断言失败但随后截图显示正确状态时，先做时序对照；跳转后立即返回导致路由重叠时，记录工具的 route queue／routeDone 日志。优先等待可观测的完成条件；場景格式新增有界 waitUntil（exists／text／page），使用連續兩次成立及截止時間；page 到位不等於動畫完成；歷史場景也保留元素出現和定時等待，在缺少可用完成信号时允许目标元素出现后加入有界短等待，须记录实际版本、失败／通过对照及局限，不得宣称固定时长能保证所有设备。2026-10-03 的名册应用筛选及兑换设置返回场景使用 1000ms 等待，在 SDK 3.17.0 的当前模拟器实测通过；原消失、文字及玩家身份断言必须保留。不得用延长 RPC 超时、删除断言或调用业务 handler 掩盖失败。
 
 这里的最小检查是排查要求，不表示现有 `devtools:doctor` 已自动检查 SDKVersion 和真实元素；`doctor` 的通过不能替代 SDK 场景验收。
 
@@ -269,7 +280,7 @@ npm run devtools:changed -- --mode final
 - 适配器负责会话生命周期，不负责判断页面断言是否正确；Windows 新版 `wechatide` 适配器负责普通批次的项目窗口、页面路由和视口截图，`miniprogram-automator` 负责显式 WebSocket、组件作用域批次及接口缺失时的回退。SDK 启动优先使用支持的 `agent start`；连接错误分类必须与选择器、断言错误分类分离，并可通过依赖注入测试。
 - HTML 输出必须是确定性的：同一 `ReviewReport` 和输出目录生成相同 DOM 顺序、类名和文本；不在模板中读取当前时间或随机数。
 - 触发器的页面相关扩展名、`watchPaths` 匹配、模式选择和阻塞状态独立成纯函数，便于不连接开发者工具的单元测试。
-- 不改动 `miniprogram/` 运行时代码，不新增生产依赖，不改变自动化动作集合。
+- 不改动 `miniprogram/` 运行时代码，不新增生产依赖，新增安全 waitUntil 條件動作，禁止場景任意腳本。
 
 ## 10. 测试与验收
 

@@ -16,6 +16,7 @@ const ACTIONS = new Set<ReviewStep['action']>([
   'scrollPage',
   'scrollElement',
   'waitFor',
+  'waitUntil',
   'assertExists',
   'assertVisible',
   'assertText',
@@ -149,6 +150,44 @@ const parseStep = (value: unknown, index: number): ReviewStep => {
       }
       rejectUnknownKeys(record, ['action', 'durationMs'], `步骤 ${index + 1}`)
       return { action, durationMs: expectDuration(record.durationMs, '等待时长') }
+    }
+    case 'waitUntil': {
+      rejectUnknownKeys(record, ['action', 'condition', 'timeoutMs'], 'waitUntil')
+      const c = expectRecord(record.condition, '等待條件')
+      const timeoutMs =
+        record.timeoutMs === undefined ? undefined : expectDuration(record.timeoutMs, '等待超時')
+      if (c.kind === 'page') {
+        rejectUnknownKeys(c, ['kind', 'path'], '等待條件')
+        return {
+          action,
+          condition: { kind: 'page', path: expectPagePath(c.path, '頁面路徑') },
+          timeoutMs,
+        }
+      }
+      if (c.kind === 'exists') {
+        rejectUnknownKeys(c, ['kind', 'selector', 'exists'], '等待條件')
+        if (typeof c.exists !== 'boolean') throw new Error('exists 必須是布爾值')
+        return {
+          action,
+          condition: { kind: 'exists', selector: expectSelector(c.selector), exists: c.exists },
+          timeoutMs,
+        }
+      }
+      if (c.kind === 'text') {
+        rejectUnknownKeys(c, ['kind', 'selector', 'equals', 'contains'], '等待條件')
+        if ((c.equals !== undefined) === (c.contains !== undefined))
+          throw new Error('equals／contains 必須互斥')
+        const selector = expectSelector(c.selector)
+        return {
+          action,
+          condition:
+            c.equals !== undefined
+              ? { kind: 'text', selector, equals: expectText(c.equals) }
+              : { kind: 'text', selector, contains: expectText(c.contains) },
+          timeoutMs,
+        }
+      }
+      throw new Error('不支持的等待條件')
     }
     case 'assertExists':
       rejectUnknownKeys(record, ['action', 'selector', 'exists'], `步骤 ${index + 1}`)

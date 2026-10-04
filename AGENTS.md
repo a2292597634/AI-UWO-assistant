@@ -27,8 +27,8 @@ archive/  →  data/master/  →  miniprogram/generated/
 
 ## 2. 硬約束
 
-- 禁止直接在 `master` 分支開發。分支命名：`codex/phase-N-描述`。
-- 禁止在 `miniprogram/` 運行時代碼中使用 `wx.request`、`wx.cloud`、遠程 URL 或 Node.js API。`npm run check:runtime-network` 會自動掃描。
+- 禁止直接在 `main`／`master` 分支開發。先核對實際 HEAD、分支、遠端預設分支及所有 tracked／untracked／必要 ignored 輸入，保護既有工作。分支命名：`codex/phase-N-描述`。
+- `miniprogram/` 默認禁止 `wx.request`、雲端呼叫、遠程 URL 或 Node.js API。既有 CloudBase／CDN 例外僅依 `tools/quality/check-runtime-network.ts` 與掃描器的精確檔案、API、origin／prefix 邊界，不得擴大到任意頁面。必須通過 `npm run check:runtime-network`；部署策略參閱既有 `docs/architecture/` 雲端文檔。
 - 禁止未經用戶確認新增/刪除/升級依賴。
 - 禁止順手修復無關問題或格式化無關文件。
 - 發現範圍外缺陷 → 報告並建議另開任務，不得夾帶。
@@ -41,7 +41,9 @@ archive/  →  data/master/  →  miniprogram/generated/
 npm run verify
 ```
 
-包含：format → lint → typecheck → test → runtime-network → data:check → generate:check。
+環境要求 Node `>=22 <23`、npm `>=10`。包含：只讀預檢 → format:check → lint → typecheck → test → runtime-network → 套件體積 → UI／重大事件素材 → 發布 manifest → data:check → 只讀 generate:check。
+
+`workflow:preflight` 不下載、寫檔或修復環境；`generate:check` 使用兩個暫存集合比較當前候選，不讀 Git index，不覆寫合法 dirty 產物。`format` 會寫回、`format:check` 不會；必要時 `assets:ci` 只能在乾淨隔離副本準備已發布 PNG，不能在原工作區盲目覆寫。
 
 commit 前展示變更文件、驗證結果和擬用 message，等待用戶確認。
 
@@ -61,3 +63,9 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 涉及 UI、WXML、WXSS、页面素材或页面共享运行时代码的任务，必须阅读并遵循
 `docs/superpowers/specs/2026-09-16-miniprogram-review-html-report-design.md`。
 该文件是页面验收、过程说明和截图证据的唯一规范来源；本文件不重复具体流程。
+
+## 7. 當前流程入口
+
+見 [開發現況與證據](docs/development/current-state.md)、[操作契約索引](docs/development/operation-contracts.md) 與 [任務記錄模板](docs/development/task-record-template.md)。本機、乾淨 checkout、遠端 CI、正式模擬器、真機／真雲的通過證據分開記錄。
+
+匯入候選在 `artifacts/import-candidates/officers`，審核採納後才維護 master；`pipeline:full` 不自動採納。doctor 的配置／CLI 診斷不等同實際 SDK、頁面、元素及外部驗收。歷史失敗與未驗收項保留，不以工具回歸測試銷項。
