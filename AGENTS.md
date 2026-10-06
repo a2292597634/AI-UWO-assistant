@@ -28,7 +28,9 @@ archive/  →  data/master/  →  miniprogram/generated/
 ## 2. 硬約束
 
 - 禁止直接在 `main`／`master` 分支開發。先核對實際 HEAD、分支、遠端預設分支及所有 tracked／untracked／必要 ignored 輸入，保護既有工作。分支命名：`codex/phase-N-描述`。
-- `miniprogram/` 默認禁止 `wx.request`、雲端呼叫、遠程 URL 或 Node.js API。既有 CloudBase／CDN 例外僅依 `tools/quality/check-runtime-network.ts` 與掃描器的精確檔案、API、origin／prefix 邊界，不得擴大到任意頁面。必須通過 `npm run check:runtime-network`；部署策略參閱既有 `docs/architecture/` 雲端文檔。
+- `miniprogram/` 預設禁止 `wx.request`、`wx.downloadFile`、`wx.cloud`、手寫遠程 URL 或 Node.js API。頁面與元件不得直接呼叫 `wx.cloud` 或操作雲端資料庫；頁面透過專用 runtime service 訪問雲端。
+- 既有 CloudBase／CDN 例外只依 [網路檢查入口](tools/quality/check-runtime-network.ts) 與 [掃描器](tools/quality/find-runtime-network-references.ts) 的精確檔案、API、CDN origin／prefix 邊界放行。CloudBase 僅允許已登記位置的 `init`、`callFunction`、`uploadFile`；CDN 僅允許已登記生成檔案中的圖片欄位，使用發布 manifest 指定的 HTTPS 來源與路徑，不含 query／hash。必須通過 `npm run check:runtime-network`，不得把例外擴大到任意頁面或其他 API。
+- 新增或擴大網路例外前，必須說明檔案、API 與用途並取得用戶授權，再同步掃描白名單與相關契約測試；已有明確授權覆蓋時不重複確認。不得關閉或全域放寬掃描。雲端身分、權限與資料校驗在服務端執行，部署策略參閱既有 `docs/architecture/` 雲端文檔。
 - 禁止未經用戶確認新增/刪除/升級依賴。
 - 禁止順手修復無關問題或格式化無關文件。
 - 發現範圍外缺陷 → 報告並建議另開任務，不得夾帶。

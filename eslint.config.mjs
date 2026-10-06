@@ -14,6 +14,8 @@ export default tseslint.config(
       'miniprogram/subpkg-detail/detail-loaders.js',
       'miniprogram/subpkg-trade/trade-*.js',
       'node_modules/**',
+      'artifacts/message-board-probes/**',
+      'artifacts/message-board/**',
     ],
   },
   js.configs.recommended,

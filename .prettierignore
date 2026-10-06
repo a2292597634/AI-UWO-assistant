@@ -13,6 +13,8 @@ data/assets/asset-dependencies.json
 cloudfunctions/officer-custom/reference-data.json
 cloudfunctions/officer-maintenance/reference-data.json
 node_modules/
+/artifacts/message-board-probes/
+/artifacts/message-board/
 package-lock.json
 游戏内被动技能查询截图.png
 游戏内菜单图.png

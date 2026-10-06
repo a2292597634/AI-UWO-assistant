@@ -20,3 +20,7 @@ data/assets/staging/
 
 # 離線匯入候選，不自動提升至正式主資料
 /artifacts/import-candidates/
+
+# 留言板探測包、原始證據與執行紀錄不進發布包或 Git。
+/artifacts/message-board-probes/
+/artifacts/message-board/

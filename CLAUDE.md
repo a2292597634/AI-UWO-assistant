@@ -61,6 +61,6 @@ pages → presenters → domain/runtime → contracts → generated
 
 - **流水线顺序**：必须先 `assets:full` 再 `data:generate`，运行数据依赖素材已存在。
 - **分包图片**：不要加 preloadRule（超 2MB 限制），不要手动 loadSubpackage（API 不可用）。现状已验证可行。详情见上述参考文档。
-- **網路邊界**：默認禁止網路；例外僅依 `tools/quality/check-runtime-network.ts` 的現有精確檔案／API／CDN 規則，不新增例外。
+- **網路邊界**：遵循 `AGENTS.md` 的預設禁止與受控例外；只在掃描器已登記的檔案、API、CDN origin／prefix 邊界內存取，通過 `check:runtime-network`，新增或擴大例外需按該文件取得授權。
 - **命令副作用**：預檢與 generate:check 只讀候選；data:generate／format 寫回；assets:ci 在隔離副本準備三张 manifest 校驗 PNG。命令詳情及新報告 schema 2 見 current-state，doctor 不代表完整 UI readiness。
 - **头像显示一致性**：所有页面头像层级统一为 z-index: 1=frame, 2=portrait, 3=rarity(top-left), 4=type(bottom-left)。稀有度图标约为头像尺寸的 65%，类型图标约 26%。容器暗色背景 #2f302b（或对应页面的暗色背景）。不可简化为纯肖像图——必须包含 frame + rarity + type 三层。
