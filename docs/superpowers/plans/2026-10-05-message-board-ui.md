@@ -98,13 +98,13 @@ deferred service port在test helper中真实控制promise完成顺序；不能�
 
 **新增：** `controllers/message-board-admin-controller.ts`、`presenters/message-board-admin-presenter.ts`、`subpkg-message-board/pages/admin/index.{ts,json,wxml,wxss}`；`tests/message-board/admin-controller.test.ts`、`tests/pages/message-board-admin-page.test.ts`；`tools/miniprogram-review/scenarios/message-board-admin.json`、`message-board-clear.json`。
 **修改：** board／mine页面、`pages/home/index.ts`／wxml／wxss、`tests/pages/home-page.test.ts`、`tools/ui-assets/config.ts`、`tools/miniprogram-review/scenarios/home-visual.json`。
-**素材来源：** 新增 `data/master/ui-assets/message-board-icon.svg`、`message-board-default-avatar.svg`。使用自绘简单信笺／人物轮廓vector，经现有sharp工具生PNG；不增加生成图片依赖、emoji或外部图标库。
-**生成：** `miniprogram/assets/ui/feature-message-board.png`、`message-board-default-avatar.png`。
+**素材来源：** 依使用者 2026-10-06 新要求，首頁留言板與資料錯誤回報是同區文字入口，不新增留言板功能圖標。後續頭像降級素材仍可新增 `data/master/ui-assets/message-board-default-avatar.svg`，經現有 sharp 生成 PNG；不增加依賴、emoji或外部圖標庫。
+**生成：** 後續頭像流程的 `miniprogram/assets/ui/message-board-default-avatar.png`；入口先行版本不新增素材。
 
 - [ ] 写工作台capabilities未返回管理员时不显示入口，业务forbidden可恢复到普通视图；revision冲突不覆盖新data，saveReply候选失败保留旧reply。
 - [ ] 写前端不允许checking／risky公开，review显示额外理由；后台仍再次授权，不把前端disable当安全保护。
 - [ ] workbench实现状态／server／report筛选、private preview、原因、回覆候选、下架／恢复、限制／解除及report处置；所有确认保持原expectedRevision和operation ID。
 - [ ] board固定理由举报，mine撤回确认／清除提示，清除task开始后公开本机窗口立即移除本人項；pending失败保留本文方便另投稿，不自动重新发布。
-- [ ] 首页新增“玩家交流／留言板”，原六项顺序与error-report不变；本地资源注册recipes，assets:ui生成后检查预算，不手改PNG或扩大全部UI布局。
+- [ ] 首页「交流與回報」區將留言板與資料錯誤回報並列為文字入口，原六项主图标顺序与 error-report 路由不变；入口不新增 PNG，後續預設頭像由 recipes 生成，不手改素材或扩大全部UI布局。
 - [ ] 使用保存场景实际点击穿过首页、发表、mine、admin及clear，含普通用户访问admin深链；iterate后读截图并最小修正。
 - [ ] 跑home与两admin新测试、assets:ui:check、runtime-network、包体积；最终进入V1–V3，不以UI fixture代替真实管理权限。

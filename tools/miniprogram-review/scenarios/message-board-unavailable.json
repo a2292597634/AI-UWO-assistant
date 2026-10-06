@@ -1,0 +1,50 @@
+{
+  "name": "留言板未開放狀態與返回首頁",
+  "entry": "/subpkg-message-board/pages/board/index",
+  "watchPaths": ["miniprogram/subpkg-message-board/pages/board/"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitUntil",
+      "condition": {
+        "selector": ".message-board-page",
+        "kind": "exists",
+        "exists": true
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".message-board-page__status",
+      "contains": "留言板尚未開放"
+    },
+    {
+      "action": "assertText",
+      "selector": ".message-board-page__rules",
+      "contains": "審核後公開"
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-top"
+    },
+    {
+      "action": "scrollPage",
+      "distance": 320
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-actions"
+    },
+    {
+      "action": "tap",
+      "selector": ".message-board-page__home"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "path": "/pages/home/index",
+        "kind": "page"
+      }
+    }
+  ]
+}

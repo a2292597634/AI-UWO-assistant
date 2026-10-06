@@ -43,6 +43,7 @@ describe('major-event feature integration contract', () => {
     expect(homeSource).toContain("route: '/subpkg-trade/pages/popularity/index'")
     expect(homeWxml).toContain('index < 6')
     expect(homeWxml).toContain('module-grid__icon-fallback')
-    expect(homeWxml).toContain("item.id === 'error-report'")
+    expect(homeWxml).toContain('wx:for="{{supportEntries}}"')
+    expect(homeSource).toContain("id: 'error-report'")
   })
 })

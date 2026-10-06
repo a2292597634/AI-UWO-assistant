@@ -11,7 +11,7 @@ import {
 import { createCouponProfileStore } from '../../../runtime/coupon-profile-store'
 import { getCouponResultViewModel } from '../../../presenters/coupon-redemption-presenter'
 
-const DEFAULT_COUPON_CODE = 'FULLMOON2026'
+const DEFAULT_COUPON_CODE = 'ANTARIA3RD'
 
 const asProfile = (value: CouponProfile | undefined): CouponProfile | null => value ?? null
 const profileIdentity = (profile: CouponProfile | null): string =>

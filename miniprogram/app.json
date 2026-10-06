@@ -30,6 +30,11 @@
       "root": "subpkg-fleet",
       "name": "fleet",
       "pages": ["pages/index/index"]
+    },
+    {
+      "root": "subpkg-message-board",
+      "name": "message-board",
+      "pages": ["pages/board/index"]
     }
   ],
   "window": {

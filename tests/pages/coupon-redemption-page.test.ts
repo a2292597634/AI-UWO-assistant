@@ -220,7 +220,7 @@ const redemptionWxss = fs.readFileSync(
 
 describe('兌換碼頁', () => {
   it('首次進入時預填指定兌換碼', () => {
-    expect(redemptionPage.data.couponNo).toBe('FULLMOON2026')
+    expect(redemptionPage.data.couponNo).toBe('ANTARIA3RD')
   })
 
   it('沒有目前設定時禁用提交並可導向設定頁', () => {

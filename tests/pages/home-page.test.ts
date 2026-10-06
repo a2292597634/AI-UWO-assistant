@@ -15,6 +15,7 @@ interface HomePageData {
   count: number
   bannerFailed: boolean
   modules: HomeModule[]
+  supportEntries: Array<{ id: string; name: string; hint: string; route: string }>
 }
 
 interface HomePageConfig {
@@ -78,6 +79,29 @@ const homeWxss = fs.readFileSync(
 )
 
 describe('首頁功能入口', () => {
+  it('留言板與資料錯誤回報同屬次級入口，且留言板可導航至已註冊分包', () => {
+    const page = createPageInstance()
+    expect(page.data.supportEntries?.map((entry) => entry.id)).toEqual([
+      'error-report',
+      'message-board',
+    ])
+    const entry = page.data.supportEntries.find((item) => item.id === 'message-board')!
+    expect(page.data.modules.slice(0, 6).some((item) => item.id === 'message-board')).toBe(false)
+    page.onModuleTap({ currentTarget: { dataset: { route: entry.route } } } as never)
+    expect(wxStub.navigateTo).toHaveBeenCalledWith({
+      url: '/subpkg-message-board/pages/board/index',
+    })
+    const app = JSON.parse(
+      fs.readFileSync(path.resolve(__dirname, '../../miniprogram/app.json'), 'utf8'),
+    ) as { subpackages: Array<{ root: string; pages: string[] }> }
+    const registered = app.subpackages.flatMap((part) =>
+      part.pages.map((route) => '/' + part.root + '/' + route),
+    )
+    expect(registered).toContain(entry.route)
+    expect(
+      fs.existsSync(path.resolve(__dirname, '../../miniprogram' + entry.route + '.wxml')),
+    ).toBe(true)
+  })
   it('保留現有模組路由事件', () => {
     const page = createPageInstance()
 
@@ -132,7 +156,7 @@ describe('首頁功能入口', () => {
       iconPath: '/assets/ui/feature-data-maintenance.png',
     })
     expect(homeWxml).toContain('index < 6')
-    expect(homeWxml).toContain("item.id === 'error-report'")
+    expect(homeWxml).toContain('supportEntries')
     expect(homeWxss).toMatch(/width:\s*33\.333333%/)
   })
 
@@ -165,6 +189,6 @@ describe('首頁功能入口', () => {
   it('收斂 Hero 並保留資料錯誤回報次級入口的結構鉤子', () => {
     expect(homeWxss).toContain('height: 280rpx')
     expect(homeWxml).toContain('module-grid--secondary')
-    expect(homeWxml).toContain('資料回報')
+    expect(homeWxml).toContain('交流與回報')
   })
 })

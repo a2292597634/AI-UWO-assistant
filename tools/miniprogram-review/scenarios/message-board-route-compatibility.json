@@ -1,0 +1,38 @@
+{
+  "name": "新增留言板路由後的既有葉頁相容性",
+  "entry": "/pages/home/index",
+  "watchPaths": [
+    "miniprogram/pages/officer-editor/",
+    "miniprogram/subpkg-coupon/pages/settings/",
+    "miniprogram/subpkg-detail/pages/detail/",
+    "miniprogram/subpkg-trade/pages/detail/"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "navigate", "path": "/pages/officer-editor/index" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "exists", "selector": ".report-page", "exists": true }
+    },
+    { "action": "screenshot", "name": "existing-error-report" },
+    { "action": "navigate", "path": "/subpkg-coupon/pages/settings/index" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "exists", "selector": ".coupon-settings-page", "exists": true }
+    },
+    { "action": "screenshot", "name": "existing-coupon-settings" },
+    { "action": "navigate", "path": "/subpkg-detail/pages/detail/index?id=officer_chast089" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "exists", "selector": ".detail-page", "exists": true }
+    },
+    { "action": "screenshot", "name": "existing-officer-detail" },
+    { "action": "navigate", "path": "/subpkg-trade/pages/detail/index?id=trade0101" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "exists", "selector": ".trade-detail__header", "exists": true }
+    },
+    { "action": "screenshot", "name": "existing-trade-detail" }
+  ]
+}

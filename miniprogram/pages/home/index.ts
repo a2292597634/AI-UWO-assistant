@@ -1,5 +1,11 @@
 import { getDatasetMeta } from '../../runtime/main-data-store'
 
+const errorReportEntry = {
+  id: 'error-report',
+  name: '資料錯誤回報',
+  route: '/pages/officer-editor/index',
+}
+
 Page({
   data: {
     title: '航海助手',
@@ -49,11 +55,18 @@ Page({
         iconFailed: false,
       },
       {
-        id: 'error-report',
-        name: '資料錯誤回報',
+        ...errorReportEntry,
         iconPath: '/assets/ui/feature-data-maintenance.png',
-        route: '/pages/officer-editor/index',
         iconFailed: false,
+      },
+    ],
+    supportEntries: [
+      { ...errorReportEntry, hint: '回報航海士資料錯誤' },
+      {
+        id: 'message-board',
+        name: '留言板',
+        hint: '分享航海心得與建議',
+        route: '/subpkg-message-board/pages/board/index',
       },
     ],
   },

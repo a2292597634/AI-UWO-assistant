@@ -1,0 +1,77 @@
+{
+  "name": "首頁留言板與回報並列入口",
+  "entry": "/pages/home/index",
+  "watchPaths": ["miniprogram/pages/home/", "miniprogram/subpkg-message-board/pages/board/"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitUntil",
+      "condition": {
+        "selector": "#home-message-board",
+        "kind": "exists",
+        "exists": true
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".module-grid--secondary",
+      "contains": "資料錯誤回報"
+    },
+    {
+      "action": "assertText",
+      "selector": ".module-grid--secondary",
+      "contains": "留言板"
+    },
+    {
+      "action": "screenshot",
+      "name": "home-support-entries"
+    },
+    {
+      "action": "tap",
+      "selector": "#home-message-board"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "path": "/subpkg-message-board/pages/board/index",
+        "kind": "page"
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".message-board-page__status",
+      "contains": "留言板尚未開放"
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-entry-page"
+    },
+    {
+      "action": "tap",
+      "selector": ".message-board-page__home"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "path": "/pages/home/index",
+        "kind": "page"
+      }
+    },
+    {
+      "action": "tap",
+      "selector": "#home-error-report"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "path": "/pages/officer-editor/index",
+        "kind": "page"
+      }
+    },
+    {
+      "action": "screenshot",
+      "name": "existing-error-report-route"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+<view class="message-board-page">
+  <view class="message-board-page__heading">
+    <text class="message-board-page__eyebrow">玩家交流</text>
+    <text class="message-board-page__title">留言板</text>
+    <text class="message-board-page__intro">分享航海心得，留下問題與建議。</text>
+  </view>
+
+  <view class="message-board-page__status" role="status">
+    <view class="ui-status ui-status--unmet">
+      <text class="ui-status__label">留言板尚未開放</text>
+    </view>
+    <text class="message-board-page__status-copy">留言與審核功能正在準備中，目前尚不能瀏覽或發表留言。</text>
+  </view>
+
+  <view class="message-board-page__rules">
+    <text class="message-board-page__section-title">開放後的留言方式</text>
+    <view class="message-board-page__rule">
+      <text class="message-board-page__rule-title">先選擇伺服器</text>
+      <text class="message-board-page__rule-copy">發表留言前，選擇自己所屬的伺服器。</text>
+    </view>
+    <view class="message-board-page__rule">
+      <text class="message-board-page__rule-title">自行選用暱稱與頭像</text>
+      <text class="message-board-page__rule-copy">由你主動填寫或選用微信資料，作為留言的公開展示資訊。</text>
+    </view>
+    <view class="message-board-page__rule">
+      <text class="message-board-page__rule-title">審核後公開</text>
+      <text class="message-board-page__rule-copy">留言提交後，由管理員審核通過才會公開。</text>
+    </view>
+  </view>
+
+  <view class="message-board-page__actions">
+    <button class="ui-button ui-button--primary" disabled>發表留言（尚未開放）</button>
+    <button class="ui-button ui-button--secondary message-board-page__home" bindtap="onReturnHome">返回首頁</button>
+  </view>
+</view>
