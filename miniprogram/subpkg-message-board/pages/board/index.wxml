@@ -1,35 +1,18 @@
-<view class="message-board-page">
-  <view class="message-board-page__heading">
-    <text class="message-board-page__eyebrow">玩家交流</text>
-    <text class="message-board-page__title">留言板</text>
-    <text class="message-board-page__intro">分享航海心得，留下問題與建議。</text>
-  </view>
-
-  <view class="message-board-page__status" role="status">
-    <view class="ui-status ui-status--unmet">
-      <text class="ui-status__label">留言板尚未開放</text>
-    </view>
-    <text class="message-board-page__status-copy">留言與審核功能正在準備中，目前尚不能瀏覽或發表留言。</text>
-  </view>
-
-  <view class="message-board-page__rules">
-    <text class="message-board-page__section-title">開放後的留言方式</text>
-    <view class="message-board-page__rule">
-      <text class="message-board-page__rule-title">先選擇伺服器</text>
-      <text class="message-board-page__rule-copy">發表留言前，選擇自己所屬的伺服器。</text>
-    </view>
-    <view class="message-board-page__rule">
-      <text class="message-board-page__rule-title">自行選用暱稱與頭像</text>
-      <text class="message-board-page__rule-copy">由你主動填寫或選用微信資料，作為留言的公開展示資訊。</text>
-    </view>
-    <view class="message-board-page__rule">
-      <text class="message-board-page__rule-title">審核後公開</text>
-      <text class="message-board-page__rule-copy">留言提交後，由管理員審核通過才會公開。</text>
-    </view>
-  </view>
-
-  <view class="message-board-page__actions">
-    <button class="ui-button ui-button--primary" disabled>發表留言（尚未開放）</button>
-    <button class="ui-button ui-button--secondary message-board-page__home" bindtap="onReturnHome">返回首頁</button>
-  </view>
+<view class="board-page message-board-page">
+  <text class="board-page__title">留言板</text>
+  <text class="board-page__hint message-board-page__rules">分享航海心得、問題與建議。留言經管理員審核後公開。</text>
+  <view class="board-page__tools"><button class="ui-button ui-button--secondary" bindtap="onMine">我的留言</button><button wx:if="{{viewer.isAdmin}}" class="ui-button ui-button--secondary" bindtap="onAdmin">管理工作台</button></view>
+  <picker range="{{serverChoices}}" value="{{serverIndex}}" bindchange="onServerChange"><view class="board-page__picker">{{serverChoices[serverIndex]}}　▾</view></picker>
+  <view wx:if="{{loading}}" class="board-page__status board-page__loading" role="status">正在載入留言…</view>
+  <view wx:if="{{error}}" class="board-page__status board-page__error" role="alert">{{error}}<button class="ui-button ui-button--secondary" bindtap="onRefresh" disabled="{{loading}}">重新整理</button></view>
+  <view wx:if="{{!loading && !error && rows.length === 0}}" class="board-page__status">目前沒有已公開的留言。你可以寫下第一則留言，審核通過後就會顯示。</view>
+  <message-card wx:for="{{rows}}" wx:key="messageId" nick-name="{{item.nickName}}" avatar-file-id="{{item.avatarFileId}}" server-name="{{item.gameServerName}}" body="{{item.text}}" created-label="{{item.createdLabel}}" reply-text="{{item.reply.text}}" reply-label="{{item.replyLabel}}">
+    <view slot="actions" class="board-page__actions"><button class="ui-button ui-button--secondary" data-id="{{item.messageId}}" bindtap="onReport" disabled="{{pendingReport}}">檢舉</button></view>
+  </message-card>
+  <button wx:if="{{cursor && rows.length < 100}}" class="ui-button ui-button--secondary" bindtap="onLoadMore" disabled="{{loading}}">載入更多</button>
+  <view wx:if="{{canPrevious || canNext}}" class="board-page__tools"><button wx:if="{{canPrevious}}" class="ui-button ui-button--secondary" bindtap="onPreviousWindow">上一段</button><button wx:if="{{canNext}}" class="ui-button ui-button--secondary" bindtap="onNextWindow">下一段</button></view>
+  <text wx:if="{{rows.length}}" class="board-page__hint">第 {{windowNumber}} 段 · {{rows.length}} 則</text>
+  <button wx:if="{{pendingReport}}" class="ui-button ui-button--secondary" bindtap="onConfirmReport">確認檢舉結果</button>
+  <button class="ui-button ui-button--secondary message-board-page__home" bindtap="onReturnHome">返回首頁</button>
+  <view class="board-page__footer"><text wx:if="{{writeReason}}" class="board-page__hint">{{writeReason}}</text><button class="ui-button ui-button--primary" bindtap="onCompose" disabled="{{writeDisabled}}">寫留言</button></view>
 </view>

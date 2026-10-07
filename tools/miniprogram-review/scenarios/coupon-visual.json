@@ -6,7 +6,8 @@
     "miniprogram/presenters/coupon-redemption-presenter.ts",
     "miniprogram/runtime/coupon-profile-store.ts",
     "miniprogram/runtime/coupon-redemption-service.ts",
-    "tools/miniprogram-review/fixtures.ts"
+    "tools/miniprogram-review/fixtures.ts",
+    "miniprogram/contracts/coupon-redemption.ts"
   ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],

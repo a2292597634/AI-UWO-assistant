@@ -21,6 +21,20 @@ afterEach(() => {
 })
 
 describe('findRuntimeNetworkReferences', () => {
+  it('留言板服務只放行 callFunction，database 與 uploadFile 仍被拒絕', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-message-board-boundary-'))
+    fixtureRoots.push(root)
+    mkdirSync(join(root, 'runtime'), { recursive: true })
+    writeFileSync(
+      join(root, 'runtime/message-board-service.ts'),
+      "wx.cloud.callFunction({ name: 'message-board' })\nwx.cloud.database()\nwx.cloud.uploadFile({})",
+    )
+    const findings = findRuntimeNetworkReferences(root, {
+      allowedCloudFunctionFiles: ['runtime/message-board-service.ts'],
+    })
+    expect(findings.map((item) => item.line)).toEqual([2, 3])
+    expect(findings.every((item) => item.reason === 'wx.cloud')).toBe(true)
+  })
   it('accepts local mini-program assets', () => {
     expect(
       findRuntimeNetworkReferences(fixture("const portrait = '/assets/officers/1.png'")),

@@ -1,0 +1,67 @@
+{
+  "name": "本人留言與資料清除入口",
+  "entry": "/subpkg-message-board/pages/mine/index",
+  "watchPaths": [
+    "miniprogram/subpkg-message-board/pages/mine/",
+    "miniprogram/contracts/message-board.ts",
+    "miniprogram/controllers/message-board-list-controller.ts",
+    "miniprogram/domain/message-board/",
+    "miniprogram/presenters/message-board-presenter.ts",
+    "miniprogram/runtime/message-board-service.ts",
+    "miniprogram/runtime/cloudbase-config.ts",
+    "miniprogram/subpkg-message-board/components/",
+    "miniprogram/subpkg-message-board/styles/",
+    "miniprogram/assets/ui/message-board-default-avatar.png"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__title",
+        "exists": true
+      }
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__loading",
+        "exists": false
+      },
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__error",
+        "exists": false
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".board-page__title",
+      "contains": "我的留言"
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-mine-top"
+    },
+    {
+      "action": "scrollPage",
+      "distance": 340
+    },
+    {
+      "action": "assertText",
+      "selector": ".board-page__section",
+      "contains": "清除我的留言資料"
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-mine-clear"
+    }
+  ]
+}

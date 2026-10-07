@@ -1,0 +1,40 @@
+<view class="board-page">
+  <text class="board-page__title">留言管理工作台</text>
+  <text class="board-page__hint">玩家原文及作者快照不可編輯。安全檢查通過後，仍需你明確批准才會公開。</text>
+  <view wx:if="{{loading}}" class="board-page__status board-page__loading" role="status">正在載入管理資料…</view>
+  <view wx:if="{{error}}" class="board-page__status board-page__error" role="alert">{{error}}</view>
+  <button wx:if="{{forbidden}}" class="ui-button ui-button--secondary" bindtap="onBoard">返回留言板</button>
+  <block wx:if="{{!forbidden && viewer.isAdmin}}">
+    <view class="board-page__tools"><button class="ui-button ui-button--secondary" bindtap="onRefresh" disabled="{{loading || pendingAction}}">重新整理</button><button class="ui-button ui-button--secondary" bindtap="onToggleReports" disabled="{{pendingAction}}">{{reportMode ? '返回留言審核' : '待處理檢舉'}}</button></view>
+    <block wx:if="{{!reportMode}}">
+      <picker range="{{statusChoices}}" value="{{statusIndex}}" bindchange="onStatus" disabled="{{pendingAction}}"><view class="board-page__picker">{{statusChoices[statusIndex]}}</view></picker>
+      <picker range="{{serverChoices}}" value="{{serverIndex}}" bindchange="onServer" disabled="{{pendingAction}}"><view class="board-page__picker">{{serverChoices[serverIndex]}}</view></picker>
+      <message-card wx:for="{{rows}}" wx:key="messageId" nick-name="{{item.nickName}}" avatar-file-id="{{item.avatarFileId}}" server-name="{{item.gameServerName}}" body="{{item.text}}" created-label="{{item.createdLabel}}" status-label="{{item.statusLabel}}" safety-label="{{item.safetyLabel}}" reason="{{item.reason}}" reply-text="{{item.reply.text}}" reply-label="{{item.replyLabel}}"><view slot="actions"><button class="ui-button ui-button--secondary" bindtap="onSelect" data-id="{{item.messageId}}" disabled="{{pendingAction}}">檢視與處理</button></view></message-card>
+    </block>
+    <block wx:if="{{reportMode}}"><view wx:for="{{reports}}" wx:key="reportId" class="board-page__status"><text>檢舉類型：{{item.fixedReason === 'advertising' ? '廣告' : item.fixedReason === 'abuse' ? '辱罵' : item.fixedReason === 'personal-information' ? '個人資訊' : '其他'}}</text><button class="ui-button ui-button--secondary" bindtap="onSelect" data-id="{{item.messageId}}" data-report="{{item.reportId}}">查看被檢舉留言</button></view></block>
+    <view wx:if="{{!loading && !error && (!reportMode && rows.length === 0 || reportMode && reports.length === 0)}}" class="board-page__status">目前沒有符合條件的待辦。</view>
+    <view class="board-page__tools"><button wx:if="{{canPrevious}}" class="ui-button ui-button--secondary" bindtap="onPrevious">上一段</button><button wx:if="{{canNext}}" class="ui-button ui-button--secondary" bindtap="onNext">下一段</button></view>
+    <button wx:if="{{cursor && !canNext}}" class="ui-button ui-button--secondary" bindtap="onMore" disabled="{{loading || pendingAction}}">載入更多</button>
+    <view wx:if="{{selected}}" class="board-admin__selected">
+      <image class="board-admin__preview" src="{{preview}}" mode="aspectFill" />
+      <text class="board-page__label">{{selected.nickName}} · {{selected.gameServerName}}</text>
+      <text class="board-page__hint">{{selected.statusLabel}} · {{selected.safetyLabel}}</text>
+      <text class="board-page__hint">{{selected.text}}</text>
+      <text class="board-page__label">處理／人工複核理由（1–200 字）</text>
+      <textarea class="board-page__textarea" value="{{reason}}" maxlength="-1" bindinput="onReason" disabled="{{pendingAction}}" placeholder="拒絕、下架、限制或人工複核時必填" auto-height />
+      <text wx:if="{{reviewHint}}" class="board-page__hint">{{reviewHint}}</text>
+      <view class="board-page__actions">
+        <button wx:if="{{selected.status === 'pending-review'}}" class="ui-button ui-button--primary" data-action="approve" bindtap="onAction" disabled="{{!canApprove}}">批准公開</button>
+        <button wx:if="{{selected.status === 'pending-review'}}" class="ui-button ui-button--secondary" data-action="reject" bindtap="onAction" disabled="{{pendingAction || !viewer.review}}">拒絕留言</button>
+        <button wx:if="{{selected.status === 'published'}}" class="ui-button ui-button--secondary" data-action="hide" bindtap="onAction" disabled="{{pendingAction || !viewer.review}}">下架留言</button>
+        <button wx:if="{{selected.status === 'hidden'}}" class="ui-button ui-button--primary" data-action="restore" bindtap="onAction" disabled="{{!canApprove}}">重新公開</button>
+      </view>
+      <view wx:if="{{selectedReportId}}" class="board-page__actions"><button class="ui-button ui-button--secondary" data-action="resolveHide" bindtap="onAction" disabled="{{pendingAction}}">處理檢舉並下架</button><button class="ui-button ui-button--secondary" data-action="resolveKeep" bindtap="onAction" disabled="{{pendingAction}}">處理檢舉並保留</button></view>
+      <text class="board-page__label">投稿限制</text>
+      <button wx:if="{{selected.authorRestricted}}" class="ui-button ui-button--secondary" data-action="unrestrictAuthor" bindtap="onAction" disabled="{{pendingAction}}">解除作者投稿限制</button>
+      <button wx:else class="ui-button ui-button--secondary" data-action="restrictAuthor" bindtap="onAction" disabled="{{pendingAction}}">限制作者新投稿</button>
+      <block wx:if="{{selected.status === 'published' || selected.status === 'hidden'}}"><text class="board-page__label">管理員回覆（1–500 字）</text><textarea class="board-page__textarea" value="{{replyText}}" maxlength="-1" bindinput="onReply" disabled="{{pendingAction}}" auto-height /><text wx:if="{{replyHint}}" class="board-page__hint">{{replyHint}}；合格的新回覆生效前，保留舊回覆。</text><view class="board-page__actions"><button class="ui-button ui-button--primary" data-action="saveReply" bindtap="onAction" disabled="{{pendingAction || !viewer.review}}">提交回覆檢查</button><button class="ui-button ui-button--secondary" data-action="removeReply" bindtap="onAction" disabled="{{pendingAction || !viewer.review}}">移除回覆</button></view></block>
+    </view>
+    <button wx:if="{{pendingAction}}" class="ui-button ui-button--secondary" bindtap="onConfirm">確認管理操作結果</button>
+  </block>
+</view>

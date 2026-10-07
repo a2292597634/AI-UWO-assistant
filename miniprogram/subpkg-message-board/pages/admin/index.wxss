@@ -1,0 +1,14 @@
+@import '../../styles/board.wxss';
+.board-admin__selected {
+  border: 1rpx solid var(--uwo-color-border-strong);
+  border-radius: var(--uwo-radius-card);
+  padding: var(--uwo-space-6);
+  margin-top: var(--uwo-space-8);
+  background: var(--uwo-color-surface);
+}
+.board-admin__preview {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: var(--uwo-radius-pill);
+  margin-bottom: var(--uwo-space-4);
+}

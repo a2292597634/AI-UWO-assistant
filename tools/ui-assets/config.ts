@@ -33,6 +33,16 @@ const compactDisclosureUi = (id: string, source: string, output: string): UiAsse
 
 export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
   {
+    id: 'message-board-default-avatar',
+    source: 'message-board-default-avatar.svg',
+    output: 'message-board-default-avatar.png',
+    mode: 'resize-png',
+    width: 96,
+    height: 96,
+    maxBytes: 4 * 1024,
+    group: 'original-ui',
+  },
+  {
     id: 'feature-officer-catalog',
     source: 'feature-officer-catalog-source.png',
     output: 'feature-officer-catalog.png',

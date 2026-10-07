@@ -1,0 +1,41 @@
+{
+  "version": "1",
+  "servers": [
+    {
+      "id": "UWOGL-JP-02",
+      "name": "Blue Ocean"
+    },
+    {
+      "id": "UWOGL-JP-03",
+      "name": "Pacific Ocean"
+    },
+    {
+      "id": "UWO-KR-14",
+      "name": "북극해"
+    },
+    {
+      "id": "UWO-KR-13",
+      "name": "Caribbean Sea"
+    },
+    {
+      "id": "UWO-KR-01",
+      "name": "태평양1"
+    },
+    {
+      "id": "UWO-KR-04",
+      "name": "대서양1"
+    },
+    {
+      "id": "UWO-KR-10",
+      "name": "창해"
+    },
+    {
+      "id": "UWOGL-US-01",
+      "name": "Atlantic Ocean"
+    },
+    {
+      "id": "UWOGL-US-02",
+      "name": "Utopia Ocean"
+    }
+  ]
+}

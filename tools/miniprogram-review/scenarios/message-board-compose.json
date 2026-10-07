@@ -1,0 +1,69 @@
+{
+  "name": "完整投稿表單與隱私狀態",
+  "entry": "/subpkg-message-board/pages/compose/index",
+  "watchPaths": [
+    "miniprogram/subpkg-message-board/pages/compose/",
+    "miniprogram/runtime/message-board-platform.ts",
+    "miniprogram/controllers/message-board-compose-controller.ts",
+    "miniprogram/contracts/message-board.ts",
+    "miniprogram/controllers/message-board-list-controller.ts",
+    "miniprogram/domain/message-board/",
+    "miniprogram/presenters/message-board-presenter.ts",
+    "miniprogram/runtime/message-board-service.ts",
+    "miniprogram/runtime/cloudbase-config.ts",
+    "miniprogram/subpkg-message-board/components/",
+    "miniprogram/subpkg-message-board/styles/",
+    "miniprogram/assets/ui/message-board-default-avatar.png"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__title",
+        "exists": true
+      }
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__loading",
+        "exists": false
+      },
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__error",
+        "exists": false
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".board-page__title",
+      "contains": "寫留言"
+    },
+    {
+      "action": "assertText",
+      "selector": ".board-page",
+      "contains": "1–500"
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-compose-top"
+    },
+    {
+      "action": "scrollPage",
+      "distance": 340
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-compose-submit"
+    }
+  ]
+}

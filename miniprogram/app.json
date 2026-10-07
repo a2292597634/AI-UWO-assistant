@@ -34,7 +34,7 @@
     {
       "root": "subpkg-message-board",
       "name": "message-board",
-      "pages": ["pages/board/index"]
+      "pages": ["pages/board/index", "pages/compose/index", "pages/mine/index", "pages/admin/index"]
     }
   ],
   "window": {

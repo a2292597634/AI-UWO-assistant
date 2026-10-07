@@ -16,6 +16,8 @@ export const DATA_GENERATION_OUTPUT_PATHS: readonly string[] = [
   'miniprogram/subpkg-maintenance/maintenance-officers.js',
   'cloudfunctions/officer-custom/reference-data.json',
   'cloudfunctions/officer-maintenance/reference-data.json',
+  'cloudfunctions/coupon-redemption/game-servers.json',
+  'cloudfunctions/message-board/game-servers.json',
   'data/assets/asset-dependencies.json',
 ]
 

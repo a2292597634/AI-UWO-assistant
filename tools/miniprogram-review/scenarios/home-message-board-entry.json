@@ -40,8 +40,8 @@
     },
     {
       "action": "assertText",
-      "selector": ".message-board-page__status",
-      "contains": "留言板尚未開放"
+      "selector": ".board-page__title",
+      "contains": "留言板"
     },
     {
       "action": "screenshot",

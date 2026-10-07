@@ -40,6 +40,7 @@ import {
 } from './build-officer-reference-data'
 import { loadSkillIconOverrides } from '../asset-pipeline/source-skill-icons'
 import { buildMajorEventReference } from './build-major-event-runtime-data'
+import { buildGameServerOutputs } from './build-game-servers'
 
 const CANONICAL_DIR = 'data/master'
 const PUBLISHED_MANIFEST_PATH =
@@ -129,6 +130,14 @@ export const buildGeneratedOutputs = (stageRoot: string): void => {
   console.log(`  Asset roots: ${assetDependencies.roots.length}`)
 
   mkdirSync(OUTPUT_DIR, { recursive: true })
+  const gameServers = buildGameServerOutputs(readJson(`${CANONICAL_DIR}/game-servers.json`))
+  writeFileSync(join(OUTPUT_DIR, 'game-servers.js'), gameServers.runtimeJs)
+  writeFileSync(join(OUTPUT_DIR, 'game-servers.d.ts'), gameServers.runtimeTypes)
+  for (const name of ['coupon-redemption', 'message-board']) {
+    const path = join(stageRoot, 'cloudfunctions', name, 'game-servers.json')
+    mkdirSync(dirname(path), { recursive: true })
+    writeFileSync(path, gameServers.referenceJson)
+  }
   mkdirSync(FLEET_OUTPUT_DIR, { recursive: true })
   mkdirSync(SUBPKG_DIR, { recursive: true })
   mkdirSync(TRADE_SUBPKG_DIR, { recursive: true })

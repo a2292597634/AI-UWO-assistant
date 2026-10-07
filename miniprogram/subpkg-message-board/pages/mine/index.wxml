@@ -1,0 +1,21 @@
+<view class="board-page">
+  <text class="board-page__title">我的留言</text>
+  <text class="board-page__hint">這裡只有你自己的留言。投稿後不可修改原文；更換留言資料僅影響新投稿。</text>
+  <view class="board-page__tools"><button class="ui-button ui-button--primary" bindtap="onCompose" disabled="{{clearing}}">寫留言</button><button class="ui-button ui-button--secondary" bindtap="onProfile" disabled="{{clearing}}">留言資料設定</button></view>
+  <view wx:if="{{hasDraftPending}}" class="board-page__status">本機有一則提交結果尚未確認的留言，請先確認，避免重複投稿。<button class="ui-button ui-button--secondary" bindtap="onCompose">確認原提交結果</button></view>
+  <view wx:if="{{clearing}}" class="board-page__status">留言資料正在清除，你的留言已停止公開。請稍後重新整理查看進度。</view>
+  <view wx:if="{{loading}}" class="board-page__status board-page__loading">正在載入自己的留言…</view>
+  <view wx:if="{{error}}" class="board-page__status board-page__error" role="alert">{{error}}</view>
+  <button class="ui-button ui-button--secondary" bindtap="onRefresh" disabled="{{loading}}">重新整理</button>
+  <view wx:if="{{!loading && !clearing && rows.length === 0 && !error}}" class="board-page__status">你還沒有留言，或留言資料已清除。</view>
+  <message-card wx:for="{{rows}}" wx:key="messageId" nick-name="{{item.nickName}}" avatar-file-id="{{item.displayAvatar}}" server-name="{{item.gameServerName}}" body="{{item.text}}" created-label="{{item.createdLabel}}" status-label="{{item.statusLabel}}" safety-label="{{item.safetyLabel}}" reason="{{item.reason}}" reply-text="{{item.reply.text}}" reply-label="{{item.replyLabel}}">
+    <view slot="actions" class="board-page__actions">
+      <button wx:if="{{item.canWithdraw}}" class="ui-button ui-button--secondary" data-id="{{item.messageId}}" bindtap="onWithdraw" disabled="{{pendingAction}}">撤回留言</button>
+      <button wx:if="{{item.status === 'pending-review' && item.needsSafetyRetry}}" class="ui-button ui-button--secondary" data-id="{{item.messageId}}" bindtap="onRetry" disabled="{{pendingAction}}">重新確認安全檢查</button>
+    </view>
+  </message-card>
+  <button wx:if="{{cursor && rows.length < 100}}" class="ui-button ui-button--secondary" bindtap="onMore" disabled="{{loading}}">載入更多</button>
+  <view class="board-page__tools"><button wx:if="{{canPrevious}}" class="ui-button ui-button--secondary" bindtap="onPrevious">上一段</button><button wx:if="{{canNext}}" class="ui-button ui-button--secondary" bindtap="onNext">下一段</button></view>
+  <button wx:if="{{pendingAction}}" class="ui-button ui-button--secondary" bindtap="onConfirm">確認操作結果</button>
+  <view class="board-page__section"><text class="board-page__label">清除留言資料</text><text class="board-page__hint">撤下所有本人留言，清除暱稱、頭像和正文；必要的最小技術紀錄仍按保留期限處理。</text><button class="ui-button ui-button--danger" bindtap="onClear" disabled="{{pendingAction || clearing || !viewer}}">清除我的留言資料</button></view>
+</view>

@@ -1,0 +1,13 @@
+<view class="message-card">
+  <view class="message-card__header">
+    <image class="message-card__avatar" src="{{avatarFileId && !avatarFailed ? avatarFileId : defaultAvatar}}" mode="aspectFill" binderror="onAvatarError" aria-label="留言者頭像" />
+    <view class="message-card__identity"><text class="message-card__name">{{nickName}}</text><text class="message-card__meta">{{serverName}} · 留言於 {{createdLabel}}</text></view>
+  </view>
+  <text wx:if="{{statusLabel}}" class="message-card__status">{{statusLabel}}</text>
+  <text class="message-card__body {{expanded ? '' : 'message-card__body--clamped'}}">{{body}}</text>
+  <button wx:if="{{canExpand}}" class="message-card__expand" bindtap="onToggle">{{expanded ? '收合全文' : '展開全文'}}</button>
+  <text wx:if="{{safetyLabel}}" class="message-card__meta message-card__safety">{{safetyLabel}}</text>
+  <text wx:if="{{reason}}" class="message-card__reason">{{reason}}</text>
+  <view wx:if="{{replyText}}" class="message-card__reply"><text class="message-card__reply-title">管理員回覆</text><text class="message-card__body">{{replyText}}</text><text class="message-card__meta">{{replyLabel}}</text></view>
+  <slot name="actions" />
+</view>

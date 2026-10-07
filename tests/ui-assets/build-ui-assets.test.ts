@@ -82,6 +82,10 @@ const writePng = async (
 }
 
 const createFixtureSources = async (sourceRoot: string) => {
+  writeFileSync(
+    join(sourceRoot, 'message-board-default-avatar.svg'),
+    '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="40" fill="#625947"/></svg>',
+  )
   const original = join(sourceRoot, 'original')
   mkdirSync(original, { recursive: true })
   await Promise.all([

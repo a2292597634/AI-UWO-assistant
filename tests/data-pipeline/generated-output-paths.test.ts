@@ -20,6 +20,8 @@ describe('統一生成輸出集合', () => {
       'miniprogram/subpkg-maintenance/maintenance-officers.js',
       'cloudfunctions/officer-custom/reference-data.json',
       'cloudfunctions/officer-maintenance/reference-data.json',
+      'cloudfunctions/coupon-redemption/game-servers.json',
+      'cloudfunctions/message-board/game-servers.json',
       'data/assets/asset-dependencies.json',
       ...Array.from({ length: 10 }, (_, n) => `miniprogram/subpkg-detail/details-${n}.js`),
       ...Array.from({ length: 10 }, (_, n) => `miniprogram/subpkg-trade/trade-details-${n}.js`),

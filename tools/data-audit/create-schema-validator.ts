@@ -11,6 +11,7 @@ const schemaNames = [
   'assets',
   'trade-goods',
   'major-events',
+  'game-servers',
 ] as const
 type SchemaName = (typeof schemaNames)[number]
 

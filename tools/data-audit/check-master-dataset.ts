@@ -4,6 +4,7 @@ import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { createSchemaValidator } from './create-schema-validator'
 import { validateMasterDataset, type MasterDatasetInput } from './validate-master-dataset'
 import type { AuditFinding } from './types'
+import { buildGameServerOutputs } from '../data-pipeline/build-game-servers'
 
 export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
   const read = <T>(name: string): T =>
@@ -17,6 +18,10 @@ export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
       assets: read('assets'),
     }
     const validator = createSchemaValidator()
+    const gameServers = read('game-servers')
+    const serverFindings = validator.validate('game-servers', gameServers)
+    if (serverFindings.length) return serverFindings
+    buildGameServerOutputs(gameServers)
     const findings = (['dataset', 'officers', 'skills', 'dictionaries', 'assets'] as const).flatMap(
       (name) => validator.validate(name, input[name]),
     )

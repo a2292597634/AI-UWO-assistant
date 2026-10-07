@@ -1,7 +1,18 @@
 {
-  "name": "留言板未開放狀態與返回首頁",
+  "name": "永久留言板列表入口與返回首頁",
   "entry": "/subpkg-message-board/pages/board/index",
-  "watchPaths": ["miniprogram/subpkg-message-board/pages/board/"],
+  "watchPaths": [
+    "miniprogram/subpkg-message-board/pages/board/",
+    "miniprogram/contracts/message-board.ts",
+    "miniprogram/controllers/message-board-list-controller.ts",
+    "miniprogram/domain/message-board/",
+    "miniprogram/presenters/message-board-presenter.ts",
+    "miniprogram/runtime/message-board-service.ts",
+    "miniprogram/runtime/cloudbase-config.ts",
+    "miniprogram/subpkg-message-board/components/",
+    "miniprogram/subpkg-message-board/styles/",
+    "miniprogram/assets/ui/message-board-default-avatar.png"
+  ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
@@ -14,9 +25,26 @@
       }
     },
     {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__loading",
+        "exists": false
+      },
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__error",
+        "exists": false
+      }
+    },
+    {
       "action": "assertText",
-      "selector": ".message-board-page__status",
-      "contains": "留言板尚未開放"
+      "selector": ".board-page__title",
+      "contains": "留言板"
     },
     {
       "action": "assertText",

@@ -1,14 +1,4 @@
-const GAME_SERVER_IDS = new Set([
-  'UWOGL-JP-02',
-  'UWOGL-JP-03',
-  'UWO-KR-14',
-  'UWO-KR-13',
-  'UWO-KR-01',
-  'UWO-KR-04',
-  'UWO-KR-10',
-  'UWOGL-US-01',
-  'UWOGL-US-02',
-])
+const GAME_SERVER_IDS = new Set(require('./game-servers.json').servers.map(({ id }) => id))
 
 const MAX_USER_NAME_LENGTH = 100
 const MAX_COUPON_CODE_LENGTH = 50

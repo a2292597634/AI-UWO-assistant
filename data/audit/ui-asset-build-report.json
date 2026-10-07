@@ -320,6 +320,28 @@
       }
     },
     {
+      "id": "message-board-default-avatar",
+      "output": "message-board-default-avatar.png",
+      "group": "original-ui",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 2485,
+      "sha256": "2fc092c9ed704ba600bad2318fcd0ac16a47a925b82af077ae4531c24eed0d49",
+      "sourceTransparentBounds": {
+        "left": 1,
+        "top": 1,
+        "width": 94,
+        "height": 94
+      },
+      "outputTransparentBounds": {
+        "left": 1,
+        "top": 1,
+        "width": 94,
+        "height": 94
+      }
+    },
+    {
       "id": "mini-program-home-code",
       "output": "mini-program-home-code.png",
       "group": "original-ui",
@@ -765,7 +787,7 @@
   "groupBytes": {
     "banner": 181503,
     "feature": 15812,
-    "original-ui": 51351
+    "original-ui": 53836
   },
-  "totalBytes": 248666
+  "totalBytes": 251151
 }

@@ -24,6 +24,7 @@ const findings = findRuntimeNetworkReferences('miniprogram', {
     'runtime/main-data-store.ts',
     'runtime/coupon-redemption-service.ts',
     'runtime/officer-error-report-service.ts',
+    'runtime/message-board-service.ts',
   ],
   allowedCloudUploadFiles: ['runtime/officer-error-report-service.ts'],
   allowedCloudInitFiles: ['app.ts'],

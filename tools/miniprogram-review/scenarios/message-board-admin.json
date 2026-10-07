@@ -1,0 +1,63 @@
+{
+  "name": "管理工作台角色檢查與列表",
+  "entry": "/subpkg-message-board/pages/admin/index",
+  "watchPaths": [
+    "miniprogram/subpkg-message-board/pages/admin/",
+    "miniprogram/contracts/message-board.ts",
+    "miniprogram/controllers/message-board-list-controller.ts",
+    "miniprogram/domain/message-board/",
+    "miniprogram/presenters/message-board-presenter.ts",
+    "miniprogram/runtime/message-board-service.ts",
+    "miniprogram/runtime/cloudbase-config.ts",
+    "miniprogram/subpkg-message-board/components/",
+    "miniprogram/subpkg-message-board/styles/",
+    "miniprogram/assets/ui/message-board-default-avatar.png"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__title",
+        "exists": true
+      }
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__tools",
+        "exists": true
+      },
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__loading",
+        "exists": false
+      },
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "exists",
+        "selector": ".board-page__error",
+        "exists": false
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".board-page__title",
+      "contains": "管理工作台"
+    },
+    {
+      "action": "screenshot",
+      "name": "message-board-admin-role"
+    }
+  ]
+}

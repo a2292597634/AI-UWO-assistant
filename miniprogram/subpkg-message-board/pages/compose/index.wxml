@@ -1,0 +1,32 @@
+<view class="board-page">
+  <text class="board-page__title">{{profileOnly ? '留言資料設定' : '寫留言'}}</text>
+  <text class="board-page__hint">審核通過後，留言會公開顯示你的暱稱、頭像及伺服器。你可以使用預設頭像。</text>
+  <view wx:if="{{loading}}" class="board-page__status board-page__loading">正在載入留言資料…</view>
+  <view wx:if="{{error}}" class="board-page__status board-page__error" role="alert">{{error}}</view>
+  <view wx:if="{{phase === 'accepted'}}" class="board-page__status">已提交，審核通過後公開。<button class="ui-button ui-button--secondary" bindtap="onMine">查看我的留言</button></view>
+  <view wx:if="{{phase === 'profile-saved'}}" class="board-page__status">已更新留言資料。舊留言仍保留投稿時的暱稱與頭像，正文草稿也已保留。</view>
+  <form bindsubmit="onSubmit">
+    <block wx:if="{{!profileOnly}}"><text class="board-page__label">所屬伺服器（必選）</text>
+    <picker range="{{serverNames}}" value="{{serverIndex}}" disabled="{{phase === 'busy'}}" bindchange="onServerChange"><view class="board-page__picker">{{serverNames[serverIndex]}}　▾</view></picker></block>
+    <view wx:if="{{!privacyReady}}" class="board-page__status">
+      <text>選用暱稱與頭像前，請先閱讀微信隱私指引。拒絕時仍可返回瀏覽，正文草稿會保留。</text>
+      <button class="ui-button ui-button--secondary" bindtap="onPrivacy">閱讀隱私指引</button>
+      <button id="board-agree-privacy" class="ui-button ui-button--primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="onAgreePrivacy">同意並繼續</button>
+    </view>
+    <block wx:if="{{privacyReady}}">
+      <text class="board-page__label">留言暱稱（1–32 字）</text>
+      <input class="board-page__input" name="nickname" type="{{nicknameSupported ? 'nickname' : 'text'}}" value="{{nickname}}" maxlength="-1" placeholder="手動填寫或選用微信暱稱" disabled="{{phase === 'busy'}}" bindinput="onNicknameInput" />
+      <text class="board-page__label">頭像（選填）</text>
+      <button wx:if="{{chooseAvatarSupported}}" class="board-page__avatar-button" open-type="chooseAvatar" bindchooseavatar="onAvatarChoose" disabled="{{phase === 'busy'}}"><image class="board-page__avatar" src="{{avatarSrc}}" mode="aspectFill"/><text>主動選用微信頭像</text></button>
+      <text wx:else class="board-page__hint">此版本微信暫不支援選用頭像，將使用預設頭像。</text>
+      <button class="ui-button ui-button--secondary" bindtap="onDefaultAvatar" disabled="{{phase === 'busy'}}">使用預設頭像</button>
+    </block>
+    <block wx:if="{{!profileOnly}}"><text class="board-page__label">留言正文（1–500 字）</text>
+    <textarea class="board-page__textarea" name="body" value="{{body}}" maxlength="-1" placeholder="分享你的航海心得、問題或建議" disabled="{{phase === 'busy'}}" bindinput="onBodyInput" auto-height />
+    <text class="board-page__hint">{{characterCount}} / 500 字。投稿後正文與展示資料不可修改；需要移除時可撤回。</text></block>
+    <text wx:if="{{blockedReason}}" class="board-page__hint">{{blockedReason}}</text>
+    <button wx:if="{{phase === 'unconfirmed'}}" class="ui-button ui-button--secondary" bindtap="onConfirm">確認提交結果</button>
+    <button class="ui-button ui-button--primary" form-type="submit" disabled="{{submitDisabled}}">{{phase === 'busy' ? '正在處理…' : profileOnly ? '保存留言資料' : '提交留言'}}</button>
+  </form>
+  <button class="ui-button ui-button--secondary" bindtap="onMine">我的留言</button>
+</view>
