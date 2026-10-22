@@ -22,6 +22,14 @@ export interface ReviewChecks {
   repository: { status: ReviewCheckStatus; required: boolean; command: string; evidence?: string }
   external: Array<{ id: string; status: ReviewCheckStatus; required: boolean; evidence?: string }>
 }
+/** 舊報告缺少分層欄位時，只能確定原頁面狀態，門禁仍未執行。 */
+export const reviewChecks = (report: ReviewReport): ReviewChecks =>
+  report.checks ?? {
+    mode: 'iterate',
+    page: { status: report.status, required: true },
+    repository: { status: 'not-run', required: false, command: 'npm run verify' },
+    external: [],
+  }
 export const PRODUCT_EXTERNAL_GAPS = [
   '長列表原生渲染',
   '四寬度與公共基礎庫',
@@ -284,10 +292,14 @@ ${list(iteration.notes)}` + (pairs ? '\n\n' + pairs : '')
 
 整體結論範圍：本輪要求的檢查。
 
-- 頁面檢查：${statusLabel(report.checks.page.status)}
-- 倉庫門禁：${statusLabel(report.checks.repository.status)}（${report.checks.repository.command}）
-- 門禁證據：${report.checks.repository.evidence ?? '未提供'}
-- 外部驗收：${report.checks.external.map((c) => c.id + '：' + statusLabel(c.status)).join('；') || '未執行'}
+- 頁面檢查：${statusLabel(reviewChecks(report).page.status)}
+- 倉庫門禁：${statusLabel(reviewChecks(report).repository.status)}（${reviewChecks(report).repository.command}）
+- 門禁證據：${reviewChecks(report).repository.evidence ?? '未提供'}
+- 外部驗收：${
+    reviewChecks(report)
+      .external.map((c) => c.id + '：' + statusLabel(c.status))
+      .join('；') || '未執行'
+  }
 - 產品外部缺口仍待獨立證據：${PRODUCT_EXTERNAL_GAPS.join('；')}。本報告不代表發布驗收通過。
 
 ## 修改过程

@@ -31,15 +31,16 @@ export async function waitForCondition(input: {
     deadline = started + input.timeoutMs
   let stable = 0,
     last: boolean | undefined
-  const timeout = (pendingProbe = false) =>
-    new WaitConditionTimeoutError(
-      (pendingProbe ? 'automator response timeout（條件探測尚未回覆）：' : '條件等待超時：') +
-        (input.description ?? 'probe') +
-        '；總等待 ' +
-        input.timeoutMs +
-        'ms；最後可觀察值：' +
-        JSON.stringify(input.lastObservation?.() ?? last ?? '未知'),
-    )
+  const timeout = (pendingProbe = false): Error => {
+    const message =
+      (pendingProbe ? 'automator response timeout（waitUntil 探針尚未回覆）：' : '條件等待超時：') +
+      (input.description ?? 'probe') +
+      '；總等待 ' +
+      input.timeoutMs +
+      'ms；最後觀察值：' +
+      JSON.stringify(input.lastObservation?.() ?? last ?? '未知')
+    return pendingProbe ? new Error(message) : new WaitConditionTimeoutError(message)
+  }
   while (now() < deadline) {
     const remaining = deadline - now()
     let timer: ReturnType<typeof setTimeout> | undefined

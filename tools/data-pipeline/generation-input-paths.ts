@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { dirname, resolve, basename } from 'node:path'
-import { readInputTree } from '../workflow/read-inputs'
+import { readGenerationTree } from './generated-output-paths'
 
 /** 依 generate.ts 及其傳遞依賴維護；不含正式生成產物或報告。 */
 export const GENERATION_INPUT_PATHS: readonly string[] = [
@@ -29,7 +29,7 @@ export function fingerprintGenerationInputs(input: {
   for (const p of GENERATION_INPUT_PATHS) {
     // manifest 的實際路徑可能由既有環境變數覆蓋。
     if (p === 'data/assets/cloudbase-manifest.json') continue
-    for (const [name, digest] of readInputTree(input.projectRoot, p)) entries.set(name, digest)
+    for (const [name, digest] of readGenerationTree(input.projectRoot, p)) entries.set(name, digest)
   }
   for (const [key, fallback, required] of [
     ['CLOUDBASE_ASSET_MANIFEST_PATH', 'data/assets/cloudbase-manifest.json', true],
@@ -37,7 +37,7 @@ export function fingerprintGenerationInputs(input: {
   ] as const) {
     const path = resolve(input.projectRoot, input.env[key] ?? fallback)
     hash.update(JSON.stringify([key, path]))
-    const files = readInputTree(
+    const files = readGenerationTree(
       dirname(path),
       basename(path),
       required || input.env[key] !== undefined,

@@ -143,3 +143,60 @@ it('拒絕另一棵樹及 junction，不碰外部檔案', () => {
   }
   expect(readFileSync(join(external, 'out/sample.js'), 'utf8')).toBe('2\n')
 })
+it('第一輪後輸入短暫改變再還原仍拒絕通過', () => {
+  const root = fixture()
+  let round = 0
+  let fingerprint = 'original'
+  const result = checkGeneratedOutputs({
+    projectRoot: root,
+    outputPaths: ['out'],
+    fingerprintInputs: () => fingerprint,
+    buildStage: (stage) => {
+      build(stage)
+      fingerprint = ++round === 1 ? 'changed' : 'original'
+    },
+  })
+  expect(result.findings.map((finding) => finding.code)).toContain('GENERATION_INPUT_CHANGED')
+  expect(readFileSync(join(root, 'out/sample.js'), 'utf8')).toBe('2\n')
+})
+it.each(['miniprogram/subpkg-detail/details-', 'miniprogram/subpkg-trade/trade-details-'])(
+  '工具分片命名空間 %s 中陳舊產物分類為漂移且不刪除',
+  (prefix) => {
+    const root = fixture()
+    const current = prefix + '0.js'
+    const stale = prefix + 'stale.js'
+    mkdirSync(join(root, current, '..'), { recursive: true })
+    writeFileSync(join(root, current), 'current')
+    writeFileSync(join(root, stale), 'stale')
+    const result = checkGeneratedOutputs({
+      projectRoot: root,
+      outputPaths: [current],
+      fingerprintInputs: () => 'fixed',
+      buildStage: (stage) => {
+        mkdirSync(join(stage, current, '..'), { recursive: true })
+        writeFileSync(join(stage, current), 'current')
+      },
+    })
+    expect(result.findings).toContainEqual({
+      code: 'GENERATED_OUTPUT_DRIFT',
+      paths: [stale],
+      message: expect.any(String),
+    })
+    expect(readFileSync(join(root, stale), 'utf8')).toBe('stale')
+  },
+)
+it('拒絕根以上的 junction，避免候選根別名繞過隔離', () => {
+  const root = fixture()
+  const external = fixture()
+  mkdirSync(join(external, 'nested'))
+  mkdirSync(join(external, 'nested/out'))
+  writeFileSync(join(external, 'nested/out/sample.js'), '2\n')
+  symlinkSync(external, join(root, 'alias'), process.platform === 'win32' ? 'junction' : 'dir')
+  const result = checkGeneratedOutputs({
+    projectRoot: join(root, 'alias/nested'),
+    outputPaths: ['out'],
+    fingerprintInputs: () => 'fixed',
+    buildStage: build,
+  })
+  expect(result.findings[0]?.code).toBe('GENERATION_BUILD_FAILED')
+})

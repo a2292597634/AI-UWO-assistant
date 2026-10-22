@@ -1,5 +1,6 @@
 import type { ReviewFixtureName } from './fixtures'
 import type { ReviewLaunchRecord } from './evidence'
+export type { ReviewWaitCondition } from './wait-condition'
 import type { ReviewWaitCondition } from './wait-condition'
 export interface ReviewConfig {
   projectPath: string

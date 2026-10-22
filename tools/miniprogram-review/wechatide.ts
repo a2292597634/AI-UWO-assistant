@@ -93,12 +93,6 @@ class WechatIdeToolError extends Error {
   }
 }
 
-const isWechatIdeConnectionError = (error: unknown): boolean =>
-  error instanceof WechatIdeToolError &&
-  /connect|session|closed|timeout|current page|项目窗口|开发者工具窗口|自动化端点|自动化会话|当前页面/i.test(
-    error.message,
-  )
-
 const createDefaultRunner = (cliPath: string): WechatIdeRunner => ({
   async call(tool, args, options) {
     let output: string
@@ -177,21 +171,6 @@ const readCurrentPage = async (runner: WechatIdeRunner, projectPath: string): Pr
   return route.startsWith('/') ? route : `/${route}`
 }
 
-const readPageData = async (
-  runner: WechatIdeRunner,
-  projectPath: string,
-  dataPath: string,
-): Promise<unknown> => {
-  const result = (await runner.call('automation_page_action', [
-    ...projectArgs(projectPath),
-    '--action',
-    'getData',
-    '--data-path',
-    dataPath,
-  ])) as { data?: unknown }
-  return result.data
-}
-
 const unwrapEvaluateResult = (result: unknown): unknown => {
   if (!result || typeof result !== 'object') return result
   const envelope = result as { success?: unknown; result?: unknown }
@@ -217,37 +196,6 @@ const evaluateRuntime = async <T>(
   return unwrapEvaluateResult(result) as T
 }
 
-const readSharePreviewTitleFunction = [
-  'function () {',
-  'var pages = getCurrentPages();',
-  'var page = pages[0] ? pages[0] : null;',
-  "var component = page ? page.selectComponent('#fleet-share-preview') : null;",
-  "if (!component) throw new Error('找不到分享圖預覽元件');",
-  'return component.data ? component.data.title : null;',
-  '}',
-].join(' ')
-
-const scrollSharePreviewFunction = [
-  'function () {',
-  'var pages = getCurrentPages();',
-  'var page = pages[0] ? pages[0] : null;',
-  "var component = page ? page.selectComponent('#fleet-share-preview') : null;",
-  "if (!component) throw new Error('找不到分享圖預覽元件');",
-  'return new Promise(function (resolve, reject) {',
-  "component.setData({ automationScrollIntoView: 'fleet-share-preview__bottom-anchor' }, function () {",
-  'var query = wx.createSelectorQuery().in(component);',
-  "query.select('.fleet-share-preview__content').scrollOffset().exec(function (result) {",
-  'var offset;',
-  'var firstResult = result ? result[0] : null;',
-  'if (firstResult) offset = firstResult.scrollTop;',
-  "if (typeof offset !== 'number') { reject(new Error('无法读取分享圖預覽實際滾動位置')); return; }",
-  'resolve(offset);',
-  '});',
-  '});',
-  '});',
-  '}',
-].join(' ')
-
 const waitForCurrentPage = async (
   runner: WechatIdeRunner,
   projectPath: string,
@@ -264,16 +212,6 @@ const waitForCurrentPage = async (
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 500))
   }
   throw lastError instanceof Error ? lastError : new Error('等待微信开发者工具当前页面超时')
-}
-
-const componentSelectorKind = (
-  selector: string,
-): 'config-bar' | 'config-bar-share' | 'share-preview' | 'share-preview-content' | undefined => {
-  if (/config-bar__share/.test(selector)) return 'config-bar-share'
-  if (/fleet-share-preview__content/.test(selector)) return 'share-preview-content'
-  if (/fleet-share-preview/.test(selector)) return 'share-preview'
-  if (/config-bar/.test(selector)) return 'config-bar'
-  return undefined
 }
 
 const normalizeSelector = (selector: string): string => {
@@ -308,45 +246,6 @@ const elementArgs = (
     args.push(`--${name}`, String(value))
   }
   return args
-}
-
-const componentReady = async (
-  runner: WechatIdeRunner,
-  projectPath: string,
-  selector: string,
-): Promise<boolean> => {
-  const kind = componentSelectorKind(selector)
-  if (kind === 'config-bar' || kind === 'config-bar-share') {
-    await readPageData(runner, projectPath, 'configName')
-    return kind === 'config-bar' || Boolean(await readPageData(runner, projectPath, 'configName'))
-  }
-  if (kind === 'share-preview-content' || kind === 'share-preview') {
-    const status = await readPageData(runner, projectPath, 'shareStatus')
-    if (status !== 'ready' && status !== 'error') return false
-    if (/image/.test(selector))
-      return Boolean(await readPageData(runner, projectPath, 'shareImagePath'))
-    return true
-  }
-  return false
-}
-
-const waitForComponent = async (
-  runner: WechatIdeRunner,
-  projectPath: string,
-  selector: string,
-  timeoutMs: number,
-): Promise<void> => {
-  const deadline = Date.now() + timeoutMs
-  while (Date.now() < deadline) {
-    try {
-      if (await componentReady(runner, projectPath, selector)) return
-    } catch (error) {
-      if (isWechatIdeConnectionError(error)) throw error
-      // 组件数据可能仍在首帧初始化，下一轮继续读取。
-    }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
-  }
-  throw new Error(`等待元素超时：${selector}`)
 }
 
 const createAdapter = (
@@ -396,16 +295,6 @@ const createAdapter = (
       ])
     },
     async tap(selector) {
-      if (componentSelectorKind(selector) === 'config-bar-share') {
-        await runner.call('automation_page_action', [
-          ...projectArgs(projectPath),
-          '--action',
-          'callMethod',
-          '--method',
-          'onShareFleet',
-        ])
-        return
-      }
       await runner.call('automation_element_action', elementArgs(projectPath, selector, 'tap'))
     },
     async input(selector, value) {
@@ -430,17 +319,6 @@ const createAdapter = (
       ])
     },
     async scrollElement(selector, distance) {
-      if (componentSelectorKind(selector) === 'share-preview-content') {
-        const scrollTop = await evaluateRuntime<number>(
-          runner,
-          projectPath,
-          scrollSharePreviewFunction,
-        )
-        if (!Number.isFinite(scrollTop) || scrollTop <= 0) {
-          throw new Error(`分享圖預覽內容未發生滾動：期望 ${distance}px，實際 ${String(scrollTop)}`)
-        }
-        return
-      }
       await runner.call(
         'automation_element_action',
         elementArgs(projectPath, selector, 'scrollTo', { x: 0, y: distance }),
@@ -449,10 +327,6 @@ const createAdapter = (
     async waitFor(selectorOrDuration, timeoutMs = 5000) {
       if (typeof selectorOrDuration === 'number') {
         await new Promise((resolveDelay) => setTimeout(resolveDelay, selectorOrDuration))
-        return
-      }
-      if (componentSelectorKind(selectorOrDuration)) {
-        await waitForComponent(runner, projectPath, selectorOrDuration, timeoutMs)
         return
       }
       const deadline = Date.now() + timeoutMs
@@ -495,8 +369,6 @@ const createAdapter = (
       throw errorWithCause(`等待元素超时：${selectorOrDuration}`, lastError)
     },
     async queryElement(selector) {
-      if (componentSelectorKind(selector))
-        return await componentReady(runner, projectPath, selector)
       try {
         await runner.call('automation_element_action', elementArgs(projectPath, selector, 'size'))
         return true
@@ -506,24 +378,18 @@ const createAdapter = (
       }
     },
     async isVisible(selector) {
-      if (componentSelectorKind(selector))
-        return await componentReady(runner, projectPath, selector)
-      const result = (await runner.call(
-        'automation_element_action',
-        elementArgs(projectPath, selector, 'size'),
-      )) as { width?: unknown; height?: unknown }
-      return Number(result.width) > 0 && Number(result.height) > 0
+      try {
+        const result = (await runner.call(
+          'automation_element_action',
+          elementArgs(projectPath, selector, 'size'),
+        )) as { width?: unknown; height?: unknown }
+        return Number(result.width) > 0 && Number(result.height) > 0
+      } catch (error) {
+        if (isMissingElementError(error)) return false
+        throw error
+      }
     },
     async readText(selector) {
-      if (/fleet-share-preview__title/.test(selector)) {
-        const title = await evaluateRuntime<unknown>(
-          runner,
-          projectPath,
-          readSharePreviewTitleFunction,
-        )
-        if (typeof title !== 'string') throw new Error('无法读取分享圖預覽標題')
-        return title
-      }
       const result = await runner.call(
         'automation_element_action',
         elementArgs(projectPath, selector, 'text'),

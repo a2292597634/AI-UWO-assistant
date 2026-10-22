@@ -32,6 +32,9 @@ Page({
     blockedReason: '正在連接留言服務。',
     profile: null as BoardProfile | null,
     profileOnly: false,
+    pendingExpired: false,
+    recoveryReviewed: false,
+    retryDisabled: true,
   },
   controller: null as Controller | null,
   service: createMessageBoardService(),
@@ -82,6 +85,7 @@ Page({
           prepareAvatar: prepareBoardAvatar,
           draft,
           profile,
+          now: () => Date.now() + this.serverOffset,
         })
         this.setData({ profile })
       }
@@ -161,6 +165,15 @@ Page({
       avatarSrc: view.avatarPath || this.previewFile || BOARD_DEFAULT_AVATAR,
       submitDisabled: !!blockedReason,
       blockedReason,
+      pendingExpired: view.pendingExpired,
+      recoveryReviewed: view.recoveryReviewed,
+      retryDisabled:
+        busy ||
+        !viewer ||
+        !viewer.write ||
+        viewer.restricted ||
+        viewer.clearing ||
+        !this.data.privacyReady,
     })
   },
   onServerChange(event: WechatMiniprogram.CustomEvent<{ value: string }>) {
@@ -221,6 +234,33 @@ Page({
     const promise = this.controller.confirmPendingOperation()
     this.sync()
     await promise
+    this.sync()
+  },
+  async onRetryOriginal() {
+    if (!this.controller || this.data.retryDisabled) return
+    const promise = this.controller.retryPendingOperation()
+    this.sync()
+    await promise
+    this.sync()
+  },
+  async onReviewExpired() {
+    if (!this.controller) return
+    const promise = this.controller.reviewExpiredOperation()
+    this.sync()
+    const reviewed = await promise
+    this.sync()
+    if (reviewed && this.visible) this.onMine()
+  },
+  async onRestoreExpired() {
+    if (!this.controller || !this.data.recoveryReviewed) return
+    const result = await wx.showModal({
+      title: '恢復正文草稿',
+      content:
+        '我已核對「我的留言」及留言資料。放棄原操作只會解除待確認狀態，不會刪除可能已送達的留言。恢復後不會自動重新投稿。',
+      confirmText: '確認恢復',
+      cancelText: '繼續核對',
+    })
+    if (result.confirm && this.visible) this.controller.restoreExpiredDraft()
     this.sync()
   },
   onMine() {

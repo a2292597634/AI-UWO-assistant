@@ -2,7 +2,12 @@ import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path
 import { statSync } from 'node:fs'
 import { assertSafeInputPath } from '../workflow/read-inputs'
 
-import { PRODUCT_EXTERNAL_GAPS, type ReviewReport, type ReviewCheckStatus } from './report'
+import {
+  reviewChecks,
+  PRODUCT_EXTERNAL_GAPS,
+  type ReviewReport,
+  type ReviewCheckStatus,
+} from './report'
 import type { ScenarioRunResult, StepRunResult } from './runner'
 import { evidenceSummary } from './evidence'
 
@@ -15,7 +20,7 @@ const actionLabels: Record<string, string> = {
   scrollPage: '滚动页面',
   scrollElement: '滚动元素',
   waitFor: '等待',
-  waitUntil: '條件等待',
+  waitUntil: '等待條件',
   assertExists: '存在断言',
   assertVisible: '可见断言',
   assertText: '文字断言',
@@ -174,6 +179,7 @@ const iconSymbols = `
   <symbol id="icon-scrollPage" viewBox="0 0 24 24"><path d="M12 4v16m0-16-4 4m4-4 4 4m-4 12 4-4m-4 4-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="icon-scrollElement" viewBox="0 0 24 24"><path d="M5 5h14v14H5zM12 8v8m0-8-3 3m3-3 3 3m-3 5 3-3m-3 3-3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="icon-waitFor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-waitUntil" viewBox="0 0 24 24"><use href="#icon-waitFor"/></symbol>
   <symbol id="icon-assertExists" viewBox="0 0 24 24"><path d="M4 12s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
   <symbol id="icon-assertVisible" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="icon-assertText" viewBox="0 0 24 24"><path d="M5 7h14M5 12h10M5 17h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -229,6 +235,8 @@ export const renderReviewReportHtml = (report: ReviewReport, outputDir: string):
   const scenarios = report.results.length
     ? `<div class="scenario-list">${report.results.map((result) => renderScenario(outputDir, result)).join('')}</div>`
     : '<p class="empty-state">本次没有可展示的场景结果。</p>'
+  const checks = reviewChecks(report)
+  const legacyLayers = report.checks ? '' : '<p>分層結果：未記錄（舊報告）</p>'
   const failedSteps = countFailedSteps(report)
   const rawJson = escapeHtml(JSON.stringify(report, null, 2))
 
@@ -251,9 +259,9 @@ ${iconSymbols}
   </header>
 
   <section class="section"><h2>分層結果</h2><p>整體結論範圍：本輪要求的檢查。</p><div class="coverage-grid">
-    <article class="coverage-card"><h3>頁面檢查</h3>${statusBadge(report.checks.page.status)}</article>
-    <article class="coverage-card"><h3>倉庫門禁</h3>${statusBadge(report.checks.repository.status)}<p>${escapeHtml(report.checks.repository.command)}</p><p>${escapeHtml(report.checks.repository.evidence ?? '未提供')}</p></article>
-    <article class="coverage-card"><h3>外部驗收</h3>${report.checks.external.length ? listItems(report.checks.external.map((c) => c.id + '：' + statusLabels[c.status])) : '<p>未執行</p>'}</article>
+    <article class="coverage-card"><h3>頁面檢查</h3>${statusBadge(checks.page.status)}</article>
+    <article class="coverage-card"><h3>倉庫門禁</h3>${legacyLayers}${statusBadge(checks.repository.status)}<p>${escapeHtml(checks.repository.command)}</p><p>${escapeHtml(checks.repository.evidence ?? '未提供')}</p></article>
+    <article class="coverage-card"><h3>外部驗收</h3>${checks.external.length ? listItems(checks.external.map((c) => c.id + '：' + statusLabels[c.status])) : '<p>未執行</p>'}</article>
   </div><p>產品外部缺口仍待獨立證據：${escapeHtml(PRODUCT_EXTERNAL_GAPS.join('；'))}。本報告不代表發布驗收通過。</p></section>
 
   <section class="section" aria-labelledby="summary-heading"><h2 id="summary-heading">验收摘要</h2><div class="summary-grid">

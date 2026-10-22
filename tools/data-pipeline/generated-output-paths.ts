@@ -1,4 +1,6 @@
-import { resolve, relative, isAbsolute } from 'node:path'
+import { resolve, relative, isAbsolute, join, sep, dirname, parse } from 'node:path'
+import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 
 /** 只列工具擁有的產物，不含分包人工頁面與素材。 */
 export const DATA_GENERATION_OUTPUT_PATHS: readonly string[] = [
@@ -31,7 +33,60 @@ export function assertProjectPath(projectRoot: string, path: string): string {
     isAbsolute(child)
   )
     throw new Error(`回復路徑超出專案範圍：${target}`)
+  let current = parse(target).root
+  for (const part of target.slice(current.length).split(sep)) {
+    current = join(current, part)
+    try {
+      if (lstatSync(current).isSymbolicLink())
+        throw new Error(`拒絕符號連結或 junction：${current}`)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+  }
   return target
+}
+
+/** 完整收集普通檔案 bytes 與目錄成員，拒絕連結和特殊檔案。 */
+export function readGenerationTree(
+  root: string,
+  path: string,
+  required = true,
+): Map<string, string> {
+  const target = assertProjectPath(root, resolve(root, path))
+  const files = new Map<string, string>()
+  if (!existsSync(target)) {
+    if (required) throw new Error(`輸入或產物缺失：${target}`)
+    return files
+  }
+  const visit = (file: string): void => {
+    assertProjectPath(root, file)
+    const stat = lstatSync(file)
+    const name = relative(resolve(root), file).replace(/\\/g, '/')
+    if (stat.isDirectory()) {
+      files.set(name + '/', 'directory')
+      for (const entry of readdirSync(file).sort()) visit(join(file, entry))
+    } else if (stat.isFile())
+      files.set(name, createHash('sha256').update(readFileSync(file)).digest('hex'))
+    else throw new Error(`不是普通檔案或目錄：${file}`)
+  }
+  visit(target)
+  return files
+}
+
+/** 分片目錄含人工檔案，只擴充工具擁有的分片命名空間以偵測陳舊多檔。 */
+export function expandGenerationOutputPaths(root: string, paths: readonly string[]): string[] {
+  const result = new Set(paths)
+  for (const [directory, pattern] of [
+    ['miniprogram/subpkg-detail', /^details-.*\.js$/],
+    ['miniprogram/subpkg-trade', /^trade-details-.*\.js$/],
+  ] as const) {
+    if (!paths.some((path) => dirname(path).replace(/\\/g, '/') === directory)) continue
+    const target = assertProjectPath(root, resolve(root, directory))
+    if (!existsSync(target)) continue
+    for (const name of readdirSync(target))
+      if (pattern.test(name)) result.add(`${directory}/${name}`)
+  }
+  return [...result].sort()
 }
 
 export function getMaintenanceRollbackPaths(projectRoot: string): readonly string[] {

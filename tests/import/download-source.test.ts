@@ -1,10 +1,21 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import {
   downloadFullFile,
   downloadWithRanges,
   rangeHeader,
 } from '../../tools/import/download-source'
 import { sourceConfig } from '../../tools/data-audit/source-config'
+
+let downloadRoot: string
+beforeEach(() => {
+  downloadRoot = mkdtempSync(join(tmpdir(), 'uwo-download-test-'))
+})
+afterEach(() => {
+  rmSync(downloadRoot, { recursive: true, force: true })
+})
 
 describe('rangeHeader', () => {
   it('formats a byte range for an HTTP header', () => {
@@ -28,7 +39,7 @@ describe('downloadFullFile', () => {
 
     const result = await downloadFullFile(
       'https://voyage.tw/js/json_char.js?v=2026052501',
-      '/tmp/test-out.js',
+      join(downloadRoot, 'test-out.js'),
       fetcher,
     )
 
@@ -45,7 +56,7 @@ describe('downloadFullFile', () => {
   it('rejects non-200 responses', async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 404 }))
     await expect(
-      downloadFullFile('https://voyage.tw/js/json_char.js', '/tmp/out', fetcher),
+      downloadFullFile('https://voyage.tw/js/json_char.js', join(downloadRoot, 'out'), fetcher),
     ).rejects.toThrow('IMPORT_DOWNLOAD_STATUS')
   })
 })
@@ -100,7 +111,7 @@ describe('downloadWithRanges', () => {
     const result = await downloadWithRanges(
       'https://voyage.tw/js/lang_1.js?v=1779690379',
       ranges,
-      '/tmp/lang-out',
+      join(downloadRoot, 'lang-out'),
       fetcher,
     )
 
@@ -124,7 +135,12 @@ describe('downloadWithRanges', () => {
   it('rejects non-206 responses for Range requests', async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response('{}', { status: 200 }))
     await expect(
-      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 100]], '/tmp/lang-out', fetcher),
+      downloadWithRanges(
+        'https://voyage.tw/js/lang_1.js',
+        [[0, 100]],
+        join(downloadRoot, 'lang-out'),
+        fetcher,
+      ),
     ).rejects.toThrow('IMPORT_RANGE_REQUIRED')
   })
 
@@ -132,7 +148,12 @@ describe('downloadWithRanges', () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response('abc', { status: 206 }))
 
     await expect(
-      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 2]], '/tmp/lang-out', fetcher),
+      downloadWithRanges(
+        'https://voyage.tw/js/lang_1.js',
+        [[0, 2]],
+        join(downloadRoot, 'lang-out'),
+        fetcher,
+      ),
     ).rejects.toThrow('IMPORT_RANGE_CONTENT_RANGE_MISSING')
   })
 
@@ -145,7 +166,12 @@ describe('downloadWithRanges', () => {
     )
 
     await expect(
-      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[10, 13]], '/tmp/lang-out', fetcher),
+      downloadWithRanges(
+        'https://voyage.tw/js/lang_1.js',
+        [[10, 13]],
+        join(downloadRoot, 'lang-out'),
+        fetcher,
+      ),
     ).rejects.toThrow('IMPORT_RANGE_CONTENT_RANGE_MISMATCH')
   })
 
@@ -158,7 +184,12 @@ describe('downloadWithRanges', () => {
     )
 
     await expect(
-      downloadWithRanges('https://voyage.tw/js/lang_1.js', [[0, 3]], '/tmp/lang-out', fetcher),
+      downloadWithRanges(
+        'https://voyage.tw/js/lang_1.js',
+        [[0, 3]],
+        join(downloadRoot, 'lang-out'),
+        fetcher,
+      ),
     ).rejects.toThrow('IMPORT_RANGE_LENGTH_MISMATCH')
   })
 })

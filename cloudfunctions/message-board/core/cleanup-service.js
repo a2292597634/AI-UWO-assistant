@@ -63,8 +63,28 @@ function createCleanup(ctx) {
       } else await tx.remove(C.assets, asset._id)
     })
   }
+  // 以穩定文件 ID 記住掃描進度；只在當前候選完成後前進，失敗仍可重入。
+  async function scanOld(collection, process) {
+    const cursorId = `cleanup-cursor:${collection}`
+    const cursor = await ctx.repo.get(C.operations, cursorId)
+    const candidates = await ctx.repo.query(collection, {
+      field: '_id',
+      after: cursor?.after,
+      beforeField: 'createdAt',
+      before: ctx.now() - 86400000,
+      order: 'asc',
+      limit: 20,
+    })
+    for (const row of candidates) {
+      await process(row)
+      await ctx.repo.set(C.operations, cursorId, { after: row._id })
+    }
+    // 到達尾端後下輪從頭開始，讓此前仍被引用的資料有機會再次檢查。
+    if (candidates.length < 20) await ctx.repo.set(C.operations, cursorId, { after: null })
+  }
   async function run() {
     for (const candidate of await ctx.repo.query(C.messages, {
+      eq: { deleted: false },
       field: 'expiresAt',
       before: ctx.now(),
       order: 'asc',
@@ -87,6 +107,7 @@ function createCleanup(ctx) {
           row.avatarAssetId = null
           row.avatarFileId = null
           row.reason = null
+          row.expiresAt = null
           row.revision++
         } else return
         await tx.set(C.messages, row._id, row)
@@ -102,14 +123,9 @@ function createCleanup(ctx) {
         await ctx.repo.remove(collection, row._id)
       }
     }
-    for (const profile of await ctx.repo.query(C.profiles, {
-      field: 'createdAt',
-      before: ctx.now() - 86400000,
-      order: 'asc',
-      limit: 20,
-    })) {
+    await scanOld(C.profiles, async (profile) => {
       const owner = await ctx.repo.get(C.owners, profile.ownerKey)
-      if (owner?.profileRevision === profile.profileRevision || owner?.clearing) continue
+      if (owner?.profileRevision === profile.profileRevision || owner?.clearing) return
       if (
         (
           await ctx.repo.query(C.messages, {
@@ -118,19 +134,14 @@ function createCleanup(ctx) {
           })
         ).length
       )
-        continue
+        return
       await ctx.repo.remove(C.profiles, profile._id)
-    }
-    for (const asset of await ctx.repo.query(C.assets, {
-      field: 'createdAt',
-      before: ctx.now() - 86400000,
-      order: 'asc',
-      limit: 20,
-    })) {
+    })
+    await scanOld(C.assets, async (asset) => {
       if (asset.publicFileId) await cleanAsset(asset, true)
       const current = await ctx.repo.get(C.assets, asset._id)
       if (current) await cleanAsset(current, false)
-    }
+    })
     return { cleaned: true }
   }
   return { run }

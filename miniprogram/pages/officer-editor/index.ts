@@ -244,7 +244,13 @@ Page({
 
   async onSubmit() {
     if (this.data.submitting) return
-    const validationErrors = validateOfficerErrorReportDraft(this.data.draft)
+    const draft = {
+      ...this.data.draft,
+      errorTypes: [...this.data.draft.errorTypes],
+      screenshotFileIds: [...this.data.draft.screenshotFileIds],
+    }
+    const screenshotTempPaths = [...this.data.screenshotTempPaths]
+    const validationErrors = validateOfficerErrorReportDraft(draft)
     if (validationErrors.length > 0) {
       this.setData({ fieldErrors: mapOfficerReportFieldErrors(validationErrors), submitError: '' })
       wx.pageScrollTo({ selector: `#field-${validationErrors[0]!.field}`, duration: 240 })
@@ -254,8 +260,8 @@ Page({
     this.setData({ submitting: true, submitError: '' })
     try {
       const service = getOfficerErrorReportService()
-      const screenshotFileIds = await service.uploadScreenshots(this.data.screenshotTempPaths)
-      const report = await service.createReport({ ...this.data.draft, screenshotFileIds })
+      const screenshotFileIds = await service.uploadScreenshots(screenshotTempPaths)
+      const report = await service.createReport({ ...draft, screenshotFileIds })
       this.setData({ submittedReportId: report.reportId, submitting: false })
     } catch (error) {
       const message = error instanceof Error ? error.message : '提交失敗，請稍後再試。'

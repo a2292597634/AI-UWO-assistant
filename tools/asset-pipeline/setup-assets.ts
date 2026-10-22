@@ -1,5 +1,15 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdtempSync,
+  cpSync,
+  renameSync,
+  rmSync,
+} from 'node:fs'
+import { join, resolve, dirname } from 'node:path'
 import sharp from 'sharp'
 import type { CanonicalOfficer, CanonicalSkill, CanonicalTradeDataset } from '../import/types'
 import {
@@ -12,6 +22,7 @@ import { loadCanonicalOfficers } from '../data-pipeline/load-officers'
 import { planAssetPackageLayout } from './asset-package-builder'
 import { loadSkillIconOverrides } from './source-skill-icons'
 import { assertPortraitHasTransparency } from './portrait-transparency'
+import { assertProjectPath, readGenerationTree } from '../data-pipeline/generated-output-paths'
 
 export const ASSET_STAGING_DIR = 'data/assets/staging'
 const SRC_DIRS = ['archive/voyage-tw-2026052501/raw-assets', ASSET_STAGING_DIR]
@@ -75,6 +86,7 @@ export const validateReferencedAssetSources = async (
       if (metadata.format !== 'png') {
         throw new Error(`格式为 ${metadata.format ?? 'unknown'}`)
       }
+      await sharp(input, { failOn: 'warning' }).raw().toBuffer()
     } catch {
       throw new Error(`素材无法解码或不是 PNG：${filename}`)
     }
@@ -96,7 +108,12 @@ const canonicalData = (): {
   trades: readJson<CanonicalTradeDataset>('data/master/trade-goods.json').tradeGoods,
 })
 
-export const setupAssets = async (): Promise<void> => {
+export const setupAssets = async (
+  options: {
+    encodePng?: (input: Buffer) => Promise<Buffer>
+    renamePath?: (from: string, to: string) => void
+  } = {},
+): Promise<void> => {
   const { officers, skills, trades } = canonicalData()
   const sources = sourceFiles()
   const skillIconOverrides = loadSkillIconOverrides()
@@ -122,7 +139,6 @@ export const setupAssets = async (): Promise<void> => {
     trades,
   })
   assertAssetDependencyIndex(dependencies)
-  writeAssetDependencyIndex(dependencies, 'data/assets/asset-dependencies.json')
   await validateReferencedAssetSources(dependencies, sources)
   const existing = existsSync(PUBLISH_DIR)
     ? readdirSync(PUBLISH_DIR).filter((filename) => filename.endsWith('.png'))
@@ -137,15 +153,68 @@ export const setupAssets = async (): Promise<void> => {
   console.log(`Retained source PNG files: ${plan.retainedFiles.length}`)
   let copied = 0
   let compressed = 0
-  mkdirSync(PUBLISH_DIR, { recursive: true })
-  for (const filename of plan.retainedFiles) {
-    const sourcePath = sources.get(filename)
-    if (!sourcePath) continue
-    const raw = readFileSync(sourcePath)
-    const compressedBuffer = await compressPNG(raw)
-    writeFileSync(join(PUBLISH_DIR, filename), compressedBuffer)
-    if (compressedBuffer.length < raw.length) compressed += 1
-    copied += 1
+  const projectRoot = resolve('.')
+  const assetsRoot = assertProjectPath(projectRoot, resolve('data/assets'))
+  mkdirSync(assetsRoot, { recursive: true })
+  // stage 與 backup 均位於目標磁碟；保留合法的未引用檔案與非 PNG 輸入。
+  const stage = mkdtempSync(join(assetsRoot, '.uwo-setup-'))
+  const prepared = join(stage, 'staging')
+  const indexPath = 'data/assets/asset-dependencies.json'
+  const installed: Array<{ target: string; backup: string; existed: boolean; replaced: boolean }> =
+    []
+  const renamePath = options.renamePath ?? renameSync
+  let preserveRecovery = false
+  try {
+    readGenerationTree(projectRoot, PUBLISH_DIR, false)
+    readGenerationTree(projectRoot, indexPath, false)
+    if (existsSync(PUBLISH_DIR)) cpSync(PUBLISH_DIR, prepared, { recursive: true })
+    else mkdirSync(prepared)
+    for (const filename of plan.retainedFiles) {
+      const sourcePath = sources.get(filename)
+      if (!sourcePath) continue
+      const raw = readFileSync(sourcePath)
+      const compressedBuffer = await (options.encodePng ?? compressPNG)(raw)
+      writeFileSync(assertProjectPath(prepared, join(prepared, filename)), compressedBuffer)
+      if (compressedBuffer.length < raw.length) compressed += 1
+      copied += 1
+    }
+    writeAssetDependencyIndex(dependencies, join(stage, 'asset-dependencies.json'))
+    for (const [index, path] of [PUBLISH_DIR, indexPath].entries()) {
+      const target = assertProjectPath(projectRoot, resolve(path))
+      const source = join(stage, index === 0 ? 'staging' : 'asset-dependencies.json')
+      const backup = join(stage, `backup-${index}`)
+      const entry = { target, backup, existed: existsSync(target), replaced: false }
+      installed.push(entry)
+      mkdirSync(dirname(target), { recursive: true })
+      if (entry.existed) renamePath(target, backup)
+      renamePath(source, target)
+      entry.replaced = true
+    }
+  } catch (error) {
+    const rollbackErrors: Array<{ target: string; error: unknown }> = []
+    for (const { target, backup, replaced } of installed.reverse()) {
+      try {
+        if (replaced)
+          rmSync(assertProjectPath(projectRoot, target), { recursive: true, force: true })
+        if (existsSync(backup)) renamePath(backup, target)
+      } catch (rollbackError) {
+        rollbackErrors.push({ target, error: rollbackError })
+      }
+    }
+    if (rollbackErrors.length) {
+      preserveRecovery = true
+      const describeError = (value: unknown): string =>
+        value instanceof Error ? value.message : String(value)
+      throw Object.assign(
+        new Error(
+          `素材安裝失敗：${describeError(error)}；回復失敗：${rollbackErrors.map((item) => `${item.target}: ${describeError(item.error)}`).join('；')}；保留可恢復備份：${stage}`,
+        ),
+        { cause: error, rollbackErrors, recoveryPath: stage },
+      )
+    }
+    throw error
+  } finally {
+    if (!preserveRecovery) rmSync(stage, { recursive: true, force: true })
   }
 
   console.log(`Staged ${copied} PNG files (${compressed} compressed) in ${PUBLISH_DIR}.`)

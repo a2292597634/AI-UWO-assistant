@@ -1,15 +1,26 @@
-import { mkdtempSync, rmSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   getQualityGateCommand,
+  executeQualityGate,
   runCli,
   type CliDependencies,
 } from '../../tools/miniprogram-review/cli'
 import type { ReviewReport } from '../../tools/miniprogram-review/report'
 import { evidence } from './evidence-fixture'
+import { writeReviewReport } from '../../tools/miniprogram-review/report'
+import { runScenario as runRealScenario } from '../../tools/miniprogram-review/runner'
+import { parseScenario } from '../../tools/miniprogram-review/scenario'
+import type { ReviewAdapter } from '../../tools/miniprogram-review/adapter'
+
+vi.mock('node:child_process', async (importOriginal) => {
+  const original = await importOriginal<typeof import('node:child_process')>()
+  return { ...original, execFileSync: vi.fn(original.execFileSync) }
+})
 
 const temporaryDirectories: string[] = []
 
@@ -69,6 +80,138 @@ const dependencies = (overrides: Partial<CliDependencies> = {}): CliDependencies
 })
 
 describe('小程序验收 CLI', () => {
+  it.each([0, 1])('預設門禁的真子程序 exit %s，final 同 run 三格式保留正確結果', async (status) => {
+    const outputDir = createRunDirectory()
+    const writer = vi.fn(writeReviewReport)
+    const code = await runCli(
+      ['changed', '--mode', 'final'],
+      dependencies({
+        listScenarioPaths: () => ['catalog.json'],
+        readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+        createRunDirectory: () => outputDir,
+        writeReport: writer,
+        runQualityGate: async () =>
+          executeQualityGate(outputDir, {
+            command: process.execPath,
+            args: ['-e', 'process.exit(' + status + ')'],
+          }),
+      }),
+    )
+    const expected = status === 0 ? 'passed' : 'failed'
+    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+    expect(code).toBe(status === 0 ? 0 : 1)
+    expect(report.checks.page.status).toBe('passed')
+    expect(report.checks.repository).toMatchObject({
+      status: expected,
+      required: true,
+      command: 'npm run verify',
+    })
+    expect(report.status).toBe(expected)
+    expect(writer).toHaveBeenCalledTimes(1)
+    expect(writer.mock.calls[0][0]).toBe(outputDir)
+    for (const filename of ['report.html', 'report.md']) {
+      const content = readFileSync(join(outputDir, filename), 'utf8')
+      expect(content).toContain('倉庫門禁')
+      expect(content).toContain('npm run verify')
+      expect(content).toMatch(status === 0 ? /通[過过]/ : /失[敗败]/)
+      expect(content).not.toContain('阻塞')
+    }
+  })
+  it.each(['missing', 'timeout'] as const)(
+    '預設門禁真子程序 %s 保留原始異常與 blocked',
+    async (failure) => {
+      const outputDir = createRunDirectory()
+      const gateCommand =
+        failure === 'missing'
+          ? { command: join(outputDir, 'missing-command.exe'), args: [] }
+          : {
+              command: process.execPath,
+              args: [
+                '-e',
+                failure === 'timeout'
+                  ? 'setInterval(() => {}, 1000)'
+                  : 'process.kill(process.pid, "SIGTERM")',
+              ],
+            }
+      let original: unknown
+      const gate = async () => {
+        try {
+          return executeQualityGate(
+            outputDir,
+            gateCommand,
+            failure === 'timeout' ? 1000 : undefined,
+          )
+        } catch (error) {
+          original = error
+          throw error
+        }
+      }
+      await expect(gate()).rejects.toBeDefined()
+      expect(original).toBeInstanceOf(Error)
+      const writer = vi.fn(writeReviewReport)
+      expect(
+        await runCli(
+          ['changed', '--mode', 'final'],
+          dependencies({
+            listScenarioPaths: () => ['catalog.json'],
+            readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+            createRunDirectory: () => outputDir,
+            writeReport: writer,
+            runQualityGate: gate,
+          }),
+        ),
+      ).toBe(1)
+      const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+      expect(report.checks.repository.status).toBe('blocked')
+      expect(report.status).toBe('blocked')
+      expect(report.checks.repository.evidence).toBe((original as Error).message)
+      expect(writer).toHaveBeenCalledTimes(1)
+      for (const filename of ['report.html', 'report.md']) {
+        const content = readFileSync(join(outputDir, filename), 'utf8')
+        expect(content).toContain('倉庫門禁')
+        expect(content).toContain('阻塞')
+      }
+    },
+  )
+  it('預設門禁保留子程序回報的 signal 異常，不能當普通非零退出', async () => {
+    const outputDir = createRunDirectory()
+    const signalError = Object.assign(new Error('門禁子程序收到 SIGTERM'), {
+      status: null,
+      signal: 'SIGTERM',
+    })
+    vi.mocked(execFileSync).mockImplementationOnce(() => {
+      throw signalError
+    })
+    expect(() => executeQualityGate(outputDir)).toThrow(signalError)
+    vi.mocked(execFileSync).mockImplementationOnce(() => {
+      throw signalError
+    })
+    const writer = vi.fn(writeReviewReport)
+    expect(
+      await runCli(
+        ['changed', '--mode', 'final'],
+        dependencies({
+          listScenarioPaths: () => ['catalog.json'],
+          readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+          createRunDirectory: () => outputDir,
+          writeReport: writer,
+          runQualityGate: async () => executeQualityGate(outputDir),
+        }),
+      ),
+    ).toBe(1)
+    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+    expect(report.checks.repository).toMatchObject({
+      status: 'blocked',
+      evidence: signalError.message,
+    })
+    expect(report.status).toBe('blocked')
+    expect(writer).toHaveBeenCalledTimes(1)
+    for (const filename of ['report.html', 'report.md']) {
+      const content = readFileSync(join(outputDir, filename), 'utf8')
+      expect(content).toContain('阻塞')
+      expect(content).toContain(signalError.message)
+    }
+  })
   it('final 未匹配頁面的阻塞報告保留 final 範圍與必需未跑門禁', async () => {
     const writeReport = vi.fn(dependencies().writeReport)
     const deps = dependencies({
@@ -172,6 +315,286 @@ describe('小程序验收 CLI', () => {
     expect(
       writeReport.mock.calls[writeReport.mock.calls.length - 1]?.[1].checks.repository.status,
     ).toBe('not-run')
+  })
+  it.each([
+    'pending',
+    'protocol',
+    'condition',
+    'condition-text',
+    'observation-text',
+    'post-timeout-connection',
+  ] as const)('正式 runner 的 waitUntil %s 保留恢復上限與原始分類', async (failure) => {
+    vi.useFakeTimers()
+    try {
+      let connections = 0
+      const connectionFailure =
+        failure === 'pending' || failure === 'protocol' || failure === 'post-timeout-connection'
+      const restartDevTools = vi.fn(async () => undefined)
+      const writeReport = vi.fn(dependencies().writeReport)
+      const deps = dependencies({
+        loadScenario: () =>
+          parseScenario({
+            name: '等待恢復',
+            entry: '/pages/catalog/index',
+            state: 'normal',
+            devices: ['iphone-standard'],
+            steps: [
+              {
+                action: 'waitUntil',
+                timeoutMs: 250,
+                condition:
+                  failure === 'condition-text' || failure === 'observation-text'
+                    ? {
+                        kind: 'text',
+                        selector: '.error-message',
+                        equals: failure === 'condition-text' ? 'Connection is closed' : '完成',
+                      }
+                    : { kind: 'exists', selector: '.loading', exists: false },
+              },
+            ],
+          }),
+        runScenario: runRealScenario,
+        restartDevTools,
+        writeReport,
+        connect: async (): Promise<ReviewAdapter> => {
+          connections++
+          return {
+            reLaunch: async () => undefined,
+            navigate: async () => undefined,
+            switchTab: async () => undefined,
+            tap: async () => undefined,
+            input: async () => undefined,
+            clearInput: async () => undefined,
+            scrollPage: async () => undefined,
+            scrollElement: async () => undefined,
+            waitFor: async () => undefined,
+            isVisible: async () => true,
+            readText: async () => (failure === 'observation-text' ? 'Connection is closed' : ''),
+            queryElement: async () => {
+              if (failure === 'pending') return new Promise<boolean>(() => undefined)
+              if (failure === 'protocol') throw new Error('automator response timeout 原始協議錯誤')
+              if (failure === 'condition-text') return false
+              return true
+            },
+            currentPagePath: async () => {
+              if (failure === 'post-timeout-connection')
+                throw new Error('automator response timeout（最終頁面）')
+              return '/pages/catalog/index'
+            },
+            screenshot: async () => undefined,
+            disconnect: async () => undefined,
+          }
+        },
+      })
+      const pending = runCli(['run', '--scenario', 'wait'], deps)
+      await vi.runAllTimersAsync()
+      expect(await pending).toBe(1)
+      expect(connections).toBe(connectionFailure ? 3 : 1)
+      expect(restartDevTools).toHaveBeenCalledTimes(connectionFailure ? 2 : 0)
+      const result = writeReport.mock.calls[writeReport.mock.calls.length - 1]?.[1].results[0]
+      expect(result?.status).toBe(connectionFailure ? 'blocked' : 'failed')
+      expect(result?.error).toContain(
+        connectionFailure ? 'automator response timeout' : '條件等待超時',
+      )
+      if (failure === 'condition-text' || failure === 'observation-text') {
+        expect(result?.error).toContain('Connection is closed')
+      }
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('巢狀 waitUntil 選擇器讓整批沿用真元件 SDK', async () => {
+    const connections: Array<Record<string, unknown>> = []
+    const deps = dependencies({
+      listScenarioPaths: () => ['wait.json', 'scroll.json'],
+      loadScenario: (path) =>
+        ({
+          name: path,
+          entry: '/pages/adventure-fleet/index',
+          state: 'normal',
+          devices: [],
+          steps:
+            path === 'wait.json'
+              ? [
+                  {
+                    action: 'waitUntil',
+                    condition: {
+                      kind: 'exists',
+                      selector: '.skill-picker-sheet--sheet',
+                      exists: false,
+                    },
+                  },
+                ]
+              : [],
+        }) as ReturnType<CliDependencies['loadScenario']>,
+      connect: async (config) => {
+        connections.push({ ...config })
+        return { disconnect: async () => undefined } as never
+      },
+    })
+    expect(await runCli(['review', '--page', '/pages/adventure-fleet/index'], deps)).toBe(0)
+    expect(connections).toHaveLength(2)
+    expect(connections.every((config) => config.requiresComponentScope === true)).toBe(true)
+    expect(connections[1]?.wsEndpoint).toBe('ws://127.0.0.1:9420')
+  })
+
+  it.each([
+    { blocker: 'route', mode: 'final', required: true },
+    { blocker: 'route', mode: 'iterate', required: false },
+    { blocker: 'recovery', mode: 'final', required: true },
+    { blocker: 'recovery', mode: 'iterate', required: false },
+  ])(
+    '$mode 前置 $blocker 阻塞保留倉庫門禁必需標記與原始錯誤',
+    async ({ blocker, mode, required }) => {
+      const outputDir = createRunDirectory()
+      const connect = vi.fn()
+      const runQualityGate = vi.fn(async () => true)
+      const restartDevTools = vi.fn(async () => undefined)
+      const originalError = '前置阻塞原始錯誤 <fixture>'
+      const code = await runCli(
+        ['changed', '--mode', mode],
+        dependencies({
+          listScenarioPaths: () => ['catalog.json'],
+          readGitChangedFiles: () =>
+            blocker === 'route'
+              ? ['miniprogram/app.json']
+              : ['miniprogram/pages/catalog/index.wxss'],
+          readRegisteredPagePaths: () => {
+            throw new Error(originalError)
+          },
+          checkCliCapability: async () => ({ ok: false, message: originalError }),
+          createRunDirectory: () => outputDir,
+          writeReport: writeReviewReport,
+          connect,
+          runQualityGate,
+          restartDevTools,
+        }),
+      )
+
+      expect(code).toBe(1)
+      const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+      expect(report.status).toBe('blocked')
+      expect(report.results[0].error).toContain(originalError)
+      expect(report.checks.repository).toMatchObject({
+        status: 'not-run',
+        command: 'npm run verify',
+        required,
+      })
+      expect(connect).not.toHaveBeenCalled()
+      expect(runQualityGate).not.toHaveBeenCalled()
+      expect(restartDevTools).toHaveBeenCalledTimes(blocker === 'recovery' ? 2 : 0)
+    },
+  )
+
+  it.each(['.config-bar__share--prominent', '.fleet-share-preview__image'])(
+    '只有分享場景也整批使用真元件 SDK：%s',
+    async (selector) => {
+      const connections: Array<Record<string, unknown>> = []
+      const deps = dependencies({
+        listScenarioPaths: () => ['share.json', 'scroll.json'],
+        loadScenario: (path) => ({
+          name: path,
+          entry: '/pages/adventure-fleet/index',
+          state: 'normal',
+          devices: [],
+          steps: path.includes('share') ? [{ action: 'tap', selector }] : [],
+        }),
+        connect: async (config) => {
+          connections.push({ ...config })
+          return { disconnect: async () => undefined } as never
+        },
+      })
+      expect(await runCli(['review', '--page', '/pages/adventure-fleet/index'], deps)).toBe(0)
+      expect(connections.every((config) => config.requiresComponentScope === true)).toBe(true)
+    },
+  )
+
+  it.each(['false', 'throw'] as const)(
+    'final 門禁 %s 同一 run 三格式都記錄失敗',
+    async (failure) => {
+      const outputDir = createRunDirectory()
+      const writeReport = vi.fn(writeReviewReport)
+      const code = await runCli(
+        ['changed', '--mode', 'final'],
+        dependencies({
+          listScenarioPaths: () => ['catalog.json'],
+          readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+          createRunDirectory: () => outputDir,
+          writeReport,
+          runQualityGate: async () => {
+            if (failure === 'throw') throw new Error('門禁原始錯誤 <verify>')
+            return false
+          },
+        }),
+      )
+      expect(code).toBe(1)
+      const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+      expect(report.status).toBe(failure === 'throw' ? 'blocked' : 'failed')
+      expect(report.checks.repository).toMatchObject({
+        status: failure === 'throw' ? 'blocked' : 'failed',
+        command: 'npm run verify',
+      })
+      expect(report.checks.page.status).toBe('passed')
+      expect(
+        report.checks.external.every((check: { status: string }) => check.status === 'not-run'),
+      ).toBe(true)
+      for (const filename of ['report.html', 'report.md']) {
+        const content = readFileSync(join(outputDir, filename), 'utf8')
+        expect(content).toContain('倉庫門禁')
+        expect(content).toContain('npm run verify')
+        expect(content).toMatch(failure === 'throw' ? /阻塞/ : /失[敗败]/)
+        if (failure === 'throw') expect(content).toContain('門禁原始錯誤')
+      }
+      expect(new Set(writeReport.mock.calls.map(([directory]) => directory)).size).toBe(1)
+    },
+  )
+
+  it('iterate 明示倉庫門禁未執行，不能藉頁面結果宣稱已跑門禁', async () => {
+    const outputDir = createRunDirectory()
+    const runQualityGate = vi.fn(async () => true)
+    expect(
+      await runCli(
+        ['changed', '--mode', 'iterate'],
+        dependencies({
+          listScenarioPaths: () => ['catalog.json'],
+          readGitChangedFiles: () => ['miniprogram/pages/catalog/index.wxss'],
+          createRunDirectory: () => outputDir,
+          writeReport: writeReviewReport,
+          runQualityGate,
+        }),
+      ),
+    ).toBe(0)
+    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+    expect(report.checks.repository.status).toBe('not-run')
+    expect(runQualityGate).not.toHaveBeenCalled()
+    expect(readFileSync(join(outputDir, 'report.html'), 'utf8')).toContain('未執行')
+    expect(readFileSync(join(outputDir, 'report.md'), 'utf8')).toContain('未執行')
+  })
+
+  it('場景預讀失敗保留 blocked 三格式報告與原始錯誤', async () => {
+    const outputDir = createRunDirectory()
+    const connect = vi.fn()
+    expect(
+      await runCli(
+        ['review', '--page', '/pages/adventure-fleet/index'],
+        dependencies({
+          listScenarioPaths: () => ['bad.json'],
+          loadScenario: () => {
+            throw new Error('不支援的 action：waitUntil')
+          },
+          createRunDirectory: () => outputDir,
+          writeReport: writeReviewReport,
+          connect,
+        }),
+      ),
+    ).toBe(1)
+    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf8'))
+    expect(report.status).toBe('blocked')
+    expect(report.results[0].error).toContain('waitUntil')
+    expect(connect).not.toHaveBeenCalled()
+    for (const filename of ['report.html', 'report.md'])
+      expect(readFileSync(join(outputDir, filename), 'utf8')).toContain('waitUntil')
   })
   it('混合技能場景整批沿用元件作用域通道，不切換 nativeCLI 與 SDK 窗口', async () => {
     const connections: Array<Record<string, unknown>> = []

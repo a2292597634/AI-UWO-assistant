@@ -13,7 +13,7 @@ const { createRepository } = require('./fleet-config-repository')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const db = cloud.database()
+const db = cloud.database({ throwOnNotFound: false })
 const repo = createRepository(db)
 const service = createFleetConfigService(repo)
 

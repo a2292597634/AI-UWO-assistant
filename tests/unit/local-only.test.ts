@@ -54,6 +54,15 @@ describe('findRuntimeNetworkReferences', () => {
     ])
   })
   it.each([
+    'const endpoint = `https\\u003a\\u002f\\u002fcdn.example/assets/${name}.png`',
+    'const endpoint = `${name}https\\u003a\\u002f\\u002fcdn.example/assets/${name}.png`',
+    'const endpoint = `${name}https\\u003a\\u002f\\u002fcdn.example/assets/a.png`',
+  ])('動態模板各固定片段的跳脫 URL 仍須拒絕：%s', (content) => {
+    expect(findRuntimeNetworkReferences(fixture(content))).toEqual([
+      { file: 'pages/index.ts', line: 1, reason: 'remote URL' },
+    ])
+  })
+  it.each([
     ["wx.request({ url: '/api' })", 'wx.request'],
     ["wx.downloadFile({ url: '/asset' })", 'wx.downloadFile'],
     ['wx.cloud.init()', 'wx.cloud'],
@@ -65,6 +74,31 @@ describe('findRuntimeNetworkReferences', () => {
         reason,
       },
     ])
+  })
+
+  it.each([
+    ['wx["request"]', 'wx.request'],
+    ['wx["downloadFile"]({})', 'wx.downloadFile'],
+    ['wx["cloud"].database()', 'wx.cloud'],
+    ['wx.cloud["database"]()', 'wx.cloud'],
+  ] as const)('括號 API 存取也遵守網路邊界：%s', (content, reason) => {
+    expect(findRuntimeNetworkReferences(fixture(content))).toEqual([
+      { file: 'pages/index.ts', line: 1, reason },
+    ])
+  })
+
+  it('括號形式只放行指定檔案的精確 callFunction 呼叫', () => {
+    const root = fixture('wx["cloud"]["callFunction"]({});\nwx["cloud"].database()')
+    expect(
+      findRuntimeNetworkReferences(root, { allowedCloudFunctionFiles: ['pages/index.ts'] }),
+    ).toEqual([{ file: 'pages/index.ts', line: 2, reason: 'wx.cloud' }])
+  })
+
+  it('不得透過獲取白名單 API 的函數引用繞過精確呼叫限制', () => {
+    const root = fixture('const invoke = wx.cloud.callFunction')
+    expect(
+      findRuntimeNetworkReferences(root, { allowedCloudFunctionFiles: ['pages/index.ts'] }),
+    ).toEqual([{ file: 'pages/index.ts', line: 1, reason: 'wx.cloud' }])
   })
 
   // ── CloudBase allowlist ──

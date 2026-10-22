@@ -35,7 +35,8 @@ const configuredSyncToken = asTrimmedToken(
   process.env.OFFICER_MAINTENANCE_SYNC_TOKEN || process.env.OFFICER_SYNC_TOKEN,
 )
 
-const repo = createRepository(cloud.database())
+const db = cloud.database({ throwOnNotFound: false })
+const repo = createRepository(db)
 const service = createOfficerMaintenanceService(repo, {
   adminOpenIds: configuredAdminOpenIds,
   syncToken: configuredSyncToken,
@@ -43,7 +44,7 @@ const service = createOfficerMaintenanceService(repo, {
   uploadPortrait,
   cloud,
 })
-const errorReportService = createErrorReportService(createErrorReportRepository(cloud.database()), {
+const errorReportService = createErrorReportService(createErrorReportRepository(db), {
   adminOpenIds: configuredAdminOpenIds,
   officerIds: new Set(loadReferenceData().officerIds ?? []),
 })

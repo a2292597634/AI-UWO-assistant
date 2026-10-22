@@ -6,6 +6,10 @@
  */
 
 const { validateImageBuffer } = require('./image-validation')
+const { randomUUID } = require('node:crypto')
+
+// 遠超單次雲函數執行上限；外部副作用前仍須核對及續租。
+const PORTRAIT_LEASE_MS = 86400000
 
 const MAX_CUSTOM_OFFICERS_PER_USER = 50
 const MAX_NAME_LENGTH = 50
@@ -350,7 +354,74 @@ const getPortraitPayload = (payload) => {
   }
 }
 
-const uploadPortrait = async (cloud, payload, submissionId, revision) => {
+const forgetPortraitIntent = async (repo, intent) => {
+  try {
+    await repo.removePortraitIntent(intent._id, intent.leaseToken, Date.now())
+  } catch (error) {
+    console.error('[officer-custom] portrait intent completion error:', error)
+  }
+}
+
+const renewPortraitIntent = async (repo, intent) => {
+  const now = Date.now()
+  const renewed = await repo.savePortraitIntent(
+    intent._id,
+    {
+      fileID: intent.fileID,
+      leaseUntil: now + PORTRAIT_LEASE_MS,
+      cleanupAfter: now + PORTRAIT_LEASE_MS,
+    },
+    intent.leaseToken,
+    now,
+  )
+  if (!renewed) throw new Error('頭像回收租約已失效')
+}
+
+const reclaimPortrait = async (repo, cloud, intent) => {
+  try {
+    await renewPortraitIntent(repo, intent)
+    // 寫入可能已提交但回應中斷，必須先確認所有版本都沒有引用。
+    if (await repo.isPortraitReferenced(intent)) {
+      await forgetPortraitIntent(repo, intent)
+      return
+    }
+    if (!intent.fileID) {
+      // 上傳後尚未記錄 fileID 即中斷時，以同一路徑重放取得 ID；不另建路徑。
+      const uploaded = await cloud.uploadFile({
+        cloudPath: intent.cloudPath,
+        fileContent: Buffer.from(intent.base64, 'base64'),
+      })
+      if (!uploaded?.fileID) throw new Error('無法取得待回收頭像 ID')
+      intent.fileID = uploaded.fileID
+    }
+    // 重放可能耗時；刪除前再次核對租約，同時持久化新取得的 fileID。
+    await renewPortraitIntent(repo, intent)
+    const result = await cloud.deleteFile({ fileList: [intent.fileID] })
+    if (!result?.fileList?.some((item) => item.fileID === intent.fileID && item.status === 0))
+      throw new Error('頭像逐檔刪除未成功')
+    await forgetPortraitIntent(repo, intent)
+  } catch (error) {
+    console.error('[officer-custom] portrait cleanup deferred:', error)
+    // 原意圖已在上傳前持久化；重試寫入失敗也不會丟失路徑與圖片。
+    try {
+      await repo.savePortraitIntent(
+        intent._id,
+        {
+          fileID: intent.fileID,
+          cleanupAfter: Date.now() + 300000,
+          leaseToken: null,
+          leaseUntil: 0,
+        },
+        intent.leaseToken,
+        Date.now(),
+      )
+    } catch (saveError) {
+      console.error('[officer-custom] portrait cleanup retry error:', saveError)
+    }
+  }
+}
+
+const uploadPortrait = async (cloud, repo, payload, submissionId, revision) => {
   const portrait = getPortraitPayload(payload)
   if (!portrait) return fail('invalid-portrait', '請上傳正式版頭像')
   let buffer
@@ -361,15 +432,32 @@ const uploadPortrait = async (cloud, payload, submissionId, revision) => {
   }
   const validation = validateImageBuffer(buffer, portrait.mimeType)
   if (!validation.ok) return validation
+  const token = generateUploadToken()
+  const intent = {
+    _id: token,
+    submissionId,
+    revision,
+    cloudPath: `officer-submissions/${submissionId}/revision-${revision}-${token}.${validation.extension}`,
+    base64: buffer.toString('base64'),
+    cleanupAfter: Date.now() + 86400000,
+    leaseToken: randomUUID(),
+    leaseUntil: Date.now() + PORTRAIT_LEASE_MS,
+    fileID: null,
+  }
+  // 此步失敗時尚未上傳，直接保留原資料庫錯誤。
+  if (!(await repo.savePortraitIntent(intent._id, intent))) throw new Error('頭像上傳意圖已存在')
   try {
     const result = await cloud.uploadFile({
-      cloudPath: `officer-submissions/${submissionId}/revision-${revision}-${generateUploadToken()}.${validation.extension}`,
+      cloudPath: intent.cloudPath,
       fileContent: buffer,
     })
     if (!result?.fileID) return fail('upload-failed', '頭像上傳失敗，請重試')
-    return { ok: true, fileID: result.fileID }
+    intent.fileID = result.fileID
+    await renewPortraitIntent(repo, intent)
+    return { ok: true, fileID: result.fileID, intent }
   } catch (error) {
     console.error('[officer-custom] portrait upload error:', error)
+    if (intent.fileID) await reclaimPortrait(repo, cloud, intent)
     return fail('upload-failed', '頭像上傳失敗，請重試')
   }
 }
@@ -381,6 +469,32 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
 
   const requireAdmin = (ownerUid) => isAdmin(ownerUid, adminOpenIds)
   const requireSync = (payload) => isSyncAuthorized(payload?.syncToken, syncToken)
+
+  const recoverPortraits = async () => {
+    try {
+      for (const candidate of await repo.listDuePortraitIntents(Date.now())) {
+        const intent = await repo.claimPortraitIntent(candidate._id, randomUUID(), Date.now())
+        if (intent) await reclaimPortrait(repo, cloud, intent)
+      }
+    } catch (error) {
+      console.error('[officer-custom] portrait recovery error:', error)
+    }
+  }
+
+  const writeWithPortrait = async (portrait, write) => {
+    try {
+      if (portrait?.intent) await renewPortraitIntent(repo, portrait.intent)
+      const record = await write()
+      if (portrait?.intent) {
+        if (record) await forgetPortraitIntent(repo, portrait.intent)
+        else await reclaimPortrait(repo, cloud, portrait.intent)
+      }
+      return record
+    } catch (error) {
+      if (portrait?.intent) await reclaimPortrait(repo, cloud, portrait.intent)
+      throw error
+    }
+  }
 
   const getOwnedRecord = async (ownerUid, submissionId, revision) => {
     const record =
@@ -407,8 +521,9 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
     const submissionId = sourceSubmissionId ?? generateSubmissionId()
     const revision = sourceSubmissionId ? (payload.expectedRevision ?? 0) + 1 : 1
     const portraitPayload = getPortraitPayload(payload)
+    let portrait
     if (portraitPayload) {
-      const portrait = await uploadPortrait(cloud, payload, submissionId, revision)
+      portrait = await uploadPortrait(cloud, repo, payload, submissionId, revision)
       if (!portrait.ok) return portrait
       normalized.data.portraitFileId = portrait.fileID
     }
@@ -436,9 +551,11 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
       createdAt: previousRecord?.createdAt ?? now,
       updatedAt: now,
     }
-    const record = sourceSubmissionId
-      ? await repo.insertRevisionIfAbsent(recordData)
-      : await repo.insertIfOwnerBelowLimit(recordData, MAX_CUSTOM_OFFICERS_PER_USER)
+    const record = await writeWithPortrait(portrait, () =>
+      sourceSubmissionId
+        ? repo.insertRevisionIfAbsent(recordData)
+        : repo.insertIfOwnerBelowLimit(recordData, MAX_CUSTOM_OFFICERS_PER_USER),
+    )
     if (!record) {
       return sourceSubmissionId
         ? fail('conflict', '投稿已被更新，請重新載入')
@@ -465,6 +582,8 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
     if (SYNC_ACTIONS.has(action) && !requireSync(payload)) {
       return fail('forbidden', '同步授權無效')
     }
+    // 後續已授權的寫操作每次最多消費 20 個到期意圖，不新增公開 action。
+    if (['submit', 'resubmit', 'saveAdmin'].includes(action)) await recoverPortraits()
 
     switch (action) {
       case 'getAdminStatus':
@@ -529,22 +648,25 @@ const createOfficerCustomService = (repo, cloud, options = {}) => {
         const review = normalizeReviewFields(payload.reviewFields, normalized.data)
         if (!review.ok) return review
         const portraitPayload = getPortraitPayload(payload)
+        let uploaded
         if (portraitPayload) {
-          const uploaded = await uploadPortrait(cloud, payload, submissionId, revision)
+          uploaded = await uploadPortrait(cloud, repo, payload, submissionId, revision)
           if (!uploaded.ok) return uploaded
           normalized.data.portraitFileId = uploaded.fileID
         }
         const canonicalData = buildCanonicalData(normalized.data, review.data, submissionId)
-        const updated = await repo.updateIfRevision(submissionId, revision, payload.updatedAt, {
-          formData: normalized.data,
-          canonicalData,
-          review: {
-            reviewerUid: ownerUid,
-            reviewedAt: new Date().toISOString(),
-            rejectReason: null,
-          },
-          history: addHistory(existing, 'admin_saved', ownerUid),
-        })
+        const updated = await writeWithPortrait(uploaded, () =>
+          repo.updateIfRevision(submissionId, revision, payload.updatedAt, {
+            formData: normalized.data,
+            canonicalData,
+            review: {
+              reviewerUid: ownerUid,
+              reviewedAt: new Date().toISOString(),
+              rejectReason: null,
+            },
+            history: addHistory(existing, 'admin_saved', ownerUid),
+          }),
+        )
         return updated ? ok(toClientRecord(updated)) : fail('conflict', '投稿已被更新，請重新載入')
       }
       case 'approve': {

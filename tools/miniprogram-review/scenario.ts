@@ -1,7 +1,13 @@
 import { parseReviewFixtureName } from './fixtures'
 import { readFileSync } from 'node:fs'
 
-import type { ReviewDevice, ReviewScenario, ReviewState, ReviewStep } from './types'
+import type {
+  ReviewDevice,
+  ReviewScenario,
+  ReviewState,
+  ReviewStep,
+  ReviewWaitCondition,
+} from './types'
 
 type JsonRecord = Record<string, unknown>
 
@@ -100,6 +106,38 @@ const expectDuration = (value: unknown, label: string): number => {
   return duration
 }
 
+const parseWaitCondition = (value: unknown): ReviewWaitCondition => {
+  const record = expectRecord(value, '等待条件')
+  switch (record.kind) {
+    case 'exists':
+      rejectUnknownKeys(record, ['kind', 'selector', 'exists'], '等待条件')
+      if (typeof record.exists !== 'boolean') throw new Error('exists 必须是布尔值')
+      return { kind: 'exists', selector: expectSelector(record.selector), exists: record.exists }
+    case 'text': {
+      rejectUnknownKeys(record, ['kind', 'selector', 'equals', 'contains'], '等待条件')
+      const hasEquals = record.equals !== undefined
+      const hasContains = record.contains !== undefined
+      if (hasEquals === hasContains) throw new Error('text 必须且只能设置 equals 或 contains')
+      return hasEquals
+        ? {
+            kind: 'text',
+            selector: expectSelector(record.selector),
+            equals: expectText(record.equals),
+          }
+        : {
+            kind: 'text',
+            selector: expectSelector(record.selector),
+            contains: expectText(record.contains),
+          }
+    }
+    case 'page':
+      rejectUnknownKeys(record, ['kind', 'path'], '等待条件')
+      return { kind: 'page', path: expectPagePath(record.path, '等待页面路径') }
+    default:
+      throw new Error(`不支持的等待条件：${String(record.kind)}`)
+  }
+}
+
 const parseStep = (value: unknown, index: number): ReviewStep => {
   const record = expectRecord(value, `步骤 ${index + 1}`)
   const action = expectString(record.action, '动作')
@@ -151,44 +189,15 @@ const parseStep = (value: unknown, index: number): ReviewStep => {
       rejectUnknownKeys(record, ['action', 'durationMs'], `步骤 ${index + 1}`)
       return { action, durationMs: expectDuration(record.durationMs, '等待时长') }
     }
-    case 'waitUntil': {
-      rejectUnknownKeys(record, ['action', 'condition', 'timeoutMs'], 'waitUntil')
-      const c = expectRecord(record.condition, '等待條件')
-      const timeoutMs =
-        record.timeoutMs === undefined ? undefined : expectDuration(record.timeoutMs, '等待超時')
-      if (c.kind === 'page') {
-        rejectUnknownKeys(c, ['kind', 'path'], '等待條件')
-        return {
-          action,
-          condition: { kind: 'page', path: expectPagePath(c.path, '頁面路徑') },
-          timeoutMs,
-        }
+    case 'waitUntil':
+      rejectUnknownKeys(record, ['action', 'condition', 'timeoutMs'], `步骤 ${index + 1}`)
+      return {
+        action,
+        condition: parseWaitCondition(record.condition),
+        ...(record.timeoutMs === undefined
+          ? {}
+          : { timeoutMs: expectDuration(record.timeoutMs, '等待超时') }),
       }
-      if (c.kind === 'exists') {
-        rejectUnknownKeys(c, ['kind', 'selector', 'exists'], '等待條件')
-        if (typeof c.exists !== 'boolean') throw new Error('exists 必須是布爾值')
-        return {
-          action,
-          condition: { kind: 'exists', selector: expectSelector(c.selector), exists: c.exists },
-          timeoutMs,
-        }
-      }
-      if (c.kind === 'text') {
-        rejectUnknownKeys(c, ['kind', 'selector', 'equals', 'contains'], '等待條件')
-        if ((c.equals !== undefined) === (c.contains !== undefined))
-          throw new Error('equals／contains 必須互斥')
-        const selector = expectSelector(c.selector)
-        return {
-          action,
-          condition:
-            c.equals !== undefined
-              ? { kind: 'text', selector, equals: expectText(c.equals) }
-              : { kind: 'text', selector, contains: expectText(c.contains) },
-          timeoutMs,
-        }
-      }
-      throw new Error('不支持的等待條件')
-    }
     case 'assertExists':
       rejectUnknownKeys(record, ['action', 'selector', 'exists'], `步骤 ${index + 1}`)
       if (record.exists !== undefined && typeof record.exists !== 'boolean') {

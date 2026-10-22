@@ -92,7 +92,9 @@ npm run devtools:run -- --scenario adventure-fleet-share
 }
 ```
 
-支持的动作包括 `navigate`、`switchTab`、`tap`、`input`、`clearInput`、`scrollPage`、`scrollElement`、`waitFor`、`assertExists`、`assertVisible`、`assertText` 和 `screenshot`。场景不支持执行任意 JavaScript。
+支持的动作包括 `navigate`、`switchTab`、`tap`、`input`、`clearInput`、`scrollPage`、`scrollElement`、`waitFor`、`waitUntil`、`assertExists`、`assertVisible`、`assertText` 和 `screenshot`。场景不支持执行任意 JavaScript。
+
+`waitUntil` 使用 `condition` 描述條件：`{ "kind": "exists", "selector": ".loading", "exists": false }` 等待元素消失；`{ "kind": "text", "selector": ".title", "equals": "完成" }` 等待文字相等，也可改用互斥的 `contains`（容許空字串）；`{ "kind": "page", "path": "/pages/home/index" }` 等待頁面路徑。`exists` 必填布林值，動作只接受 `condition` 和可選的 `timeoutMs`（1–30000 毫秒）。預設總期限 5000 毫秒、輪詢間隔 100 毫秒，必須連續兩次成立；單次探針也受剩餘總期限限制。普通條件不達是場景失敗，協議或連接錯誤保留原分類供上述有限恢復；報告保留失敗條件和最後觀察值。頁面路徑到位不等於轉場動畫完成，仍需等待具體可操作 UI 並保留原有斷言。既有 `waitFor` 行為保持相容。
 
 ## AI 标准验收流程
 

@@ -1,10 +1,14 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve, join, relative, sep } from 'node:path'
-import { DATA_GENERATION_OUTPUT_PATHS } from './generated-output-paths'
+import {
+  DATA_GENERATION_OUTPUT_PATHS,
+  assertProjectPath,
+  readGenerationTree,
+  expandGenerationOutputPaths,
+} from './generated-output-paths'
 import { buildGeneratedOutputs } from './generate'
 import { fingerprintGenerationInputs } from './generation-input-paths'
-import { assertSafeInputPath, readInputTree } from '../workflow/read-inputs'
 export { fingerprintGenerationInputs } from './generation-input-paths'
 
 export type GenerationCheckCode =
@@ -28,14 +32,27 @@ export function checkGeneratedOutputs(input: {
   const findings: GenerationCheckResult['findings'] = []
   const stages: string[] = []
   try {
-    for (const p of input.outputPaths) assertSafeInputPath(input.projectRoot, p)
+    for (const p of input.outputPaths)
+      assertProjectPath(input.projectRoot, resolve(input.projectRoot, p))
     const before = input.fingerprintInputs()
     for (let n = 0; n < 2; n++) {
       const stage = mkdtempSync(join(tmpdir(), 'uwo-generated-check-'))
       stages.push(stage)
       input.buildStage(stage)
+      if (
+        before !== input.fingerprintInputs() &&
+        !findings.some((f) => f.code === 'GENERATION_INPUT_CHANGED')
+      )
+        findings.push({
+          code: 'GENERATION_INPUT_CHANGED',
+          paths: [],
+          message: '檢查期間輸入變動，不能給出通過結論。',
+        })
     }
-    if (before !== input.fingerprintInputs())
+    if (
+      before !== input.fingerprintInputs() &&
+      !findings.some((f) => f.code === 'GENERATION_INPUT_CHANGED')
+    )
       findings.push({
         code: 'GENERATION_INPUT_CHANGED',
         paths: [],
@@ -43,8 +60,8 @@ export function checkGeneratedOutputs(input: {
       })
     const collect = (root: string, required: boolean) => {
       const files = new Map<string, string>()
-      for (const p of input.outputPaths)
-        for (const [name, digest] of readInputTree(root, p, required)) files.set(name, digest)
+      for (const p of expandGenerationOutputPaths(root, input.outputPaths))
+        for (const [name, digest] of readGenerationTree(root, p, required)) files.set(name, digest)
       return files
     }
     const first = collect(stages[0], true),

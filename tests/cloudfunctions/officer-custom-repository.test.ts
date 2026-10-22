@@ -18,6 +18,7 @@ interface StoredRecord {
 }
 
 interface Query {
+  orderBy(field: string, direction: string): Query
   skip(count: number): Query
   limit(count: number): Query
   get(): Promise<{ data: StoredRecord[] }>
@@ -28,6 +29,7 @@ interface Query {
 interface Document {
   get(): Promise<{ data?: StoredRecord }>
   set(options: { data: StoredRecord }): Promise<void>
+  remove(): Promise<void>
 }
 
 interface Collection {
@@ -37,6 +39,7 @@ interface Collection {
 }
 
 interface FakeDatabase {
+  command: { lt(value: number): { lessThan: number } }
   collection(name: string): Collection
   createCollection(name: string): Promise<void>
   runTransaction<T>(
@@ -45,6 +48,20 @@ interface FakeDatabase {
 }
 
 interface OfficerRepository {
+  savePortraitIntent(
+    id: string,
+    data: Record<string, unknown>,
+    leaseToken?: string,
+    now?: number,
+  ): Promise<Record<string, unknown> | null>
+  claimPortraitIntent(
+    id: string,
+    leaseToken: string,
+    now: number,
+  ): Promise<Record<string, unknown> | null>
+  removePortraitIntent(id: string, leaseToken: string, now: number): Promise<boolean>
+  listDuePortraitIntents(now: number): Promise<Array<Record<string, unknown>>>
+  isPortraitReferenced(intent: Record<string, unknown>): Promise<boolean>
   listByOwner(ownerUid: string): Promise<StoredRecord[]>
   listLatestByStatus(status: string): Promise<StoredRecord[]>
   findBySubmissionIdAndRevision(
@@ -84,9 +101,22 @@ function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
       where(filter) {
         const matches = () =>
           [...records.values()].filter((record) =>
-            Object.entries(filter).every(([key, value]) => record[key] === value),
+            Object.entries(filter).every(([key, value]) => {
+              const actual = key
+                .split('.')
+                .reduce<unknown>(
+                  (row, field) => (row as Record<string, unknown> | undefined)?.[field],
+                  record,
+                )
+              return value && typeof value === 'object' && 'lessThan' in value
+                ? Number(actual) < Number(value.lessThan)
+                : actual === value
+            }),
           )
         const makeQuery = (offset = 0, pageSize = providerPageSize): Query => ({
+          orderBy() {
+            return makeQuery(offset, pageSize)
+          },
           skip(count) {
             return makeQuery(offset + count, pageSize)
           },
@@ -115,6 +145,9 @@ function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
           async set({ data }) {
             records.set(id, { ...data, _id: id })
           },
+          async remove() {
+            records.delete(id)
+          },
         }
       },
       async add({ data }) {
@@ -125,6 +158,7 @@ function createFakeDatabase(seed: StoredRecord[] = []): FakeDatabase {
     }
   }
   return {
+    command: { lt: (value) => ({ lessThan: value }) },
     collection: (name) => makeCollection(name),
     createCollection: async () => undefined,
     async runTransaction<T>(
@@ -156,6 +190,73 @@ const record = (overrides: Partial<StoredRecord> = {}): StoredRecord => ({
 })
 
 describe('Officer custom repository', () => {
+  it('上傳意圖可持久化、按期限讀回及完成移除，引用查詢涵蓋舊版本', async () => {
+    const repo = repositoryModule.createRepository(
+      createFakeDatabase([record({ formData: { portraitFileId: 'cloud://old/path.png' } })]),
+    )
+    await repo.savePortraitIntent('upload-1', {
+      submissionId: 'sub_1',
+      revision: 1,
+      cloudPath: 'path.png',
+      cleanupAfter: 10,
+      leaseToken: 'upload-owner',
+      leaseUntil: 100,
+    })
+    await expect(repo.listDuePortraitIntents(11)).resolves.toMatchObject([
+      { _id: 'upload-1', cloudPath: 'path.png' },
+    ])
+    await expect(repo.listDuePortraitIntents(9)).resolves.toEqual([])
+    await expect(repo.isPortraitReferenced({ fileID: 'cloud://old/path.png' })).resolves.toBe(true)
+    await expect(
+      repo.isPortraitReferenced({ cloudPath: 'path.png', submissionId: 'sub_1', revision: 1 }),
+    ).resolves.toBe(true)
+    await repo.removePortraitIntent('upload-1', 'upload-owner', 11)
+    await expect(repo.listDuePortraitIntents(11)).resolves.toEqual([])
+  })
+  it('同意圖只能原子領取一次，租約過期接手後拒絕舊程序完成或續期', async () => {
+    const repo = repositoryModule.createRepository(createFakeDatabase())
+    await repo.savePortraitIntent('upload-lease', {
+      cloudPath: 'lease.png',
+      cleanupAfter: 10,
+      leaseUntil: 0,
+      leaseToken: null,
+    })
+    const claims = await Promise.all([
+      repo.claimPortraitIntent('upload-lease', 'worker-a', 11),
+      repo.claimPortraitIntent('upload-lease', 'worker-b', 11),
+    ])
+    expect(claims.filter(Boolean)).toHaveLength(1)
+    const first = claims.find(Boolean)!
+    await expect(repo.removePortraitIntent('upload-lease', 'stranger', 12)).resolves.toBe(false)
+    await expect(
+      repo.savePortraitIntent('upload-lease', { fileID: 'cloud://stale' }, 'stranger', 12),
+    ).resolves.toBeNull()
+    const takeoverAt = Number(first.leaseUntil) + 1
+    const next = await repo.claimPortraitIntent('upload-lease', 'worker-next', takeoverAt)
+    expect(next).toMatchObject({ leaseToken: 'worker-next', cloudPath: 'lease.png' })
+    await expect(
+      repo.removePortraitIntent('upload-lease', String(first.leaseToken), takeoverAt + 1),
+    ).resolves.toBe(false)
+    await expect(
+      repo.savePortraitIntent(
+        'upload-lease',
+        { cleanupAfter: 0 },
+        String(first.leaseToken),
+        takeoverAt + 1,
+      ),
+    ).resolves.toBeNull()
+    expect(
+      await repo.savePortraitIntent(
+        'upload-lease',
+        { fileID: 'cloud://current' },
+        'worker-next',
+        takeoverAt + 1,
+      ),
+    ).toMatchObject({ fileID: 'cloud://current', leaseToken: 'worker-next' })
+    await expect(
+      repo.removePortraitIntent('upload-lease', 'worker-next', takeoverAt + 2),
+    ).resolves.toBe(true)
+  })
   it('按 submissionId 只返回最新 revision', async () => {
     const repo = repositoryModule.createRepository(
       createFakeDatabase([

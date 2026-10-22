@@ -154,6 +154,30 @@ describe('小程序验收报告', () => {
         expect(content).toContain(text)
     }
   })
+  it.each(['failed', 'not-run'] as const)('final 必需倉庫門禁 %s 時總體不能通過', (status) => {
+    const report = buildReviewReport({
+      ...fixedInput,
+      checks: {
+        mode: 'final',
+        page: { status: 'passed', required: true },
+        repository: { status, required: true, command: 'npm run verify' },
+        external: [],
+      },
+    })
+    expect(report.status).toBe(status === 'not-run' ? 'not-run' : 'failed')
+    expect(report.checks.page.status).toBe('passed')
+    expect(report.checks.repository.status).toBe(status)
+  })
+
+  it('舊報告缺少分層欄位仍可讀，且不冒充已執行倉庫門禁', () => {
+    const report = buildReviewReport(fixedInput)
+    // 舊版報告沒有 checks，不能推斷已跑倉庫門禁。
+    delete (report as Partial<typeof report>).checks
+    const html = renderReviewReportHtml(report, 'C:/review/run')
+    expect(html).toContain('未記錄（舊報告）')
+    expect(html).toContain('倉庫門禁')
+    expect(html).toContain('目录搜寻')
+  })
   it('即使候選場景已通過，文件及路由缺口仍阻塞並顯示於 HTML 與 JSON', () => {
     const report = buildReviewReport({
       ...fixedInput,

@@ -67,6 +67,7 @@ interface StoredRecord {
 
 function createMemoryRepo() {
   const records: StoredRecord[] = []
+  const portraitIntents = new Map<string, Record<string, unknown>>()
   let nextId = 1
 
   const latestBySubmission = (ownerUid?: string): StoredRecord[] => {
@@ -81,6 +82,53 @@ function createMemoryRepo() {
 
   return {
     records,
+    portraitIntents,
+    async savePortraitIntent(
+      id: string,
+      intent: Record<string, unknown>,
+      leaseToken?: string,
+      now = Date.now(),
+    ) {
+      const current = portraitIntents.get(id)
+      if (leaseToken) {
+        if (!current || current.leaseToken !== leaseToken || Number(current.leaseUntil) <= now)
+          return null
+      } else if (current) return null
+      const stored = structuredClone({ ...current, ...intent, _id: id })
+      portraitIntents.set(id, stored)
+      return stored
+    },
+    async claimPortraitIntent(id: string, leaseToken: string, now: number) {
+      const current = portraitIntents.get(id)
+      if (!current || Number(current.cleanupAfter) >= now || Number(current.leaseUntil) > now)
+        return null
+      const stored = structuredClone({
+        ...current,
+        leaseToken,
+        leaseUntil: now + 86400000,
+        cleanupAfter: now + 86400000,
+      })
+      portraitIntents.set(id, stored)
+      return stored
+    },
+    async removePortraitIntent(id: string, leaseToken: string, now = Date.now()) {
+      const current = portraitIntents.get(id)
+      if (!current || current.leaseToken !== leaseToken || Number(current.leaseUntil) <= now)
+        return false
+      portraitIntents.delete(id)
+      return true
+    },
+    async listDuePortraitIntents(now: number) {
+      return [...portraitIntents.values()]
+        .filter((row) => Number(row.cleanupAfter) <= now)
+        .slice(0, 20)
+    },
+    async isPortraitReferenced(intent: Record<string, unknown>) {
+      return records.some((row) => {
+        const id = String(row.formData.portraitFileId ?? '')
+        return intent.fileID ? id === intent.fileID : id.endsWith('/' + intent.cloudPath)
+      })
+    },
     async insert(record: Omit<StoredRecord, '_id'>) {
       const saved = { ...record, _id: `doc_${nextId++}` } as unknown as StoredRecord
       records.push(saved)
@@ -144,10 +192,17 @@ function createMemoryRepo() {
 
 function createFakeCloud() {
   const uploads: Array<{ cloudPath: string; fileContent: Buffer }> = []
+  const files = new Set<string>()
   return {
     uploads,
+    files,
+    async deleteFile(input: { fileList: string[] }) {
+      for (const id of input.fileList) files.delete(id)
+      return { fileList: input.fileList.map((fileID) => ({ fileID, status: 0 })) }
+    },
     async uploadFile(input: { cloudPath: string; fileContent: Buffer }) {
       uploads.push(input)
+      files.add(`cloud://${input.cloudPath}`)
       return { fileID: `cloud://${input.cloudPath}` }
     },
     async getTempFileURL(input: { fileList: string[] }) {
@@ -319,6 +374,202 @@ describe('Officer custom submission service', () => {
     expect(repo.records).toHaveLength(0)
   })
 
+  it('滿額拒絕只刪本次頭像，不保留無引用文件', async () => {
+    repo.insertIfOwnerBelowLimit = async () => null
+    await expect(dispatchSubmit()).resolves.toMatchObject({ code: 'limit-reached' })
+    expect(cloud.files.size).toBe(0)
+    expect(repo.portraitIntents.size).toBe(0)
+  })
+
+  it('刪除逐檔失敗保留持久責任，後續有效寫操作會重試回收', async () => {
+    const originalDelete = cloud.deleteFile
+    cloud.deleteFile = async ({ fileList }) => ({
+      fileList: fileList.map((fileID) => ({ fileID, status: -1 })),
+    })
+    repo.insertIfOwnerBelowLimit = async () => null
+    await expect(dispatchSubmit()).resolves.toMatchObject({ code: 'limit-reached' })
+    expect(cloud.files.size).toBe(1)
+    expect(repo.portraitIntents.size).toBe(1)
+    for (const intent of repo.portraitIntents.values()) {
+      intent.cleanupAfter = 0
+      intent.leaseUntil = 0
+    }
+    cloud.deleteFile = originalDelete
+    await service.dispatch('submit', { formData: {} }, 'openid_user')
+    expect(cloud.files.size).toBe(0)
+    expect(repo.portraitIntents.size).toBe(0)
+  })
+
+  it('寫入異常且刪除也拋錯時仍傳原異常並保留回收責任', async () => {
+    const fault = new Error('原始寫入異常')
+    repo.insertIfOwnerBelowLimit = async () => {
+      throw fault
+    }
+    cloud.deleteFile = async () => {
+      throw new Error('刪除失敗')
+    }
+    await expect(dispatchSubmit()).rejects.toBe(fault)
+    expect(repo.portraitIntents.size).toBe(1)
+    expect(cloud.files.size).toBe(1)
+  })
+
+  it('寫入實際已提交後拋錯，不刪仍被引用的新頭像', async () => {
+    const insert = repo.insertIfOwnerBelowLimit
+    repo.insertIfOwnerBelowLimit = async (...args) => {
+      await insert(...args)
+      throw new Error('提交回應遺失')
+    }
+    await expect(dispatchSubmit()).rejects.toThrow('提交回應遺失')
+    expect(cloud.files.size).toBe(1)
+    expect(repo.records[0]!.formData.portraitFileId).toBe([...cloud.files][0])
+  })
+
+  it('上傳意圖無法持久化時不開始上傳', async () => {
+    repo.savePortraitIntent = async () => {
+      throw new Error('意圖寫入失敗')
+    }
+    await expect(dispatchSubmit()).rejects.toThrow('意圖寫入失敗')
+    expect(cloud.files.size).toBe(0)
+  })
+
+  it('未記錄 fileID 的中斷意圖可沿原路徑重放及回收', async () => {
+    const cloudPath = 'officer-submissions/interrupted/revision-1-original.png'
+    await cloud.uploadFile({ cloudPath, fileContent: Buffer.from(validPortraitBase64, 'base64') })
+    await repo.savePortraitIntent('interrupted', {
+      cloudPath,
+      submissionId: 'interrupted',
+      revision: 1,
+      base64: validPortraitBase64,
+      cleanupAfter: 0,
+      fileID: null,
+    })
+    await service.dispatch('submit', { formData: {} }, 'openid_user')
+    expect(cloud.uploads.map((row) => row.cloudPath)).toEqual([cloudPath, cloudPath])
+    expect(cloud.files.size).toBe(0)
+    expect(repo.portraitIntents.size).toBe(0)
+  })
+
+  it('並發恢復只由一個程序重放；另一程序不得移除處理中責任', async () => {
+    await repo.savePortraitIntent('interrupted-concurrent', {
+      cloudPath: 'officer-submissions/interrupted/concurrent.png',
+      submissionId: 'interrupted',
+      revision: 1,
+      base64: validPortraitBase64,
+      cleanupAfter: 0,
+      fileID: null,
+    })
+    let signalStarted!: () => void
+    const started = new Promise<void>((resolve) => {
+      signalStarted = resolve
+    })
+    let resume!: () => void
+    const paused = new Promise<void>((resolve) => {
+      resume = resolve
+    })
+    let replayCalls = 0
+    let firstResumed = false
+    const upload = cloud.uploadFile
+    const remove = cloud.deleteFile
+    const save = repo.savePortraitIntent
+    cloud.uploadFile = async (input) => {
+      if (++replayCalls === 1) {
+        signalStarted()
+        await paused
+      }
+      return upload(input)
+    }
+    cloud.deleteFile = async (input) => {
+      if (firstResumed) throw new Error('A 的刪除失敗')
+      return remove(input)
+    }
+    repo.savePortraitIntent = async (...args) => {
+      if (firstResumed) throw new Error('A 的回收責任補寫也失敗')
+      return save(...args)
+    }
+    const a = service.dispatch('submit', { formData: {} }, 'openid_user')
+    await started
+    await service.dispatch('submit', { formData: {} }, 'openid_user')
+    firstResumed = true
+    resume()
+    await a
+    expect(cloud.files.size).toBe(1)
+    expect(repo.portraitIntents.has('interrupted-concurrent')).toBe(true)
+    expect(replayCalls).toBe(1)
+  })
+
+  it('原業務上傳持有租約時，恢復程序不得介入同一意圖', async () => {
+    let signalStarted!: () => void
+    const started = new Promise<void>((resolve) => {
+      signalStarted = resolve
+    })
+    let resume!: () => void
+    const paused = new Promise<void>((resolve) => {
+      resume = resolve
+    })
+    const upload = cloud.uploadFile
+    let uploadCalls = 0
+    cloud.uploadFile = async (input) => {
+      if (++uploadCalls === 1) {
+        signalStarted()
+        await paused
+      }
+      return upload(input)
+    }
+    repo.insertIfOwnerBelowLimit = async () => null
+    const original = dispatchSubmit()
+    await started
+    // 即使查詢已讀到候選，交易 claim 仍需尊重原業務的有效租約。
+    for (const intent of repo.portraitIntents.values()) intent.cleanupAfter = 0
+    await service.dispatch('submit', { formData: {} }, 'openid_user')
+    resume()
+    await expect(original).resolves.toMatchObject({ code: 'limit-reached' })
+    expect(uploadCalls).toBe(1)
+    expect(cloud.files.size).toBe(0)
+    expect(repo.portraitIntents.size).toBe(0)
+  })
+
+  it('已提交意圖即使完成標記失敗，後續回收仍保留被引用頭像', async () => {
+    const remove = repo.removePortraitIntent
+    repo.removePortraitIntent = async () => {
+      throw new Error('完成標記失敗')
+    }
+    await expect(dispatchSubmit()).resolves.toMatchObject({ ok: true })
+    expect(repo.portraitIntents.size).toBe(1)
+    for (const intent of repo.portraitIntents.values()) {
+      intent.cleanupAfter = 0
+      intent.leaseUntil = 0
+    }
+    repo.removePortraitIntent = remove
+    await service.dispatch('submit', { formData: {} }, 'openid_user')
+    expect(cloud.files.size).toBe(1)
+    expect(repo.portraitIntents.size).toBe(0)
+  })
+
+  it('管理員 CAS 衝突清掉新圖，保留原版本引用', async () => {
+    const first = await dispatchSubmit()
+    const original = repo.records[0]!.formData.portraitFileId
+    repo.updateIfRevision = async () => null
+    await expect(
+      service.dispatch(
+        'saveAdmin',
+        {
+          ...validPayload(),
+          submissionId: first.data.submissionId,
+          revision: 1,
+          updatedAt: first.data.updatedAt,
+          reviewFields: {
+            visualGradeId: 'grade_5',
+            skills: [
+              { skillId: 'skill_skill200681', kind: 'passive', sourceGroup: 'sk0', slot: 0 },
+            ],
+          },
+        },
+        'openid_admin',
+      ),
+    ).resolves.toMatchObject({ code: 'conflict' })
+    expect([...cloud.files]).toEqual([original])
+  })
+
   it('招募条件缺省或类型异常时都不会触发服务端异常', async () => {
     const withoutRequirement = validFormData()
     withoutRequirement.recruitment = { cityIds: [], requiredOfficerIds: [] }
@@ -398,6 +649,9 @@ describe('Officer custom submission service', () => {
     })
     const retryPaths = cloud.uploads.slice(1).map((upload) => upload.cloudPath)
     expect(new Set(retryPaths)).toHaveLength(2)
+    expect(cloud.files.size).toBe(2)
+    expect(cloud.files.has(String(repo.records[0]!.formData.portraitFileId))).toBe(true)
+    expect(cloud.files.has(String(repo.records[1]!.formData.portraitFileId))).toBe(true)
   })
 
   it('返回投稿详情时不泄露 owner 或审核者 OPENID', async () => {

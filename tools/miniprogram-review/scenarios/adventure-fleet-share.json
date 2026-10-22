@@ -28,11 +28,11 @@
     },
     {
       "action": "assertExists",
-      "selector": "xpath://view[contains(@class, \"config-bar\")]"
+      "selector": ".config-bar"
     },
     {
       "action": "assertExists",
-      "selector": "xpath://view[contains(@class, \"fleet-context\")]"
+      "selector": ".fleet-context"
     },
     {
       "action": "waitFor",
@@ -44,11 +44,11 @@
     },
     {
       "action": "tap",
-      "selector": "xpath://button[contains(@class, \"config-bar__share--prominent\")]"
+      "selector": ".config-bar__share--prominent"
     },
     {
       "action": "waitFor",
-      "selector": "xpath://image[contains(@class, \"fleet-share-preview__image\")]",
+      "selector": ".fleet-share-preview__image",
       "timeoutMs": 20000
     },
     {
@@ -57,11 +57,11 @@
     },
     {
       "action": "assertVisible",
-      "selector": "xpath://image[contains(@class, \"fleet-share-preview__image\")]"
+      "selector": ".fleet-share-preview__image"
     },
     {
       "action": "assertText",
-      "selector": "xpath://text[contains(@class, \"fleet-share-preview__title\")]",
+      "selector": ".fleet-share-preview__title",
       "equals": "分享圖預覽"
     },
     {

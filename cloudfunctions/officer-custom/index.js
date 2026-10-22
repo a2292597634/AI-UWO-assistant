@@ -12,7 +12,7 @@ const { createRepository } = require('./officer-custom-repository')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const db = cloud.database()
+const db = cloud.database({ throwOnNotFound: false })
 const repo = createRepository(db)
 
 const parseOpenIds = (value) =>

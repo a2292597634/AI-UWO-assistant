@@ -35,6 +35,29 @@ describe('微信开发者工具 wechatide 适配器', () => {
     })
     expect(adapter.getReviewLaunchRecord?.()).toBeUndefined()
   })
+  it.each(['.config-bar__share--prominent', '.fleet-share-preview__image'])(
+    '頁面資料為真但沒有真元素，存在/可見/點擊均不能成功：%s',
+    async (selector) => {
+      const calls: string[] = []
+      const runner: WechatIdeRunner = {
+        async call(tool, args) {
+          calls.push(`${tool} ${args.join(' ')}`)
+          if (tool === 'automation_runtime_info')
+            return { currentPage: { route: '/pages/adventure-fleet/index' } }
+          if (tool === 'automation_page_action') return { data: 'ready' }
+          throw new Error(`Element not found: ${selector}`)
+        },
+      }
+      const adapter = await createWechatIdeAdapter(
+        { projectPath, automationPort: 9420 },
+        { runner, openProject: false },
+      )
+      expect(await adapter.queryElement(selector)).toBe(false)
+      expect(await adapter.isVisible(selector)).toBe(false)
+      await expect(adapter.tap(selector)).rejects.toThrow('Element not found:')
+      expect(calls.some((call) => /callMethod|onShareFleet|getData|setData/.test(call))).toBe(false)
+    },
+  )
   it.each([
     'no such element: .detail-page',
     'Element not found: .detail-page',
@@ -136,7 +159,7 @@ describe('微信开发者工具 wechatide 适配器', () => {
     }
   })
 
-  it('把自定义组件动作映射为页面方法、数据状态与视口截图', async () => {
+  it('保留原 XPath、路由、文字、滾動與截圖契約，分享動作改查真元素', async () => {
     const calls: Array<{ tool: string; args: string[] }> = []
     const runner: WechatIdeRunner = {
       async call(tool, args) {
@@ -160,7 +183,7 @@ describe('微信开发者工具 wechatide 适配器', () => {
           }
         }
         if (tool === 'automation_element_action' && args.includes('text')) {
-          return '郑和'
+          return '分享圖預覽'
         }
         if (tool === 'automation_element_action') return { width: 320, height: 240 }
         return undefined
@@ -193,17 +216,17 @@ describe('微信开发者工具 wechatide 适配器', () => {
       calls.some(
         ({ tool, args }) => tool === 'automation_evaluate' && args.includes('--fn-source'),
       ),
-    ).toBe(true)
+    ).toBe(false)
     expect(
       calls.some(({ tool, args }) => tool === 'automation_element_action' && args.includes('text')),
-    ).toBe(false)
+    ).toBe(true)
     expect(
       calls.some(
         ({ tool, args }) =>
           tool === 'automation_evaluate' &&
           args.some((argument) => argument.includes('fleet-share-preview__bottom-anchor')),
       ),
-    ).toBe(true)
+    ).toBe(false)
     expect(calls).toEqual(
       expect.arrayContaining([
         {
@@ -216,8 +239,13 @@ describe('微信开发者工具 wechatide 适配器', () => {
           ]),
         },
         {
-          tool: 'automation_page_action',
-          args: expect.arrayContaining(['--action', 'callMethod', '--method', 'onShareFleet']),
+          tool: 'automation_element_action',
+          args: expect.arrayContaining([
+            '--action',
+            'tap',
+            '--selector',
+            '.config-bar__share--prominent',
+          ]),
         },
         {
           tool: 'automation_viewport_action',
@@ -225,6 +253,43 @@ describe('微信开发者工具 wechatide 适配器', () => {
         },
       ]),
     )
+  })
+
+  it('分享選擇器也使用真元素動作，不讀資料、呼叫 handler 或改狀態', async () => {
+    const calls: Array<{ tool: string; args: string[] }> = []
+    const runner: WechatIdeRunner = {
+      async call(tool, args) {
+        calls.push({ tool, args })
+        if (tool === 'automation_runtime_info')
+          return { currentPage: { route: '/pages/adventure-fleet/index' } }
+        if (args.includes('text')) return '分享圖預覽'
+        return { width: 320, height: 240 }
+      },
+    }
+    const adapter = await createWechatIdeAdapter(
+      { projectPath, automationPort: 9420 },
+      { runner, openProject: false },
+    )
+    await adapter.waitFor('.config-bar', 1000)
+    await adapter.tap('.config-bar__share--prominent')
+    expect(await adapter.queryElement('.fleet-share-preview__image')).toBe(true)
+    expect(await adapter.isVisible('.fleet-share-preview__image')).toBe(true)
+    expect(await adapter.readText('.fleet-share-preview__title')).toBe('分享圖預覽')
+    await adapter.scrollElement('.fleet-share-preview__content', 1600)
+    expect(
+      calls
+        .filter(({ tool }) => tool !== 'automation_runtime_info')
+        .every(({ tool }) => tool === 'automation_element_action'),
+    ).toBe(true)
+    expect(calls.map(({ args }) => args[args.indexOf('--action') + 1])).toEqual([
+      'currentPage',
+      'size',
+      'tap',
+      'size',
+      'size',
+      'text',
+      'scrollTo',
+    ])
   })
 
   it('解析与 cli.bat 同目录的 wechatide 命令', async () => {

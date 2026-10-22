@@ -5,6 +5,9 @@ import { createSchemaValidator } from './create-schema-validator'
 import { validateMasterDataset, type MasterDatasetInput } from './validate-master-dataset'
 import type { AuditFinding } from './types'
 import { buildGameServerOutputs } from '../data-pipeline/build-game-servers'
+import { validateTradeDataset } from '../import/validate-trades'
+import { validateMajorEvents } from './validate-major-events'
+import type { CanonicalTradeDataset, CanonicalMajorEventsDataset } from '../import/types'
 
 export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
   const read = <T>(name: string): T =>
@@ -26,7 +29,19 @@ export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
       (name) => validator.validate(name, input[name]),
     )
     if (findings.some((finding) => finding.severity === 'error')) return findings
-    return [...findings, ...validateMasterDataset(input)]
+    const trade = read<CanonicalTradeDataset>('trade-goods')
+    const events = read<CanonicalMajorEventsDataset>('major-events')
+    findings.push(
+      ...validator.validate('trade-goods', trade),
+      ...validator.validate('major-events', events),
+    )
+    if (findings.some((finding) => finding.severity === 'error')) return findings
+    return [
+      ...findings,
+      ...validateMasterDataset(input),
+      ...validateTradeDataset(trade),
+      ...validateMajorEvents(events, trade),
+    ]
   } catch (error) {
     return [
       {

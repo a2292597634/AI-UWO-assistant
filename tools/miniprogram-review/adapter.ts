@@ -153,8 +153,12 @@ export interface ReviewAdapter {
 
 interface AutomatorElement {
   nodeId?: unknown
+  tagName?: string
   $$(selector: string): Promise<AutomatorElement[]>
   tap(): Promise<void>
+  attribute?(name: string): Promise<string>
+  touchstart?(): Promise<void>
+  touchend?(): Promise<void>
   input?(value: string): Promise<void>
   scrollTo?(x: number, y: number): Promise<void>
   size(): Promise<{ width: number; height: number }>
@@ -806,7 +810,17 @@ export const createAutomatorAdapter = (
       await route(miniProgram, 'switchTab', path)
     },
     async tap(selector) {
-      await elementAction(selector, (target) => target.tap())
+      await elementAction(selector, async (target) => {
+        // SDK 的 tap 不會執行 form 預設提交；只對真 submit 按鈕使用原生觸控。
+        if (target.tagName === 'button' && (await target.attribute?.('form-type')) === 'submit') {
+          if (!target.touchstart || !target.touchend)
+            throw new Error(`元素不支持原生觸控：${selector}`)
+          await target.touchstart()
+          await target.touchend()
+        } else {
+          await target.tap()
+        }
+      })
     },
     async input(selector, value) {
       await elementAction(selector, async (target) => {

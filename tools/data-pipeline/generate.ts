@@ -11,7 +11,11 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname, resolve } from 'node:path'
-import { DATA_GENERATION_OUTPUT_PATHS, assertProjectPath } from './generated-output-paths'
+import {
+  DATA_GENERATION_OUTPUT_PATHS,
+  assertProjectPath,
+  readGenerationTree,
+} from './generated-output-paths'
 import type { CanonicalSkill, DictionaryItem } from '../import/types'
 import {
   writeRuntimeData,
@@ -232,6 +236,7 @@ export const generate = (): void => {
   const stage = mkdtempSync(join(tmpdir(), 'uwo-data-generation-'))
   const backups: Array<{ target: string; backup: string; existed: boolean }> = []
   try {
+    for (const path of DATA_GENERATION_OUTPUT_PATHS) readGenerationTree(root, path, false)
     buildGeneratedOutputs(stage)
     for (const [index, path] of DATA_GENERATION_OUTPUT_PATHS.entries()) {
       const target = assertProjectPath(root, resolve(root, path))

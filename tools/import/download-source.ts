@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { mkdir, writeFile, lstat, readdir, mkdtemp, rename, rm, rmdir } from 'node:fs/promises'
+import { dirname, resolve, sep, join, parse } from 'node:path'
 import { sourceConfig } from '../data-audit/source-config'
 
 // ── Types ──
@@ -17,6 +17,52 @@ export interface DownloadResult {
 export const rangeHeader = (start: number, end: number): string => `bytes=${start}-${end}`
 
 const sha256Hex = (buffer: Buffer): string => createHash('sha256').update(buffer).digest('hex')
+
+/** archive 永遠只讀；同時拒絕任何祖先連結，以免繞過目的地保護。 */
+const assertDownloadDestination = async (path: string, emptyDirectory = false): Promise<void> => {
+  const target = resolve(path)
+  if (target.split(sep).some((part) => part.toLowerCase() === 'archive'))
+    throw Error(`IMPORT_ARCHIVE_READ_ONLY:${target}`)
+  let current = parse(target).root
+  for (const part of target.slice(current.length).split(sep)) {
+    current = join(current, part)
+    try {
+      const stat = await lstat(current)
+      if (stat.isSymbolicLink()) throw Error(`IMPORT_DESTINATION_LINK:${current}`)
+      if (
+        current === target &&
+        !(emptyDirectory && stat.isDirectory() && (await readdir(target)).length === 0)
+      )
+        throw Error(`IMPORT_DESTINATION_EXISTS:${target}`)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+  }
+}
+
+/** 同磁碟候選完整成功後安裝；失敗保留原目的地且不留下半套快照。 */
+const inNewSnapshot = async <T>(
+  outputDir: string,
+  build: (stage: string) => Promise<T>,
+): Promise<T> => {
+  await assertDownloadDestination(outputDir, true)
+  const target = resolve(outputDir)
+  await mkdir(dirname(target), { recursive: true })
+  const stage = await mkdtemp(join(dirname(target), '.uwo-download-'))
+  try {
+    const result = await build(stage)
+    await assertDownloadDestination(target, true)
+    try {
+      await rmdir(target)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+    await rename(stage, target)
+    return result
+  } finally {
+    await rm(stage, { recursive: true, force: true })
+  }
+}
 
 interface ParsedContentRange {
   start: number
@@ -59,6 +105,7 @@ export const downloadFullFile = async (
   destPath: string,
   fetcher: typeof fetch = globalThis.fetch,
 ): Promise<DownloadResult> => {
+  await assertDownloadDestination(destPath)
   const response = await fetcher(url, { headers: {} })
   if (response.status !== 200) {
     throw new Error(`IMPORT_DOWNLOAD_STATUS:${url}:${response.status}`)
@@ -66,7 +113,7 @@ export const downloadFullFile = async (
 
   const buffer = Buffer.from(await response.arrayBuffer())
   await mkdir(dirname(destPath), { recursive: true })
-  await writeFile(destPath, buffer)
+  await writeFile(destPath, buffer, { flag: 'wx' })
 
   return {
     byteCount: buffer.length,
@@ -82,49 +129,51 @@ export const downloadWithRanges = async (
   ranges: ReadonlyArray<readonly [number, number]>,
   destDir: string,
   fetcher: typeof fetch = globalThis.fetch,
-): Promise<{ results: DownloadResult[]; combinedByteCount: number }> => {
-  await mkdir(destDir, { recursive: true })
+): Promise<{ results: DownloadResult[]; combinedByteCount: number }> =>
+  inNewSnapshot(destDir, async (stage) => {
+    destDir = stage
+    await mkdir(destDir, { recursive: true })
 
-  const results: DownloadResult[] = []
-  let combinedByteCount = 0
+    const results: DownloadResult[] = []
+    let combinedByteCount = 0
 
-  for (let i = 0; i < ranges.length; i++) {
-    const range = ranges[i]!
-    const header = rangeHeader(range[0], range[1])
-    const response = await fetcher(url, { headers: { Range: header } })
+    for (let i = 0; i < ranges.length; i++) {
+      const range = ranges[i]!
+      const header = rangeHeader(range[0], range[1])
+      const response = await fetcher(url, { headers: { Range: header } })
 
-    if (response.status !== 206) {
-      throw new Error(`IMPORT_RANGE_REQUIRED:${url}:${header}:${response.status}`)
+      if (response.status !== 206) {
+        throw new Error(`IMPORT_RANGE_REQUIRED:${url}:${header}:${response.status}`)
+      }
+
+      const buffer = Buffer.from(await response.arrayBuffer())
+      const contentRange = parseContentRange(response.headers.get('content-range'), url, header)
+      if (contentRange.start !== range[0] || contentRange.end !== range[1]) {
+        throw new Error(
+          `IMPORT_RANGE_CONTENT_RANGE_MISMATCH:${url}:${header}:${response.headers.get('content-range')}`,
+        )
+      }
+
+      const expectedByteCount = range[1] - range[0] + 1
+      if (buffer.length !== expectedByteCount) {
+        throw new Error(`IMPORT_RANGE_LENGTH_MISMATCH:${url}:${header}:${buffer.length}`)
+      }
+
+      const filename = `r${i}.txt`
+      await writeFile(`${destDir}/${filename}`, buffer)
+
+      const result: DownloadResult = {
+        byteCount: buffer.length,
+        sha256: sha256Hex(buffer),
+        lastModified: response.headers.get('last-modified'),
+        contentRange: response.headers.get('content-range') ?? undefined,
+      }
+      results.push(result)
+      combinedByteCount += buffer.length
     }
 
-    const buffer = Buffer.from(await response.arrayBuffer())
-    const contentRange = parseContentRange(response.headers.get('content-range'), url, header)
-    if (contentRange.start !== range[0] || contentRange.end !== range[1]) {
-      throw new Error(
-        `IMPORT_RANGE_CONTENT_RANGE_MISMATCH:${url}:${header}:${response.headers.get('content-range')}`,
-      )
-    }
-
-    const expectedByteCount = range[1] - range[0] + 1
-    if (buffer.length !== expectedByteCount) {
-      throw new Error(`IMPORT_RANGE_LENGTH_MISMATCH:${url}:${header}:${buffer.length}`)
-    }
-
-    const filename = `r${i}.txt`
-    await writeFile(`${destDir}/${filename}`, buffer)
-
-    const result: DownloadResult = {
-      byteCount: buffer.length,
-      sha256: sha256Hex(buffer),
-      lastModified: response.headers.get('last-modified'),
-      contentRange: response.headers.get('content-range') ?? undefined,
-    }
-    results.push(result)
-    combinedByteCount += buffer.length
-  }
-
-  return { results, combinedByteCount }
-}
+    return { results, combinedByteCount }
+  })
 
 // ── Manifests ──
 
@@ -151,107 +200,109 @@ export interface SourceManifest {
 export const downloadAll = async (
   outputDir: string,
   fetcher: typeof fetch = globalThis.fetch,
-): Promise<SourceManifest> => {
-  const now = new Date().toISOString()
-  const dataUrl = `${sourceConfig.origin}${sourceConfig.officerScript}`
-  const langUrl = `${sourceConfig.origin}${sourceConfig.languageScript}`
-  const langRangesDir = `${outputDir}/lang_1_ranges`
+): Promise<SourceManifest> =>
+  inNewSnapshot(outputDir, async (stage) => {
+    outputDir = stage
+    const now = new Date().toISOString()
+    const dataUrl = `${sourceConfig.origin}${sourceConfig.officerScript}`
+    const langUrl = `${sourceConfig.origin}${sourceConfig.languageScript}`
+    const langRangesDir = `${outputDir}/lang_1_ranges`
 
-  // Download json_char.js (full)
-  const dataFile = await downloadFullFile(dataUrl, `${outputDir}/json_char.js`, fetcher)
+    // Download json_char.js (full)
+    const dataFile = await downloadFullFile(dataUrl, `${outputDir}/json_char.js`, fetcher)
 
-  // Download lang_1.js (4 ranges)
-  const langRanges = sourceConfig.languageRanges.map(
-    (r) => [r[0], r[1]] as readonly [number, number],
-  )
-  const langResult = await downloadWithRanges(langUrl, langRanges, langRangesDir, fetcher)
+    // Download lang_1.js (4 ranges)
+    const langRanges = sourceConfig.languageRanges.map(
+      (r) => [r[0], r[1]] as readonly [number, number],
+    )
+    const langResult = await downloadWithRanges(langUrl, langRanges, langRangesDir, fetcher)
 
-  const manifest: SourceManifest = {
-    snapshotDate: now,
-    sourceOrigin: sourceConfig.origin,
-    dataVersion: sourceConfig.dataVersion,
-    languageVersion: sourceConfig.languageVersion,
-    files: [
-      {
-        path: 'json_char.js',
-        url: dataUrl,
-        byteSize: dataFile.byteCount,
-        sha256: dataFile.sha256,
-        downloadedAt: now,
-        lastModified: dataFile.lastModified,
-      },
-      ...langResult.results.map((r, i) => ({
-        path: `lang_1_ranges/r${i}.txt`,
-        url: langUrl,
-        byteSize: r.byteCount,
-        sha256: r.sha256,
-        downloadedAt: now,
-        contentRange: r.contentRange,
-        lastModified: r.lastModified,
-      })),
-    ],
-  }
+    const manifest: SourceManifest = {
+      snapshotDate: now,
+      sourceOrigin: sourceConfig.origin,
+      dataVersion: sourceConfig.dataVersion,
+      languageVersion: sourceConfig.languageVersion,
+      files: [
+        {
+          path: 'json_char.js',
+          url: dataUrl,
+          byteSize: dataFile.byteCount,
+          sha256: dataFile.sha256,
+          downloadedAt: now,
+          lastModified: dataFile.lastModified,
+        },
+        ...langResult.results.map((r, i) => ({
+          path: `lang_1_ranges/r${i}.txt`,
+          url: langUrl,
+          byteSize: r.byteCount,
+          sha256: r.sha256,
+          downloadedAt: now,
+          contentRange: r.contentRange,
+          lastModified: r.lastModified,
+        })),
+      ],
+    }
 
-  // Write manifest
-  await writeFile(`${outputDir}/source-manifest.json`, JSON.stringify(manifest, null, 2) + '\n')
+    // Write manifest
+    await writeFile(`${outputDir}/source-manifest.json`, JSON.stringify(manifest, null, 2) + '\n')
 
-  return manifest
-}
+    return manifest
+  })
 
 /** 下載貿易品功能所需的完整靜態來源檔案。 */
 export const downloadTradeSnapshot = async (
   outputDir: string,
   fetcher: typeof fetch = globalThis.fetch,
-): Promise<SourceManifest> => {
-  const now = new Date().toISOString()
-  const files = [
-    {
-      path: 'json.js',
-      url: sourceConfig.origin + sourceConfig.tradeDataScript,
-    },
-    {
-      path: 'lang_1.js',
-      url: sourceConfig.origin + sourceConfig.tradeLanguageScript,
-    },
-    {
-      path: 'map.js',
-      url: sourceConfig.origin + sourceConfig.tradeMapScript,
-    },
-  ]
+): Promise<SourceManifest> =>
+  inNewSnapshot(outputDir, async (stage) => {
+    outputDir = stage
+    const now = new Date().toISOString()
+    const files = [
+      {
+        path: 'json.js',
+        url: sourceConfig.origin + sourceConfig.tradeDataScript,
+      },
+      {
+        path: 'lang_1.js',
+        url: sourceConfig.origin + sourceConfig.tradeLanguageScript,
+      },
+      {
+        path: 'map.js',
+        url: sourceConfig.origin + sourceConfig.tradeMapScript,
+      },
+    ]
 
-  const manifestFiles: SourceManifestFile[] = []
-  for (const file of files) {
-    const result = await downloadFullFile(file.url, outputDir + '/' + file.path, fetcher)
-    manifestFiles.push({
-      path: file.path,
-      url: file.url,
-      byteSize: result.byteCount,
-      sha256: result.sha256,
-      downloadedAt: now,
-      lastModified: result.lastModified,
-    })
-  }
+    const manifestFiles: SourceManifestFile[] = []
+    for (const file of files) {
+      const result = await downloadFullFile(file.url, outputDir + '/' + file.path, fetcher)
+      manifestFiles.push({
+        path: file.path,
+        url: file.url,
+        byteSize: result.byteCount,
+        sha256: result.sha256,
+        downloadedAt: now,
+        lastModified: result.lastModified,
+      })
+    }
 
-  const manifest: SourceManifest = {
-    snapshotDate: now,
-    sourceOrigin: sourceConfig.origin,
-    dataVersion: sourceConfig.dataVersion,
-    languageVersion: sourceConfig.languageVersion,
-    files: manifestFiles,
-  }
-  await mkdir(outputDir, { recursive: true })
-  await writeFile(outputDir + '/source-manifest.json', JSON.stringify(manifest, null, 2) + '\n')
+    const manifest: SourceManifest = {
+      snapshotDate: now,
+      sourceOrigin: sourceConfig.origin,
+      dataVersion: sourceConfig.dataVersion,
+      languageVersion: sourceConfig.languageVersion,
+      files: manifestFiles,
+    }
+    await mkdir(outputDir, { recursive: true })
+    await writeFile(outputDir + '/source-manifest.json', JSON.stringify(manifest, null, 2) + '\n')
 
-  return manifest
-}
+    return manifest
+  })
 
 // ── CLI entry ──
 
 if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/import/download-source.ts')) {
   const isTradeDownload = process.argv.includes('--trade')
-  const archiveDir = isTradeDownload
-    ? 'archive/voyage-tw-2026052501-trade-20260904/raw-data'
-    : 'archive/voyage-tw-2026052501/raw-data'
+  const archiveDir = `data/source-candidates/${isTradeDownload ? 'trade' : 'officers'}-${new Date().toISOString().replace(/[:.]/g, '-')}`
   const download = isTradeDownload ? downloadTradeSnapshot : downloadAll
   download(archiveDir)
     .then((manifest) => {

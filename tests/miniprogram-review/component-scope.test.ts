@@ -62,6 +62,43 @@ const setup = (queryFailure?: () => Promise<unknown>, tapFailure?: () => Promise
 }
 
 describe('正式 SDK 元件作用域查詢', () => {
+  it.each([
+    { tagName: 'button', formType: 'submit', expected: ['Element.touchstart', 'Element.touchend'] },
+    { tagName: 'button', formType: 'reset', expected: ['Element.tap'] },
+    { tagName: 'view', formType: 'submit', expected: ['Element.tap'] },
+  ])('真元素原生交互分流 $tagName/$formType', async ({ tagName, formType, expected }) => {
+    const actions: string[] = []
+    const connection = {
+      async send(method: string) {
+        if (method === 'Page.getElements') return { elements: [{ elementId: 'actual', tagName }] }
+        if (method === 'Element.getAttributes') return { attributes: [formType] }
+        actions.push(method)
+        return {}
+      },
+    }
+    const adapter = createAutomatorAdapter({
+      currentPage: async () =>
+        new Page(connection as never, { id: 1, path: 'pages/adventure-fleet/index', query: {} }),
+    } as never)
+    await adapter.tap('.actual')
+    expect(actions).toEqual(expected)
+  })
+
+  it('缺失 submit 元素時不能合成觸控或事件', async () => {
+    const actions: string[] = []
+    const connection = {
+      async send(method: string) {
+        actions.push(method)
+        return { elements: [] }
+      },
+    }
+    const adapter = createAutomatorAdapter({
+      currentPage: async () =>
+        new Page(connection as never, { id: 1, path: 'pages/adventure-fleet/index', query: {} }),
+    } as never)
+    await expect(adapter.tap('button[form-type="submit"]')).rejects.toThrow('找不到元素')
+    expect(actions.every((method) => method === 'Page.getElements')).toBe(true)
+  })
   it('查詢完成後原生點擊掛起仍在同一動作期限內失敗', async () => {
     vi.useFakeTimers()
     try {

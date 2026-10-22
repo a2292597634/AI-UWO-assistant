@@ -29,7 +29,10 @@ function createRepository(db) {
       async query(collection, input = {}) {
         const filters = { ...input.eq },
           field = input.field || 'orderKey'
-        if (input.before !== undefined) filters[field] = db.command.lt(input.before)
+        if (input.before !== undefined)
+          filters[input.beforeField || field] = db.command.lt(input.before)
+        if (input.after !== undefined && input.after !== null)
+          filters[field] = db.command.gt(input.after)
         let query = database
           .collection(collection)
           .where(filters)

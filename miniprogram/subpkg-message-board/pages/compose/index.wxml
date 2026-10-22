@@ -15,18 +15,26 @@
     </view>
     <block wx:if="{{privacyReady}}">
       <text class="board-page__label">留言暱稱（1–32 字）</text>
-      <input class="board-page__input" name="nickname" type="{{nicknameSupported ? 'nickname' : 'text'}}" value="{{nickname}}" maxlength="-1" placeholder="手動填寫或選用微信暱稱" disabled="{{phase === 'busy'}}" bindinput="onNicknameInput" />
+      <input id="board-nickname" class="board-page__input" name="nickname" type="{{nicknameSupported ? 'nickname' : 'text'}}" value="{{nickname}}" maxlength="-1" placeholder="手動填寫或選用微信暱稱" disabled="{{phase === 'busy'}}" bindinput="onNicknameInput" />
       <text class="board-page__label">頭像（選填）</text>
       <button wx:if="{{chooseAvatarSupported}}" class="board-page__avatar-button" open-type="chooseAvatar" bindchooseavatar="onAvatarChoose" disabled="{{phase === 'busy'}}"><image class="board-page__avatar" src="{{avatarSrc}}" mode="aspectFill"/><text>主動選用微信頭像</text></button>
       <text wx:else class="board-page__hint">此版本微信暫不支援選用頭像，將使用預設頭像。</text>
       <button class="ui-button ui-button--secondary" bindtap="onDefaultAvatar" disabled="{{phase === 'busy'}}">使用預設頭像</button>
     </block>
     <block wx:if="{{!profileOnly}}"><text class="board-page__label">留言正文（1–500 字）</text>
-    <textarea class="board-page__textarea" name="body" value="{{body}}" maxlength="-1" placeholder="分享你的航海心得、問題或建議" disabled="{{phase === 'busy'}}" bindinput="onBodyInput" auto-height />
+    <textarea id="board-body" class="board-page__textarea" name="body" value="{{body}}" maxlength="-1" placeholder="分享你的航海心得、問題或建議" disabled="{{phase === 'busy'}}" bindinput="onBodyInput" auto-height />
     <text class="board-page__hint">{{characterCount}} / 500 字。投稿後正文與展示資料不可修改；需要移除時可撤回。</text></block>
     <text wx:if="{{blockedReason}}" class="board-page__hint">{{blockedReason}}</text>
-    <button wx:if="{{phase === 'unconfirmed'}}" class="ui-button ui-button--secondary" bindtap="onConfirm">確認提交結果</button>
-    <button class="ui-button ui-button--primary" form-type="submit" disabled="{{submitDisabled}}">{{phase === 'busy' ? '正在處理…' : profileOnly ? '保存留言資料' : '提交留言'}}</button>
+    <block wx:if="{{phase === 'unconfirmed'}}">
+      <button id="board-confirm-original" class="ui-button ui-button--secondary" bindtap="onConfirm">確認提交結果</button>
+      <button wx:if="{{!pendingExpired}}" id="board-retry-original" class="ui-button ui-button--secondary" bindtap="onRetryOriginal" disabled="{{retryDisabled}}">重試原操作</button>
+      <block wx:else>
+        <text class="board-page__hint">原操作已超過 24 小時，無法重送。請核對我的留言及留言資料，再明確恢復草稿；恢復不會刪除已送達的留言。</text>
+        <button id="board-review-expired" class="ui-button ui-button--secondary" bindtap="onReviewExpired">核對我的留言與資料</button>
+        <button wx:if="{{recoveryReviewed}}" id="board-restore-expired" class="ui-button ui-button--secondary" bindtap="onRestoreExpired">已核對，恢復草稿</button>
+      </block>
+    </block>
+    <button id="board-submit" class="ui-button ui-button--primary" form-type="submit" disabled="{{submitDisabled}}">{{phase === 'busy' ? '正在處理…' : profileOnly ? '保存留言資料' : '提交留言'}}</button>
   </form>
   <button class="ui-button ui-button--secondary" bindtap="onMine">我的留言</button>
 </view>

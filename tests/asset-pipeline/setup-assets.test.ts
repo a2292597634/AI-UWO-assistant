@@ -1,4 +1,12 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdtempSync,
+  mkdirSync,
+  rmSync,
+  writeFileSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import sharp from 'sharp'
@@ -8,6 +16,7 @@ import { buildAssetEntries } from '../../tools/asset-pipeline/download-assets'
 import {
   collectAssetSourceFiles,
   validateReferencedAssetSources,
+  setupAssets,
 } from '../../tools/asset-pipeline/setup-assets'
 import { loadSkillIconOverrides } from '../../tools/asset-pipeline/source-skill-icons'
 
@@ -146,6 +155,26 @@ describe('asset staging directory isolation', () => {
 })
 
 describe('素材来源完整性校验', () => {
+  it('metadata 可讀的截斷 PNG 仍必須完整解碼失敗', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-assets-truncated-'))
+    try {
+      const png = await sharp({
+        create: { width: 64, height: 64, channels: 4, background: '#00ff00ff' },
+      })
+        .png()
+        .toBuffer()
+      const path = join(root, 'skill_bad.png')
+      writeFileSync(path, png.subarray(0, 70))
+      await expect(
+        validateReferencedAssetSources(
+          dependencies(['skill_bad.png']),
+          new Map([['skill_bad.png', path]]),
+        ),
+      ).rejects.toThrow('skill_bad.png')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
   it('缺少依赖文件时失败并指出文件名', async () => {
     const root = mkdtempSync(join(tmpdir(), 'uwo-assets-missing-'))
     try {
@@ -208,4 +237,116 @@ describe('素材来源完整性校验', () => {
       rmSync(root, { recursive: true, force: true })
     }
   })
+})
+
+describe('素材整批原子性', () => {
+  it.each(['壞圖', '編碼失敗', '替換失敗', '回復失敗', '成功'])(
+    '%s 時 staging 與索引保持同一成功邊界',
+    async (mode) => {
+      const root = mkdtempSync(join(tmpdir(), 'uwo-assets-transaction-'))
+      const original = process.cwd()
+      const png = await sharp({
+        create: { width: 64, height: 64, channels: 4, background: '#00ff00ff' },
+      })
+        .png()
+        .toBuffer()
+      const put = (path: string, value: string | Buffer) => {
+        const target = join(root, path)
+        mkdirSync(join(target, '..'), { recursive: true })
+        writeFileSync(target, value)
+      }
+      put('data/master/officers.json', '[]')
+      put(
+        'data/master/skills.json',
+        JSON.stringify([
+          { id: 'skill_good', categoryId: 'cat' },
+          { id: 'skill_bad', categoryId: 'cat' },
+        ]),
+      )
+      put('data/master/trade-goods.json', '{"tradeGoods":[]}')
+      put('archive/voyage-tw-2026052501/raw-data/json_char.js', 'var skill_arr={};')
+      put('data/assets/staging/skill_good.png', png)
+      put('data/assets/staging/skill_bad.png', mode === '壞圖' ? png.subarray(0, 70) : png)
+      put('data/assets/staging/unreferenced.png', png)
+      put('data/assets/staging/legal.txt', 'keep')
+      put('data/assets/asset-dependencies.json', 'old-index')
+      const before = new Map(
+        readdirSync(join(root, 'data/assets/staging')).map((name) => [
+          name,
+          readFileSync(join(root, 'data/assets/staging', name)),
+        ]),
+      )
+      let encoded = 0
+      let renamed = 0
+      const installError = Error('索引安裝失敗')
+      const rollbackIndexError = Error('索引回復失敗')
+      const rollbackStagingError = Error('staging 回復失敗')
+      try {
+        process.chdir(root)
+        const operation = setupAssets({
+          encodePng: async (input: Buffer) => {
+            if (mode === '編碼失敗' && ++encoded === 2) throw Error('後續編碼失敗')
+            return sharp(input).png({ palette: true }).toBuffer()
+          },
+          renamePath: (from: string, to: string) => {
+            renamed += 1
+            if (mode === '替換失敗' && renamed === 4) throw Error('替換失敗')
+            if (mode === '回復失敗') {
+              if (renamed === 4) throw installError
+              if (renamed === 5) throw rollbackIndexError
+              if (renamed === 6) throw rollbackStagingError
+            }
+            renameSync(from, to)
+          },
+        })
+        if (mode === '回復失敗') {
+          const error = await operation.catch((error) => error)
+          expect(error).toMatchObject({
+            cause: installError,
+            rollbackErrors: [{ error: rollbackIndexError }, { error: rollbackStagingError }],
+          })
+          expect(renamed).toBe(6)
+          const stageName = readdirSync('data/assets').find((name) =>
+            name.startsWith('.uwo-setup-'),
+          )
+          expect(stageName).toBeDefined()
+          const recoveryPath = join(root, 'data/assets', stageName!)
+          expect(error).toHaveProperty('recoveryPath', recoveryPath)
+          expect(error).toHaveProperty('message', expect.stringContaining(recoveryPath))
+          expect(error).toHaveProperty('message', expect.stringContaining('索引安裝失敗'))
+          expect(error).toHaveProperty('message', expect.stringContaining('索引回復失敗'))
+          expect(error).toHaveProperty('message', expect.stringContaining('staging 回復失敗'))
+          expect(readFileSync(join(recoveryPath, 'backup-1'), 'utf8')).toBe('old-index')
+          expect(
+            new Map(
+              readdirSync(join(recoveryPath, 'backup-0')).map((name) => [
+                name,
+                readFileSync(join(recoveryPath, 'backup-0', name)),
+              ]),
+            ),
+          ).toEqual(before)
+          return
+        }
+        if (mode === '成功') await operation
+        else await expect(operation).rejects.toThrow()
+        expect(readFileSync('data/assets/staging/legal.txt', 'utf8')).toBe('keep')
+        expect(readFileSync('data/assets/staging/unreferenced.png')).toEqual(png)
+        if (mode !== '成功') {
+          expect(readFileSync('data/assets/asset-dependencies.json', 'utf8')).toBe('old-index')
+          expect(
+            new Map(
+              readdirSync('data/assets/staging').map((name) => [
+                name,
+                readFileSync(join('data/assets/staging', name)),
+              ]),
+            ),
+          ).toEqual(before)
+        } else
+          expect(readFileSync('data/assets/asset-dependencies.json', 'utf8')).not.toBe('old-index')
+      } finally {
+        process.chdir(original)
+        rmSync(root, { recursive: true, force: true })
+      }
+    },
+  )
 })

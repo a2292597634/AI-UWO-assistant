@@ -1,5 +1,13 @@
 type Row = Record<string, unknown>
-type Query = { eq?: Row; before?: string; limit?: number; order?: 'asc' | 'desc'; field?: string }
+type Query = {
+  eq?: Row
+  before?: string | number
+  beforeField?: string
+  after?: string | null
+  limit?: number
+  order?: 'asc' | 'desc'
+  field?: string
+}
 export function createMemoryRepository() {
   let rows = new Map<string, Row>()
   let tail = Promise.resolve()
@@ -19,7 +27,11 @@ export function createMemoryRepository() {
           ([key, row]) =>
             key.startsWith(collection + ':') &&
             Object.entries(query.eq ?? {}).every(([field, value]) => row[field] === value) &&
-            (!query.before || String(row[query.field ?? 'orderKey']) < query.before),
+            (query.before === undefined ||
+              row[query.beforeField ?? query.field ?? 'orderKey']! < query.before) &&
+            (query.after === undefined ||
+              query.after === null ||
+              String(row[query.field ?? 'orderKey']) > query.after),
         )
         .map(([, row]) => structuredClone(row))
         .sort(

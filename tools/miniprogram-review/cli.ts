@@ -454,13 +454,18 @@ const executeScenario = async (
 
 const needsComponentScope = (scenarios: ReviewScenario[]): boolean =>
   scenarios.some((scenario) =>
-    scenario.steps.some(
-      (step) =>
-        ('selector' in step && /skill-picker-sheet|skill-sheet/.test(step.selector)) ||
-        (step.action === 'waitUntil' &&
-          'selector' in step.condition &&
-          /skill-picker-sheet|skill-sheet/.test(step.condition.selector)),
-    ),
+    scenario.steps.some((step) => {
+      const selector =
+        'selector' in step
+          ? step.selector
+          : step.action === 'waitUntil' && 'selector' in step.condition
+            ? step.condition.selector
+            : undefined
+      return (
+        selector !== undefined &&
+        /skill-picker-sheet|skill-sheet|config-bar|fleet-share-preview/.test(selector)
+      )
+    }),
   )
 
 const runScenarios = async (
@@ -527,7 +532,11 @@ const runScenarios = async (
       scenarioConfig,
       beforeConnection,
     )
-    while (result.status === 'failed' && isDevToolsConnectionError(result.error)) {
+    while (
+      result.status === 'failed' &&
+      result.failureKind !== 'condition-timeout' &&
+      isDevToolsConnectionError(result.error)
+    ) {
       const recovery = await recoverDevTools(
         dependencies,
         scenarioConfig,
@@ -644,10 +653,22 @@ const runChanged = async (
       )
     }
   }
+  let scenarios: ReviewScenario[]
+  try {
+    scenarios = loadAllScenarios(dependencies)
+  } catch (error) {
+    return writeBlockedReport(
+      dependencies,
+      `場景預讀失敗：${formatError(error)}`,
+      changedFiles,
+      [],
+      { ...options, mode },
+    )
+  }
   const plan = createTriggerPlan({
     mode,
     changedFiles,
-    scenarios: loadAllScenarios(dependencies),
+    scenarios,
     registeredPagePaths,
   })
   if (plan.outcome === 'skipped') {
@@ -765,10 +786,18 @@ export const runCli = async (argv: string[], dependencies: CliDependencies): Pro
       })
     }
     if (!parsed.page) throw new Error('review 必须提供 --page')
-    const paths = dependencies.listScenarioPaths?.() ?? []
-    const scenarios = paths
-      .map((path) => dependencies.loadScenario(path))
-      .filter((scenario) => scenario.entry === parsed.page)
+    let scenarios: ReviewScenario[]
+    try {
+      scenarios = loadAllScenarios(dependencies).filter(
+        (scenario) => scenario.entry === parsed.page,
+      )
+    } catch (error) {
+      return writeBlockedReport(
+        dependencies,
+        `場景預讀失敗：${formatError(error)}`,
+        dependencies.readGitChangedFiles(),
+      )
+    }
     if (scenarios.length === 0) throw new Error(`找不到页面验收场景：${parsed.page}`)
     return await runScenarios(dependencies, config, scenarios, { fixture: parsed.fixture })
   } catch (error) {
@@ -870,6 +899,36 @@ export const getQualityGateCommand = (
     ? { command: 'cmd.exe', args: ['/d', '/s', '/c', 'npm.cmd run verify'] }
     : { command: 'npm', args: ['run', 'verify'] }
 
+/** 執行實際門禁子程序；呼叫端依完成結果區分失敗與阻塞。 */
+export const executeQualityGate = (
+  projectPath: string,
+  gateCommand = getQualityGateCommand(),
+  timeoutMs?: number,
+): boolean => {
+  try {
+    execFileSync(gateCommand.command, gateCommand.args, {
+      cwd: projectPath,
+      stdio: 'inherit',
+      ...(timeoutMs === undefined ? {} : { timeout: timeoutMs }),
+    })
+    return true
+  } catch (error) {
+    if (error instanceof Error) {
+      const failure = error as Error & { status?: unknown; signal?: unknown; code?: unknown }
+      // 已啟動並正常退出的門禁非零結果是失敗；啟動、超時及信號異常仍向上傳遞。
+      if (
+        typeof failure.status === 'number' &&
+        Number.isInteger(failure.status) &&
+        failure.status !== 0 &&
+        failure.signal === null &&
+        failure.code === undefined
+      )
+        return false
+    }
+    throw error
+  }
+}
+
 const defaultDependencies: CliDependencies = {
   cwd: root,
   env: process.env,
@@ -889,15 +948,7 @@ const defaultDependencies: CliDependencies = {
     dirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
   }),
   readGitChangedFiles: () => readGitChangedFiles(root),
-  runQualityGate: async () => {
-    try {
-      const { command, args } = getQualityGateCommand()
-      execFileSync(command, args, { cwd: root, stdio: 'inherit' })
-      return true
-    } catch {
-      return false
-    }
-  },
+  runQualityGate: async () => executeQualityGate(root),
   now: () => new Date(),
   randomId: () => Math.random().toString(36).slice(2, 8),
   listScenarioPaths: () =>

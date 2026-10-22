@@ -7,6 +7,8 @@
 
 const COLLECTION = 'custom_officers'
 const OWNER_LIMIT_COLLECTION = 'custom_officer_owner_locks'
+const PORTRAIT_INTENT_COLLECTION = 'custom_officer_portrait_intents'
+const PORTRAIT_LEASE_MS = 86400000
 const QUERY_PAGE_SIZE = 100
 
 const getRevisionDocumentId = (submissionId, revision) =>
@@ -190,6 +192,73 @@ function createRepository(db) {
     return updated
   }
 
+  // 上傳前保存可恢復的意圖，避免資料庫或儲存故障使本次檔案失去追蹤。
+  async function savePortraitIntent(id, intent, leaseToken, now = Date.now()) {
+    await ensureCollection(PORTRAIT_INTENT_COLLECTION)
+    return db.runTransaction(async (transaction) => {
+      const document = transaction.collection(PORTRAIT_INTENT_COLLECTION).doc(id)
+      const current = (await document.get()).data
+      if (leaseToken) {
+        if (!current || current.leaseToken !== leaseToken || current.leaseUntil <= now) return null
+      } else if (current) return null
+      const { _id: _ignoredId, ...data } = { ...current, ...intent }
+      await document.set({ data })
+      return { ...data, _id: id }
+    })
+  }
+
+  async function claimPortraitIntent(id, leaseToken, now) {
+    return db.runTransaction(async (transaction) => {
+      const document = transaction.collection(PORTRAIT_INTENT_COLLECTION).doc(id)
+      const current = (await document.get()).data
+      if (!current || current.cleanupAfter >= now || current.leaseUntil > now) return null
+      const { _id: _ignoredId, ...data } = {
+        ...current,
+        leaseToken,
+        leaseUntil: now + PORTRAIT_LEASE_MS,
+        cleanupAfter: now + PORTRAIT_LEASE_MS,
+      }
+      await document.set({ data })
+      return { ...data, _id: id }
+    })
+  }
+
+  async function removePortraitIntent(id, leaseToken, now = Date.now()) {
+    return db.runTransaction(async (transaction) => {
+      const document = transaction.collection(PORTRAIT_INTENT_COLLECTION).doc(id)
+      const current = (await document.get()).data
+      if (!current || !leaseToken || current.leaseToken !== leaseToken || current.leaseUntil <= now)
+        return false
+      await document.remove()
+      return true
+    })
+  }
+
+  async function listDuePortraitIntents(now) {
+    await ensureCollection(PORTRAIT_INTENT_COLLECTION)
+    const result = await db
+      .collection(PORTRAIT_INTENT_COLLECTION)
+      .where({ cleanupAfter: db.command.lt(now) })
+      .orderBy('cleanupAfter', 'asc')
+      .limit(20)
+      .get()
+    return result.data
+  }
+
+  async function isPortraitReferenced(intent) {
+    await ensureCollection()
+    if (intent.fileID) {
+      const result = await collection
+        .where({ 'formData.portraitFileId': intent.fileID })
+        .limit(1)
+        .get()
+      return result.data.length > 0
+    }
+    // 上傳回應或記錄 fileID 的寫入可能中斷；路徑仍能識別已提交的同次圖片。
+    const record = await findBySubmissionIdAndRevision(intent.submissionId, intent.revision)
+    return Boolean(record?.formData?.portraitFileId?.endsWith('/' + intent.cloudPath))
+  }
+
   return {
     listByOwner,
     listLatestByStatus,
@@ -200,6 +269,11 @@ function createRepository(db) {
     insertIfOwnerBelowLimit,
     insertRevisionIfAbsent,
     updateIfRevision,
+    savePortraitIntent,
+    claimPortraitIntent,
+    removePortraitIntent,
+    listDuePortraitIntents,
+    isPortraitReferenced,
   }
 }
 

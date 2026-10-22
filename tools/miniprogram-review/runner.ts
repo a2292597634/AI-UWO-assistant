@@ -4,7 +4,7 @@ import type { ReviewAdapter } from './adapter'
 import type { ReviewResultStatus } from './report'
 import type { ReviewScenario, ReviewStep } from './types'
 import { screenshotEvidence, unknownRuntime, type ReviewEvidence } from './evidence'
-import { waitForCondition } from './wait-condition'
+import { WaitConditionTimeoutError, waitForCondition } from './wait-condition'
 
 export interface StepRunResult {
   action: ReviewStep['action']
@@ -26,6 +26,7 @@ export interface ScenarioRunResult {
   failedStep?: number
   failureScreenshot?: string
   error?: string
+  failureKind?: 'condition-timeout'
 }
 
 export interface RunScenarioContext {
@@ -205,6 +206,8 @@ export const runScenario = async (
         result.status = 'failed'
         result.failedStep = index
         result.error = message
+        result.failureKind =
+          error instanceof WaitConditionTimeoutError ? 'condition-timeout' : undefined
         result.steps.push({
           action: step.action,
           startedAt: started.toISOString(),
@@ -228,6 +231,8 @@ export const runScenario = async (
   } catch (error) {
     result.status = 'failed'
     result.error = formatError(error)
+    result.failureKind =
+      error instanceof WaitConditionTimeoutError ? 'condition-timeout' : undefined
   } finally {
     await adapter.disconnect()
   }

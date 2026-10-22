@@ -136,3 +136,90 @@ describe('航海士資料錯誤回報頁契約', () => {
     expect(ts).not.toContain('wx.cloud')
   })
 })
+
+interface SubmissionPage {
+  data: {
+    draft: import('../../miniprogram/contracts/officer-error-report').OfficerErrorReportDraft
+    screenshotTempPaths: string[]
+    submitting: boolean
+  }
+  setData(update: Record<string, unknown>): void
+  onSubmit(): Promise<void>
+  onErrorTypeTap(event: { currentTarget: { dataset: { id: string } } }): void
+  onDescriptionInput(event: { detail: { value: string } }): void
+  onCorrectionInput(event: { detail: { value: string } }): void
+  onRemoveScreenshot(event: { currentTarget: { dataset: { index: number } } }): void
+  onChooseScreenshots(): Promise<void>
+}
+
+it('上傳期間真實編輯事件不改變已校驗的提交正文與圖片快照', async () => {
+  const { vi } = await import('vitest')
+  let release!: (ids: string[]) => void
+  const uploaded: string[][] = []
+  let sent: SubmissionPage['data']['draft'] | undefined
+  vi.doMock('../../miniprogram/runtime/officer-error-report-service', () => ({
+    getOfficerErrorReportService: () => ({
+      uploadScreenshots: (paths: string[]) => {
+        uploaded.push(paths)
+        return new Promise<string[]>((resolve) => {
+          release = resolve
+        })
+      },
+      createReport: async (draft: SubmissionPage['data']['draft']) => {
+        sent = draft
+        return { reportId: 'r1' }
+      },
+    }),
+  }))
+  let definition!: SubmissionPage
+  vi.stubGlobal('Page', (page: SubmissionPage) => {
+    definition = page
+  })
+  vi.stubGlobal('wx', {
+    chooseMedia: async () => ({ tempFiles: [{ tempFilePath: '/tmp/b.png' }] }),
+    pageScrollTo: () => {},
+    showToast: () => {},
+  })
+  try {
+    await import('../../miniprogram/pages/officer-editor/index')
+    const page = Object.create(definition) as SubmissionPage
+    page.data = structuredClone(definition.data)
+    page.setData = (update) => {
+      for (const [key, value] of Object.entries(update)) {
+        const parts = key.split('.')
+        if (parts.length === 2) Object.assign(page.data.draft, { [parts[1]!]: value })
+        else Object.assign(page.data, { [key]: value })
+      }
+    }
+    page.data.draft = {
+      officerId: 'officer_A',
+      errorTypes: ['skill'],
+      description: '原技能資料有誤',
+      suggestedCorrection: '原正確技能',
+      sourceUrl: '',
+      screenshotFileIds: [],
+      supplement: '',
+    }
+    page.data.screenshotTempPaths = ['/tmp/a.png']
+    const submitting = page.onSubmit()
+    page.onDescriptionInput({ detail: { value: '等待時的新正文' } })
+    page.onCorrectionInput({ detail: { value: '等待時的新修正' } })
+    page.onErrorTypeTap({ currentTarget: { dataset: { id: 'text' } } })
+    page.onRemoveScreenshot({ currentTarget: { dataset: { index: 0 } } })
+    await page.onChooseScreenshots()
+    release(['cloud://original-proof'])
+    await submitting
+    expect(uploaded).toEqual([['/tmp/a.png']])
+    expect(sent).toMatchObject({
+      description: '原技能資料有誤',
+      suggestedCorrection: '原正確技能',
+      errorTypes: ['skill'],
+      screenshotFileIds: ['cloud://original-proof'],
+    })
+    expect(page.data.draft.description).toBe('等待時的新正文')
+    expect(page.data.screenshotTempPaths).toEqual(['/tmp/b.png'])
+  } finally {
+    vi.unstubAllGlobals()
+    vi.doUnmock('../../miniprogram/runtime/officer-error-report-service')
+  }
+})
