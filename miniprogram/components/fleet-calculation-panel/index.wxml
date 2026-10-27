@@ -1,0 +1,27 @@
+<view wx:if="{{calculation}}" class="fleet-calculation-panel" aria-role="region" aria-label="配隊計算狀態">
+  <view class="fleet-calculation-panel__heading">
+    <text class="fleet-calculation-panel__title {{calculation.status === 'error' ? 'fleet-calculation-panel__title--error' : ''}}" aria-live="polite">{{calculation.title}}</text>
+    <text wx:if="{{busy}}" class="fleet-calculation-panel__elapsed">{{calculation.elapsedText}}</text>
+  </view>
+  <block wx:if="{{busy}}">
+    <view class="fleet-calculation-panel__meta">
+      <text>{{calculation.phaseLabel}}</text>
+      <text wx:if="{{hasProgress}}" class="fleet-calculation-panel__percentage">{{percentageLabel}}</text>
+    </view>
+    <view wx:if="{{hasProgress}}" class="fleet-calculation-panel__track" aria-role="progressbar" aria-label="{{calculation.phaseLabel}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{progressValue}}" aria-valuetext="{{percentageLabel}}">
+      <view class="fleet-calculation-panel__fill" style="width: {{progressValue}}%;"></view>
+    </view>
+    <view wx:else class="fleet-calculation-panel__track fleet-calculation-panel__track--pending" aria-role="progressbar" aria-label="{{calculation.phaseLabel}}">
+      <view class="fleet-calculation-panel__fill fleet-calculation-panel__fill--pending"></view>
+    </view>
+    <text wx:if="{{hasProgress && calculation.total > 0}}" class="fleet-calculation-panel__counter">已比較 {{calculation.processed}} / {{calculation.total}} 名候選</text>
+  </block>
+  <text class="fleet-calculation-panel__notice">{{calculation.notice || (busy ? '可繼續瀏覽；取消不會變更目前編隊。' : '')}}</text>
+  <view class="fleet-calculation-panel__actions">
+    <block wx:if="{{busy}}">
+      <button class="ui-button ui-button--primary fleet-calculation-panel__button" disabled="{{true}}">計算中…</button>
+      <button class="ui-button ui-button--secondary fleet-calculation-panel__button fleet-calculation-panel__cancel" bindtap="onCancel">取消計算</button>
+    </block>
+    <button wx:else class="ui-button ui-button--primary fleet-calculation-panel__button fleet-calculation-panel__retry" bindtap="onRetry">{{calculation.status === 'error' ? '重試計算' : '重新計算'}}</button>
+  </view>
+</view>

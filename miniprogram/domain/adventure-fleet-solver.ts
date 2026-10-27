@@ -1,3 +1,5 @@
+import { calculateFleetSelection, finishFleetCalculation } from './fleet-solver-core'
+import type { FleetCalculation } from './fleet-solver-core'
 import type { AdventureFleetOfficer } from './adventure-fleet'
 import type {
   FleetProposal,
@@ -33,11 +35,6 @@ export type AdventureAutoSolveResult = FleetProposal & {
 
 // ── 内部类型 ──
 
-interface Candidate {
-  officer: AdventureFleetOfficer
-  contributions: Record<string, number>
-}
-
 interface ScoredSelection {
   officerIds: string[]
   totals: Record<string, number>
@@ -55,16 +52,6 @@ interface TargetScores {
   remainingDeficitTotal: number
   completionScore: number
 }
-
-interface DpState extends TargetScores {
-  officerIds: string[]
-  totals: Record<string, number>
-}
-
-/** 状态空间上限：超过此值时跳过 DP */
-const MAX_STATE_SPACE = 200_000
-
-// ── 工具函数 ──
 
 const sortedIds = (ids: readonly string[]): string[] => [...ids].sort()
 
@@ -171,141 +158,6 @@ const buildResult = (
 
 // ── 状态空间 DP ──
 
-const makeStateKey = (
-  totals: Readonly<Record<string, number>>,
-  targetSkillIds: readonly string[],
-  targetLevels: readonly number[],
-): string =>
-  targetSkillIds.map((sid, i) => String(Math.min(totals[sid] ?? 0, targetLevels[i]!))).join(',')
-
-const compareOfficerIds = (a: readonly string[], b: readonly string[]): number => {
-  const aKey = sortedIds(a).join(',')
-  const bKey = sortedIds(b).join(',')
-  return aKey < bKey ? -1 : aKey > bKey ? 1 : 0
-}
-
-const betterForSameKey = (a: DpState, b: DpState): boolean => {
-  if (a.officerIds.length !== b.officerIds.length) return a.officerIds.length < b.officerIds.length
-  if (a.overageTotal !== b.overageTotal) return a.overageTotal < b.overageTotal
-  return compareOfficerIds(a.officerIds, b.officerIds) < 0
-}
-
-const betterFinalResult = (
-  a: Pick<ScoredSelection, keyof TargetScores | 'officerIds'>,
-  b: Pick<ScoredSelection, keyof TargetScores | 'officerIds'>,
-): boolean => {
-  if (a.achievedTargetCount !== b.achievedTargetCount) {
-    return a.achievedTargetCount > b.achievedTargetCount
-  }
-  if (a.remainingDeficitTotal !== b.remainingDeficitTotal) {
-    return a.remainingDeficitTotal < b.remainingDeficitTotal
-  }
-  if (a.completionScore !== b.completionScore) return a.completionScore > b.completionScore
-  if (a.allTargetsComplete !== b.allTargetsComplete) return a.allTargetsComplete
-  if (a.allTargetsComplete && a.officerIds.length !== b.officerIds.length) {
-    return a.officerIds.length < b.officerIds.length
-  }
-  if (a.overageTotal !== b.overageTotal) return a.overageTotal < b.overageTotal
-  if (a.officerIds.length !== b.officerIds.length) return a.officerIds.length < b.officerIds.length
-  return compareOfficerIds(a.officerIds, b.officerIds) < 0
-}
-
-const runStateDp = (
-  lockedIds: readonly string[],
-  lockedTotals: Readonly<Record<string, number>>,
-  candidates: readonly Candidate[],
-  targets: readonly AdventureAutoTargetInput[],
-  capacity: number,
-): ScoredSelection => {
-  const targetSkillIds = targets.map((t) => t.skillId)
-  const targetLevels = targets.map((t) => t.targetLevel)
-
-  const seedTotals: Record<string, number> = {}
-  for (const sid of targetSkillIds) seedTotals[sid] = lockedTotals[sid] ?? 0
-
-  const initialState: DpState = {
-    officerIds: [...lockedIds],
-    totals: { ...seedTotals },
-    ...scoreTotals(seedTotals, targets),
-  }
-
-  const dp = new Map<string, DpState>()
-  dp.set(makeStateKey(seedTotals, targetSkillIds, targetLevels), initialState)
-
-  for (const candidate of candidates) {
-    const snapshot = [...dp.values()]
-    for (const state of snapshot) {
-      if (state.officerIds.length >= capacity) continue
-
-      const newTotals = addContribution(state.totals, candidate.contributions)
-      const newState: DpState = {
-        officerIds: [...state.officerIds, candidate.officer.id],
-        totals: newTotals,
-        ...scoreTotals(newTotals, targets),
-      }
-
-      const key = makeStateKey(newTotals, targetSkillIds, targetLevels)
-      const existing = dp.get(key)
-      if (!existing || betterForSameKey(newState, existing)) {
-        dp.set(key, newState)
-      }
-    }
-  }
-
-  let best: DpState = initialState
-  for (const state of dp.values()) {
-    if (betterFinalResult(state, best)) best = state
-  }
-
-  return scoreSelection(best.officerIds, best.totals, targets)
-}
-
-// ── 贪心求解（目标数过多导致状态空间超标时使用） ──
-
-const runGreedy = (
-  lockedIds: readonly string[],
-  lockedTotals: Readonly<Record<string, number>>,
-  candidates: readonly Candidate[],
-  targets: readonly AdventureAutoTargetInput[],
-  capacity: number,
-): ScoredSelection => {
-  const selectedIds = [...lockedIds]
-  const totals: Record<string, number> = { ...lockedTotals }
-  const remaining = [...candidates]
-
-  while (selectedIds.length < capacity && remaining.length > 0) {
-    const current = scoreSelection(selectedIds, totals, targets)
-    if (current.allTargetsComplete) break
-
-    let bestIndex = -1
-    let bestSelection = current
-    for (let i = 0; i < remaining.length; i++) {
-      const candidate = remaining[i]!
-      const candidateSelection = scoreSelection(
-        [...selectedIds, candidate.officer.id],
-        addContribution(totals, candidate.contributions),
-        targets,
-      )
-      if (betterFinalResult(candidateSelection, bestSelection)) {
-        bestIndex = i
-        bestSelection = candidateSelection
-      }
-    }
-
-    if (bestIndex < 0) break
-
-    const best = remaining.splice(bestIndex, 1)[0]!
-    selectedIds.push(best.officer.id)
-    for (const [sid, lv] of Object.entries(best.contributions)) {
-      totals[sid] = (totals[sid] ?? 0) + lv
-    }
-  }
-
-  return scoreSelection(selectedIds, totals, targets)
-}
-
-// ── 输入校验 ──
-
 const validateTargets = (
   targets: readonly AdventureAutoTargetInput[],
 ): AdventureAutoTargetInput[] => {
@@ -391,7 +243,10 @@ const buildConstraints = (
 
 // ── 主入口 ──
 
-export const solveAdventureTargets = (input: AdventureAutoSolveInput): AdventureAutoSolveResult => {
+export function* createAdventureTargetCalculation(
+  input: AdventureAutoSolveInput,
+): FleetCalculation<AdventureAutoSolveResult> {
+  yield { phase: 'preparing', processedCandidates: 0, totalCandidates: 0, candidateFraction: 0 }
   const targets = validateTargets(input.targets)
   if (targets.length === 0) {
     return buildResult(
@@ -462,11 +317,13 @@ export const solveAdventureTargets = (input: AdventureAutoSolveInput): Adventure
     )
   }
 
-  const stateSpace = targets.reduce((product, t) => product * (t.targetLevel + 1), 1)
-  const selection =
-    stateSpace <= MAX_STATE_SPACE
-      ? runStateDp(lockedIds, lockedTotals, candidates, targets, capacity)
-      : runGreedy(lockedIds, lockedTotals, candidates, targets, capacity)
+  const selection = yield* calculateFleetSelection(
+    lockedIds,
+    lockedTotals,
+    candidates,
+    targets,
+    capacity,
+  )
   const constraintResult = buildConstraints(
     selection,
     candidates.length,
@@ -483,3 +340,6 @@ export const solveAdventureTargets = (input: AdventureAutoSolveInput): Adventure
     constraintResult.canApply,
   )
 }
+
+export const solveAdventureTargets = (input: AdventureAutoSolveInput): AdventureAutoSolveResult =>
+  finishFleetCalculation(createAdventureTargetCalculation(input))

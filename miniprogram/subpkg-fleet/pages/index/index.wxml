@@ -145,7 +145,7 @@
           <text class="target-panel__notice">{{recalculateDisabledReason}}</text>
         </view>
         <view class="target-actions">
-          <button class="ui-button ui-button--primary" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>
+          <button class="ui-button ui-button--primary" disabled="{{!canRecalculate || isCalculating}}" bindtap="onRecalculate">{{isCalculating ? '計算中…' : '重新計算'}}</button>
         </view>
       </view>
 
@@ -292,6 +292,14 @@
 
    </view>
    </scroll-view>
+
+   <fleet-calculation-panel
+     wx:if="{{calculation}}"
+     class="fleet-calculation-host"
+     calculation="{{calculation}}"
+     bind:cancel="onCancelCalculation"
+     bind:retry="onRecalculate"
+   />
 
    <canvas
      id="fleet-share-canvas"

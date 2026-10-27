@@ -122,7 +122,7 @@
         />
         <view class="target-actions">
           <button class="ui-button ui-button--secondary" bindtap="onAddTarget">新增目標</button>
-          <button class="ui-button ui-button--primary" disabled="{{!canRecalculate}}" bindtap="onRecalculate">重新計算</button>
+          <button class="ui-button ui-button--primary" disabled="{{!canRecalculate || isCalculating}}" bindtap="onRecalculate">{{isCalculating ? '計算中…' : '重新計算'}}</button>
         </view>
         <text wx:if="{{!canRecalculate}}" class="target-panel__notice">請先設定至少一個 Lv.1 以上的優化目標</text>
       </view>
@@ -272,6 +272,14 @@
       </view>
     </disclosure-section>
   </scroll-view>
+
+  <fleet-calculation-panel
+    wx:if="{{calculation}}"
+    class="fleet-calculation-host"
+    calculation="{{calculation}}"
+    bind:cancel="onCancelCalculation"
+    bind:retry="onRecalculate"
+  />
 
   <canvas
     id="fleet-share-canvas"

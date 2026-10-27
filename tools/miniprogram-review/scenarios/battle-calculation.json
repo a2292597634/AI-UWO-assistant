@@ -1,0 +1,25 @@
+{
+  "name": "戰鬥自動配隊新增目標與方案預覽",
+  "entry": "/subpkg-fleet/pages/index/index",
+  "watchPaths": [
+    "miniprogram/subpkg-fleet/pages/index/",
+    "miniprogram/components/fleet-calculation-panel/",
+    "miniprogram/runtime/fleet-calculation.ts",
+    "miniprogram/domain/fleet-solver-core.ts",
+    "miniprogram/domain/battle-fleet-solver.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": ".fleet-context" },
+    { "action": "scrollElement", "selector": ".fleet-scroll", "distance": 350 },
+    { "action": "tap", "selector": ".skill-picker-sheet__select" },
+    { "action": "waitFor", "selector": ".target-row__name" },
+    { "action": "scrollElement", "selector": ".fleet-scroll", "distance": -350 },
+    { "action": "tap", "selector": ".target-actions .ui-button--primary" },
+    { "action": "waitFor", "selector": ".result-preview-sheet__title", "timeoutMs": 15000 },
+    { "action": "assertText", "selector": ".result-preview-sheet__title", "equals": "方案預覽" },
+    { "action": "screenshot", "name": "battle-calculation-preview" },
+    { "action": "tap", "selector": ".result-preview-sheet__actions .ui-button--secondary" }
+  ]
+}

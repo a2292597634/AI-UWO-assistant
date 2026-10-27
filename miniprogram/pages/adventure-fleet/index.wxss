@@ -72,6 +72,12 @@
   background: var(--uwo-color-canvas);
 }
 
+.fleet-calculation-host {
+  display: block;
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
 .fleet-context {
   display: flex;
   flex: 0 0 auto;
