@@ -1,4 +1,10 @@
 import {
+  FleetCalculationRunner,
+  buildFleetCalculationKey,
+  createFleetCalculationView,
+  type FleetCalculationView,
+} from '../../../runtime/fleet-calculation'
+import {
   canForceOverwrite,
   type FleetConfigConflict,
   type FleetConflictAction,
@@ -17,7 +23,7 @@ import {
   unlockOfficer,
   updateShipTargets,
 } from '../../../domain/battle-fleet'
-import { solveBattleTargets } from '../../../domain/battle-fleet-solver'
+import { createBattleTargetCalculation } from '../../../domain/battle-fleet-solver'
 import {
   applyBattleProposal,
   cloneFleetState,
@@ -102,6 +108,8 @@ interface FleetPageData extends BattleFleetPageData {
   showConflictDialog: boolean
   conflictConfigName: string
   conflictCanForce: boolean
+  calculation: FleetCalculationView | null
+  isCalculating: boolean
   proposalPreview: FleetProposalPreviewView | null
   canUndoProposal: boolean
   shareStatus: FleetShareStatus
@@ -139,6 +147,11 @@ interface FleetPageState {
   configListRequestVersion: number
   conflictContext: FleetConfigConflict | null
   retryLoadConfigId: string | null
+  calculationRunner: FleetCalculationRunner<FleetProposal>
+  calculationTaskId: number
+  calculationIsCurrent: (() => boolean) | null
+  hidden: boolean
+  unloaded: boolean
   proposal: FleetProposal | null
   undoFleetState: FleetState | null
 }
@@ -208,6 +221,27 @@ const getState = (page: object): FleetPageState => {
   const state = pageStateByInstance.get(page)
   if (!state) throw new Error('fleet-page-not-loaded')
   return state
+}
+
+/** 僅卸載或替換實例使登入延續失效；onHide 仍允許返回後繼續。 */
+const isCurrentPageState = (page: FleetPageLike, state: FleetPageState): boolean =>
+  pageStateByInstance.get(page) === state && !state.unloaded
+
+/** 先取消再改動條件，舊 Promise 以任務識別避免清除隨後啟動的新任務。 */
+const cancelCalculation = (
+  page: FleetPageLike,
+  state: FleetPageState,
+  notice = '目前編隊未變更，可重新計算',
+): void => {
+  if (!state.calculationRunner.isRunning && !page.data.isCalculating) return
+  state.calculationTaskId += 1
+  state.calculationRunner.cancel()
+  state.calculationIsCurrent = null
+  if (!state.unloaded)
+    page.setData({
+      isCalculating: false,
+      calculation: createFleetCalculationView('cancelled', notice),
+    })
 }
 
 const beginConfigOperation = (state: FleetPageState): number => {
@@ -296,6 +330,8 @@ const emptyPageData: FleetPageData = {
   showConflictDialog: false,
   conflictConfigName: '',
   conflictCanForce: false,
+  calculation: null,
+  isCalculating: false,
   proposalPreview: null,
   canUndoProposal: false,
   shareStatus: 'idle',
@@ -333,6 +369,9 @@ const computeDirty = (state: FleetPageState): boolean => {
 }
 
 const updateDirty = (page: FleetPageLike, state: FleetPageState): void => {
+  if (state.calculationIsCurrent && !state.calculationIsCurrent()) {
+    cancelCalculation(page, state, '條件已變更，請重新計算')
+  }
   invalidateConfigOperation(state)
   const isDirty = computeDirty(state)
   state.isDirty = isDirty
@@ -351,6 +390,7 @@ const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: str
     return
   }
   const state = getState(page)
+  cancelCalculation(page, state, '條件已變更，請重新計算')
   state.fleet = next.state
   state.proposal = null
   state.undoFleetState = null
@@ -360,6 +400,9 @@ const applyResult = (page: FleetPageLike, next: { state: FleetState; error?: str
 
 const render = (page: FleetPageLike, startAssetLoading = true): Promise<void> => {
   const state = getState(page)
+  if (state.calculationIsCurrent && !state.calculationIsCurrent()) {
+    cancelCalculation(page, state, '條件已變更，請重新計算')
+  }
   const view = buildBattleFleetPageData(
     state.fleet,
     state.officers,
@@ -404,6 +447,7 @@ const applySavedConfig = (
   state: FleetPageState,
   record: FleetConfigRecord,
 ): void => {
+  cancelCalculation(page, state, '配置已變更，請重新計算')
   state.fleet = record.fleetState
   state.proposal = null
   state.undoFleetState = null
@@ -452,6 +496,7 @@ const restoreSavedFleetState = (page: FleetPageLike, state: FleetPageState): boo
   }
   clearConflict(page, state)
   invalidateConfigOperation(state)
+  cancelCalculation(page, state, '配置已變更，請重新計算')
   state.fleet = restored
   state.proposal = null
   state.undoFleetState = null
@@ -699,6 +744,7 @@ const doLoadConfig = async (page: FleetPageLike, configId: string): Promise<void
     const record = await state.configService.loadConfig(CONFIG_SCOPE, configId)
     if (!isCurrentConfigOperation(state, operationVersion)) return
     const fleetState = record.fleetState
+    cancelCalculation(page, state, '配置已變更，請重新計算')
     state.fleet = fleetState
     state.proposal = null
     state.undoFleetState = null
@@ -731,6 +777,7 @@ const doNewConfig = (page: FleetPageLike): void => {
   const state = getState(page)
   clearConflict(page, state)
   invalidateConfigOperation(state)
+  cancelCalculation(page, state, '配置已變更，請重新計算')
   state.fleet = createDefaultBattleFleetState()
   state.proposal = null
   state.undoFleetState = null
@@ -814,10 +861,12 @@ const performLogin = async (page: FleetPageLike): Promise<boolean> => {
   page.setData({ authStatus: 'loading' })
   try {
     await state.configService.authenticate()
+    if (!isCurrentPageState(page, state)) return false
     state.authStatus = 'authenticated'
     page.setData({ authStatus: 'authenticated' })
     return true
   } catch (e) {
+    if (!isCurrentPageState(page, state)) return false
     state.authStatus = 'guest'
     page.setData({ authStatus: 'guest' })
     if (e instanceof FleetConfigError) {
@@ -884,6 +933,7 @@ const handleConflictReload = async (page: FleetPageLike): Promise<void> => {
   try {
     const record = await state.configService.loadConfig(CONFIG_SCOPE, configId)
     if (!isCurrentConfigOperation(state, operationVersion)) return
+    cancelCalculation(page, state, '配置已變更，請重新計算')
     state.fleet = record.fleetState
     state.proposal = null
     state.undoFleetState = null
@@ -1001,6 +1051,11 @@ Page({
       configListRequestVersion: 0,
       conflictContext: null,
       retryLoadConfigId: null,
+      calculationRunner: new FleetCalculationRunner<FleetProposal>(),
+      calculationTaskId: 0,
+      calculationIsCurrent: null,
+      hidden: false,
+      unloaded: false,
       proposal: null,
       undoFleetState: null,
     }
@@ -1063,7 +1118,7 @@ Page({
     if (state.authStatus === 'loading') return
 
     const ok = await performLogin(this)
-    if (ok) {
+    if (ok && isCurrentPageState(this, state)) {
       await onAfterLogin(this)
     }
   },
@@ -1143,7 +1198,7 @@ Page({
     // If guest, login first
     if (state.authStatus === 'guest') {
       const ok = await performLogin(this)
-      if (!ok) return
+      if (!ok || !isCurrentPageState(this, state)) return
       // After login with dirty state, save-as flow
       if (state.isDirty) {
         openNameModal(this, 'saveAs')
@@ -1192,7 +1247,7 @@ Page({
       // Prompt login first
       void (async () => {
         const ok = await performLogin(this)
-        if (!ok) return
+        if (!ok || !isCurrentPageState(this, state)) return
         await checkUnsavedAndProceed(this, { type: 'saveAs' })
       })()
       return
@@ -1381,11 +1436,27 @@ Page({
     handleConflictForceOverwrite(this).catch(() => {})
   },
 
+  onShow() {
+    const state = pageStateByInstance.get(this)
+    if (state) state.hidden = false
+  },
+
+  onHide() {
+    const state = getState(this)
+    state.hidden = true
+    cancelCalculation(this, state, '已離開頁面，目前編隊未變更')
+  },
+
   onUnload() {
     const state = getState(this)
+    state.unloaded = true
+    state.calculationTaskId += 1
+    state.calculationRunner.dispose()
+    state.calculationIsCurrent = null
     state.configListRequestVersion += 1
-    clearConflict(this, state)
+    state.conflictContext = null
     invalidateConfigOperation(state)
+    pageStateByInstance.delete(this)
   },
 
   onConflictCancel() {
@@ -1435,6 +1506,7 @@ Page({
     if (typeof shipId !== 'string') return
     const state = getState(this)
     if (!state.fleet.ships.some((ship) => ship.id === shipId)) return
+    cancelCalculation(this, state, '目標船已變更，請重新計算')
     state.currentShipId = shipId
     state.manualSkillId = null
     render(this)
@@ -1493,6 +1565,7 @@ Page({
   },
 
   onSheetDismiss() {
+    if (!pageStateByInstance.has(this)) return
     this.setData({ sheetSkill: null })
   },
 
@@ -1554,8 +1627,9 @@ Page({
     )
   },
 
-  onRecalculate() {
+  async onRecalculate(): Promise<void> {
     const state = getState(this)
+    if (state.hidden || state.unloaded || this.data.isCalculating) return
     const current = state.fleet.ships.find((ship) => ship.id === state.currentShipId)!
     const targets = getBattleOptimizationTargets(current.targets)
     if (targets.length === 0) {
@@ -1565,7 +1639,7 @@ Page({
     const otherShipOfficerIds = state.fleet.ships
       .filter((ship) => ship.id !== current.id)
       .flatMap((ship) => ship.officerIds)
-    const result = solveBattleTargets({
+    const input = {
       officers: state.officers,
       targets,
       lockedOfficerIds: current.lockedOfficerIds,
@@ -1575,11 +1649,77 @@ Page({
       capacity: 11,
       shipId: current.id,
       baseStateFingerprint: fleetStateFingerprint(state.fleet),
-    })
-    state.proposal = result
+    }
+    const taskId = ++state.calculationTaskId
+    const baseline = input.baseStateFingerprint
+    const officers = state.officers
+    const mode = current.mode
+    const isCurrent = (): boolean =>
+      pageStateByInstance.get(this) === state &&
+      !state.hidden &&
+      !state.unloaded &&
+      state.calculationTaskId === taskId &&
+      state.officers === officers &&
+      state.currentShipId === current.id &&
+      state.fleet.ships.find((s) => s.id === current.id)?.mode === mode &&
+      fleetStateFingerprint(state.fleet) === baseline
+    state.calculationIsCurrent = isCurrent
+    state.proposal = null
     this.setData({
-      proposalPreview: buildFleetProposalPreview(state.fleet, result, state.officers, state.skills),
+      isCalculating: true,
+      calculation: createFleetCalculationView(),
+      proposalPreview: null,
     })
+    try {
+      const outcome = await state.calculationRunner.start({
+        // 整份有效輸入只在任務邊界序列化，包含實際貢獻、目標順序與基線。
+        key: () => buildFleetCalculationKey('battle', input, mode),
+        create: () => createBattleTargetCalculation(input),
+        isCurrent,
+        onProgress: (calculation) => {
+          if (isCurrent()) this.setData({ calculation })
+        },
+      })
+      if (!isCurrent()) {
+        if (state.calculationTaskId === taskId && !state.unloaded) {
+          cancelCalculation(this, state, '條件已變更，請重新計算')
+        }
+        return
+      }
+      if (outcome.status === 'completed') {
+        const preview = buildFleetProposalPreview(
+          state.fleet,
+          outcome.value,
+          officers,
+          state.skills,
+        )
+        if (!isCurrent()) return
+        state.proposal = outcome.value
+        this.setData({ proposalPreview: preview, calculation: null })
+      } else if (outcome.status === 'error') {
+        this.setData({ calculation: createFleetCalculationView('error', '目前編隊未變更，請重試') })
+      } else {
+        this.setData({
+          calculation: createFleetCalculationView('cancelled', '目前編隊未變更，可重新計算'),
+        })
+      }
+    } catch {
+      if (isCurrent())
+        this.setData({ calculation: createFleetCalculationView('error', '目前編隊未變更，請重試') })
+    } finally {
+      if (
+        pageStateByInstance.get(this) === state &&
+        !state.unloaded &&
+        state.calculationTaskId === taskId
+      ) {
+        state.calculationIsCurrent = null
+        this.setData({ isCalculating: false })
+      }
+    }
+  },
+
+  onCancelCalculation() {
+    cancelCalculation(this, getState(this))
   },
 
   onProposalCancel() {
@@ -1604,6 +1744,7 @@ Page({
       return
     }
 
+    cancelCalculation(this, state, '編隊已變更，請重新計算')
     state.fleet = result.state
     state.undoFleetState = snapshot
     state.proposal = null
@@ -1614,6 +1755,7 @@ Page({
   onUndoProposal() {
     const state = getState(this)
     if (!state.undoFleetState) return
+    cancelCalculation(this, state, '編隊已變更，請重新計算')
     state.fleet = cloneFleetState(state.undoFleetState)
     state.undoFleetState = null
     state.proposal = null

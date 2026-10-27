@@ -4,6 +4,7 @@
   "navigationBarTextStyle": "white",
   "backgroundColor": "#ded7c7",
   "usingComponents": {
+    "fleet-calculation-panel": "../../../components/fleet-calculation-panel/index",
     "config-bar": "../../../components/config-bar/index",
     "config-name-modal": "../../../components/config-name-modal/index",
     "config-conflict-modal": "../../../components/config-conflict-modal/index",

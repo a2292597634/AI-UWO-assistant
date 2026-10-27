@@ -1,3 +1,5 @@
+import * as fleetData from '../../miniprogram/subpkg-fleet/runtime/fleet-data-store'
+import * as calculationSolver from '../../miniprogram/domain/battle-fleet-solver'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
@@ -59,7 +61,10 @@ interface FleetPageConfig {
   onAddTarget(): void
   onTargetLevelBlur(event: WechatMiniprogram.Input): void
   onRemoveTarget(event: WechatMiniprogram.BaseEvent): void
-  onRecalculate(): void
+  onRecalculate(): Promise<void>
+  onCancelCalculation(): void
+  onHide(): void
+  onShow(): void
   onProposalCancel(): void
   onProposalApply(): void
   onUndoProposal(): void
@@ -213,14 +218,14 @@ describe('battle fleet page', () => {
     expect(page.data.assetLoadError).toBeNull()
   })
 
-  it('adds an auto target without changing another ship and recalculates explicitly', () => {
+  it('adds an auto target without changing another ship and recalculates explicitly', async () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
     page.onAddTarget()
 
     expect(page.data.targets).toHaveLength(2)
-    page.onRecalculate()
+    await page.onRecalculate()
     expect(page.data.fleetOverview).toHaveLength(7)
   })
 
@@ -353,7 +358,7 @@ describe('battle fleet page', () => {
     expect(page.data.targets).toEqual([])
   })
 
-  it('opens a proposal preview without changing the current fleet or dirty state', () => {
+  it('opens a proposal preview without changing the current fleet or dirty state', async () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
@@ -366,7 +371,7 @@ describe('battle fleet page', () => {
       configStatus: page.data.configStatus,
     }
 
-    page.onRecalculate()
+    await page.onRecalculate()
 
     expect(page.data.proposalPreview).toBeDefined()
     expect(page.data.currentShip).toEqual(before.currentShip)
@@ -374,11 +379,11 @@ describe('battle fleet page', () => {
     expect(page.data.configStatus).toBe(before.configStatus)
   })
 
-  it('cancels a proposal without changing any business state', () => {
+  it('cancels a proposal without changing any business state', async () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
-    page.onRecalculate()
+    await page.onRecalculate()
     const before = {
       currentShip: structuredClone(page.data.currentShip),
       targets: structuredClone(page.data.targets),
@@ -393,7 +398,7 @@ describe('battle fleet page', () => {
     expect(page.data.configStatus).toBe(before.configStatus)
   })
 
-  it('applies a proposal and can undo the complete fleet view once', () => {
+  it('applies a proposal and can undo the complete fleet view once', async () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
@@ -406,7 +411,7 @@ describe('battle fleet page', () => {
       targets: structuredClone(page.data.targets),
     }
 
-    page.onRecalculate()
+    await page.onRecalculate()
     page.onProposalApply()
 
     expect(page.data.proposalPreview).toBeNull()
@@ -423,7 +428,7 @@ describe('battle fleet page', () => {
     expect(page.data.currentShip).toEqual(before.currentShip)
   })
 
-  it('closes the undo notice without reverting the applied fleet', () => {
+  it('closes the undo notice without reverting the applied fleet', async () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
@@ -431,7 +436,7 @@ describe('battle fleet page', () => {
     page.onSkillSelect({ currentTarget: { dataset: { id: 'skill_skill400591' } } } as never)
     page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
 
-    page.onRecalculate()
+    await page.onRecalculate()
     page.onProposalApply()
     const applied = structuredClone(page.data.currentShip)
 
@@ -854,7 +859,7 @@ describe('fleet slot action touch targets', () => {
 })
 
 describe('battle fleet target safety', () => {
-  it('blocks recalculation when every target is missing a skill', () => {
+  it('blocks recalculation when every target is missing a skill', async () => {
     const page = createPageInstance()
     page.onLoad()
     page.onModeTap({ currentTarget: { dataset: { mode: 'auto' } } } as never)
@@ -862,7 +867,7 @@ describe('battle fleet target safety', () => {
 
     expect(page.data.canRecalculate).toBe(false)
 
-    page.onRecalculate()
+    await page.onRecalculate()
 
     expect(page.data.proposalPreview).toBeNull()
     expect(wxStub.showToast).toHaveBeenCalledWith({
@@ -1069,7 +1074,7 @@ describe('battle fleet proposal preview layout', () => {
 
 describe('battle fleet target controls', () => {
   it('uses the skill picker as the only add entry and keeps target controls compact', () => {
-    expect(fleetWxml).toContain('disabled="{{!canRecalculate}}"')
+    expect(fleetWxml).toContain('disabled="{{!canRecalculate || isCalculating}}"')
     expect(fleetWxml).toContain('<text class="panel-heading__hint">僅計算目前船</text>')
     expect(fleetWxml).toContain('尚無可重算目標')
     expect(fleetWxml).toContain('{{recalculateDisabledReason}}')
@@ -2536,7 +2541,7 @@ describe('放棄修改先還原保存基線', () => {
       currentTarget: { dataset: { id: 'saved-target' } },
       detail: { value: '2' },
     } as never)
-    page.onRecalculate()
+    await page.onRecalculate()
     expect(page.data.proposalPreview).not.toBeNull()
     if (kind === 'undo') {
       page.onProposalApply()
@@ -2674,7 +2679,11 @@ describe('合法舊戰鬥配置的 Lv.0 目標', () => {
   it('直接觸發全零重算也不拋例外、不建立提案、不改配置', async () => {
     const { page } = await setupZeroConfig()
     const original = structuredClone(page.data.targets)
-    expect(() => page.onRecalculate()).not.toThrow()
+    let calculation!: Promise<void>
+    expect(() => {
+      calculation = page.onRecalculate()
+    }).not.toThrow()
+    await calculation
     expect(page.data.proposalPreview).toBeNull()
     expect(page.data.targets).toEqual(original)
     expect(page.data.configStatus).toBe('saved')
@@ -2685,7 +2694,11 @@ describe('合法舊戰鬥配置的 Lv.0 目標', () => {
   it('混合 Lv.0 與正數仍產生只含正數目標的提案', async () => {
     const { page } = await setupZeroConfig(true)
     const original = structuredClone(page.data.targets)
-    expect(() => page.onRecalculate()).not.toThrow()
+    let calculation!: Promise<void>
+    expect(() => {
+      calculation = page.onRecalculate()
+    }).not.toThrow()
+    await calculation
     expect(page.data.proposalPreview).toMatchObject({
       targetCount: 1,
       targetDiffs: [expect.objectContaining({ skillId: 'skill_skill200681', targetLevel: 2 })],
@@ -2710,7 +2723,11 @@ describe('合法舊戰鬥配置的 Lv.0 目標', () => {
     } as never)
     expect(page.data.targets[0]).toMatchObject({ targetLevel: 2 })
     expect(page.data.canRecalculate).toBe(true)
-    expect(() => page.onRecalculate()).not.toThrow()
+    let calculation!: Promise<void>
+    expect(() => {
+      calculation = page.onRecalculate()
+    }).not.toThrow()
+    await calculation
     expect(page.data.proposalPreview).toMatchObject({
       targetCount: 1,
       targetDiffs: [expect.objectContaining({ targetLevel: 2 })],
@@ -2725,5 +2742,303 @@ describe('合法舊戰鬥配置的 Lv.0 目標', () => {
     } as never)
     expect(page.data.targets).toEqual(original)
     expect(page.data.configStatus).toBe('saved')
+  })
+})
+
+describe('配隊計算生命週期', () => {
+  const prepare = () => {
+    const page = createPageInstance()
+    page.onLoad()
+    page.onAddTarget()
+    page.onSkillSelect({ currentTarget: { dataset: { id: 'skill_skill400591' } } } as never)
+    return page
+  }
+
+  it('先顯示可取消狀態並保持編隊和 dirty；重複點擊不提早清理任務', async () => {
+    const page = prepare()
+    const before = structuredClone(page.data.currentShip)
+    const dirty = page.data.configStatus
+    const first = page.onRecalculate()
+    expect(page.data.isCalculating).toBe(true)
+    expect(page.data.calculation).toMatchObject({ status: 'preparing', progress: null })
+    expect(page.data.proposalPreview).toBeNull()
+    expect(page.data.currentShip).toEqual(before)
+    expect(page.data.configStatus).toBe(dirty)
+    await page.onRecalculate()
+    expect(page.data.isCalculating).toBe(true)
+    page.onCancelCalculation()
+    await first
+    expect(page.data.isCalculating).toBe(false)
+    expect(page.data.calculation).toMatchObject({ status: 'cancelled' })
+    expect(page.data.proposalPreview).toBeNull()
+  })
+
+  it('條件變更取消舊計算，立即重試不被舊 finally 清掉', async () => {
+    const page = prepare()
+    const first = page.onRecalculate()
+    const target = (page.data.targets as { id: string }[])[0]!
+    page.onTargetLevelBlur({
+      currentTarget: { dataset: { id: target.id } },
+      detail: { value: '2' },
+    } as never)
+    expect(page.data.isCalculating).toBe(false)
+    const second = page.onRecalculate()
+    await first
+    expect(page.data.isCalculating).toBe(true)
+    expect(page.data.proposalPreview).toBeNull()
+    await second
+    expect(page.data.isCalculating).toBe(false)
+    expect(page.data.calculation).toBeNull()
+    expect(page.data.proposalPreview).not.toBeNull()
+  })
+
+  it.each(['factory', 'next'])('%s 拋錯恢復可重試狀態，不改編隊或 dirty', async (source) => {
+    const page = prepare()
+    const before = structuredClone(page.data.currentShip)
+    const dirty = page.data.configStatus
+    const factory = vi.spyOn(calculationSolver, 'createBattleTargetCalculation')
+    if (source === 'factory')
+      factory.mockImplementationOnce(() => {
+        throw Error('建立失敗')
+      })
+    else
+      factory.mockImplementationOnce(function* () {
+        yield {
+          phase: 'preparing',
+          processedCandidates: 0,
+          totalCandidates: 0,
+          candidateFraction: 0,
+        }
+        throw Error('步進失敗')
+      })
+    try {
+      await page.onRecalculate()
+      expect(page.data.isCalculating).toBe(false)
+      expect(page.data.calculation).toMatchObject({ status: 'error' })
+      expect(page.data.proposalPreview).toBeNull()
+      expect(page.data.currentShip).toEqual(before)
+      expect(page.data.configStatus).toBe(dirty)
+      await page.onRecalculate()
+      expect(page.data.proposalPreview).not.toBeNull()
+      expect(page.data.calculation).toBeNull()
+    } finally {
+      factory.mockRestore()
+    }
+  })
+
+  it('同輸入直接復用方案，目標或成員基線變更後重算', async () => {
+    const page = prepare()
+    const factory = vi.spyOn(calculationSolver, 'createBattleTargetCalculation')
+    try {
+      await page.onRecalculate()
+      expect(factory).toHaveBeenCalledTimes(1)
+      const original = structuredClone(page.data.proposalPreview)
+      page.onProposalCancel()
+      await page.onRecalculate()
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(page.data.proposalPreview).toEqual(original)
+      const target = (page.data.targets as { id: string }[])[0]!
+      page.onTargetLevelBlur({
+        currentTarget: { dataset: { id: target.id } },
+        detail: { value: '2' },
+      } as never)
+      await page.onRecalculate()
+      expect(factory).toHaveBeenCalledTimes(2)
+      page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+      await page.onRecalculate()
+      expect(factory).toHaveBeenCalledTimes(3)
+    } finally {
+      factory.mockRestore()
+    }
+  })
+
+  it('航海士實際貢獻變更即使 ID 與基線相同也不命中快取', async () => {
+    const dataSource = vi
+      .spyOn(fleetData, 'getFleetOfficers')
+      .mockReturnValue(structuredClone(fleetData.getFleetOfficers()))
+    const page = prepare()
+    const factory = vi.spyOn(calculationSolver, 'createBattleTargetCalculation')
+    let changed: { level: number } | undefined
+    let originalLevel = 0
+    try {
+      await page.onRecalculate()
+      const targetSkillId = (page.data.targets as { skillId: string }[])[0]!.skillId
+      changed = factory.mock.calls[0]![0].officers.flatMap((officer) => officer.skills).find(
+        (skill) => skill.skillId === targetSkillId,
+      )
+      expect(changed).toBeDefined()
+      originalLevel = changed!.level
+      changed!.level += 1
+      page.onProposalCancel()
+      await page.onRecalculate()
+      expect(factory).toHaveBeenCalledTimes(2)
+      expect(page.data.proposalPreview).not.toBeNull()
+    } finally {
+      if (changed) changed.level = originalLevel
+      factory.mockRestore()
+      dataSource.mockRestore()
+    }
+  })
+
+  it('成員及模式變更同步取消，不產生過期預覽', async () => {
+    const page = prepare()
+    const first = page.onRecalculate()
+    page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    expect(page.data.isCalculating).toBe(false)
+    await first
+    expect(page.data.proposalPreview).toBeNull()
+    const second = page.onRecalculate()
+    page.onModeTap({ currentTarget: { dataset: { mode: 'manual' } } } as never)
+    expect(page.data.isCalculating).toBe(false)
+    await second
+    expect(page.data.proposalPreview).toBeNull()
+  })
+
+  it('onHide 取消後 onShow 可重算，onUnload 後連同步取消也不再 setData', async () => {
+    const page = prepare()
+    const first = page.onRecalculate()
+    page.onHide()
+    await first
+    expect(page.data.isCalculating).toBe(false)
+    expect(page.data.proposalPreview).toBeNull()
+    page.onShow()
+    const second = page.onRecalculate()
+    const setData = vi.spyOn(page, 'setData')
+    page.onUnload()
+    await second
+    expect(setData).not.toHaveBeenCalled()
+  })
+})
+
+describe('登入延續的頁面實例保護', () => {
+  it.each([
+    ['login', 'success'],
+    ['login', 'failure'],
+    ['save', 'success'],
+    ['save', 'failure'],
+    ['saveAs', 'success'],
+    ['saveAs', 'failure'],
+    ['dirtySave', 'success'],
+    ['dirtySave', 'failure'],
+  ])('%s 等待登入時卸載，%s 回應不更新視圖或延續配置', async (entry, response) => {
+    let resolveAuthentication!: (value: unknown) => void
+    let rejectAuthentication!: (reason: Error) => void
+    const authentication = new Promise((resolve, reject) => {
+      resolveAuthentication = resolve
+      rejectAuthentication = reject
+    })
+    mockCallFunction.mockImplementation(({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate') return authentication
+      throw Error('卸載後不應延續配置')
+    })
+    const page = createPageInstance()
+    await page.onLoad()
+    if (entry === 'dirtySave')
+      page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+    const pending =
+      entry === 'login'
+        ? page.onConfigLogin()
+        : entry === 'saveAs'
+          ? page.onConfigSaveAs()
+          : page.onConfigSave()
+    const completion = Promise.resolve(pending).then(
+      () => null,
+      (error: unknown) => error,
+    )
+    expect(mockCallFunction).toHaveBeenCalledTimes(1)
+    page.onUnload()
+    const setData = vi.spyOn(page, 'setData')
+    wxStub.showToast.mockClear()
+    wxStub.showModal.mockClear()
+    if (response === 'success')
+      resolveAuthentication({ result: { ok: true, data: { authenticated: true } } })
+    else rejectAuthentication(Error('延後網路失敗'))
+    const error = await completion
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    expect(error).toBeNull()
+    expect(setData).not.toHaveBeenCalled()
+    expect(wxStub.showToast).not.toHaveBeenCalled()
+    expect(wxStub.showModal).not.toHaveBeenCalled()
+    expect(mockCallFunction.mock.calls.map(([arg]) => arg.data.action)).toEqual(['authenticate'])
+  })
+
+  it.each(['login', 'save', 'saveAs', 'dirtySave'])(
+    '認證完成後 %s 延續前卸載也不寫入或拒絕',
+    async (entry) => {
+      mockCallFunction.mockResolvedValue({ result: { ok: true, data: { authenticated: true } } })
+      const page = createPageInstance()
+      await page.onLoad()
+      if (entry === 'dirtySave')
+        page.onOfficerSelect({ currentTarget: { dataset: { id: 'officer_chast089' } } } as never)
+      const originalSetData = page.setData.bind(page)
+      let unloaded = false
+      let writesAfterUnload = 0
+      page.setData = (update, callback) => {
+        if (unloaded) writesAfterUnload++
+        originalSetData(update, callback)
+        if (update.authStatus === 'authenticated') {
+          void Promise.resolve().then(() => {
+            page.onUnload()
+            unloaded = true
+          })
+        }
+      }
+      const pending =
+        entry === 'login'
+          ? page.onConfigLogin()
+          : entry === 'saveAs'
+            ? page.onConfigSaveAs()
+            : page.onConfigSave()
+      const error = await Promise.resolve(pending).then(
+        () => null,
+        (reason: unknown) => reason,
+      )
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
+      expect(unloaded).toBe(true)
+      expect(error).toBeNull()
+      expect(writesAfterUnload).toBe(0)
+      expect(mockCallFunction.mock.calls.map(([arg]) => arg.data.action)).toEqual(['authenticate'])
+    },
+  )
+
+  it('相同頁面物件重新載入後，舊登入不得寫入新實例', async () => {
+    let resolveAuthentication!: (value: unknown) => void
+    mockCallFunction.mockReturnValue(
+      new Promise((resolve) => {
+        resolveAuthentication = resolve
+      }),
+    )
+    const page = createPageInstance()
+    await page.onLoad()
+    const completion = page.onConfigLogin().then(
+      () => null,
+      (error: unknown) => error,
+    )
+    await page.onLoad()
+    const setData = vi.spyOn(page, 'setData')
+    resolveAuthentication({ result: { ok: true, data: { authenticated: true } } })
+    expect(await completion).toBeNull()
+    expect(setData).not.toHaveBeenCalled()
+    expect(mockCallFunction).toHaveBeenCalledTimes(1)
+  })
+
+  it('onHide 不使登入失效，返回頁面仍可延續原登入', async () => {
+    let resolveAuthentication!: (value: unknown) => void
+    mockCallFunction.mockImplementation(({ data }: { data: { action: string } }) => {
+      if (data.action === 'authenticate')
+        return new Promise((resolve) => {
+          resolveAuthentication = resolve
+        })
+      return { result: { ok: true, data: [] } }
+    })
+    const page = createPageInstance()
+    await page.onLoad()
+    const completion = page.onConfigLogin()
+    page.onHide()
+    page.onShow()
+    resolveAuthentication({ result: { ok: true, data: { authenticated: true } } })
+    await expect(completion).resolves.toBeUndefined()
+    expect(page.data.authStatus).toBe('authenticated')
+    expect(mockCallFunction.mock.calls.map(([arg]) => arg.data.action)).toContain('listMyConfigs')
   })
 })

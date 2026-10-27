@@ -1,0 +1,25 @@
+{
+  "name": "冒險自動配隊新增目標與方案預覽",
+  "entry": "/pages/adventure-fleet/index",
+  "watchPaths": [
+    "miniprogram/pages/adventure-fleet/",
+    "miniprogram/components/fleet-calculation-panel/",
+    "miniprogram/runtime/fleet-calculation.ts",
+    "miniprogram/domain/fleet-solver-core.ts",
+    "miniprogram/domain/adventure-fleet-solver.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": ".fleet-context" },
+    { "action": "tap", "selector": ".target-actions .ui-button--secondary" },
+    { "action": "waitFor", "selector": ".skill-picker-sheet--sheet" },
+    { "action": "tap", "selector": ".skill-picker-sheet--sheet .skill-picker-sheet__select" },
+    { "action": "waitFor", "selector": ".target-row__name" },
+    { "action": "tap", "selector": ".target-actions .ui-button--primary" },
+    { "action": "waitFor", "selector": ".result-preview-sheet__title", "timeoutMs": 15000 },
+    { "action": "assertText", "selector": ".result-preview-sheet__title", "equals": "方案預覽" },
+    { "action": "screenshot", "name": "adventure-calculation-preview" },
+    { "action": "tap", "selector": ".result-preview-sheet__actions .ui-button--secondary" }
+  ]
+}

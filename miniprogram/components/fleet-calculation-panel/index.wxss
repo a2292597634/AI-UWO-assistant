@@ -1,0 +1,108 @@
+/* 作為頁面 flex 底部區塊自然占位，長文案不會遮住滾動內容。 */
+.fleet-calculation-panel {
+  position: relative;
+  z-index: 29;
+  padding: var(--uwo-space-6) var(--uwo-space-6)
+    calc(var(--uwo-space-6) + env(safe-area-inset-bottom));
+  border-top: 1rpx solid var(--uwo-color-border-subtle);
+  background: var(--uwo-color-surface);
+  color: var(--uwo-color-text-primary);
+  box-shadow: var(--uwo-shadow-sheet);
+  font-family: var(--uwo-font-family-body);
+  font-size: var(--uwo-font-size-body);
+}
+
+.fleet-calculation-panel__heading,
+.fleet-calculation-panel__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--uwo-space-2) var(--uwo-space-4);
+}
+
+.fleet-calculation-panel__title {
+  font-size: var(--uwo-font-size-emphasis);
+  font-weight: 600;
+}
+
+.fleet-calculation-panel__title--error {
+  color: var(--uwo-color-danger);
+}
+
+.fleet-calculation-panel__elapsed,
+.fleet-calculation-panel__counter,
+.fleet-calculation-panel__notice {
+  color: var(--uwo-color-text-secondary);
+  font-size: var(--uwo-font-size-supporting);
+  overflow-wrap: anywhere;
+}
+
+.fleet-calculation-panel__elapsed,
+.fleet-calculation-panel__percentage,
+.fleet-calculation-panel__counter {
+  font-variant-numeric: tabular-nums;
+}
+
+.fleet-calculation-panel__meta {
+  margin-top: var(--uwo-space-4);
+}
+
+.fleet-calculation-panel__track {
+  height: var(--uwo-space-2);
+  margin: var(--uwo-space-2) 0;
+  overflow: hidden;
+  border-radius: var(--uwo-radius-pill);
+  background: var(--uwo-color-surface-muted);
+}
+
+.fleet-calculation-panel__fill {
+  height: 100%;
+  border-radius: var(--uwo-radius-pill);
+  background: var(--uwo-color-ink);
+  transition: width 100ms linear;
+}
+
+.fleet-calculation-panel__fill--pending {
+  width: 28%;
+  animation: fleet-calculation-pending 1200ms ease-in-out infinite alternate;
+}
+
+.fleet-calculation-panel__counter,
+.fleet-calculation-panel__notice {
+  display: block;
+}
+
+.fleet-calculation-panel__notice {
+  margin-top: var(--uwo-space-2);
+}
+
+.fleet-calculation-panel__actions {
+  display: flex;
+  gap: var(--uwo-space-3);
+  margin-top: var(--uwo-space-4);
+}
+
+.fleet-calculation-panel__button {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+}
+
+@keyframes fleet-calculation-pending {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fleet-calculation-panel__fill {
+    transition: none;
+  }
+  .fleet-calculation-panel__fill--pending {
+    animation: none;
+  }
+}
