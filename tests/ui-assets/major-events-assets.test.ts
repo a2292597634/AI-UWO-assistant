@@ -90,6 +90,12 @@ const writeTransparentFixture = async (
 
 const createFixtureSources = async (sourceRoot: string): Promise<void> => {
   mkdirSync(sourceRoot, { recursive: true })
+  for (let index = 1; index <= 8; index += 1) {
+    writeFileSync(
+      join(sourceRoot, `event-pop${index}.svg`),
+      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="6" fill="#76501a"/></svg>',
+    )
+  }
 
   await Promise.all([
     ...REGION_IDS.map((id) =>
@@ -108,6 +114,15 @@ const expectedRegionOutputs = REGION_IDS.map((id) => `region-zone-${id}.png`)
 const stableJson = (value: unknown): string => `${JSON.stringify(value, null, 2)}\n`
 
 describe('大流行分包素材 builder', () => {
+  it('八種流行各有可重現的本地小圖示', async () => {
+    const report = await buildMajorEventsAssets({
+      sourceRoot: resolve(__dirname, '../../data/master/ui-assets/major-events'),
+      outputRoot: makeTemporaryDirectory(),
+    })
+    expect(report.files.filter((file) => file.kind === 'event').map((file) => file.output)).toEqual(
+      Array.from({ length: 8 }, (_, i) => `event-pop${i + 1}.png`),
+    )
+  })
   it('正式紙紋、裝飾和區域素材符合分包預算', async () => {
     const outputRoot = makeTemporaryDirectory()
     const report = await buildMajorEventsAssets({
@@ -151,7 +166,7 @@ describe('大流行分包素材 builder', () => {
       { output: 'journey-harbor-footer.png', width: 750, height: 180 },
       { output: 'matrix-ship-engraving.png', width: 320, height: 180 },
     ])
-    expect(outputs).toHaveLength(22)
+    expect(outputs).toHaveLength(30)
     expect(report.files.every((file) => /^[a-f0-9]{64}$/.test(file.sha256))).toBe(true)
     expect(
       report.files
@@ -171,7 +186,7 @@ describe('大流行分包素材 builder', () => {
     const second = await buildMajorEventsAssets({ sourceRoot, outputRoot: secondOutput })
 
     expect(second.files).toEqual(first.files)
-    expect(first.files).toHaveLength(22)
+    expect(first.files).toHaveLength(30)
     expect(second.totalBytes).toBe(first.totalBytes)
     for (const file of first.files) {
       expect(readFileSync(join(firstOutput, file.output))).toEqual(

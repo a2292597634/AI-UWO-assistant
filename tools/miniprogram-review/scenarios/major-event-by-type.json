@@ -1,0 +1,36 @@
+{
+  "name": "按流行查各海域下一場",
+  "entry": "/subpkg-trade/pages/popularity/index",
+  "watchPaths": [
+    "miniprogram/subpkg-trade/pages/popularity/",
+    "miniprogram/subpkg-trade/domain/major-event-forecast.ts",
+    "miniprogram/subpkg-trade/presenters/major-event-next-presenter.ts",
+    "miniprogram/subpkg-trade/assets/major-events/"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": ".major-events-view-switch__option--type" },
+    { "action": "tap", "selector": ".major-events-view-switch__option--type" },
+    { "action": "waitFor", "selector": ".major-events-next__item" },
+    { "action": "assertExists", "selector": ".major-events-range", "exists": false },
+    { "action": "assertExists", "selector": ".major-events-next__zone-icon", "exists": true },
+    { "action": "assertText", "selector": ".major-events-next__title", "contains": "奢侈" },
+    { "action": "screenshot", "name": "by-type-compact-buttons-and-regions" },
+    { "action": "tap", "selector": ".major-events-type__option--pop8" },
+    { "action": "assertText", "selector": ".major-events-next__title", "contains": "節慶" },
+    { "action": "tap", "selector": ".major-events-next__more" },
+    { "action": "assertText", "selector": ".major-events-next__more", "contains": "收起海域" },
+    { "action": "screenshot", "name": "by-type-expanded-festival" },
+    { "action": "tap", "selector": ".major-events-next__item" },
+    { "action": "waitFor", "selector": ".major-event-detail" },
+    { "action": "assertText", "selector": ".major-event-detail__title", "contains": "節慶" },
+    { "action": "screenshot", "name": "by-type-event-detail" },
+    { "action": "tap", "selector": ".major-event-detail__close" },
+    { "action": "tap", "selector": ".major-events-next__more" },
+    { "action": "assertText", "selector": ".major-events-next__more", "contains": "查看全部" },
+    { "action": "tap", "selector": ".major-events-view-switch__option--journey" },
+    { "action": "waitFor", "selector": ".journey__event" },
+    { "action": "screenshot", "name": "by-type-return-to-journey" }
+  ]
+}

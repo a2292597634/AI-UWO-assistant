@@ -26,7 +26,7 @@
     </view>
     <text class="major-events-summary__updated">來源核對日期：{{sourceVerifiedLabel}}</text>
 
-    <view class="major-events-range" aria-label="時刻表範圍">
+    <view wx:if="{{activeView !== 'type'}}" class="major-events-range" aria-label="時刻表範圍">
       <view
         class="major-events-range__option major-events-range__option--one-day {{horizonHours === 24 ? 'major-events-range__option--active' : ''}}"
         bindtap="onHorizonTap"
@@ -65,6 +65,7 @@
         role="button"
         aria-label="日程列表"
       >日程列表</view>
+      <view class="major-events-view-switch__option major-events-view-switch__option--type {{activeView === 'type' ? 'major-events-view-switch__option--active' : ''}}" bindtap="onViewTap" data-view="type" role="button" aria-label="按流行">按流行</view>
     </view>
 
     <view wx:if="{{activeView === 'matrix'}}" class="matrix-controls">
@@ -175,6 +176,43 @@
         </scroll-view>
       </view>
       <text class="matrix-section__note">本時刻表依遊戲週期排列；城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。</text>
+    </view>
+
+    <view wx:if="{{!pageError && activeView === 'type'}}" class="major-events-type">
+      <view class="major-events-type__options" aria-label="選擇流行類型">
+        <button wx:for="{{eventTypeOptions}}" wx:key="id" class="major-events-type__option major-events-type__option--{{item.id}} {{selectedEventTypeId === item.id ? 'major-events-type__option--active' : ''}}" bindtap="onEventTypeTap" data-event-type-id="{{item.id}}" aria-pressed="{{selectedEventTypeId === item.id}}" aria-label="{{item.name}}">
+          <image class="major-events-type__icon" src="{{item.iconPath}}" mode="aspectFit" aria-hidden="true" />
+          <text>{{item.name}}</text>
+        </button>
+      </view>
+      <view class="major-events-type__zone-row">
+        <text>查看海域</text>
+        <picker class="major-events-type__zone-picker" mode="selector" range="{{zoneOptions}}" range-key="name" value="{{selectedZoneIndex}}" bindchange="onZoneChange" aria-label="查看海域">
+          <view class="major-events-type__zone-value">{{zoneOptions[selectedZoneIndex].name}} <text aria-hidden="true">⌄</text></view>
+        </picker>
+      </view>
+      <view class="major-events-next">
+        <view class="major-events-next__heading">
+          <text class="major-events-next__title">{{selectedEventTypeName}} · 各海域下一次</text>
+          <text class="major-events-next__hint">依開始時間排序</text>
+        </view>
+        <view wx:if="{{nextEvents.length === 0}}" class="major-events-empty">此海域在查詢範圍內沒有下一場日程</view>
+        <view wx:for="{{visibleNextEvents}}" wx:key="key" class="major-events-next__item" bindtap="onEventTap" data-event-key="{{item.key}}" role="button" aria-label="{{item.accessibilityLabel}}，{{item.waitLabel}}">
+          <image class="major-events-next__zone-icon" src="{{item.zoneIconFailed ? '/subpkg-trade/assets/major-events/compass-rose.png' : item.zoneIconPath}}" mode="aspectFit" binderror="onRegionIconError" data-zone-id="{{item.zoneId}}" aria-hidden="true" />
+          <view class="major-events-next__zone">
+            <text class="major-events-next__zone-name">{{item.zoneName}}</text>
+            <text wx:if="{{index === 0}}" class="major-events-next__nearest">最近一場</text>
+          </view>
+          <view class="major-events-next__time">
+            <text class="major-events-next__date">{{item.dateLabel}}</text>
+            <text class="major-events-next__clock">{{item.timeLabel}}</text>
+            <text class="major-events-next__wait">{{item.waitLabel}}</text>
+          </view>
+          <text class="major-events-next__arrow" aria-hidden="true">›</text>
+        </view>
+      </view>
+      <button wx:if="{{nextEvents.length > 5}}" class="ui-button ui-button--secondary major-events-next__more" bindtap="onToggleNextEvents">{{nextEventsExpanded ? '收起海域' : '查看全部 ' + nextEvents.length + ' 個海域'}}</button>
+      <text class="matrix-section__note">各海域下一次開始時間，包含 7 天以後；時刻依遊戲週期推算，城鎮活動或事件預算可能影響實際發生。</text>
     </view>
 
     <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">

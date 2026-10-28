@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   findNextMajorEvent,
+  findNextMajorEventsByZone,
   forecastMajorEvents,
   forecastOngoingMajorEvents,
 } from '../../miniprogram/subpkg-trade/domain/major-event-forecast'
@@ -48,6 +49,51 @@ const onlyZone = (delaySeconds = 0, phaseHours = 0): RuntimeMajorEventZone[] => 
 ]
 
 describe('大流行預測 Domain', () => {
+  it('每個海域只取所選流行下一場，包含七天以後並依時間排序', () => {
+    const events = findNextMajorEventsByZone(sourceReference, {
+      nowUnixSeconds: Date.parse('2026-10-28T12:00:00+08:00') / 1000,
+      eventTypeId: 'pop1',
+    })
+    expect(events).toHaveLength(18)
+    expect(new Set(events.map((event) => event.zoneId)).size).toBe(18)
+    expect(events.every((event) => event.eventTypeId === 'pop1')).toBe(true)
+    expect(events[0]).toMatchObject({
+      zoneId: 'zone_33',
+      triggerAtUnixSeconds: Date.parse('2026-10-28T21:06:00+08:00') / 1000,
+    })
+    expect(events[events.length - 1]!.triggerAtUnixSeconds).toBeGreaterThan(
+      Date.parse('2026-11-04T12:00:00+08:00') / 1000,
+    )
+    expect(
+      events.every(
+        (event, index) =>
+          index === 0 || event.triggerAtUnixSeconds >= events[index - 1]!.triggerAtUnixSeconds,
+      ),
+    ).toBe(true)
+  })
+
+  it('下一場保留當下開始事件，單海域篩選不改變同時事件優先序', () => {
+    expect(
+      findNextMajorEventsByZone(sourceReference, {
+        nowUnixSeconds: ANCHOR,
+        eventTypeId: 'pop1',
+        zoneId: 'zone_37',
+      })[0]?.triggerAtUnixSeconds,
+    ).toBe(ANCHOR)
+    expect(
+      findNextMajorEventsByZone(sourceReference, {
+        nowUnixSeconds: ANCHOR,
+        eventTypeId: 'pop3',
+        zoneId: 'zone_37',
+      })[0]?.triggerAtUnixSeconds,
+    ).toBe(ANCHOR + 311 * 3600)
+    expect(
+      findNextMajorEventsByZone(sourceReference, {
+        nowUnixSeconds: ANCHOR,
+        eventTypeId: 'invalid',
+      }),
+    ).toEqual([])
+  })
   it('returns the Arctic War as a possible ongoing candidate for the supplied UTC+8 sample', () => {
     const nowUnixSeconds = Date.parse('2026-09-25T10:47:00+08:00') / 1000
     const candidates = forecastOngoingMajorEvents(sourceReference, { nowUnixSeconds })

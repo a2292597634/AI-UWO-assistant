@@ -1,5 +1,9 @@
 # 大流行預測圖像素材生成記錄
 
+## 按流行小圖示（2026-10-28）
+
+八枚 `event-pop1.svg` 至 `event-pop8.svg` 為 Lucide ISC 授權的 Gem、ChartNoAxesCombined、Pickaxe、HandCoins、Swords、Waves、ShieldPlus、PartyPopper 向量圖示，保留授權於 `event-icons-license.md`。以 Design Foundation `accent-text` 色彩、1.6 線寬適配緊湊按鈕；由既有 `assets:major-events` 生成 32×32 透明 PNG，不新增執行時依賴。選中時透過樣式轉為淺色，海域仍沿用原徽記。
+
 生成方式：Codex 內建 ImageGen。所有插畫均為單獨透明素材，之後使用既有 Sharp 依規格統一縮放和量化；不使用外部圖片或遠程 URL。完整生成原圖保存在 ImageGen 生成目錄，主資料保留適合專案的高解析來源版本。
 
 ## 共用畫風

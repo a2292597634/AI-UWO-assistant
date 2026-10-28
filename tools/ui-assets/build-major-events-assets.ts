@@ -14,7 +14,7 @@ import { join } from 'node:path'
 import sharp from 'sharp'
 
 export interface MajorEventsAssetBuildFile {
-  kind: 'region' | 'texture' | 'ornament'
+  kind: 'region' | 'texture' | 'ornament' | 'event'
   output: string
   width: number
   height: number
@@ -80,6 +80,15 @@ const MAX_TOTAL_BYTES = 96 * 1024
 const EMPTY_PIXEL_THRESHOLD = 8
 
 const definitions = [
+  ...Array.from({ length: 8 }, (_, index): MajorEventsAssetDefinition => ({
+    kind: 'event',
+    source: `event-pop${index + 1}.svg`,
+    output: `event-pop${index + 1}.png`,
+    width: 32,
+    height: 32,
+    paletteColors: 16,
+    transparent: true,
+  })),
   ...REGION_IDS.map((numericId): MajorEventsAssetDefinition => ({
     kind: 'region',
     source: `region-zone-${numericId}-source.png`,

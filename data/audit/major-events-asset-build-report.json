@@ -9,6 +9,70 @@
       "sha256": "1d5b58df30b82b182f3be0e9128aadbec0e0f83eda694179ef483f68d453cb59"
     },
     {
+      "kind": "event",
+      "output": "event-pop1.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 480,
+      "sha256": "f316592831ad8e61c64b1cc27706d4c30f68d9c56c4db4b2dacc90fb1c4171df"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop2.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 335,
+      "sha256": "e31766f3750aa5e7845995b3a6557267543806d149adad67f7b0d6ecdf29827f"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop3.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 462,
+      "sha256": "3cace392182e0e56972e3bc4c6f77e24db9d1ff46e062733fcf96b67d02ede67"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop4.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 492,
+      "sha256": "7384870e2e752d541695be12a21c3fe812ab5fbc1b86cb426da179ea316d89e4"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop5.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 419,
+      "sha256": "f7a0860b796a6c0b1520edd54acc48c6c33fdf6f2ea051517174059af94105fc"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop6.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 254,
+      "sha256": "b1fb669fd4f1da34c1e51c092088ab2c1d9766c526221732f485ff9a2b8391e1"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop7.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 390,
+      "sha256": "5baee3228083ea12bb896ee45bbcebbe5b7b1fb780024375cd0b82aa9fcb8c50"
+    },
+    {
+      "kind": "event",
+      "output": "event-pop8.png",
+      "width": 32,
+      "height": 32,
+      "byteSize": 476,
+      "sha256": "55127f02885f84769f90681d712a2f2c76a9b19bc2c5c57524658997fac30772"
+    },
+    {
       "kind": "ornament",
       "output": "journey-harbor-footer.png",
       "width": 750,
@@ -177,5 +241,5 @@
       "sha256": "7bc01d30fcf9aab2e6cb6a561f43180cb765dbd786e3535ac80d7ebcac00d82f"
     }
   ],
-  "totalBytes": 30921
+  "totalBytes": 34229
 }
