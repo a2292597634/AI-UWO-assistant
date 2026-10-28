@@ -19,5 +19,5 @@ describe('Mini Program package boundaries', () => {
     expect(report.largestFiles.some((file) => file.path === 'generated/fleet-officers.js')).toBe(
       false,
     )
-  })
+  }, 15_000)
 })

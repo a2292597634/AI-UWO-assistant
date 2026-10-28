@@ -18,7 +18,7 @@ import {
 } from './major-events-config'
 
 export interface MajorEventsAssetBuildFile {
-  kind: 'region' | 'texture' | 'ornament'
+  kind: 'region' | 'texture' | 'ornament' | 'event'
   output: string
   width: number
   height: number

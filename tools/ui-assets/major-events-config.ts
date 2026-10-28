@@ -1,5 +1,5 @@
 export interface MajorEventsAssetDefinition {
-  kind: 'region' | 'texture' | 'ornament'
+  kind: 'region' | 'texture' | 'ornament' | 'event'
   source: string
   output: string
   width: number
@@ -31,6 +31,15 @@ export const REGION_IDS = [
 ] as const
 
 export const MAJOR_EVENTS_ASSET_DEFINITIONS = [
+  ...Array.from({ length: 8 }, (_, index): MajorEventsAssetDefinition => ({
+    kind: 'event',
+    source: `event-pop${index + 1}.svg`,
+    output: `event-pop${index + 1}.png`,
+    width: 32,
+    height: 32,
+    paletteColors: 16,
+    transparent: true,
+  })),
   ...REGION_IDS.map((numericId): MajorEventsAssetDefinition => ({
     kind: 'region',
     source: `region-zone-${numericId}-source.png`,

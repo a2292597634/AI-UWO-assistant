@@ -148,3 +148,17 @@ export const findNextMajorEvent = (
   })
   return next ?? null
 }
+
+export const findNextMajorEventsByZone = (
+  reference: RuntimeMajorEventReference,
+  query: Omit<MajorEventForecastQuery, 'horizonHours'>,
+): MajorEventOccurrence[] => {
+  const seenZones = new Set<string>()
+  return forecastWithinHours(reference, { ...query, horizonHours: NEXT_EVENT_SEARCH_HOURS }).filter(
+    (event) => {
+      if (seenZones.has(event.zoneId)) return false
+      seenZones.add(event.zoneId)
+      return true
+    },
+  )
+}

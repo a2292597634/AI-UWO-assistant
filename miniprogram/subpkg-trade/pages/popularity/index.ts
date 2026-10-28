@@ -1,4 +1,9 @@
-import { forecastMajorEvents, forecastOngoingMajorEvents } from '../../domain/major-event-forecast'
+import {
+  findNextMajorEventsByZone,
+  forecastMajorEvents,
+  forecastOngoingMajorEvents,
+} from '../../domain/major-event-forecast'
+import { presentMajorEventWait } from '../../presenters/major-event-next-presenter'
 import { gameHourStartUnixSeconds } from '../../game-time'
 import {
   presentMajorEvent,
@@ -46,7 +51,16 @@ interface MajorEventPageJourney extends Omit<MajorEventJourneyDayGroup, 'timeGro
 }
 
 interface MajorEventPageData {
-  activeView: 'matrix' | 'journey'
+  activeView: 'matrix' | 'journey' | 'type'
+  selectedEventTypeId: string
+  selectedEventTypeName: string
+  selectedZoneId: string
+  selectedZoneIndex: number
+  eventTypeOptions: Array<{ id: string; name: string; iconPath: string }>
+  zoneOptions: Array<{ id: string; name: string }>
+  nextEventsExpanded: boolean
+  nextEvents: MajorEventNextPageItem[]
+  visibleNextEvents: MajorEventNextPageItem[]
   horizonHours: 24 | 72 | 168
   nowUnixSeconds: number
   segmentIndex: number
@@ -63,6 +77,10 @@ interface MajorEventPageData {
   failedCategoryIconIds: string[]
 }
 
+interface MajorEventNextPageItem extends MajorEventPageItem {
+  waitLabel: string
+}
+
 interface MajorEventPageController {
   data: MajorEventPageData
   setData(update: Partial<MajorEventPageData>): void
@@ -77,6 +95,9 @@ interface MajorEventPageConfig {
   onPullDownRefresh(): Promise<void>
   onHorizonTap(event: WechatMiniprogram.BaseEvent): void
   onViewTap(event: WechatMiniprogram.BaseEvent): void
+  onEventTypeTap(event: WechatMiniprogram.BaseEvent): void
+  onZoneChange(event: WechatMiniprogram.BaseEvent): void
+  onToggleNextEvents(): void
   onSegmentTap(event: WechatMiniprogram.BaseEvent): void
   onEventTap(event: WechatMiniprogram.BaseEvent): void
   onCloseDetail(): void
@@ -328,13 +349,34 @@ const refreshPage = (
         ),
       )
     const zoneCount = new Set(occurrences.map((event) => event.zoneId)).size
-    const summaryLabel = `未來 ${page.data.horizonHours} 小時 · ${occurrences.length} 項日程 · ${zoneCount}/${reference.zones.length} 個海域`
+    const nextEvents =
+      page.data.activeView === 'type'
+        ? findNextMajorEventsByZone(reference, {
+            nowUnixSeconds: now,
+            eventTypeId: page.data.selectedEventTypeId,
+            zoneId: page.data.selectedZoneId,
+          }).map((event) => ({
+            ...pageItem(
+              presentMajorEvent(event, trade),
+              reference,
+              failedRegions,
+              failedCategories,
+            ),
+            waitLabel: presentMajorEventWait(event.triggerAtUnixSeconds, now),
+          }))
+        : []
+    const summaryLabel =
+      page.data.activeView === 'type'
+        ? `${page.data.selectedEventTypeName} · ${nextEvents.length} 個海域的下一場`
+        : `未來 ${page.data.horizonHours} 小時 · ${occurrences.length} 項日程 · ${zoneCount}/${reference.zones.length} 個海域`
 
     page.setData({
       nowUnixSeconds: now,
       segmentIndex,
       segmentCount,
       eventItems,
+      nextEvents,
+      visibleNextEvents: page.data.nextEventsExpanded ? nextEvents : nextEvents.slice(0, 5),
       matrix,
       journey,
       summaryLabel,
@@ -345,6 +387,8 @@ const refreshPage = (
   } catch {
     page.setData({
       eventItems: [],
+      nextEvents: [],
+      visibleNextEvents: [],
       matrix: null,
       journey: [],
       emptyMessage: null,
@@ -403,6 +447,14 @@ const updateIconFallbacks = (page: MajorEventPageContext): void => {
   page.setData({
     matrix,
     journey,
+    nextEvents: page.data.nextEvents.map((item) => ({
+      ...replaceItem(item),
+      waitLabel: item.waitLabel,
+    })),
+    visibleNextEvents: page.data.visibleNextEvents.map((item) => ({
+      ...replaceItem(item),
+      waitLabel: item.waitLabel,
+    })),
     eventItems: page.data.eventItems.map(replaceItem),
     detailEventSnapshot:
       page.data.detailEventSnapshot === null ? null : replaceItem(page.data.detailEventSnapshot),
@@ -412,6 +464,15 @@ const updateIconFallbacks = (page: MajorEventPageContext): void => {
 Page({
   data: {
     activeView: 'matrix',
+    selectedEventTypeId: 'pop1',
+    selectedEventTypeName: '奢侈',
+    selectedZoneId: '',
+    selectedZoneIndex: 0,
+    eventTypeOptions: [],
+    zoneOptions: [],
+    nextEventsExpanded: false,
+    nextEvents: [],
+    visibleNextEvents: [],
     horizonHours: 72,
     nowUnixSeconds: 0,
     segmentIndex: 0,
@@ -437,6 +498,17 @@ Page({
     try {
       page.majorEventReference = validateMajorEventReference(getMajorEventReference())
       page.tradeReference = validateTradeReference(getTradeReference())
+      page.setData({
+        eventTypeOptions: page.majorEventReference.eventTypes.map((event) => ({
+          id: event.id,
+          name: event.name,
+          iconPath: `/subpkg-trade/assets/major-events/event-${event.id}.png`,
+        })),
+        zoneOptions: [
+          { id: '', name: '全部海域' },
+          ...page.majorEventReference.zones.map((zone) => ({ id: zone.id, name: zone.name })),
+        ],
+      })
       wx.setNavigationBarTitle({ title: '大流行時刻表' })
       refreshPage(page)
     } catch {
@@ -493,10 +565,48 @@ Page({
 
   onViewTap(event: WechatMiniprogram.BaseEvent) {
     const view = getEventDataset(event).view
-    if (view === 'matrix' || view === 'journey') {
+    if (view === 'matrix' || view === 'journey' || view === 'type') {
       const page = this as unknown as MajorEventPageContext
       page.setData({ activeView: view })
+      refreshPage(page)
     }
+  },
+
+  onEventTypeTap(event: WechatMiniprogram.BaseEvent) {
+    const page = this as unknown as MajorEventPageContext
+    const selected = page.data.eventTypeOptions.find(
+      (item) => item.id === getEventDataset(event).eventTypeId,
+    )
+    if (!selected) return
+    page.setData({
+      selectedEventTypeId: selected.id,
+      selectedEventTypeName: selected.name,
+      nextEventsExpanded: false,
+    })
+    refreshPage(page)
+  },
+
+  onZoneChange(event: WechatMiniprogram.BaseEvent) {
+    const page = this as unknown as MajorEventPageContext
+    const index = Number((event as unknown as { detail?: { value?: unknown } }).detail?.value)
+    if (!Number.isInteger(index) || index < 0) return
+    const selected = page.data.zoneOptions[index]
+    if (!selected) return
+    page.setData({
+      selectedZoneId: selected.id,
+      selectedZoneIndex: index,
+      nextEventsExpanded: false,
+    })
+    refreshPage(page)
+  },
+
+  onToggleNextEvents() {
+    const page = this as unknown as MajorEventPageContext
+    const expanded = !page.data.nextEventsExpanded
+    page.setData({
+      nextEventsExpanded: expanded,
+      visibleNextEvents: expanded ? page.data.nextEvents : page.data.nextEvents.slice(0, 5),
+    })
   },
 
   onSegmentTap(event: WechatMiniprogram.BaseEvent) {
@@ -515,7 +625,9 @@ Page({
     const page = this as unknown as MajorEventPageContext
     const eventKey = getEventDataset(event).eventKey
     if (typeof eventKey !== 'string') return
-    const selected = page.data.eventItems.find((item) => item.key === eventKey)
+    const selected = [...page.data.eventItems, ...page.data.nextEvents].find(
+      (item) => item.key === eventKey,
+    )
     if (selected === null || selected === undefined) return
     page.setData({
       detailEventSnapshot: copyEventSnapshot(selected),

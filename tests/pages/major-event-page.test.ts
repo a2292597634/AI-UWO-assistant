@@ -22,7 +22,14 @@ vi.mock('../../miniprogram/subpkg-trade/runtime/trade-data-store', () => ({
 }))
 
 interface MajorEventPageState {
-  activeView: 'matrix' | 'journey'
+  activeView: 'matrix' | 'journey' | 'type'
+  selectedEventTypeId: string
+  selectedZoneId: string
+  nextEventsExpanded: boolean
+  nextEvents: Array<
+    MajorEventListViewItem & { waitLabel: string; zoneIconPath: string; zoneIconFailed: boolean }
+  >
+  visibleNextEvents: MajorEventListViewItem[]
   horizonHours: 24 | 72 | 168
   nowUnixSeconds: number
   segmentIndex: number
@@ -76,6 +83,9 @@ interface MajorEventPageConfig {
   onPullDownRefresh(): Promise<void>
   onHorizonTap(event: WechatMiniprogram.BaseEvent): void
   onViewTap(event: WechatMiniprogram.BaseEvent): void
+  onEventTypeTap(event: WechatMiniprogram.BaseEvent): void
+  onZoneChange(event: WechatMiniprogram.BaseEvent): void
+  onToggleNextEvents(): void
   onSegmentTap(event: WechatMiniprogram.BaseEvent): void
   onEventTap(event: WechatMiniprogram.BaseEvent): void
   onCloseDetail(): void
@@ -132,6 +142,51 @@ afterEach(() => {
 })
 
 describe('大流行時刻表頁控制器', () => {
+  it('按流行列出各海域下一場，範圍切換不裁掉七天以後的結果', () => {
+    vi.setSystemTime(new Date('2026-10-28T12:00:00+08:00'))
+    const page = createPageInstance()
+    page.onLoad()
+    page.onViewTap(pageEvent({ view: 'type' }))
+    expect(page.data.activeView).toBe('type')
+    expect(page.data.nextEvents).toHaveLength(18)
+    expect(page.data.visibleNextEvents).toHaveLength(5)
+    expect(page.data.nextEvents[0]).toMatchObject({
+      zoneId: 'zone_33',
+      timeLabel: '21:06',
+      waitLabel: '還有 9 小時 6 分',
+      zoneIconPath: '/subpkg-trade/assets/major-events/region-zone-33.png',
+    })
+    const last = page.data.nextEvents[page.data.nextEvents.length - 1]!.key
+    page.onHorizonTap(pageEvent({ horizonHours: 24 }))
+    expect(page.data.nextEvents[page.data.nextEvents.length - 1]!.key).toBe(last)
+    page.onToggleNextEvents()
+    expect(page.data.visibleNextEvents).toHaveLength(18)
+    page.onEventTap(pageEvent({ eventKey: last }))
+    expect(page.data.detailEventSnapshot?.key).toBe(last)
+  })
+
+  it('類型與海域切換收起列表；分鐘刷新保留篩選並更新倒數及圖示降級', async () => {
+    vi.setSystemTime(new Date('2026-10-28T12:00:00+08:00'))
+    const page = createPageInstance()
+    page.onLoad()
+    page.onShow()
+    page.onViewTap(pageEvent({ view: 'type' }))
+    page.onToggleNextEvents()
+    page.onEventTypeTap(pageEvent({ eventTypeId: 'pop8' }))
+    expect(page.data.nextEventsExpanded).toBe(false)
+    expect(page.data.nextEvents.every((event) => event.eventTypeId === 'pop8')).toBe(true)
+    page.onZoneChange({ detail: { value: '10' } } as never)
+    expect(page.data.selectedZoneId).toBe('zone_53')
+    expect(page.data.nextEvents).toHaveLength(1)
+    const oldWait = page.data.nextEvents[0]!.waitLabel
+    await vi.advanceTimersByTimeAsync(3600000)
+    expect(page.data.selectedEventTypeId).toBe('pop8')
+    expect(page.data.selectedZoneId).toBe('zone_53')
+    expect(page.data.nextEvents[0]!.waitLabel).not.toBe(oldWait)
+    page.onRegionIconError(pageEvent({ zoneId: 'zone_53' }))
+    expect(page.data.nextEvents[0]!.zoneIconFailed).toBe(true)
+    page.onHide()
+  })
   it('未先 hide 的 unload 也停止分鐘刷新；重複卸載安全', async () => {
     const page = createPageInstance()
     page.onLoad()
