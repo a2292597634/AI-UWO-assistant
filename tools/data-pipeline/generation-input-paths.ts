@@ -6,6 +6,9 @@ import { readGenerationTree } from './generated-output-paths'
 export const GENERATION_INPUT_PATHS: readonly string[] = [
   'package.json',
   'package-lock.json',
+  'cloudfunctions/major-event-reminder/policy.js',
+  'cloudfunctions/major-event-reminder/config.js',
+  'cloudfunctions/major-event-reminder/repository.js',
   'data/master/',
   'data/schema/',
   'data/audit/skill-group-mapping.json',

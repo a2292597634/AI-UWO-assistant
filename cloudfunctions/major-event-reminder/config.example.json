@@ -1,0 +1,9 @@
+{
+  "MAJOR_REMINDER_TEMPLATE_ID": "1miDALegzuZsXq5LMuhrVHbzXmDZjkKMi8Ptsb4BZHk",
+  "MAJOR_REMINDER_TEMPLATE_FIELDS": "[{\"source\":\"start\",\"key\":\"time3\",\"type\":\"time\"},{\"source\":\"activity\",\"key\":\"thing1\",\"type\":\"thing\"}]",
+  "MAJOR_REMINDER_MINIPROGRAM_STATE": "",
+  "MAJOR_REMINDER_APPID": "wx8f961bcd8b26996a",
+  "MAJOR_REMINDER_TIMER_TOKEN": "",
+  "MAJOR_REMINDER_TRIGGER_NAME": "major-reminder-minute",
+  "MAJOR_REMINDER_BATCH_TEMPLATES": "[{\"leadSeconds\":10800,\"title\":\"活动参与通知\",\"templateId\":\"1miDALegzuZsXq5LMuhrVHbzXmDZjkKMi8Ptsb4BZHk\",\"fields\":[{\"source\":\"start\",\"key\":\"time3\",\"type\":\"time\"},{\"source\":\"activity\",\"key\":\"thing1\",\"type\":\"thing\"}]},{\"leadSeconds\":3600,\"title\":\"新活动提醒\",\"templateId\":\"fDGQsVTlzzNVwijisyYtWOcfxJja9D313jwdrC3OqTw\",\"fields\":[{\"source\":\"start\",\"key\":\"time2\",\"type\":\"time\"},{\"source\":\"activity\",\"key\":\"thing10\",\"type\":\"thing\"}]},{\"leadSeconds\":600,\"title\":\"会员活动提醒\",\"templateId\":\"GA4kBg2dWEYKW6mhdToYZdCx5O_r_maAgm3qJkR5HMw\",\"fields\":[{\"source\":\"start\",\"key\":\"time4\",\"type\":\"time\"},{\"source\":\"activity\",\"key\":\"thing1\",\"type\":\"thing\"}]}]"
+}

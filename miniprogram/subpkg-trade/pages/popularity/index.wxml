@@ -33,21 +33,24 @@
         data-horizon-hours="24"
         role="button"
         aria-label="查看未來 24 小時日程"
-      >24 小時</view>
+        >24 小時</view
+      >
       <view
         class="major-events-range__option {{horizonHours === 72 ? 'major-events-range__option--active' : ''}}"
         bindtap="onHorizonTap"
         data-horizon-hours="72"
         role="button"
         aria-label="查看未來 3 天日程"
-      >3 天</view>
+        >3 天</view
+      >
       <view
         class="major-events-range__option major-events-range__option--seven-day {{horizonHours === 168 ? 'major-events-range__option--active' : ''}}"
         bindtap="onHorizonTap"
         data-horizon-hours="168"
         role="button"
         aria-label="查看未來 7 天日程"
-      >7 天</view>
+        >7 天</view
+      >
     </view>
 
     <view class="major-events-view-switch" aria-label="時刻表檢視方式">
@@ -57,15 +60,24 @@
         data-view="matrix"
         role="button"
         aria-label="時刻矩陣"
-      >時刻矩陣</view>
+        >時刻矩陣</view
+      >
       <view
         class="major-events-view-switch__option major-events-view-switch__option--journey {{activeView === 'journey' ? 'major-events-view-switch__option--active' : ''}}"
         bindtap="onViewTap"
         data-view="journey"
         role="button"
         aria-label="日程列表"
-      >日程列表</view>
-      <view class="major-events-view-switch__option major-events-view-switch__option--type {{activeView === 'type' ? 'major-events-view-switch__option--active' : ''}}" bindtap="onViewTap" data-view="type" role="button" aria-label="按流行">按流行</view>
+        >日程列表</view
+      >
+      <view
+        class="major-events-view-switch__option major-events-view-switch__option--type {{activeView === 'type' ? 'major-events-view-switch__option--active' : ''}}"
+        bindtap="onViewTap"
+        data-view="type"
+        role="button"
+        aria-label="按流行"
+        >按流行</view
+      >
     </view>
 
     <view wx:if="{{activeView === 'matrix'}}" class="matrix-controls">
@@ -77,8 +89,11 @@
           role="button"
           aria-disabled="{{segmentIndex === 0}}"
           aria-label="上一個六小時時段"
-        >‹</view>
-        <text class="matrix-segment-control__index">第 {{segmentIndex + 1}} / {{segmentCount}} 段</text>
+          >‹</view
+        >
+        <text class="matrix-segment-control__index"
+          >第 {{segmentIndex + 1}} / {{segmentCount}} 段</text
+        >
         <view
           class="matrix-segment-control__arrow matrix-segment-control__arrow--next {{segmentIndex >= segmentCount - 1 ? 'matrix-segment-control__arrow--disabled' : ''}}"
           bindtap="onSegmentTap"
@@ -86,9 +101,12 @@
           role="button"
           aria-disabled="{{segmentIndex >= segmentCount - 1}}"
           aria-label="下一個六小時時段"
-        >›</view>
+          >›</view
+        >
       </view>
-      <text wx:if="{{matrix}}" class="matrix-segment-control__time-range">{{matrix.segmentStartLabel}} — {{matrix.segmentEndLabel}}</text>
+      <text wx:if="{{matrix}}" class="matrix-segment-control__time-range"
+        >{{matrix.segmentStartLabel}} — {{matrix.segmentEndLabel}}</text
+      >
     </view>
 
     <view wx:if="{{pageError}}" class="major-events-error" role="alert">
@@ -117,7 +135,8 @@
                 wx:key="index"
                 wx:for-item="headerSlot"
                 class="matrix__slot-head {{headerSlot.isCurrentHour ? 'matrix__slot-head--current' : ''}}"
-              >{{headerSlot.timeLabel}}</view>
+                >{{headerSlot.timeLabel}}</view
+              >
             </view>
             <view wx:if="{{matrix.rows.length === 0}}" class="matrix__empty-state" role="status">
               此七個時段沒有大流行日程
@@ -164,9 +183,7 @@
                   role="button"
                   aria-label="{{eventItem.accessibilityLabel}}"
                 >
-                  <view
-                    class="major-event-tag matrix__event-tag"
-                  >
+                  <view class="major-event-tag matrix__event-tag">
                     <text class="major-event-tag__name">{{eventItem.eventTypeName}}</text>
                   </view>
                 </view>
@@ -175,20 +192,45 @@
           </view>
         </scroll-view>
       </view>
-      <text class="matrix-section__note">本時刻表依遊戲週期排列；城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。</text>
+      <text class="matrix-section__note"
+        >本時刻表依遊戲週期排列；城鎮活動或事件預算會影響實際狀態；同時最多兩種，預算耗盡或兩小時後結束。</text
+      >
     </view>
 
     <view wx:if="{{!pageError && activeView === 'type'}}" class="major-events-type">
       <view class="major-events-type__options" aria-label="選擇流行類型">
-        <button wx:for="{{eventTypeOptions}}" wx:key="id" class="major-events-type__option major-events-type__option--{{item.id}} {{selectedEventTypeId === item.id ? 'major-events-type__option--active' : ''}}" bindtap="onEventTypeTap" data-event-type-id="{{item.id}}" aria-pressed="{{selectedEventTypeId === item.id}}" aria-label="{{item.name}}">
-          <image class="major-events-type__icon" src="{{item.iconPath}}" mode="aspectFit" aria-hidden="true" />
+        <button
+          wx:for="{{eventTypeOptions}}"
+          wx:key="id"
+          class="major-events-type__option major-events-type__option--{{item.id}} {{selectedEventTypeId === item.id ? 'major-events-type__option--active' : ''}}"
+          bindtap="onEventTypeTap"
+          data-event-type-id="{{item.id}}"
+          aria-pressed="{{selectedEventTypeId === item.id}}"
+          aria-label="{{item.name}}"
+        >
+          <image
+            class="major-events-type__icon"
+            src="{{item.iconPath}}"
+            mode="aspectFit"
+            aria-hidden="true"
+          />
           <text>{{item.name}}</text>
         </button>
       </view>
       <view class="major-events-type__zone-row">
         <text>查看海域</text>
-        <picker class="major-events-type__zone-picker" mode="selector" range="{{zoneOptions}}" range-key="name" value="{{selectedZoneIndex}}" bindchange="onZoneChange" aria-label="查看海域">
-          <view class="major-events-type__zone-value">{{zoneOptions[selectedZoneIndex].name}} <text aria-hidden="true">⌄</text></view>
+        <picker
+          class="major-events-type__zone-picker"
+          mode="selector"
+          range="{{zoneOptions}}"
+          range-key="name"
+          value="{{selectedZoneIndex}}"
+          bindchange="onZoneChange"
+          aria-label="查看海域"
+        >
+          <view class="major-events-type__zone-value"
+            >{{zoneOptions[selectedZoneIndex].name}} <text aria-hidden="true">⌄</text></view
+          >
         </picker>
       </view>
       <view class="major-events-next">
@@ -196,23 +238,67 @@
           <text class="major-events-next__title">{{selectedEventTypeName}} · 各海域下一次</text>
           <text class="major-events-next__hint">依開始時間排序</text>
         </view>
-        <view wx:if="{{nextEvents.length === 0}}" class="major-events-empty">此海域在查詢範圍內沒有下一場日程</view>
-        <view wx:for="{{visibleNextEvents}}" wx:key="key" class="major-events-next__item" bindtap="onEventTap" data-event-key="{{item.key}}" role="button" aria-label="{{item.accessibilityLabel}}，{{item.waitLabel}}">
-          <image class="major-events-next__zone-icon" src="{{item.zoneIconFailed ? '/subpkg-trade/assets/major-events/compass-rose.png' : item.zoneIconPath}}" mode="aspectFit" binderror="onRegionIconError" data-zone-id="{{item.zoneId}}" aria-hidden="true" />
+        <view wx:if="{{nextEvents.length === 0}}" class="major-events-empty"
+          >此海域在查詢範圍內沒有下一場日程</view
+        >
+        <view
+          wx:for="{{visibleNextEvents}}"
+          wx:key="key"
+          class="major-events-next__item"
+          bindtap="onEventTap"
+          data-event-key="{{item.key}}"
+          role="button"
+          aria-label="{{item.accessibilityLabel}}，{{item.waitLabel}}"
+        >
           <view class="major-events-next__zone">
-            <text class="major-events-next__zone-name">{{item.zoneName}}</text>
-            <text wx:if="{{index === 0}}" class="major-events-next__nearest">最近一場</text>
+            <view class="major-events-next__zone-heading">
+              <image
+                class="major-events-next__zone-icon"
+                src="{{item.zoneIconFailed ? '/subpkg-trade/assets/major-events/compass-rose.png' : item.zoneIconPath}}"
+                mode="aspectFit"
+                binderror="onRegionIconError"
+                data-zone-id="{{item.zoneId}}"
+                aria-hidden="true"
+              />
+              <text class="major-events-next__zone-name">{{item.zoneName}}</text>
+            </view>
+            <button
+              hover-class="none"
+              class="reminder-toggle {{!reminderBusy ? 'reminder-toggle--ready' : ''}} reminder-toggle--next {{reminderChecks[item.key] ? 'reminder-toggle--checked' : ''}}"
+              catchtap="onReminderTap"
+              data-event-key="{{item.key}}"
+              disabled="{{reminderBusy}}"
+              role="switch"
+              aria-checked="{{reminderChecks[item.key] || false}}"
+              aria-label="{{item.accessibilityLabel}}，提醒訂閱{{reminderBusy ? '，正在確認' : ''}}"
+            >
+              <text>提醒訂閱</text
+              ><view class="reminder-toggle__track" aria-hidden="true"
+                ><view class="reminder-toggle__thumb"></view
+              ></view>
+            </button>
           </view>
           <view class="major-events-next__time">
-            <text class="major-events-next__date">{{item.dateLabel}}</text>
-            <text class="major-events-next__clock">{{item.timeLabel}}</text>
+            <view class="major-events-next__date-time">
+              <text class="major-events-next__date">{{item.dateLabel}}</text>
+              <text class="major-events-next__clock">{{item.timeLabel}}</text>
+            </view>
             <text class="major-events-next__wait">{{item.waitLabel}}</text>
           </view>
           <text class="major-events-next__arrow" aria-hidden="true">›</text>
         </view>
       </view>
-      <button wx:if="{{nextEvents.length > 5}}" class="ui-button ui-button--secondary major-events-next__more" bindtap="onToggleNextEvents">{{nextEventsExpanded ? '收起海域' : '查看全部 ' + nextEvents.length + ' 個海域'}}</button>
-      <text class="matrix-section__note">各海域下一次開始時間，包含 7 天以後；時刻依遊戲週期推算，城鎮活動或事件預算可能影響實際發生。</text>
+      <button
+        wx:if="{{nextEvents.length > 5}}"
+        class="ui-button ui-button--secondary major-events-next__more"
+        bindtap="onToggleNextEvents"
+      >
+        {{nextEventsExpanded ? '收起海域' : '查看全部 ' + nextEvents.length + ' 個海域'}}
+      </button>
+      <text class="matrix-section__note"
+        >各海域下一次開始時間，包含 7
+        天以後；時刻依遊戲週期推算，城鎮活動或事件預算可能影響實際發生。</text
+      >
     </view>
 
     <view wx:if="{{!pageError && activeView === 'journey'}}" class="journey-section">
@@ -245,31 +331,49 @@
               aria-label="{{eventItem.accessibilityLabel}}"
             >
               <view class="journey__event-heading">
-                <text
-                  class="journey__event-name"
-                  style="color: var({{eventItem.eventColorToken}})"
-                >{{eventItem.eventTypeName}}</text>
-                <text class="journey__event-minute">{{eventItem.minuteLabel}}</text>
-              </view>
-              <view class="journey__event-zone">
-                <image
-                  wx:if="{{!eventItem.zoneIconFailed}}"
-                  class="journey__zone-icon"
-                  src="{{eventItem.zoneIconPath}}"
-                  mode="aspectFit"
-                  lazy-load="{{true}}"
-                 binderror="onRegionIconError"
-                  data-zone-id="{{eventItem.zoneId}}"
-                  aria-hidden="true"
-                />
-                <image
-                  wx:else
-                  class="journey__zone-icon journey__zone-icon--fallback"
-                  src="/subpkg-trade/assets/major-events/compass-rose.png"
-                  mode="aspectFit"
-                  aria-hidden="true"
-                />
-                <text>{{eventItem.zoneName}}</text>
+                <view class="journey__event-title">
+                  <text
+                    class="journey__event-name"
+                    style="color: var({{eventItem.eventColorToken}})"
+                    >{{eventItem.eventTypeName}}</text
+                  >
+                  <text class="journey__event-minute">{{eventItem.minuteLabel}}</text>
+                </view>
+                <button
+                  hover-class="none"
+                  class="reminder-toggle {{!reminderBusy ? 'reminder-toggle--ready' : ''}} reminder-toggle--journey {{reminderChecks[eventItem.key] ? 'reminder-toggle--checked' : ''}}"
+                  catchtap="onReminderTap"
+                  data-event-key="{{eventItem.key}}"
+                  disabled="{{reminderBusy}}"
+                  role="switch"
+                  aria-checked="{{reminderChecks[eventItem.key] || false}}"
+                  aria-label="{{eventItem.accessibilityLabel}}，提醒訂閱{{reminderBusy ? '，正在確認' : ''}}"
+                >
+                  <text>提醒訂閱</text
+                  ><view class="reminder-toggle__track" aria-hidden="true"
+                    ><view class="reminder-toggle__thumb"></view
+                  ></view>
+                </button>
+                <view class="journey__event-zone">
+                  <image
+                    wx:if="{{!eventItem.zoneIconFailed}}"
+                    class="journey__zone-icon"
+                    src="{{eventItem.zoneIconPath}}"
+                    mode="aspectFit"
+                    lazy-load="{{true}}"
+                    binderror="onRegionIconError"
+                    data-zone-id="{{eventItem.zoneId}}"
+                    aria-hidden="true"
+                  />
+                  <image
+                    wx:else
+                    class="journey__zone-icon journey__zone-icon--fallback"
+                    src="/subpkg-trade/assets/major-events/compass-rose.png"
+                    mode="aspectFit"
+                    aria-hidden="true"
+                  />
+                  <text>{{eventItem.zoneName}}</text>
+                </view>
               </view>
               <view class="journey__categories">
                 <view
@@ -338,13 +442,23 @@
           <text
             class="major-event-detail__title"
             style="color: var({{detailEventSnapshot.eventColorToken}})"
-          >{{detailEventSnapshot.eventTypeName}}</text>
+            >{{detailEventSnapshot.eventTypeName}}</text
+          >
         </view>
-        <button class="ui-button ui-button--secondary major-event-detail__close" bindtap="onCloseDetail" aria-label="關閉事件詳情">關閉</button>
+        <button
+          class="ui-button ui-button--secondary major-event-detail__close"
+          bindtap="onCloseDetail"
+          aria-label="關閉事件詳情"
+        >
+          關閉
+        </button>
       </view>
       <view class="major-event-detail__time-block">
         <text class="major-event-detail__section-label">發生時刻</text>
-        <text class="major-event-detail__date-time">{{detailEventSnapshot.dateLabel}} {{detailEventSnapshot.timeLabel}} {{detailEventSnapshot.minuteLabel}}</text>
+        <text class="major-event-detail__date-time"
+          >{{detailEventSnapshot.dateLabel}} {{detailEventSnapshot.timeLabel}}
+          {{detailEventSnapshot.minuteLabel}}</text
+        >
         <text class="major-event-detail__zone">{{detailEventSnapshot.zoneName}}</text>
       </view>
       <view class="major-event-detail__category-block">
@@ -376,7 +490,24 @@
           </view>
         </view>
       </view>
-      <text class="major-event-detail__note">時刻依遊戲週期；城鎮活動或事件預算會影響實際狀態。</text>
+      <text class="major-event-detail__note"
+        >時刻依遊戲週期；城鎮活動或事件預算會影響實際狀態。</text
+      >
+      <button
+        hover-class="none"
+        class="reminder-toggle {{!reminderBusy ? 'reminder-toggle--ready' : ''}} reminder-toggle--detail {{reminderChecks[detailEventSnapshot.key] ? 'reminder-toggle--checked' : ''}}"
+        catchtap="onReminderTap"
+        data-event-key="{{detailEventSnapshot.key}}"
+        disabled="{{reminderBusy}}"
+        role="switch"
+        aria-checked="{{reminderChecks[detailEventSnapshot.key] || false}}"
+        aria-label="{{detailEventSnapshot.accessibilityLabel}}，提醒訂閱{{reminderBusy ? '，正在確認' : ''}}"
+      >
+        <text>提醒訂閱</text
+        ><view class="reminder-toggle__track" aria-hidden="true"
+          ><view class="reminder-toggle__thumb"></view
+        ></view>
+      </button>
     </view>
   </view>
 </view>

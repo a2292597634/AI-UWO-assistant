@@ -20,6 +20,9 @@ export const DATA_GENERATION_OUTPUT_PATHS: readonly string[] = [
   'cloudfunctions/officer-maintenance/reference-data.json',
   'cloudfunctions/coupon-redemption/game-servers.json',
   'cloudfunctions/message-board/game-servers.json',
+  'cloudfunctions/major-event-reminder/reference-data.json',
+  'cloudfunctions/major-event-reminder-worker/reference-data.json',
+  'cloudfunctions/major-event-reminder-worker/shared',
   'data/assets/asset-dependencies.json',
 ]
 

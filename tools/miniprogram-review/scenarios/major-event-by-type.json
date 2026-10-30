@@ -22,7 +22,7 @@
     { "action": "tap", "selector": ".major-events-next__more" },
     { "action": "assertText", "selector": ".major-events-next__more", "contains": "收起海域" },
     { "action": "screenshot", "name": "by-type-expanded-festival" },
-    { "action": "tap", "selector": ".major-events-next__item" },
+    { "action": "tap", "selector": ".major-events-next__zone-name" },
     { "action": "waitFor", "selector": ".major-event-detail" },
     { "action": "assertText", "selector": ".major-event-detail__title", "contains": "節慶" },
     { "action": "screenshot", "name": "by-type-event-detail" },

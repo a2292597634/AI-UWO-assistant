@@ -51,6 +51,28 @@ describe('小程序验收场景', () => {
     expect(() => parseScenario({ ...input, script: 'evil.js' })).toThrow('未知字段')
   })
 
+  it('大流行詳情只點擊行內名稱，避免整行中心誤觸提醒開關', () => {
+    for (const [name, target] of [
+      ['major-event-by-type', '.major-events-next__zone-name'],
+      ['major-event-forecast', '.journey__event-name'],
+      ['major-event-reminder-unconfigured', '.journey__event-name'],
+    ]) {
+      const scenario = loadScenario(resolve(`tools/miniprogram-review/scenarios/${name}.json`))
+      const taps = scenario.steps.filter((step) => step.action === 'tap')
+      expect(taps).toContainEqual({ action: 'tap', selector: target })
+      expect(taps).not.toContainEqual({ action: 'tap', selector: '.major-events-next__item' })
+      expect(taps).not.toContainEqual({ action: 'tap', selector: '.journey__event' })
+      expect(
+        scenario.steps.some(
+          (step) =>
+            step.action === 'waitFor' &&
+            'selector' in step &&
+            step.selector === '.major-event-detail',
+        ),
+      ).toBe(true)
+    }
+  })
+
   it('covers the major-event schedule matrix, journey, detail, and simplified controls', () => {
     const majorEvent = loadScenario(
       resolve('tools/miniprogram-review/scenarios/major-event-forecast.json'),

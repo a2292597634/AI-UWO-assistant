@@ -231,6 +231,7 @@ describe('Runtime files must remain offline and mini program compatible', () => 
           'runtime/coupon-redemption-service.ts',
           'runtime/officer-error-report-service.ts',
           'runtime/message-board-service.ts',
+          'runtime/major-event-reminder-service.ts',
         ],
         allowedCloudUploadFiles: ['runtime/officer-error-report-service.ts'],
         allowedCloudInitFiles: ['app.ts'],

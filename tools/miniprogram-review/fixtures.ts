@@ -6,6 +6,7 @@ export const REVIEW_FIXTURE_NAMES = [
   'coupon-success',
   'coupon-known-failure',
   'coupon-unknown',
+  'major-event-reminder-unconfigured',
 ] as const
 export type ReviewFixtureName = (typeof REVIEW_FIXTURE_NAMES)[number]
 export interface ReviewFixtureSession {
@@ -52,7 +53,9 @@ export const fixtureInstallSource = (name: ReviewFixtureName): string => {
     function success(value) { return { result: { ok: true, data: clone(value) } }; }
     replace(wx.cloud, 'callFunction', function(input) {
       input = input || {}; var data = input.data || {}; var action = data.action; var response;
-      if (input.name === 'coupon-redemption' && name.indexOf('coupon-') === 0) {
+      if (input.name === 'major-event-reminder' && name === 'major-event-reminder-unconfigured') {
+        response = action === 'getBatchConfig' ? success({ enabled: false, reason: '尚未配置有效的微信訂閱消息模板', templates: [], adUnitId: 'adunit-accfb914625e0bc7' }) : action === 'getConfig' ? success({ enabled: false, reason: '尚未配置有效的微信訂閱消息模板', templateId: '', adUnitId: 'adunit-accfb914625e0bc7' }) : action === 'list' ? success({ subscriptions: [] }) : { result: { ok: false, code: 'disabled', message: '尚未配置有效的微信訂閱消息模板' } };
+      } else if (input.name === 'coupon-redemption' && name.indexOf('coupon-') === 0) {
         response = name === 'coupon-success' ? success({ code: 'success', message: '兌換成功' }) : name === 'coupon-known-failure' ? { result: { ok: false, code: 'coupon-used', message: '此兌換碼已使用' } } : { result: { ok: false, code: 'unknown', message: '結果未確認，請先到官方頁面確認再嘗試。' } };
       } else if (input.name === 'fleet-config' && action === 'authenticate') response = success({ authenticated: true });
       else if (input.name === 'officer-custom' && action === 'getAdminStatus') response = success({ isAdmin: name === 'error-report-review' });
@@ -75,6 +78,11 @@ export const fixtureInstallSource = (name: ReviewFixtureName): string => {
     replace(wx.cloud, 'uploadFile', function() { return Promise.resolve({ fileID: '/assets/ui/share-action-icon.png' }); });
     replace(wx.cloud, 'getTempFileURL', function(input) { return Promise.resolve({ fileList: (input.fileList || []).map(function(file) { return { fileID: typeof file === 'string' ? file : file.fileID, tempFileURL: '/assets/ui/share-action-icon.png', status: 0 }; }) }); });
     if (name.indexOf('error-report-') === 0 && typeof wx.chooseMedia === 'function') replace(wx, 'chooseMedia', function(input) { var result = { tempFiles: [{ tempFilePath: '/assets/ui/share-action-icon.png', size: 1, fileType: 'image' }], type: 'image' }; if (input.success) input.success(result); if (input.complete) input.complete(result); return Promise.resolve(result); });
+    if (name === 'major-event-reminder-unconfigured') {
+      var reminderRead = wx.getStorageSync, reminderWrite = wx.setStorageSync, reminderOperation = null;
+      replace(wx, 'getStorageSync', function(key) { return key === 'major_event_reminder_operation_v1' ? clone(reminderOperation) : reminderRead.call(wx, key); });
+      replace(wx, 'setStorageSync', function(key, value) { if (key === 'major_event_reminder_operation_v1') reminderOperation = clone(value); else return reminderWrite.call(wx, key, value); });
+    }
     if (name.indexOf('coupon-') === 0) {
       var originalRead = wx.getStorageSync;
       var store = { activeProfileId: 'fixture-player-a', profiles: [{ id: 'fixture-player-a', name: '測試玩家 A', gameServerId: 'UWOGL-JP-02', userNo: 'fixture-user-a' }, { id: 'fixture-player-b', name: '測試玩家 B', gameServerId: 'UWOGL-JP-03', userNo: 'fixture-user-b' }] };

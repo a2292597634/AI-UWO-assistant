@@ -32,3 +32,22 @@ it('每項真實依賴的 bytes 變動及可選 reuse 從無到有都改變指�
 it('只序列化素材路徑環境變數，缺失外部 manifest 保留路徑', () => {
   expect(() => fingerprintGenerationInputs({ projectRoot: '/absent', env: {} })).toThrow()
 })
+
+it.each(['policy.js', 'config.js', 'repository.js'])(
+  '提醒權威來源 %s 的實際內容變動會改變生成指紋',
+  (name) => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-reminder-input-hash-'))
+    roots.push(root)
+    for (const p of GENERATION_INPUT_PATHS) {
+      const file = p.endsWith('/') ? p + 'sample.ts' : p
+      mkdirSync(dirname(join(root, file)), { recursive: true })
+      writeFileSync(join(root, file), 'original')
+    }
+    const source = join(root, 'cloudfunctions/major-event-reminder', name)
+    mkdirSync(dirname(source), { recursive: true })
+    writeFileSync(source, 'module.exports = { version: 1 }')
+    const initial = fingerprintGenerationInputs({ projectRoot: root, env: {} })
+    writeFileSync(source, 'module.exports = { version: 2 }')
+    expect(fingerprintGenerationInputs({ projectRoot: root, env: {} })).not.toBe(initial)
+  },
+)
