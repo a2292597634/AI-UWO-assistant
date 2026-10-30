@@ -29,6 +29,7 @@ archive/  →  data/master/  →  miniprogram/generated/
 
 - 禁止直接在 `master` 分支開發。分支命名：`codex/phase-N-描述`。
 - 禁止在 `miniprogram/` 運行時代碼中使用 `wx.request`、`wx.cloud`、遠程 URL 或 Node.js API。`npm run check:runtime-network` 會自動掃描。
+- 用戶於 2026-10-29 明確批准的唯一新增例外：`miniprogram/runtime/major-event-reminder-service.ts` 僅可使用 `wx.cloud.callFunction` 呼叫固定的 `major-event-reminder` 提醒函數；同步精確白名單與契約，既有白名單維持原狀，其餘 API 與檔案禁令不變。
 - 禁止未經用戶確認新增/刪除/升級依賴。
 - 禁止順手修復無關問題或格式化無關文件。
 - 發現範圍外缺陷 → 報告並建議另開任務，不得夾帶。

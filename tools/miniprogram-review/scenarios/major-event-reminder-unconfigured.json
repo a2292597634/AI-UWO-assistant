@@ -1,0 +1,125 @@
+{
+  "name": "大流行提醒：無模板配置的離線頁面驗收",
+  "entry": "/subpkg-trade/pages/popularity/index",
+  "fixture": "major-event-reminder-unconfigured",
+  "watchPaths": [
+    "miniprogram/contracts/major-event-reminder.ts",
+    "miniprogram/subpkg-trade/pages/popularity/",
+    "miniprogram/subpkg-trade/controllers/major-event-reminder-controller.ts",
+    "miniprogram/runtime/major-event-reminder-service.ts",
+    "miniprogram/runtime/major-event-reminder-platform.ts",
+    "miniprogram/runtime/cloudbase-config.ts",
+    "tools/miniprogram-review/fixtures.ts"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    {
+      "action": "waitFor",
+      "selector": ".major-events-view-switch__option--type"
+    },
+    {
+      "action": "tap",
+      "selector": ".major-events-view-switch__option--type"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".reminder-toggle--next"
+    },
+    {
+      "action": "screenshot",
+      "name": "reminder-type-two-lines"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".reminder-toggle--next.reminder-toggle--ready"
+    },
+    {
+      "action": "tap",
+      "selector": ".reminder-toggle--next"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".reminder-overlay",
+      "exists": false
+    },
+    {
+      "action": "assertExists",
+      "selector": ".major-event-detail",
+      "exists": false
+    },
+    {
+      "action": "assertExists",
+      "selector": ".reminder-overlay",
+      "exists": false
+    },
+    {
+      "action": "screenshot",
+      "name": "reminder-unconfigured-type-entry"
+    },
+    {
+      "action": "tap",
+      "selector": ".major-events-view-switch__option--journey"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".journey__event"
+    },
+    {
+      "action": "screenshot",
+      "name": "reminder-journey-list"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".reminder-toggle--journey.reminder-toggle--ready"
+    },
+    {
+      "action": "tap",
+      "selector": ".reminder-toggle--journey"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".reminder-overlay",
+      "exists": false
+    },
+    {
+      "action": "assertExists",
+      "selector": ".major-event-detail",
+      "exists": false
+    },
+    {
+      "action": "tap",
+      "selector": ".journey__event-name"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".major-event-detail"
+    },
+    {
+      "action": "screenshot",
+      "name": "reminder-detail-switch"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".reminder-toggle--detail.reminder-toggle--ready"
+    },
+    {
+      "action": "tap",
+      "selector": ".reminder-toggle--detail"
+    },
+    {
+      "action": "assertExists",
+      "selector": ".reminder-overlay",
+      "exists": false
+    },
+    {
+      "action": "assertExists",
+      "selector": ".reminder-overlay",
+      "exists": false
+    },
+    {
+      "action": "screenshot",
+      "name": "reminder-unconfigured-detail-entry"
+    }
+  ]
+}

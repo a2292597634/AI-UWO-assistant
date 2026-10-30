@@ -1,0 +1,4 @@
+{
+  "permissions": { "openapi": ["subscribeMessage.send"] },
+  "triggers": [{ "name": "major-reminder-minute", "type": "timer", "config": "0 */1 * * * * *" }]
+}

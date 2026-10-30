@@ -69,7 +69,7 @@
     { "action": "tap", "selector": ".major-events-view-switch__option--journey" },
     { "action": "waitFor", "selector": ".journey__event", "timeoutMs": 5000 },
     { "action": "screenshot", "name": "major-event-journey" },
-    { "action": "tap", "selector": ".journey__event" },
+    { "action": "tap", "selector": ".journey__event-name" },
     { "action": "waitFor", "selector": ".major-event-detail", "timeoutMs": 5000 },
     { "action": "screenshot", "name": "major-event-detail" },
     { "action": "tap", "selector": ".major-event-detail__close" }

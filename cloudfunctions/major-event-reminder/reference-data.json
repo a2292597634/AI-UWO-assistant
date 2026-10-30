@@ -1,0 +1,158 @@
+{
+  "fingerprint": "ebf6d172079dd78426025a1485c08fce7b103624dc4250bc51ef711f0be84710",
+  "reference": {
+    "anchorEpochSeconds": 1670889600,
+    "eventTypes": [
+      {
+        "id": "pop1",
+        "name": "奢侈",
+        "periodHours": 379
+      },
+      {
+        "id": "pop2",
+        "name": "繁榮",
+        "periodHours": 337
+      },
+      {
+        "id": "pop3",
+        "name": "開發",
+        "periodHours": 311
+      },
+      {
+        "id": "pop4",
+        "name": "贊助",
+        "periodHours": 269
+      },
+      {
+        "id": "pop5",
+        "name": "戰爭",
+        "periodHours": 241
+      },
+      {
+        "id": "pop6",
+        "name": "洪水",
+        "periodHours": 223
+      },
+      {
+        "id": "pop7",
+        "name": "傳染病",
+        "periodHours": 199
+      },
+      {
+        "id": "pop8",
+        "name": "節慶",
+        "periodHours": 179
+      }
+    ],
+    "zones": [
+      {
+        "id": "zone_37",
+        "name": "北海",
+        "phaseHours": 0,
+        "delaySeconds": 0
+      },
+      {
+        "id": "zone_41",
+        "name": "東地中海",
+        "phaseHours": -1,
+        "delaySeconds": 60
+      },
+      {
+        "id": "zone_57",
+        "name": "南歐&西地中海",
+        "phaseHours": -2,
+        "delaySeconds": 0
+      },
+      {
+        "id": "zone_21",
+        "name": "西非",
+        "phaseHours": -3,
+        "delaySeconds": 60
+      },
+      {
+        "id": "zone_22",
+        "name": "南非",
+        "phaseHours": -4,
+        "delaySeconds": 60
+      },
+      {
+        "id": "zone_23",
+        "name": "東非",
+        "phaseHours": -5,
+        "delaySeconds": 180
+      },
+      {
+        "id": "zone_58",
+        "name": "阿拉伯&西印度",
+        "phaseHours": -6,
+        "delaySeconds": 180
+      },
+      {
+        "id": "zone_59",
+        "name": "東印度&印度支那",
+        "phaseHours": -7,
+        "delaySeconds": 240
+      },
+      {
+        "id": "zone_50",
+        "name": "南亞",
+        "phaseHours": -8,
+        "delaySeconds": 240
+      },
+      {
+        "id": "zone_53",
+        "name": "東亞",
+        "phaseHours": -9,
+        "delaySeconds": 240
+      },
+      {
+        "id": "zone_54",
+        "name": "東北亞",
+        "phaseHours": -10,
+        "delaySeconds": 300
+      },
+      {
+        "id": "zone_33",
+        "name": "大洋洲",
+        "phaseHours": -11,
+        "delaySeconds": 360
+      },
+      {
+        "id": "zone_63",
+        "name": "大洋洲東部",
+        "phaseHours": -12,
+        "delaySeconds": 360
+      },
+      {
+        "id": "zone_34",
+        "name": "北極海",
+        "phaseHours": -13,
+        "delaySeconds": 390
+      },
+      {
+        "id": "zone_18",
+        "name": "西南美",
+        "phaseHours": -14,
+        "delaySeconds": 600
+      },
+      {
+        "id": "zone_60",
+        "name": "美東",
+        "phaseHours": -15,
+        "delaySeconds": 600
+      },
+      {
+        "id": "zone_20",
+        "name": "西北美",
+        "phaseHours": -16,
+        "delaySeconds": 480
+      },
+      {
+        "id": "zone_55",
+        "name": "太平洋",
+        "phaseHours": -17,
+        "delaySeconds": 420
+      }
+    ]
+  }
+}

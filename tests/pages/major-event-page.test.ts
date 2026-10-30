@@ -107,6 +107,7 @@ const tradeReference = createRequireFromTest(
 
 let pageDefinition: MajorEventPageConfig
 const wxStub = {
+  showToast: vi.fn(),
   setNavigationBarTitle: vi.fn(),
   stopPullDownRefresh: vi.fn(),
 }
@@ -223,10 +224,12 @@ describe('大流行時刻表頁控制器', () => {
     page.onHide()
     const updates = vi.spyOn(page, 'setData')
     await vi.advanceTimersByTimeAsync(120_000)
-    expect(updates).not.toHaveBeenCalled()
+    // 提醒服務可在背景完成；此處只驗證分鐘日程刷新沒有繼續。
+    const scheduleUpdates = () => updates.mock.calls.filter(([data]) => 'nowUnixSeconds' in data)
+    expect(scheduleUpdates()).toHaveLength(0)
     expect(vi.getTimerCount()).toBe(0)
     page.onShow()
-    expect(updates).toHaveBeenCalledTimes(1)
+    expect(scheduleUpdates()).toHaveLength(1)
     expect(page.data.nowUnixSeconds).toBe(Math.floor(Date.now() / 1000))
     expect(vi.getTimerCount()).toBe(1)
     page.onHide()

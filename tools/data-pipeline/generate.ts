@@ -40,6 +40,7 @@ import {
 } from './build-officer-reference-data'
 import { loadSkillIconOverrides } from '../asset-pipeline/source-skill-icons'
 import { buildMajorEventReference } from './build-major-event-runtime-data'
+import { writeReminderCloudData } from './build-major-event-reminder-cloud-data'
 
 const CANONICAL_DIR = 'data/master'
 const PUBLISHED_MANIFEST_PATH =
@@ -111,6 +112,7 @@ const buildGeneratedOutputs = (stageRoot: string): void => {
   }
   const skillIconOverrides = loadSkillIconOverrides()
   const officerReferenceData = buildOfficerReferenceData(CANONICAL_DIR)
+  writeReminderCloudData(stageRoot)
 
   console.log(`  Officers: ${officers.length}`)
   console.log(`  Skills: ${skills.length}`)

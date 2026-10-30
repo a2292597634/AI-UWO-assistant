@@ -1,0 +1,31 @@
+{
+  "clientRules": { "read": false, "write": false },
+  "collections": [
+    { "name": "major_reminder_owners", "indexes": [] },
+    {
+      "name": "major_reminder_subscriptions",
+      "indexes": [
+        { "fields": ["ownerUid", "key"], "unique": true },
+        { "fields": ["cleanupEligible", "expiresAt"], "unique": false }
+      ]
+    },
+    {
+      "name": "major_reminder_sessions",
+      "indexes": [{ "fields": ["expiresAt"], "unique": false }]
+    },
+    {
+      "name": "major_reminder_operations",
+      "indexes": [{ "fields": ["expiresAt"], "unique": false }]
+    },
+    {
+      "name": "major_reminder_jobs",
+      "indexes": [
+        { "fields": ["subId", "leadSeconds"], "unique": true },
+        { "fields": ["status", "nextRunAt"], "unique": false },
+        { "fields": ["status", "templateId", "nextRunAt"], "unique": false },
+        { "fields": ["status", "expiresAt"], "unique": false }
+      ]
+    },
+    { "name": "major_reminder_locks", "indexes": [{ "fields": ["expiresAt"], "unique": false }] }
+  ]
+}
