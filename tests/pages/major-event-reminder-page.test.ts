@@ -14,6 +14,7 @@ const wxStub = {
   requestSubscribeMessage: vi.fn(),
   createRewardedVideoAd: vi.fn(),
   showToast: vi.fn(),
+  setClipboardData: vi.fn(),
   showModal: vi.fn(({ success }) => success({ confirm: true })),
   cloud: {
     callFunction: vi.fn(async ({ data }) => ({
@@ -63,6 +64,67 @@ beforeEach(() => {
 })
 afterEach(() => vi.useRealTimers())
 describe('提醒頁面單開關接線', () => {
+  it('原生廣告失敗顯示可複製診斷，不以 Toast 覆蓋且不開通提醒', async () => {
+    const log = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const templates = ([10800, 3600, 600] as const).map((leadSeconds, i) => ({
+      leadSeconds,
+      templateId: String(i + 1).repeat(43),
+      title: `標題${i}`,
+      fields: [
+        { source: 'start', key: 'time1', type: 'time' },
+        { source: 'activity', key: 'thing1', type: 'thing' },
+      ],
+    }))
+    const backend = load('service').createService(memoryRepository(), {
+      reference,
+      config: { ...configured, batchTemplates: templates },
+      fingerprint: 'ad-diagnostic',
+      now: () => Math.floor(Date.now() / 1000),
+    })
+    const actions: string[] = []
+    wxStub.cloud.callFunction.mockImplementation(async ({ data }) => {
+      const { action, ...input } = data
+      actions.push(action)
+      return { result: await backend.dispatch(action, input, 'diagnostic-owner') }
+    })
+    wxStub.requestSubscribeMessage.mockImplementation(({ tmplIds, success }) =>
+      success(Object.fromEntries(tmplIds.map((id: string) => [id, 'accept']))),
+    )
+    let fail!: (error: unknown) => void
+    wxStub.createRewardedVideoAd.mockReturnValue({
+      load: async () => {},
+      show: async () => {
+        fail({ errCode: 1007, errMsg: 'private' })
+      },
+      onClose: () => {},
+      offClose: () => {},
+      offError: () => {},
+      destroy: () => {},
+      onError: (fn: typeof fail) => {
+        fail = fn
+      },
+    })
+    const p = page()
+    p.onLoad()
+    await p.reminderController!.refresh()
+    p.onViewTap({ currentTarget: { dataset: { view: 'type' } } } as never)
+    const item = p.data.nextEvents.find((i) => i.triggerAtUnixSeconds > Date.now() / 1000 + 10800)!
+    const pending = p.onReminderTap(event(item.key))
+    await vi.advanceTimersByTimeAsync(0)
+    await pending
+    expect(wxStub.showModal).toHaveBeenCalledWith(
+      expect.objectContaining({ title: '提醒廣告診斷', content: expect.stringContaining('1007') }),
+    )
+    expect(wxStub.setClipboardData).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.stringContaining('ad-v1') }),
+    )
+    expect(wxStub.showToast).not.toHaveBeenCalled()
+    expect(actions).not.toContain('completeAd')
+    expect(p.data.reminderChecks[item.key]).not.toBe(true)
+    expect(p.data.reminderBusy).toBe(false)
+    p.onUnload()
+    log.mockRestore()
+  })
   it('通知三 query 必須符合權威日程，超出目前列表的同場仍可打開', () => {
     const p = page()
     p.onLoad()

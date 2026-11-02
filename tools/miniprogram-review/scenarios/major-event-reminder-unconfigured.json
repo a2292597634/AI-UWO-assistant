@@ -8,6 +8,7 @@
     "miniprogram/subpkg-trade/controllers/major-event-reminder-controller.ts",
     "miniprogram/runtime/major-event-reminder-service.ts",
     "miniprogram/runtime/major-event-reminder-platform.ts",
+    "miniprogram/runtime/major-event-reminder-ad-diagnostic.ts",
     "miniprogram/runtime/cloudbase-config.ts",
     "tools/miniprogram-review/fixtures.ts"
   ],

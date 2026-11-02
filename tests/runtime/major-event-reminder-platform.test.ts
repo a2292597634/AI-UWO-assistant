@@ -1,10 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createMajorEventReminderPlatform } from '../../miniprogram/runtime/major-event-reminder-platform'
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 const setup = () => {
   let close: ((value?: { isEnded?: boolean }) => void) | undefined
-  let error: (() => void) | undefined
+  let error: ((value?: unknown) => void) | undefined
   const ad = {
     show: vi.fn(async () => {}),
     load: vi.fn(async () => {}),
@@ -27,10 +30,154 @@ const setup = () => {
     ad,
     createRewardedVideoAd,
     close: (value?: { isEnded?: boolean }) => close?.(value),
-    error: () => error?.(),
+    error: (value?: unknown) => error?.(value),
   }
 }
 describe('提醒原生平台生命週期', () => {
+  it.each(['resolve', 'reject'])('重載事件終止後不再展示且無殘留計時：%s', async (outcome) => {
+    const e = setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    e.ad.show.mockRejectedValueOnce({ errCode: 1003 })
+    e.ad.load.mockImplementationOnce(() => {
+      e.error({ errCode: 1007 })
+      return outcome === 'resolve' ? Promise.resolve() : Promise.reject({ errCode: 1007 })
+    })
+    const p = createMajorEventReminderPlatform()
+    expect(await p.watchAd('adunit-test').catch((error: unknown) => error)).toMatchObject({
+      diagnostics: expect.arrayContaining([
+        expect.objectContaining({ code: 1007, phase: 'retry-load' }),
+      ]),
+    })
+    expect(e.ad.show).toHaveBeenCalledOnce()
+    const next = p.watchAd('adunit-test')
+    let completed = false
+    void next.then((value) => {
+      completed = value
+    })
+    e.close({ isEnded: true })
+    await Promise.resolve()
+    try {
+      expect(completed).toBe(true)
+    } finally {
+      p.destroy()
+    }
+  })
+  it('錯誤結算前的完整觀看回調不能誤授權，銷毀則安靜中止', async () => {
+    const e = setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const p = createMajorEventReminderPlatform()
+    const first = p.watchAd('adunit-test').catch((error: unknown) => error)
+    e.error({ errCode: 1007 })
+    e.close({ isEnded: true })
+    expect(await first).toMatchObject({ diagnostics: [expect.objectContaining({ code: 1007 })] })
+    const second = p.watchAd('adunit-test')
+    e.error({ errCode: 1007 })
+    p.destroy()
+    expect(await second).toBe(false)
+  })
+  it.each([undefined, 1005])('事件碼 %s 不能丟棄同次 Promise 的精確碼', async (eventCode) => {
+    const e = setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    e.ad.show.mockImplementationOnce(() => {
+      e.error({ errCode: eventCode })
+      return Promise.reject({ errCode: 1007 })
+    })
+    const p = createMajorEventReminderPlatform()
+    const error = await p.watchAd('adunit-test').catch((value: unknown) => value)
+    expect(error).toMatchObject({
+      diagnostics: [
+        expect.objectContaining({ code: eventCode ?? null, source: 'event' }),
+        expect.objectContaining({ code: 1007, source: 'promise' }),
+      ],
+    })
+    expect(e.ad.load).not.toHaveBeenCalled()
+    p.destroy()
+  })
+  it('事件先於 Promise 拒絕時只交付一次診斷，原始碼不丟失', async () => {
+    const e = setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    e.ad.show.mockImplementationOnce(() => {
+      e.error({ errCode: 1007 })
+      return Promise.reject({ errCode: 1007 })
+    })
+    const p = createMajorEventReminderPlatform()
+    const error = await p.watchAd('adunit-test').catch((value: unknown) => value)
+    expect(error).toMatchObject({
+      diagnostics: [expect.objectContaining({ code: 1007, source: 'event' })],
+    })
+    expect(e.ad.load).not.toHaveBeenCalled()
+    p.destroy()
+  })
+  it('建立和重載同步例外保留精確階段及來源', async () => {
+    const e = setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    e.createRewardedVideoAd.mockImplementationOnce(() => {
+      throw { errCode: 1002 }
+    })
+    const p = createMajorEventReminderPlatform()
+    expect(await p.watchAd('adunit-test').catch((error: unknown) => error)).toMatchObject({
+      diagnostics: [expect.objectContaining({ code: 1002, phase: 'create', source: 'throw' })],
+    })
+    e.ad.show.mockRejectedValueOnce({ errCode: 1003 })
+    e.ad.load.mockImplementationOnce(() => {
+      throw { errCode: 1004 }
+    })
+    expect(await p.watchAd('adunit-test').catch((error: unknown) => error)).toMatchObject({
+      diagnostics: [
+        expect.objectContaining({ code: 1003, phase: 'show' }),
+        expect.objectContaining({ code: 1004, phase: 'retry-load', source: 'throw' }),
+      ],
+    })
+    p.destroy()
+  })
+  it('微信事件的真實錯誤碼與展示階段傳給呼叫者，日誌不含原始錯誤', async () => {
+    const e = setup()
+    const log = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const p = createMajorEventReminderPlatform()
+    const result = p.watchAd('adunit-test').catch((error: unknown) => error)
+    e.error({ errCode: 1007, errMsg: 'secret-token', openid: 'private' })
+    expect(await result).toMatchObject({
+      diagnostics: [expect.objectContaining({ code: 1007, phase: 'show', source: 'event' })],
+    })
+    expect(JSON.stringify(log.mock.calls)).not.toMatch(/secret-token|private/)
+    expect(log).toHaveBeenCalled()
+    p.destroy()
+  })
+
+  it('Promise 失敗保留原碼與兩次展示軌跡，仍僅重載一次', async () => {
+    const e = setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    e.ad.show.mockRejectedValue({ errCode: 1005, errMsg: 'private' })
+    const p = createMajorEventReminderPlatform()
+    const result = await p.watchAd('adunit-test').catch((error: unknown) => error)
+    expect(result).toMatchObject({
+      diagnostics: [
+        expect.objectContaining({ code: 1005, phase: 'show' }),
+        expect.objectContaining({ code: 1005, phase: 'retry-show' }),
+      ],
+    })
+    expect(e.ad.load).toHaveBeenCalledOnce()
+    p.destroy()
+  })
+
+  it('預載錯誤只記錄預載階段，不污染之後點擊的錯誤碼', async () => {
+    const e = setup()
+    const log = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    e.ad.load.mockRejectedValueOnce({ errCode: 1005 })
+    const p = createMajorEventReminderPlatform()
+    p.preloadAd?.('adunit-test')
+    await vi.waitFor(() => expect(log).toHaveBeenCalled())
+    const result = p.watchAd('adunit-test').catch((error: unknown) => error)
+    e.error({ errCode: 1004 })
+    expect(await result).toMatchObject({
+      diagnostics: [expect.objectContaining({ code: 1004, phase: 'show' })],
+    })
+    expect(log.mock.calls[0]).toEqual([
+      'major-reminder-ad-failure',
+      expect.objectContaining({ code: 1005, phase: 'preload' }),
+    ])
+    p.destroy()
+  })
   it('預載只建立並載入廣告，不展示；點擊重用，銷毀後不再預載', async () => {
     const e = setup()
     const p = createMajorEventReminderPlatform()

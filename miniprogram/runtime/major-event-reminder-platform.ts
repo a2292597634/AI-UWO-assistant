@@ -1,3 +1,11 @@
+import {
+  createReminderAdDiagnostic,
+  ReminderAdError,
+  type ReminderAdDiagnostic,
+  type ReminderAdPhase,
+  type ReminderAdErrorSource,
+} from './major-event-reminder-ad-diagnostic'
+
 export type ReminderNativeStatus = 'accept' | 'reject' | 'ban' | 'filter' | 'error'
 export interface MajorEventReminderPlatform {
   subscribeBatch(templateIds: string[]): Promise<Record<string, ReminderNativeStatus>>
@@ -11,21 +19,51 @@ export const createMajorEventReminderPlatform = (): MajorEventReminderPlatform =
   let ad: WechatMiniprogram.RewardedVideoAd | null = null
   let preload: Promise<void> | null = null
   let disposed = false
+  let currentAdUnitId = ''
+  let phase: ReminderAdPhase = 'create'
+  let failures: ReminderAdDiagnostic[] = []
+  let errorTimer: ReturnType<typeof setTimeout> | undefined
   let active: { resolve(value: boolean): void; reject(error: Error): void } | null = null
   const finish = (value: boolean) => {
+    if (errorTimer !== undefined) clearTimeout(errorTimer)
+    errorTimer = undefined
     const pending = active
     active = null
     pending?.resolve(value)
   }
-  const onClose = (value: { isEnded?: boolean }) => finish(value?.isEnded === true)
-  const onError = () => {
-    if (preload) return
+  const onClose = (value: { isEnded?: boolean }) => {
+    if (errorTimer === undefined) finish(value?.isEnded === true)
+  }
+  const recordFailure = (error: unknown, source: ReminderAdErrorSource) => {
+    const diagnostic = createReminderAdDiagnostic(currentAdUnitId, phase, source, error)
+    // 不輸出原始原生錯誤，避免附帶身份或票據。
+    console.warn('major-reminder-ad-failure', diagnostic)
+    return diagnostic
+  }
+  const rememberFailure = (diagnostic: ReminderAdDiagnostic) => {
+    const previous = failures[failures.length - 1]
+    if (previous?.phase !== diagnostic.phase || previous.code !== diagnostic.code)
+      failures = [...failures, diagnostic].slice(-5)
+  }
+  const onError = (error?: unknown) => {
+    if (disposed) return
+    const diagnostic = recordFailure(error, 'event')
+    if (preload || !active) return
+    rememberFailure(diagnostic)
+    if (errorTimer !== undefined) return
     const pending = active
-    active = null
-    pending?.reject(new Error('廣告暫時無法播放，請稍後再試。'))
+    // 合併同一輪事件與 Promise 的診斷；等待期間不重試、不接受關閉作為成功。
+    errorTimer = setTimeout(() => {
+      errorTimer = undefined
+      if (active !== pending) return
+      active = null
+      pending.reject(new ReminderAdError(failures))
+    }, 0)
   }
   const ensureAd = (adUnitId: string) => {
     if (!ad) {
+      currentAdUnitId = adUnitId
+      phase = 'create'
       ad = wx.createRewardedVideoAd({ adUnitId })
       ad.onClose(onClose)
       ad.onError(onError)
@@ -37,14 +75,19 @@ export const createMajorEventReminderPlatform = (): MajorEventReminderPlatform =
       if (disposed || active || ad || !adUnitId) return
       // 預載失敗不阻止使用者稍後點擊時的既有展示及重試流程。
       try {
-        preload = ensureAd(adUnitId)
+        const current = ensureAd(adUnitId)
+        phase = 'preload'
+        preload = current
           .load()
-          .catch(() => {})
+          .catch((error: unknown) => {
+            if (!disposed) recordFailure(error, 'promise')
+          })
           .then(() => {
             preload = null
           })
-      } catch {
+      } catch (error) {
         // 不支援廣告的環境留待使用者操作時顯示既有錯誤。
+        recordFailure(error, 'throw')
       }
     },
     subscribeBatch(templateIds) {
@@ -100,29 +143,43 @@ export const createMajorEventReminderPlatform = (): MajorEventReminderPlatform =
       if (disposed || active || !adUnitId) return Promise.reject(new Error('廣告目前無法開啟。'))
       try {
         ensureAd(adUnitId)
-      } catch {
-        return Promise.reject(new Error('目前環境不支援激勵廣告。'))
+      } catch (error) {
+        return Promise.reject(new ReminderAdError([recordFailure(error, 'throw')]))
       }
       const current = ad!
       return new Promise<boolean>((resolve, reject) => {
+        failures = []
         active = { resolve, reject }
         const operation = active
-        const retry = async () => {
-          if (disposed || active !== operation) return
+        const attempt = (nextPhase: ReminderAdPhase, work: () => Promise<void>) => {
+          phase = nextPhase
           try {
-            await current.load()
-            if (!disposed && active === operation) await current.show()
+            return work().catch((error: unknown) => {
+              if (active === operation) rememberFailure(recordFailure(error, 'promise'))
+              throw error
+            })
+          } catch (error) {
+            if (active === operation) rememberFailure(recordFailure(error, 'throw'))
+            return Promise.reject(error)
+          }
+        }
+        const retry = async () => {
+          if (disposed || active !== operation || errorTimer !== undefined) return
+          try {
+            await attempt('retry-load', () => current.load())
+            if (!disposed && active === operation && errorTimer === undefined) {
+              await attempt('retry-show', () => current.show())
+            }
           } catch {
-            if (active === operation) onError()
+            if (active === operation && errorTimer === undefined) {
+              active = null
+              reject(new ReminderAdError(failures))
+            }
           }
         }
         const show = () => {
           if (disposed || active !== operation) return
-          try {
-            void current.show().catch(retry)
-          } catch {
-            void retry()
-          }
+          void attempt('show', () => current.show()).catch(retry)
         }
         if (preload) void preload.then(show)
         else show()

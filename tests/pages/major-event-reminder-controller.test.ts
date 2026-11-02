@@ -11,6 +11,10 @@ import {
   type ReminderLocalOperation,
 } from '../../miniprogram/subpkg-trade/controllers/major-event-reminder-controller'
 import { ReminderServiceError } from '../../miniprogram/runtime/major-event-reminder-service'
+import {
+  createReminderAdDiagnostic,
+  ReminderAdError,
+} from '../../miniprogram/runtime/major-event-reminder-ad-diagnostic'
 const occurrence = { zoneId: 'zone_1', eventTypeId: 'pop1', triggerAtUnixSeconds: 20000 }
 const templates = ([10800, 3600, 600] as const).map((leadSeconds, i) => ({
   leadSeconds,
@@ -99,6 +103,7 @@ function setup() {
       saved = value ? structuredClone(value) : null
     },
   }
+  const diagnostic = vi.fn()
   const notice = vi.fn(),
     change = vi.fn()
   const create = () =>
@@ -110,6 +115,7 @@ function setup() {
       requestId: () => `r-${++serial}`,
       onChange: change,
       onNotice: notice,
+      onAdDiagnostic: diagnostic,
     })
   return {
     create,
@@ -120,6 +126,7 @@ function setup() {
     order,
     subs,
     notice,
+    diagnostic,
     change,
     setTime: (v: number) => {
       time = v
@@ -130,6 +137,25 @@ function setup() {
   }
 }
 describe('單開關批次提醒與恢復', () => {
+  it('廣告失敗交付精確診斷，停止開通且可再次操作', async () => {
+    vi.stubGlobal('wx', {})
+    const e = setup()
+    const error = new ReminderAdError([
+      createReminderAdDiagnostic('adunit-test', 'show', 'event', { errCode: 1007 }),
+    ])
+    e.platform.watchAd.mockRejectedValueOnce(error)
+    const c = e.create()
+    await c.refresh()
+    await c.toggle(occurrence)
+    expect(e.diagnostic).toHaveBeenCalledWith(error)
+    expect(e.notice).not.toHaveBeenCalled()
+    expect(e.calls.some((call) => call.action === 'completeAd')).toBe(false)
+    expect(c.state.busy).toBe(false)
+    await c.toggle(occurrence)
+    expect(e.calls.some((call) => call.action === 'completeAd')).toBe(true)
+    c.destroy()
+    vi.unstubAllGlobals()
+  })
   it('配置尚未完成時也並行取得清單，但未全部完成不能操作', async () => {
     const e = setup()
     const invoke = e.service.invoke.bind(e.service)

@@ -131,3 +131,13 @@ worker 保留原全域 pending 首50筆以核對未知模板狀態／generation�
 ### 單開關的未確認操作恢復
 
 沿用v1本機儲存，舊pending按原requestId重放；原生授權與新廣告不在前景恢復時自動彈出。完整廣告遇確定失效時，先保存同場收據再退役舊活動操作，避免封鎖其他場；收據不轉移給別場，同場仍有效可重新授權後免重看。最多20份收據，容量限制不阻擋取消、同場恢復或已由服務端確認的廣告權益。退役儲存錯誤使用專用分流，保留原活操作與持久pending/session/adFinished/requestId，不落一般失敗處理清除原編號。網路不明仍依原操作查詢，destroy遲到與儲存快照CAS不放寬。
+
+### 激勵廣告失敗診斷（2026-11-02）
+
+`major-event-reminder-ad-diagnostic.ts` 只抽取數字 errCode、廣告位、失敗階段／來源、envVersion、小程序版本、微信版本、SDKVersion 與系統類別，診斷格式版本為 `ad-v1`。不記錄原始 errMsg、AppID、OpenID、授權結果、票據、機型或完整系統物件；環境 API 不可用時填 unknown，不把無碼失敗推測成封禁。
+
+platform 以固定標籤 `major-reminder-ad-failure` 輸出安全日誌。階段分為 create、preload、show、retry-load、retry-show；來源分 event、promise、throw。保留一次 load/show 重試上限；原生 onError 以零延時計時合併同一事件輪的 Promise 資訊後只結束一次，不等待任意晚到的 Promise。同階段同錯誤碼去重，不同碼保留路徑；結算前不重試，不把關閉回調當成功，銷毀會清除計時並安靜中止。預載失敗只記日誌，點擊時仍可嘗試，不把舊預載錯誤當成本次終止原因。銷毀後不交付遲到錯誤。
+
+使用者點擊後若廣告失敗，controller 保留既有清理並交付 ReminderAdError，頁面顯示「提醒廣告診斷」原生彈窗。只有使用者點「複製診斷」才寫入剪貼簿；關閉不複製。正常完成、使用者中途關閉、無模板或一般服務錯誤不新增此彈窗。沒有完整觀看仍不得 completeAd／activate。
+
+辨別正式版問題時，從新版本正式入口復現，回報完整診斷文字並核對 envVersion 為 release、廣告位正確、版本符合本次發布。trial／develop 的成功或模擬錯誤不證明 release 權限正常。1005／1006／1007／1008 分別表示審核中／駁回／封禁／廣告位關閉；1004 表示無合適廣告。實際原因以當次微信回傳及官方後台核實為準。本輪不改雲端配置或廣告位狀態。

@@ -8,6 +8,7 @@ import type {
 import type { MajorEventReminderService } from '../../runtime/major-event-reminder-service'
 import { ReminderServiceError } from '../../runtime/major-event-reminder-service'
 import type { MajorEventReminderPlatform } from '../../runtime/major-event-reminder-platform'
+import { ReminderAdError } from '../../runtime/major-event-reminder-ad-diagnostic'
 
 type Mutation = Exclude<ReminderAction, 'getConfig' | 'list' | 'getBatchConfig'>
 type PendingOperation = { [A in Mutation]: { action: A; input: ReminderInputs[A] } }[Mutation]
@@ -57,6 +58,7 @@ interface Options {
   requestId(): string
   onChange(state: ReminderControllerState): void
   onNotice?(message: string): void
+  onAdDiagnostic?(error: ReminderAdError): void
 }
 export const reminderKey = (o: ReminderOccurrence): string =>
   [o.zoneId, o.eventTypeId, o.triggerAtUnixSeconds].join(':')
@@ -294,7 +296,10 @@ export const createMajorEventReminderController = (options: Options) => {
       (error.code === 'unconfirmed' || error.code === 'network')
     state.unconfirmed =
       !!operation && (operation.adFinished || (uncertain && operation.pending != null))
-    notice(error instanceof Error ? error.message : '提醒服務暫時無法使用，請稍後再試。')
+    if (error instanceof ReminderAdError && options.onAdDiagnostic) {
+      state.message = error.message
+      options.onAdDiagnostic(error)
+    } else notice(error instanceof Error ? error.message : '提醒服務暫時無法使用，請稍後再試。')
     if (!uncertain && operation) {
       operation.pending = null
       if (
