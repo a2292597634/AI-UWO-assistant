@@ -72,3 +72,11 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 見 [開發現況與證據](docs/development/current-state.md)、[操作契約索引](docs/development/operation-contracts.md) 與 [任務記錄模板](docs/development/task-record-template.md)。本機、乾淨 checkout、遠端 CI、正式模擬器、真機／真雲的通過證據分開記錄。
 
 匯入候選在 `artifacts/import-candidates/officers`，審核採納後才維護 master；`pipeline:full` 不自動採納。doctor 的配置／CLI 診斷不等同實際 SDK、頁面、元素及外部驗收。歷史失敗與未驗收項保留，不以工具回歸測試銷項。
+
+## 8. 新舊小程序並行維護（2026-11-03）
+
+先讀 [雙端維護手冊](docs/development/dual-app-maintenance.md)。本工作區是舊端，AppID 固定 wx8f961bcd8b26996a；維護分支 codex/phase-20261103-old-maintenance；固定入口 E:\AI-UWO-old。新端入口 E:\AI-UWO-new，AppID wxd0bc7afdc9cd334a。不得為切換發布目標而手改 AppID。提交前原有確認要求不變。
+
+上傳前用 Node 22／tsx 執行 tools/release/check-target.ts --target old --project-root E:/AI-UWO-old，並完成完整門禁及相關頁面驗收。只讀檢查不攔截開發者工具的手動上傳按鈕。公共修正獨立提交後移植，不盲目整分支互合，不同步帳號配置。
+
+**禁止由本舊維護分支整包部署雲函數。** 線上共享環境已部署新舊身份兼容，舊基線不包含此兼容。雲函數修改從新端兼容實現準備，核對線上差異與備份，只做必要增量並驗證兩端；不得因舊前端停更就刪除共享資源。勿歸檔仍被固定入口使用的本 worktree。
