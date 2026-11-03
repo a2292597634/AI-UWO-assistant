@@ -21,7 +21,10 @@ function createHandler(cloud, env = process.env) {
     } = event || {}
     if (
       action === 'activateAuthorized' &&
-      (wxContext.APPID !== 'wx8f961bcd8b26996a' || Object.hasOwn(wxContext, 'FROM_APPID'))
+      (wxContext.APPID !== 'wx8f961bcd8b26996a' ||
+        [wxContext.FROM_APPID, wxContext.FROM_OPENID].some(
+          (value) => value !== undefined && value !== '',
+        ))
     )
       return { ok: false, code: 'unauthorized', message: '請從舊版小程序直接操作提醒' }
     return service.dispatch(action, input, owner)
