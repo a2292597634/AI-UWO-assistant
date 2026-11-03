@@ -34,9 +34,26 @@ function createHandler(cloud, env = process.env) {
     }
     if (
       action === 'activateAuthorized' &&
-      (current.APPID !== 'wx8f961bcd8b26996a' || Object.hasOwn(current, 'FROM_APPID'))
-    )
+      (current.APPID !== 'wx8f961bcd8b26996a' ||
+        [current.FROM_APPID, current.FROM_OPENID].some(
+          (value) => value !== undefined && value !== '',
+        ))
+    ) {
+      console.warn(
+        'major-reminder-direct-rejected ' +
+          JSON.stringify({
+            oldAppIdMatches: current.APPID === 'wx8f961bcd8b26996a',
+            hasAppId: typeof current.APPID === 'string' && current.APPID.length > 0,
+            fromAppIdPresent: Object.hasOwn(current, 'FROM_APPID'),
+            fromAppIdEmpty: current.FROM_APPID === '',
+            fromOpenIdPresent: Object.hasOwn(current, 'FROM_OPENID'),
+            fromOpenIdEmpty: current.FROM_OPENID === '',
+            sourceClient: current.SOURCE === 'wx_client',
+            sourceDevtools: current.SOURCE === 'wx_devtools',
+          }),
+      )
       return { ok: false, code: 'unauthorized', message: '請從舊版小程序直接操作提醒' }
+    }
     return service.dispatch(action, input, owner)
   }
 }

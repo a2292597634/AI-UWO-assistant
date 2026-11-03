@@ -476,37 +476,41 @@ describe('新 action 僅允許可信舊號直接調用', () => {
       },
     )
   }
-  it('明確開關與可信舊AppID可完整開通，平台附加欄位不提供身分', async () => {
-    vi.useFakeTimers()
-    vi.setSystemTime((event.triggerAtUnixSeconds - 12000) * 1000)
-    const handle = entry({ APPID: 'wx8f961bcd8b26996a', OPENID: 'a' })
-    const prepared = await handle({ action: 'prepareBatch', occurrence, requestId: 'p' })
-    const sessionId = prepared.data.sessionId
-    expect(
-      (
+  it.each([{}, { FROM_APPID: '', FROM_OPENID: '' }])(
+    '可信舊AppID原生空跨帳號欄位也可開通：%j',
+    async (sourceFields) => {
+      vi.useFakeTimers()
+      vi.setSystemTime((event.triggerAtUnixSeconds - 12000) * 1000)
+      const handle = entry({ APPID: 'wx8f961bcd8b26996a', OPENID: 'a', ...sourceFields })
+      const prepared = await handle({ action: 'prepareBatch', occurrence, requestId: 'p' })
+      const sessionId = prepared.data.sessionId
+      expect(
+        (
+          await handle({
+            action: 'authorizeBatch',
+            sessionId,
+            templateIds: templates.map((t) => t.templateId),
+            requestId: 'a',
+          })
+        ).ok,
+      ).toBe(true)
+      expect(
         await handle({
-          action: 'authorizeBatch',
+          action: 'activateAuthorized',
           sessionId,
-          templateIds: templates.map((t) => t.templateId),
-          requestId: 'a',
-        })
-      ).ok,
-    ).toBe(true)
-    expect(
-      await handle({
-        action: 'activateAuthorized',
-        sessionId,
-        requestId: 'direct',
-        userInfo: { appId: 'forged' },
-        tcbContext: { FROM_APPID: 'forged' },
-      }),
-    ).toMatchObject({ ok: true, data: { subscription: { adCompleted: false } } })
-  })
+          requestId: 'direct',
+          userInfo: { appId: 'forged' },
+          tcbContext: { FROM_APPID: 'forged' },
+        }),
+      ).toMatchObject({ ok: true, data: { subscription: { adCompleted: false } } })
+    },
+  )
   it.each([
     { APPID: 'new-app', OPENID: 'a' },
     { OPENID: 'a' },
     { APPID: 'wx8f961bcd8b26996a', OPENID: 'a', FROM_APPID: 'new-app' },
-    { APPID: 'wx8f961bcd8b26996a', OPENID: 'a', FROM_APPID: '' },
+    { APPID: 'wx8f961bcd8b26996a', OPENID: 'a', FROM_APPID: '', FROM_OPENID: 'foreign-owner' },
+    { APPID: 'wx8f961bcd8b26996a', OPENID: 'a', FROM_APPID: null },
   ])('拒絕共享或缺失可信舊號來源 %j，舊 action 不受新限制', async (context) => {
     const handle = entry(context)
     expect(
@@ -526,7 +530,9 @@ describe('新 action 僅允許可信舊號直接調用', () => {
       expect(await handle({ action: 'list' })).toMatchObject({ ok: false, code: 'unauthorized' })
     } else {
       expect((await handle({ action: 'getBatchConfig' })).ok).toBe(true)
-      expect((await handle({ action: 'list' })).ok).toBe(true)
+      if (context.FROM_OPENID)
+        expect(await handle({ action: 'list' })).toMatchObject({ ok: false, code: 'unauthorized' })
+      else expect((await handle({ action: 'list' })).ok).toBe(true)
     }
   })
   it('共享新號仍停用提醒且不得借用舊身份', async () => {
