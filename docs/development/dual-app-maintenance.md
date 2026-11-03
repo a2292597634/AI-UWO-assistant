@@ -75,3 +75,17 @@ node node_modules/tsx/dist/cli.mjs tools/release/check-target.ts --target new --
 本輪保護備份在 `E:\AI-UWO-verification\dual-app-20261103-backup`，含原遷移候選、私有配置及 hash，僅本機保存，不加入 Git。它包含本機私有設定，不作公開附件。
 
 用戶已於2026-11-03確認按展示清單分別建立兩筆本地提交。精確 SHA 以對應維護分支的 `git log -1` 為準；本機結果另存 `E:\AI UWO assistant\artifacts\miniprogram-review\dual-app-20261103\committed-versions.json`。提交後重新執行目標檢查，不能沿用提交前的拒絕JSON。日後如有未提交修改，檢查仍會如實拒絕 dirty 候選；這不影響開發者工具調試。本輪不改 main，不推送，不新增上傳／部署，不提交審核或正式發布。
+
+## 2026-11-03：舊號免廣告提醒與共享雲相容增量
+
+使用者已確認提交舊維護分支、同步共享雲三檔兼容增量、驗證後部署及上傳舊號測試版；未授權推送或正式發布。
+
+- 公共來源：adf3589e8d98bfa4b51b1ac4645ce8031fced4fc → 新版兼容移植abbb07ba177fa23f7fc4c32be29aa4049b473756。真雲發現原生FROM_APPID／FROM_OPENID為空字串，嚴格存在性檢查誤拒；以紅綠測試修正，舊端be8b6628281a2a333577044f9cbc6294f362878f、新版兼容97961354696923fce28aaa2fba5a4158238afc08。只允許缺失或空字串的FROM欄位，舊AppID仍須精確匹配；非空、null等其他形狀拒絕，新號共享提醒仍停用。
+- 舊號前端流程為一次微信授權後直接開通，三個提前量仍為3小時／1小時／10分鐘，過期不補；保留歷史廣告任務，不假造廣告權益。
+- 雲端只更新business handler.js／service.js及worker worker.js；來源為新版兼容實現，對照當時線上完整包只替換這三檔。5839／5836個檔案及原wx-server-sdk 4.0.2依賴逐檔SHA256核對；環境只新增MAJOR_REMINDER_ALLOW_DIRECT=true，函數執行設定、觸發器及權限保持，worker客戶端仍禁止。18條抽樣既有任務的owner／模板／場次／generation未變。
+- 真雲只讀驗證：舊號三模板正常、原11場提醒可讀，新增接口已通過來源與開關校驗（故意缺失session返回not-found）；新號無模板、保持disabled、本人0場。不是實際發送驗收。
+- 配置回歸：舊號戰鬥2／冒險3保持，新號本次唯一臨時配置新建／7艘船讀取／刪除成功，baseline=final=0且清理確認；新號讀舊ID仍not-found。未修改舊私人配置或歸屬。
+- 完整門禁：舊端239檔3381測試＋13檔101資料契約；新版兼容隔離候選242檔3445測試＋13檔101資料契約。舊端一次並行驗證的架構掃描5秒逾時已保留，單獨原測試及順序完整門禁皆通過，未放寬時間或掃描規則。
+- 舊號開發測試版2.5.3已官方CLI上傳，AppID wx8f961bcd8b26996a，上傳精確SHA be8b6628281a2a333577044f9cbc6294f362878f；主包1845755 bytes、總包5627706 bytes。後續本節的文件提交不改變已上傳的程式碼。新號未重新上傳，未提交審核／正式發布，也未推送或宣稱遠端CI通過。
+- 頁面：列表／篩選／詳情／返回日程保存場景通過並取得4張實際截圖；免廣告完整交互fixture因開發者工具不能替換callFunction而阻塞，仍待手機原生授權及通知實收。
+- 證據主入口：舊工作區artifacts/miniprogram-review/old-reminder-direct-final/report.html；同目錄保留兩端門禁、最小包核對、live-final-stable.json、dual-fleet-roundtrip.json及upload-2.5.3.json。私有線上備份僅本機保存，不作公開附件。
