@@ -141,3 +141,13 @@ platform 以固定標籤 `major-reminder-ad-failure` 輸出安全日誌。階段
 使用者點擊後若廣告失敗，controller 保留既有清理並交付 ReminderAdError，頁面顯示「提醒廣告診斷」原生彈窗。只有使用者點「複製診斷」才寫入剪貼簿；關閉不複製。正常完成、使用者中途關閉、無模板或一般服務錯誤不新增此彈窗。沒有完整觀看仍不得 completeAd／activate。
 
 辨別正式版問題時，從新版本正式入口復現，回報完整診斷文字並核對 envVersion 為 release、廣告位正確、版本符合本次發布。trial／develop 的成功或模擬錯誤不證明 release 權限正常。1005／1006／1007／1008 分別表示審核中／駁回／封禁／廣告位關閉；1004 表示無合適廣告。實際原因以當次微信回傳及官方後台核實為準。本輪不改雲端配置或廣告位狀態。
+
+### 舊號授權後直接開通（2026-11-03，候選未部署）
+
+舊號新客戶端不再預載或播放廣告。一次使用者點擊中同步呼叫requestSubscribeMessage後，以prepareBatch、authorizeBatch、activateAuthorized完成開通；最後一個action輸入為sessionId與requestId，回覆仍是subscription。既有getBatchConfig與其他DTO保持不變；新流程不呼叫completeAd，也不假設adCompleted=true。保留v1舊廣告操作／收據的恢復，未知直接開通結果沿原requestId重放，滿收據不阻擋新免費操作。
+
+activateAuthorized預設關閉，只有服務端MAJOR_REMINDER_ALLOW_DIRECT精確為true及可信舊AppID直接來源可用，拒絕FROM_APPID共享來源。批次授權、本人、日程fingerprint、session epoch／期限及20場限制仍必須通過。已pending／sending／unknown／sent的舊槽及job保留原模板與內容，只校驗本次可建立或恢復槽；不補發過期、不重送終態。
+
+新action建立的job保存activationMode=authorization-only及activationEpoch，worker對此模式核對slot.authorized、模板、取消代數、槽dueAt、subscription id與場次，並沿用generation、owner、資料fingerprint、時窗及租約檢查。即使有舊adCompleted權益，免廣告任務也必須通過上述新檢查。未帶此標記的legacy任務仍按原廣告資格處理，不批次改寫既有任務。測試已覆蓋真service到worker的記憶體交易與一次mock send，不代表真通知送達。
+
+最小雲候選已以新版兼容實現準備，只改business的handler.js／service.js與worker的worker.js，保留共享身份、環境、模板及所有其他檔案。雙端本機模擬確認舊號可直接開通、新號仍停用且不能讀舊提醒。未部署、未更新環境開關、未上傳／發布。後續必須取得授權，再按相容worker→business→舊號開關的順序操作並核驗兩端；不能從舊維護分支整包部署。正式發布前另核對消息跳轉版本參數。

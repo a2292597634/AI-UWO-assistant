@@ -50,7 +50,7 @@ const run = (condition: unknown, overrides: Partial<ReviewAdapter> = {}, timeout
 afterEach(() => vi.useRealTimers())
 
 describe('waitUntil 相容性與有界等待', () => {
-  it('全部保存場景可載入且包含七份條件等待場景', () => {
+  it('全部保存場景可載入且包含免廣告提醒的條件等待', () => {
     const directory = resolve('tools/miniprogram-review/scenarios')
     const scenarios = readdirSync(directory)
       .filter((name) => name.endsWith('.json'))
@@ -59,7 +59,17 @@ describe('waitUntil 相容性與有界等待', () => {
       scenarios.filter((scenario) =>
         scenario.steps.some((step) => String(step.action) === 'waitUntil'),
       ),
-    ).toHaveLength(7)
+    ).toHaveLength(8)
+    expect(
+      scenarios.find((scenario) => scenario.fixture === 'major-event-reminder-direct')?.steps,
+    ).toContainEqual({
+      action: 'waitUntil',
+      condition: {
+        kind: 'exists',
+        selector: '.reminder-toggle--next.reminder-toggle--checked',
+        exists: false,
+      },
+    })
   })
 
   it.each([

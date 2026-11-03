@@ -19,7 +19,6 @@ import { getMajorEventReference } from '../../runtime/major-event-data-store'
 import { getTradeReference } from '../../runtime/trade-data-store'
 import { createMajorEventReminderService } from '../../../runtime/major-event-reminder-service'
 import { createMajorEventReminderPlatform } from '../../../runtime/major-event-reminder-platform'
-import { showReminderAdDiagnostic } from '../../../runtime/major-event-reminder-ad-diagnostic'
 import {
   createMajorEventReminderController,
   readReminderLocalOperation,
@@ -562,7 +561,6 @@ Page({
         `reminder-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`,
       onChange: (state) => syncReminders(page, state),
       onNotice: (title) => wx.showToast({ title, icon: 'none', duration: 3500 }),
-      onAdDiagnostic: showReminderAdDiagnostic,
     })
     try {
       page.majorEventReference = validateMajorEventReference(getMajorEventReference())

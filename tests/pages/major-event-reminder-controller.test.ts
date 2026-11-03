@@ -11,10 +11,6 @@ import {
   type ReminderLocalOperation,
 } from '../../miniprogram/subpkg-trade/controllers/major-event-reminder-controller'
 import { ReminderServiceError } from '../../miniprogram/runtime/major-event-reminder-service'
-import {
-  createReminderAdDiagnostic,
-  ReminderAdError,
-} from '../../miniprogram/runtime/major-event-reminder-ad-diagnostic'
 const occurrence = { zoneId: 'zone_1', eventTypeId: 'pop1', triggerAtUnixSeconds: 20000 }
 const templates = ([10800, 3600, 600] as const).map((leadSeconds, i) => ({
   leadSeconds,
@@ -69,8 +65,8 @@ function setup() {
         s.slots.find(
           (slot) => slot.leadSeconds === (input as ReminderInputs['authorize']).leadSeconds,
         )!.status = 'authorized'
-      if (action === 'completeAd' || action === 'activate') {
-        s.adCompleted = true
+      if (action === 'completeAd' || action === 'activate' || action === 'activateAuthorized') {
+        if (action !== 'activateAuthorized') s.adCompleted = true
         s.slots.forEach((slot) => {
           if (slot.status === 'authorized')
             slot.status = slot.dueAtUnixSeconds > time ? 'pending' : 'missed'
@@ -93,6 +89,7 @@ function setup() {
       order.push('native')
       return Object.fromEntries(ids.map((id) => [id, 'accept' as const]))
     }),
+    preloadAd: vi.fn(),
     subscribe: vi.fn(async () => true),
     watchAd: vi.fn(async () => true),
     destroy: vi.fn(),
@@ -137,24 +134,23 @@ function setup() {
   }
 }
 describe('單開關批次提醒與恢復', () => {
-  it('廣告失敗交付精確診斷，停止開通且可再次操作', async () => {
-    vi.stubGlobal('wx', {})
+  it('新操作不預載或播放廣告，完整授權直接開通且不虛設廣告完成', async () => {
     const e = setup()
-    const error = new ReminderAdError([
-      createReminderAdDiagnostic('adunit-test', 'show', 'event', { errCode: 1007 }),
-    ])
-    e.platform.watchAd.mockRejectedValueOnce(error)
     const c = e.create()
     await c.refresh()
     await c.toggle(occurrence)
-    expect(e.diagnostic).toHaveBeenCalledWith(error)
-    expect(e.notice).not.toHaveBeenCalled()
-    expect(e.calls.some((call) => call.action === 'completeAd')).toBe(false)
-    expect(c.state.busy).toBe(false)
-    await c.toggle(occurrence)
-    expect(e.calls.some((call) => call.action === 'completeAd')).toBe(true)
-    c.destroy()
-    vi.unstubAllGlobals()
+    expect(e.platform.preloadAd).not.toHaveBeenCalled()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
+    expect(e.calls.map((call) => call.action)).toEqual([
+      'getBatchConfig',
+      'list',
+      'prepareBatch',
+      'authorizeBatch',
+      'activateAuthorized',
+    ])
+    expect(c.isChecked(key)).toBe(true)
+    expect(c.state.subscription?.adCompleted).toBe(false)
+    expect(e.storage.read()?.adFinished).toBe(false)
   })
   it('配置尚未完成時也並行取得清單，但未全部完成不能操作', async () => {
     const e = setup()
@@ -213,7 +209,7 @@ describe('單開關批次提醒與恢復', () => {
       await next.refresh()
       expect(next.state.ready).toBe(true)
       await next.toggle({ ...occurrence, zoneId: 'zone_2' })
-      expect(e.platform.watchAd).toHaveBeenCalledOnce()
+      expect(e.platform.watchAd).not.toHaveBeenCalled()
       expect(e.platform.subscribeBatch).toHaveBeenCalledOnce()
       expect(e.storage.read()).toMatchObject({ receipts: [{ prepareRequestId: 'old-p' }] })
     },
@@ -374,8 +370,8 @@ describe('單開關批次提醒與恢復', () => {
       readReminderLocalOperation({ ...op, receipts: [{ ...receipt, completionRequestId: 3 }] }),
     ).toBeNull()
   })
-  it.each(['server-credit', 'receipt', 'cancel', 'new-ad'] as const)(
-    '20份有效收據時%s僅擋新增廣告收據，不擋恢復或取消',
+  it.each(['server-credit', 'receipt', 'cancel', 'new-direct'] as const)(
+    '20份有效收據時%s不擋免費開通或取消且保留原始收據',
     async (kind) => {
       const e = setup()
       const receipts = Array.from({ length: 20 }, (_, i) => ({
@@ -410,20 +406,16 @@ describe('單開關批次提醒與恢復', () => {
       await c.refresh()
       await c.toggle(occurrence)
       expect(e.platform.watchAd).not.toHaveBeenCalled()
-      if (kind === 'new-ad') {
-        expect(e.platform.subscribeBatch).not.toHaveBeenCalled()
-        expect(e.notice).toHaveBeenLastCalledWith(expect.stringContaining('收據已滿'))
-      } else if (kind === 'cancel') {
+      if (kind === 'cancel') {
         expect(e.platform.subscribeBatch).not.toHaveBeenCalled()
         expect(c.isChecked(key)).toBe(false)
         expect(e.calls.some((call) => call.action === 'cancel')).toBe(true)
       } else {
         expect(e.platform.subscribeBatch).toHaveBeenCalledOnce()
         expect(c.isChecked(key)).toBe(true)
-        expect(
-          e.calls.some((call) => call.action === (kind === 'receipt' ? 'completeAd' : 'activate')),
-        ).toBe(true)
+        expect(e.calls.some((call) => call.action === 'activateAuthorized')).toBe(true)
       }
+      expect(e.storage.read()?.receipts).toEqual(receipts)
     },
   )
   it('收據容量滿但有已開始場次時只淘汰歷史收據，不丟仍有效原場權益', async () => {
@@ -442,10 +434,10 @@ describe('單開關批次提醒與恢復', () => {
     e.storage.write({
       version: 1,
       occurrence,
-      prepareRequestId: 'none',
-      sessionId: null,
-      adFinished: false,
-      pending: null,
+      prepareRequestId: 'old-p',
+      sessionId: 'old-s',
+      adFinished: true,
+      pending: { action: 'completeAd', input: { sessionId: 'old-s', requestId: 'old-ad' } },
       receipts,
     })
     const invoke = e.service.invoke.bind(e.service)
@@ -455,8 +447,7 @@ describe('單開關批次提醒與恢復', () => {
     }
     const c = e.create()
     await c.refresh()
-    await c.toggle(occurrence)
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
     expect(e.storage.read()?.receipts).toHaveLength(20)
     expect(
       e.storage.read()?.receipts?.some((receipt) => receipt.prepareRequestId === 'receipt-p-0'),
@@ -548,9 +539,9 @@ describe('單開關批次提醒與恢復', () => {
     expect(e.order).toEqual(['native'])
     expect(c.isChecked(key)).toBe(false)
     await p
-    expect(e.order).toEqual(['native', 'prepareBatch', 'authorizeBatch', 'completeAd'])
+    expect(e.order).toEqual(['native', 'prepareBatch', 'authorizeBatch', 'activateAuthorized'])
     expect(e.platform.subscribeBatch).toHaveBeenCalledWith(templates.map((t) => t.templateId))
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
     expect(c.isChecked(key)).toBe(true)
     expect(e.notice).toHaveBeenLastCalledWith(expect.stringContaining('3 次'))
   })
@@ -595,9 +586,9 @@ describe('單開關批次提醒與恢復', () => {
       return Object.fromEntries(ids.map((id, i) => [id, i === 0 ? 'reject' : 'accept'])) as never
     })
     await c.toggle(occurrence)
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
   })
-  it('取消使用點擊場版本，免授權廣告；重開已完成廣告不重看', async () => {
+  it('取消使用點擊場版本，免授權廣告；重開重新授權免費開通', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
@@ -610,29 +601,29 @@ describe('單開關批次提醒與恢復', () => {
     expect(c.isChecked(key)).toBe(false)
     await c.toggle(occurrence)
     expect(c.isChecked(key)).toBe(true)
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
-    expect(e.calls.some((x) => x.action === 'activate')).toBe(true)
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
+    expect(e.calls.some((x) => x.action === 'activateAuthorized')).toBe(true)
   })
-  it('未確認completeAd同requestId恢復且不再原生授權或廣告', async () => {
+  it('未確認activateAuthorized同requestId恢復且不再原生授權或廣告', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
-    e.fail('completeAd')
+    e.fail('activateAuthorized')
     await c.toggle(occurrence)
     const saved = e.storage.read()!
-    expect(saved.adFinished).toBe(true)
-    expect(saved.pending?.action).toBe('completeAd')
+    expect(saved.adFinished).toBe(false)
+    expect(saved.pending?.action).toBe('activateAuthorized')
     c.destroy()
     e.fail(null)
     const next = e.create()
     await next.refresh()
     expect(next.isChecked(key)).toBe(true)
-    expect(e.calls.filter((x) => x.action === 'completeAd').map((x) => x.input)).toEqual([
+    expect(e.calls.filter((x) => x.action === 'activateAuthorized').map((x) => x.input)).toEqual([
       saved.pending!.input,
       saved.pending!.input,
     ])
     expect(e.platform.subscribeBatch).toHaveBeenCalledOnce()
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
   })
   it('儲存失敗不播放廣告', async () => {
     const e = setup(),
@@ -714,14 +705,14 @@ describe('單開關批次提醒與恢復', () => {
     })
     expect(c.isChecked(otherKey)).toBe(true)
     expect(e.notice).toHaveBeenLastCalledWith(expect.stringContaining('可能仍會收到'))
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
   })
   it('忙碌切場及前景不改操作快照，不提前再次授權', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
-    let finish!: (v: boolean) => void
-    e.platform.watchAd.mockImplementationOnce(
+    let finish!: (v: Record<string, 'accept'>) => void
+    e.platform.subscribeBatch.mockImplementationOnce(
       () =>
         new Promise((r) => {
           finish = r
@@ -735,7 +726,7 @@ describe('單開關批次提醒與恢復', () => {
     expect(c.state.occurrence).toEqual(occurrence)
     expect(e.calls).toHaveLength(count)
     expect(e.platform.subscribeBatch).toHaveBeenCalledOnce()
-    finish(true)
+    finish(Object.fromEntries(templates.map((t) => [t.templateId, 'accept'])))
     await p
   })
   it('讀取action不能成為pending', () => {
@@ -750,22 +741,21 @@ describe('單開關批次提醒與恢復', () => {
       }),
     ).toBeNull()
   })
-  it('廣告取消不開通；destroy遲到完成不覆蓋另一操作', async () => {
+  it('授權取消不開通；destroy遲到授權不覆蓋另一操作', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
-    e.platform.watchAd.mockResolvedValueOnce(false)
+    e.platform.subscribeBatch.mockResolvedValueOnce({} as never)
     await c.toggle(occurrence)
     expect(c.isChecked(key)).toBe(false)
-    let finish!: (v: boolean) => void
-    e.platform.watchAd.mockImplementationOnce(
+    let finish!: (v: Record<string, 'accept'>) => void
+    e.platform.subscribeBatch.mockImplementationOnce(
       () =>
         new Promise((r) => {
           finish = r
         }),
     )
-    const p = c.toggle(occurrence)
-    while (!finish) await Promise.resolve()
+    const pending = c.toggle(occurrence)
     c.destroy()
     const saved: ReminderLocalOperation = {
       version: 1,
@@ -777,33 +767,65 @@ describe('單開關批次提醒與恢復', () => {
       pending: { action: 'completeAd', input: { sessionId: 'b-session', requestId: 'b-complete' } },
     }
     e.storage.write(saved)
-    finish(true)
-    await p
-    expect(e.storage.read()).toEqual(saved)
-  })
-  it('destroy後完整廣告只補存同一操作adFinished，恢復不重看', async () => {
-    const e = setup(),
-      c = e.create()
-    await c.refresh()
-    let finish!: (v: boolean) => void
-    e.platform.watchAd.mockImplementationOnce(
-      () =>
-        new Promise((r) => {
-          finish = r
-        }),
-    )
-    const pending = c.toggle(occurrence)
-    while (!finish) await Promise.resolve()
-    c.destroy()
-    const changes = e.change.mock.calls.length
-    finish(true)
+    finish(Object.fromEntries(templates.map((t) => [t.templateId, 'accept'])))
     await pending
-    expect(e.storage.read()?.adFinished).toBe(true)
-    expect(e.change).toHaveBeenCalledTimes(changes)
-    const next = e.create()
-    await next.refresh()
-    expect(next.isChecked(key)).toBe(true)
-    expect(e.platform.watchAd).toHaveBeenCalledOnce()
+    expect(e.storage.read()).toEqual(saved)
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
+  })
+  it('activateAuthorized持久化沿用v1，拒絕不同session，恢復時不消耗歷史廣告收據', async () => {
+    const e = setup()
+    const receipt = {
+      occurrence,
+      prepareRequestId: 'earned',
+      sessionId: 'old',
+      completionRequestId: 'earned-c',
+      reason: 'expired',
+    }
+    const op = {
+      version: 1 as const,
+      mode: 'batch' as const,
+      occurrence,
+      prepareRequestId: 'p',
+      sessionId: 'session',
+      adFinished: false,
+      pending: {
+        action: 'activateAuthorized' as const,
+        input: { sessionId: 'session', requestId: 'direct-r' },
+      },
+      receipts: [receipt],
+    }
+    expect(readReminderLocalOperation(op)).toEqual(op)
+    expect(
+      readReminderLocalOperation({
+        ...op,
+        pending: { ...op.pending, input: { sessionId: 'wrong', requestId: 'direct-r' } },
+      }),
+    ).toBeNull()
+    expect(readReminderLocalOperation({ ...op, mode: undefined })).toBeNull()
+    expect(
+      readReminderLocalOperation({
+        ...op,
+        sessionId: null,
+        pending: { ...op.pending, input: { sessionId: null, requestId: 'direct-r' } },
+      }),
+    ).toBeNull()
+    e.storage.write(op)
+    e.subs[key] = {
+      key,
+      version: 1,
+      adCompleted: false,
+      slots: templates.map((t) => ({
+        leadSeconds: t.leadSeconds,
+        dueAtUnixSeconds: 20000 - t.leadSeconds,
+        status: 'authorized',
+      })),
+    }
+    const c = e.create()
+    await c.refresh()
+    expect(c.isChecked(key)).toBe(true)
+    expect(e.storage.read()?.receipts).toEqual([receipt])
+    expect(e.platform.subscribeBatch).not.toHaveBeenCalled()
+    expect(e.platform.watchAd).not.toHaveBeenCalled()
   })
   it.each(['success', 'failure', 'unconfirmed'])(
     'destroy遲到%s服務不能覆寫新storage',

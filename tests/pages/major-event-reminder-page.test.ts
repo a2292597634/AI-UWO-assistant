@@ -64,7 +64,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.useRealTimers())
 describe('提醒頁面單開關接線', () => {
-  it('原生廣告失敗顯示可複製診斷，不以 Toast 覆蓋且不開通提醒', async () => {
+  it('頁面有廣告平台亦不預載或播放，完整授權後直接開通', async () => {
     const log = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const templates = ([10800, 3600, 600] as const).map((leadSeconds, i) => ({
       leadSeconds,
@@ -77,6 +77,7 @@ describe('提醒頁面單開關接線', () => {
     }))
     const backend = load('service').createService(memoryRepository(), {
       reference,
+      allowDirect: true,
       config: { ...configured, batchTemplates: templates },
       fingerprint: 'ad-diagnostic',
       now: () => Math.floor(Date.now() / 1000),
@@ -90,19 +91,8 @@ describe('提醒頁面單開關接線', () => {
     wxStub.requestSubscribeMessage.mockImplementation(({ tmplIds, success }) =>
       success(Object.fromEntries(tmplIds.map((id: string) => [id, 'accept']))),
     )
-    let fail!: (error: unknown) => void
-    wxStub.createRewardedVideoAd.mockReturnValue({
-      load: async () => {},
-      show: async () => {
-        fail({ errCode: 1007, errMsg: 'private' })
-      },
-      onClose: () => {},
-      offClose: () => {},
-      offError: () => {},
-      destroy: () => {},
-      onError: (fn: typeof fail) => {
-        fail = fn
-      },
+    wxStub.createRewardedVideoAd.mockImplementation(() => {
+      throw Error('無廣告提醒不得建立廣告')
     })
     const p = page()
     p.onLoad()
@@ -112,15 +102,12 @@ describe('提醒頁面單開關接線', () => {
     const pending = p.onReminderTap(event(item.key))
     await vi.advanceTimersByTimeAsync(0)
     await pending
-    expect(wxStub.showModal).toHaveBeenCalledWith(
-      expect.objectContaining({ title: '提醒廣告診斷', content: expect.stringContaining('1007') }),
-    )
-    expect(wxStub.setClipboardData).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.stringContaining('ad-v1') }),
-    )
-    expect(wxStub.showToast).not.toHaveBeenCalled()
+    expect(wxStub.createRewardedVideoAd).not.toHaveBeenCalled()
+    expect(wxStub.showModal).not.toHaveBeenCalled()
+    expect(wxStub.setClipboardData).not.toHaveBeenCalled()
     expect(actions).not.toContain('completeAd')
-    expect(p.data.reminderChecks[item.key]).not.toBe(true)
+    expect(actions).toContain('activateAuthorized')
+    expect(p.data.reminderChecks[item.key]).toBe(true)
     expect(p.data.reminderBusy).toBe(false)
     p.onUnload()
     log.mockRestore()
@@ -152,7 +139,7 @@ describe('提醒頁面單開關接線', () => {
     expect(malformed.data.detailEventSnapshot).toBeNull()
     for (const instance of [p, baseline, linked, invalid, malformed]) instance.onUnload()
   })
-  it('舊A完整ad確定expired退役後開關可用，B一次授權及新ad，不借A權益', async () => {
+  it('舊A完整ad確定expired退役後開關可用，B一次授權免廣告且保存A收據', async () => {
     const templates = ([10800, 3600, 600] as const).map((leadSeconds, i) => ({
       leadSeconds,
       templateId: String(i + 1).repeat(43),
@@ -180,6 +167,7 @@ describe('提醒頁面單開關接線', () => {
     })
     const backend = load('service').createService(memoryRepository(), {
       reference,
+      allowDirect: true,
       config: { ...configured, batchTemplates: templates },
       fingerprint: 'page-recovery',
       now: () => now,
@@ -193,17 +181,8 @@ describe('提醒頁面單開關接線', () => {
     wxStub.requestSubscribeMessage.mockImplementation(({ tmplIds, success }) =>
       success(Object.fromEntries(tmplIds.map((id: string) => [id, 'accept']))),
     )
-    let close!: (value: { isEnded: boolean }) => void
-    wxStub.createRewardedVideoAd.mockReturnValue({
-      show: async () => {},
-      load: async () => {},
-      onClose: (f: typeof close) => {
-        close = f
-      },
-      offClose: () => {},
-      onError: () => {},
-      offError: () => {},
-      destroy: () => {},
+    wxStub.createRewardedVideoAd.mockImplementation(() => {
+      throw Error('無廣告提醒不得建立廣告')
     })
     const first = page()
     first.onLoad()
@@ -219,10 +198,8 @@ describe('提醒頁面單開關接線', () => {
     const pending = p.onReminderTap(event(b.key))
     expect(wxStub.requestSubscribeMessage).toHaveBeenCalledOnce()
     await vi.advanceTimersByTimeAsync(0)
-    expect(close).toBeDefined()
-    close({ isEnded: true })
     await pending
-    expect(wxStub.createRewardedVideoAd).toHaveBeenCalledTimes(2)
+    expect(wxStub.createRewardedVideoAd).not.toHaveBeenCalled()
     expect(p.data.reminderChecks[b.key]).toBe(true)
     expect(saved).toMatchObject({
       receipts: [{ prepareRequestId: 'a-prepare', completionRequestId: 'a-complete' }],
@@ -273,7 +250,7 @@ describe('提醒頁面單開關接線', () => {
     expect(wxStub.createRewardedVideoAd).not.toHaveBeenCalled()
     p.onUnload()
   })
-  it('一次點擊先原生授權再完整廣告確認；直接取消無Modal，詳情快照不變', async () => {
+  it('一次點擊先原生授權再免費開通；直接取消無Modal，詳情快照不變', async () => {
     const templates = ([10800, 3600, 600] as const).map((leadSeconds, i) => ({
       leadSeconds,
       templateId: String(i + 1).repeat(43),
@@ -285,6 +262,7 @@ describe('提醒頁面單開關接線', () => {
     }))
     const backend = load('service').createService(memoryRepository(), {
       reference,
+      allowDirect: true,
       config: { ...configured, batchTemplates: templates },
       fingerprint: 'page-local',
       now: () => Math.floor(Date.now() / 1000),
@@ -299,17 +277,8 @@ describe('提醒頁面單開關接線', () => {
       order.push('native')
       success(Object.fromEntries(tmplIds.map((id: string) => [id, 'accept'])))
     })
-    let close!: (v: { isEnded: boolean }) => void
-    wxStub.createRewardedVideoAd.mockReturnValue({
-      show: async () => {},
-      load: async () => {},
-      onClose: (f: typeof close) => {
-        close = f
-      },
-      offClose: () => {},
-      onError: () => {},
-      offError: () => {},
-      destroy: () => {},
+    wxStub.createRewardedVideoAd.mockImplementation(() => {
+      throw Error('無廣告提醒不得建立廣告')
     })
     const p = page()
     p.onLoad()
@@ -321,9 +290,10 @@ describe('提醒頁面單開關接線', () => {
     expect(order).toEqual(['native'])
     expect(p.data.reminderChecks[item.key]).not.toBe(true)
     await vi.advanceTimersByTimeAsync(0)
-    close({ isEnded: true })
     await pending
     expect(p.data.reminderChecks[item.key]).toBe(true)
+    expect(order).toEqual(['native', 'prepareBatch', 'authorizeBatch', 'activateAuthorized'])
+    expect(wxStub.createRewardedVideoAd).not.toHaveBeenCalled()
     p.onEventTap(event(item.key))
     await p.onReminderTap(event(item.key))
     expect(p.data.reminderChecks[item.key]).toBe(false)

@@ -1,4 +1,5 @@
 import type { ReviewAdapter } from './adapter'
+import { DIRECT_REMINDER_FIXTURE_SOURCE } from './direct-reminder-fixture'
 
 export const REVIEW_FIXTURE_NAMES = [
   'error-report-review',
@@ -7,6 +8,7 @@ export const REVIEW_FIXTURE_NAMES = [
   'coupon-known-failure',
   'coupon-unknown',
   'major-event-reminder-unconfigured',
+  'major-event-reminder-direct',
 ] as const
 export type ReviewFixtureName = (typeof REVIEW_FIXTURE_NAMES)[number]
 export interface ReviewFixtureSession {
@@ -37,6 +39,7 @@ export const installReviewFixture = async (
 // 僅固定工具源碼可送入 evaluate；場景不得提供腳本或檔案路徑。
 export const fixtureInstallSource = (name: ReviewFixtureName): string => {
   parseReviewFixtureName(name)
+  if (name === 'major-event-reminder-direct') return DIRECT_REMINDER_FIXTURE_SOURCE
   return `function () {
     var name = '${name}';
     if (!wx.cloud || typeof wx.cloud.callFunction !== 'function') throw new Error('缺少可替代的 cloud API');

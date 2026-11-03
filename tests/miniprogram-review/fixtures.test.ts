@@ -9,6 +9,9 @@ import { createAutomatorAdapter } from '../../tools/miniprogram-review/adapter'
 import { createWechatIdeAdapter } from '../../tools/miniprogram-review/wechatide'
 
 const runtime = () => {
+  class FixtureDate extends Date {
+    static now = () => Date.now()
+  }
   const realCloud = vi.fn(() => {
     throw new Error('禁止真雲')
   })
@@ -24,11 +27,75 @@ const runtime = () => {
     wx,
     realCloud,
     realWrite,
-    evaluate: async (source: string) => runInNewContext(`(${source})()`, { wx, Promise }),
+    date: FixtureDate,
+    evaluate: async (source: string) =>
+      runInNewContext(`(${source})()`, { wx, Promise, Date: FixtureDate }),
   }
 }
 
 describe('固定 UI fixture 安全邊界', () => {
+  it.each(['coupon-success', 'major-event-reminder-direct'] as const)(
+    '%s 固定腳本保留Windows命令列參數空間',
+    (name) => {
+      expect(fixtureInstallSource(name).length).toBeLessThan(7400)
+    },
+  )
+  it('免廣告提醒fixture只在記憶體授權開通，還原後不改真雲與儲存', async () => {
+    const state = runtime()
+    const originalNow = state.date.now
+    const native = vi.fn(() => {
+      throw new Error('禁止真授權')
+    })
+    const fixtureWx = Object.assign(state.wx, {
+      requestSubscribeMessage: native,
+      createRewardedVideoAd: vi.fn(() => {
+        throw new Error('禁止廣告')
+      }),
+    })
+    const adapter = createAutomatorAdapter({
+      evaluate: state.evaluate,
+      disconnect: () => undefined,
+    } as never)
+    await adapter.installFixture!('major-event-reminder-direct')
+    expect(state.date.now()).toBe(1793635260000)
+    const cloud = state.wx.cloud.callFunction as unknown as (input: unknown) => Promise<{
+      result: {
+        ok: boolean
+        data: {
+          templates?: Array<{ templateId: string }>
+          subscription?: { adCompleted: boolean; slots: Array<{ status: string }> }
+        }
+      }
+    }>
+    const invoke = (action: string, input = {}) =>
+      cloud({ name: 'major-event-reminder', data: { action, ...input } })
+    const config = await invoke('getBatchConfig')
+    const occurrence = {
+      zoneId: 'zone_1',
+      eventTypeId: 'pop1',
+      triggerAtUnixSeconds: Math.floor(Date.now() / 1000) + 20000,
+    }
+    await invoke('prepareBatch', { occurrence, requestId: 'p' })
+    await invoke('authorizeBatch', {
+      sessionId: 'fixture-direct-session',
+      templateIds: config.result.data.templates!.map((t) => t.templateId),
+      requestId: 'a',
+    })
+    const result = await invoke('activateAuthorized', {
+      sessionId: 'fixture-direct-session',
+      requestId: 'b',
+    })
+    expect(result.result.data.subscription).toMatchObject({
+      adCompleted: false,
+      slots: [{ status: 'pending' }, { status: 'pending' }, { status: 'pending' }],
+    })
+    expect((await invoke('completeAd')).result.ok).toBe(false)
+    await adapter.disconnect()
+    expect(state.date.now).toBe(originalNow)
+    expect(fixtureWx.requestSubscribeMessage).toBe(native)
+    expect(state.realCloud).not.toHaveBeenCalled()
+    expect(state.realWrite).not.toHaveBeenCalled()
+  })
   it('名稱僅接受工具固定白名單', () => {
     expect(() => parseReviewFixtureName('evil.js')).toThrow('不支持')
     expect(() => fixtureInstallSource('evil.js' as never)).toThrow('不支持')

@@ -75,18 +75,53 @@ describe('大流行提醒傳輸邊界', () => {
     ).rejects.toMatchObject({ code: 'unconfirmed' })
     expect(await invoke('authorizeBatch', { subscription: sub })).toEqual({ subscription: sub })
   })
-  it('逾時屬未確認且有界，不把傳輸失敗當成功', async () => {
-    vi.useFakeTimers()
-    vi.stubGlobal('wx', { cloud: { callFunction: () => new Promise(() => {}) } })
-    const pending = createMajorEventReminderService(100).invoke('completeAd', {
-      sessionId: 's',
-      requestId: 'r',
+  it('activateAuthorized只接受既有subscription DTO，不需要adCompleted=true', async () => {
+    const subscription = {
+      key: 'z:p:20000',
+      version: 1,
+      adCompleted: false,
+      slots: [10800, 3600, 600].map((leadSeconds) => ({
+        leadSeconds,
+        dueAtUnixSeconds: 20000 - leadSeconds,
+        status: 'pending',
+      })),
+    }
+    const callFunction = vi.fn(async () => ({ result: { ok: true, data: { subscription } } }))
+    vi.stubGlobal('wx', { cloud: { callFunction } })
+    const service = createMajorEventReminderService()
+    expect(
+      await service.invoke('activateAuthorized', { sessionId: 's', requestId: 'direct-r' }),
+    ).toEqual({ subscription })
+    expect(callFunction).toHaveBeenCalledWith({
+      name: 'major-event-reminder',
+      data: { action: 'activateAuthorized', sessionId: 's', requestId: 'direct-r' },
     })
-    const assertion = expect(pending).rejects.toMatchObject({ code: 'unconfirmed' })
-    await vi.advanceTimersByTimeAsync(100)
-    await assertion
-    expect(vi.getTimerCount()).toBe(0)
+    for (const data of [
+      { subscription, adRequired: false },
+      { subscription, sessionId: 's' },
+      { subscription: { ...subscription, adCompleted: undefined } },
+    ]) {
+      callFunction.mockResolvedValueOnce({ result: { ok: true, data } } as never)
+      await expect(
+        service.invoke('activateAuthorized', { sessionId: 's', requestId: 'direct-r' }),
+      ).rejects.toMatchObject({ code: 'unconfirmed' })
+    }
   })
+  it.each(['completeAd', 'activateAuthorized'] as const)(
+    '逾時屬未確認且有界，不把%s傳輸失敗當成功',
+    async (action) => {
+      vi.useFakeTimers()
+      vi.stubGlobal('wx', { cloud: { callFunction: () => new Promise(() => {}) } })
+      const pending = createMajorEventReminderService(100).invoke(action, {
+        sessionId: 's',
+        requestId: 'r',
+      })
+      const assertion = expect(pending).rejects.toMatchObject({ code: 'unconfirmed' })
+      await vi.advanceTimersByTimeAsync(100)
+      await assertion
+      expect(vi.getTimerCount()).toBe(0)
+    },
+  )
   it.each([
     { subscriptions: [{ key: 'z:p:1', version: 1, adCompleted: true, slots: [] }] },
     {
