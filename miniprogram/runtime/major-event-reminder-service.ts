@@ -1,3 +1,4 @@
+import { callSharedCloudFunction } from './shared-cloud-client'
 import { MAJOR_EVENT_REMINDER_FUNCTION_NAME } from './cloudbase-config'
 import type {
   ReminderAction,
@@ -129,7 +130,7 @@ export const createMajorEventReminderService = (timeoutMs = 12_000): MajorEventR
     let response: unknown
     try {
       response = await Promise.race([
-        wx.cloud.callFunction({
+        callSharedCloudFunction({
           name: MAJOR_EVENT_REMINDER_FUNCTION_NAME,
           data: { action, ...input },
         }),

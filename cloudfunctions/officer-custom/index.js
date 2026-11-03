@@ -7,6 +7,7 @@
 
 const referenceData = require('./reference-data.json')
 const cloud = require('wx-server-sdk')
+const { resolveWechatIdentity } = require('./wechat-identity')
 const { createOfficerCustomService } = require('./officer-custom-service')
 const { createRepository } = require('./officer-custom-repository')
 
@@ -48,7 +49,8 @@ exports.main = async (event, context) => {
   const { action, ...payload } = event ?? {}
   const requestId = getRequestId(context)
   const wxContext = cloud.getWXContext()
-  const ownerUid = wxContext.OPENID || null
+  const identity = resolveWechatIdentity(wxContext)
+  const ownerUid = identity?.ownerUid || null
 
   console.log(
     `[officer-custom] action=${action} owner=${ownerUid ? ownerUid.slice(0, 8) + '...' : 'null'}`,
@@ -56,6 +58,7 @@ exports.main = async (event, context) => {
 
   try {
     const result = await service.dispatch(action, payload, ownerUid)
+    if (result.ok && action === 'getMyOpenId' && identity) result.data = { openid: identity.openId }
     console.log(`[officer-custom] ${action} requestId=${requestId} result: ok=${result.ok}`)
     return result
   } catch (error) {

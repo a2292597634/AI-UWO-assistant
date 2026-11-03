@@ -1,3 +1,4 @@
+import { callSharedCloudFunction } from './shared-cloud-client'
 /**
  * 航海士資料投稿服務適配器。
  *
@@ -57,7 +58,7 @@ async function callOfficerFunction<T>(
 ): Promise<T> {
   let rawResponse: unknown
   try {
-    rawResponse = await wx.cloud.callFunction({
+    rawResponse = await callSharedCloudFunction({
       name: OFFICER_CUSTOM_FUNCTION_NAME,
       data: { action, ...payload },
     })

@@ -1,14 +1,18 @@
 const { createHmac } = require('node:crypto')
+const { resolveWechatIdentity } = require('./core/wechat-identity')
 function createRpcEntry({ readContext, environmentId, appId, identitySecret, service }) {
   return async (event) => {
     const current = readContext()
+    const identity = resolveWechatIdentity(current)
+    const shared = identity?.shared && current.APPID === appId && current.ENV === environmentId
     if (
-      !current ||
-      !['wx_client', 'wx_devtools'].includes(current.SOURCE) ||
-      !current.OPENID ||
-      current.APPID !== appId ||
-      current.ENV !== environmentId ||
-      current.FROM_APPID
+      !shared &&
+      (!current ||
+        !['wx_client', 'wx_devtools'].includes(current.SOURCE) ||
+        !current.OPENID ||
+        current.APPID !== appId ||
+        current.ENV !== environmentId ||
+        current.FROM_APPID)
     )
       return { ok: false, code: 'forbidden', message: '無法確認本次小程序呼叫來源。' }
     if (
@@ -18,16 +22,33 @@ function createRpcEntry({ readContext, environmentId, appId, identitySecret, ser
     ) {
       return { ok: false, code: 'input-invalid', message: '輸入資料不正確。' }
     }
+    // 新帳號的內容安全回調尚未配置，只開放已公開內容及本人的讀取。
+    if (
+      shared &&
+      !['getViewer', 'getProfile', 'listPublic', 'revalidatePublic', 'listMine'].includes(
+        event.action,
+      )
+    ) {
+      return { ok: false, code: 'feature-disabled', message: '新小程序留言發佈服務尚未完成設定。' }
+    }
     // 平台可附加 userInfo／tcbContext；一律忽略其值，只使用本次平台上下文。
     const actor = {
-      openId: current.OPENID,
-      appId: current.APPID,
+      openId: shared ? identity.openId : current.OPENID,
+      appId: shared ? identity.appId : current.APPID,
       ownerKey: createHmac('sha256', identitySecret)
-        .update(current.APPID + ':' + current.OPENID)
+        .update(
+          (shared ? identity.appId : current.APPID) +
+            ':' +
+            (shared ? identity.openId : current.OPENID),
+        )
         .digest('hex'),
     }
     const result = await service.invoke(event.action, event.input ?? {}, actor)
+    if (shared && result.ok && event.action === 'getViewer') {
+      result.data = { ...result.data, isAdmin: false, write: false, review: false }
+    }
     if (
+      !shared &&
       result.ok &&
       [
         'uploadAvatar',

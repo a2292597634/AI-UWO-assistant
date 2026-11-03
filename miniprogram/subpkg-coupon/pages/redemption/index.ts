@@ -7,7 +7,7 @@ import {
 import {
   getCouponRedemptionService,
   CouponRedemptionError,
-} from '../../../runtime/coupon-redemption-service'
+} from '../../runtime/coupon-redemption-service'
 import { createCouponProfileStore } from '../../../runtime/coupon-profile-store'
 import { getCouponResultViewModel } from '../../../presenters/coupon-redemption-presenter'
 

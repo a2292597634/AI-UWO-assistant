@@ -4,7 +4,7 @@
   "fixture": "coupon-unknown",
   "watchPaths": [
     "miniprogram/subpkg-coupon/pages/redemption/",
-    "miniprogram/runtime/coupon-redemption-service.ts",
+    "miniprogram/subpkg-coupon/runtime/coupon-redemption-service.ts",
     "miniprogram/presenters/coupon-redemption-presenter.ts",
     "tools/miniprogram-review/fixtures.ts"
   ],

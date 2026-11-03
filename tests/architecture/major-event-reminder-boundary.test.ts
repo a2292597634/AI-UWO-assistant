@@ -10,7 +10,7 @@ describe('提醒精確網路與頁面驗收契約', () => {
       expect(readFileSync(file, 'utf8')).toContain("'runtime/major-event-reminder-service.ts'")
     expect(readFileSync('AGENTS.md', 'utf8')).toContain('唯一新增例外')
     const source = readFileSync('miniprogram/runtime/major-event-reminder-service.ts', 'utf8')
-    expect(source.match(/wx\.cloud\.callFunction/g)).toHaveLength(1)
+    expect(source.match(/callSharedCloudFunction\(/g)).toHaveLength(1)
     expect(source).toContain('name: MAJOR_EVENT_REMINDER_FUNCTION_NAME')
     expect(source).not.toContain('wx.cloud.database')
   })

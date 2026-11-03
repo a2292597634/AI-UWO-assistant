@@ -4,9 +4,13 @@ on:
   pull_request:
     branches:
       - main
+      - codex/phase-20261103-old-maintenance
+      - codex/phase-20261102-miniprogram-migration
   push:
     branches:
       - main
+      - codex/phase-20261103-old-maintenance
+      - codex/phase-20261102-miniprogram-migration
 
 permissions:
   contents: read

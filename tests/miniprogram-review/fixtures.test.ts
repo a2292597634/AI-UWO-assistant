@@ -29,6 +29,15 @@ const runtime = () => {
 }
 
 describe('固定 UI fixture 安全邊界', () => {
+  it('共享 AppID 的實例通道未被攔截前拒絕安裝原生 fixture', async () => {
+    const state = runtime()
+    Object.assign(state.wx, {
+      getAccountInfoSync: () => ({ miniProgram: { appId: 'wxd0bc7afdc9cd334a' } }),
+    })
+    await expect(state.evaluate(fixtureInstallSource('coupon-success'))).rejects.toThrow('共享連線')
+    expect(state.realCloud).not.toHaveBeenCalled()
+    expect(state.wx.cloud.callFunction).toBe(state.realCloud)
+  })
   it('名稱僅接受工具固定白名單', () => {
     expect(() => parseReviewFixtureName('evil.js')).toThrow('不支持')
     expect(() => fixtureInstallSource('evil.js' as never)).toThrow('不支持')

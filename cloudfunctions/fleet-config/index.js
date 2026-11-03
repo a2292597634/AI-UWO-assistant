@@ -3,6 +3,7 @@
  */
 
 const cloud = require('wx-server-sdk')
+const { resolveWechatIdentity } = require('./wechat-identity')
 const {
   createFleetConfigService,
   getRequestId,
@@ -23,7 +24,7 @@ exports.main = async (event, context) => {
 
   try {
     const wxContext = cloud.getWXContext()
-    const ownerUid = wxContext.OPENID || null
+    const ownerUid = resolveWechatIdentity(wxContext)?.ownerUid || null
     console.log(
       `[fleet-config] action=${action} owner=${ownerUid ? ownerUid.slice(0, 8) + '...' : 'null'}`,
     )

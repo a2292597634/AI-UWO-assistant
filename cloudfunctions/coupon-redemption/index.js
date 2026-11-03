@@ -1,5 +1,6 @@
 const crypto = require('node:crypto')
 const cloud = require('wx-server-sdk')
+const { resolveWechatIdentity } = require('./wechat-identity')
 const { createLineGamesClient } = require('./line-games-client')
 const { createCouponRedemptionService } = require('./coupon-redemption-service')
 
@@ -8,13 +9,17 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const service = createCouponRedemptionService({ client: createLineGamesClient() })
 
 const getRequesterKey = () => {
-  const openid = cloud.getWXContext().OPENID || 'anonymous'
+  const openid = resolveWechatIdentity(cloud.getWXContext())?.ownerUid || 'anonymous'
   return crypto.createHash('sha256').update(openid).digest('hex').slice(0, 16)
 }
 
 exports.main = async (event, context) => {
   const requestId = typeof context?.requestId === 'string' ? context.requestId : 'unknown'
   try {
+    const current = cloud.getWXContext()
+    if (current.FROM_APPID && !resolveWechatIdentity(current)) {
+      return { ok: false, code: 'unknown', message: '無法確認使用者身分，請稍後重試。' }
+    }
     const result = await service.dispatch(event, getRequesterKey())
     console.log(
       `[coupon-redemption] requestId=${requestId} result=${result.ok ? result.data.code : result.code}`,

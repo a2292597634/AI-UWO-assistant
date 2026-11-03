@@ -32,6 +32,7 @@ archive/  →  data/master/  →  miniprogram/generated/
 - 既有 CloudBase／CDN 例外只依 [網路檢查入口](tools/quality/check-runtime-network.ts) 與 [掃描器](tools/quality/find-runtime-network-references.ts) 的精確檔案、API、CDN origin／prefix 邊界放行。CloudBase 僅允許已登記位置的 `init`、`callFunction`、`uploadFile`；CDN 僅允許已登記生成檔案中的圖片欄位，使用發布 manifest 指定的 HTTPS 來源與路徑，不含 query／hash。必須通過 `npm run check:runtime-network`，不得把例外擴大到任意頁面或其他 API。
 - 新增或擴大網路例外前，必須說明檔案、API 與用途並取得用戶授權，再同步掃描白名單與相關契約測試；已有明確授權覆蓋時不重複確認。不得關閉或全域放寬掃描。雲端身分、權限與資料校驗在服務端執行，部署策略參閱既有 `docs/architecture/` 雲端文檔。
 - 用戶於 2026-10-29 明確批准的唯一新增例外：`miniprogram/runtime/major-event-reminder-service.ts` 僅可使用 `wx.cloud.callFunction` 呼叫固定的 `major-event-reminder` 提醒函數；同步精確白名單與契約，既有白名單維持原狀，其餘 API 與檔案禁令不變。
+- 用戶於 2026-11-02 批准新 AppID `wxd0bc7afdc9cd334a` 的共享連線例外：`miniprogram/runtime/shared-cloud-client.ts` 可使用 `wx.cloud.Cloud`、`init`、`callFunction`、`uploadFile`，共享資源方僅限舊 AppID `wx8f961bcd8b26996a` 與環境 `cloud1-d7gxfuxfe813b4eaa`。函數僅限原已登記的六個業務函數，上傳僅限既有 `officer-error-reports/` 截圖流程；同步精確白名單與契約，不授權資料庫直連、任意函數或其他網路 API。
 - 禁止未經用戶確認新增/刪除/升級依賴。
 - 禁止順手修復無關問題或格式化無關文件。
 - 發現範圍外缺陷 → 報告並建議另開任務，不得夾帶。
@@ -68,6 +69,13 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 该文件是页面验收、过程说明和截图证据的唯一规范来源；本文件不重复具体流程。
 
 ## 7. 當前流程入口
+
+### 新舊小程序並行維護（2026-11-03）
+
+- 先讀 [雙端維護手冊](docs/development/dual-app-maintenance.md)。固定入口：`E:\AI-UWO-old`（舊 AppID `wx8f961bcd8b26996a`）；`E:\AI-UWO-new`（新 AppID `wxd0bc7afdc9cd334a`）。兩者是不同維護分支的目錄聯結，勿歸檔仍在使用的舊 worktree。
+- 單端修改從對應維護分支出發；公共修改獨立提交後逐項移植，不盲目整分支互合，不同步帳號配置。提交前原有確認要求不變。
+- 上傳前執行 `tools/release/check-target.ts --target old|new --project-root 絕對工程路徑`（以 Node 22／tsx 執行）。帳號、分支、乾淨提交必須匹配；此工具不代替完整門禁、頁面／真機驗收，也不攔截開發者工具的手動按鈕。
+- **禁止從舊維護分支整包部署雲函數。** 共享環境已部署新舊身份兼容，舊基線缺少此兼容。共享函數修改以新端兼容實現為基礎，先比較線上差異與備份，最小增量部署且驗證兩端；不得因舊前端停更而刪除共享資源。
 
 見 [開發現況與證據](docs/development/current-state.md)、[操作契約索引](docs/development/operation-contracts.md) 與 [任務記錄模板](docs/development/task-record-template.md)。本機、乾淨 checkout、遠端 CI、正式模擬器、真機／真雲的通過證據分開記錄。
 

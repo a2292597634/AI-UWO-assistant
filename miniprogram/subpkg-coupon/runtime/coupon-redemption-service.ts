@@ -1,10 +1,11 @@
-import { COUPON_REDEMPTION_FUNCTION_NAME } from './cloudbase-config'
+import { callSharedCloudFunction } from '../../runtime/shared-cloud-client'
+import { COUPON_REDEMPTION_FUNCTION_NAME } from '../../runtime/cloudbase-config'
 import {
   validateCouponRedemptionInput,
   type CouponRedemptionInput,
   type CouponRedemptionResult,
   type CouponRedemptionServiceCode,
-} from '../contracts/coupon-redemption'
+} from '../../contracts/coupon-redemption'
 
 const UNKNOWN_RESULT_MESSAGE = '結果未確認，請先到官方頁面確認再嘗試。'
 
@@ -89,7 +90,7 @@ const createUnknownError = (): CouponRedemptionError =>
 const callFunction = async (input: CouponRedemptionInput): Promise<CouponRedemptionResult> => {
   let rawResponse: unknown
   try {
-    rawResponse = await wx.cloud.callFunction({
+    rawResponse = await callSharedCloudFunction({
       name: COUPON_REDEMPTION_FUNCTION_NAME,
       data: input,
     })

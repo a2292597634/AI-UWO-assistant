@@ -17,6 +17,8 @@ export interface RuntimeNetworkScanOptions {
   allowedCloudUploadFiles?: readonly string[]
   /** 相對於 miniprogram 根目錄，只允許 init 呼叫與可用性判斷。 */
   allowedCloudInitFiles?: readonly string[]
+  /** 僅允許此精確檔案直接 new wx.cloud.Cloud，不允許提取建構器。 */
+  allowedSharedCloudConstructorFile?: string
 }
 
 const sourceExtensions = new Set(['.ts', '.js', '.json', '.wxml', '.wxss', '.wxs'])
@@ -41,6 +43,28 @@ const isAccess = (
   node: ts.Node,
 ): node is ts.PropertyAccessExpression | ts.ElementAccessExpression =>
   ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)
+
+/** 建構結果必須直接落在可追蹤變數，不能先鏈式取資料庫或解構。 */
+const sharedBindingName = (node: ts.NewExpression): string | undefined => {
+  let value: ts.Node = node
+  while (value.parent) {
+    const parent = value.parent
+    if (
+      ts.isParenthesizedExpression(parent) ||
+      (ts.isConditionalExpression(parent) &&
+        (parent.whenTrue === value || parent.whenFalse === value))
+    ) {
+      value = parent
+    } else break
+  }
+  const declaration = value.parent
+  return declaration &&
+    ts.isVariableDeclaration(declaration) &&
+    declaration.initializer === value &&
+    ts.isIdentifier(declaration.name)
+    ? declaration.name.text
+    : undefined
+}
 
 const allowedAssetUrl = (value: string, options: RuntimeNetworkScanOptions): boolean => {
   if (!options.generatedCdnOrigin || !/^https:\/\/[^\s]+$/.test(value)) return false
@@ -83,7 +107,38 @@ export const findRuntimeNetworkReferences = (
       const allowedUrlSpans: Array<{ start: number; end: number }> = []
 
       if (scriptExtensions.has(extname(path))) {
+        const sharedBindings = new Set<string>()
+        const collectSharedBindings = (node: ts.Node): void => {
+          if (file === options.allowedSharedCloudConstructorFile && ts.isNewExpression(node)) {
+            const constructor = node.expression
+            if (
+              isAccess(constructor) &&
+              accessName(constructor) === 'Cloud' &&
+              isAccess(constructor.expression) &&
+              accessName(constructor.expression) === 'cloud' &&
+              ts.isIdentifier(constructor.expression.expression) &&
+              constructor.expression.expression.text === 'wx'
+            ) {
+              const binding = sharedBindingName(node)
+              if (binding) sharedBindings.add(binding)
+            }
+          }
+          ts.forEachChild(node, collectSharedBindings)
+        }
+        if (file === options.allowedSharedCloudConstructorFile) collectSharedBindings(source)
         const scan = (node: ts.Node): void => {
+          if (sharedBindings.size > 0 && ts.isIdentifier(node) && sharedBindings.has(node.text)) {
+            const parent = node.parent
+            const binding = ts.isVariableDeclaration(parent) && parent.name === node
+            const guard = ts.isIfStatement(parent) && parent.expression === node
+            const directCall =
+              isAccess(parent) &&
+              parent.expression === node &&
+              ['init', 'callFunction', 'uploadFile'].includes(accessName(parent) ?? '') &&
+              ts.isCallExpression(parent.parent) &&
+              parent.parent.expression === parent
+            if (!binding && !guard && !directCall) add(node.getStart(source), 'wx.cloud')
+          }
           if (ts.isStringLiteralLike(node)) {
             const property = node.parent
             const field = ts.isPropertyAssignment(property)
@@ -130,7 +185,15 @@ export const findRuntimeNetworkReferences = (
                 ts.isIfStatement(api) &&
                 api.expression === node &&
                 options.allowedCloudInitFiles?.includes(file)
-              if (!allowedCall && !allowedGuard) add(node.getStart(source), 'wx.cloud')
+              const allowedConstructor =
+                file === options.allowedSharedCloudConstructorFile &&
+                apiName === 'Cloud' &&
+                ts.isNewExpression(call) &&
+                call.expression === api &&
+                sharedBindingName(call) !== undefined
+              if (!allowedCall && !allowedGuard && !allowedConstructor) {
+                add(node.getStart(source), 'wx.cloud')
+              }
             }
           }
           ts.forEachChild(node, scan)

@@ -1,3 +1,4 @@
+import { callSharedCloudFunction } from './shared-cloud-client'
 import { MESSAGE_BOARD_FUNCTION_NAME } from './cloudbase-config'
 import type {
   BoardAction,
@@ -18,7 +19,7 @@ export class MessageBoardError extends Error {
 type CloudCall = (action: BoardAction, input: BoardInputs[BoardAction]) => Promise<unknown>
 export function createMessageBoardService(
   call: CloudCall = async (action, input) =>
-    wx.cloud.callFunction({ name: MESSAGE_BOARD_FUNCTION_NAME, data: { action, input } }),
+    callSharedCloudFunction({ name: MESSAGE_BOARD_FUNCTION_NAME, data: { action, input } }),
 ): MessageBoardService {
   return {
     async invoke<A extends BoardAction>(
