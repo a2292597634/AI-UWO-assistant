@@ -7,6 +7,7 @@ function createHandler(cloud, env = process.env) {
   const service = createService(createRepository(cloud.database()), {
     ...generated,
     config: configFromEnvironment(env),
+    allowDirect: env.MAJOR_REMINDER_ALLOW_DIRECT === 'true',
   })
   return async (event) => {
     // 必須在每次呼叫時取得微信上下文，不接受 payload 的 owner、收件者或訊息正文。
@@ -31,6 +32,11 @@ function createHandler(cloud, env = process.env) {
       if (!['list', 'cancel'].includes(action))
         return { ok: false, code: 'disabled', message: reason }
     }
+    if (
+      action === 'activateAuthorized' &&
+      (current.APPID !== 'wx8f961bcd8b26996a' || Object.hasOwn(current, 'FROM_APPID'))
+    )
+      return { ok: false, code: 'unauthorized', message: '請從舊版小程序直接操作提醒' }
     return service.dispatch(action, input, owner)
   }
 }

@@ -78,10 +78,27 @@ function createWorker(
       if (!job || job.status !== 'pending' || job.nextRunAt > time) return null
       const sub = await tx.get('subscriptions', job.subId)
       const slot = sub?.slots.find((item) => item.leadSeconds === job.leadSeconds)
+      // 免廣告資格只取服務端開通時寫入的任務標記，並綁定當次授權、模板及取消代數。
+      const entitled =
+        job.activationMode === 'authorization-only'
+          ? !!sub &&
+            sub.id === job.subId &&
+            slot?.authorized === true &&
+            typeof job.templateId === 'string' &&
+            job.templateId.length > 0 &&
+            slot.templateId === job.templateId &&
+            Number.isSafeInteger(job.activationEpoch) &&
+            job.activationEpoch > 0 &&
+            job.activationEpoch === sub.epoch &&
+            slot.dueAtUnixSeconds === job.dueAt &&
+            sub.occurrence?.zoneId === job.occurrence?.zoneId &&
+            sub.occurrence?.eventTypeId === job.occurrence?.eventTypeId &&
+            sub.occurrence?.triggerAtUnixSeconds === job.occurrence?.triggerAtUnixSeconds
+          : !!sub?.adCompleted
       let excluded = null
       if (
         !sub ||
-        !sub.adCompleted ||
+        !entitled ||
         slot?.status !== 'pending' ||
         slot.generation !== job.generation ||
         sub.ownerUid !== job.ownerUid
