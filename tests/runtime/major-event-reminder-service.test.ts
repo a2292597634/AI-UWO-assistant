@@ -6,6 +6,24 @@ afterEach(() => {
   vi.useRealTimers()
 })
 describe('大流行提醒傳輸邊界', () => {
+  it.each(['getConfig', 'getBatchConfig'] as const)(
+    '無廣告配置允許空廣告位但不允許其他型別：%s',
+    async (action) => {
+      const base =
+        action === 'getConfig'
+          ? { enabled: false, reason: '尚未配置模板', templateId: '', adUnitId: '' }
+          : { enabled: false, reason: '尚未配置模板', templates: [], adUnitId: '' }
+      const invoke = (data: unknown) => {
+        vi.stubGlobal('wx', {
+          cloud: { callFunction: async () => ({ result: { ok: true, data } }) },
+        })
+        return createMajorEventReminderService().invoke(action, {})
+      }
+      await expect(invoke(base)).resolves.toEqual(base)
+      for (const adUnitId of [null, 1, {}, 'x'.repeat(201)])
+        await expect(invoke({ ...base, adUnitId })).rejects.toMatchObject({ code: 'unconfirmed' })
+    },
+  )
   it('固定函數與扁平資料，缺配置仍作為正常資料返回', async () => {
     const config = {
       enabled: false,

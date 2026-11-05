@@ -23,7 +23,8 @@ const record = (v: unknown): v is Record<string, unknown> =>
 const keys = (v: Record<string, unknown>, expected: string[]): boolean =>
   Object.keys(v).length === expected.length &&
   expected.every((k) => Object.prototype.hasOwnProperty.call(v, k))
-const text = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= 200
+const boundedText = (v: unknown): v is string => typeof v === 'string' && v.length <= 200
+const text = (v: unknown): v is string => boundedText(v) && v.length > 0
 const statuses = [
   'unsubscribed',
   'authorized',
@@ -74,7 +75,7 @@ const validData = (action: ReminderAction, v: unknown): boolean => {
       keys(v, ['enabled', 'reason', 'adUnitId', 'templates']) &&
       typeof v.enabled === 'boolean' &&
       (v.reason === null || text(v.reason)) &&
-      text(v.adUnitId) &&
+      boundedText(v.adUnitId) &&
       Array.isArray(v.templates) &&
       (v.enabled
         ? v.templates.length === 3 &&
@@ -97,7 +98,7 @@ const validData = (action: ReminderAction, v: unknown): boolean => {
       (v.reason === null || text(v.reason)) &&
       typeof v.templateId === 'string' &&
       v.templateId.length <= 200 &&
-      text(v.adUnitId) &&
+      boundedText(v.adUnitId) &&
       (!v.enabled || text(v.templateId))
     )
   if (action === 'list')

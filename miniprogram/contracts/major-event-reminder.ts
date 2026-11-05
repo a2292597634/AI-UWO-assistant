@@ -48,6 +48,7 @@ export interface ReminderInputs {
   authorize: { sessionId: string; leadSeconds: ReminderLeadSeconds; requestId: string }
   completeAd: { sessionId: string; requestId: string }
   activate: { sessionId: string; requestId: string }
+  activateAuthorized: { sessionId: string; requestId: string }
   cancel: { key: string; expectedVersion: number; requestId: string }
 }
 export interface ReminderOutputs {
@@ -60,6 +61,7 @@ export interface ReminderOutputs {
   authorize: { subscription: ReminderSubscription }
   completeAd: { subscription: ReminderSubscription }
   activate: { subscription: ReminderSubscription }
+  activateAuthorized: { subscription: ReminderSubscription }
   cancel: { subscription: ReminderSubscription }
 }
 export type ReminderAction = keyof ReminderInputs

@@ -62,13 +62,22 @@ function createTaskWorker(ctx) {
     for (const candidate of tasks) {
       if (ownerKey && completed >= 4) break
       if (candidate.nextAttemptAt > ctx.now()) continue
-      if (['text', 'image'].includes(candidate.type) && ctx.safety.available?.() === false) continue
       const lease = randomUUID()
       const task = await ctx.repo.transaction(async (tx) => {
         const row = await tx.get(C.tasks, candidate._id)
         if (!row || row.state !== 'queued' || row.nextAttemptAt > ctx.now()) return null
         const owner = await tx.get(C.owners, row.ownerKey)
         if (!owner) return null
+        if (
+          ['text', 'image'].includes(row.type) &&
+          ctx.safety.available?.(ctx.ownerAppId(owner)) === false
+        ) {
+          // 停用某端時將不可執行項移到隊尾，避免佔滿首批並阻塞另一端。
+          // 不消耗重試或延後 nextAttemptAt，設定恢復即可再次執行。
+          row.orderKey = String(ctx.now() + 60000).padStart(13, '0') + ':' + row._id
+          await tx.set(C.tasks, row._id, row)
+          return null
+        }
         if (row.type === 'text' && owner.clearing) {
           row.state = 'cancelled'
           await tx.set(C.tasks, row._id, row)
@@ -79,7 +88,12 @@ function createTaskWorker(ctx) {
         row.leaseUntil = ctx.now() + 30000
         row.attempts++
         await tx.set(C.tasks, row._id, row)
-        return { ...row, openId: owner.openId, lastVisitAt: owner.lastVisitAt }
+        return {
+          ...row,
+          appId: ctx.ownerAppId(owner),
+          openId: owner.openId,
+          lastVisitAt: owner.lastVisitAt,
+        }
       })
       if (!task) continue
       if (task.type === 'clear') {
@@ -128,7 +142,7 @@ function createTaskWorker(ctx) {
       try {
         if (ctx.now() - task.lastVisitAt > 7200000) safety = 'needs-author'
         else {
-          const result = await ctx.safety.checkText(task.text, task.scene, task.openId)
+          const result = await ctx.safety.checkText(task.text, task.scene, task.openId, task.appId)
           errorCode = providerErrorCode(result)
           if (result.errCode === 0 && ['pass', 'review', 'risky'].includes(result.suggest))
             safety = result.suggest

@@ -9,7 +9,7 @@ function createReviews(ctx) {
       reason = text(input.reason, 'reason')
     if (input.manualReviewReason) reason = text(input.manualReviewReason, 'reason')
     if (reason) {
-      const result = await ctx.safety.checkText(reason, 2, actor.openId)
+      const result = await ctx.safety.checkText(reason, 2, actor.openId, actor.appId ?? null)
       if (result.errCode !== 0 || result.suggest !== 'pass') throw fail('safety-not-ready')
     }
     return ctx.operations.write(

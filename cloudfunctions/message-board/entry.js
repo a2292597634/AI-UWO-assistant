@@ -1,6 +1,13 @@
 const { createHmac } = require('node:crypto')
 const { resolveWechatIdentity } = require('./core/wechat-identity')
-function createRpcEntry({ readContext, environmentId, appId, identitySecret, service }) {
+function createRpcEntry({
+  readContext,
+  environmentId,
+  appId,
+  identitySecret,
+  newProfile,
+  service,
+}) {
   return async (event) => {
     const current = readContext()
     const identity = resolveWechatIdentity(current)
@@ -12,7 +19,8 @@ function createRpcEntry({ readContext, environmentId, appId, identitySecret, ser
         !current.OPENID ||
         current.APPID !== appId ||
         current.ENV !== environmentId ||
-        current.FROM_APPID)
+        ![undefined, ''].includes(current.FROM_APPID) ||
+        ![undefined, ''].includes(current.FROM_OPENID))
     )
       return { ok: false, code: 'forbidden', message: '無法確認本次小程序呼叫來源。' }
     if (
@@ -22,9 +30,10 @@ function createRpcEntry({ readContext, environmentId, appId, identitySecret, ser
     ) {
       return { ok: false, code: 'input-invalid', message: '輸入資料不正確。' }
     }
-    // 新帳號的內容安全回調尚未配置，只開放已公開內容及本人的讀取。
+    // 新帳號須有完整獨立安全設定，否則維持既有只讀模式。
     if (
       shared &&
+      !newProfile?.enabled &&
       !['getViewer', 'getProfile', 'listPublic', 'revalidatePublic', 'listMine'].includes(
         event.action,
       )
@@ -44,11 +53,11 @@ function createRpcEntry({ readContext, environmentId, appId, identitySecret, ser
         .digest('hex'),
     }
     const result = await service.invoke(event.action, event.input ?? {}, actor)
-    if (shared && result.ok && event.action === 'getViewer') {
+    if (shared && !newProfile?.enabled && result.ok && event.action === 'getViewer') {
       result.data = { ...result.data, isAdmin: false, write: false, review: false }
     }
     if (
-      !shared &&
+      (!shared || newProfile?.enabled) &&
       result.ok &&
       [
         'uploadAvatar',

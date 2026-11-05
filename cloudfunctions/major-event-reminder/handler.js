@@ -1,13 +1,20 @@
 const { createService } = require('./service')
 const { createRepository } = require('./repository')
-const { configFromEnvironment } = require('./config')
+const { configFromEnvironment, resolveOwnerProfile } = require('./config')
 const generated = require('./reference-data.json')
 const { resolveWechatIdentity } = require('./wechat-identity')
 function createHandler(cloud, env = process.env) {
-  const service = createService(createRepository(cloud.database()), {
+  const repo = createRepository(cloud.database())
+  const config = configFromEnvironment(env)
+  const service = createService(repo, {
     ...generated,
-    config: configFromEnvironment(env),
+    config,
     allowDirect: env.MAJOR_REMINDER_ALLOW_DIRECT === 'true',
+  })
+  const sharedService = createService(repo, {
+    ...generated,
+    config: config.sharedApp || {},
+    allowDirect: !!config.sharedApp,
   })
   return async (event) => {
     // 必須在每次呼叫時取得微信上下文，不接受 payload 的 owner、收件者或訊息正文。
@@ -25,12 +32,27 @@ function createHandler(cloud, env = process.env) {
       return { ok: false, code: 'unauthorized', message: '無法確認小程序身分' }
     if (identity?.shared) {
       const reason = '新小程序提醒服務尚未完成設定'
-      if (action === 'getConfig')
-        return { ok: true, data: { enabled: false, reason, templateId: '', adUnitId: '' } }
-      if (action === 'getBatchConfig')
-        return { ok: true, data: { enabled: false, reason, templates: [], adUnitId: '' } }
-      if (!['list', 'cancel'].includes(action))
+      if (!resolveOwnerProfile(config, owner)) {
+        if (action === 'getConfig')
+          return { ok: true, data: { enabled: false, reason, templateId: '', adUnitId: '' } }
+        if (action === 'getBatchConfig')
+          return { ok: true, data: { enabled: false, reason, templates: [], adUnitId: '' } }
+        if (!['list', 'cancel'].includes(action))
+          return { ok: false, code: 'disabled', message: reason }
+      }
+      if (
+        ![
+          'getConfig',
+          'getBatchConfig',
+          'list',
+          'cancel',
+          'prepareBatch',
+          'authorizeBatch',
+          'activateAuthorized',
+        ].includes(action)
+      )
         return { ok: false, code: 'disabled', message: reason }
+      return sharedService.dispatch(action, input, owner)
     }
     if (
       action === 'activateAuthorized' &&

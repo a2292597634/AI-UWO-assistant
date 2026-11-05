@@ -1,5 +1,7 @@
 /** 模板與正文只由服務端配置。缺失或型別不符時必須先停用。 */
 const AD_UNIT_ID = 'adunit-accfb914625e0bc7'
+const OLD_APP_ID = 'wx8f961bcd8b26996a'
+const NEW_APP_ID = 'wxd0bc7afdc9cd334a'
 const PROFILES = [
   { activity: 'thing', start: 'time' },
   { eventType: 'thing', zone: 'thing', start: 'time', lead: 'thing', note: 'thing' },
@@ -36,7 +38,7 @@ function validateConfig(config = {}) {
     enabled: reason === null,
     reason,
     templateId: reason ? '' : config.templateId,
-    adUnitId: AD_UNIT_ID,
+    adUnitId: config.disableAds === true ? '' : AD_UNIT_ID,
   }
 }
 function configFromEnvironment(env) {
@@ -52,12 +54,23 @@ function configFromEnvironment(env) {
   } catch {
     /* registry 空窗不影響舊模板。 */
   }
-  return {
+  const config = {
     batchTemplates,
     templateId: env.MAJOR_REMINDER_TEMPLATE_ID || '',
     fields,
     miniprogramState: env.MAJOR_REMINDER_MINIPROGRAM_STATE || '',
   }
+  if (env.MAJOR_REMINDER_NEW_ENABLED === 'true')
+    config.sharedApp = {
+      ...configFromEnvironment({
+        MAJOR_REMINDER_TEMPLATE_ID: env.MAJOR_REMINDER_NEW_TEMPLATE_ID,
+        MAJOR_REMINDER_TEMPLATE_FIELDS: env.MAJOR_REMINDER_NEW_TEMPLATE_FIELDS,
+        MAJOR_REMINDER_BATCH_TEMPLATES: env.MAJOR_REMINDER_NEW_BATCH_TEMPLATES,
+        MAJOR_REMINDER_MINIPROGRAM_STATE: env.MAJOR_REMINDER_NEW_MINIPROGRAM_STATE,
+      }),
+      disableAds: true,
+    }
+  return config
 }
 function notificationData(config, reference, occurrence, leadSeconds) {
   if (!validateConfig(config).enabled) throw new Error('提醒配置不可用')
@@ -119,14 +132,38 @@ function validateBatchConfig(config = {}) {
   return {
     enabled: !!valid,
     reason: valid ? null : '尚未配置完整且相容的三個微信訂閱消息模板',
-    adUnitId: AD_UNIT_ID,
+    adUnitId: config.disableAds === true ? '' : AD_UNIT_ID,
     templates: valid
       ? templates.map(({ leadSeconds, templateId, title }) => ({ leadSeconds, templateId, title }))
       : [],
   }
 }
 /** 舊 primary 優先；registry 空窗不可改寫舊任務正文。 */
-function resolveJobConfig(config, templateId) {
+function resolveSharedConfig(config) {
+  const shared = config.sharedApp
+  return shared && validateConfig(shared).enabled && validateBatchConfig(shared).enabled
+    ? shared
+    : null
+}
+function resolveOwnerProfile(config, owner) {
+  if (typeof owner !== 'string' || !owner || owner.length > 128) return null
+  const shared = owner.startsWith(NEW_APP_ID + ':')
+  const openId = shared ? owner.slice(NEW_APP_ID.length + 1) : owner
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(openId)) return null
+  if (shared) {
+    const selected = resolveSharedConfig(config)
+    if (!selected) return null
+    return { appId: NEW_APP_ID, openId, config: selected }
+  }
+  return { appId: OLD_APP_ID, openId, config }
+}
+function resolveJobConfig(config, templateId, owner) {
+  // 既有雙參數介面維持舊模板；worker必須帶持久化owner，禁止跨端借模板。
+  if (arguments.length >= 3) {
+    const profile = resolveOwnerProfile(config, owner)
+    if (!profile) return null
+    config = profile.config
+  }
   if (templateId === config.templateId && validateConfig(config).enabled) return config
   if (!validateBatchConfig(config).enabled) return null
   const template = config.batchTemplates.find((t) => t.templateId === templateId)
@@ -139,4 +176,6 @@ module.exports = {
   resolveJobConfig,
   configFromEnvironment,
   notificationData,
+  resolveOwnerProfile,
+  resolveSharedConfig,
 }
