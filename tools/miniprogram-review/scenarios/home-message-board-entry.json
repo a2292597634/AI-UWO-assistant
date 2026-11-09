@@ -1,43 +1,10 @@
 {
-  "name": "首頁留言板與回報並列入口",
-  "entry": "/pages/home/index",
+  "name": "留言板舊路徑可開啟並返回首頁遷移彈窗",
+  "entry": "/subpkg-message-board/pages/board/index",
   "watchPaths": ["miniprogram/pages/home/", "miniprogram/subpkg-message-board/pages/board/"],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
-    {
-      "action": "waitUntil",
-      "condition": {
-        "selector": "#home-message-board",
-        "kind": "exists",
-        "exists": true
-      }
-    },
-    {
-      "action": "assertText",
-      "selector": ".module-grid--secondary",
-      "contains": "資料錯誤回報"
-    },
-    {
-      "action": "assertText",
-      "selector": ".module-grid--secondary",
-      "contains": "留言板"
-    },
-    {
-      "action": "screenshot",
-      "name": "home-support-entries"
-    },
-    {
-      "action": "tap",
-      "selector": "#home-message-board"
-    },
-    {
-      "action": "waitUntil",
-      "condition": {
-        "path": "/subpkg-message-board/pages/board/index",
-        "kind": "page"
-      }
-    },
     {
       "action": "assertText",
       "selector": ".board-page__title",
@@ -59,19 +26,13 @@
       }
     },
     {
-      "action": "tap",
-      "selector": "#home-error-report"
-    },
-    {
-      "action": "waitUntil",
-      "condition": {
-        "path": "/pages/officer-editor/index",
-        "kind": "page"
-      }
+      "action": "assertText",
+      "selector": ".migration-gate__title",
+      "contains": "起源航海小助手"
     },
     {
       "action": "screenshot",
-      "name": "existing-error-report-route"
+      "name": "home-migration-gate-after-board"
     }
   ]
 }

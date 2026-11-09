@@ -11,6 +11,8 @@ Page({
     title: '航海助手',
     count: 0,
     bannerFailed: false,
+    openingNewMiniProgram: false,
+    migrationError: false,
     modules: [
       {
         id: 'officer-catalog',
@@ -87,10 +89,19 @@ Page({
     this.setData({ [`modules[${moduleIndex}].iconFailed`]: true })
   },
 
-  onModuleTap(event: WechatMiniprogram.BaseEvent) {
-    const route = event.currentTarget.dataset.route
-    if (typeof route !== 'string' || !route) return
+  onOpenNewMiniProgram() {
+    if (this.data.openingNewMiniProgram) return
+    this.setData({ openingNewMiniProgram: true, migrationError: false })
 
-    wx.navigateTo({ url: route })
+    wx.navigateToMiniProgram({
+      appId: 'wxd0bc7afdc9cd334a',
+      envVersion: 'release',
+      fail: ({ errMsg }) => {
+        if (errMsg !== 'navigateToMiniProgram:fail cancel') {
+          this.setData({ migrationError: true })
+        }
+      },
+      complete: () => this.setData({ openingNewMiniProgram: false }),
+    })
   },
 })

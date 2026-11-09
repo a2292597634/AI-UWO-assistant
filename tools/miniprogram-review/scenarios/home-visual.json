@@ -3,6 +3,7 @@
   "entry": "/pages/home/index",
   "watchPaths": [
     "miniprogram/pages/home/",
+    "miniprogram/assets/ui/home-harbor.jpg",
     "miniprogram/assets/ui/feature-officer-catalog.png",
     "miniprogram/assets/ui/feature-battle-fleet.png",
     "miniprogram/assets/ui/feature-adventure-fleet.png",
@@ -24,8 +25,29 @@
       "contains": "大流行時刻表"
     },
     {
+      "action": "tap",
+      "selector": ".module-grid__item"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "page",
+        "path": "/pages/home/index"
+      }
+    },
+    {
+      "action": "assertText",
+      "selector": ".migration-gate__title",
+      "contains": "起源航海小助手"
+    },
+    {
+      "action": "assertText",
+      "selector": ".migration-gate__button",
+      "contains": "前往新版"
+    },
+    {
       "action": "screenshot",
-      "name": "home-top"
+      "name": "home-migration-gate"
     }
   ]
 }

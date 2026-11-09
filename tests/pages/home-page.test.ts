@@ -14,6 +14,8 @@ interface HomePageData {
   title: string
   count: number
   bannerFailed: boolean
+  openingNewMiniProgram: boolean
+  migrationError: boolean
   modules: HomeModule[]
   supportEntries: Array<{ id: string; name: string; hint: string; route: string }>
 }
@@ -23,7 +25,7 @@ interface HomePageConfig {
   onLoad(): void
   onBannerError(): void
   onModuleIconError(event: WechatMiniprogram.BaseEvent): void
-  onModuleTap(event: WechatMiniprogram.BaseEvent): void
+  onOpenNewMiniProgram(): void
 }
 
 interface HomePageInstance extends HomePageConfig {
@@ -34,7 +36,7 @@ interface HomePageInstance extends HomePageConfig {
 let homePage: HomePageConfig
 
 const wxStub = {
-  navigateTo: vi.fn(),
+  navigateToMiniProgram: vi.fn<(options: WechatMiniprogram.NavigateToMiniProgramOption) => void>(),
 }
 
 const createPageInstance = (): HomePageInstance => {
@@ -79,7 +81,7 @@ const homeWxss = fs.readFileSync(
 )
 
 describe('首頁功能入口', () => {
-  it('留言板與資料錯誤回報同屬次級入口，且留言板可導航至已註冊分包', () => {
+  it('留言板與資料錯誤回報同屬次級入口，且留言板仍有已註冊分包', () => {
     const page = createPageInstance()
     expect(page.data.supportEntries?.map((entry) => entry.id)).toEqual([
       'error-report',
@@ -87,10 +89,6 @@ describe('首頁功能入口', () => {
     ])
     const entry = page.data.supportEntries.find((item) => item.id === 'message-board')!
     expect(page.data.modules.slice(0, 6).some((item) => item.id === 'message-board')).toBe(false)
-    page.onModuleTap({ currentTarget: { dataset: { route: entry.route } } } as never)
-    expect(wxStub.navigateTo).toHaveBeenCalledWith({
-      url: '/subpkg-message-board/pages/board/index',
-    })
     const app = JSON.parse(
       fs.readFileSync(path.resolve(__dirname, '../../miniprogram/app.json'), 'utf8'),
     ) as { subpackages: Array<{ root: string; pages: string[] }> }
@@ -102,14 +100,47 @@ describe('首頁功能入口', () => {
       fs.existsSync(path.resolve(__dirname, '../../miniprogram' + entry.route + '.wxml')),
     ).toBe(true)
   })
-  it('保留現有模組路由事件', () => {
+  it('在首頁保留遮罩背景但移除舊功能入口的點擊操作', () => {
+    expect(homeWxml).toContain('bindtap="onOpenNewMiniProgram"')
+    expect(homeWxml).not.toContain('bindtap="onModuleTap"')
+    expect(homeWxml).toContain('起源航海小助手')
+  })
+
+  it('只從按鈕開啟固定的新版正式版，等待微信回應期間防止連點', () => {
     const page = createPageInstance()
+    page.onOpenNewMiniProgram()
+    page.onOpenNewMiniProgram()
 
-    page.onModuleTap({
-      currentTarget: { dataset: { route: '/subpkg-fleet/pages/index/index' } },
-    } as never)
+    expect(wxStub.navigateToMiniProgram).toHaveBeenCalledTimes(1)
+    const options = wxStub.navigateToMiniProgram.mock.calls[0]![0]
+    expect(options).toMatchObject({ appId: 'wxd0bc7afdc9cd334a', envVersion: 'release' })
+    expect(options.path).toBeUndefined()
+    expect(options.extraData).toBeUndefined()
+    expect(page.data.openingNewMiniProgram).toBe(true)
 
-    expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/subpkg-fleet/pages/index/index' })
+    options.complete?.({ errMsg: 'navigateToMiniProgram:ok' })
+    expect(page.data.openingNewMiniProgram).toBe(false)
+  })
+
+  it('取消後可重新開啟，其他失敗會顯示可重試的提示', () => {
+    const page = createPageInstance()
+    page.onOpenNewMiniProgram()
+    const cancelled = wxStub.navigateToMiniProgram.mock.calls[0]![0]
+    const cancelError = { errMsg: 'navigateToMiniProgram:fail cancel' }
+    cancelled.fail?.(cancelError)
+    cancelled.complete?.(cancelError)
+    expect(page.data.migrationError).toBe(false)
+
+    page.onOpenNewMiniProgram()
+    const failed = wxStub.navigateToMiniProgram.mock.calls[1]![0]
+    const otherError = { errMsg: 'navigateToMiniProgram:fail app not found' }
+    failed.fail?.(otherError)
+    failed.complete?.(otherError)
+    expect(page.data.migrationError).toBe(true)
+
+    page.onOpenNewMiniProgram()
+    expect(wxStub.navigateToMiniProgram).toHaveBeenCalledTimes(3)
+    expect(page.data.migrationError).toBe(false)
   })
 
   it('顯示六個主要模組並將資料錯誤回報降級為次級入口', () => {
@@ -160,7 +191,7 @@ describe('首頁功能入口', () => {
     expect(homeWxss).toMatch(/width:\s*33\.333333%/)
   })
 
-  it('keeps the major-event entry visible and navigable after its icon fails', () => {
+  it('大流行背景圖示失敗時仍顯示名稱與替代圖形', () => {
     const page = createPageInstance()
     page.onModuleIconError({ currentTarget: { dataset: { index: '4' } } } as never)
 
@@ -168,12 +199,6 @@ describe('首頁功能入口', () => {
       id: 'major-events',
       name: '大流行時刻表',
       iconFailed: true,
-    })
-    page.onModuleTap({
-      currentTarget: { dataset: { route: page.data.modules[4]?.route } },
-    } as never)
-    expect(wxStub.navigateTo).toHaveBeenCalledWith({
-      url: '/subpkg-trade/pages/popularity/index',
     })
     expect(homeWxml).toContain('module-grid__icon-fallback')
   })

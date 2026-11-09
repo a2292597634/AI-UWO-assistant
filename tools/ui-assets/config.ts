@@ -126,7 +126,7 @@ export const UI_ASSET_RECIPES: readonly UiAssetRecipe[] = [
     mode: 'banner-jpeg',
     width: 750,
     height: 320,
-    maxBytes: 150 * 1024,
+    maxBytes: 30 * 1024,
     group: 'banner',
   },
   {

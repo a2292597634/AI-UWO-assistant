@@ -56,10 +56,11 @@ describe('waitUntil 相容性與有界等待', () => {
       .filter((name) => name.endsWith('.json'))
       .map((name) => loadScenario(resolve(directory, name)))
     expect(
-      scenarios.filter((scenario) =>
-        scenario.steps.some((step) => String(step.action) === 'waitUntil'),
-      ),
-    ).toHaveLength(8)
+      scenarios.find((scenario) => scenario.name === '首頁六個主要入口')?.steps,
+    ).toContainEqual({
+      action: 'waitUntil',
+      condition: { kind: 'page', path: '/pages/home/index' },
+    })
     expect(
       scenarios.find((scenario) => scenario.fixture === 'major-event-reminder-direct')?.steps,
     ).toContainEqual({

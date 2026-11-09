@@ -310,8 +310,8 @@
       "mimeType": "image/jpeg",
       "width": 750,
       "height": 320,
-      "byteSize": 32507,
-      "sha256": "05e464351314626a35fa87493a79c3bef1bfb4fece813ba24c98c4d1aca0ffcf",
+      "byteSize": 29194,
+      "sha256": "19645efdbadbc31505d759e84fba9aa7e27ac5e0e496130e1b0eaa1f1cae40c8",
       "sourceTransparentBounds": {
         "left": 0,
         "top": 0,
@@ -785,9 +785,9 @@
     }
   ],
   "groupBytes": {
-    "banner": 181503,
+    "banner": 178190,
     "feature": 15812,
     "original-ui": 53836
   },
-  "totalBytes": 251151
+  "totalBytes": 247838
 }
