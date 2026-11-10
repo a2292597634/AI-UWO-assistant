@@ -1,7 +1,7 @@
 {
-  "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
-  "manifestDigest": "f03056b93d4c1faf6343beaf5d4789d720d5c646d8fa035306043514c4ccf038",
-  "contentVersion": "maintenance-756fe5d9f2b01a27",
+  "releaseId": "officer-intake-20261109-calix-heidelloon-14e54168c0fe",
+  "manifestDigest": "14e54168c0fe7e4ebb8e552a66a8c2a2ed0d8c9172de89c4d6f07d9f0c37585c",
+  "contentVersion": "officer-intake-20261109-calix-heidelloon",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
   "cacheControl": "public, max-age=31536000, immutable",
@@ -25602,6 +25602,116 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_piyale.png",
       "releaseId": "maintenance-756fe5d9f2b01a27-f03056b93d4c",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/maintenance-756fe5d9f2b01a27-f03056b93d4c/officer_custom_piyale.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_calix.png",
+      "filename": "officer_wo_offline_calix.png",
+      "sha256": "b515abe44c765b1feb3a73e926fab953202ad1f1742fdc16d1df93f4a819f857",
+      "bytes": 114868,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/officer_wo_offline_calix.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/officer_wo_offline_calix.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/officer_wo_offline_calix.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_heidelloon.png",
+      "filename": "officer_wo_offline_heidelloon.png",
+      "sha256": "24a839597da6e61eecd56d8451da3310b92fef1691e620051523a5e17d374b81",
+      "bytes": 109484,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/officer_wo_offline_heidelloon.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/officer_wo_offline_heidelloon.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/officer_wo_offline_heidelloon.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_calix_first_month.png",
+      "filename": "skill_wo_offline_calix_first_month.png",
+      "sha256": "f91e1b4c70a7540779317caf1134e80d40888f9d89a7e09caa99bff904c38646",
+      "bytes": 9629,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_first_month.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_first_month.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_first_month.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_calix_melee_fire_demon.png",
+      "filename": "skill_wo_offline_calix_melee_fire_demon.png",
+      "sha256": "82669d3d89fd79e12a7474322b3f0dc3418b0c04830b70eef220ccdf57754afa",
+      "bytes": 11881,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_melee_fire_demon.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_melee_fire_demon.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_melee_fire_demon.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_calix_special_alcohol_markup.png",
+      "filename": "skill_wo_offline_calix_special_alcohol_markup.png",
+      "sha256": "4131dce3052db8a1450311b84c1f2004a6989a9dbec3412ec580ae93431b20c4",
+      "bytes": 11632,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_special_alcohol_markup.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_special_alcohol_markup.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_calix_special_alcohol_markup.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_heidelloon_battlefield_inspection.png",
+      "filename": "skill_wo_offline_heidelloon_battlefield_inspection.png",
+      "sha256": "977e5748045624b7696a9d57dc965cb64ecef381220b4a479fad6b7e00cc8cc3",
+      "bytes": 11708,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_battlefield_inspection.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_battlefield_inspection.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_battlefield_inspection.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_heidelloon_obsessive_pursuit.png",
+      "filename": "skill_wo_offline_heidelloon_obsessive_pursuit.png",
+      "sha256": "8c8f81929cd463b961002c6d865215ef96dc19daa5b0f2189c98575838906fee",
+      "bytes": 12604,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_obsessive_pursuit.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_obsessive_pursuit.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_obsessive_pursuit.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_heidelloon_satellite_attack.png",
+      "filename": "skill_wo_offline_heidelloon_satellite_attack.png",
+      "sha256": "cba3e8a05758055fff974713730c2401579beda4d88125a77d6d687243ba7b1f",
+      "bytes": 10281,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_satellite_attack.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_satellite_attack.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_satellite_attack.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_heidelloon_trained_eye.png",
+      "filename": "skill_wo_offline_heidelloon_trained_eye.png",
+      "sha256": "f9355887a174b4c1cb02533a13e6a287c25ba5360a5a851a81041ba8903b304d",
+      "bytes": 12672,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_trained_eye.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_trained_eye.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_trained_eye.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_heidelloon_veramode_damage.png",
+      "filename": "skill_wo_offline_heidelloon_veramode_damage.png",
+      "sha256": "13366e5da1c53d8716b4115883ef3c0e4ce9fadfa013bdd2139a3cd12ec25cb2",
+      "bytes": 9666,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_veramode_damage.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_veramode_damage.png",
+      "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_veramode_damage.png"
     }
   ]
 }

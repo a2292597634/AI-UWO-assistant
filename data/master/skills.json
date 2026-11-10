@@ -13297,5 +13297,93 @@
     "sourceRefs": {
       "workOrderId": "wo_offline_adventure_passive_skills:observation_hazard"
     }
+  },
+  {
+    "id": "skill_wo_offline_calix_first_month",
+    "name": "管家第一個月",
+    "categoryId": "skill_category_innate_buff",
+    "description": "工業製品出售溢價增加0.2%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_calix:first_month"
+    }
+  },
+  {
+    "id": "skill_wo_offline_calix_melee_fire_demon",
+    "name": "肉搏：誘發火魔",
+    "categoryId": "skill_category_naval_active_melee",
+    "description": "對目標造成肉搏攻擊力133%的傷害，以65%的機率使其在3回合內陷入火魔狀態。（火魔：每回合耐久度的18.5%受到傷害，最大550，額外機動力減少10%）",
+    "levelInfo": "Lv1: 對目標造成肉搏攻擊力133%的傷害，以65%的機率使其在3回合內陷入火魔狀態。（火魔：每回合耐久度的18.5%受到傷害，最大550，額外機動力減少10%） | Lv2: 對目標造成肉搏攻擊力178%的傷害，以75%的機率使其在3回合內陷入火魔狀態。（火魔：每回合耐久度的18.5%受到傷害，最大550，額外機動力減少12.8%） | Lv3: 對目標造成肉搏攻擊力200.5%的傷害，以80%的機率使其在3回合內陷入火魔狀態。（火魔：每回合耐久度的18.5%受到傷害，最大550，額外機動力減少14.2%） | Lv4: 對目標造成肉搏攻擊力245.5%的傷害，以90%的機率使其在3回合內陷入火魔狀態。（火魔：每回合耐久度的18.5%受到傷害，最大550，額外機動力減少17.1%） | Lv5: 對目標造成肉搏攻擊力290.5%的傷害，以100%的機率使其在3回合內陷入火魔狀態。（火魔：每回合耐久度的18.5%受到傷害，最大550，額外機動力減少20%）",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_calix:melee_fire_demon"
+    }
+  },
+  {
+    "id": "skill_wo_offline_calix_special_alcohol_markup",
+    "name": "酒出售特別溢價",
+    "categoryId": "skill_category_trade_price_adjustment",
+    "description": "出售酒類時，可以用增加0.5%的價格出售。",
+    "levelInfo": "Lv1: 出售酒類時，可以用增加0.5%的價格出售。 | Lv2: 出售酒類時，可以用增加1%的價格出售。 | Lv3: 出售酒類時，可以用增加1.2%的價格出售。 | Lv4: 出售酒類時，可以用增加1.5%的價格出售。 | Lv5: 出售酒類時，可以用增加2.5%的價格出售。 | Lv6: 出售酒類時，可以用增加2.7%的價格出售。 | Lv7: 出售酒類時，可以用增加3%的價格出售。 | Lv8: 出售酒類時，可以用增加3.2%的價格出售。 | Lv9: 出售酒類時，可以用增加3.5%的價格出售。 | Lv10: 出售酒類時，可以用增加5%的價格出售。",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_calix:special_alcohol_markup"
+    }
+  },
+  {
+    "id": "skill_wo_offline_heidelloon_veramode_damage",
+    "name": "貝拉莫德殺傷力 I",
+    "categoryId": "skill_category_innate_buff",
+    "description": "額外砲擊暴擊傷害量增加0.3%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_heidelloon:veramode_damage"
+    }
+  },
+  {
+    "id": "skill_wo_offline_heidelloon_battlefield_inspection",
+    "name": "戰場檢視",
+    "categoryId": "skill_category_admiral",
+    "description": "使所有我軍的耐久度恢復30%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_heidelloon:battlefield_inspection"
+    }
+  },
+  {
+    "id": "skill_wo_offline_heidelloon_obsessive_pursuit",
+    "name": "執念的追蹤",
+    "categoryId": "skill_category_admiral",
+    "description": "3回合內使我方全體的砲擊射程增加1。此外，砲擊攻擊以暴擊命中，直接造成的砲擊傷害與額外砲擊暴擊傷害各增加27.5%，並使額外機動力增加7.5%。（砲擊射程最多只能增加到最大射程。）",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_heidelloon:obsessive_pursuit"
+    }
+  },
+  {
+    "id": "skill_wo_offline_heidelloon_trained_eye",
+    "name": "受過訓練的眼光",
+    "categoryId": "skill_category_admiral",
+    "description": "10分鐘內槍砲類銷售收益增加13.7%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_heidelloon:trained_eye"
+    }
+  },
+  {
+    "id": "skill_wo_offline_heidelloon_satellite_attack",
+    "name": "衛星攻擊",
+    "categoryId": "skill_category_admiral",
+    "description": "3回合內使敵方全體受到的砲擊傷害增加55%，額外機動力減少25%。此外，3回合內每回合造成最大耐久度20%的傷害。（每回合耐久度傷害量上限:1500）",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_heidelloon:satellite_attack"
+    }
   }
 ]

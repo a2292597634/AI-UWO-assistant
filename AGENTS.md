@@ -25,6 +25,10 @@ archive/  →  data/master/  →  miniprogram/generated/
 涉及技能等級、解鎖等級、技能角標或主動／被動分類時，先閱讀並遵循
 `docs/superpowers/specs/2026-09-13-skill-level-and-badge-convention-design.md`；本文件不重複詳細規則。
 
+## 1.2 新增航海士與提督
+
+收到新增航海士、提督或人物圖鑑的請求時，直接按[線下錄入規範](docs/superpowers/specs/2026-09-13-officer-error-report-and-offline-intake-design.md#52-技能引用)整理截圖或文字資料。先按規範辨識技能分組、槽位與解鎖等級，再核對現有主資料並整理錄入候選。已有位置規則或資料可確認的欄位直接填寫，只向用戶確認仍有歧義或缺少證據的欄位。
+
 ## 2. 硬約束
 
 - 禁止直接在 `main`／`master` 分支開發。先核對實際 HEAD、分支、遠端預設分支及所有 tracked／untracked／必要 ignored 輸入，保護既有工作。分支命名：`codex/phase-N-描述`。

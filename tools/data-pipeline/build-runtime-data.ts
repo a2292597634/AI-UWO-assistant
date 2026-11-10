@@ -639,7 +639,14 @@ export const writeRuntimeData = (
     `${fleetWriteDir}/fleet-officers.js`,
     `module.exports = ${JSON.stringify(fleetOfficers)}\n`,
   )
-  write('skills', runtimeSkills) // dict format: {skillId: {id,n,cat,ip}, ...}
+  // 技能 ID 已由字典鍵保存，載入時補回欄位以維持執行期資料契約。
+  const compactSkills = JSON.stringify(runtimeSkills, (key, value: unknown) =>
+    key === 'id' ? undefined : value,
+  )
+  writeFileSync(
+    `${outputDir}/skills.js`,
+    `module.exports = ${compactSkills}\nfor (const id of Object.keys(module.exports)) module.exports[id].id = id\n`,
+  )
   write('dictionaries', runtimeDicts)
   // Lightweight metadata for home page (avoids loading full catalog)
   write('dataset-meta', {

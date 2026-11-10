@@ -98730,5 +98730,328 @@
       "workOrderId": "wo_offline_giacomo_de_campania"
     },
     "maintenanceNote": "手動新增 — 2026-09-18"
+  },
+  {
+    "id": "officer_wo_offline_calix",
+    "name": "卡利克斯",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_2",
+    "genderId": "gender_m",
+    "jobId": "job_job21401013",
+    "nationalityId": "nationality_ctn_fra",
+    "languages": [
+      {
+        "languageId": "language_lang20",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang100",
+        "level": 3
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400861",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400591",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500866",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203706",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200561",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill203806",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill200881",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill100045",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill5007962",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill210486",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skillT0069",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0074",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_calix_first_month",
+        "kind": "passive",
+        "sourceGroup": "sk1",
+        "slot": 0,
+        "level": 1,
+        "unlockLevel": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": ["city_town1104"],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "完成奧雷利的緣分編年史後，可於亞速爾旅館雇用。"
+    },
+    "portraitId": null,
+    "displayOrder": 639,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_calix"
+    }
+  },
+  {
+    "id": "officer_wo_offline_heidelloon",
+    "name": "海德爾",
+    "rarityId": "rarity_5",
+    "visualGradeId": "grade_5",
+    "typeId": "type_class_3",
+    "genderId": "gender_m",
+    "jobId": "job_wo_offline_heidelloon_deputy_commander",
+    "nationalityId": "nationality_unknown",
+    "languages": [
+      {
+        "languageId": "language_lang50",
+        "level": 5
+      },
+      {
+        "languageId": "language_lang20",
+        "level": 2
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "skill_skill400781",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill400761",
+        "kind": "active",
+        "sourceGroup": "sk2",
+        "slot": 1,
+        "unlockLevel": 50,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill300001",
+        "kind": "active",
+        "sourceGroup": "sk3",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_heidelloon_battlefield_inspection",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 0,
+        "level": 1,
+        "unlockLevel": 1
+      },
+      {
+        "skillId": "skill_wo_offline_heidelloon_obsessive_pursuit",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 1,
+        "level": 1,
+        "unlockLevel": 20
+      },
+      {
+        "skillId": "skill_wo_offline_heidelloon_trained_eye",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 2,
+        "level": 1,
+        "unlockLevel": 40
+      },
+      {
+        "skillId": "skill_wo_offline_heidelloon_satellite_attack",
+        "kind": "active",
+        "sourceGroup": "sk4",
+        "slot": 3,
+        "level": 1,
+        "unlockLevel": 60
+      },
+      {
+        "skillId": "skill_skill500836",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 0,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500896",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 1,
+        "unlockLevel": 10,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500146",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 2,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500356",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 3,
+        "unlockLevel": 50,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500436",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 4,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500826",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 5,
+        "unlockLevel": 30,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skill500086",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 6,
+        "unlockLevel": 70,
+        "level": 2
+      },
+      {
+        "skillId": "skill_skill501536",
+        "kind": "passive",
+        "sourceGroup": "sk0",
+        "slot": 7,
+        "unlockLevel": 70,
+        "level": 1
+      },
+      {
+        "skillId": "skill_wo_offline_heidelloon_veramode_damage",
+        "kind": "passive",
+        "sourceGroup": "sk1",
+        "slot": 0,
+        "level": 1,
+        "unlockLevel": 1
+      },
+      {
+        "skillId": "skill_skillT0154",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 0,
+        "unlockLevel": 1,
+        "level": 1
+      },
+      {
+        "skillId": "skill_skillT0152",
+        "kind": "passive",
+        "sourceGroup": "sk5",
+        "slot": 1,
+        "unlockLevel": 1,
+        "level": 1
+      }
+    ],
+    "recruitment": {
+      "cityIds": ["city_town3203", "city_town3303", "city_town3302"],
+      "requirementId": null,
+      "requiredOfficerIds": [],
+      "note": "通過聯動禮包或 STEP UP 取得。愛丁堡、漢堡、阿姆斯特丹為聚餐港口。"
+    },
+    "portraitId": null,
+    "displayOrder": 640,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_heidelloon"
+    },
+    "maintenanceNote": "國籍依使用者確認沿用黑太子的主資料值。提督技原始解鎖門檻為 0、20、40、60；首項初始可用，依主資料正整數契約記為 1。"
   }
 ]

@@ -105,7 +105,8 @@
     "job_jobchasT086",
     "job_jobchasT087",
     "job_jobchasT088",
-    "job_unknown"
+    "job_unknown",
+    "job_wo_offline_heidelloon_deputy_commander"
   ],
   "nationalityIds": [
     "nationality_ctn_swe",
@@ -1801,7 +1802,15 @@
     "skill_wo_offline_frederick_funny_drunk",
     "skill_wo_offline_adventure_collect_hazard",
     "skill_wo_offline_adventure_battle_hazard",
-    "skill_wo_offline_adventure_observation_hazard"
+    "skill_wo_offline_adventure_observation_hazard",
+    "skill_wo_offline_calix_first_month",
+    "skill_wo_offline_calix_melee_fire_demon",
+    "skill_wo_offline_calix_special_alcohol_markup",
+    "skill_wo_offline_heidelloon_veramode_damage",
+    "skill_wo_offline_heidelloon_battlefield_inspection",
+    "skill_wo_offline_heidelloon_obsessive_pursuit",
+    "skill_wo_offline_heidelloon_trained_eye",
+    "skill_wo_offline_heidelloon_satellite_attack"
   ],
   "officerIds": [
     "officer_chast089",
@@ -2441,6 +2450,8 @@
     "officer_wo_offline_louise_de_poisson",
     "officer_wo_offline_valentina_morel",
     "officer_wo_offline_giacomo_de_campania",
+    "officer_wo_offline_calix",
+    "officer_wo_offline_heidelloon",
     "officer_custom_singuack",
     "officer_custom_piyale"
   ]
