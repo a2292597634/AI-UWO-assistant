@@ -60,11 +60,11 @@
     },
     {
       "action": "waitFor",
-      "selector": ".coupon-redemption__profile-name"
+      "selector": ".coupon-redemption__player[data-id='fixture-player-b'] .coupon-redemption__profile-name"
     },
     {
       "action": "assertText",
-      "selector": ".coupon-redemption__profile-name",
+      "selector": ".coupon-redemption__player[data-id='fixture-player-b'] .coupon-redemption__profile-name",
       "equals": "fixture-user-b"
     },
     {

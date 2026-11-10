@@ -1,5 +1,6 @@
 import {
   GAME_SERVERS,
+  MAX_COUPON_PROFILES,
   getServerName,
   type CouponProfileInput,
 } from '../../../contracts/coupon-redemption'
@@ -17,6 +18,7 @@ const emptyForm = (): CouponProfileInput => ({
 Page({
   data: {
     gameServers: GAME_SERVERS,
+    maxProfiles: MAX_COUPON_PROFILES,
     profiles: [] as CouponSettingsProfileViewModel[],
     form: emptyForm(),
     gameServerName: getServerName(GAME_SERVERS[0].id),

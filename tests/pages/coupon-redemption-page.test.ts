@@ -6,11 +6,12 @@ import type { CouponResultViewModel } from '../../miniprogram/presenters/coupon-
 
 interface RedemptionPageData {
   couponNo: string
-  activeProfile: CouponProfile | null
   submitDisabled: boolean
   isSubmitting: boolean
-  result: CouponResultViewModel | null
-  resultProfile: CouponProfile | null
+  players: Array<CouponProfile & { checked: boolean }>
+  selectedCount: number
+  completedCount: number
+  results: Array<{ profile: CouponProfile; result: CouponResultViewModel | null }>
 }
 
 interface RedemptionPageConfig {
@@ -21,6 +22,7 @@ interface RedemptionPageConfig {
   onCouponInput(event: WechatMiniprogram.Input): void
   onSubmit(): Promise<void>
   onOpenSettings(): void
+  onToggleAll(): void
 }
 
 interface RedemptionPageInstance extends RedemptionPageConfig {
@@ -78,6 +80,89 @@ beforeEach(() => {
 
 describe('兌換結果與發起玩家綁定', () => {
   const success = { result: { ok: true, data: { code: 'success', message: '獎勵已發送。' } } }
+  it('同服同暱稱的歷史重複設定只計為一位玩家，保留目前設定', () => {
+    seedProfile()
+    const store = JSON.parse(storageValue as string)
+    store.profiles.unshift({ ...store.profiles[0], id: 'duplicate' })
+    storageValue = JSON.stringify(store)
+    const page = createPageInstance()
+    page.onLoad()
+    expect(page.data.players).toMatchObject([{ id: 'profile-1', checked: true }])
+    expect(page.data.selectedCount).toBe(1)
+  })
+
+  it('多選後逐批更新實際進度，保留逐位結果且不重送', async () => {
+    seedProfile()
+    const store = JSON.parse(storageValue as string)
+    for (const [id, userNo] of [
+      ['profile-2', '玩家乙'],
+      ['profile-3', '玩家丙'],
+    ]) {
+      store.profiles.push({ ...store.profiles[0], id, userNo })
+    }
+    storageValue = JSON.stringify(store)
+    const page = createPageInstance()
+    page.onLoad()
+    expect(page.data.selectedCount).toBe(1)
+    page.onToggleAll()
+    expect(page.data.selectedCount).toBe(3)
+
+    let resolveFirst!: (value: unknown) => void
+    let resolveSecond!: (value: unknown) => void
+    mockCallFunction
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveFirst = resolve
+        }),
+      )
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveSecond = resolve
+        }),
+      )
+
+    const submitting = page.onSubmit()
+    expect(page.data.completedCount).toBe(0)
+    expect(page.data.isSubmitting).toBe(true)
+    page.onToggleAll()
+    await page.onSubmit()
+    expect(page.data.selectedCount).toBe(3)
+    expect(mockCallFunction).toHaveBeenCalledTimes(1)
+    resolveFirst({
+      result: {
+        ok: true,
+        data: [
+          { code: 'success', message: '獎勵已發送。' },
+          { code: 'coupon-used', message: '已使用。' },
+        ],
+      },
+    })
+    await vi.waitFor(() => expect(page.data.completedCount).toBe(2))
+    expect(page.data.isSubmitting).toBe(true)
+    expect(page.data.results.map((row) => row.result?.label)).toEqual([
+      '兌換成功',
+      '兌換失敗',
+      undefined,
+    ])
+    resolveSecond({ result: { ok: true, data: [{ code: 'unknown', message: '逾時' }] } })
+    await submitting
+    expect(page.data.completedCount).toBe(3)
+    expect(page.data.isSubmitting).toBe(false)
+    expect(page.data.results.map((row) => [row.profile.userNo, row.result?.label])).toEqual([
+      ['航海家小明', '兌換成功'],
+      ['玩家乙', '兌換失敗'],
+      ['玩家丙', '需復核'],
+    ])
+    expect(mockCallFunction).toHaveBeenNthCalledWith(2, {
+      name: 'coupon-redemption',
+      data: {
+        action: 'redeemBatch',
+        couponNo: 'ANTARIA3RD',
+        players: [{ gameServerId: 'UWOGL-US-01', userNo: '玩家丙' }],
+      },
+    })
+  })
+
   const changeProfile = (key: keyof CouponProfile, value: string) => {
     const store = JSON.parse(storageValue as string)
     store.profiles[0][key] = value
@@ -103,7 +188,7 @@ describe('兌換結果與發起玩家綁定', () => {
     expect(page.data.couponNo).toBe(code)
     resolve(success)
     await submitting
-    expect(page.data.resultProfile).toMatchObject({
+    expect(page.data.results[0]?.profile).toMatchObject({
       id: 'profile-1',
       name: '航海家小明',
       userNo: '航海家小明',
@@ -121,11 +206,10 @@ describe('兌換結果與發起玩家綁定', () => {
     page.onLoad()
     await page.onSubmit()
     page.onShow()
-    expect(page.data.result?.label).toBe('兌換成功')
+    expect(page.data.results[0]?.result?.label).toBe('兌換成功')
     changeProfile(key, value)
     page.onShow()
-    expect(page.data.result).toBeNull()
-    expect(page.data.resultProfile).toBeNull()
+    expect(page.data.results).toEqual([])
   })
 
   it.each(['success', 'failure'] as const)('A 的遲到 %s 不得在切換 B 後顯示', async (kind) => {
@@ -147,9 +231,8 @@ describe('兌換結果與發起玩家綁定', () => {
         : { result: { ok: false, code: 'coupon-used', message: '已使用。' } },
     )
     await submitting
-    expect(page.data.activeProfile?.id).toBe('profile-2')
-    expect(page.data.result).toBeNull()
-    expect(page.data.resultProfile).toBeNull()
+    expect(page.data.players).toMatchObject([{ id: 'profile-2', checked: true }])
+    expect(page.data.results).toEqual([])
     expect(page.data.isSubmitting).toBe(false)
   })
 
@@ -161,7 +244,10 @@ describe('兌換結果與發起玩家綁定', () => {
       const page = createPageInstance()
       page.onLoad()
       await page.onSubmit()
-      expect(page.data.result).toMatchObject({ label: '兌換失敗', message: '本次明確失敗。' })
+      expect(page.data.results[0]?.result).toMatchObject({
+        label: '兌換失敗',
+        message: '本次明確失敗。',
+      })
       expect(mockCallFunction).toHaveBeenCalledTimes(1)
     },
   )
@@ -176,8 +262,8 @@ describe('兌換結果與發起玩家綁定', () => {
     const page = createPageInstance()
     page.onLoad()
     await page.onSubmit()
-    expect(page.data.result).toMatchObject({ label: '需復核' })
-    expect(page.data.result?.message).toContain('請先到官方頁面確認')
+    expect(page.data.results[0]?.result).toMatchObject({ label: '需復核' })
+    expect(page.data.results[0]?.result?.message).toContain('請先到官方頁面確認')
     expect(mockCallFunction).toHaveBeenCalledTimes(1)
   })
 

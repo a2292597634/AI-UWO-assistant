@@ -17,8 +17,29 @@
       "selector": ".coupon-redemption__actions"
     },
     {
+      "action": "assertExists",
+      "selector": ".coupon-redemption__input",
+      "exists": true
+    },
+    {
       "action": "screenshot",
       "name": "coupon-top"
+    },
+    {
+      "action": "navigate",
+      "path": "/subpkg-coupon/pages/settings/index"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "text",
+        "selector": ".coupon-settings__intro",
+        "contains": "/ 20 位玩家"
+      }
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-settings-capacity"
     }
   ]
 }

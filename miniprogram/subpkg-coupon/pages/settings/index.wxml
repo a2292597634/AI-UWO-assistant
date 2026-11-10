@@ -2,7 +2,7 @@
   <view class="coupon-settings__header">
     <text class="coupon-settings__eyebrow">兌換碼</text>
     <text class="coupon-settings__title">玩家設定</text>
-    <text class="coupon-settings__intro">設定只會保存在此裝置的小程序資料中。</text>
+    <text class="coupon-settings__intro">已保存 {{profiles.length}} / {{maxProfiles}} 位玩家。設定只保存在此裝置。</text>
   </view>
 
   <view wx:if="{{isEmpty}}" class="coupon-settings__empty">

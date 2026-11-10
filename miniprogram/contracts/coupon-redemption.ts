@@ -4,7 +4,8 @@ export const GAME_SERVERS = catalog.servers
 
 export type GameServerId = (typeof GAME_SERVERS)[number]['id']
 
-export const MAX_COUPON_PROFILES = 10
+export const MAX_COUPON_PROFILES = 20
+export const COUPON_BATCH_SIZE = 2
 export const MAX_COUPON_CODE_LENGTH = 50
 export const MAX_COUPON_USER_NAME_LENGTH = 100
 export const COUPON_PROFILE_STORAGE_KEY = 'coupon_profiles_v1'
@@ -63,6 +64,9 @@ export interface CouponRedemptionResult {
 
 export type CouponRedemptionServiceCode =
   CouponRedemptionCode | Exclude<CouponValidationCode, 'valid'>
+
+export const couponPlayerKey = ({ gameServerId, userNo }: CouponProfileInput): string =>
+  JSON.stringify([gameServerId, userNo.trim()])
 
 const serverIds = new Set<string>(GAME_SERVERS.map(({ id }) => id))
 
