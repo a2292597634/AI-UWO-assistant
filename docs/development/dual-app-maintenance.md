@@ -6,6 +6,7 @@
 
 - 日常只打開 `E:\AI-UWO-new`，實體目錄 `E:\AI UWO assistant`，AppID `wxd0bc7afdc9cd334a`。整合後從最新 main 建立短期任務分支，PR 目標為 main；開發不能直接在 main 進行。
 - 本輪候選基線 `006024d0ce472a79abb250a99e02a8e2e9baa881`；整合前 main 仍是 `e5765d09cf7bfde2aad1064dacc4770b26e48471`。這是整合前基線記錄；實際提交、合併及推送結果以 [開發現況](current-state.md) 的遠端 main 與 Verify 入口為準。
+- 新任務分支、工作樹、提交與 PR 命名按 [AGENTS 命名規則](../../AGENTS.md#21-分支工作樹與提交命名)執行；名稱記錄任務建立時間，實際合併順序以 Git 與 PR 歷史為準。
 - 新端上傳前使用 Node 22 執行 `node node_modules/tsx/dist/cli.mjs tools/release/check-target.ts --target new --project-root 'E:/AI-UWO-new'`。候選工具要求 main、正確 AppID 與乾淨提交；任務分支拒絕是預期結果，不能關閉檢查。
 - 舊端停止日常開發、上傳與發布。`--target old` 仍可輸出診斷，但固定回傳 `OLD_TARGET_FROZEN`、ready=false。舊工作區內尚未更新的歷史工具沒有此保護，不能據此繼續發布。
 - `E:\AI-UWO-old` 與舊工作區因含既有未提交修復及文檔修改而保留，僅作回溯；其實體路徑說明及歷史兼容聯結見下方記錄。
