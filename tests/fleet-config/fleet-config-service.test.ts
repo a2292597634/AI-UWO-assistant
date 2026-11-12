@@ -549,6 +549,67 @@ describe('FleetConfigService dispatch', () => {
     if (!r11.ok) expect(r11.code).toBe('limit-reached')
   })
 
+  it.each(['battle', 'adventure'] as const)(
+    '%s 配置滿額後仍可覆蓋，刪除後可新建且不影響另一分類',
+    async (scope) => {
+      const otherScope = scope === 'battle' ? 'adventure' : 'battle'
+      expect((await createViaService('另一分類', ownerA, otherScope)).ok).toBe(true)
+      const created = []
+      for (let i = 0; i < 10; i++) {
+        const result = await createViaService('滿額配置' + i, ownerA, scope)
+        expect(result.ok).toBe(true)
+        if (!result.ok) throw new Error('建立測試配置失敗')
+        created.push(result.data)
+      }
+      expect(await createViaService('超額配置', ownerA, scope)).toMatchObject({
+        ok: false,
+        code: 'limit-reached',
+      })
+      const modified = createFleetState()
+      modified.bannedOfficerIds = ['officer_updated']
+      const updated = await dispatch('updateConfig', {
+        scope,
+        configId: created[0].configId,
+        expectedVersion: created[0].version,
+        fleetState: modified,
+      })
+      expect(updated).toMatchObject({
+        ok: true,
+        data: { version: 2, fleetState: { bannedOfficerIds: ['officer_updated'] } },
+      })
+      expect(await repo.countByOwner(ownerA, scope)).toBe(10)
+      expect(await createViaService('仍然超額', ownerA, scope)).toMatchObject({
+        ok: false,
+        code: 'limit-reached',
+      })
+      expect(
+        await dispatch('deleteConfig', {
+          scope,
+          configId: created[0].configId,
+          expectedVersion: 1,
+        }),
+      ).toMatchObject({ ok: false, code: 'conflict' })
+      expect(await repo.countByOwner(ownerA, scope)).toBe(10)
+      expect(
+        await dispatch('deleteConfig', {
+          scope,
+          configId: created[0].configId,
+          expectedVersion: 2,
+        }),
+      ).toMatchObject({ ok: true, data: { deleted: true } })
+      expect(await repo.countByOwner(ownerA, scope)).toBe(9)
+      expect(await createViaService('補回配置', ownerA, scope)).toMatchObject({ ok: true })
+      expect(await repo.countByOwner(ownerA, scope)).toBe(10)
+      expect(await repo.countByOwner(ownerA, otherScope)).toBe(1)
+      expect(
+        await dispatch('loadConfig', {
+          scope,
+          configId: created[0].configId,
+        }),
+      ).toMatchObject({ ok: false, code: 'not-found' })
+    },
+  )
+
   it('saveAs counts toward the limit', async () => {
     const state = createFleetState()
     for (let i = 0; i < 10; i++) {
