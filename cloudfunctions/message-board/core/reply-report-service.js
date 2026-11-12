@@ -120,7 +120,7 @@ function createReplyReports(ctx, queries) {
     if (!ctx.isAdmin(actor)) throw fail('forbidden')
     if (!['hide', 'keep'].includes(input.outcome)) throw fail('input-invalid')
     const reason = text(input.reason, 'reason'),
-      checked = await ctx.safety.checkText(reason, 2, actor.openId)
+      checked = await ctx.safety.checkText(reason, 2, actor.openId, actor.appId ?? null)
     if (checked.errCode !== 0 || checked.suggest !== 'pass') throw fail('safety-not-ready')
     return ctx.operations.write(
       'resolveReport',

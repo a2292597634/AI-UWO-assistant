@@ -1,3 +1,4 @@
+import { callSharedCloudFunction, uploadSharedCloudFile } from './shared-cloud-client'
 import type {
   OfficerErrorReport,
   OfficerErrorReportDraft,
@@ -90,7 +91,7 @@ const isFunctionResult = (value: unknown): value is FunctionResult =>
 const call = async <Result>(action: string, payload: Record<string, unknown>): Promise<Result> => {
   let response: unknown
   try {
-    response = await wx.cloud.callFunction({
+    response = await callSharedCloudFunction({
       name: OFFICER_MAINTENANCE_FUNCTION_NAME,
       data: { action, ...payload },
     })
@@ -126,7 +127,7 @@ export const createOfficerErrorReportService = (): OfficerErrorReportService => 
     for (const [index, filePath] of tempFilePaths.entries()) {
       const suffix = filePath.toLowerCase().endsWith('.png') ? 'png' : 'jpg'
       try {
-        const result = await wx.cloud.uploadFile({
+        const result = await uploadSharedCloudFile({
           cloudPath: `officer-error-reports/${Date.now()}-${index}.${suffix}`,
           filePath,
         })

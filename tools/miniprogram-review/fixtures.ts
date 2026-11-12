@@ -39,6 +39,7 @@ export const fixtureInstallSource = (name: ReviewFixtureName): string => {
   parseReviewFixtureName(name)
   return `function () {
     var name = '${name}';
+    if (typeof wx.getAccountInfoSync === 'function' && wx.getAccountInfoSync().miniProgram.appId === 'wxd0bc7afdc9cd334a') throw new Error('共享連線尚未支援安全 fixture，禁止開啟目標頁');
     if (!wx.cloud || typeof wx.cloud.callFunction !== 'function') throw new Error('缺少可替代的 cloud API');
     if (wx.__uwoReviewFixture) throw new Error('前次 fixture 尚未恢復');
     var saved = [], wrappers = [];

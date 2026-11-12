@@ -227,6 +227,26 @@ function makeRecord(
 }
 
 describe('Fleet config repository atomic constraints', () => {
+  it.each([
+    { code: 'ResourceUnavailable.ResourceExist' },
+    { errCode: 'ResourceUnavailable.ResourceExist' },
+    { code: 'UNKNOWN', errCode: 'DATABASE_COLLECTION_ALREADY_EXIST' },
+    { code: 'UNKNOWN', errCode: 'DATABASE_COLLECTION_ALREADY_EXISTS' },
+    { code: 'UNKNOWN', errCode: 'ResourceUnavailable.ResourceExist' },
+  ])('建立集合時任一欄位命中精確已存在碼就繼續查詢：%j', async (error) => {
+    const repo = createRepository(createFakeDatabase({ createCollectionError: error }))
+    await expect(repo.listByOwner('owner_a', 'battle')).resolves.toEqual([])
+  })
+
+  it.each([
+    { code: 'PERMISSION_DENIED', errCode: -1 },
+    { errCode: -1, message: 'collection already exists' },
+    { code: 'ResourceUnavailable.Other' },
+  ])('建立集合時未命中精確碼必須保留失敗：%j', async (error) => {
+    const repo = createRepository(createFakeDatabase({ createCollectionError: error }))
+    await expect(repo.listByOwner('owner_a', 'battle')).rejects.toBe(error)
+  })
+
   it('忽略 CloudBase 已存在集合的數值 errCode 並繼續查詢', async () => {
     const repo = createRepository(
       createFakeDatabase({

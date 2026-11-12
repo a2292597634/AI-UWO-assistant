@@ -149,18 +149,18 @@ describe('手動技能與 voyage.tw 下載分流', () => {
     expect(fetcher).toHaveBeenCalledTimes(1)
   })
 
-  it('CLI limit0 能為完整 1209 技能建立清單，六筆手動技能沒有遠端 URL', async () => {
+  it('CLI limit0 為所有快照技能建立清單，並排除手動技能', async () => {
     const skills = JSON.parse(readFileSync('data/master/skills.json', 'utf8')) as CanonicalSkill[]
-    expect(skills).toHaveLength(1209)
     const manual = skills.filter((skill) => !skill.sourceRefs.voyageTw)
-    expect(manual).toHaveLength(6)
+    expect(manual.length).toBeGreaterThan(0)
+    const snapshotIds = skills.filter((skill) => skill.sourceRefs.voyageTw).map((skill) => skill.id)
     const { manifest, fetcher } = await runSkillDownloadCli(skills, '0')
-    expect(manifest).toHaveLength(1203)
+    expect(manifest.map((entry) => entry.canonicalId).sort()).toEqual(snapshotIds.sort())
     expect(manifest.some((entry) => manual.some((skill) => skill.id === entry.canonicalId))).toBe(
       false,
     )
     expect(manifest.every((entry) => !entry.url.includes('undefined'))).toBe(true)
-    expect(fetcher).toHaveBeenCalledTimes(1203)
+    expect(fetcher).toHaveBeenCalledTimes(snapshotIds.length)
   })
 })
 

@@ -1,18 +1,28 @@
-function createSafetyProvider(cloud, appId) {
-  const security = cloud.openapi({ appid: appId }).security
+function createSafetyProvider(cloud, appId, additionalAppIds = []) {
+  const allowed = new Set([appId, ...additionalAppIds.filter((id) => id === 'wxd0bc7afdc9cd334a')])
+  const securityFor = (ownerAppId) => {
+    if (!allowed.has(ownerAppId)) throw new Error('安全檢查的來源 AppID 不受支援')
+    return cloud.openapi({ appid: ownerAppId }).security
+  }
   return {
-    available() {
+    available(ownerAppId = appId) {
       return (
-        ['wx_client', 'wx_devtools'].includes(cloud.getWXContext()?.SOURCE) ||
-        !!process.env.WX_TRIGGER_API_TOKEN_V0
+        allowed.has(ownerAppId) &&
+        (['wx_client', 'wx_devtools'].includes(cloud.getWXContext()?.SOURCE) ||
+          !!process.env.WX_TRIGGER_API_TOKEN_V0)
       )
     },
-    async checkText(content, scene, openid) {
-      const result = await security.msgSecCheck({ content, openid, version: 2, scene })
+    async checkText(content, scene, openid, ownerAppId = appId) {
+      const result = await securityFor(ownerAppId).msgSecCheck({
+        content,
+        openid,
+        version: 2,
+        scene,
+      })
       return { errCode: result.errCode ?? result.errcode, suggest: result.result?.suggest }
     },
-    async checkImage(mediaUrl, openid) {
-      const result = await security.mediaCheckAsync({
+    async checkImage(mediaUrl, openid, ownerAppId = appId) {
+      const result = await securityFor(ownerAppId).mediaCheckAsync({
         mediaUrl,
         openid,
         version: 2,

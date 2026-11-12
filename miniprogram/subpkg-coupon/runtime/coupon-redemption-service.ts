@@ -1,17 +1,20 @@
-import { COUPON_REDEMPTION_FUNCTION_NAME } from './cloudbase-config'
+import { callSharedCloudFunction } from '../../runtime/shared-cloud-client'
+import { COUPON_REDEMPTION_FUNCTION_NAME } from '../../runtime/cloudbase-config'
 import {
   validateCouponRedemptionInput,
+  COUPON_BATCH_SIZE,
+  type CouponProfileInput,
   type CouponRedemptionInput,
   type CouponRedemptionResult,
   type CouponRedemptionServiceCode,
-} from '../contracts/coupon-redemption'
+} from '../../contracts/coupon-redemption'
 
 const UNKNOWN_RESULT_MESSAGE = '結果未確認，請先到官方頁面確認再嘗試。'
 
 export class CouponRedemptionError extends Error {
-  readonly code: CouponRedemptionServiceCode | 'unknown'
+  readonly code: CouponRedemptionServiceCode
 
-  constructor(code: CouponRedemptionServiceCode | 'unknown', message: string) {
+  constructor(code: CouponRedemptionServiceCode, message: string) {
     super(message)
     this.name = 'CouponRedemptionError'
     this.code = code
@@ -20,7 +23,10 @@ export class CouponRedemptionError extends Error {
 
 export interface CouponRedemptionService {
   submit(input: CouponRedemptionInput): Promise<CouponRedemptionResult>
+  submitBatch(players: CouponProfileInput[], couponNo: string): Promise<BatchResult[]>
 }
+
+type BatchResult = { code: CouponRedemptionServiceCode; message: string }
 
 interface FunctionSuccess {
   ok: true
@@ -86,10 +92,10 @@ const isValidSuccess = (
 const createUnknownError = (): CouponRedemptionError =>
   new CouponRedemptionError('unknown', UNKNOWN_RESULT_MESSAGE)
 
-const callFunction = async (input: CouponRedemptionInput): Promise<CouponRedemptionResult> => {
+const readEnvelope = async (input: object): Promise<Record<string, unknown>> => {
   let rawResponse: unknown
   try {
-    rawResponse = await wx.cloud.callFunction({
+    rawResponse = await callSharedCloudFunction({
       name: COUPON_REDEMPTION_FUNCTION_NAME,
       data: input,
     })
@@ -100,10 +106,25 @@ const callFunction = async (input: CouponRedemptionInput): Promise<CouponRedempt
   if (!isRecord(rawResponse) || !isRecord(rawResponse.result)) throw createUnknownError()
   const result = rawResponse.result
   if (result.ok === false) {
+    const batchCode = result.code
+    if (
+      'action' in input &&
+      hasOnlyKeys(result, ['ok', 'code', 'message']) &&
+      (batchCode === 'batch-invalid' || batchCode === 'batch-unavailable')
+    ) {
+      const message =
+        batchCode === 'batch-invalid' ? '玩家清單無效，請重新選擇。' : '批次兌換暫時無法使用。'
+      throw new CouponRedemptionError('retry-later', message)
+    }
     if (!isValidFailure(result)) throw createUnknownError()
     if (result.code === 'unknown') throw createUnknownError()
     throw new CouponRedemptionError(result.code, result.message)
   }
+  return result
+}
+
+const callFunction = async (input: CouponRedemptionInput): Promise<CouponRedemptionResult> => {
+  const result = await readEnvelope(input)
   if (!isValidSuccess(result)) throw createUnknownError()
   return result.data
 }
@@ -119,6 +140,32 @@ export const createCouponRedemptionService = (): CouponRedemptionService => ({
       userNo: input.userNo.trim(),
       couponNo: input.couponNo.trim(),
     })
+  },
+  async submitBatch(players, couponNo) {
+    if (players.length < 1 || players.length > COUPON_BATCH_SIZE) {
+      throw new CouponRedemptionError('retry-later', '玩家清單無效，請重新選擇。')
+    }
+    for (const player of players) {
+      const validation = validateCouponRedemptionInput({ ...player, couponNo })
+      if (validation.code !== 'valid') {
+        throw new CouponRedemptionError(validation.code, validation.message)
+      }
+    }
+    const result = await readEnvelope({
+      action: 'redeemBatch',
+      couponNo: couponNo.trim(),
+      players: players.map(({ gameServerId, userNo }) => ({ gameServerId, userNo: userNo.trim() })),
+    })
+    if (
+      result.ok !== true ||
+      !hasOnlyKeys(result, ['ok', 'data']) ||
+      !Array.isArray(result.data) ||
+      result.data.length !== players.length
+    )
+      throw createUnknownError()
+    return result.data.map((item: unknown) =>
+      isValidResultData(item) ? item : { code: 'unknown', message: UNKNOWN_RESULT_MESSAGE },
+    )
   },
 })
 

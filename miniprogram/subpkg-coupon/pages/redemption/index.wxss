@@ -1,6 +1,6 @@
 .coupon-redemption-page {
   min-height: 100vh;
-  padding-bottom: calc(200rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(240rpx + env(safe-area-inset-bottom));
   color: var(--uwo-color-text-primary);
   background: var(--uwo-color-canvas);
   font-family: var(--uwo-font-family-body);
@@ -48,11 +48,23 @@
   border-radius: var(--uwo-radius-card);
 }
 
-.coupon-redemption__profile {
+.coupon-redemption__profile-header,
+.coupon-redemption__player {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--uwo-space-3);
+}
+
+.coupon-redemption__player-list {
+  max-height: 384rpx;
+  margin: var(--uwo-space-2) 0;
+}
+
+.coupon-redemption__player {
+  min-height: 88rpx;
+  padding: var(--uwo-space-2) 0;
+  border-top: 2rpx solid var(--uwo-color-border-subtle);
 }
 
 .coupon-redemption__profile-copy {
@@ -100,7 +112,7 @@
 }
 
 .coupon-redemption__compact-button {
-  min-height: 64rpx;
+  min-height: 88rpx;
   margin: 0;
   padding: var(--uwo-space-1) var(--uwo-space-3);
   font-size: var(--uwo-font-size-minimum-action);
@@ -109,6 +121,10 @@
 
 .coupon-redemption__change {
   flex: 0 0 auto;
+}
+
+.coupon-redemption__select-all {
+  width: 100%;
 }
 
 .coupon-redemption__form {
@@ -166,6 +182,11 @@
   color: var(--uwo-color-text-secondary);
   font-size: var(--uwo-font-size-supporting);
   line-height: 1.5;
+}
+
+.coupon-redemption__progress {
+  width: 100%;
+  max-width: 640rpx;
 }
 
 .coupon-redemption__submit {

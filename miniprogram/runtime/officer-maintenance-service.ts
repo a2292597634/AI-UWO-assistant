@@ -1,3 +1,4 @@
+import { callSharedCloudFunction } from './shared-cloud-client'
 /**
  * 航海士資料維護工單的 CloudBase 適配器。
  *
@@ -133,7 +134,7 @@ const callMaintenanceFunction = async <Result>(
 ): Promise<Result> => {
   let rawResponse: unknown
   try {
-    rawResponse = await wx.cloud.callFunction({
+    rawResponse = await callSharedCloudFunction({
       name: OFFICER_MAINTENANCE_FUNCTION_NAME,
       data: { action, ...payload },
     })

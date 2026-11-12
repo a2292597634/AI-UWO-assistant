@@ -112,6 +112,7 @@ export const readReminderLocalOperation = (value: unknown): ReminderLocalOperati
         'cancel',
         'prepareBatch',
         'authorizeBatch',
+        'activateAuthorized',
       ].includes(op.pending.action) ||
       !op.pending.input ||
       typeof op.pending.input.requestId !== 'string'
@@ -142,6 +143,11 @@ export const readReminderLocalOperation = (value: unknown): ReminderLocalOperati
         p.input.templateIds.length > 3 ||
         p.input.templateIds.some((id) => typeof id !== 'string' || !id) ||
         new Set(p.input.templateIds).size !== p.input.templateIds.length)
+    )
+      return null
+    if (
+      p.action === 'activateAuthorized' &&
+      (op.mode !== 'batch' || typeof p.input.sessionId !== 'string' || !p.input.sessionId)
     )
       return null
     if (p.action === 'authorize' && ![10800, 3600, 600].includes(p.input.leadSeconds)) return null
@@ -369,7 +375,6 @@ export const createMajorEventReminderController = (options: Options) => {
     ])
     if (destroyed) return
     state.config = config
-    if (config.enabled) platform.preloadAd?.(config.adUnitId)
     state.subscriptions = Object.fromEntries(list.subscriptions.map((sub) => [sub.key, sub]))
     state.subscription = state.occurrence
       ? (state.subscriptions[reminderKey(state.occurrence)] ?? null)
@@ -416,17 +421,6 @@ export const createMajorEventReminderController = (options: Options) => {
         return Promise.resolve()
       }
       const receipts = operation?.receipts ?? []
-      const receipt = receipts.find((item) => reminderKey(item.occurrence) === key)
-      if (
-        !cancel &&
-        !receipt &&
-        !sub?.adCompleted &&
-        receipts.length >= MAX_AD_RECEIPTS &&
-        receipts.every((item) => item.occurrence.triggerAtUnixSeconds > now())
-      ) {
-        notice('完整廣告收據已滿，請先恢復原場提醒。')
-        return Promise.resolve()
-      }
       state.occurrence = snapshot
       state.subscription = sub ?? null
       return run(async () => {
@@ -489,39 +483,11 @@ export const createMajorEventReminderController = (options: Options) => {
           },
         })
         if (destroyed) return
-        if (receipt && !state.subscription?.adCompleted) {
-          operation.adFinished = true
-          save()
-          await mutate({
-            action: 'completeAd',
-            input: { sessionId: operation.sessionId!, requestId: requestId() },
-          })
-        } else if (state.subscription?.adCompleted) {
-          await mutate({
-            action: 'activate',
-            input: { sessionId: operation.sessionId!, requestId: requestId() },
-          })
-        } else {
-          if (storageFailed) throw new Error('操作紀錄無法保存，請稍後再試。')
-          save()
-          const op = operation
-          const storedBeforeAd = JSON.stringify(op)
-          if (!(await platform.watchAd(config!.adUnitId))) {
-            notice('未完整觀看廣告，提醒尚未開通。')
-            return
-          }
-          if (destroyed) {
-            if (JSON.stringify(readReminderLocalOperation(storage.read())) === storedBeforeAd)
-              storage.write({ ...op, adFinished: true })
-            return
-          }
-          op.adFinished = true
-          save()
-          await mutate({
-            action: 'completeAd',
-            input: { sessionId: op.sessionId!, requestId: requestId() },
-          })
-        }
+        if (storageFailed) throw new Error('操作紀錄無法保存，請稍後再試。')
+        await mutate({
+          action: 'activateAuthorized',
+          input: { sessionId: operation.sessionId!, requestId: requestId() },
+        })
         if (destroyed) return
         const leads =
           state.subscription?.slots
@@ -532,7 +498,7 @@ export const createMajorEventReminderController = (options: Options) => {
         notice(
           leads.length
             ? `本場已開通 ${leads.length} 次提醒：開始前 ${leads.join('、')}。`
-            : '本場完整廣告已確認；提醒時點已過，不補發通知。',
+            : '本場提醒時點已過，不補發通知。',
         )
       })
     },

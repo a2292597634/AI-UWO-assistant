@@ -248,6 +248,11 @@ describe('Runtime Contract: skills.js', () => {
     expect(Object.keys(skills).length).toBeGreaterThan(0)
   })
 
+  it('技能字典以鍵保存 ID，生成檔不重複儲存相同欄位', () => {
+    const source = fs.readFileSync(path.join(GENERATED_DIR, 'skills.js'), 'utf8')
+    expect(source.includes('"id":"skill_')).toBe(false)
+  })
+
   it('each skill entry has required fields: id, n, cat, cn, ip, d, li', () => {
     for (const [skillId, skill] of Object.entries(skills)) {
       expect(skill.id).toBe(skillId)

@@ -6,6 +6,7 @@ function createOperations(ctx) {
   const ownerDefault = (actor) => ({
     ownerKey: actor.ownerKey,
     openId: actor.openId,
+    appId: actor.appId,
     profileRevision: 0,
     restricted: false,
     clearing: false,

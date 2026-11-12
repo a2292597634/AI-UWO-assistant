@@ -73,7 +73,16 @@ function createBoardService(deps) {
     ...deps,
     now: deps.clock,
     hash: (value) => createHmac('sha256', deps.secret).update(value).digest('hex'),
-    isAdmin: (actor) => deps.adminOpenIds().has(actor.openId),
+    isAdmin: (actor) =>
+      (actor.appId !== 'wxd0bc7afdc9cd334a' || !!deps.newProfile?.enabled) &&
+      deps.adminOpenIds(actor.appId).has(actor.openId),
+  }
+  // 無 appId 的歷史 owner 僅按舊端解釋，絕不以本次呼叫者替換。
+  ctx.ownerAppId = (owner) => owner.appId ?? deps.callback?.appId ?? 'wx8f961bcd8b26996a'
+  ctx.callbackFor = (appId) => {
+    if (appId === deps.callback?.appId) return deps.callback
+    if (appId === 'wxd0bc7afdc9cd334a' && deps.newProfile?.enabled) return deps.newProfile.callback
+    throw fail('feature-disabled')
   }
   ctx.revision = (message, input) => {
     if (!Number.isInteger(input.expectedRevision) || input.expectedRevision !== message.revision)
@@ -146,6 +155,8 @@ function createBoardService(deps) {
         const owner = await ctx.operations.owner(tx, actor)
         owner.lastVisitAt = ctx.now()
         owner.openId = actor.openId
+        if (owner.appId && owner.appId !== actor.appId) throw fail('not-authenticated')
+        owner.appId = actor.appId
         await tx.set(C.owners, actor.ownerKey, owner)
       })
       let data, reference

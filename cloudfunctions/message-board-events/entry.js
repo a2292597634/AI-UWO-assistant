@@ -1,3 +1,4 @@
+const { URL } = require('node:url')
 const {
   signature,
   checkSignature,
@@ -9,8 +10,15 @@ function createEventsEntry({
   environmentId,
   callbackPath,
   callback,
+  newProfile,
   service,
 }) {
+  const profiles = [{ callbackPath, callback }]
+  if (newProfile?.enabled)
+    profiles.push({
+      callbackPath: new URL(newProfile.callback.baseUrl).pathname,
+      callback: newProfile.callback,
+    })
   const response = (statusCode, body) => ({
     statusCode,
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
@@ -23,6 +31,7 @@ function createEventsEntry({
       current?.OPENID ||
       current?.APPID ||
       current?.FROM_APPID ||
+      current?.FROM_OPENID ||
       ['wx_client', 'wx_devtools'].includes(current?.SOURCE) ||
       (runtime.TCB_ENV || runtime.SCF_NAMESPACE) !== environmentId ||
       runtime.SCF_NAMESPACE !== environmentId
@@ -31,10 +40,15 @@ function createEventsEntry({
     if (event?.httpMethod) {
       if (current?.SOURCE && !['wx_http'].includes(current.SOURCE))
         return response(403, 'forbidden')
+      const profile = profiles.find(
+        (item) => event.path === item.callbackPath || event.path === item.callbackPath + '/avatar',
+      )
+      if (!profile) return response(404, 'not-found')
+      const { callbackPath, callback } = profile
       if (event.path === callbackPath + '/avatar') {
         if (event.httpMethod !== 'GET') return response(403, 'forbidden')
         try {
-          return await service.servePrivateAvatar(event.queryStringParameters)
+          return await service.servePrivateAvatar(event.queryStringParameters, callback.appId)
         } catch {
           return response(403, 'forbidden')
         }
@@ -84,7 +98,7 @@ function createEventsEntry({
         return response(403, 'forbidden')
       }
       try {
-        await service.acceptVerifiedEvent(payload)
+        await service.acceptVerifiedEvent(payload, callback.appId)
         return response(200, 'success')
       } catch {
         return response(503, 'retry')

@@ -1,6 +1,7 @@
 /** 航海士維護工單雲函數入口。OpenID 一律由 CloudBase context 取得。 */
 
 const cloud = require('wx-server-sdk')
+const { resolveWechatIdentity } = require('./wechat-identity')
 const { createRepository } = require('./repository')
 const { createOfficerMaintenanceService } = require('./service')
 const { createErrorReportRepository } = require('./error-report-repository')
@@ -57,7 +58,7 @@ exports.main = async (event, context) => {
   const { action, ...payload } = event ?? {}
   const requestId = asTrimmedToken(context?.requestId) || `req-${Date.now().toString(36)}`
   try {
-    const openid = cloud.getWXContext().OPENID || null
+    const openid = resolveWechatIdentity(cloud.getWXContext())?.ownerUid || null
     const targetService = isErrorReportAction(action) ? errorReportService : service
     const result = await targetService.dispatch(action, payload, openid)
     console.log(`[officer-maintenance] action=${action} requestId=${requestId} ok=${result.ok}`)

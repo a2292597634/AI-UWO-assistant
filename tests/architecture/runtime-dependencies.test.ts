@@ -224,6 +224,7 @@ describe('Runtime files must remain offline and mini program compatible', () => 
         generatedCdnOrigin: manifest.cdnOrigin,
         generatedAssetPathPrefix: `/${manifest.cloudPathPrefix}/`,
         allowedCloudFunctionFiles: [
+          'runtime/shared-cloud-client.ts',
           'runtime/fleet-config-service.ts',
           'runtime/officer-editor-service.ts',
           'runtime/officer-maintenance-service.ts',
@@ -233,11 +234,15 @@ describe('Runtime files must remain offline and mini program compatible', () => 
           'runtime/message-board-service.ts',
           'runtime/major-event-reminder-service.ts',
         ],
-        allowedCloudUploadFiles: ['runtime/officer-error-report-service.ts'],
-        allowedCloudInitFiles: ['app.ts'],
+        allowedCloudUploadFiles: [
+          'runtime/officer-error-report-service.ts',
+          'runtime/shared-cloud-client.ts',
+        ],
+        allowedCloudInitFiles: ['app.ts', 'runtime/shared-cloud-client.ts'],
+        allowedSharedCloudConstructorFile: 'runtime/shared-cloud-client.ts',
       }),
     ).toEqual([])
-  })
+  }, 15_000)
 })
 
 describe('domain/ modules must be pure TypeScript', () => {

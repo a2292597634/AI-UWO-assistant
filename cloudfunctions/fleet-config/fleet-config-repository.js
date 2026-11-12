@@ -42,17 +42,13 @@ function getOwnerLockId(ownerUid) {
 }
 
 function isCollectionAlreadyExistsError(error) {
-  const code =
-    error && typeof error === 'object'
-      ? typeof error.code === 'string'
-        ? error.code
-        : typeof error.errCode === 'string'
-          ? error.errCode
-          : undefined
-      : undefined
-  return (
-    code === 'DATABASE_COLLECTION_ALREADY_EXIST' || code === 'DATABASE_COLLECTION_ALREADY_EXISTS'
-  )
+  if (!error || typeof error !== 'object') return false
+  const knownCodes = [
+    'DATABASE_COLLECTION_ALREADY_EXIST',
+    'DATABASE_COLLECTION_ALREADY_EXISTS',
+    'ResourceUnavailable.ResourceExist',
+  ]
+  return knownCodes.includes(error.code) || knownCodes.includes(error.errCode)
 }
 
 const OWNER_LOCK_SCOPES = ['battle', 'adventure', 'unclassified']

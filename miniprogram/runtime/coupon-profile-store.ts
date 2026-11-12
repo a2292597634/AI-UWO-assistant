@@ -124,7 +124,7 @@ export const createCouponProfileStore = (storage: SyncStorage): CouponProfileSto
     saveProfile(input: CouponProfileInput): CouponProfileStore {
       const current = this.load()
       if (current.profiles.length >= MAX_COUPON_PROFILES) {
-        throw new CouponProfileStoreError('最多保存 10 組玩家設定。')
+        throw new CouponProfileStoreError(`最多保存 ${MAX_COUPON_PROFILES} 組玩家設定。`)
       }
       const normalized = normalizeInput(input)
       const profile: CouponProfile = {

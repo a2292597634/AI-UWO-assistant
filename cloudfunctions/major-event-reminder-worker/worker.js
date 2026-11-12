@@ -5,6 +5,8 @@ const {
   validateBatchConfig,
   resolveJobConfig,
   notificationData,
+  resolveOwnerProfile,
+  resolveSharedConfig,
 } = require('./shared/config')
 const lockIdFor = (owner, template) =>
   createHash('sha256')
@@ -78,10 +80,27 @@ function createWorker(
       if (!job || job.status !== 'pending' || job.nextRunAt > time) return null
       const sub = await tx.get('subscriptions', job.subId)
       const slot = sub?.slots.find((item) => item.leadSeconds === job.leadSeconds)
+      // 免廣告資格只取服務端開通時寫入的任務標記，並綁定當次授權、模板及取消代數。
+      const entitled =
+        job.activationMode === 'authorization-only'
+          ? !!sub &&
+            sub.id === job.subId &&
+            slot?.authorized === true &&
+            typeof job.templateId === 'string' &&
+            job.templateId.length > 0 &&
+            slot.templateId === job.templateId &&
+            Number.isSafeInteger(job.activationEpoch) &&
+            job.activationEpoch > 0 &&
+            job.activationEpoch === sub.epoch &&
+            slot.dueAtUnixSeconds === job.dueAt &&
+            sub.occurrence?.zoneId === job.occurrence?.zoneId &&
+            sub.occurrence?.eventTypeId === job.occurrence?.eventTypeId &&
+            sub.occurrence?.triggerAtUnixSeconds === job.occurrence?.triggerAtUnixSeconds
+          : !!sub?.adCompleted
       let excluded = null
       if (
         !sub ||
-        !sub.adCompleted ||
+        !entitled ||
         slot?.status !== 'pending' ||
         slot.generation !== job.generation ||
         sub.ownerUid !== job.ownerUid
@@ -105,7 +124,7 @@ function createWorker(
         return null
       }
       // 缺registry仍先核對狀態及窗口，保留有效pending並讓出全域掃描首批。
-      if (!resolveJobConfig(config, job.templateId)) {
+      if (!resolveJobConfig(config, job.templateId, job.ownerUid)) {
         job.nextRunAt = Math.min(time + 30, job.dueAt + 301, job.occurrence.triggerAtUnixSeconds)
         job.updatedAt = time
         await tx.put('jobs', id, job)
@@ -233,9 +252,11 @@ function createWorker(
       await finish(job, { reason: 'window-expired-before-send' }, 'missed')
       return
     }
-    const jobConfig = resolveJobConfig(config, job.templateId)
+    const profile = resolveOwnerProfile(config, job.ownerUid)
+    const jobConfig = resolveJobConfig(config, job.templateId, job.ownerUid)
     let data
     try {
+      if (!profile || !jobConfig) throw new Error('提醒來源設定不可用')
       data = notificationData(jobConfig, reference, job.occurrence, job.leadSeconds)
     } catch {
       await finish(job, { reason: 'invalid-template-data' }, 'failed')
@@ -245,15 +266,16 @@ function createWorker(
     let response
     let diagnostic = null
     try {
+      const payload = {
+        touser: profile.openId,
+        templateId: job.templateId,
+        page: `subpkg-trade/pages/popularity/index?zoneId=${encodeURIComponent(job.occurrence.zoneId)}&eventTypeId=${encodeURIComponent(job.occurrence.eventTypeId)}&triggerAtUnixSeconds=${job.occurrence.triggerAtUnixSeconds}`,
+        miniprogramState: jobConfig.miniprogramState,
+        lang: 'zh_TW',
+        data,
+      }
       response = await Promise.race([
-        send({
-          touser: job.ownerUid,
-          templateId: job.templateId,
-          page: `subpkg-trade/pages/popularity/index?zoneId=${encodeURIComponent(job.occurrence.zoneId)}&eventTypeId=${encodeURIComponent(job.occurrence.eventTypeId)}&triggerAtUnixSeconds=${job.occurrence.triggerAtUnixSeconds}`,
-          miniprogramState: jobConfig.miniprogramState,
-          lang: 'zh_TW',
-          data,
-        }),
+        profile.appId === 'wx8f961bcd8b26996a' ? send(payload) : send(payload, profile.appId),
         new Promise((resolve) => {
           timer = setTimeout(() => resolve(null), timeoutMilliseconds)
         }),
@@ -309,7 +331,13 @@ function createWorker(
     return { deleted }
   }
   async function run() {
-    if (!validateConfig(config).enabled && !validateBatchConfig(config).enabled)
+    const shared = resolveSharedConfig(config)
+    const profiles = [config, ...(shared ? [shared] : [])]
+    if (
+      !profiles.some(
+        (profile) => validateConfig(profile).enabled || validateBatchConfig(profile).enabled,
+      )
+    )
       return { enabled: false, claimed: 0 }
     const time = now()
     const stale = await repo.scan(
@@ -326,14 +354,16 @@ function createWorker(
       50,
     )
     // 可解析模板各自有界查詢，避免再多未知模板積壓遮蔽legacy／其他有效模板。
-    // 全域首批仍負責未知模板的延後與過窗清理；每次最多讀取5批各50筆。
-    const templateIds = new Set([
-      ...(validateConfig(config).enabled ? [config.templateId] : []),
-      ...validateBatchConfig(config).templates.map((template) => template.templateId),
-    ])
+    // 全域首批仍負責未知模板；固定兩端至多八個模板，加全域至多九批各50筆。
+    const templateIds = new Set(
+      profiles.flatMap((profile) => [
+        ...(validateConfig(profile).enabled ? [profile.templateId] : []),
+        ...validateBatchConfig(profile).templates.map((template) => template.templateId),
+      ]),
+    )
     const candidates = new Map()
     for (const row of pending) {
-      if (resolveJobConfig(config, row.templateId)) candidates.set(row._id, row)
+      if (resolveJobConfig(config, row.templateId, row.ownerUid)) candidates.set(row._id, row)
       else await claim(row._id, true)
     }
     for (const templateId of templateIds) {

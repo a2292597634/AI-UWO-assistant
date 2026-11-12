@@ -5,7 +5,7 @@
     "miniprogram/subpkg-coupon/pages/redemption/",
     "miniprogram/presenters/coupon-redemption-presenter.ts",
     "miniprogram/runtime/coupon-profile-store.ts",
-    "miniprogram/runtime/coupon-redemption-service.ts",
+    "miniprogram/subpkg-coupon/runtime/coupon-redemption-service.ts",
     "tools/miniprogram-review/fixtures.ts",
     "miniprogram/contracts/coupon-redemption.ts"
   ],
@@ -17,8 +17,29 @@
       "selector": ".coupon-redemption__actions"
     },
     {
+      "action": "assertExists",
+      "selector": ".coupon-redemption__input",
+      "exists": true
+    },
+    {
       "action": "screenshot",
       "name": "coupon-top"
+    },
+    {
+      "action": "navigate",
+      "path": "/subpkg-coupon/pages/settings/index"
+    },
+    {
+      "action": "waitUntil",
+      "condition": {
+        "kind": "text",
+        "selector": ".coupon-settings__intro",
+        "contains": "/ 20 位玩家"
+      }
+    },
+    {
+      "action": "screenshot",
+      "name": "coupon-settings-capacity"
     }
   ]
 }

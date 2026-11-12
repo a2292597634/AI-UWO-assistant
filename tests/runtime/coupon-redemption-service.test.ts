@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createCouponRedemptionService,
   CouponRedemptionError,
-} from '../../miniprogram/runtime/coupon-redemption-service'
+} from '../../miniprogram/subpkg-coupon/runtime/coupon-redemption-service'
 
 const mockCallFunction = vi.fn()
 

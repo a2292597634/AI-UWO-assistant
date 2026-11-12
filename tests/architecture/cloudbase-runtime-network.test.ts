@@ -6,6 +6,78 @@ import { findRuntimeNetworkReferences } from '../../tools/quality/find-runtime-n
 
 describe('CloudBase generated URL runtime boundary', () => {
   it.each([
+    '(new wx.cloud.Cloud({})).database()',
+    'const { database } = new wx.cloud.Cloud({}); database()',
+    'const db = new wx.cloud.Cloud({}).database()',
+  ])('共享建構結果不能以鏈式或解構繞過 API 邊界：%s', (content) => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-shared-constructor-'))
+    try {
+      mkdirSync(join(root, 'runtime'))
+      writeFileSync(join(root, 'runtime/shared-cloud-client.ts'), content)
+      expect(
+        findRuntimeNetworkReferences(root, {
+          allowedSharedCloudConstructorFile: 'runtime/shared-cloud-client.ts',
+        }),
+      ).toEqual([{ file: 'runtime/shared-cloud-client.ts', line: 1, reason: 'wx.cloud' }])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+  it('共享實例只允許直接呼叫三個批准的 API，不允許資料庫或實例外洩', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-shared-instance-'))
+    try {
+      mkdirSync(join(root, 'runtime'))
+      writeFileSync(
+        join(root, 'runtime/shared-cloud-client.ts'),
+        [
+          'const shared = new wx.cloud.Cloud({})',
+          'shared.init()',
+          'shared.callFunction({name: "fleet-config"})',
+          'shared.uploadFile({})',
+          'shared.database()',
+          'const leaked = shared',
+        ].join('\n'),
+      )
+      expect(
+        findRuntimeNetworkReferences(root, {
+          allowedSharedCloudConstructorFile: 'runtime/shared-cloud-client.ts',
+        }),
+      ).toEqual([
+        { file: 'runtime/shared-cloud-client.ts', line: 5, reason: 'wx.cloud' },
+        { file: 'runtime/shared-cloud-client.ts', line: 6, reason: 'wx.cloud' },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+  it('共享建構器只允許精確入口與 new 呼叫，不豁免資料庫或其他檔案', () => {
+    const root = mkdtempSync(join(tmpdir(), 'uwo-shared-boundary-'))
+    try {
+      mkdirSync(join(root, 'runtime'))
+      mkdirSync(join(root, 'pages'))
+      writeFileSync(
+        join(root, 'runtime/shared-cloud-client.ts'),
+        [
+          'const shared = new wx.cloud.Cloud({ resourceAppid: "old", resourceEnv: "env" })',
+          'wx.cloud.database()',
+          'const leaked = wx.cloud.Cloud',
+        ].join('\n'),
+      )
+      writeFileSync(join(root, 'pages/index.ts'), 'new wx.cloud.Cloud({})')
+      expect(
+        findRuntimeNetworkReferences(root, {
+          allowedSharedCloudConstructorFile: 'runtime/shared-cloud-client.ts',
+        }),
+      ).toEqual([
+        { file: 'pages/index.ts', line: 1, reason: 'wx.cloud' },
+        { file: 'runtime/shared-cloud-client.ts', line: 2, reason: 'wx.cloud' },
+        { file: 'runtime/shared-cloud-client.ts', line: 3, reason: 'wx.cloud' },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+  it.each([
     [
       '{"portraitPath":"https://cdn.example/assets/a.png","name":"https://cdn.example/assets/b.png"}',
       1,

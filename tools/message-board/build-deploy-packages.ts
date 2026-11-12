@@ -54,6 +54,11 @@ export function buildDeployPackages(input: { sourceRoot: string; outputRoot: str
     if (JSON.stringify(declared.dependencies) !== JSON.stringify({ 'wx-server-sdk': '4.0.2' }))
       throw new Error('SDK_DEPENDENCY_DRIFT')
     let entry = readFileSync(join(root, 'cloudfunctions', name, 'entry.js'), 'utf8')
+    if (name === 'message-board')
+      entry = entry.replace(
+        "require('./core/wechat-identity')",
+        "require('./shared/core/wechat-identity')",
+      )
     if (name === 'message-board-events')
       entry = entry.replace(
         "require('../message-board/core/wechat-event-crypto')",

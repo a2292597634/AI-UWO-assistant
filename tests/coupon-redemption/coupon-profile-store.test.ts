@@ -26,14 +26,14 @@ describe('本機兌換設定儲存', () => {
     memoryStorage = createMemoryStorage()
   })
 
-  it('新增第 11 組設定時拒絕且不覆寫既有設定', () => {
+  it('新增第 21 組設定時拒絕且不覆寫既有設定', () => {
     const store = createCouponProfileStore(memoryStorage)
-    for (let index = 0; index < 10; index += 1) {
+    for (let index = 0; index < 20; index += 1) {
       store.saveProfile(profileInput(`設定${index}`))
     }
 
-    expect(() => store.saveProfile(profileInput('超額'))).toThrow('最多保存 10 組')
-    expect(store.load().profiles).toHaveLength(10)
+    expect(() => store.saveProfile(profileInput('超額'))).toThrow('最多保存 20 組')
+    expect(store.load().profiles).toHaveLength(20)
   })
 
   it('刪除目前設定時改選第一組剩餘設定', () => {

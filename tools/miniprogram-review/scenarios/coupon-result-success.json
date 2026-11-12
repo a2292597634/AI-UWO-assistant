@@ -5,7 +5,7 @@
   "watchPaths": [
     "miniprogram/subpkg-coupon/pages/redemption/",
     "miniprogram/subpkg-coupon/pages/settings/",
-    "miniprogram/runtime/coupon-redemption-service.ts",
+    "miniprogram/subpkg-coupon/runtime/coupon-redemption-service.ts",
     "miniprogram/presenters/coupon-redemption-presenter.ts",
     "tools/miniprogram-review/fixtures.ts"
   ],
@@ -60,11 +60,11 @@
     },
     {
       "action": "waitFor",
-      "selector": ".coupon-redemption__profile-name"
+      "selector": ".coupon-redemption__player[data-id='fixture-player-b'] .coupon-redemption__profile-name"
     },
     {
       "action": "assertText",
-      "selector": ".coupon-redemption__profile-name",
+      "selector": ".coupon-redemption__player[data-id='fixture-player-b'] .coupon-redemption__profile-name",
       "equals": "fixture-user-b"
     },
     {

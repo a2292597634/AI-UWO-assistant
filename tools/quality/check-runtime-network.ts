@@ -18,6 +18,7 @@ const findings = findRuntimeNetworkReferences('miniprogram', {
   generatedCdnOrigin,
   generatedAssetPathPrefix,
   allowedCloudFunctionFiles: [
+    'runtime/shared-cloud-client.ts',
     'runtime/fleet-config-service.ts',
     'runtime/officer-editor-service.ts',
     'runtime/officer-maintenance-service.ts',
@@ -27,8 +28,12 @@ const findings = findRuntimeNetworkReferences('miniprogram', {
     'runtime/message-board-service.ts',
     'runtime/major-event-reminder-service.ts',
   ],
-  allowedCloudUploadFiles: ['runtime/officer-error-report-service.ts'],
-  allowedCloudInitFiles: ['app.ts'],
+  allowedCloudUploadFiles: [
+    'runtime/officer-error-report-service.ts',
+    'runtime/shared-cloud-client.ts',
+  ],
+  allowedCloudInitFiles: ['app.ts', 'runtime/shared-cloud-client.ts'],
+  allowedSharedCloudConstructorFile: 'runtime/shared-cloud-client.ts',
 })
 
 if (findings.length > 0) {

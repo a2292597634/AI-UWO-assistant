@@ -805,6 +805,14 @@
       "sourceRefs": {
         "voyageTw": "_unknown"
       }
+    },
+    {
+      "id": "job_wo_offline_heidelloon_deputy_commander",
+      "name": "阿德倫副隊長",
+      "displayOrder": 91,
+      "sourceRefs": {
+        "workOrderId": "wo_offline_heidelloon:deputy_commander"
+      }
     }
   ],
   "nationalities": [

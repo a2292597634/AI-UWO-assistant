@@ -3,6 +3,8 @@ const GAME_SERVER_IDS = new Set(require('./game-servers.json').servers.map(({ id
 const MAX_USER_NAME_LENGTH = 100
 const MAX_COUPON_CODE_LENGTH = 50
 const RATE_LIMIT_MS = 60 * 1000
+const BATCH_SIZE = 2
+const MAX_BATCH_PLAYERS_PER_MINUTE = 20
 
 const MESSAGES = {
   success: '獎勵已發送至遊戲內信箱。',
@@ -15,6 +17,8 @@ const MESSAGES = {
   'coupon-used': '這個兌換碼已經使用過。',
   'coupon-expired': '這個兌換碼已經過期。',
   'coupon-group-used': '同一兌換碼群組只能使用一次。',
+  'batch-invalid': '玩家清單無效，請重新選擇。',
+  'batch-unavailable': '批次兌換暫時無法使用。',
   'rate-limited': '請稍候再試。',
   'server-unavailable': '這個兌換碼不能使用於所選伺服器。',
   maintenance: '官方服務維護中，請稍後再試。',
@@ -89,19 +93,39 @@ const mapOfficialResponse = (response) => {
   return failure(ERROR_CODE_MAP[body.errorCdStr] ?? 'unknown')
 }
 
+const playerKey = ({ gameServerId, userNo }) => JSON.stringify([gameServerId, userNo.trim()])
+
+const createPlayerRateLimiter = () => {
+  const recentByRequester = new Map()
+  let nextCleanup = 0
+  return (requesterKey, target, now) => {
+    if (now >= nextCleanup) {
+      for (const [key, recent] of recentByRequester) {
+        if (now - recent.at(-1).at >= RATE_LIMIT_MS) recentByRequester.delete(key)
+      }
+      nextCleanup = now + RATE_LIMIT_MS
+    }
+    const recent = (recentByRequester.get(requesterKey) ?? []).filter(
+      (entry) => now - entry.at < RATE_LIMIT_MS,
+    )
+    if (
+      recent.length >= MAX_BATCH_PLAYERS_PER_MINUTE ||
+      recent.some((entry) => entry.key === target)
+    )
+      return false
+    recent.push({ key: target, at: now })
+    recentByRequester.set(requesterKey, recent)
+    return true
+  }
+}
+
 const createCouponRedemptionService = ({
   client,
   rateLimiter = createMemoryRateLimiter(),
   now = Date.now,
-} = {}) => ({
-  async dispatch(input, requesterKey = 'anonymous') {
-    const validationCode = validateInput(input)
-    if (validationCode) return failure(validationCode)
-
-    const currentTime = now()
-    if (rateLimiter.isLimited(requesterKey, currentTime)) return failure('rate-limited')
-    rateLimiter.mark(requesterKey, currentTime)
-
+} = {}) => {
+  const reservePlayer = createPlayerRateLimiter()
+  const redeem = async (input) => {
     try {
       return mapOfficialResponse(
         await client.redeem({
@@ -113,8 +137,49 @@ const createCouponRedemptionService = ({
     } catch {
       return failure('unknown')
     }
-  },
-})
+  }
+
+  const redeemBatch = async ({ players, couponNo }, requesterKey) => {
+    if (!Array.isArray(players) || players.length < 1 || players.length > BATCH_SIZE)
+      return failure('batch-invalid')
+    const inputs = players.map((player) => ({
+      gameServerId: player?.gameServerId,
+      userNo: player?.userNo,
+      couponNo,
+    }))
+    if (inputs.some(validateInput)) return failure('batch-invalid')
+    const keys = inputs.map(playerKey)
+    if (new Set(keys).size !== inputs.length) return failure('batch-invalid')
+    const currentTime = now()
+    const results = await Promise.all(
+      inputs.map(async (input, index) => {
+        if (!reservePlayer(requesterKey, keys[index], currentTime)) {
+          return { code: 'rate-limited', message: MESSAGES['rate-limited'] }
+        }
+        const result = await redeem(input)
+        return result.ok ? result.data : { code: result.code, message: result.message }
+      }),
+    )
+    return { ok: true, data: results }
+  }
+
+  return {
+    async dispatch(input, requesterKey = 'anonymous', allowBatch = false) {
+      if (input?.action === 'redeemBatch') {
+        return allowBatch ? redeemBatch(input, requesterKey) : failure('batch-unavailable')
+      }
+      const validationCode = validateInput(input)
+      if (validationCode) return failure(validationCode)
+      const currentTime = now()
+      if (rateLimiter.isLimited(requesterKey, currentTime)) return failure('rate-limited')
+      if (allowBatch && !reservePlayer(requesterKey, playerKey(input), currentTime)) {
+        return failure('rate-limited')
+      }
+      rateLimiter.mark(requesterKey, currentTime)
+      return redeem(input)
+    },
+  }
+}
 
 module.exports = {
   createCouponRedemptionService,

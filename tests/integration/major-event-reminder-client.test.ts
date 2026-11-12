@@ -34,10 +34,12 @@ function setup(offset = 12000) {
     serial = 0,
     saved: ReminderLocalOperation | null = null,
     lose = false,
-    dropBefore = false
+    dropBefore = false,
+    activateTime: number | null = null
   const repository = memoryRepository()
   const backend = load('service').createService(repository, {
     reference,
+    allowDirect: true,
     config: { ...configured, batchTemplates: templates },
     fingerprint: 'client-local',
     now: () => now,
@@ -53,13 +55,17 @@ function setup(offset = 12000) {
       callFunction: async ({ data }: { data: Record<string, unknown> }) => {
         const { action, ...input } = data
         order.push(String(action))
-        if (action === 'completeAd' && dropBefore) {
+        if (action === 'activateAuthorized' && dropBefore) {
           dropBefore = false
           ids.push(String(input.requestId))
           throw Error('請求未抵服務端')
         }
+        if (action === 'activateAuthorized' && activateTime !== null) {
+          now = activateTime
+          activateTime = null
+        }
         const result = await backend.dispatch(action, input, 'client-owner')
-        if (action === 'completeAd') {
+        if (action === 'activateAuthorized') {
           ids.push(String(input.requestId))
           if (lose) {
             lose = false
@@ -91,6 +97,9 @@ function setup(offset = 12000) {
   return {
     repository,
     backend,
+    advanceAtActivation: (time: number) => {
+      activateTime = time
+    },
     drop: () => {
       dropBefore = true
     },
@@ -170,11 +179,11 @@ describe('單開關前後端真本地交易整合', () => {
     expect(e.order[e.order.length - 1]).toBe('native')
     await pending
     expect(next.isChecked(b.key)).toBe(true)
-    expect(e.ad).toHaveBeenCalledOnce()
+    expect(e.ad).not.toHaveBeenCalled()
     expect(e.wxStub.requestSubscribeMessage).toHaveBeenCalledOnce()
     expect(e.storage.read()).toMatchObject({ receipts: [{ prepareRequestId: 'original-p' }] })
   })
-  it('完整ad請求未抵後端，跨開始後確定expired；同ID已重放且B不能借A廣告', async () => {
+  it('免費開通請求未抵後端，跨開始後確定expired；同ID重放且B可重新授權', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
@@ -189,10 +198,10 @@ describe('單開關前後端真本地交易整合', () => {
     expect(next.state.ready).toBe(true)
     expect(e.ids).toEqual([original.pending!.input.requestId, original.pending!.input.requestId])
     await next.toggle(nextEvent(event.triggerAtUnixSeconds))
-    expect(e.ad).toHaveBeenCalledTimes(2)
+    expect(e.ad).not.toHaveBeenCalled()
     expect(e.wxStub.requestSubscribeMessage).toHaveBeenCalledTimes(2)
   })
-  it('同場仍有效的stale-session保留完整ad收據，新授權新session後免重看', async () => {
+  it('免費開通stale-session不虛設廣告收據，新授權新session可重開', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
@@ -217,20 +226,14 @@ describe('單開關前後端真本地交易整合', () => {
     await next.refresh()
     expect(next.state.ready).toBe(true)
     expect(next.state.unconfirmed).toBe(false)
-    expect(e.storage.read()).toMatchObject({
-      receipts: [
-        {
-          occurrence: expect.objectContaining({ triggerAtUnixSeconds: event.triggerAtUnixSeconds }),
-        },
-      ],
-    })
+    expect(e.storage.read()?.receipts ?? []).toEqual([])
     await next.toggle(event)
     expect(next.isChecked(event.key)).toBe(true)
-    expect(e.ad).toHaveBeenCalledOnce()
+    expect(e.ad).not.toHaveBeenCalled()
     expect(e.wxStub.requestSubscribeMessage).toHaveBeenCalledTimes(2)
     expect(e.jobs()).toHaveLength(3)
   })
-  it('一次原生三模板accept，一次完整ad，產生三個各自模板job；取消再開免重看', async () => {
+  it('一次原生三模板accept直接產生三個各自模板job；取消再開重新授權免廣告', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
@@ -240,7 +243,7 @@ describe('單開關前後端真本地交易整合', () => {
     expect(c.isChecked(event.key)).toBe(false)
     await p
     expect(e.wxStub.requestSubscribeMessage).toHaveBeenCalledOnce()
-    expect(e.ad).toHaveBeenCalledOnce()
+    expect(e.ad).not.toHaveBeenCalled()
     expect(c.isChecked(event.key)).toBe(true)
     expect(
       e
@@ -253,10 +256,10 @@ describe('單開關前後端真本地交易整合', () => {
     expect(e.wxStub.requestSubscribeMessage).toHaveBeenCalledOnce()
     await c.toggle(event)
     expect(c.isChecked(event.key)).toBe(true)
-    expect(e.ad).toHaveBeenCalledOnce()
+    expect(e.ad).not.toHaveBeenCalled()
     expect(e.jobs()).toHaveLength(3)
   })
-  it('未確認廣告按相同request重放，不增加job、不再要求微信或ad', async () => {
+  it('未確認免費開通按相同request重放，不增加job、不再要求微信或ad', async () => {
     const e = setup(),
       c = e.create()
     await c.refresh()
@@ -271,31 +274,27 @@ describe('單開關前後端真本地交易整合', () => {
     expect(e.ids).toHaveLength(2)
     expect(e.ids[0]).toBe(e.ids[1])
     expect(e.jobs()).toHaveLength(3)
-    expect(e.ad).toHaveBeenCalledOnce()
+    expect(e.ad).not.toHaveBeenCalled()
     expect(e.wxStub.requestSubscribeMessage).toHaveBeenCalledOnce()
   })
-  it('廣告跨過3h只建2job；所有時點跨過亦保存廣告並允許另一場', async () => {
+  it('開通跨過3h只建2job；全部時點跨過不補發且允許另一場', async () => {
     const e = setup(10810),
       c = e.create()
     await c.refresh()
-    e.ad.mockImplementationOnce(async () => {
-      e.setTime(event.triggerAtUnixSeconds - 10780)
-      return true
-    })
+    e.advanceAtActivation(event.triggerAtUnixSeconds - 10780)
     await c.toggle(event)
-    expect(c.state.subscription?.adCompleted).toBe(true)
+    expect(c.state.subscription?.adCompleted).toBe(false)
     expect(e.jobs()).toHaveLength(2)
     expect(c.state.message).toContain('2 次')
     const other = nextEvent(event.triggerAtUnixSeconds)
-    e.ad.mockImplementationOnce(async () => {
-      e.setTime(other.triggerAtUnixSeconds - 500)
-      return true
-    })
+    e.advanceAtActivation(other.triggerAtUnixSeconds - 500)
     await c.toggle(other)
-    expect(c.state.subscription?.adCompleted).toBe(true)
+    expect(c.state.subscription?.adCompleted).toBe(false)
     expect(c.state.unconfirmed).toBe(false)
+    expect(e.jobs()).toHaveLength(2)
     await c.toggle(nextEvent(other.triggerAtUnixSeconds))
-    expect(e.ad).toHaveBeenCalledTimes(3)
+    expect(e.ad).not.toHaveBeenCalled()
+    expect(e.jobs()).toHaveLength(5)
   })
   it.each(['prepare', 'authorize', 'completeAd', 'activate', 'cancel'] as const)(
     'v1 %s pending以舊API及同request重放',
@@ -363,6 +362,6 @@ describe('單開關前後端真本地交易整合', () => {
     expect(c.state.unconfirmed).toBe(false)
     expect(e.jobs()).toHaveLength(0)
     await c.toggle(nextEvent(event.triggerAtUnixSeconds))
-    expect(e.ad).toHaveBeenCalledOnce()
+    expect(e.ad).not.toHaveBeenCalled()
   })
 })

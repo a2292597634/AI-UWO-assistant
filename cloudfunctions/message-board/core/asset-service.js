@@ -5,11 +5,11 @@ const { fail } = require('./validation')
 const { validateAvatar } = require('./image-validation')
 const { providerErrorCode } = require('./provider-error-code')
 function createAssets(ctx) {
-  const sign = (asset, expires) =>
-    createHmac('sha256', Buffer.from(ctx.callback.imageKey, 'hex'))
-      .update(
-        JSON.stringify([ctx.callback.appId, asset._id, asset.sha256, asset.attemptId, expires]),
-      )
+  const traceKey = (traceId, appId) =>
+    ctx.hash('trace:' + (appId === ctx.callback.appId ? '' : appId + ':') + traceId)
+  const sign = (asset, expires, callback) =>
+    createHmac('sha256', Buffer.from(callback.imageKey, 'hex'))
+      .update(JSON.stringify([callback.appId, asset._id, asset.sha256, asset.attemptId, expires]))
       .digest('hex')
   async function upload(input, actor) {
     const image = validateAvatar(input.base64),
@@ -70,13 +70,20 @@ function createAssets(ctx) {
       asset.traceId !== trace.traceId
     )
       return
+    const appId = ctx.ownerAppId(owner)
+    if (
+      (trace.appId ?? ctx.callback.appId) !== appId ||
+      (event.appId ?? ctx.callback.appId) !== appId
+    )
+      return
+    const task = await tx.get(C.tasks, trace.taskId)
+    if (!task || task.ownerKey !== asset.ownerKey || task.targetId !== asset._id) return
     asset.safety = event.errCode === 0 ? event.suggest : 'retryable-error'
     asset.revoked = asset.revoked || asset.safety === 'risky'
     asset.checkedAt = ctx.now()
     await tx.set(C.assets, asset._id, asset)
     event.matched = true
     await tx.set(C.events, id, event)
-    const task = await tx.get(C.tasks, trace.taskId)
     if (task) {
       task.state = asset.safety === 'retryable-error' && task.attempts < 3 ? 'queued' : 'done'
       task.nextAttemptAt = ctx.now() + 300000
@@ -90,7 +97,8 @@ function createAssets(ctx) {
       ownerKey: asset.ownerKey,
     })
   }
-  async function acceptVerifiedEvent(payload) {
+  async function acceptVerifiedEvent(payload, appId = ctx.callback.appId) {
+    ctx.callbackFor(appId)
     if (
       typeof payload?.traceId !== 'string' ||
       !/^[a-zA-Z0-9_-]{1,160}$/.test(payload.traceId) ||
@@ -98,7 +106,7 @@ function createAssets(ctx) {
       (payload.errCode === 0 && !['pass', 'review', 'risky'].includes(payload.suggest))
     )
       throw fail('input-invalid')
-    const id = ctx.hash('trace:' + payload.traceId)
+    const id = traceKey(payload.traceId, appId)
     await ctx.repo.transaction(async (tx) => {
       const existing = await tx.get(C.events, id)
       if (existing) {
@@ -107,6 +115,7 @@ function createAssets(ctx) {
       } else
         await tx.set(C.events, id, {
           ...payload,
+          appId,
           receivedAt: ctx.now(),
           expiresAt: ctx.now() + 3600000,
           matched: false,
@@ -118,7 +127,15 @@ function createAssets(ctx) {
     const asset = await ctx.repo.transaction(async (tx) => {
       const asset = await tx.get(C.assets, task.targetId),
         owner = await tx.get(C.owners, task.ownerKey)
-      if (!asset || asset.deleting || !owner || owner.clearing) return null
+      if (
+        !asset ||
+        asset.deleting ||
+        !owner ||
+        owner.clearing ||
+        asset.ownerKey !== task.ownerKey ||
+        ctx.ownerAppId(owner) !== task.appId
+      )
+        return null
       if (asset.traceId && asset.safety !== 'retryable-error') return null
       asset.attemptId = task.lease
       asset.startedAt = ctx.now()
@@ -129,16 +146,17 @@ function createAssets(ctx) {
     if (!asset) return
     let result
     try {
-      const expires = ctx.now() + 3600000,
-        url = new URL(ctx.callback.baseUrl + '/avatar')
+      const callback = ctx.callbackFor(task.appId),
+        expires = ctx.now() + 3600000,
+        url = new URL(callback.baseUrl + '/avatar')
       url.search = new URLSearchParams({
         assetId: asset._id,
         sha256: asset.sha256,
         attemptId: asset.attemptId,
         expires: String(expires),
-        signature: sign(asset, expires),
+        signature: sign(asset, expires, callback),
       }).toString()
-      result = await ctx.safety.checkImage(url.toString(), task.openId)
+      result = await ctx.safety.checkImage(url.toString(), task.openId, task.appId)
       if (
         result.errCode !== 0 ||
         typeof result.traceId !== 'string' ||
@@ -168,17 +186,20 @@ function createAssets(ctx) {
         !row ||
         row.attemptId !== task.lease ||
         !owner ||
-        owner.clearing
+        owner.clearing ||
+        row.ownerKey !== task.ownerKey ||
+        ctx.ownerAppId(owner) !== task.appId
       )
         return
       row.traceId = result.traceId
       await tx.set(C.assets, row._id, row)
-      const id = ctx.hash('trace:' + result.traceId)
+      const id = traceKey(result.traceId, task.appId)
       await tx.set(C.traces, id, {
         assetId: asset._id,
         sha256: asset.sha256,
         attemptId: task.lease,
         traceId: result.traceId,
+        appId: task.appId,
         taskId: task._id,
         startedAt: row.startedAt,
       })
@@ -280,7 +301,8 @@ function createAssets(ctx) {
       await tx.set(C.assets, latest._id, latest)
     })
   }
-  async function serve(query) {
+  async function serve(query, appId = ctx.callback.appId) {
+    const callback = ctx.callbackFor(appId)
     if (
       typeof query?.assetId !== 'string' ||
       typeof query.signature !== 'string' ||
@@ -296,13 +318,14 @@ function createAssets(ctx) {
       asset.deleting ||
       !owner ||
       owner.clearing ||
+      ctx.ownerAppId(owner) !== appId ||
       expires <= ctx.now() ||
       expires > ctx.now() + 3600000 ||
       asset.sha256 !== query.sha256 ||
       asset.attemptId !== query.attemptId ||
       !timingSafeEqual(
         Buffer.from(query.signature, 'hex'),
-        Buffer.from(sign(asset, expires), 'hex'),
+        Buffer.from(sign(asset, expires, callback), 'hex'),
       )
     )
       throw fail('invalid-signature')

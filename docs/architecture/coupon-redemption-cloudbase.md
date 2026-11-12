@@ -35,10 +35,16 @@ Referer: https://coupon-front.line.games/sbc/UWOGL
 
 ## Runtime 網路邊界
 
-- 小程序只經 `miniprogram/runtime/coupon-redemption-service.ts` 呼叫 `wx.cloud.callFunction`。
+- 兌換分包經 `miniprogram/subpkg-coupon/runtime/coupon-redemption-service.ts` 呼叫已登記的 `coupon-redemption` 雲函數。
 - 小程序頁面不含官方 URL、不呼叫 `wx.request`，也不直接訪問 CloudBase Database。
 - 官方伺服器清單是版本控制中的固定資料；官方清單變更時要修改 contract、雲函數白名單與測試後重新部署小程序與雲函數。
 
 ## 失敗與重試
 
 官方短時間限制、維護、HTTP 失敗與 timeout 都不會由雲函數自動重試。timeout 或未知 response 會回傳「結果未確認，請先到官方頁面確認再嘗試」，使用者應先確認官方頁面狀態，避免重複提交。
+
+## 新端批次兌換
+
+只有經過既有共享身分校驗的新端可使用 `redeemBatch`。前端一次最多選擇 20 位不同玩家，每次呼叫送出同一兌換碼和一至兩位玩家。服務端同時處理該小批並按輸入順序回傳結果，前端收到回覆後更新進度，再送下一批。離開頁面會停止尚未送出的批次。
+
+在同一雲函數實例內，新端單選與批次共用每來源 60 秒內最多 20 位的限額，同一來源對同服同暱稱也有 60 秒冷卻。舊端單人入口維持原有回傳格式及限流。部署須以新端共享身分相容版為基礎，只更新兌換函數，並分別核對舊端單人入口與新端批次入口。

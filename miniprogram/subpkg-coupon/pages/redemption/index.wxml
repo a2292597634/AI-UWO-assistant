@@ -2,52 +2,71 @@
   <view class="coupon-redemption__header">
     <text class="coupon-redemption__eyebrow">航海助手</text>
     <text class="coupon-redemption__title ui-display-title">兌換碼</text>
-    <text class="coupon-redemption__intro">由官方服務代為提交兌換碼，獎勵將發送至遊戲內信箱。</text>
+    <text class="coupon-redemption__intro">輸入一次兌換碼，即可為已勾選的玩家提交。獎勵將發送至遊戲內信箱。</text>
   </view>
 
   <view class="coupon-redemption__content">
-    <view wx:if="{{activeProfile}}" class="coupon-redemption__profile">
-      <view class="coupon-redemption__profile-copy">
-        <text class="coupon-redemption__label">目前玩家設定</text>
-        <text class="coupon-redemption__profile-name">{{activeProfile.name}}</text>
-        <text class="coupon-redemption__profile-meta">{{activeServerName}} ・ {{activeProfile.userNo}}</text>
+    <view wx:if="{{results.length}}" class="coupon-redemption__form">
+      <text class="coupon-redemption__label">{{isSubmitting ? '本次提交進度' : '本次兌換結果'}}</text>
+      <view wx:for="{{results}}" wx:key="id" class="ui-status {{item.result.statusClass}} coupon-redemption__status">
+        <text class="coupon-redemption__status-message coupon-redemption__result-profile">{{item.profile.name}} ・ {{item.profile.serverName}}</text>
+        <text class="ui-status__label">{{item.result ? item.result.label : (index < processingEnd ? '提交中' : '等待提交')}}</text>
+        <text wx:if="{{item.result}}" class="coupon-redemption__status-message coupon-redemption__result-message">{{item.result.message}}</text>
       </view>
-      <button class="ui-button ui-button--compact ui-button--secondary coupon-redemption__compact-button coupon-redemption__change" disabled="{{isSubmitting}}" bindtap="onOpenSettings">切換</button>
     </view>
 
-    <view wx:else class="coupon-redemption__empty">
-      <text class="coupon-redemption__empty-title">尚未選擇玩家設定</text>
-      <text class="coupon-redemption__empty-copy">先保存伺服器與遊戲內暱稱，兌換時即可直接帶入。</text>
-      <button class="ui-button ui-button--primary coupon-redemption__button" bindtap="onOpenSettings">新增玩家設定</button>
-    </view>
+    <block wx:if="{{!isSubmitting}}">
+      <view wx:if="{{players.length}}" class="coupon-redemption__profile">
+        <view class="coupon-redemption__profile-header">
+          <text class="coupon-redemption__label">選擇玩家（已選 {{selectedCount}} 位）</text>
+          <button class="ui-button ui-button--secondary coupon-redemption__compact-button coupon-redemption__change" bindtap="onOpenSettings">玩家設定</button>
+        </view>
+        <scroll-view class="coupon-redemption__player-list" scroll-y="{{true}}">
+          <checkbox-group bindchange="onSelectionChange">
+            <label wx:for="{{players}}" wx:key="id" class="coupon-redemption__player" data-id="{{item.id}}">
+              <checkbox value="{{item.id}}" checked="{{item.checked}}" />
+              <view class="coupon-redemption__profile-copy">
+                <text class="coupon-redemption__profile-name">{{item.name}}</text>
+                <text class="coupon-redemption__profile-meta">{{item.serverName}}</text>
+              </view>
+            </label>
+          </checkbox-group>
+        </scroll-view>
+        <button wx:if="{{players.length > 1}}" class="ui-button ui-button--secondary coupon-redemption__compact-button coupon-redemption__select-all" bindtap="onToggleAll">{{selectedCount === players.length ? '取消全選' : '全選'}}</button>
+      </view>
 
-    <view class="coupon-redemption__form">
-      <text class="coupon-redemption__label">兌換碼</text>
-      <input
-        class="coupon-redemption__input"
-        value="{{couponNo}}"
-        placeholder="請輸入含連字號的兌換碼"
-        maxlength="50"
-        disabled="{{isSubmitting}}"
-        bindinput="onCouponInput"
-      />
-      <text class="coupon-redemption__hint">兌換碼只會用於本次提交，不會保存。</text>
-    </view>
+      <view wx:else class="coupon-redemption__empty">
+        <text class="coupon-redemption__empty-title">尚未新增玩家設定</text>
+        <text class="coupon-redemption__empty-copy">先保存伺服器與遊戲內暱稱，兌換時即可勾選。</text>
+        <button class="ui-button ui-button--primary coupon-redemption__button" bindtap="onOpenSettings">新增玩家設定</button>
+      </view>
 
-    <view wx:if="{{result}}" class="ui-status {{result.statusClass}} coupon-redemption__status">
-      <text wx:if="{{resultProfile}}" class="coupon-redemption__status-message coupon-redemption__result-profile">本次玩家：{{resultProfile.name}} ・ {{resultServerName}} ・ {{resultProfile.userNo}}</text>
-      <text class="ui-status__label">{{result.label}}</text>
-      <text class="coupon-redemption__status-message coupon-redemption__result-message">{{result.message}}</text>
-    </view>
+      <view class="coupon-redemption__form">
+        <text class="coupon-redemption__label">兌換碼</text>
+        <input
+          class="coupon-redemption__input"
+          value="{{couponNo}}"
+          placeholder="請輸入含連字號的兌換碼"
+          maxlength="50"
+          bindinput="onCouponInput"
+        />
+        <text class="coupon-redemption__hint">兌換碼只會用於本次提交，不會保存。</text>
+      </view>
+    </block>
   </view>
 
   <view class="coupon-redemption__actions">
-    <text wx:if="{{!activeProfile}}" class="coupon-redemption__action-hint">請先新增或選擇玩家設定</text>
+    <block wx:if="{{results.length}}">
+      <text class="coupon-redemption__action-hint coupon-redemption__progress-text">{{isSubmitting ? '正在提交 · 已處理' : '處理完畢 ·'}} {{completedCount}} / {{results.length}} 位</text>
+      <progress wx:if="{{isSubmitting}}" class="coupon-redemption__progress" percent="{{progressPercent}}" stroke-width="4" />
+    </block>
+    <text wx:if="{{isSubmitting}}" class="coupon-redemption__action-hint">離開會停止後續提交，已送出的兌換仍可能生效。</text>
+    <text wx:elif="{{!selectedCount}}" class="coupon-redemption__action-hint">請先新增或勾選玩家</text>
     <button
       class="ui-button ui-button--primary coupon-redemption__submit"
       loading="{{isSubmitting}}"
       disabled="{{submitDisabled}}"
       bindtap="onSubmit"
-    >{{isSubmitting ? '正在提交…' : '確認並領取'}}</button>
+    >{{isSubmitting ? '兌換處理中…' : (selectedCount ? '為 ' + selectedCount + ' 位玩家兌換' : '確認並領取')}}</button>
   </view>
 </view>

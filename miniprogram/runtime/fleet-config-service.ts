@@ -1,3 +1,4 @@
+import { callSharedCloudFunction } from './shared-cloud-client'
 /**
  * Fleet Config Service Adapter
  *
@@ -224,7 +225,7 @@ async function callFunction<T>(
 ): Promise<T> {
   let rawResponse: unknown
   try {
-    rawResponse = await wx.cloud.callFunction({
+    rawResponse = await callSharedCloudFunction({
       name: FLEET_CONFIG_FUNCTION_NAME,
       data: { action, ...payload },
     })

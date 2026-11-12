@@ -31,6 +31,7 @@ const fieldsByAction = {
   authorize: ['sessionId', 'leadSeconds', 'requestId'],
   completeAd: ['sessionId', 'requestId'],
   activate: ['sessionId', 'requestId'],
+  activateAuthorized: ['sessionId', 'requestId'],
   cancel: ['key', 'expectedVersion', 'requestId'],
 }
 const stableJson = (value) =>
@@ -46,7 +47,13 @@ const stableJson = (value) =>
 
 function createService(
   repo,
-  { reference, fingerprint, config, now = () => Math.floor(Date.now() / 1000) },
+  {
+    reference,
+    fingerprint,
+    config,
+    allowDirect = false,
+    now = () => Math.floor(Date.now() / 1000),
+  },
 ) {
   const publicConfig = validateConfig(config)
   const batchConfig = validateBatchConfig(config)
@@ -128,7 +135,11 @@ function createService(
         })
         return { ok: true, data }
       }
-      const selectedConfig = ['prepareBatch', 'authorizeBatch'].includes(action)
+      if (action === 'activateAuthorized' && allowDirect !== true)
+        reject('disabled', '尚未開啟直接授權提醒')
+      const selectedConfig = ['prepareBatch', 'authorizeBatch', 'activateAuthorized'].includes(
+        action,
+      )
         ? batchConfig
         : publicConfig
       if (
@@ -246,7 +257,8 @@ function createService(
           const sessionConfig = session.mode === 'batch' ? batchConfig : publicConfig
           if (!sessionConfig.enabled) reject('disabled', sessionConfig.reason)
           if (
-            (action === 'authorizeBatch' && session.mode !== 'batch') ||
+            (['authorizeBatch', 'activateAuthorized'].includes(action) &&
+              session.mode !== 'batch') ||
             (action === 'authorize' && session.mode === 'batch')
           )
             reject('invalid-session', '提醒授權流程類型不符')
@@ -293,6 +305,21 @@ function createService(
           } else {
             if (session.mode === 'batch' && !session.batchAuthorized)
               reject('authorization-required', '請先完整接受本場批次提醒授權')
+            if (action === 'activateAuthorized') {
+              if (session.expiresAt <= time) reject('expired', '提醒授權流程已過期')
+              // 僅檢查本次可建立或恢復的槽；既有待發及不可重送槽保留原模板與任務。
+              if (
+                session.templates.some((template) => {
+                  if (sub.occurrence.triggerAtUnixSeconds - template.leadSeconds <= time)
+                    return false
+                  const slot = sub.slots.find((item) => item.leadSeconds === template.leadSeconds)
+                  if (slot && ['pending', 'sending', 'unknown', 'sent'].includes(slot.status))
+                    return false
+                  return !slot?.authorized || slot.templateId !== template.templateId
+                })
+              )
+                reject('authorization-required', '請完整接受所有尚未錯過的提醒授權')
+            }
             if (action === 'activate' && !sub.adCompleted)
               reject('ad-required', '請先完整觀看本場激勵廣告')
             if (
@@ -325,6 +352,9 @@ function createService(
                 subId: sub.id,
                 ownerUid: owner,
                 templateId: slot.templateId || config.templateId,
+                ...(action === 'activateAuthorized'
+                  ? { activationMode: 'authorization-only', activationEpoch: sub.epoch }
+                  : {}),
                 fingerprint,
                 occurrence: sub.occurrence,
                 leadSeconds: slot.leadSeconds,

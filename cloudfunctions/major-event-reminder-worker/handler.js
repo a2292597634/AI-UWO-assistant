@@ -87,7 +87,12 @@ function createHandler(cloud, env = process.env, now = () => Math.floor(Date.now
     ...generated,
     config: configFromEnvironment(env),
     now,
-    send: (payload) => cloud.openapi.subscribeMessage.send(payload),
+    send: (payload, appId) => {
+      if (appId === undefined) return cloud.openapi.subscribeMessage.send(payload)
+      if (appId === 'wxd0bc7afdc9cd334a')
+        return cloud.openapi({ appid: appId }).subscribeMessage.send(payload)
+      return Promise.reject(new Error('不允許的提醒來源AppID'))
+    },
   })
   return async (event, context) => {
     const wxContext = cloud.getWXContext()
