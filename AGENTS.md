@@ -31,7 +31,7 @@ archive/  →  data/master/  →  miniprogram/generated/
 
 ## 2. 硬約束
 
-- 禁止直接在 `main`／`master` 分支開發。先核對實際 HEAD、分支、遠端預設分支及所有 tracked／untracked／必要 ignored 輸入，保護既有工作。分支命名：`codex/phase-N-描述`。
+- 禁止直接在 `main`／`master` 分支開發。先核對實際 HEAD、分支、遠端預設分支及所有 tracked／untracked／必要 ignored 輸入，保護既有工作。新任務分支與提交命名遵循第 2.1 節。
 - `miniprogram/` 預設禁止 `wx.request`、`wx.downloadFile`、`wx.cloud`、手寫遠程 URL 或 Node.js API。頁面與元件不得直接呼叫 `wx.cloud` 或操作雲端資料庫；頁面透過專用 runtime service 訪問雲端。
 - 既有 CloudBase／CDN 例外只依 [網路檢查入口](tools/quality/check-runtime-network.ts) 與 [掃描器](tools/quality/find-runtime-network-references.ts) 的精確檔案、API、CDN origin／prefix 邊界放行。CloudBase 僅允許已登記位置的 `init`、`callFunction`、`uploadFile`；CDN 僅允許已登記生成檔案中的圖片欄位，使用發布 manifest 指定的 HTTPS 來源與路徑，不含 query／hash。必須通過 `npm run check:runtime-network`，不得把例外擴大到任意頁面或其他 API。
 - 新增或擴大網路例外前，必須說明檔案、API 與用途並取得用戶授權，再同步掃描白名單與相關契約測試；已有明確授權覆蓋時不重複確認。不得關閉或全域放寬掃描。雲端身分、權限與資料校驗在服務端執行，部署策略參閱既有 `docs/architecture/` 雲端文檔。
@@ -40,6 +40,22 @@ archive/  →  data/master/  →  miniprogram/generated/
 - 禁止未經用戶確認新增/刪除/升級依賴。
 - 禁止順手修復無關問題或格式化無關文件。
 - 發現範圍外缺陷 → 報告並建議另開任務，不得夾帶。
+
+## 2.1 分支、工作樹與提交命名
+
+新任務使用以下格式，按名稱字典序查看時可區分任務建立時間：
+
+```text
+codex/phase-YYYYMMDD-HHMMSSNN-任務簡述
+codex/phase-20261112-20050101-fleet-limit-regression
+```
+
+- 日期及時間採用北京時間（Asia/Shanghai）；`HHMMSS` 是建立任務的時、分、秒，`NN` 為同秒順序號，從 `01` 起，重複時依序遞增。
+- 建立前檢查本地及遠端分支是否已使用相同的日期、時間與順序號前綴，即使任務簡述不同也不可重用該前綴；衝突時遞增順序號。離線時先檢查本地，連線後推送前重新核對遠端。查詢不具備原子預留能力；多端同時建立時須協調並核對推送結果，不得強制覆寫遠端分支。時鐘誤差可能影響名稱的實際先後，不能把名稱視為絕對時間證據。
+- 任務簡述使用小寫英文字母、數字和連字號，簡短描述實際工作。新工作樹目錄優先沿用對應分支去掉 `codex/` 後的名稱；固定入口、既有工作樹及歷史分支不因本規則改名或移動。
+- 日期與編號表示任務建立時的順序，不表示提交、PR 或合併先後；實際合併順序以 `main` 的 Git 歷史及 GitHub PR 記錄為準。刪除分支不重寫歷史或重新編排舊編號。
+- 提交訊息及 PR 標題採用 `類型(模組): 中文簡述`，例如 `test(fleet-config): 補充配置滿額後操作回歸`。常用類型為 `feat`、`fix`、`test`、`docs`、`refactor`、`chore`；模組用簡短小寫英文及連字號，簡述說明實際改變。
+- GitHub 自動生成的合併提交可保留平台格式；PR 描述記錄變更、相關驗證與未完成驗收。舊提交和歷史 PR 不改寫；本規則不改變提交前確認、PR 合併或推送授權要求。
 
 ## 3. 提交前門禁
 
@@ -77,7 +93,7 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 ### 新端主線與舊端封存（2026-11-12）
 
 - 唯一日常開發入口為 `E:\AI-UWO-new`（新 AppID `wxd0bc7afdc9cd334a`）。先讀 [維護與封存手冊](docs/development/dual-app-maintenance.md)；新端統一以 `main` 為整合主線，實際已整合 SHA 以 [開發現況](docs/development/current-state.md) 為準，不能把候選當作已推送。
-- 整合後所有任務從最新 `main` 建立 `codex/phase-N-描述` 短期分支，經審查與 PR 整合回 `main`；不再開發舊端或向舊維護分支同步前端改動。提交前原有確認要求不變。
+- 整合後所有任務從最新 `main` 建立符合第 2.1 節命名規則的短期分支，經審查與 PR 整合回 `main`；不再開發舊端或向舊維護分支同步前端改動。提交前原有確認要求不變。
 - 上傳新端前執行 `tools/release/check-target.ts --target new --project-root 絕對工程路徑`（Node 22／tsx）。工具要求新端 AppID、`main` 及乾淨提交；`--target old` 僅作診斷，一律回報 `OLD_TARGET_FROZEN`。此工具不能攔截開發者工具的手動按鈕，也不代替完整門禁、頁面或真機驗收。
 - 舊端代碼、最後發布記錄、`E:\AI-UWO-old` 入口及含未提交內容的舊 worktree 保留作回溯，退出日常開發。恢復舊端開發或發布須另行確認，不能把歷史手冊當作目前授權。
 - **共享舊雲環境及資源帳號繼續保留。** 禁止從舊維護分支整包部署雲函數；修改共享函數以新端相容實現為基礎，先比較線上差異與備份，最小增量部署並驗證受影響的新舊身份。舊端停更不授權刪除環境、資料、資源帳號或身份相容邏輯。
