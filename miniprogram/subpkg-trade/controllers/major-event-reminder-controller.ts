@@ -456,7 +456,7 @@ export const createMajorEventReminderController = (options: Options) => {
           return
         }
         if (!valid.every((t) => results[t.templateId] === 'accept')) {
-          notice('尚未完整接受所有有效時點的微信授權，提醒未開通。')
+          notice('提醒未開通，請至右上角「…」→設置→訂閱消息開啟。')
           return
         }
         operation = {
