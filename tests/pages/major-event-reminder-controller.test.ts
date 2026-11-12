@@ -559,6 +559,7 @@ describe('單開關批次提醒與恢復', () => {
     expect(e.order).toEqual([])
     expect(e.platform.watchAd).not.toHaveBeenCalled()
     expect(c.isChecked(key)).toBe(false)
+    expect(e.notice).toHaveBeenLastCalledWith('提醒未開通，請至右上角「…」→設置→訂閱消息開啟。')
   })
   it.each([
     [9300, 2],
