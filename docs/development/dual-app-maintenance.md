@@ -1,18 +1,40 @@
-# 新舊小程序維護與發布手冊
+# 新端維護與舊端封存手冊
+
+## 當前規則（2026-11-12）
+
+使用者確認新端已部署上線、舊端停止更新；原倉庫繼續使用，不新建倉庫或重寫歷史。
+
+- 日常只打開 `E:\AI-UWO-new`，實體目錄 `E:\AI UWO assistant`，AppID `wxd0bc7afdc9cd334a`。整合後從最新 main 建立短期任務分支，PR 目標為 main；開發不能直接在 main 進行。
+- 本輪候選基線 `006024d0ce472a79abb250a99e02a8e2e9baa881`；整合前 main 仍是 `e5765d09cf7bfde2aad1064dacc4770b26e48471`。這是整合前基線記錄；實際提交、合併及推送結果以 [開發現況](current-state.md) 的遠端 main 與 Verify 入口為準。
+- 新端上傳前使用 Node 22 執行 `node node_modules/tsx/dist/cli.mjs tools/release/check-target.ts --target new --project-root 'E:/AI-UWO-new'`。候選工具要求 main、正確 AppID 與乾淨提交；任務分支拒絕是預期結果，不能關閉檢查。
+- 舊端停止日常開發、上傳與發布。`--target old` 仍可輸出診斷，但固定回傳 `OLD_TARGET_FROZEN`、ready=false。舊工作區內尚未更新的歷史工具沒有此保護，不能據此繼續發布。
+- `E:\AI-UWO-old` 與舊工作區因含既有未提交修復及文檔修改而保留，僅作回溯；其實體路徑說明及歷史兼容聯結見下方記錄。
+- 舊端最新代碼快照 `27e3762` 對應 2.5.4 體驗版候選；原任務最後確認的正式版是 2.5.3。標籤 `archive/old-end-code-27e3762` 只證明代碼身份，不宣稱 2.5.4 已正式發布。
+- 新端 0.2.2 上傳收據綁定 `006024d`；使用者於本輪回報新端已上線。未重新查微信公眾平台的正式版本及發布時間，不修改歷史 delivery.json 的 released=false。
+- 共享環境 `cloud1-d7gxfuxfe813b4eaa`、資源方舊 AppID 與身份相容邏輯持續保留。前端停更不等於刪除雲資源；共享部署仍以新端相容實現作最小增量，先比較線上與備份並取得具體部署授權。
+- 完整門禁、頁面／真機／真雲驗收、提交確認及上傳／送審／正式發布的區分維持原規則。
+
+- Codex 對話歸檔會連帶排程工作區歸檔，不能視為只隱藏對話。歸檔前核對對話 cwd、全部附加 worktree、realpath／junction、dirty 及 ignored 備份；任何關聯工作區受保護或 ignored 尚未備份時，保持對話可見。執行後重讀 App 歸檔 queue 與完整 Git worktree 清單，出現意外排程先取消對話歸檔，不直接改寫 App 內部配置。
+
+## 歷史雙端維護記錄
+
+以下保留原文及本機路徑修訂，用於追溯；「兩端維護／同步／上傳」等歷史操作由上述新規則取代，不作目前授權。
+
+### 原雙端維護手冊
 
 建立日期：2026-11-03。兩個小程序共用 Git 倉庫、維持兩個維護分支，各自上傳；雲環境仍共用。這份文件是後續維護入口。
 
 ## 固定入口
 
-| 項目         | 舊小程序                                                            | 新小程序                                     |
-| ------------ | ------------------------------------------------------------------- | -------------------------------------------- |
-| 日常打開目錄 | `E:\AI-UWO-old`                                                     | `E:\AI-UWO-new`                              |
-| 真實目錄     | `C:\Users\XB\.codex\worktrees\uwo-old-maintenance\AI UWO assistant` | `E:\AI UWO assistant`                        |
-| 維護分支     | `codex/phase-20261103-old-maintenance`                              | `codex/phase-20261102-miniprogram-migration` |
-| 固定 AppID   | `wx8f961bcd8b26996a`                                                | `wxd0bc7afdc9cd334a`                         |
-| 雲端連線     | 原生舊環境                                                          | 授權共享舊環境，用戶私人身份獨立             |
+| 項目         | 舊小程序                               | 新小程序                                     |
+| ------------ | -------------------------------------- | -------------------------------------------- |
+| 日常打開目錄 | `E:\AI-UWO-old`                        | `E:\AI-UWO-new`                              |
+| 真實目錄     | `E:\UWO-worktrees\uwo-old-maintenance` | `E:\AI UWO assistant`                        |
+| 維護分支     | `codex/phase-20261103-old-maintenance` | `codex/phase-20261102-miniprogram-migration` |
+| 固定 AppID   | `wx8f961bcd8b26996a`                   | `wxd0bc7afdc9cd334a`                         |
+| 雲端連線     | 原生舊環境                             | 授權共享舊環境，用戶私人身份獨立             |
 
-固定入口是 Windows 目錄聯結，不是兩套另外複製的文件。新入口保留原工程，舊入口指向 Codex 管理的 Git worktree；勿刪除／歸檔實際舊工作區，勿把聯結當作需要另備份一份的代碼。移動機器時從 Git 建立兩個分支工作區，再重新建立入口；本機依賴用各自 `npm ci` 恢復。
+固定入口是 Windows 目錄聯結，不是兩套另外複製的文件。新入口保留原工程；舊入口經原路徑 `C:\Users\XB\.codex\worktrees\uwo-old-maintenance\AI UWO assistant` 的相容聯結指向 E 盤 worktree。勿刪除／歸檔實際舊工作區或相容聯結，勿把聯結當作需要另備份一份的代碼。移動機器時從 Git 建立兩個分支工作區，再重新建立入口；本機依賴用各自 `npm ci` 恢復。
 
 `main` 是共同的 Git 整合線，目前仍為 `e5765d09cf7bfde2aad1064dacc4770b26e48471`，不是目前新工程的文件內容。它沒有另一個固定目錄，且不得直接在 main 開發。日後 main 前進不會自動更新兩個維護分支，合併前須檢查帳號配置差異。
 

@@ -74,12 +74,14 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 
 ## 7. 當前流程入口
 
-### 新舊小程序並行維護（2026-11-03）
+### 新端主線與舊端封存（2026-11-12）
 
-- 先讀 [雙端維護手冊](docs/development/dual-app-maintenance.md)。固定入口：`E:\AI-UWO-old`（舊 AppID `wx8f961bcd8b26996a`）；`E:\AI-UWO-new`（新 AppID `wxd0bc7afdc9cd334a`）。兩者是不同維護分支的目錄聯結，勿歸檔仍在使用的舊 worktree。
-- 單端修改從對應維護分支出發；公共修改獨立提交後逐項移植，不盲目整分支互合，不同步帳號配置。提交前原有確認要求不變。
-- 上傳前執行 `tools/release/check-target.ts --target old|new --project-root 絕對工程路徑`（以 Node 22／tsx 執行）。帳號、分支、乾淨提交必須匹配；此工具不代替完整門禁、頁面／真機驗收，也不攔截開發者工具的手動按鈕。
-- **禁止從舊維護分支整包部署雲函數。** 共享環境已部署新舊身份兼容，舊基線缺少此兼容。共享函數修改以新端兼容實現為基礎，先比較線上差異與備份，最小增量部署且驗證兩端；不得因舊前端停更而刪除共享資源。
+- 唯一日常開發入口為 `E:\AI-UWO-new`（新 AppID `wxd0bc7afdc9cd334a`）。先讀 [維護與封存手冊](docs/development/dual-app-maintenance.md)；新端統一以 `main` 為整合主線，實際已整合 SHA 以 [開發現況](docs/development/current-state.md) 為準，不能把候選當作已推送。
+- 整合後所有任務從最新 `main` 建立 `codex/phase-N-描述` 短期分支，經審查與 PR 整合回 `main`；不再開發舊端或向舊維護分支同步前端改動。提交前原有確認要求不變。
+- 上傳新端前執行 `tools/release/check-target.ts --target new --project-root 絕對工程路徑`（Node 22／tsx）。工具要求新端 AppID、`main` 及乾淨提交；`--target old` 僅作診斷，一律回報 `OLD_TARGET_FROZEN`。此工具不能攔截開發者工具的手動按鈕，也不代替完整門禁、頁面或真機驗收。
+- 舊端代碼、最後發布記錄、`E:\AI-UWO-old` 入口及含未提交內容的舊 worktree 保留作回溯，退出日常開發。恢復舊端開發或發布須另行確認，不能把歷史手冊當作目前授權。
+- **共享舊雲環境及資源帳號繼續保留。** 禁止從舊維護分支整包部署雲函數；修改共享函數以新端相容實現為基礎，先比較線上差異與備份，最小增量部署並驗證受影響的新舊身份。舊端停更不授權刪除環境、資料、資源帳號或身份相容邏輯。
+- 整理與待辦見 [收尾記錄](docs/development/2026-11-12-repository-closeout.md) 和 [待辦清單](docs/development/backlog.md)。歷史 failed／blocked、未提交工作與必要 ignored 證據不可因歸檔對話或刪除已合併分支而遺失。
 
 見 [開發現況與證據](docs/development/current-state.md)、[操作契約索引](docs/development/operation-contracts.md) 與 [任務記錄模板](docs/development/task-record-template.md)。本機、乾淨 checkout、遠端 CI、正式模擬器、真機／真雲的通過證據分開記錄。
 

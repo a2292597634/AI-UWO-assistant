@@ -1,5 +1,25 @@
 # 開發現況與證據入口
 
+## 新端主線（2026-11-12）
+
+使用者確認新端已上線，舊端停止更新。保留原 GitHub 倉庫，新端成為唯一開發目標；固定入口 `E:\AI-UWO-new`，AppID `wxd0bc7afdc9cd334a`。共享舊雲資源繼續保留。實際整合版本見 [main 提交](https://github.com/a2292597634/AI-UWO-assistant/commits/main)，精確 SHA 的驗證見 [main Verify](https://github.com/a2292597634/AI-UWO-assistant/actions/workflows/verify.yml?query=branch%3Amain)。下表保留本輪整合前基線與來源，不把舊 SHA 當作之後的最新 main。
+
+| 項目         | 當前可確認狀態                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------- |
+| 新端代碼基線 | `006024d0ce472a79abb250a99e02a8e2e9baa881`，以 baseline/new-end-0.2.2-006024d 標籤保留              |
+| main         | `e5765d09cf7bfde2aad1064dacc4770b26e48471`，為本輪整合前的 main；實際進度以遠端入口為準             |
+| 工作分支     | `codex/phase-20261112-new-main-closeout`，準備流程與發布工具調整                                    |
+| 新端微信版本 | 0.2.2 上傳收據對應新端基線；使用者回報已上線，本輪未重新查正式版本與發布時間                        |
+| 舊端快照     | `27e3762` 是 2.5.4 體驗版候選；原任務最後確認正式版為 2.5.3                                         |
+| 歷史遠端 CI  | 新端基線 Verify run 42764710987 失敗；5 項發布目錄測試出現 NOT_PROJECT_ROOT，不以舊 CI 銷項         |
+| 本輪驗證     | 以 [收尾記錄](2026-11-12-repository-closeout.md) 的實際結果為準；未提交候選沒有本輪精確 SHA 遠端 CI |
+
+本輪不改業務頁面、共享 runtime、master 或 generated；歷史核對後補回 fleet-config repository 精確錯誤碼與測試來源，不部署雲函數或上傳小程序。新端整合 main 後，日常從 main 建短期分支，PR 統一回 main。候選發布工具只接受 main 的乾淨新端，old 固定凍結。
+
+當前入口：[維護與封存手冊](dual-app-maintenance.md)、[收尾與恢復記錄](2026-11-12-repository-closeout.md)、[待辦清單](backlog.md)。下方保留較早流程實施與驗收限制，不把歷史未測項改成通過。
+
+## 歷史流程能力與驗收（2026-10-05）
+
 更新：2026-10-05。實施基線 `79e778c4a69ad2a66d07e86f93023efde36a1b82`；實施分支 `codex/phase-57-development-workflow-improvement`。使用者已明確授權「提交合併推送」，實際集成版本見 [main 提交紀錄](https://github.com/a2292597634/AI-UWO-assistant/commits/main)，遠端驗證見 [main 的 Verify](https://github.com/a2292597634/AI-UWO-assistant/actions/workflows/verify.yml?query=branch%3Amain)。下文保留實施時的候選來源與驗收證據。原規劃工作區的五份文檔與個人配置保留。
 
 支援 Node `>=22 <23`、npm `>=10`。本輪使用現有 Node 22.23.3／npm 10.9.9，僅調整執行命令的 PATH。最高規則見 [AGENTS](../../AGENTS.md)，日常任務用 [任務記錄](task-record-template.md)，歷史錯誤契約見 [操作索引](operation-contracts.md)。

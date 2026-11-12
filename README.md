@@ -4,6 +4,12 @@
 
 開發規則見 [AGENTS](AGENTS.md)；當前版本、流程能力、驗收證據與未完成項集中在 [開發現況](docs/development/current-state.md)。
 
+## 當前開發入口
+
+新端為唯一開發目標，固定入口 `E:\AI-UWO-new`，AppID `wxd0bc7afdc9cd334a`。新端代碼統一整合到 `main`；日常從最新 `main` 建短期分支，PR 目標統一為 `main`。實際主線提交與 CI 以開發現況的遠端入口為準。舊端已停更，代碼與共享舊雲資源保留。
+
+發布與封存流程見 [維護手冊](docs/development/dual-app-maintenance.md)，進度見 [收尾記錄](docs/development/2026-11-12-repository-closeout.md)，後續事項見 [待辦清單](docs/development/backlog.md)。
+
 ## 本機安裝
 
 使用 Node `>=22 <23`、npm `>=10`；不由工具自動切換或安裝環境。

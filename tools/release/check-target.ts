@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 const targets = {
   old: { appid: 'wx8f961bcd8b26996a', branch: 'codex/phase-20261103-old-maintenance' },
-  new: { appid: 'wxd0bc7afdc9cd334a', branch: 'codex/phase-20261102-miniprogram-migration' },
+  new: { appid: 'wxd0bc7afdc9cd334a', branch: 'main' },
 } as const
 
 /** 只檢查帳號及 Git 候選，不修改工作區，也不代表功能或平台驗收通過。 */
@@ -15,20 +15,23 @@ export function inspectReleaseTarget(
 ) {
   const errors: string[] = []
   const expected = targets[target]
+  const frozen = target === 'old'
+  if (frozen) errors.push('OLD_TARGET_FROZEN')
   let root = projectRoot
   let appid = ''
   let branch = ''
   let commit = ''
   if (Number(nodeVersion.split('.')[0]) !== 22) errors.push('NODE_VERSION_UNSUPPORTED')
   try {
-    root = realpathSync(projectRoot)
+    root = realpathSync.native(projectRoot)
     const git = (...args: string[]) =>
       execFileSync('git', ['--no-optional-locks', '-C', root, ...args], {
         encoding: 'utf8',
         timeout: 10_000,
         stdio: ['ignore', 'pipe', 'pipe'],
       }).trim()
-    if (realpathSync(git('rev-parse', '--show-toplevel')) !== root) errors.push('NOT_PROJECT_ROOT')
+    if (realpathSync.native(git('rev-parse', '--show-toplevel')) !== root)
+      errors.push('NOT_PROJECT_ROOT')
     branch = git('branch', '--show-current')
     commit = git('rev-parse', '--verify', 'HEAD')
     if (branch !== expected.branch) errors.push('BRANCH_MISMATCH')
@@ -45,6 +48,7 @@ export function inspectReleaseTarget(
   return {
     ready: errors.length === 0,
     target,
+    frozen,
     projectRoot: root,
     appid,
     branch,
@@ -52,7 +56,8 @@ export function inspectReleaseTarget(
     expected,
     errors,
     cloudDeploymentAllowed: false,
-    notice: '僅為只讀帳號與提交檢查；仍須完整驗證及頁面驗收。共享雲函數不得由舊分支覆蓋部署。',
+    notice:
+      '僅為只讀帳號與提交檢查；新端僅允許 main，舊端已凍結。仍須完整驗證及頁面驗收；共享舊雲資源持續保留，不授權部署。',
   }
 }
 
