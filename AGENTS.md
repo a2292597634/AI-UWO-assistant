@@ -98,6 +98,7 @@ commit 前展示變更文件、驗證結果和擬用 message，等待用戶確�
 - 舊端代碼、最後發布記錄、`E:\AI-UWO-old` 入口及含未提交內容的舊 worktree 保留作回溯，退出日常開發。恢復舊端開發或發布須另行確認，不能把歷史手冊當作目前授權。
 - **共享舊雲環境及資源帳號繼續保留。** 禁止從舊維護分支整包部署雲函數；修改共享函數以新端相容實現為基礎，先比較線上差異與備份，最小增量部署並驗證受影響的新舊身份。舊端停更不授權刪除環境、資料、資源帳號或身份相容邏輯。
 - 整理與待辦見 [收尾記錄](docs/development/2026-11-12-repository-closeout.md) 和 [待辦清單](docs/development/backlog.md)。歷史 failed／blocked、未提交工作與必要 ignored 證據不可因歸檔對話或刪除已合併分支而遺失。
+- 工作區、驗證副本與證據管理：[操作規範](docs/development/workspace-and-evidence-management.md)。
 
 見 [開發現況與證據](docs/development/current-state.md)、[操作契約索引](docs/development/operation-contracts.md) 與 [任務記錄模板](docs/development/task-record-template.md)。本機、乾淨 checkout、遠端 CI、正式模擬器、真機／真雲的通過證據分開記錄。
 
