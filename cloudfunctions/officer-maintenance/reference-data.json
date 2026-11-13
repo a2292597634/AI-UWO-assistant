@@ -106,7 +106,9 @@
     "job_jobchasT087",
     "job_jobchasT088",
     "job_unknown",
-    "job_wo_offline_heidelloon_deputy_commander"
+    "job_wo_offline_heidelloon_deputy_commander",
+    "job_wo_offline_cyrano_captain",
+    "job_wo_offline_saladin_captain"
   ],
   "nationalityIds": [
     "nationality_ctn_swe",
@@ -1810,7 +1812,19 @@
     "skill_wo_offline_heidelloon_battlefield_inspection",
     "skill_wo_offline_heidelloon_obsessive_pursuit",
     "skill_wo_offline_heidelloon_trained_eye",
-    "skill_wo_offline_heidelloon_satellite_attack"
+    "skill_wo_offline_heidelloon_satellite_attack",
+    "skill_wo_offline_cyrano_dark_blood",
+    "skill_wo_offline_cyrano_gale",
+    "skill_wo_offline_cyrano_sweet_salty",
+    "skill_wo_offline_cyrano_asura",
+    "skill_wo_offline_cyrano_prisoner",
+    "skill_wo_offline_saladin_relentless",
+    "skill_wo_offline_saladin_counterattack",
+    "skill_wo_offline_saladin_alliance",
+    "skill_wo_offline_saladin_earth",
+    "skill_wo_offline_saladin_ex_schmidt",
+    "skill_wo_offline_mercedes_melody",
+    "skill_wo_offline_sherazad_craft"
   ],
   "officerIds": [
     "officer_chast089",
@@ -2452,6 +2466,10 @@
     "officer_wo_offline_giacomo_de_campania",
     "officer_wo_offline_calix",
     "officer_wo_offline_heidelloon",
+    "officer_wo_offline_cyrano",
+    "officer_wo_offline_saladin",
+    "officer_wo_offline_mercedes",
+    "officer_wo_offline_sherazad",
     "officer_custom_singuack",
     "officer_custom_piyale"
   ],
@@ -2480,5 +2498,5 @@
     "skill_category_naval_active_cannon",
     "skill_category_innate_debuff"
   ],
-  "dataVersion": "officer-intake-20261109-calix-heidelloon"
+  "dataVersion": "officer-intake-20261113-four-officers"
 }

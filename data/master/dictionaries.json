@@ -813,6 +813,22 @@
       "sourceRefs": {
         "workOrderId": "wo_offline_heidelloon:deputy_commander"
       }
+    },
+    {
+      "id": "job_wo_offline_cyrano_captain",
+      "name": "灰披風的船長",
+      "displayOrder": 92,
+      "sourceRefs": {
+        "workOrderId": "wo_offline_four_officers:cyrano_captain"
+      }
+    },
+    {
+      "id": "job_wo_offline_saladin_captain",
+      "name": "西凡・施密特隊長",
+      "displayOrder": 93,
+      "sourceRefs": {
+        "workOrderId": "wo_offline_four_officers:saladin_captain"
+      }
     }
   ],
   "nationalities": [

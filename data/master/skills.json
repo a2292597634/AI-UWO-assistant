@@ -13385,5 +13385,137 @@
     "sourceRefs": {
       "workOrderId": "wo_offline_heidelloon:satellite_attack"
     }
+  },
+  {
+    "id": "skill_wo_offline_cyrano_dark_blood",
+    "name": "暗黑血",
+    "categoryId": "skill_category_admiral",
+    "description": "3回合內使我方全體的衝破射程增加1。此外，衝破攻擊以暴擊命中，直接造成的衝破傷害與額外衝破暴擊傷害各增加27.5%，並使額外機動力增加7.5%。（衝破射程僅增加至最大射程為止）",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:cyrano_dark_blood"
+    }
+  },
+  {
+    "id": "skill_wo_offline_cyrano_gale",
+    "name": "疾風魔影斬",
+    "categoryId": "skill_category_admiral",
+    "description": "3回合內使敵方全體直接受到的衝破傷害增加55%。此外，以各70%的機率套用下列效果。使其陷入沉默。使機動力消耗量增加50%。使移動力減少2。使砲擊&衝破射程減少1。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:cyrano_gale"
+    }
+  },
+  {
+    "id": "skill_wo_offline_cyrano_sweet_salty",
+    "name": "甜味與鹹味",
+    "categoryId": "skill_category_admiral",
+    "description": "10分鐘內調味料出售淨利潤增加13.7%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:cyrano_sweet_salty"
+    }
+  },
+  {
+    "id": "skill_wo_offline_cyrano_asura",
+    "name": "真・阿修羅破天舞",
+    "categoryId": "skill_category_admiral",
+    "description": "在3回合內對耐久度和船員體力造成30%的傷害。此外，以各30%的機率套用下列效果。使敵方全體陷入混亂2回合。使敵方全體禁止恢復3回合。（每回合耐久度與船員體力最大傷害量：2250）",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:cyrano_asura"
+    }
+  },
+  {
+    "id": "skill_wo_offline_cyrano_prisoner",
+    "name": "因賽爾諾監獄囚犯",
+    "categoryId": "skill_category_innate_buff",
+    "description": "額外衝破暴擊傷害量增加0.3%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:cyrano_prisoner"
+    }
+  },
+  {
+    "id": "skill_wo_offline_saladin_relentless",
+    "name": "雷倫特勒斯",
+    "categoryId": "skill_category_admiral",
+    "description": "3回合內使我方全體使用肉搏技能時的機動力消耗量減少20%。此外，肉搏攻擊以暴擊命中，直接造成的肉搏傷害與額外肉搏暴擊傷害各增加27.5%，並使額外機動力增加7.5%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:saladin_relentless"
+    }
+  },
+  {
+    "id": "skill_wo_offline_saladin_counterattack",
+    "name": "逆襲",
+    "categoryId": "skill_category_admiral",
+    "description": "3回合內使敵方全體直接受到的肉搏傷害增加55%。此外，使敵方全體的額外機動力減少25%，機動力消耗量增加20%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:saladin_counterattack"
+    }
+  },
+  {
+    "id": "skill_wo_offline_saladin_alliance",
+    "name": "圖爾的結盟",
+    "categoryId": "skill_category_admiral",
+    "description": "12小時內探險中的採集力、觀察力、戰鬥力增加5。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:saladin_alliance"
+    }
+  },
+  {
+    "id": "skill_wo_offline_saladin_earth",
+    "name": "天地破裂舞",
+    "categoryId": "skill_category_admiral",
+    "description": "在3回合內對耐久度與船員體力造成30%的傷害。此外，使敵方全體的額外機動力減少35%。（每回合耐久度與船員體力最大傷害量：2250）",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:saladin_earth"
+    }
+  },
+  {
+    "id": "skill_wo_offline_saladin_ex_schmidt",
+    "name": "前施密特",
+    "categoryId": "skill_category_innate_buff",
+    "description": "額外肉搏暴擊傷害量增加0.3%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:saladin_ex_schmidt"
+    }
+  },
+  {
+    "id": "skill_wo_offline_mercedes_melody",
+    "name": "生澀樂師的旋律",
+    "categoryId": "skill_category_innate_buff",
+    "description": "探索陸地、村莊時，船員生存機率增加0.1%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:mercedes_melody"
+    }
+  },
+  {
+    "id": "skill_wo_offline_sherazad_craft",
+    "name": "生疏的手藝",
+    "categoryId": "skill_category_innate_buff",
+    "description": "調味料出售溢價增加0.2%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_four_officers:sherazad_craft"
+    }
   }
 ]
