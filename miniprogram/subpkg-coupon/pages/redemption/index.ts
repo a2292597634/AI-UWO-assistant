@@ -15,7 +15,7 @@ import {
   type CouponResultViewModel,
 } from '../../../presenters/coupon-redemption-presenter'
 
-const DEFAULT_COUPON_CODE = 'ANTARIA3RD'
+const DEFAULT_COUPON_CODE = 'UPDATE2611'
 
 interface PlayerOption extends CouponProfile {
   serverName: string
