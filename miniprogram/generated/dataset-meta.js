@@ -1,1 +1,1 @@
-module.exports = {"officerCount":641,"skillCount":1217,"contentVersion":"officer-intake-20261109-calix-heidelloon","updatedAt":"2026-11-09T08:42:49Z","sourceSnapshot":"voyage-tw-2026052501"}
+module.exports = {"officerCount":645,"skillCount":1229,"contentVersion":"officer-intake-20261113-four-officers","updatedAt":"2026-11-13T00:43:01.871Z","sourceSnapshot":"voyage-tw-2026052501"}

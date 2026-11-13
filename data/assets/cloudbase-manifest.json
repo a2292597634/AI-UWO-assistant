@@ -1,7 +1,7 @@
 {
-  "releaseId": "officer-intake-20261109-calix-heidelloon-14e54168c0fe",
-  "manifestDigest": "14e54168c0fe7e4ebb8e552a66a8c2a2ed0d8c9172de89c4d6f07d9f0c37585c",
-  "contentVersion": "officer-intake-20261109-calix-heidelloon",
+  "releaseId": "officer-intake-20261113-four-officers-5dc794bc36e6",
+  "manifestDigest": "5dc794bc36e6d5a3af4e002dbeceff7b65ccc78568d94ef5f5183e04b0619b10",
+  "contentVersion": "officer-intake-20261113-four-officers",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
   "cacheControl": "public, max-age=31536000, immutable",
@@ -25712,6 +25712,182 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_veramode_damage.png",
       "releaseId": "officer-intake-20261109-calix-heidelloon-335f73cf3b40",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261109-calix-heidelloon-335f73cf3b40/skill_wo_offline_heidelloon_veramode_damage.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_cyrano.png",
+      "filename": "officer_wo_offline_cyrano.png",
+      "sha256": "29b6694d5f3f59a8ef21723fdfd677fafab8d528267be54df29da8913da74745",
+      "bytes": 146699,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_cyrano.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_cyrano.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_cyrano.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_mercedes.png",
+      "filename": "officer_wo_offline_mercedes.png",
+      "sha256": "b13ef365e6bde978c3345558894651338af6b096c6e5f7dfed7e169371a58640",
+      "bytes": 157047,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_mercedes.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_mercedes.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_mercedes.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_saladin.png",
+      "filename": "officer_wo_offline_saladin.png",
+      "sha256": "3fb4dc7cc6b779157e1b3d48f9f2e2bca7684f01b6f5143c7418f78ce9a4bf75",
+      "bytes": 151690,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_saladin.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_saladin.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_saladin.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_sherazad.png",
+      "filename": "officer_wo_offline_sherazad.png",
+      "sha256": "c9fffef2478d896c9a873e7e99dfd9d65b3c59590f45611778703db8a5a63b22",
+      "bytes": 107163,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_sherazad.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_sherazad.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/officer_wo_offline_sherazad.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_cyrano_asura.png",
+      "filename": "skill_wo_offline_cyrano_asura.png",
+      "sha256": "56df54ee961dd661c37f73af29a61a158c16c5f07ed243859b7afe1ed6ac6e39",
+      "bytes": 11532,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_asura.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_asura.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_asura.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_cyrano_dark_blood.png",
+      "filename": "skill_wo_offline_cyrano_dark_blood.png",
+      "sha256": "6f9425a26f5b865e9f1aafc760a842188444d13de5d5cbf205d9b0c51d7a8b7d",
+      "bytes": 10985,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_dark_blood.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_dark_blood.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_dark_blood.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_cyrano_gale.png",
+      "filename": "skill_wo_offline_cyrano_gale.png",
+      "sha256": "c3ebfcf7f5161421dfdf66e7df7c3a854da1f01c3b9032ca9c025a946d632586",
+      "bytes": 10870,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_gale.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_gale.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_gale.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_cyrano_prisoner.png",
+      "filename": "skill_wo_offline_cyrano_prisoner.png",
+      "sha256": "6bae2c2f1118ab864b65270c8ff058fe4f62e817e3102e89907710e201dfc277",
+      "bytes": 8539,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_prisoner.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_prisoner.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_prisoner.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_cyrano_sweet_salty.png",
+      "filename": "skill_wo_offline_cyrano_sweet_salty.png",
+      "sha256": "bedb151d8ad4a4c5e0117f716581aa1c6ae328b733a0652663db5b9172db1232",
+      "bytes": 11274,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_sweet_salty.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_sweet_salty.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_cyrano_sweet_salty.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_mercedes_melody.png",
+      "filename": "skill_wo_offline_mercedes_melody.png",
+      "sha256": "eb456dee5269e3fac7acbf0c7a96702b110b4d900b288a9488d22be3ce0eb063",
+      "bytes": 8184,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_mercedes_melody.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_mercedes_melody.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_mercedes_melody.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_saladin_alliance.png",
+      "filename": "skill_wo_offline_saladin_alliance.png",
+      "sha256": "0c2fa094766ee35a2dae595051c7725daf25cf32966879207d85b2e064dc4594",
+      "bytes": 12092,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_alliance.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_alliance.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_alliance.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_saladin_counterattack.png",
+      "filename": "skill_wo_offline_saladin_counterattack.png",
+      "sha256": "25c054359a6a77f5602357af5a03483b767b4bc2dbf3a9fa1113350d0c96bc04",
+      "bytes": 10660,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_counterattack.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_counterattack.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_counterattack.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_saladin_earth.png",
+      "filename": "skill_wo_offline_saladin_earth.png",
+      "sha256": "78f45164fc2a93885867d58b5d71a0ca1992c03cf2235dcce91fd9ae37ab3d17",
+      "bytes": 11332,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_earth.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_earth.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_earth.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_saladin_ex_schmidt.png",
+      "filename": "skill_wo_offline_saladin_ex_schmidt.png",
+      "sha256": "d82406ed6968a51a1af3d3c474c4bfc6db4e0cffa4f44606ffd900bf8f21f58f",
+      "bytes": 8787,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_ex_schmidt.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_ex_schmidt.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_ex_schmidt.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_saladin_relentless.png",
+      "filename": "skill_wo_offline_saladin_relentless.png",
+      "sha256": "97426ee208cd98dd149969713bf89edc51a6eeb693b638497b9be2e0bdd33634",
+      "bytes": 11179,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_relentless.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_relentless.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_saladin_relentless.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_sherazad_craft.png",
+      "filename": "skill_wo_offline_sherazad_craft.png",
+      "sha256": "6bc74872233157352fc0ca9c6cf1cf663d3b832049f90b7387e704399b9b35f6",
+      "bytes": 11509,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_sherazad_craft.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_sherazad_craft.png",
+      "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_sherazad_craft.png"
     }
   ]
 }

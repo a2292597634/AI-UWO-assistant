@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "contentVersion": "officer-intake-20261109-calix-heidelloon",
-  "updatedAt": "2026-11-09T08:42:49Z",
+  "contentVersion": "officer-intake-20261113-four-officers",
+  "updatedAt": "2026-11-13T00:43:01.871Z",
   "sourceSnapshot": "voyage-tw-2026052501",
   "auditStatus": "unverified",
   "auditNotes": "本批對合併正式集合執行嚴格 Schema、外鍵、唯一性、技能等級與解鎖、天生效果及實際計數校驗；依已有 sk2／修理分類映射證據修正兩筆自訂關係為主動。未有映射證據的關係保留待複核，未宣稱所有主被動分類均已人工確認。",
   "counts": {
-    "officers": 641,
-    "skills": 1217,
+    "officers": 645,
+    "skills": 1229,
     "assets": 15,
-    "dictionaryItems": 601,
+    "dictionaryItems": 603,
     "tradeGoods": 656,
     "tradePorts": 224,
     "tradeSeasonProfiles": 10
