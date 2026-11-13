@@ -13517,5 +13517,71 @@
     "sourceRefs": {
       "workOrderId": "wo_offline_four_officers:sherazad_craft"
     }
+  },
+  {
+    "id": "skill_wo_offline_majin_sweet_proposal",
+    "name": "甜蜜的提議",
+    "categoryId": "skill_category_innate_buff",
+    "description": "價格協商成功機率增加0.2%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_missing_three:majin_sweet_proposal"
+    }
+  },
+  {
+    "id": "skill_wo_offline_helen_harvest",
+    "name": "廚師的收穫",
+    "categoryId": "skill_category_admiral",
+    "description": "10分鐘內探險中的採集力、觀察力增加11。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_missing_three:helen_harvest"
+    }
+  },
+  {
+    "id": "skill_wo_offline_helen_craft",
+    "name": "廚師的手藝",
+    "categoryId": "skill_category_admiral",
+    "description": "10分鐘內烹飪經驗值獲得量增加10%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_missing_three:helen_craft"
+    }
+  },
+  {
+    "id": "skill_wo_offline_helen_bargaining",
+    "name": "廚師的討價還價",
+    "categoryId": "skill_category_admiral",
+    "description": "1小時內食品、辛香料出售收益增加12.5%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_missing_three:helen_bargaining"
+    }
+  },
+  {
+    "id": "skill_wo_offline_helen_spice_seasoning",
+    "name": "堪用辛香料調味",
+    "categoryId": "skill_category_innate_buff",
+    "description": "辛香料出售溢價增加0.2%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_missing_three:helen_spice_seasoning"
+    }
+  },
+  {
+    "id": "skill_wo_offline_alvaro_promising_general",
+    "name": "有望的名將",
+    "categoryId": "skill_category_innate_buff",
+    "description": "額外砲擊攻擊力增加0.5%。",
+    "levelInfo": "",
+    "iconId": null,
+    "sourceRefs": {
+      "workOrderId": "wo_offline_missing_three:alvaro_promising_general"
+    }
   }
 ]

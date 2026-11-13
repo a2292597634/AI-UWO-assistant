@@ -829,6 +829,30 @@
       "sourceRefs": {
         "workOrderId": "wo_offline_four_officers:saladin_captain"
       }
+    },
+    {
+      "id": "job_wo_offline_majin_overnight_riches",
+      "name": "甜蜜的一夜致富者",
+      "displayOrder": 94,
+      "sourceRefs": {
+        "workOrderId": "wo_offline_missing_three:majin_overnight_riches"
+      }
+    },
+    {
+      "id": "job_wo_offline_helen_wandering_chef",
+      "name": "流浪廚師",
+      "displayOrder": 95,
+      "sourceRefs": {
+        "workOrderId": "wo_offline_missing_three:helen_wandering_chef"
+      }
+    },
+    {
+      "id": "job_wo_offline_alvaro_invincible_commander",
+      "name": "不敗的艦隊長",
+      "displayOrder": 96,
+      "sourceRefs": {
+        "workOrderId": "wo_offline_missing_three:alvaro_invincible_commander"
+      }
     }
   ],
   "nationalities": [

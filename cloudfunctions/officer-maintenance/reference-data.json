@@ -108,7 +108,10 @@
     "job_unknown",
     "job_wo_offline_heidelloon_deputy_commander",
     "job_wo_offline_cyrano_captain",
-    "job_wo_offline_saladin_captain"
+    "job_wo_offline_saladin_captain",
+    "job_wo_offline_majin_overnight_riches",
+    "job_wo_offline_helen_wandering_chef",
+    "job_wo_offline_alvaro_invincible_commander"
   ],
   "nationalityIds": [
     "nationality_ctn_swe",
@@ -1824,7 +1827,13 @@
     "skill_wo_offline_saladin_earth",
     "skill_wo_offline_saladin_ex_schmidt",
     "skill_wo_offline_mercedes_melody",
-    "skill_wo_offline_sherazad_craft"
+    "skill_wo_offline_sherazad_craft",
+    "skill_wo_offline_majin_sweet_proposal",
+    "skill_wo_offline_helen_harvest",
+    "skill_wo_offline_helen_craft",
+    "skill_wo_offline_helen_bargaining",
+    "skill_wo_offline_helen_spice_seasoning",
+    "skill_wo_offline_alvaro_promising_general"
   ],
   "officerIds": [
     "officer_chast089",
@@ -2470,6 +2479,9 @@
     "officer_wo_offline_saladin",
     "officer_wo_offline_mercedes",
     "officer_wo_offline_sherazad",
+    "officer_wo_offline_majin",
+    "officer_wo_offline_helen_raspberry",
+    "officer_wo_offline_alvaro_de_bazan",
     "officer_custom_singuack",
     "officer_custom_piyale"
   ],
@@ -2498,5 +2510,5 @@
     "skill_category_naval_active_cannon",
     "skill_category_innate_debuff"
   ],
-  "dataVersion": "officer-intake-20261113-four-officers"
+  "dataVersion": "officer-intake-20261113-complete-648"
 }
