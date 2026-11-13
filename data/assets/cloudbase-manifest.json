@@ -1,7 +1,7 @@
 {
-  "releaseId": "officer-intake-20261113-four-officers-5dc794bc36e6",
-  "manifestDigest": "5dc794bc36e6d5a3af4e002dbeceff7b65ccc78568d94ef5f5183e04b0619b10",
-  "contentVersion": "officer-intake-20261113-four-officers",
+  "releaseId": "officer-intake-20261113-complete-648-c00ac75320b3",
+  "manifestDigest": "c00ac75320b32de471a07ceff13fbff560d9347b0c0b8455a1e34dc7f3284672",
+  "contentVersion": "officer-intake-20261113-complete-648",
   "cdnOrigin": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la",
   "cloudPathPrefix": "assets",
   "cacheControl": "public, max-age=31536000, immutable",
@@ -25888,6 +25888,105 @@
       "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_sherazad_craft.png",
       "releaseId": "officer-intake-20261113-four-officers-b6bb7a79b80a",
       "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-four-officers-b6bb7a79b80a/skill_wo_offline_sherazad_craft.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_majin.png",
+      "filename": "officer_wo_offline_majin.png",
+      "sha256": "70a34b8f68abbf945371bfc737d71016c0fec79ccf7d8ed65b1e1251f5e873a4",
+      "bytes": 124640,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_majin.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_majin.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_majin.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_helen_raspberry.png",
+      "filename": "officer_wo_offline_helen_raspberry.png",
+      "sha256": "7f3f1ffb128b5c2cf0b74877d225fd5537de5cc371794de15f2b7bfaf59b6097",
+      "bytes": 128165,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_helen_raspberry.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_helen_raspberry.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_helen_raspberry.png"
+    },
+    {
+      "sourcePath": "officer_wo_offline_alvaro_de_bazan.png",
+      "filename": "officer_wo_offline_alvaro_de_bazan.png",
+      "sha256": "74e70a19cf4113943a4238712fc6c246c3baa28e6242e27fb25a50890bcbf2a6",
+      "bytes": 108718,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_alvaro_de_bazan.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_alvaro_de_bazan.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/officer_wo_offline_alvaro_de_bazan.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_majin_sweet_proposal.png",
+      "filename": "skill_wo_offline_majin_sweet_proposal.png",
+      "sha256": "b32c968410bf5dea7672ac88ad746c3682e516f4fe79a856d8530570fb2b71ea",
+      "bytes": 11595,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_majin_sweet_proposal.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_majin_sweet_proposal.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_majin_sweet_proposal.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_helen_harvest.png",
+      "filename": "skill_wo_offline_helen_harvest.png",
+      "sha256": "855b0bcac3f793ee5f794410d0bd7b7513e4b69ae1f703b826087aaf07dfb0de",
+      "bytes": 13914,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_harvest.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_harvest.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_harvest.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_helen_craft.png",
+      "filename": "skill_wo_offline_helen_craft.png",
+      "sha256": "87a8b05de75a330d460eb57b39756b0da355cc9b1bb26087992242a08958197b",
+      "bytes": 13490,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_craft.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_craft.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_craft.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_helen_bargaining.png",
+      "filename": "skill_wo_offline_helen_bargaining.png",
+      "sha256": "464566b636127327aa431fc316160004770d0a4ac25ffb7ec6785aca9f4b259e",
+      "bytes": 13591,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_bargaining.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_bargaining.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_bargaining.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_helen_spice_seasoning.png",
+      "filename": "skill_wo_offline_helen_spice_seasoning.png",
+      "sha256": "ed53855f32b4786e97a70a6fcfed0227c59c7c7da7e6704c03cdc74e1ad80755",
+      "bytes": 11511,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_spice_seasoning.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_spice_seasoning.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_helen_spice_seasoning.png"
+    },
+    {
+      "sourcePath": "skill_wo_offline_alvaro_promising_general.png",
+      "filename": "skill_wo_offline_alvaro_promising_general.png",
+      "sha256": "396ebfb15b4aea51dde94eafdf1562aa523675dce9216acbf5d69dfdb08c2adb",
+      "bytes": 11617,
+      "contentType": "image/png",
+      "cloudPath": "assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_alvaro_promising_general.png",
+      "publicUrl": "https://636c-cloud1-d7gxfuxfe813b4eaa-1463074076.tcb.qcloud.la/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_alvaro_promising_general.png",
+      "releaseId": "officer-intake-20261113-complete-648-ae0e43b9d054",
+      "fileID": "cloud://cloud1-d7gxfuxfe813b4eaa.636c-cloud1-d7gxfuxfe813b4eaa-1463074076/assets/officer-intake-20261113-complete-648-ae0e43b9d054/skill_wo_offline_alvaro_promising_general.png"
     }
   ]
 }
