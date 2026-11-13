@@ -15,7 +15,7 @@
 ## 基線與交付
 
 - 審查基線：`b6789b6d829514254a532af5a4c3a0e513b0f222`。實施前重新確認 HEAD／Git 變更，保留後續使用者修改，不套用舊行號直接覆蓋檔案。
-- [審查報告](E:/UWO-review-20261001/review.md)、[結構化問題](E:/UWO-review-20261001/findings.json)、[重現證據目錄](E:/UWO-review-20261001)。子計畫已記錄必要條件，執行者不必依賴此前聊天。
+- 本機歸檔：[審查報告](E:/AI-UWO-verification/historical-previews-20260918/root-archives-20261113/UWO-review-20261001/review.md)、[結構化問題](E:/AI-UWO-verification/historical-previews-20260918/root-archives-20261113/UWO-review-20261001/findings.json)、[重現證據目錄](E:/AI-UWO-verification/historical-previews-20260918/root-archives-20261113/UWO-review-20261001)。原路徑 `E:/UWO-review-20261001` 已遷移；其他機器須依 [路徑對照](../../development/workspace-and-evidence-management.md#已知歷史路徑對照本機) 查找證據或備份。
 - 本次文檔分支：`codex/phase-0-review-repair-plan`。只新增本總計畫及六份模組計畫，不修改程式／資料，不 commit。
 - 六份計畫合併後，每個 R 編號都只有一個主責任任務；同一回歸可保護多個呼叫鏈，但不能重複計入修復完成數。
 
