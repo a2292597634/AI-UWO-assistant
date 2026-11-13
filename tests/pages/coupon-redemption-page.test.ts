@@ -157,7 +157,7 @@ describe('兌換結果與發起玩家綁定', () => {
       name: 'coupon-redemption',
       data: {
         action: 'redeemBatch',
-        couponNo: 'ANTARIA3RD',
+        couponNo: 'UPDATE2611',
         players: [{ gameServerId: 'UWOGL-US-01', userNo: '玩家丙' }],
       },
     })
@@ -306,7 +306,7 @@ const redemptionWxss = fs.readFileSync(
 
 describe('兌換碼頁', () => {
   it('首次進入時預填指定兌換碼', () => {
-    expect(redemptionPage.data.couponNo).toBe('ANTARIA3RD')
+    expect(redemptionPage.data.couponNo).toBe('UPDATE2611')
   })
 
   it('沒有目前設定時禁用提交並可導向設定頁', () => {
