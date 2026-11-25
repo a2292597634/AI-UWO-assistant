@@ -17,6 +17,12 @@ const shared = {
   FROM_OPENID: 'new-user',
   OPENID: 'resource-user',
 }
+const native = {
+  SOURCE: 'wx_client',
+  APPID: 'wxd0bc7afdc9cd334a',
+  ENV: 'uwo-staging-d4guwh8hyd3932655',
+  OPENID: 'new-user',
+}
 describe.each(packages)('%s 的獨立新帳號身份', (name) => {
   const read = (context: object) =>
     require(`../../cloudfunctions/${name}/wechat-identity.js`).resolveWechatIdentity(context)
@@ -35,6 +41,24 @@ describe.each(packages)('%s 的獨立新帳號身份', (name) => {
       ownerUid: 'old-user',
       shared: false,
     })
+  })
+  it.each([{}, { FROM_APPID: '', FROM_OPENID: '' }])('新端直連沿用既有 owner', (fields) => {
+    expect(read({ ...native, ...fields })).toEqual({
+      appId: native.APPID,
+      openId: native.OPENID,
+      ownerUid: `${native.APPID}:${native.OPENID}`,
+      shared: false,
+    })
+  })
+  it.each([
+    { ...native, APPID: 'foreign' },
+    { ...native, ENV: 'foreign' },
+    { ...native, SOURCE: 'scf' },
+    { ...native, OPENID: '' },
+    { ...native, FROM_OPENID: null },
+    { ...native, FROM_APPID: 'foreign' },
+  ])('拒絕不匹配的新端原生上下文', (context) => {
+    expect(read(context)).toBeNull()
   })
   it.each([
     { ...shared, FROM_APPID: 'foreign' },

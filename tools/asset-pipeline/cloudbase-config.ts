@@ -20,14 +20,21 @@ const VERSION_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 const PATH_PATTERN = /^[A-Za-z0-9][A-Za-z0-9/_-]*[A-Za-z0-9]$/
 const CLOUDBASE_CDN_HOST = /^[A-Za-z0-9][A-Za-z0-9-]*\.tcb\.qcloud\.la$/i
 
-export const assertCloudBaseCdnOrigin = (originInput: string): string => {
+const STAGING_ORIGIN = 'https://uwo-staging-d4guwh8hyd3932655.storage.tcloudbase.com'
+
+export const isAllowedAssetOrigin = (origin: URL, prefix: string): boolean =>
+  origin.protocol === 'https:' &&
+  (CLOUDBASE_CDN_HOST.test(origin.hostname) ||
+    (origin.origin === STAGING_ORIGIN && prefix === 'assets'))
+
+export const assertCloudBaseCdnOrigin = (originInput: string, prefix = 'assets'): string => {
   let origin: URL
   try {
     origin = new URL(originInput)
   } catch {
     throw new Error(`CloudBase CDN origin is invalid: ${originInput}`)
   }
-  if (origin.protocol !== 'https:' || !CLOUDBASE_CDN_HOST.test(origin.hostname)) {
+  if (!isAllowedAssetOrigin(origin, prefix)) {
     throw new Error(`CloudBase CDN origin must be an HTTPS CloudBase CDN host: ${originInput}`)
   }
   if (
@@ -50,7 +57,6 @@ export const parseCloudBasePublishConfig = (
 
   const originInput = input.cdnOrigin?.trim()
   if (!originInput) throw new Error('CloudBase CDN origin is required')
-  const cdnOrigin = assertCloudBaseCdnOrigin(originInput)
 
   const contentVersion = input.contentVersion?.trim() ?? ''
   if (!VERSION_PATTERN.test(contentVersion)) {
@@ -58,6 +64,7 @@ export const parseCloudBasePublishConfig = (
   }
 
   const cloudPathPrefix = (input.cloudPathPrefix?.trim() || 'assets').replace(/\/+$/, '')
+  const cdnOrigin = assertCloudBaseCdnOrigin(originInput, cloudPathPrefix)
   if (!PATH_PATTERN.test(cloudPathPrefix) || cloudPathPrefix.includes('..')) {
     throw new Error(`CloudBase cloud path prefix is invalid: ${cloudPathPrefix}`)
   }

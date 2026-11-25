@@ -1,3 +1,4 @@
+import { isAllowedAssetOrigin } from '../asset-pipeline/cloudbase-config'
 import { writeFileSync, mkdirSync } from 'node:fs'
 import type {
   CanonicalDatasetHeader,
@@ -96,8 +97,7 @@ export const publicAssetUrl = (
       ? `/${cloudPathPrefix}/${asset.releaseId}/${asset.filename}`
       : undefined
   if (
-    origin.protocol !== 'https:' ||
-    !/^[A-Za-z0-9][A-Za-z0-9-]*\.tcb\.qcloud\.la$/i.test(origin.hostname) ||
+    !isAllowedAssetOrigin(origin, cloudPathPrefix) ||
     origin.pathname !== '/' ||
     origin.search ||
     origin.hash

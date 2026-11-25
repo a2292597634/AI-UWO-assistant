@@ -89,6 +89,7 @@ const wxStub = {
   saveImageToPhotosAlbum: vi.fn(),
   showShareImageMenu: vi.fn(),
   cloud: {
+    init: vi.fn(),
     callFunction: adventureMockCallFunction,
   },
 }

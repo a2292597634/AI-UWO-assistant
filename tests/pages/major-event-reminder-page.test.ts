@@ -17,6 +17,7 @@ const wxStub = {
   setClipboardData: vi.fn(),
   showModal: vi.fn(({ success }) => success({ confirm: true })),
   cloud: {
+    init: vi.fn(),
     callFunction: vi.fn(async ({ data }) => ({
       result: {
         ok: true,

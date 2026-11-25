@@ -40,7 +40,7 @@ const wxStub = {
   }),
   navigateTo: vi.fn(),
   showToast: vi.fn(),
-  cloud: { callFunction: mockCallFunction },
+  cloud: { init: vi.fn(), callFunction: mockCallFunction },
 }
 
 const createPageInstance = (): RedemptionPageInstance => {

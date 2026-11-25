@@ -14,7 +14,7 @@ function createEventsEntry({
   service,
 }) {
   const profiles = [{ callbackPath, callback }]
-  if (newProfile?.enabled)
+  if (newProfile?.enabled && newProfile.callback.appId !== callback.appId)
     profiles.push({
       callbackPath: new URL(newProfile.callback.baseUrl).pathname,
       callback: newProfile.callback,

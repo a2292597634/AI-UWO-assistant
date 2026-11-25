@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { isAbsolute, join, parse, relative, resolve } from 'node:path'
 import { isBuiltin } from 'node:module'
 import ts from 'typescript'
-import { CLOUDBASE_ENV_ID } from '../../miniprogram/runtime/cloudbase-config'
+import { LEGACY_CLOUDBASE_ENV_ID } from '../../miniprogram/runtime/cloudbase-config'
 import { assertSafeInputPath } from '../workflow/read-inputs'
 
 export interface ProbeBuild {
@@ -64,7 +64,7 @@ export function buildProbePackages(input: {
   if (shared) {
     const expiresAt = Date.parse(shared.expiresAt)
     if (
-      shared.environmentId !== CLOUDBASE_ENV_ID ||
+      shared.environmentId !== LEGACY_CLOUDBASE_ENV_ID ||
       (shared.scope !== undefined &&
         !['identity-text', 'transport-only', 'private-avatar-callback'].includes(shared.scope)) ||
       !/^g0-shared-[a-z0-9_-]{1,50}$/.test(shared.runId) ||
@@ -92,13 +92,8 @@ export function buildProbePackages(input: {
   assertSafeInputPath(parse(outputRoot).root, outputRoot)
   if (existsSync(outputRoot) && readdirSync(outputRoot).length)
     throw new Error('PROBE_OUTPUT_NOT_EMPTY')
-  const sdk = JSON.parse(
-    checkedSource(sourceRoot, 'cloudfunctions/officer-maintenance/package.json').toString('utf8'),
-  ) as {
-    dependencies?: Record<string, string>
-  }
-  if (sdk.dependencies?.['wx-server-sdk'] !== '4.0.2')
-    throw new Error('PROBE_SDK_VERSION_UNSUPPORTED')
+  // 舊共享環境的診斷包固定使用原 SDK，獨立於新端業務包。
+  const probeDependencies = { 'wx-server-sdk': '4.0.2' }
   const modes = ['rpc', 'callback', 'worker'] as const
   const sources = new Map<string, Buffer>()
   for (const name of ['shared', 'private-avatar', ...modes]) {
@@ -111,8 +106,8 @@ export function buildProbePackages(input: {
   hash.update(
     JSON.stringify([
       input.candidateSha,
-      CLOUDBASE_ENV_ID,
-      sdk.dependencies,
+      LEGACY_CLOUDBASE_ENV_ID,
+      probeDependencies,
       sharedEnvironmentAuthorization,
     ]),
   )
@@ -135,7 +130,7 @@ export function buildProbePackages(input: {
       '  const config = {',
       "    enabled: process.env.MESSAGE_BOARD_PROBE_ENABLED === 'true',",
       "    testEnvironmentId: process.env.MESSAGE_BOARD_PROBE_TEST_ENV || '',",
-      '    productionEnvironmentId: ' + JSON.stringify(CLOUDBASE_ENV_ID) + ',',
+      '    productionEnvironmentId: ' + JSON.stringify(LEGACY_CLOUDBASE_ENV_ID) + ',',
       '    sharedEnvironmentAuthorization: ' + JSON.stringify(sharedEnvironmentAuthorization) + ',',
       "    appId: process.env.MESSAGE_BOARD_PROBE_APP_ID || '',",
       "    runId: process.env.MESSAGE_BOARD_PROBE_RUN_ID || '',",
@@ -168,7 +163,7 @@ export function buildProbePackages(input: {
               version: '1.0.0',
               private: true,
               main: 'index.js',
-              dependencies: { 'wx-server-sdk': '4.0.2' },
+              dependencies: probeDependencies,
             },
             null,
             2,
@@ -218,7 +213,7 @@ export function buildProbePackages(input: {
         buildSha,
         enabledByDefault: false,
         sharedEnvironmentAuthorization,
-        dependencies: { 'wx-server-sdk': '4.0.2' },
+        dependencies: probeDependencies,
         packages: packages.map(({ name, sha256 }) => ({ name, sha256 })),
       },
       null,

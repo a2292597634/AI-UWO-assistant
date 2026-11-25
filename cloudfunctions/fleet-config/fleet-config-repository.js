@@ -43,6 +43,13 @@ function getOwnerLockId(ownerUid) {
 
 function isCollectionAlreadyExistsError(error) {
   if (!error || typeof error !== 'object') return false
+  // PG 將「表已存在」歸入通用系統錯誤，必須同時核對操作與具體原因。
+  if (
+    error.errCode === -501001 &&
+    typeof error.message === 'string' &&
+    error.message.startsWith('createCollection:fail -501001 resource system error. Table exist.')
+  )
+    return true
   const knownCodes = [
     'DATABASE_COLLECTION_ALREADY_EXIST',
     'DATABASE_COLLECTION_ALREADY_EXISTS',

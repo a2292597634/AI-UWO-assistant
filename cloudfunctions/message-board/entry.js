@@ -12,11 +12,13 @@ function createRpcEntry({
     const current = readContext()
     const identity = resolveWechatIdentity(current)
     const shared = identity?.shared && current.APPID === appId && current.ENV === environmentId
+    const newApp = identity?.appId === 'wxd0bc7afdc9cd334a'
     if (
       !shared &&
       (!current ||
         !['wx_client', 'wx_devtools'].includes(current.SOURCE) ||
         !current.OPENID ||
+        (appId === 'wxd0bc7afdc9cd334a' && !identity) ||
         current.APPID !== appId ||
         current.ENV !== environmentId ||
         ![undefined, ''].includes(current.FROM_APPID) ||
@@ -32,7 +34,7 @@ function createRpcEntry({
     }
     // 新帳號須有完整獨立安全設定，否則維持既有只讀模式。
     if (
-      shared &&
+      newApp &&
       !newProfile?.enabled &&
       !['getViewer', 'getProfile', 'listPublic', 'revalidatePublic', 'listMine'].includes(
         event.action,
@@ -53,11 +55,11 @@ function createRpcEntry({
         .digest('hex'),
     }
     const result = await service.invoke(event.action, event.input ?? {}, actor)
-    if (shared && !newProfile?.enabled && result.ok && event.action === 'getViewer') {
+    if (newApp && !newProfile?.enabled && result.ok && event.action === 'getViewer') {
       result.data = { ...result.data, isAdmin: false, write: false, review: false }
     }
     if (
-      (!shared || newProfile?.enabled) &&
+      (!newApp || newProfile?.enabled) &&
       result.ok &&
       [
         'uploadAvatar',

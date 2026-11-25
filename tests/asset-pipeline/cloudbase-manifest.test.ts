@@ -294,3 +294,13 @@ describe('CloudBase asset manifest', () => {
     }
   })
 })
+
+it('預發布環境只允許指定素材來源與路徑', () => {
+  const cdnOrigin = 'https://uwo-staging-d4guwh8hyd3932655.storage.tcloudbase.com'
+  const input = { envId: 'fixture', contentVersion: 'test', cdnOrigin }
+  expect(parseCloudBasePublishConfig(input).cdnOrigin).toBe(cdnOrigin)
+  for (const other of [cdnOrigin + ':8443', cdnOrigin.replace('uwo-staging', 'other')]) {
+    expect(() => parseCloudBasePublishConfig({ ...input, cdnOrigin: other })).toThrow()
+  }
+  expect(() => parseCloudBasePublishConfig({ ...input, cloudPathPrefix: 'private' })).toThrow()
+})

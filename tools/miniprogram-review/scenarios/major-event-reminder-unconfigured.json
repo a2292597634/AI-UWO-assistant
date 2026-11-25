@@ -3,6 +3,7 @@
   "entry": "/subpkg-trade/pages/popularity/index",
   "fixture": "major-event-reminder-unconfigured",
   "watchPaths": [
+    "miniprogram/runtime/shared-cloud-client.ts",
     "miniprogram/contracts/major-event-reminder.ts",
     "miniprogram/subpkg-trade/pages/popularity/",
     "miniprogram/subpkg-trade/controllers/major-event-reminder-controller.ts",

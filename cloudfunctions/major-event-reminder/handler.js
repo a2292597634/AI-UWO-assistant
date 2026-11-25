@@ -28,9 +28,14 @@ function createHandler(cloud, env = process.env) {
       tcbContext: _platformTcbContext,
       ...input
     } = event || {}
-    if (current.FROM_APPID && !identity)
+    if (
+      (current.FROM_APPID ||
+        current.APPID === 'wxd0bc7afdc9cd334a' ||
+        current.ENV === 'uwo-staging-d4guwh8hyd3932655') &&
+      !identity
+    )
       return { ok: false, code: 'unauthorized', message: '無法確認小程序身分' }
-    if (identity?.shared) {
+    if (identity?.appId === 'wxd0bc7afdc9cd334a') {
       const reason = '新小程序提醒服務尚未完成設定'
       if (!resolveOwnerProfile(config, owner)) {
         if (action === 'getConfig')

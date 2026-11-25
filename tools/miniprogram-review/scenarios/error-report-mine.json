@@ -2,7 +2,10 @@
   "name": "錯誤回報離線閉環：只交截圖並再次要求補充",
   "entry": "/subpkg-maintenance/pages/work-orders/index",
   "fixture": "error-report-mine",
-  "watchPaths": ["miniprogram/subpkg-maintenance/pages/work-orders/"],
+  "watchPaths": [
+    "miniprogram/runtime/shared-cloud-client.ts",
+    "miniprogram/subpkg-maintenance/pages/work-orders/"
+  ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [

@@ -72,7 +72,7 @@ describe('可信排程與部署隔離', () => {
         expect(
           JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8')).packages['']
             .dependencies['wx-server-sdk'],
-        ).toBe('4.0.2')
+        ).toBe('5.0.1-beta.1')
       } finally {
         rmSync(root, { recursive: true, force: true })
       }

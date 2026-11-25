@@ -5,6 +5,6 @@
   "description": "CloudBase cloud function for fleet configuration persistence",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "4.0.2"
+    "wx-server-sdk": "5.0.1-beta.1"
   }
 }
