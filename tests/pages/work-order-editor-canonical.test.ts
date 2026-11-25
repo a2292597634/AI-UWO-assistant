@@ -55,6 +55,7 @@ const loadEditor = () => {
         wx: {
           setNavigationBarTitle() {},
           cloud: {
+            init() {},
             async callFunction({ data }: { data: MaintenanceWorkOrderDraft }) {
               saved.push(data)
               return {

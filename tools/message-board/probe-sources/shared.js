@@ -35,6 +35,7 @@ function checkedContext(cloud, config, action) {
   }
   if (
     !config.testEnvironmentId ||
+    config.testEnvironmentId === 'uwo-staging-d4guwh8hyd3932655' ||
     !config.productionEnvironmentId ||
     current.ENV !== config.testEnvironmentId
   )

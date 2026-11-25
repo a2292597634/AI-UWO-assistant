@@ -15,7 +15,7 @@ describe('大流行提醒傳輸邊界', () => {
           : { enabled: false, reason: '尚未配置模板', templates: [], adUnitId: '' }
       const invoke = (data: unknown) => {
         vi.stubGlobal('wx', {
-          cloud: { callFunction: async () => ({ result: { ok: true, data } }) },
+          cloud: { init: vi.fn(), callFunction: async () => ({ result: { ok: true, data } }) },
         })
         return createMajorEventReminderService().invoke(action, {})
       }
@@ -32,7 +32,7 @@ describe('大流行提醒傳輸邊界', () => {
       adUnitId: 'adunit-test',
     }
     const callFunction = vi.fn(async () => ({ result: { ok: true, data: config } }))
-    vi.stubGlobal('wx', { cloud: { callFunction } })
+    vi.stubGlobal('wx', { cloud: { init: vi.fn(), callFunction } })
     expect(await createMajorEventReminderService().invoke('getConfig', {})).toEqual(config)
     expect(callFunction).toHaveBeenCalledWith({
       name: 'major-event-reminder',
@@ -51,7 +51,9 @@ describe('大流行提醒傳輸邊界', () => {
       })),
     }
     const invoke = async (data: unknown) => {
-      vi.stubGlobal('wx', { cloud: { callFunction: async () => ({ result: { ok: true, data } }) } })
+      vi.stubGlobal('wx', {
+        cloud: { init: vi.fn(), callFunction: async () => ({ result: { ok: true, data } }) },
+      })
       return createMajorEventReminderService().invoke('getBatchConfig', {})
     }
     expect(await invoke(config)).toEqual(config)
@@ -79,7 +81,9 @@ describe('大流行提醒傳輸邊界', () => {
       })),
     }
     const invoke = async (action: 'prepareBatch' | 'authorizeBatch', data: unknown) => {
-      vi.stubGlobal('wx', { cloud: { callFunction: async () => ({ result: { ok: true, data } }) } })
+      vi.stubGlobal('wx', {
+        cloud: { init: vi.fn(), callFunction: async () => ({ result: { ok: true, data } }) },
+      })
       return createMajorEventReminderService().invoke(action, {} as never)
     }
     expect(await invoke('prepareBatch', { sessionId: 's', subscription: sub })).toMatchObject({
@@ -95,7 +99,7 @@ describe('大流行提醒傳輸邊界', () => {
   })
   it('逾時屬未確認且有界，不把傳輸失敗當成功', async () => {
     vi.useFakeTimers()
-    vi.stubGlobal('wx', { cloud: { callFunction: () => new Promise(() => {}) } })
+    vi.stubGlobal('wx', { cloud: { init: vi.fn(), callFunction: () => new Promise(() => {}) } })
     const pending = createMajorEventReminderService(100).invoke('completeAd', {
       sessionId: 's',
       requestId: 'r',
@@ -119,7 +123,9 @@ describe('大流行提醒傳輸邊界', () => {
     },
     { subscriptions: [], extra: '隱藏欄位' },
   ])('拒絕不完整或越界的清單回應 %j', async (data) => {
-    vi.stubGlobal('wx', { cloud: { callFunction: async () => ({ result: { ok: true, data } }) } })
+    vi.stubGlobal('wx', {
+      cloud: { init: vi.fn(), callFunction: async () => ({ result: { ok: true, data } }) },
+    })
     await expect(createMajorEventReminderService().invoke('list', {})).rejects.toMatchObject({
       code: 'unconfirmed',
     })
@@ -127,6 +133,7 @@ describe('大流行提醒傳輸邊界', () => {
   it('保留服務端明確失敗，不靜默吞掉 disabled', async () => {
     vi.stubGlobal('wx', {
       cloud: {
+        init: vi.fn(),
         callFunction: async () => ({
           result: { ok: false, code: 'disabled', message: '尚未配置模板' },
         }),

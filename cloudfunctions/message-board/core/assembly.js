@@ -51,9 +51,10 @@ function readConfig() {
       appId: process.env.MESSAGE_BOARD_APP_ID,
     },
   }
+  const native = config.environmentId === 'uwo-staging-d4guwh8hyd3932655'
   if (
     !config.environmentId ||
-    config.appId !== 'wx8f961bcd8b26996a' ||
+    config.appId !== (native ? NEW_APP_ID : 'wx8f961bcd8b26996a') ||
     !config.identitySecret ||
     config.identitySecret.length < 32 ||
     !/^[a-f0-9]{64}$/.test(config.callback.imageKey || '') ||
@@ -62,7 +63,17 @@ function readConfig() {
     new URL(config.callback.baseUrl).protocol !== 'https:'
   )
     throw new Error('留言板服務端配置不完整')
-  config.newProfile = readNewProfile(config.callback)
+  if (native) {
+    const url = new URL(config.callback.baseUrl)
+    if (url.username || url.password || url.search || url.hash || url.pathname.endsWith('/'))
+      throw new Error('新端留言回調網址無效')
+    config.newProfile =
+      process.env.MESSAGE_BOARD_NEW_ENABLED === 'true'
+        ? { enabled: true, callback: config.callback }
+        : null
+  } else {
+    config.newProfile = readNewProfile(config.callback)
+  }
   return config
 }
 function createRuntimePorts(cloud, config = readConfig()) {

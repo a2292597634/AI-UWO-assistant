@@ -6,7 +6,7 @@ import {
 
 const callFunction = vi.fn()
 const uploadFile = vi.fn()
-vi.stubGlobal('wx', { cloud: { callFunction, uploadFile } })
+vi.stubGlobal('wx', { cloud: { init: vi.fn(), callFunction, uploadFile } })
 
 const draft = {
   officerId: 'officer_1',

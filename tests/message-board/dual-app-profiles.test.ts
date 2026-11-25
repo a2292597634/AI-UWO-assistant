@@ -246,6 +246,22 @@ describe('留言雙 AppID 固定安全 profile', () => {
       )
     },
   )
+  it('獨立環境使用新端回調，不需要舊端回調密鑰', () => {
+    const values = {
+      MESSAGE_BOARD_ENV: 'uwo-staging-d4guwh8hyd3932655',
+      MESSAGE_BOARD_APP_ID: NEW,
+      MESSAGE_BOARD_IDENTITY_SECRET: 's'.repeat(64),
+      MESSAGE_BOARD_CALLBACK_URL: newCallback.baseUrl,
+      MESSAGE_BOARD_CALLBACK_TOKEN: newCallback.token,
+      MESSAGE_BOARD_CALLBACK_AES_KEY: newCallback.aesKey,
+      MESSAGE_BOARD_IMAGE_KEY: newCallback.imageKey,
+      MESSAGE_BOARD_NEW_ENABLED: 'true',
+    }
+    for (const [key, value] of Object.entries(values)) vi.stubEnv(key, value)
+    expect(readConfig().newProfile).toEqual(newProfile)
+    vi.stubEnv('MESSAGE_BOARD_ENV', ENV)
+    expect(() => readConfig()).toThrow()
+  })
   it('配置完整才啟用新端，缺鍵或路徑衝突保持停用且舊配置可用', () => {
     const values = {
       MESSAGE_BOARD_ENV: ENV,

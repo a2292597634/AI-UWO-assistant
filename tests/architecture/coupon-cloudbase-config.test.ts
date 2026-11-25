@@ -27,7 +27,7 @@ describe('兌換碼 CloudBase 部署設定', () => {
       : []
     const couponFunction = functions.find((item) => item.name === 'coupon-redemption')
 
-    expect(config.envId).toBe('cloud1-d7gxfuxfe813b4eaa')
+    expect(config.envId).toBe('uwo-staging-d4guwh8hyd3932655')
     expect(config.functionRoot).toBe('cloudfunctions/')
     expect(couponFunction).toBeDefined()
     expect(couponFunction?.timeout).toBeGreaterThanOrEqual(10)

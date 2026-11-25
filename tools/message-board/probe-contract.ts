@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
-import { CLOUDBASE_ENV_ID } from '../../miniprogram/runtime/cloudbase-config'
+import {
+  CLOUDBASE_ENV_ID,
+  LEGACY_CLOUDBASE_ENV_ID,
+} from '../../miniprogram/runtime/cloudbase-config'
 import { assertSafeInputPath } from '../workflow/read-inputs'
 
 export type ProbeGate = 'safety' | 'avatar' | 'identity'
@@ -57,7 +60,8 @@ export function classifyProbe(input: ProbeInput): ProbeResult {
     verification: 'evidence-consistency',
   })
   if (!input.environmentId) return result('not-run', '尚未指定獨立測試環境')
-  if (input.environmentId === CLOUDBASE_ENV_ID) return result('blocked', '禁止使用現有正式環境')
+  if ([CLOUDBASE_ENV_ID, LEGACY_CLOUDBASE_ENV_ID].includes(input.environmentId))
+    return result('blocked', '禁止使用現有正式環境')
   if (
     !CHECKS[input.gate] ||
     !/^[a-f0-9]{40}$/.test(input.candidateSha) ||

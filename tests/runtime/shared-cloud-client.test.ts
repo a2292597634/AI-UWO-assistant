@@ -25,7 +25,7 @@ const setup = (initialize: () => Promise<void> = async () => {}) => {
   vi.stubGlobal('wx', {
     cloud: {
       Cloud,
-      init: vi.fn(),
+      init,
       async callFunction(input: unknown) {
         nativeCalls.push(input)
         return { result: { ok: true, data: '原生結果' } }
@@ -39,7 +39,7 @@ const setup = (initialize: () => Promise<void> = async () => {}) => {
   return { calls, nativeCalls, init, construct }
 }
 
-describe('新小程序共享連線', () => {
+describe('小程序原生環境連線', () => {
   it('等初始化完成後才發起並發業務請求，且僅初始化一次', async () => {
     let release!: () => void
     const f = setup(
@@ -56,28 +56,27 @@ describe('新小程序共享連線', () => {
     })
     await Promise.resolve()
     expect(f.calls).toEqual([])
+    expect(f.nativeCalls).toEqual([])
     expect(f.init).toHaveBeenCalledTimes(1)
     release()
-    expect(await first).toEqual({ result: { ok: true, data: '共享結果' } })
+    expect(await first).toEqual({ result: { ok: true, data: '原生結果' } })
     await second
-    expect(f.construct).toHaveBeenCalledExactlyOnceWith({
-      resourceAppid: 'wx8f961bcd8b26996a',
-      resourceEnv: 'cloud1-d7gxfuxfe813b4eaa',
-    })
-    expect(f.calls).toEqual([
+    expect(f.init).toHaveBeenCalledExactlyOnceWith({ env: 'uwo-staging-d4guwh8hyd3932655' })
+    expect(f.construct).not.toHaveBeenCalled()
+    expect(f.nativeCalls).toEqual([
       { name: 'fleet-config', data: { action: 'list' } },
       { name: 'major-event-reminder', data: { action: 'getConfig' } },
     ])
-    expect(f.nativeCalls).toEqual([])
+    expect(f.calls).toEqual([])
   })
 
-  it('共享初始化失敗時不呼叫業務、不回退舊連線、不自動重試', async () => {
+  it('新環境原生初始化失敗時禁止業務呼叫且不切換到舊環境', async () => {
     const f = setup(async () => {
-      throw new Error('共享未授權')
+      throw new Error('環境未授權')
     })
     const connection = createCloudConnection('wxd0bc7afdc9cd334a')
-    await expect(connection.callFunction({ name: 'fleet-config' })).rejects.toThrow('共享未授權')
-    await expect(connection.callFunction({ name: 'fleet-config' })).rejects.toThrow('共享未授權')
+    await expect(connection.callFunction({ name: 'fleet-config' })).rejects.toThrow('環境未授權')
+    await expect(connection.callFunction({ name: 'fleet-config' })).rejects.toThrow('環境未授權')
     expect(f.init).toHaveBeenCalledTimes(1)
     expect(f.calls).toEqual([])
     expect(f.nativeCalls).toEqual([])
@@ -135,8 +134,8 @@ describe('新小程序共享連線', () => {
         cloudPath: 'officer-error-reports/1793600000000-0.png',
         filePath: '/tmp/a.png',
       }),
-    ).toEqual({ fileID: '共享檔案' })
-    expect(f.calls).toEqual([
+    ).toEqual({ fileID: '原生檔案' })
+    expect(f.nativeCalls).toEqual([
       { cloudPath: 'officer-error-reports/1793600000000-0.png', filePath: '/tmp/a.png' },
     ])
   })

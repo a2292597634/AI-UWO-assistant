@@ -25,7 +25,7 @@ describe('永久業務自包含部署包', () => {
         expect(validatePackageRequires(item.path)).toEqual([])
         expect(
           JSON.parse(readFileSync(join(item.path, 'package.json'), 'utf8')).dependencies,
-        ).toEqual({ 'wx-server-sdk': '4.0.2' })
+        ).toEqual({ 'wx-server-sdk': '5.0.1-beta.1' })
       }
       expect(first.packages.map((item) => item.name)).toEqual([
         'message-board',

@@ -51,7 +51,9 @@ export function buildDeployPackages(input: { sourceRoot: string; outputRoot: str
     const declared = JSON.parse(
       readFileSync(join(root, 'cloudfunctions', name, 'package.json'), 'utf8'),
     ) as { dependencies: Record<string, string> }
-    if (JSON.stringify(declared.dependencies) !== JSON.stringify({ 'wx-server-sdk': '4.0.2' }))
+    if (
+      JSON.stringify(declared.dependencies) !== JSON.stringify({ 'wx-server-sdk': '5.0.1-beta.1' })
+    )
       throw new Error('SDK_DEPENDENCY_DRIFT')
     let entry = readFileSync(join(root, 'cloudfunctions', name, 'entry.js'), 'utf8')
     if (name === 'message-board')

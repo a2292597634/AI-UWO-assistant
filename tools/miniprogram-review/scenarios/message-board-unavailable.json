@@ -2,6 +2,7 @@
   "name": "永久留言板列表入口與返回首頁",
   "entry": "/subpkg-message-board/pages/board/index",
   "watchPaths": [
+    "miniprogram/runtime/shared-cloud-client.ts",
     "miniprogram/subpkg-message-board/pages/board/",
     "miniprogram/contracts/message-board.ts",
     "miniprogram/controllers/message-board-list-controller.ts",

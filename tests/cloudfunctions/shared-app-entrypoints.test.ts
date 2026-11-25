@@ -8,13 +8,19 @@ const current = {
   FROM_APPID: 'wxd0bc7afdc9cd334a',
   FROM_OPENID: 'new-user',
 }
-describe('新 AppID 未配置平台能力時安全停用', () => {
+const native = {
+  SOURCE: 'wx_client',
+  APPID: 'wxd0bc7afdc9cd334a',
+  ENV: 'uwo-staging-d4guwh8hyd3932655',
+  OPENID: 'new-user',
+}
+describe.each([current, native])('新 AppID 未配置平台能力時安全停用：$ENV', (context) => {
   it('留言板只開放獨立身份的讀取，不承接舊管理員角色或未配置的內容寫入', async () => {
     const actors: unknown[] = []
     const invoke = require('../../cloudfunctions/message-board/entry.js').createRpcEntry({
-      readContext: () => current,
-      environmentId: current.ENV,
-      appId: current.APPID,
+      readContext: () => context,
+      environmentId: context.ENV,
+      appId: context.APPID,
       identitySecret: 's'.repeat(64),
       service: {
         async invoke(_action: string, _input: unknown, actor: unknown) {
@@ -40,7 +46,7 @@ describe('新 AppID 未配置平台能力時安全停用', () => {
   it('新 AppID 不使用舊模板或廣告位，也不建立待發提醒', async () => {
     const handle = require('../../cloudfunctions/major-event-reminder/handler.js').createHandler({
       database: () => ({}),
-      getWXContext: () => current,
+      getWXContext: () => context,
     })
     expect(await handle({ action: 'getBatchConfig' })).toEqual({
       ok: true,

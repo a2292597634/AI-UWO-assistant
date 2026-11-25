@@ -13,7 +13,13 @@ exports.main = async (event, context) => {
   try {
     const current = cloud.getWXContext()
     const identity = resolveWechatIdentity(current)
-    if (current.FROM_APPID && !identity) {
+    const validNativeCaller = identity?.appId === 'wxd0bc7afdc9cd334a' && !identity.shared
+    if (
+      ((current.FROM_APPID || current.APPID === 'wxd0bc7afdc9cd334a') && !identity) ||
+      ((current.ENV === 'uwo-staging-d4guwh8hyd3932655' ||
+        process.env.UWO_REQUIRE_NATIVE_IDENTITY === 'true') &&
+        !validNativeCaller)
+    ) {
       return { ok: false, code: 'unknown', message: '無法確認使用者身分，請稍後重試。' }
     }
     const requesterKey = crypto
@@ -21,7 +27,11 @@ exports.main = async (event, context) => {
       .update(identity?.ownerUid || 'anonymous')
       .digest('hex')
       .slice(0, 16)
-    const result = await service.dispatch(event, requesterKey, identity?.shared === true)
+    const result = await service.dispatch(
+      event,
+      requesterKey,
+      identity?.appId === 'wxd0bc7afdc9cd334a',
+    )
     const resultCode = result.ok
       ? Array.isArray(result.data)
         ? result.data.map(({ code }) => code).join(',')

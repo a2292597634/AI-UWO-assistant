@@ -315,7 +315,7 @@ export const finalizePublishedAssetManifest = (
 }
 
 export const validatePublishedAssetManifest = (manifest: PublishedAssetManifest): void => {
-  assertCloudBaseCdnOrigin(manifest.cdnOrigin)
+  assertCloudBaseCdnOrigin(manifest.cdnOrigin, manifest.cloudPathPrefix)
   const expectedDigest = digestFor(manifest.assets)
   if (expectedDigest !== manifest.manifestDigest) {
     throw new Error(`asset manifest digest mismatch for release ${manifest.releaseId}`)

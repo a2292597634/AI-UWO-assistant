@@ -5,6 +5,6 @@
   "description": "航海士資料維護工單 CloudBase 雲函數",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "4.0.2"
+    "wx-server-sdk": "5.0.1-beta.1"
   }
 }

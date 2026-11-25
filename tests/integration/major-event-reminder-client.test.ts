@@ -52,6 +52,7 @@ function setup(offset = 12000) {
       success(Object.fromEntries(tmplIds.map((id: string) => [id, 'accept'])))
     }),
     cloud: {
+      init: vi.fn(),
       callFunction: async ({ data }: { data: Record<string, unknown> }) => {
         const { action, ...input } = data
         order.push(String(action))

@@ -2,6 +2,7 @@
   "name": "兌換碼表單與禁用說明",
   "entry": "/subpkg-coupon/pages/redemption/index",
   "watchPaths": [
+    "miniprogram/runtime/shared-cloud-client.ts",
     "miniprogram/subpkg-coupon/pages/redemption/",
     "miniprogram/presenters/coupon-redemption-presenter.ts",
     "miniprogram/runtime/coupon-profile-store.ts",

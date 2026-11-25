@@ -18,6 +18,7 @@ const mockCallFunction = vi.fn()
 
 vi.stubGlobal('wx', {
   cloud: {
+    init: vi.fn(),
     callFunction: mockCallFunction,
   },
 })
