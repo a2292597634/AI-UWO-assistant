@@ -2,6 +2,12 @@
 
 本倉庫是《Uncharted Waters Origin》國際服航海士資料查詢微信小程序。界面與資料僅使用繁體中文。
 
+## 開工與歸檔
+
+- 日常開發只用新端入口，先確認實際工作區與任務分支。本機入口為 E:\AI-UWO-new，指向 E:\AI UWO assistant；同一工程不重複建立。入口與發佈目標以[新端維護與舊端封存手冊](docs/development/dual-app-maintenance.md#當前規則2026-11-12)為準。
+- E:\AI-UWO-old 只供回溯，不開發、不上傳、不發佈。舊端停更不代表可刪除或覆寫共享雲環境、資源和身份相容邏輯。
+- 歸檔 Codex 對話前，先核對對話工作目錄、所有附加工作樹、junction 的實際目標、未提交變更及必要 ignored 檔案備份。歸檔可能連帶排程移除工作區；固定入口、仍在使用的工作樹或備份尚未核對時，保持對話可見。處理步驟見[維護手冊](docs/development/dual-app-maintenance.md#當前規則2026-11-12)與[工作區與證據管理](docs/development/workspace-and-evidence-management.md#遷移歸檔與恢復)。
+
 ## 0. 語言規範
 
 - **代碼註釋、文檔、與用戶的所有交互和回覆均使用中文**（繁體或簡體均可，以能正常溝通為準）。
@@ -35,8 +41,7 @@ archive/  →  data/master/  →  miniprogram/generated/
 - `miniprogram/` 預設禁止 `wx.request`、`wx.downloadFile`、`wx.cloud`、手寫遠程 URL 或 Node.js API。頁面與元件不得直接呼叫 `wx.cloud` 或操作雲端資料庫；頁面透過專用 runtime service 訪問雲端。
 - 既有 CloudBase／CDN 例外只依 [網路檢查入口](tools/quality/check-runtime-network.ts) 與 [掃描器](tools/quality/find-runtime-network-references.ts) 的精確檔案、API、CDN origin／prefix 邊界放行。CloudBase 僅允許已登記位置的 `init`、`callFunction`、`uploadFile`；CDN 僅允許已登記生成檔案中的圖片欄位，使用發布 manifest 指定的 HTTPS 來源與路徑，不含 query／hash。必須通過 `npm run check:runtime-network`，不得把例外擴大到任意頁面或其他 API。
 - 新增或擴大網路例外前，必須說明檔案、API 與用途並取得用戶授權，再同步掃描白名單與相關契約測試；已有明確授權覆蓋時不重複確認。不得關閉或全域放寬掃描。雲端身分、權限與資料校驗在服務端執行，部署策略參閱既有 `docs/architecture/` 雲端文檔。
-- 用戶於 2026-10-29 明確批准的唯一新增例外：`miniprogram/runtime/major-event-reminder-service.ts` 僅可使用 `wx.cloud.callFunction` 呼叫固定的 `major-event-reminder` 提醒函數；同步精確白名單與契約，既有白名單維持原狀，其餘 API 與檔案禁令不變。
-- 用戶於 2026-11-02 批准新 AppID `wxd0bc7afdc9cd334a` 的共享連線例外：`miniprogram/runtime/shared-cloud-client.ts` 可使用 `wx.cloud.Cloud`、`init`、`callFunction`、`uploadFile`，共享資源方僅限舊 AppID `wx8f961bcd8b26996a` 與環境 `cloud1-d7gxfuxfe813b4eaa`。函數僅限原已登記的六個業務函數，上傳僅限既有 `officer-error-reports/` 截圖流程；同步精確白名單與契約，不授權資料庫直連、任意函數或其他網路 API。
+- 提醒服務的唯一新增例外仍限 `miniprogram/runtime/major-event-reminder-service.ts` 呼叫固定的 `major-event-reminder` 函數。已批准的例外見[網路授權記錄](docs/development/dual-app-maintenance.md#網路授權記錄)。該處只保留授權依據；可執行邊界仍由現行掃描器、精確白名單與契約測試共同限定，不新增或放寬例外。
 - 禁止未經用戶確認新增/刪除/升級依賴。
 - 禁止順手修復無關問題或格式化無關文件。
 - 發現範圍外缺陷 → 報告並建議另開任務，不得夾帶。
