@@ -17,6 +17,13 @@
 
 - Codex 對話歸檔會連帶排程工作區歸檔，不能視為只隱藏對話。歸檔前核對對話 cwd、全部附加 worktree、realpath／junction、dirty 及 ignored 備份；任何關聯工作區受保護或 ignored 尚未備份時，保持對話可見。執行後重讀 App 歸檔 queue 與完整 Git worktree 清單，出現意外排程先取消對話歸檔，不直接改寫 App 內部配置。
 
+## 網路授權記錄
+
+以下保留既有批准內容，供追溯。實際允許範圍仍以 [AGENTS.md 硬約束](../../AGENTS.md#2-硬約束)、現行掃描器、精確白名單與契約測試共同限定；不得由歷史記錄推導額外授權。
+
+- 用戶於 2026-10-29 明確批准的唯一新增例外：`miniprogram/runtime/major-event-reminder-service.ts` 僅可使用 `wx.cloud.callFunction` 呼叫固定的 `major-event-reminder` 提醒函數；同步精確白名單與契約，既有白名單維持原狀，其餘 API 與檔案禁令不變。
+- 用戶於 2026-11-02 批准新 AppID `wxd0bc7afdc9cd334a` 的共享連線例外：`miniprogram/runtime/shared-cloud-client.ts` 可使用 `wx.cloud.Cloud`、`init`、`callFunction`、`uploadFile`，共享資源方僅限舊 AppID `wx8f961bcd8b26996a` 與環境 `cloud1-d7gxfuxfe813b4eaa`。函數僅限原已登記的六個業務函數，上傳僅限既有 `officer-error-reports/` 截圖流程；同步精確白名單與契約，不授權資料庫直連、任意函數或其他網路 API。
+
 ## 歷史雙端維護記錄
 
 以下保留原文及本機路徑修訂，用於追溯；「兩端維護／同步／上傳」等歷史操作由上述新規則取代，不作目前授權。
