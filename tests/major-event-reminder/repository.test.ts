@@ -1,16 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { forecastMajorEvents } from '../../miniprogram/subpkg-trade/domain/major-event-forecast'
 import type { RuntimeMajorEventReference } from '../../miniprogram/contracts/runtime-data'
-import { configured, load, memoryRepository, reference } from './helpers'
+import { configured, load, memoryRepository, reference, require } from './helpers'
 
-function fakeDatabase() {
+function fakeDatabase(missingError?: Error) {
   const memory = memoryRepository()
   const collection = (
     name: string,
     tx?: Parameters<Parameters<typeof memory.transaction>[0]>[0],
   ) => ({
     doc: (id: string) => ({
-      get: async () => ({ data: (await (tx ? tx.get(name, id) : memory.get(name, id))) || [] }),
+      get: async () => {
+        const data = await (tx ? tx.get(name, id) : memory.get(name, id))
+        if (data === null && missingError) throw missingError
+        return { data: data ?? [] }
+      },
       set: ({ data }: { data: Record<string, unknown> }) => {
         if (!tx) throw new Error('寫入必須在交易內')
         return tx.put(name, id, data)
@@ -98,6 +102,63 @@ describe('CloudBase repository 真實交易適配', () => {
       expect(unfinished.every(([, row]) => listed.some((sub) => sub.key === row.key))).toBe(true)
     },
   )
+  it('PG 查無紀錄時可讀空清單並首次開通三個提醒', async () => {
+    const missing = Object.assign(
+      new Error('document.get:fail -501001 resource system error. Document not found'),
+      { errCode: -501001 },
+    )
+    const db = fakeDatabase(missing)
+    const { createRepository } = load('repository')
+    const { createService } = load('service')
+    const { configFromEnvironment } = load('config')
+    const config = configFromEnvironment({
+      ...require('../../cloudfunctions/major-event-reminder/config.example.json'),
+      MAJOR_REMINDER_MINIPROGRAM_STATE: 'trial',
+    })
+    const now = 1793200000
+    const [first] = forecastMajorEvents(reference as RuntimeMajorEventReference, {
+      nowUnixSeconds: now + 12000,
+      horizonHours: 168,
+    })
+    const occurrence = {
+      zoneId: first!.zoneId,
+      eventTypeId: first!.eventTypeId,
+      triggerAtUnixSeconds: first!.triggerAtUnixSeconds,
+    }
+    const service = createService(createRepository(db), {
+      reference,
+      fingerprint: 'v1',
+      config,
+      allowDirect: true,
+      now: () => now,
+    })
+    const invoke = (action: string, input: object = {}) =>
+      service.dispatch(action, input, 'first-subscription')
+
+    expect(await invoke('list')).toEqual({ ok: true, data: { subscriptions: [] } })
+    const preparation = await invoke('prepareBatch', { occurrence, requestId: 'prepare-first' })
+    expect(preparation).toMatchObject({ ok: true })
+    const { sessionId } = preparation.data
+    const batch = await invoke('getBatchConfig')
+    const authorization = await invoke('authorizeBatch', {
+      sessionId,
+      requestId: 'authorize-first',
+      templateIds: batch.data.templates.map((item: { templateId: string }) => item.templateId),
+    })
+    expect(authorization).toMatchObject({ ok: true })
+    const input = { sessionId, requestId: 'activate-first' }
+    const active = await invoke('activateAuthorized', input)
+    expect(active).toMatchObject({ ok: true })
+    expect(active.data.subscription.slots.map((slot: { status: string }) => slot.status)).toEqual([
+      'pending',
+      'pending',
+      'pending',
+    ])
+    expect(await invoke('activateAuthorized', input)).toEqual(active)
+    expect(
+      [...db.memory.snapshot().keys()].filter((key) => key.startsWith('major_reminder_jobs/')),
+    ).toHaveLength(3)
+  })
   it('SDK 回傳非物件、空陣列或空物件時不當成 owner 或 session', async () => {
     const { createRepository } = load('repository')
     for (const data of [undefined, null, [], '', 'owner-a', 1, true, {}]) {
@@ -202,6 +263,12 @@ describe('CloudBase 缺失文件拋錯適配', () => {
     })
   })
   it.each([
+    [-501001, 'document.get:fail -501001 resource system error. Table not found'],
+    [
+      -501001,
+      'document.get:fail -501001 resource system error. Document not found; permission denied',
+    ],
+    [-1, 'document.get:fail -501001 resource system error. Document not found'],
     [-1, 'document.get:fail network timeout'],
     [-1, 'document.get:fail permission denied'],
     [-1, 'document.get:fail collection major_reminder_owners does not exist'],
