@@ -19,7 +19,13 @@ function createRepository(db) {
     try {
       result = await document(client, name, id).get()
     } catch (error) {
-      // 真雲 SDK 對不存在文件會拋錯；只接受當次 id 的精確缺失訊息。
+      // PG 將文件缺失歸入通用系統錯誤，須同時核對操作與精確原因。
+      if (
+        error?.errCode === -501001 &&
+        error.message === 'document.get:fail -501001 resource system error. Document not found'
+      )
+        return null
+      // 舊環境的 SDK 缺失訊息須比對當次查詢的文件 ID。
       if (
         (error?.errCode === -1 || error?.errCode === '-1') &&
         error?.message === `document.get:fail document with _id ${id} does not exist`
