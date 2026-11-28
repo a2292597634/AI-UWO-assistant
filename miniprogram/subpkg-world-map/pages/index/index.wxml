@@ -1,0 +1,125 @@
+<view class="map">
+  <view class="map__header">
+    <view class="map-search">
+      <view class="map-search__icon" aria-hidden="true"></view>
+      <input
+        class="map-search__input"
+        placeholder="搜尋港口或探索點"
+        aria-label="搜尋港口或探索點"
+        value="{{query}}"
+        bindinput="onSearch"
+        confirm-type="search"
+        maxlength="40"
+      />
+      <button
+        wx:if="{{query}}"
+        class="map-search__clear"
+        aria-label="清除搜尋"
+        bindtap="closePanels"
+      >×</button>
+    </view>
+    <view class="map-layers" aria-label="地圖圖層">
+      <button
+        wx:for="{{layers}}"
+        wx:key="id"
+        id="map-layer-{{item.id}}"
+        class="map-layers__button {{layer === item.id ? 'map-layers__button--selected' : ''}}"
+        aria-label="{{item.label}}{{layer === item.id ? '，已選取' : ''}}"
+        bindtap="onLayerTap"
+        data-layer="{{item.id}}"
+      >{{item.label}}</button>
+    </view>
+  </view>
+
+  <view wx:if="{{query}}" class="map-results">
+      <text class="map-results__heading" role="status">
+        {{matchCount ? ('找到 ' + matchCount + ' 個點位' + (matchCount > 40 ? '，顯示前 40 個' : '')) : '找不到符合的點位'}}
+      </text>
+      <scroll-view
+        wx:if="{{matches.length}}"
+        scroll-y
+        class="map-results__list"
+        style="height: {{matches.length < 4 ? matches.length * 104 + 'rpx' : '33vh'}}"
+      >
+        <button
+          wx:for="{{matches}}"
+          wx:key="id"
+          class="map-results__row"
+          bindtap="onResultTap"
+          data-id="{{item.id}}"
+        >
+          <text>{{item.name}}</text>
+          <text class="map-results__caption">{{item.caption}}</text>
+        </button>
+      </scroll-view>
+  </view>
+
+  <view class="map__viewport">
+    <canvas
+      id="world-chart"
+      type="2d"
+      class="map__canvas"
+      aria-label="互動海圖，可拖動、雙指縮放，點按標記查看資料"
+      bindtouchstart="onTouchStart"
+      catchtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd"
+      bindtouchcancel="onTouchCancel"
+    ></canvas>
+  </view>
+
+  <view wx:if="{{detail || nearby.length}}" class="map-sheet">
+      <view class="map-sheet__header">
+        <view>
+          <text class="map-sheet__title">{{detail ? detail.title : '附近點位'}}</text>
+          <text wx:if="{{detail}}" class="map-results__caption">{{detail.caption}}</text>
+        </view>
+        <button class="map-sheet__close" aria-label="關閉點位資料" bindtap="closePanels">×</button>
+      </view>
+      <block wx:if="{{detail}}">
+        <view class="map-sheet__row"><text>座標</text><text>{{detail.coordinates}}</text></view>
+        <view wx:if="{{detail.languages}}" class="map-sheet__row"><text>語言</text><text>{{detail.languages}}</text></view>
+        <view wx:if="{{detail.belief}}" class="map-sheet__row"><text>信仰</text><text>{{detail.belief}}</text></view>
+        <button
+          wx:if="{{detail.goods.length}}"
+          class="map-sheet__goods-toggle"
+          bindtap="toggleGoods"
+          aria-expanded="{{showGoods}}"
+        >交易品（{{detail.goods.length}}）{{showGoods ? '收合' : '展開'}}</button>
+        <scroll-view wx:if="{{showGoods}}" scroll-y class="map-sheet__goods-scroll">
+          <view class="map-sheet__goods">
+            <text wx:for="{{detail.goods}}" wx:key="id" class="map-sheet__good">{{item.name}}</text>
+          </view>
+        </scroll-view>
+      </block>
+      <scroll-view wx:else scroll-y class="map-sheet__scroll">
+        <button
+          wx:for="{{nearby}}"
+          wx:key="id"
+          class="map-results__row"
+          bindtap="onResultTap"
+          data-id="{{item.id}}"
+        >
+          <text>{{item.name}}</text>
+          <text class="map-results__caption">{{item.caption}}</text>
+        </button>
+      </scroll-view>
+  </view>
+  <view class="map__footer">
+    <block wx:if="{{status === 'ready'}}">
+      <view class="map__guide">
+        <text class="map__zoom">{{zoom}}×</text>
+        <text wx:if="{{!query && !detail && !nearby.length}}">拖動 · 雙指縮放 · 點按標記</text>
+      </view>
+      <view wx:if="{{!query && !detail && !nearby.length}}" class="map-controls">
+        <button id="map-zoom-out" class="map-controls__button" aria-label="縮小地圖" bindtap="onZoomOut" disabled="{{zoom <= 1}}">−</button>
+        <button id="map-zoom-in" class="map-controls__button" aria-label="放大地圖" bindtap="onZoomIn" disabled="{{zoom >= maxZoom}}">＋</button>
+        <button id="map-reset" class="map-controls__button map-controls__button--reset" aria-label="返回全圖" bindtap="onReset">全圖</button>
+      </view>
+    </block>
+    <text wx:elif="{{status === 'loading'}}" role="status">海圖載入中</text>
+    <block wx:else>
+      <text role="status">海圖載入失敗</text>
+      <button class="ui-button ui-button--secondary" bindtap="initializeChart">重新載入</button>
+    </block>
+  </view>
+</view>

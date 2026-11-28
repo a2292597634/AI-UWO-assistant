@@ -1,0 +1,59 @@
+{
+  "name": "世界地圖縮放與點位資料",
+  "entry": "/subpkg-world-map/pages/index/index",
+  "watchPaths": [
+    "miniprogram/subpkg-world-map/",
+    "miniprogram/app.json",
+    "data/master/world-map.json"
+  ],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": "#map-reset" },
+    { "action": "screenshot", "name": "world-overview" },
+    { "action": "tap", "selector": "#map-zoom-in" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "2×" }
+    },
+    { "action": "tap", "selector": "#map-zoom-out" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "1×" }
+    },
+    { "action": "input", "selector": ".map-search__input", "value": "里斯本" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "里斯本" }
+    },
+    { "action": "tap", "selector": ".map-results__row" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "里斯本" }
+    },
+    { "action": "assertText", "selector": ".map-sheet__row", "contains": "北緯" },
+    { "action": "screenshot", "name": "port-details" },
+    { "action": "tap", "selector": ".map-sheet__goods-toggle" },
+    { "action": "waitFor", "selector": ".map-sheet__good" },
+    { "action": "tap", "selector": ".map-sheet__close" },
+    { "action": "waitFor", "selector": "#map-reset" },
+    { "action": "input", "selector": ".map-search__input", "value": "華嚴瀑布" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "華嚴瀑布" }
+    },
+    { "action": "tap", "selector": ".map-results__row" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "華嚴瀑布" }
+    },
+    { "action": "screenshot", "name": "discovery-details" },
+    { "action": "tap", "selector": ".map-sheet__close" },
+    { "action": "waitFor", "selector": "#map-reset" },
+    { "action": "tap", "selector": "#map-reset" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "1×" }
+    }
+  ]
+}

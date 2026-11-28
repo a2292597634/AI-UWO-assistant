@@ -17,6 +17,7 @@ describe('統一生成輸出集合', () => {
       'miniprogram/subpkg-trade/trade-goods.js',
       'miniprogram/subpkg-trade/trade-reference.js',
       'miniprogram/subpkg-trade/major-event-reference.js',
+      'miniprogram/subpkg-world-map/generated/places.js',
       'miniprogram/subpkg-maintenance/maintenance-officers.js',
       'cloudfunctions/officer-custom/reference-data.json',
       'cloudfunctions/officer-maintenance/reference-data.json',

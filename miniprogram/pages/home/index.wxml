@@ -51,6 +51,17 @@
       </block>
     </view>
 
+    <button
+      id="home-world-map"
+      class="home-map-entry ui-button ui-button--primary"
+      bindtap="onModuleTap"
+      data-route="/subpkg-world-map/pages/index/index"
+    >
+      <view class="home-map-entry__globe" aria-hidden="true"></view>
+      <text>世界地圖</text>
+      <view class="home-map-entry__arrow" aria-hidden="true"></view>
+    </button>
+
     <view class="feature-hub__secondary">
       <text class="feature-hub__secondary-label">交流與回報</text>
       <view class="module-grid module-grid--secondary">

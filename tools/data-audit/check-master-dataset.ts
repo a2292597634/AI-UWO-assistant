@@ -7,6 +7,8 @@ import type { AuditFinding } from './types'
 import { buildGameServerOutputs } from '../data-pipeline/build-game-servers'
 import { validateTradeDataset } from '../import/validate-trades'
 import { validateMajorEvents } from './validate-major-events'
+import { buildWorldMapPlaces } from '../data-pipeline/build-world-map'
+import type { WorldMapData } from '../../miniprogram/subpkg-world-map/map-data'
 import type { CanonicalTradeDataset, CanonicalMajorEventsDataset } from '../import/types'
 
 export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
@@ -36,6 +38,20 @@ export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
       ...validator.validate('major-events', events),
     )
     if (findings.some((finding) => finding.severity === 'error')) return findings
+    try {
+      buildWorldMapPlaces(read<WorldMapData>('world-map'), trade.ports, trade.tradeGoods)
+    } catch (error) {
+      findings.push({
+        severity: 'error',
+        code: 'WORLD_MAP_DATA_INVALID',
+        entityType: 'dataset',
+        entityId: 'world-map',
+        path: join(masterDir, 'world-map.json'),
+        observedValue: null,
+        message: error instanceof Error ? error.message : String(error),
+        suggestedAction: '核對海圖座標、圖層與交易品港口索引。',
+      })
+    }
     return [
       ...findings,
       ...validateMasterDataset(input),
