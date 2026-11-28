@@ -22,6 +22,11 @@
       "pages": ["pages/index/index", "pages/detail/index", "pages/popularity/index"]
     },
     {
+      "root": "subpkg-world-map",
+      "name": "world-map",
+      "pages": ["pages/index/index"]
+    },
+    {
       "root": "subpkg-coupon",
       "name": "coupon",
       "pages": ["pages/redemption/index", "pages/settings/index"]

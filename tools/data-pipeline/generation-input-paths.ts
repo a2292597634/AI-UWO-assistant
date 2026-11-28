@@ -15,6 +15,8 @@ export const GENERATION_INPUT_PATHS: readonly string[] = [
   'archive/voyage-tw-2026052501/raw-data/json_char.js',
   'miniprogram/subpkg-trade/assets/major-events/',
   'miniprogram/contracts/',
+  'miniprogram/subpkg-world-map/map-data.ts',
+  'miniprogram/subpkg-world-map/viewport.ts',
   'tools/data-pipeline/',
   'tools/data-audit/',
   'tools/import/',

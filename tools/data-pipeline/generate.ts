@@ -46,6 +46,8 @@ import { loadSkillIconOverrides } from '../asset-pipeline/source-skill-icons'
 import { buildMajorEventReference } from './build-major-event-runtime-data'
 import { buildGameServerOutputs } from './build-game-servers'
 import { writeReminderCloudData } from './build-major-event-reminder-cloud-data'
+import { buildWorldMapPlaces } from './build-world-map'
+import type { WorldMapData } from '../../miniprogram/subpkg-world-map/map-data'
 
 const CANONICAL_DIR = 'data/master'
 const PUBLISHED_MANIFEST_PATH =
@@ -92,6 +94,15 @@ export const buildGeneratedOutputs = (stageRoot: string): void => {
     `${CANONICAL_DIR}/dictionaries.json`,
   )
   const tradeDataset = readJson<CanonicalTradeDataset>(`${CANONICAL_DIR}/trade-goods.json`)
+  const worldMapData = readJson<WorldMapData>(`${CANONICAL_DIR}/world-map.json`)
+  const worldMapOutput = join(stageRoot, 'miniprogram/subpkg-world-map/generated/places.js')
+  const worldMapPlaces = buildWorldMapPlaces(
+    worldMapData,
+    tradeDataset.ports,
+    tradeDataset.tradeGoods,
+  )
+  mkdirSync(dirname(worldMapOutput), { recursive: true })
+  writeFileSync(worldMapOutput, `module.exports = ${JSON.stringify(worldMapPlaces)}\n`)
   const majorEventsDataset = readJson<CanonicalMajorEventsDataset>(
     `${CANONICAL_DIR}/major-events.json`,
   )
