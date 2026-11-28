@@ -1,11 +1,16 @@
 {
   "name": "首頁世界地圖入口",
   "entry": "/pages/home/index",
-  "watchPaths": ["miniprogram/pages/home/", "miniprogram/app.json"],
+  "watchPaths": [
+    "miniprogram/pages/home/",
+    "miniprogram/assets/ui/feature-world-map.png",
+    "miniprogram/app.json"
+  ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
   "steps": [
     { "action": "assertText", "selector": "#home-world-map", "contains": "世界地圖" },
+    { "action": "assertVisible", "selector": "#home-world-map .module-grid__icon" },
     { "action": "screenshot", "name": "home-world-map-entry" },
     { "action": "tap", "selector": "#home-world-map" },
     {

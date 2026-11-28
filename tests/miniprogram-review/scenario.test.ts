@@ -164,7 +164,7 @@ describe('小程序验收场景', () => {
     const home = loadScenario(resolve('tools/miniprogram-review/scenarios/home-visual.json'))
     const steps = home.steps
 
-    expect(home.name).toBe('首頁六個主要入口')
+    expect(home.name).toBe('首頁七個主要入口')
     expect(home.watchPaths).toContain('miniprogram/assets/ui/feature-major-events.png')
     expect(steps).toContainEqual({
       action: 'assertText',

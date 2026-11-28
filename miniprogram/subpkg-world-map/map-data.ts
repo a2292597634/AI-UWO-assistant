@@ -10,6 +10,18 @@ export const MAP_LAYERS = [
 
 export type MapLayer = (typeof MAP_LAYERS)[number]['id']
 
+export type MapChartPosition = Point & { precision: 'anchor' | 'estimated' | 'source' }
+
+export interface MapItem {
+  id: string
+  name: string
+}
+
+export interface MapCoordinateResources {
+  position: Point
+  items: MapItem[]
+}
+
 export interface MapPlace {
   id: string
   name: string
@@ -21,13 +33,46 @@ export interface MapPlace {
   category?: string
   method?: string
   rank?: number
+  resources?: MapCoordinateResources[]
+  discoveries?: MapCoordinateResources[]
+}
+
+export interface MapPortGood extends MapItem {
+  conditions?: string[]
+}
+
+export interface MapTradeQuantityReference {
+  id: string
+  quantity: number
+}
+
+export type MapTradeQuantity = MapItem & MapTradeQuantityReference
+
+export interface MapBarterReference {
+  id: string
+  product: MapTradeQuantityReference
+  requirements: MapTradeQuantityReference[]
+  conditions?: string[]
+  maxQuantity?: number
+}
+
+export interface MapBarter extends MapBarterReference {
+  product: MapTradeQuantity
+  requirements: MapTradeQuantity[]
+}
+
+export interface MasterMapPlace extends MapPlace {
+  purchaseConditions?: Record<string, string[]>
+  barters?: MapBarterReference[]
 }
 
 export interface WorldMapData {
   sourceSnapshot: string
-  places: MapPlace[]
+  places: MasterMapPlace[]
 }
 
 export interface RuntimeMapPlace extends MapPlace {
-  goods?: Array<{ id: string; name: string }>
+  chartPositions?: MapChartPosition[]
+  goods?: MapPortGood[]
+  barters?: MapBarter[]
 }

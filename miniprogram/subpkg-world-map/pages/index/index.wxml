@@ -1,3 +1,32 @@
+<template name="map-trade">
+  <button
+    class="map-trade map-trade--{{kind}}"
+    data-trade-id="{{trade.id}}"
+    bindtap="onTradeTap"
+    aria-label="{{trade.name}}{{trade.quantity ? '，數量 ' + trade.quantity : ''}}，查看交易品詳情"
+  >
+    <view class="map-trade__thumb" aria-hidden="true">
+      <image wx:if="{{trade.icon}}" class="map-trade__sprite" style="{{trade.icon.style}}" src="{{trade.icon.path}}" mode="scaleToFill" />
+      <view wx:else class="map-trade__fallback"></view>
+    </view>
+    <view class="map-trade__copy">
+      <text class="map-trade__name">{{trade.name}}</text>
+      <text wx:if="{{trade.conditions}}" class="map-trade__conditions">{{trade.conditions}}</text>
+    </view>
+    <text wx:if="{{trade.quantity}}" class="map-trade__quantity">×{{trade.quantity}}</text>
+    <view wx:if="{{kind !== 'material'}}" class="map-trade__arrow" aria-hidden="true"></view>
+  </button>
+</template>
+
+<template name="map-findings">
+  <view wx:if="{{items.length}}" class="map-sheet__section">
+    <text class="map-sheet__section-title">{{title}}（{{items.length}}）</text>
+    <view class="map-sheet__findings">
+      <text wx:for="{{items}}" wx:key="id" class="map-sheet__finding">{{item.name}}</text>
+    </view>
+  </view>
+</template>
+
 <view class="map">
   <view class="map__header">
     <view class="map-search">
@@ -75,22 +104,46 @@
         </view>
         <button class="map-sheet__close" aria-label="關閉點位資料" bindtap="closePanels">×</button>
       </view>
-      <block wx:if="{{detail}}">
-        <view class="map-sheet__row"><text>座標</text><text>{{detail.coordinates}}</text></view>
-        <view wx:if="{{detail.languages}}" class="map-sheet__row"><text>語言</text><text>{{detail.languages}}</text></view>
-        <view wx:if="{{detail.belief}}" class="map-sheet__row"><text>信仰</text><text>{{detail.belief}}</text></view>
-        <button
-          wx:if="{{detail.goods.length}}"
-          class="map-sheet__goods-toggle"
-          bindtap="toggleGoods"
-          aria-expanded="{{showGoods}}"
-        >交易品（{{detail.goods.length}}）{{showGoods ? '收合' : '展開'}}</button>
-        <scroll-view wx:if="{{showGoods}}" scroll-y class="map-sheet__goods-scroll">
-          <view class="map-sheet__goods">
-            <text wx:for="{{detail.goods}}" wx:key="id" class="map-sheet__good">{{item.name}}</text>
+      <scroll-view
+        wx:if="{{detail}}"
+        scroll-y
+        class="map-sheet__scroll map-sheet__scroll--detail {{detail.layer === 'port' || detail.layer === 'village' || detail.resources.length ? 'map-sheet__scroll--expanded' : ''}}"
+        scroll-into-view="map-detail-start-{{detail.id}}"
+      >
+        <view id="map-detail-start-{{detail.id}}" class="map-sheet__coordinates">
+          <view class="map-sheet__row"><text>海圖經緯</text><text>{{detail.coordinates}}</text></view>
+          <view class="map-sheet__row map-sheet__source"><text>{{detail.accuracy}}</text><text>來源 {{detail.sourceCoordinates}}</text></view>
+        </view>
+        <view wx:if="{{detail.languages || detail.belief}}" class="map-sheet__facts">
+          <text wx:if="{{detail.languages}}">語言 · {{detail.languages}}</text>
+          <text wx:if="{{detail.belief}}">信仰 · {{detail.belief}}</text>
+        </view>
+
+        <view wx:if="{{detail.layer === 'port'}}" class="map-sheet__section">
+          <text class="map-sheet__section-title">交易品（{{detail.goods.length}}）</text>
+          <template wx:for="{{detail.goods}}" wx:key="id" is="map-trade" data="{{ trade: item, kind: 'port' }}" />
+          <text wx:if="{{!detail.goods.length}}" class="map-sheet__empty">目前未收錄此港的交易品</text>
+        </view>
+
+        <template is="map-findings" data="{{ title: '採集物', items: detail.resources }}" />
+        <template is="map-findings" data="{{ title: '村莊發現物', items: detail.discoveries }}" />
+
+        <view wx:if="{{detail.layer === 'village'}}" class="map-sheet__section map-sheet__barters">
+          <text class="map-sheet__section-title">村莊換貨（{{detail.barters.length}}）</text>
+          <text wx:if="{{!detail.barters.length}}" class="map-sheet__empty">目前未收錄此點位的換貨資料</text>
+          <view wx:for="{{detail.barters}}" wx:for-item="exchange" wx:key="id" class="map-barter">
+            <template is="map-trade" data="{{ trade: exchange.product, kind: 'barter' }}" />
+            <view wx:if="{{exchange.conditions || exchange.maxQuantity}}" class="map-barter__conditions">
+              <text wx:if="{{exchange.conditions}}">條件 · {{exchange.conditions}}</text>
+              <text wx:if="{{exchange.maxQuantity}}">單次交換上限 · {{exchange.maxQuantity}}</text>
+            </view>
+            <text class="map-barter__label">所需交易品</text>
+            <view class="map-barter__materials">
+              <template wx:for="{{exchange.requirements}}" wx:key="id" is="map-trade" data="{{ trade: item, kind: 'material' }}" />
+            </view>
           </view>
-        </scroll-view>
-      </block>
+        </view>
+      </scroll-view>
       <scroll-view wx:else scroll-y class="map-sheet__scroll">
         <button
           wx:for="{{nearby}}"

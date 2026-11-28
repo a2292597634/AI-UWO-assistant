@@ -55,8 +55,10 @@ Page({
         iconFailed: false,
       },
       {
-        ...errorReportEntry,
-        iconPath: '/assets/ui/feature-data-maintenance.png',
+        id: 'world-map',
+        name: '世界地圖',
+        iconPath: '/assets/ui/feature-world-map.png',
+        route: '/subpkg-world-map/pages/index/index',
         iconFailed: false,
       },
     ],

@@ -25,6 +25,7 @@ export class WorldChart {
   private readonly image: WechatMiniprogram.Image
   private imageLoaded = false
   private points: IndexedPoint[] = []
+  private names = new Map<string, string>()
   private selected: Point | undefined
   private markers: MapMarker[] = []
   private camera
@@ -83,8 +84,9 @@ export class WorldChart {
 
   setPlaces(places: readonly RuntimeMapPlace[]): void {
     this.markers = []
-    this.points = places.flatMap(({ id, positions }) =>
-      positions.map((point) => ({ ...point, id })),
+    this.names = new Map(places.map(({ id, name }) => [id, name]))
+    this.points = places.flatMap(({ id, positions, chartPositions }) =>
+      (chartPositions ?? positions).map(({ x, y }) => ({ x, y, id })),
     )
     this.flush()
   }
@@ -173,10 +175,51 @@ export class WorldChart {
       context.fillStyle = '#f5efe0'
       context.fillText(String(marker.ids.length), marker.x, marker.y)
     }
+    if (this.zoomLevel >= 8) this.drawLabels()
     if (this.selected) {
       const point = mapToScreen(this.selected, camera)
       this.circle(point, 10, '#f5efe0', '#26332f')
       this.circle(point, 4, '#76501a', '#76501a')
+    }
+  }
+
+  private drawLabels(): void {
+    const { context, markers, size } = this
+    const labels: Array<{ left: number; right: number; y: number }> = []
+    context.textAlign = 'left'
+    context.font = '600 12px sans-serif'
+    context.lineJoin = 'round'
+    context.lineWidth = 3
+    context.strokeStyle = '#26332f'
+    context.fillStyle = '#f5efe0'
+    for (const marker of markers) {
+      if (marker.ids.length !== 1 || labels.length >= 18) continue
+      const name = this.names.get(marker.ids[0])
+      if (!name) continue
+      const width = context.measureText(name).width
+      const left = marker.x + width + 12 < size.width ? marker.x + 12 : marker.x - width - 12
+      const right = left + width
+      const { y } = marker
+      if (left < 2 || y < 8 || y > size.height - 8) continue
+      if (
+        markers.some(
+          (other) =>
+            other !== marker &&
+            Math.abs(other.y - y) < 15 &&
+            other.x > left - 14 &&
+            other.x < right + 14,
+        )
+      )
+        continue
+      if (
+        labels.some(
+          (label) => Math.abs(label.y - y) < 15 && left < label.right + 6 && right > label.left - 6,
+        )
+      )
+        continue
+      context.strokeText(name, left, y)
+      context.fillText(name, left, y)
+      labels.push({ left, right, y })
     }
   }
 

@@ -222,6 +222,28 @@
       }
     },
     {
+      "id": "feature-world-map",
+      "output": "feature-world-map.png",
+      "group": "feature",
+      "mimeType": "image/png",
+      "width": 96,
+      "height": 96,
+      "byteSize": 2666,
+      "sha256": "d5ba75dd9714b62f399617d00f0fd239b03c75f43439ec881fa6c50ef3f86c60",
+      "sourceTransparentBounds": {
+        "left": 16,
+        "top": 19,
+        "width": 288,
+        "height": 281
+      },
+      "outputTransparentBounds": {
+        "left": 4,
+        "top": 5,
+        "width": 88,
+        "height": 85
+      }
+    },
+    {
       "id": "fleet-share-map",
       "output": "fleet-share-map.jpg",
       "group": "banner",
@@ -786,8 +808,8 @@
   ],
   "groupBytes": {
     "banner": 181503,
-    "feature": 15812,
+    "feature": 18478,
     "original-ui": 53836
   },
-  "totalBytes": 251151
+  "totalBytes": 253817
 }

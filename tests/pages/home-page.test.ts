@@ -112,7 +112,7 @@ describe('首頁功能入口', () => {
     expect(wxStub.navigateTo).toHaveBeenCalledWith({ url: '/subpkg-fleet/pages/index/index' })
   })
 
-  it('顯示六個主要模組並將資料錯誤回報降級為次級入口', () => {
+  it('顯示七個同款主要模組並將資料錯誤回報留在次級入口', () => {
     expect(homePage.data.modules.map((module) => module.id)).toEqual([
       'officer-catalog',
       'battle-fleet',
@@ -120,7 +120,7 @@ describe('首頁功能入口', () => {
       'trade-goods',
       'major-events',
       'coupon-redemption',
-      'error-report',
+      'world-map',
     ])
     expect(homePage.data.modules).toHaveLength(7)
     expect(homePage.data.modules[3]).toMatchObject({
@@ -150,12 +150,14 @@ describe('首頁功能入口', () => {
       iconFailed: false,
       route: '/subpkg-coupon/pages/redemption/index',
     })
-    expect(homePage.data.modules[homePage.data.modules.length - 1]).toMatchObject({
-      name: '資料錯誤回報',
-      route: '/pages/officer-editor/index',
-      iconPath: '/assets/ui/feature-data-maintenance.png',
+    expect(homePage.data.modules[6]).toMatchObject({
+      id: 'world-map',
+      name: '世界地圖',
+      route: '/subpkg-world-map/pages/index/index',
+      iconPath: '/assets/ui/feature-world-map.png',
     })
-    expect(homeWxml).toContain('index < 6')
+    expect(homeWxml).toContain('id="home-{{item.id}}"')
+    expect(homeWxml).not.toContain('home-map-entry')
     expect(homeWxml).toContain('supportEntries')
     expect(homeWxss).toMatch(/width:\s*33\.333333%/)
   })

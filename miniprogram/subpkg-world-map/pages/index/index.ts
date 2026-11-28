@@ -1,25 +1,24 @@
 import { WorldChart } from '../../chart'
+import {
+  describeMapPlace,
+  getWorldMapLayer,
+  presentWorldMapDetail,
+  selectWorldMapPosition,
+  type WorldMapDetailView,
+} from '../../detail-presenter'
 import { MAP_LAYERS, type MapLayer, type RuntimeMapPlace } from '../../map-data'
-import { MAX_ZOOM, unprojectMapCoordinate, type Point } from '../../viewport'
+import { getTradeThumbnail } from '../../trade-thumbnails'
+import { MAX_ZOOM, type Point } from '../../viewport'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const places = require('../../generated/places') as RuntimeMapPlace[]
 const placesById = new Map(places.map((place) => [place.id, place]))
-const layerLabels = new Map(MAP_LAYERS.map(({ id, label }) => [id, label]))
 const MATCH_LIMIT = 40
 const MAP_PATH = '#world-chart'
 
 type Touch = WechatMiniprogram.TouchDetail | WechatMiniprogram.TouchCanvasDetail
 type TouchEvent = WechatMiniprogram.Touch<Record<string, never>, Touch>
 type PointChoice = { id: string; name: string; caption: string }
-type PlaceDetails = {
-  title: string
-  caption: string
-  coordinates: string
-  languages: string
-  belief: string
-  goods: NonNullable<RuntimeMapPlace['goods']>
-}
 
 interface Gesture {
   points: Point[]
@@ -34,29 +33,12 @@ interface ChartState {
   gesture?: Gesture
 }
 
-function describe(place: RuntimeMapPlace): string {
-  return [place.method ?? layerLabels.get(place.layer), place.region ?? place.category]
-    .filter(Boolean)
-    .join(' · ')
-}
-
 function choices(result: readonly RuntimeMapPlace[]): PointChoice[] {
-  return result.map((place) => ({ id: place.id, name: place.name, caption: describe(place) }))
-}
-
-function getDetails(place: RuntimeMapPlace, point: Point): PlaceDetails {
-  const { latitude, longitude } = unprojectMapCoordinate(point)
-  const lat = `${latitude >= 0 ? '北緯' : '南緯'} ${Math.abs(latitude).toFixed(2)}°`
-  const lon = `${longitude >= 0 ? '東經' : '西經'} ${Math.abs(longitude).toFixed(2)}°`
-  const rank = place.rank ? ` · ${place.rank} 級` : ''
-  return {
-    title: place.name,
-    caption: describe(place) + rank,
-    coordinates: `${lat} · ${lon}`,
-    languages: place.languages?.join('、') ?? '',
-    belief: place.belief ?? '',
-    goods: place.goods ?? [],
-  }
+  return result.map((place) => ({
+    id: place.id,
+    name: place.name,
+    caption: describeMapPlace(place),
+  }))
 }
 
 function center(points: Point[]): Point {
@@ -66,12 +48,6 @@ function center(points: Point[]): Point {
 
 function distance(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y)
-}
-
-function nearestPosition(place: RuntimeMapPlace, point: Point): Point {
-  return place.positions.reduce((nearest, candidate) =>
-    distance(candidate, point) < distance(nearest, point) ? candidate : nearest,
-  )
 }
 
 Page({
@@ -85,8 +61,7 @@ Page({
     matches: [] as PointChoice[],
     matchCount: 0,
     nearby: [] as PointChoice[],
-    detail: null as PlaceDetails | null,
-    showGoods: false,
+    detail: null as WorldMapDetailView | null,
   },
 
   state: undefined as ChartState | undefined,
@@ -138,7 +113,7 @@ Page({
           }
           const chart = new WorldChart(target.node, size)
           state.chart = chart
-          chart.setPlaces(places.filter((place) => place.layer === this.data.layer))
+          chart.setPlaces(getWorldMapLayer(places, this.data.layer))
           chart.load(
             () => {
               if (this.state === state)
@@ -156,10 +131,10 @@ Page({
 
   onLayerTap(event: WechatMiniprogram.BaseEvent) {
     const layer = event.currentTarget.dataset.layer as MapLayer
-    if (!layerLabels.has(layer)) return
+    if (!MAP_LAYERS.some(({ id }) => id === layer)) return
     this.closePanels()
     this.setData({ layer })
-    this.state?.chart?.setPlaces(places.filter((place) => place.layer === layer))
+    this.state?.chart?.setPlaces(getWorldMapLayer(places, layer))
   },
 
   onSearch(event: WechatMiniprogram.Input) {
@@ -184,17 +159,17 @@ Page({
     const chart = this.state?.chart
     if (!place || !chart) return
     wx.hideKeyboard()
-    const point =
-      this.nearbyOrigin && this.data.nearby.length
-        ? nearestPosition(place, this.nearbyOrigin)
-        : place.positions[0]
+    const position = selectWorldMapPosition(
+      place,
+      this.data.nearby.length ? this.nearbyOrigin : undefined,
+    )
     if (this.data.layer !== place.layer) {
       this.setData({ layer: place.layer })
-      chart.setPlaces(places.filter((candidate) => candidate.layer === place.layer))
+      chart.setPlaces(getWorldMapLayer(places, place.layer))
     }
-    chart.locate(point, Math.max(12, chart.zoomLevel))
+    chart.locate(position.chart, Math.max(12, chart.zoomLevel))
     this.updateZoom()
-    this.showDetails(place, point)
+    this.showDetails(place, position)
   },
 
   closePanels() {
@@ -206,14 +181,13 @@ Page({
         matchCount: 0,
         nearby: [],
         detail: null,
-        showGoods: false,
       },
       () => this.measureViewport(),
     )
     this.state?.chart?.setSelected()
   },
 
-  showDetails(place: RuntimeMapPlace, point: Point) {
+  showDetails(place: RuntimeMapPlace, position: ReturnType<typeof selectWorldMapPosition>) {
     this.nearbyOrigin = undefined
     this.setData(
       {
@@ -221,16 +195,17 @@ Page({
         matches: [],
         matchCount: 0,
         nearby: [],
-        detail: getDetails(place, point),
-        showGoods: false,
+        detail: presentWorldMapDetail(place, position, getTradeThumbnail),
       },
       () => this.measureViewport(),
     )
-    this.state?.chart?.setSelected(point)
+    this.state?.chart?.setSelected(position.chart)
   },
 
-  toggleGoods() {
-    this.setData({ showGoods: !this.data.showGoods }, () => this.measureViewport())
+  onTradeTap(event: WechatMiniprogram.BaseEvent) {
+    const tradeId = event.currentTarget.dataset.tradeId
+    if (typeof tradeId !== 'string' || !/^trade[A-Za-z0-9]+$/.test(tradeId)) return
+    wx.navigateTo({ url: `/subpkg-trade/pages/detail/index?id=${encodeURIComponent(tradeId)}` })
   },
 
   updateZoom() {
@@ -332,7 +307,7 @@ Page({
       return place ? [place] : []
     })
     if (members.length === 1) {
-      this.showDetails(members[0], nearestPosition(members[0], coordinate))
+      this.showDetails(members[0], selectWorldMapPosition(members[0], coordinate))
     } else if (chart.zoomLevel < MAX_ZOOM - 0.01) {
       chart.locate(coordinate, Math.min(MAX_ZOOM, Math.max(4, chart.zoomLevel * 2.5)))
       this.updateZoom()

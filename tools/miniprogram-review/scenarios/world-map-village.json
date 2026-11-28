@@ -1,0 +1,35 @@
+{
+  "name": "世界地圖村莊發現物與換貨",
+  "entry": "/subpkg-world-map/pages/index/index",
+  "watchPaths": ["miniprogram/subpkg-world-map/", "data/master/world-map.json"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": "#map-reset" },
+    { "action": "input", "selector": ".map-search__input", "value": "百慕達島的村莊" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "百慕達島的村莊" }
+    },
+    { "action": "tap", "selector": ".map-results__row" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "百慕達島的村莊" }
+    },
+    { "action": "assertText", "selector": ".map-sheet__findings", "contains": "中美貘" },
+    { "action": "assertText", "selector": ".map-sheet__barters", "contains": "換貨（4）" },
+    { "action": "assertText", "selector": ".map-trade--barter", "contains": "硬毛鼠" },
+    { "action": "assertVisible", "selector": ".map-trade--barter .map-trade__sprite" },
+    { "action": "screenshot", "name": "village-findings-and-barter" },
+    { "action": "tap", "selector": ".map-trade--barter" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "page", "path": "/subpkg-trade/pages/detail/index" }
+    },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".trade-detail__title", "equals": "硬毛鼠" }
+    },
+    { "action": "screenshot", "name": "village-trade-details" }
+  ]
+}
