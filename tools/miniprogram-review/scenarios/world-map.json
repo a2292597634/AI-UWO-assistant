@@ -4,7 +4,8 @@
   "watchPaths": [
     "miniprogram/subpkg-world-map/",
     "miniprogram/app.json",
-    "data/master/world-map.json"
+    "data/master/world-map.json",
+    "data/master/world-map-calibration.json"
   ],
   "state": "normal",
   "devices": ["iphone-small", "iphone-standard", "android-large"],
@@ -21,39 +22,30 @@
       "action": "waitUntil",
       "condition": { "kind": "text", "selector": ".map__zoom", "equals": "1×" }
     },
-    { "action": "input", "selector": ".map-search__input", "value": "里斯本" },
+    { "action": "input", "selector": ".map-search__input", "value": "威尼斯" },
     {
       "action": "waitUntil",
-      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "里斯本" }
+      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "威尼斯" }
     },
     { "action": "tap", "selector": ".map-results__row" },
     {
       "action": "waitUntil",
-      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "里斯本" }
+      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "威尼斯" }
     },
     { "action": "assertText", "selector": ".map-sheet__row", "contains": "北緯" },
+    { "action": "assertText", "selector": ".map-sheet__source", "contains": "地理對照位置" },
+    { "action": "assertText", "selector": ".map-trade--port", "contains": "雞肉" },
+    { "action": "assertVisible", "selector": ".map-trade--port .map-trade__sprite" },
     { "action": "screenshot", "name": "port-details" },
-    { "action": "tap", "selector": ".map-sheet__goods-toggle" },
-    { "action": "waitFor", "selector": ".map-sheet__good" },
-    { "action": "tap", "selector": ".map-sheet__close" },
-    { "action": "waitFor", "selector": "#map-reset" },
-    { "action": "input", "selector": ".map-search__input", "value": "華嚴瀑布" },
+    { "action": "tap", "selector": ".map-trade--port" },
     {
       "action": "waitUntil",
-      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "華嚴瀑布" }
+      "condition": { "kind": "page", "path": "/subpkg-trade/pages/detail/index" }
     },
-    { "action": "tap", "selector": ".map-results__row" },
     {
       "action": "waitUntil",
-      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "華嚴瀑布" }
+      "condition": { "kind": "text", "selector": ".trade-detail__title", "equals": "雞肉" }
     },
-    { "action": "screenshot", "name": "discovery-details" },
-    { "action": "tap", "selector": ".map-sheet__close" },
-    { "action": "waitFor", "selector": "#map-reset" },
-    { "action": "tap", "selector": "#map-reset" },
-    {
-      "action": "waitUntil",
-      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "1×" }
-    }
+    { "action": "screenshot", "name": "port-trade-details" }
   ]
 }

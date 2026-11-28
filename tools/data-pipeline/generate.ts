@@ -47,6 +47,17 @@ import { buildMajorEventReference } from './build-major-event-runtime-data'
 import { buildGameServerOutputs } from './build-game-servers'
 import { writeReminderCloudData } from './build-major-event-reminder-cloud-data'
 import { buildWorldMapPlaces } from './build-world-map'
+import {
+  buildWorldMapIconLocations,
+  MAP_ICON_ATLAS_COLUMNS,
+  MAP_ICON_ATLAS_ROWS,
+} from './build-world-map-icon-locations'
+import { createWorldMapCalibrator, type WorldMapCalibration } from './world-map-calibration'
+import {
+  createWorldMapLandCheck,
+  preserveWorldMapSurface,
+  type WorldMapLandMask,
+} from './world-map-land-mask'
 import type { WorldMapData } from '../../miniprogram/subpkg-world-map/map-data'
 
 const CANONICAL_DIR = 'data/master'
@@ -96,13 +107,41 @@ export const buildGeneratedOutputs = (stageRoot: string): void => {
   const tradeDataset = readJson<CanonicalTradeDataset>(`${CANONICAL_DIR}/trade-goods.json`)
   const worldMapData = readJson<WorldMapData>(`${CANONICAL_DIR}/world-map.json`)
   const worldMapOutput = join(stageRoot, 'miniprogram/subpkg-world-map/generated/places.js')
+  const calibration = readJson<WorldMapCalibration>(`${CANONICAL_DIR}/world-map-calibration.json`)
+  const calibrateMapPoint = createWorldMapCalibrator(worldMapData.places, calibration)
+  const isOnLand = createWorldMapLandCheck(
+    readJson<WorldMapLandMask>(`${CANONICAL_DIR}/ui-assets/world-map-land-mask.json`),
+  )
   const worldMapPlaces = buildWorldMapPlaces(
     worldMapData,
     tradeDataset.ports,
     tradeDataset.tradeGoods,
-  )
+  ).map((place) => ({
+    ...place,
+    chartPositions: place.positions.map((point) => {
+      const { x, y, precision } = preserveWorldMapSurface(
+        place.layer,
+        point,
+        calibrateMapPoint(point),
+        isOnLand,
+      )
+      return { x: Number(x.toFixed(3)), y: Number(y.toFixed(3)), precision }
+    }),
+  }))
   mkdirSync(dirname(worldMapOutput), { recursive: true })
   writeFileSync(worldMapOutput, `module.exports = ${JSON.stringify(worldMapPlaces)}\n`)
+  const worldMapIconImages = readJson<string[]>(
+    `${CANONICAL_DIR}/ui-assets/world-map-trade-atlas.json`,
+  )
+  const worldMapIcons = {
+    columns: MAP_ICON_ATLAS_COLUMNS,
+    rows: MAP_ICON_ATLAS_ROWS,
+    cells: buildWorldMapIconLocations(tradeDataset.tradeGoods, worldMapIconImages),
+  }
+  writeFileSync(
+    join(dirname(worldMapOutput), 'trade-icons.js'),
+    `module.exports = ${JSON.stringify(worldMapIcons)}\n`,
+  )
   const majorEventsDataset = readJson<CanonicalMajorEventsDataset>(
     `${CANONICAL_DIR}/major-events.json`,
   )

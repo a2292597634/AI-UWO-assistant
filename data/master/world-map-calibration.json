@@ -1,0 +1,1305 @@
+{
+  "version": 1,
+  "source": "Natural Earth 1:10m Populated Places v5.1.2（公有領域）、NGA World Port Index（經美國能源部 NETL 提供）、GeoNames（CC BY 4.0）與 UNESCO 世界遺產中心。各錨點附資料集識別碼或記錄連結。",
+  "anchors": [
+    {
+      "placeId": "town8301",
+      "longitude": 23.731375,
+      "latitude": 37.985272,
+      "reference": "Natural Earth 1159151545 · Athens"
+    },
+    {
+      "placeId": "town1301",
+      "longitude": -9.146812,
+      "latitude": 38.724669,
+      "reference": "Natural Earth 1159151273 · Lisbon"
+    },
+    {
+      "placeId": "town2205",
+      "longitude": -8.621947,
+      "latitude": 41.151952,
+      "reference": "Natural Earth 1159146429 · Porto"
+    },
+    {
+      "placeId": "town1102",
+      "longitude": -7.933273,
+      "latitude": 37.01708,
+      "reference": "Natural Earth 1159136133 · Faro"
+    },
+    {
+      "placeId": "town1302",
+      "longitude": -5.980007,
+      "latitude": 37.405015,
+      "reference": "Natural Earth 1159150601 · Seville"
+    },
+    {
+      "placeId": "town1101",
+      "longitude": -7.618313,
+      "latitude": 33.601922,
+      "reference": "Natural Earth 1159151521 · Casablanca"
+    },
+    {
+      "placeId": "town1204",
+      "longitude": -5.306999,
+      "latitude": 35.888984,
+      "reference": "Natural Earth 1159146357 · Ceuta"
+    },
+    {
+      "placeId": "town5302",
+      "longitude": 5.373064,
+      "latitude": 43.291925,
+      "reference": "Natural Earth 1159150037 · Marseille"
+    },
+    {
+      "placeId": "town5101",
+      "longitude": 3.869986,
+      "latitude": 43.610399,
+      "reference": "Natural Earth 1159141979 · Montpellier"
+    },
+    {
+      "placeId": "town5303",
+      "longitude": 8.930039,
+      "latitude": 44.409988,
+      "reference": "Natural Earth 1159148297 · Genoa"
+    },
+    {
+      "placeId": "town1202",
+      "longitude": 2.181424,
+      "latitude": 41.385245,
+      "reference": "Natural Earth 1159151261 · Barcelona"
+    },
+    {
+      "placeId": "town5104",
+      "longitude": 8.75,
+      "latitude": 42.566667,
+      "reference": "NGA World Port Index 39110 · Calvi"
+    },
+    {
+      "placeId": "town1103",
+      "longitude": 2.654246,
+      "latitude": 39.574263,
+      "reference": "Natural Earth 1159147957 · Palma"
+    },
+    {
+      "placeId": "town1203",
+      "longitude": -0.401958,
+      "latitude": 39.486963,
+      "reference": "Natural Earth 1159150791 · Valencia"
+    },
+    {
+      "placeId": "town5202",
+      "longitude": 10.400026,
+      "latitude": 43.72047,
+      "reference": "Natural Earth 1159139473 · Pisa"
+    },
+    {
+      "placeId": "town5301",
+      "longitude": 14.243066,
+      "latitude": 40.841971,
+      "reference": "Natural Earth 1159151313 · Naples"
+    },
+    {
+      "placeId": "town5102",
+      "longitude": 8.570009,
+      "latitude": 40.730006,
+      "reference": "Natural Earth 1159146871 · Sassari"
+    },
+    {
+      "placeId": "town5103",
+      "longitude": 9.103981,
+      "latitude": 39.222398,
+      "reference": "Natural Earth 1159139469 · Cagliari"
+    },
+    {
+      "placeId": "town1205",
+      "longitude": 3.048607,
+      "latitude": 36.765011,
+      "reference": "Natural Earth 1159151471 · Algiers"
+    },
+    {
+      "placeId": "town6301",
+      "longitude": 12.334999,
+      "latitude": 45.438659,
+      "reference": "Natural Earth 1159150277 · Venice"
+    },
+    {
+      "placeId": "town8302",
+      "longitude": 28.974277,
+      "latitude": 41.017602,
+      "reference": "Natural Earth 1159151579 · Istanbul"
+    },
+    {
+      "placeId": "town5201",
+      "longitude": 10.179678,
+      "latitude": 36.802778,
+      "reference": "Natural Earth 1159150537 · Tunis"
+    },
+    {
+      "placeId": "town3301",
+      "longitude": -0.118668,
+      "latitude": 51.501941,
+      "reference": "Natural Earth 1159151577 · London"
+    },
+    {
+      "placeId": "town3302",
+      "longitude": 4.914694,
+      "latitude": 52.351914,
+      "reference": "Natural Earth 1159151519 · Amsterdam"
+    },
+    {
+      "placeId": "town2201",
+      "longitude": -1.590017,
+      "latitude": 47.210386,
+      "reference": "Natural Earth 1159141951 · Nantes"
+    },
+    {
+      "placeId": "town2202",
+      "longitude": -6.25698,
+      "latitude": 53.346731,
+      "reference": "Natural Earth 1159151309 · Dublin"
+    },
+    {
+      "placeId": "town3303",
+      "longitude": 9.998053,
+      "latitude": 53.551971,
+      "reference": "Natural Earth 1159151353 · Hamburg"
+    },
+    {
+      "placeId": "town6202",
+      "longitude": 15.28996,
+      "latitude": 37.070359,
+      "reference": "Natural Earth 1159139537 · Siracusa"
+    },
+    {
+      "placeId": "town7301",
+      "longitude": 29.94805,
+      "latitude": 31.201965,
+      "reference": "Natural Earth 1159151349 · Alexandria"
+    },
+    {
+      "placeId": "town7203",
+      "longitude": 25.130497,
+      "latitude": 35.325013,
+      "reference": "Natural Earth 1159148617 · Iraklio"
+    },
+    {
+      "placeId": "town7101",
+      "longitude": 33.366635,
+      "latitude": 35.166677,
+      "reference": "Natural Earth 1159151209 · Nicosia"
+    },
+    {
+      "placeId": "town7104",
+      "longitude": 34.75224,
+      "latitude": 32.05043,
+      "reference": "GeoNames · Jaffa · https://www.geonames.org/293253/"
+    },
+    {
+      "placeId": "town3101",
+      "longitude": 4.783333,
+      "latitude": 52.966667,
+      "reference": "NGA World Port Index 31020 · Den Helder"
+    },
+    {
+      "placeId": "town3201",
+      "longitude": 8.800021,
+      "latitude": 53.080002,
+      "reference": "Natural Earth 1159146951 · Bremen"
+    },
+    {
+      "placeId": "town6201",
+      "longitude": 18.091392,
+      "latitude": 42.660948,
+      "reference": "Natural Earth 1159140359 · Dubrovnik"
+    },
+    {
+      "placeId": "town10105",
+      "longitude": -66.129979,
+      "latitude": 18.440023,
+      "reference": "Natural Earth 1159151181 · San Juan"
+    },
+    {
+      "placeId": "town10201",
+      "longitude": -69.929742,
+      "latitude": 18.470745,
+      "reference": "Natural Earth 1159151401 · Santo Domingo"
+    },
+    {
+      "placeId": "town4302",
+      "longitude": 12.56154,
+      "latitude": 55.68051,
+      "reference": "Natural Earth 1159151437 · København"
+    },
+    {
+      "placeId": "town4203",
+      "longitude": 10.748033,
+      "latitude": 59.918636,
+      "reference": "Natural Earth 1159151281 · Oslo"
+    },
+    {
+      "placeId": "town3203",
+      "longitude": -3.219091,
+      "latitude": 55.948328,
+      "reference": "Natural Earth 1159146365 · Edinburgh"
+    },
+    {
+      "placeId": "town2203",
+      "longitude": -0.596959,
+      "latitude": 44.851959,
+      "reference": "Natural Earth 1159150035 · Bordeaux"
+    },
+    {
+      "placeId": "town2206",
+      "longitude": -4.159989,
+      "latitude": 50.385386,
+      "reference": "Natural Earth 1159135121 · Plymouth"
+    },
+    {
+      "placeId": "town2204",
+      "longitude": -2.583315,
+      "latitude": 51.449998,
+      "reference": "Natural Earth 1159127297 · Bristol"
+    },
+    {
+      "placeId": "town3204",
+      "longitude": 1.833314,
+      "latitude": 50.950416,
+      "reference": "Natural Earth 1159142047 · Calais"
+    },
+    {
+      "placeId": "town4202",
+      "longitude": 18.0663,
+      "latitude": 59.324127,
+      "reference": "Natural Earth 1159151507 · Stockholm"
+    },
+    {
+      "placeId": "town12301",
+      "longitude": -3.016596,
+      "latitude": 16.766585,
+      "reference": "Natural Earth 1159150921 · Timbuktu"
+    },
+    {
+      "placeId": "town3103",
+      "longitude": 6.580001,
+      "latitude": 53.220407,
+      "reference": "Natural Earth 1159136311 · Groningen"
+    },
+    {
+      "placeId": "town3202",
+      "longitude": 4.413071,
+      "latitude": 51.222319,
+      "reference": "Natural Earth 1159147705 · Antwerpen"
+    },
+    {
+      "placeId": "town9201",
+      "longitude": -96.159981,
+      "latitude": 19.177342,
+      "reference": "Natural Earth 1159150763 · Veracruz"
+    },
+    {
+      "placeId": "town9202",
+      "longitude": -85.960009,
+      "latitude": 15.910358,
+      "reference": "Natural Earth 1159134863 · Trujillo"
+    },
+    {
+      "placeId": "town9203",
+      "longitude": -79.65693,
+      "latitude": 9.55303,
+      "reference": "GeoNames · Portobelo · https://www.geonames.org/3702577/"
+    },
+    {
+      "placeId": "town4301",
+      "longitude": 30.314074,
+      "latitude": 59.94096,
+      "reference": "Natural Earth 1159151291 · St.  Petersburg"
+    },
+    {
+      "placeId": "town13204",
+      "longitude": 18.433042,
+      "latitude": -33.918065,
+      "reference": "Natural Earth 1159151583 · Cape Town"
+    },
+    {
+      "placeId": "town13105",
+      "longitude": 13.407233,
+      "latitude": -12.578264,
+      "reference": "Natural Earth 1159150331 · Benguela"
+    },
+    {
+      "placeId": "town12202",
+      "longitude": -1.35093,
+      "latitude": 5.0847,
+      "reference": "GeoNames · Elmina · https://www.geonames.org/2301190/"
+    },
+    {
+      "placeId": "town12201",
+      "longitude": -4.020207,
+      "latitude": 5.323126,
+      "reference": "Natural Earth 1159151439 · Abidjan"
+    },
+    {
+      "placeId": "town3102",
+      "longitude": 1.300013,
+      "latitude": 51.133712,
+      "reference": "Natural Earth 1159135701 · Dover"
+    },
+    {
+      "placeId": "town15301",
+      "longitude": 75.768044,
+      "latitude": 11.252382,
+      "reference": "Natural Earth 1159150463 · Kozhikode"
+    },
+    {
+      "placeId": "town15201",
+      "longitude": 73.818001,
+      "latitude": 15.491997,
+      "reference": "Natural Earth 1159122667 · Panaji"
+    },
+    {
+      "placeId": "town14201",
+      "longitude": 58.378311,
+      "latitude": 23.585179,
+      "reference": "Natural Earth 1159150717 · Muscat"
+    },
+    {
+      "placeId": "town14203",
+      "longitude": 45.00949,
+      "latitude": 12.779723,
+      "reference": "Natural Earth 1159150595 · Aden"
+    },
+    {
+      "placeId": "town14206",
+      "longitude": 39.217252,
+      "latitude": 21.518835,
+      "reference": "Natural Earth 1159151277 · Jeddah"
+    },
+    {
+      "placeId": "town22301",
+      "longitude": 139.749462,
+      "latitude": 35.686963,
+      "reference": "Natural Earth 1159151609 · Tokyo"
+    },
+    {
+      "placeId": "town22101",
+      "longitude": 135.433333,
+      "latitude": 34.55,
+      "reference": "NGA World Port Index 61547 · Sakai-Senboku"
+    },
+    {
+      "placeId": "town22201",
+      "longitude": 129.885033,
+      "latitude": 32.764988,
+      "reference": "Natural Earth 1159150893 · Nagasaki"
+    },
+    {
+      "placeId": "town11104",
+      "longitude": -58.432513,
+      "latitude": -34.610715,
+      "reference": "Natural Earth 1159151559 · Buenos Aires"
+    },
+    {
+      "placeId": "town15101",
+      "longitude": 76.22197,
+      "latitude": 10.016953,
+      "reference": "Natural Earth 1159150009 · Kochi"
+    },
+    {
+      "placeId": "town19202",
+      "longitude": 118.578041,
+      "latitude": 24.901962,
+      "reference": "Natural Earth 1159149791 · Quanzhou"
+    },
+    {
+      "placeId": "town17201",
+      "longitude": 106.827492,
+      "latitude": -6.172472,
+      "reference": "Natural Earth 1159151599 · Jakarta"
+    },
+    {
+      "placeId": "town17301",
+      "longitude": 102.246461,
+      "latitude": 2.206414,
+      "reference": "Natural Earth 1159148319 · Malacca"
+    },
+    {
+      "placeId": "town11301",
+      "longitude": -77.052008,
+      "latitude": -12.046067,
+      "reference": "Natural Earth 1159151511 · Lima"
+    },
+    {
+      "placeId": "town11107",
+      "longitude": -80.459983,
+      "latitude": -3.570029,
+      "reference": "Natural Earth 1159147907 · Tumbes"
+    },
+    {
+      "placeId": "town11106",
+      "longitude": -70.329955,
+      "latitude": -27.371779,
+      "reference": "Natural Earth 1159150049 · Copiapó"
+    },
+    {
+      "placeId": "town17105",
+      "longitude": 104.748084,
+      "latitude": -2.978093,
+      "reference": "Natural Earth 1159150839 · Palembang"
+    },
+    {
+      "placeId": "town17106",
+      "longitude": 106.150048,
+      "latitude": -2.080042,
+      "reference": "Natural Earth 1159148389 · Pangkalpinang"
+    },
+    {
+      "placeId": "town18109",
+      "longitude": 110.329999,
+      "latitude": 1.52997,
+      "reference": "Natural Earth 1159149803 · Kuching"
+    },
+    {
+      "placeId": "town19301",
+      "longitude": 116.394201,
+      "latitude": 39.90172,
+      "reference": "Natural Earth 1159151595 · Beijing"
+    },
+    {
+      "placeId": "town14102",
+      "longitude": 39.450036,
+      "latitude": 15.610118,
+      "reference": "Natural Earth 1159140529 · Massawa"
+    },
+    {
+      "placeId": "town14101",
+      "longitude": 54.085215,
+      "latitude": 17.025458,
+      "reference": "Natural Earth 1159146587 · Salalah"
+    },
+    {
+      "placeId": "town13104",
+      "longitude": 45.364732,
+      "latitude": 2.068627,
+      "reference": "Natural Earth 1159150715 · Mogadishu"
+    },
+    {
+      "placeId": "town21301",
+      "longitude": 126.997785,
+      "latitude": 37.568295,
+      "reference": "Natural Earth 1159151523 · Seoul"
+    },
+    {
+      "placeId": "town21102",
+      "longitude": 129.371524,
+      "latitude": 36.020862,
+      "reference": "Natural Earth 1159146595 · Pohang"
+    },
+    {
+      "placeId": "town21201",
+      "longitude": 129.08477,
+      "latitude": 35.20159,
+      "reference": "GeoNames · Dongnae · https://www.geonames.org/1834203/"
+    },
+    {
+      "placeId": "town19302",
+      "longitude": 108.89305,
+      "latitude": 34.276971,
+      "reference": "Natural Earth 1159151363 · Xian"
+    },
+    {
+      "placeId": "town18301",
+      "longitude": 121.4429,
+      "latitude": 25.17196,
+      "reference": "GeoNames · Danshui · https://www.geonames.org/1667982/"
+    },
+    {
+      "placeId": "town8106",
+      "longitude": 39.719994,
+      "latitude": 40.979991,
+      "reference": "Natural Earth 1159146377 · Trabzon"
+    },
+    {
+      "placeId": "town4102",
+      "longitude": 24.099965,
+      "latitude": 56.950024,
+      "reference": "Natural Earth 1159150811 · Riga"
+    },
+    {
+      "placeId": "town8103",
+      "longitude": 36.488098,
+      "latitude": 45.368508,
+      "reference": "Natural Earth 1159134151 · Kerch"
+    },
+    {
+      "placeId": "town7202",
+      "longitude": 31.248022,
+      "latitude": 30.051906,
+      "reference": "Natural Earth 1159151603 · Cairo"
+    },
+    {
+      "placeId": "town12108",
+      "longitude": -16.46267,
+      "latitude": 20.59744,
+      "reference": "GeoNames · Île d’Arguin · https://www.geonames.org/2381426/",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town9102",
+      "longitude": -77.350044,
+      "latitude": 25.08339,
+      "reference": "Natural Earth 1159151207 · Nassau"
+    },
+    {
+      "placeId": "town9108",
+      "longitude": -70.80365,
+      "latitude": 42.24177,
+      "reference": "GeoNames · Cohasset · https://www.geonames.org/4933533/"
+    },
+    {
+      "placeId": "town10106",
+      "longitude": -82.366128,
+      "latitude": 23.133905,
+      "reference": "Natural Earth 1159151347 · Havana"
+    },
+    {
+      "placeId": "town8104",
+      "longitude": 38.919991,
+      "latitude": 47.229997,
+      "reference": "Natural Earth 1159128655 · Taganrog"
+    },
+    {
+      "placeId": "town4201",
+      "longitude": 10.669984,
+      "latitude": 53.870393,
+      "reference": "Natural Earth 1159140599 · Lübeck"
+    },
+    {
+      "placeId": "town10110",
+      "longitude": -63.849989,
+      "latitude": 10.960376,
+      "reference": "Natural Earth 1159133691 · Porlamar"
+    },
+    {
+      "placeId": "town13203",
+      "longitude": 34.73658,
+      "latitude": -20.15572,
+      "reference": "GeoNames · Sofala · https://www.geonames.org/1029535/"
+    },
+    {
+      "placeId": "town13205",
+      "longitude": 39.200026,
+      "latitude": -6.16,
+      "reference": "Natural Earth 1159150789 · Zanzibar"
+    },
+    {
+      "placeId": "town11101",
+      "longitude": -43.212117,
+      "latitude": -22.907308,
+      "reference": "Natural Earth 1159151619 · Rio de Janeiro"
+    },
+    {
+      "placeId": "town14204",
+      "longitude": 47.811611,
+      "latitude": 30.51547,
+      "reference": "Natural Earth 1159150127 · Basra"
+    },
+    {
+      "placeId": "town15105",
+      "longitude": 88.369126,
+      "latitude": 22.569579,
+      "reference": "Natural Earth 1159151617 · Kolkata"
+    },
+    {
+      "placeId": "town9109",
+      "longitude": -79.534983,
+      "latitude": 8.969963,
+      "reference": "Natural Earth 1159150667 · Panama City"
+    },
+    {
+      "placeId": "town18105",
+      "longitude": 129.90346,
+      "latitude": -4.5262,
+      "reference": "GeoNames · Banda Neira · https://www.geonames.org/1650390/"
+    },
+    {
+      "placeId": "town19303",
+      "longitude": 106.593036,
+      "latitude": 29.566923,
+      "reference": "Natural Earth 1159151327 · Chongqing"
+    },
+    {
+      "placeId": "town18108",
+      "longitude": 128.200019,
+      "latitude": -3.716687,
+      "reference": "Natural Earth 1159149745 · Ambon"
+    },
+    {
+      "placeId": "town21103",
+      "longitude": 126.521931,
+      "latitude": 33.510137,
+      "reference": "Natural Earth 1159135293 · Jeju"
+    },
+    {
+      "placeId": "town19201",
+      "longitude": 113.544375,
+      "latitude": 22.189135,
+      "reference": "Natural Earth 1159149085 · Macau"
+    },
+    {
+      "placeId": "town18110",
+      "longitude": 120.16972,
+      "latitude": 22.99083,
+      "reference": "GeoNames · Anping · https://www.geonames.org/6589593/"
+    },
+    {
+      "placeId": "town19304",
+      "longitude": 120.168073,
+      "latitude": 30.25192,
+      "reference": "Natural Earth 1159151387 · Hangzhou"
+    },
+    {
+      "placeId": "town20107",
+      "longitude": 175.0393,
+      "latitude": -39.932626,
+      "reference": "Natural Earth 1159151663 · Whanganui"
+    },
+    {
+      "placeId": "town20101",
+      "longitude": 153.13293,
+      "latitude": -25.23755,
+      "reference": "GeoNames · K’gari (Fraser Island) · https://www.geonames.org/2166136/",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town17108",
+      "longitude": 105.848068,
+      "latitude": 21.035273,
+      "reference": "Natural Earth 1159151251 · Hanoi"
+    },
+    {
+      "placeId": "town22102",
+      "longitude": 127.672972,
+      "latitude": 26.207172,
+      "reference": "Natural Earth 1159149931 · Naha"
+    },
+    {
+      "placeId": "town13101",
+      "longitude": 31.066667,
+      "latitude": -29.866667,
+      "reference": "NGA World Port Index 46850 · Durban"
+    },
+    {
+      "placeId": "town18107",
+      "longitude": 114.933284,
+      "latitude": 4.883331,
+      "reference": "Natural Earth 1159151083 · Bandar Seri Begawan"
+    },
+    {
+      "placeId": "town10102",
+      "longitude": -68.872356,
+      "latitude": 12.11229,
+      "reference": "Natural Earth 1159146055 · Willemstad"
+    },
+    {
+      "placeId": "town10101",
+      "longitude": -71.661924,
+      "latitude": 10.731923,
+      "reference": "Natural Earth 1159151237 · Maracaibo"
+    },
+    {
+      "placeId": "town20111",
+      "longitude": 115.87351,
+      "latitude": -32.6298,
+      "reference": "GeoNames · Pinjarra · https://www.geonames.org/2063293/"
+    },
+    {
+      "placeId": "town13107",
+      "longitude": 36.889986,
+      "latitude": -17.880008,
+      "reference": "Natural Earth 1159149513 · Quelimane"
+    },
+    {
+      "placeId": "town11105",
+      "longitude": -68.310001,
+      "latitude": -54.790003,
+      "reference": "Natural Earth 1159148953 · Ushuaia"
+    },
+    {
+      "placeId": "town18102",
+      "longitude": 125.579456,
+      "latitude": -8.559388,
+      "reference": "Natural Earth 1159150577 · Dili"
+    },
+    {
+      "placeId": "town17103",
+      "longitude": 95.320011,
+      "latitude": 5.549983,
+      "reference": "Natural Earth 1159149763 · Banda Aceh"
+    },
+    {
+      "placeId": "town7103",
+      "longitude": 30.69803,
+      "latitude": 36.891928,
+      "reference": "Natural Earth 1159147717 · Antalya"
+    },
+    {
+      "placeId": "town15102",
+      "longitude": 70.990395,
+      "latitude": 20.719673,
+      "reference": "Natural Earth 1159132337 · Diu"
+    },
+    {
+      "placeId": "town11108",
+      "longitude": -34.908766,
+      "latitude": -8.060532,
+      "reference": "Natural Earth 1159151461 · Recife"
+    },
+    {
+      "placeId": "town13106",
+      "longitude": 15.852996,
+      "latitude": -21.939003,
+      "reference": "Natural Earth 1159116805 · Karibib"
+    },
+    {
+      "placeId": "town18103",
+      "longitude": 120.980271,
+      "latitude": 14.606105,
+      "reference": "Natural Earth 1159151525 · Manila"
+    },
+    {
+      "placeId": "town18111",
+      "longitude": 127.363016,
+      "latitude": 0.792961,
+      "reference": "Natural Earth 1159149743 · Ternate"
+    },
+    {
+      "placeId": "town18101",
+      "longitude": 125.62805,
+      "latitude": 7.111963,
+      "reference": "Natural Earth 1159150727 · Davao"
+    },
+    {
+      "placeId": "town15103",
+      "longitude": 81.179996,
+      "latitude": 16.200418,
+      "reference": "Natural Earth 1159141769 · Machilipatnam"
+    },
+    {
+      "placeId": "town13108",
+      "longitude": 39.522778,
+      "latitude": -8.957778,
+      "reference": "UNESCO 144-001 · Kilwa Kisiwani · https://whc.unesco.org/en/list/144/maps"
+    },
+    {
+      "placeId": "town7201",
+      "longitude": 35.507762,
+      "latitude": 33.873921,
+      "reference": "Natural Earth 1159150957 · Beirut"
+    },
+    {
+      "placeId": "town14202",
+      "longitude": 44.391923,
+      "latitude": 33.340594,
+      "reference": "Natural Earth 1159151547 · Baghdad"
+    },
+    {
+      "placeId": "town18104",
+      "longitude": 119.430082,
+      "latitude": -5.138013,
+      "reference": "Natural Earth 1159150843 · Makassar"
+    },
+    {
+      "placeId": "town8102",
+      "longitude": 30.708055,
+      "latitude": 46.491962,
+      "reference": "Natural Earth 1159149325 · Odessa"
+    },
+    {
+      "placeId": "town4103",
+      "longitude": 5.324522,
+      "latitude": 60.391002,
+      "reference": "Natural Earth 1159150643 · Bergen"
+    },
+    {
+      "placeId": "town10108",
+      "longitude": -75.516339,
+      "latitude": 10.401684,
+      "reference": "Natural Earth 1159150857 · Cartagena"
+    },
+    {
+      "placeId": "town10104",
+      "longitude": -75.821326,
+      "latitude": 20.025017,
+      "reference": "Natural Earth 1159149835 · Santiago de Cuba"
+    },
+    {
+      "placeId": "town10107",
+      "longitude": -66.918983,
+      "latitude": 10.502944,
+      "reference": "Natural Earth 1159151493 · Caracas"
+    },
+    {
+      "placeId": "town10109",
+      "longitude": -52.330021,
+      "latitude": 4.932992,
+      "reference": "Natural Earth 1159150911 · Cayenne"
+    },
+    {
+      "placeId": "town10111",
+      "longitude": -122.446824,
+      "latitude": 47.240568,
+      "reference": "Natural Earth 1159146193 · Tacoma"
+    },
+    {
+      "placeId": "town10202",
+      "longitude": -76.84062,
+      "latitude": 17.93738,
+      "reference": "GeoNames · Port Royal · https://www.geonames.org/3488980/"
+    },
+    {
+      "placeId": "town11102",
+      "longitude": -38.481933,
+      "latitude": -12.968026,
+      "reference": "Natural Earth 1159151453 · Salvador"
+    },
+    {
+      "placeId": "town11103",
+      "longitude": -71.617026,
+      "latitude": -33.047739,
+      "reference": "Natural Earth 1159150931 · Valparaíso"
+    },
+    {
+      "placeId": "town1201",
+      "longitude": -4.419999,
+      "latitude": 36.720406,
+      "reference": "Natural Earth 1159133777 · Málaga"
+    },
+    {
+      "placeId": "town12101",
+      "longitude": 9.708045,
+      "latitude": 4.062356,
+      "reference": "Natural Earth 1159149365 · Douala"
+    },
+    {
+      "placeId": "town12102",
+      "longitude": -15.429999,
+      "latitude": 28.099976,
+      "reference": "Natural Earth 1159150439 · Las Palmas"
+    },
+    {
+      "placeId": "town12103",
+      "longitude": -16.591701,
+      "latitude": 13.453876,
+      "reference": "Natural Earth 1159149997 · Banjul"
+    },
+    {
+      "placeId": "town12105",
+      "longitude": -15.598361,
+      "latitude": 11.865024,
+      "reference": "Natural Earth 1159150803 · Bissau"
+    },
+    {
+      "placeId": "town12106",
+      "longitude": 6.72965,
+      "latitude": 0.337466,
+      "reference": "Natural Earth 1159151195 · São Tomé"
+    },
+    {
+      "placeId": "town12107",
+      "longitude": -13.236162,
+      "latitude": 8.471957,
+      "reference": "Natural Earth 1159150625 · Freetown"
+    },
+    {
+      "placeId": "town13102",
+      "longitude": 39.687972,
+      "latitude": -4.03808,
+      "reference": "Natural Earth 1159150829 · Mombasa"
+    },
+    {
+      "placeId": "town13103",
+      "longitude": 40.100022,
+      "latitude": -3.209999,
+      "reference": "Natural Earth 1159148341 · Malindi"
+    },
+    {
+      "placeId": "town13109",
+      "longitude": 49.404984,
+      "latitude": -18.181798,
+      "reference": "Natural Earth 1159148359 · Toamasina"
+    },
+    {
+      "placeId": "town13201",
+      "longitude": 13.232481,
+      "latitude": -8.83634,
+      "reference": "Natural Earth 1159151469 · Luanda"
+    },
+    {
+      "placeId": "town13202",
+      "longitude": 40.733333,
+      "latitude": -15.033333,
+      "reference": "NGA World Port Index 46930 · Mocambique"
+    },
+    {
+      "placeId": "town14103",
+      "longitude": 52.568065,
+      "latitude": 29.631906,
+      "reference": "Natural Earth 1159150973 · Shiraz"
+    },
+    {
+      "placeId": "town14104",
+      "longitude": 51.532968,
+      "latitude": 25.286556,
+      "reference": "Natural Earth 1159149469 · Doha"
+    },
+    {
+      "placeId": "town14205",
+      "longitude": 32.549941,
+      "latitude": 30.004976,
+      "reference": "Natural Earth 1159149853 · Suez"
+    },
+    {
+      "placeId": "town14207",
+      "longitude": 56.4529,
+      "latitude": 27.095,
+      "reference": "GeoNames · Hormoz · https://www.geonames.org/131231/"
+    },
+    {
+      "placeId": "town15106",
+      "longitude": 79.83,
+      "latitude": 11.934994,
+      "reference": "Natural Earth 1159150163 · Puducherry"
+    },
+    {
+      "placeId": "town15107",
+      "longitude": 96.514977,
+      "latitude": 17.320014,
+      "reference": "Natural Earth 1159147853 · Bago"
+    },
+    {
+      "placeId": "town16101",
+      "longitude": 17.289993,
+      "latitude": 68.38315,
+      "reference": "Natural Earth 1159146399 · Narvik"
+    },
+    {
+      "placeId": "town16103",
+      "longitude": -21.936546,
+      "latitude": 64.143459,
+      "reference": "Natural Earth 1159150587 · Reykjavík"
+    },
+    {
+      "placeId": "town16106",
+      "longitude": 40.545008,
+      "latitude": 64.574959,
+      "reference": "Natural Earth 1159150693 · Archangel"
+    },
+    {
+      "placeId": "town16107",
+      "longitude": 143.217036,
+      "latitude": 59.383002,
+      "reference": "Natural Earth 1159149651 · Okhotsk"
+    },
+    {
+      "placeId": "town16109",
+      "longitude": 161.330039,
+      "latitude": 68.750053,
+      "reference": "Natural Earth 1159146705 · Chersky"
+    },
+    {
+      "placeId": "town16112",
+      "longitude": 165.818343,
+      "latitude": 60.332065,
+      "reference": "Natural Earth 1159139305 · Korf"
+    },
+    {
+      "placeId": "town17101",
+      "longitude": 100.618602,
+      "latitude": 14.804018,
+      "reference": "Natural Earth 1159134441 · Lop Buri"
+    },
+    {
+      "placeId": "town17102",
+      "longitude": 112.748887,
+      "latitude": -7.24729,
+      "reference": "Natural Earth 1159151339 · Surabaya"
+    },
+    {
+      "placeId": "town17107",
+      "longitude": 106.702985,
+      "latitude": 10.762125,
+      "reference": "Natural Earth 1159151253 · Ho Chi Minh City"
+    },
+    {
+      "placeId": "town18106",
+      "longitude": 114.580076,
+      "latitude": -3.329992,
+      "reference": "Natural Earth 1159150841 · Bandjarmasin"
+    },
+    {
+      "placeId": "town18112",
+      "longitude": 121,
+      "latitude": 6.05,
+      "reference": "NGA World Port Index 59800 · Jolo"
+    },
+    {
+      "placeId": "town20102",
+      "longitude": -149.48899,
+      "latitude": -17.50648,
+      "reference": "GeoNames · Mahina · https://www.geonames.org/4034307/"
+    },
+    {
+      "placeId": "town20103",
+      "longitude": 150.666667,
+      "latitude": -10.616667,
+      "reference": "NGA World Port Index 53170 · Samarai"
+    },
+    {
+      "placeId": "town20104",
+      "longitude": 178.441707,
+      "latitude": -18.133016,
+      "reference": "Natural Earth 1159150917 · Suva"
+    },
+    {
+      "placeId": "town20105",
+      "longitude": -139.033333,
+      "latitude": -9.816667,
+      "reference": "NGA World Port Index 56010 · Atuona",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town20106",
+      "longitude": -166.531603,
+      "latitude": 53.868584,
+      "reference": "Natural Earth 1159147495 · Unalaska"
+    },
+    {
+      "placeId": "town20110",
+      "longitude": 137.990016,
+      "latitude": -33.191063,
+      "reference": "Natural Earth 1159145573 · Port Pirie"
+    },
+    {
+      "placeId": "town20114",
+      "longitude": 147.29503,
+      "latitude": -42.850009,
+      "reference": "Natural Earth 1159151171 · Hobart"
+    },
+    {
+      "placeId": "town2101",
+      "longitude": -5.67,
+      "latitude": 43.530016,
+      "reference": "Natural Earth 1159127215 · Gijón"
+    },
+    {
+      "placeId": "town21101",
+      "longitude": 127.430816,
+      "latitude": 39.160489,
+      "reference": "Natural Earth 1159149713 · Wonsan"
+    },
+    {
+      "placeId": "town4101",
+      "longitude": 18.64004,
+      "latitude": 54.359975,
+      "reference": "Natural Earth 1159149707 · Gdańsk"
+    },
+    {
+      "placeId": "town4104",
+      "longitude": 18.300009,
+      "latitude": 57.633651,
+      "reference": "Natural Earth 1159134137 · Visby"
+    },
+    {
+      "placeId": "town4105",
+      "longitude": 23.116666,
+      "latitude": 63.833299,
+      "reference": "Natural Earth 1159147273 · Kokkola"
+    },
+    {
+      "placeId": "town6101",
+      "longitude": 20.064777,
+      "latitude": 32.118679,
+      "reference": "Natural Earth 1159150953 · Banghazi"
+    },
+    {
+      "placeId": "town6102",
+      "longitude": 13.499941,
+      "latitude": 43.600374,
+      "reference": "Natural Earth 1159139555 · Ancona"
+    },
+    {
+      "placeId": "town6103",
+      "longitude": 15.262262,
+      "latitude": 44.120135,
+      "reference": "Natural Earth 1159140367 · Zadar"
+    },
+    {
+      "placeId": "town6104",
+      "longitude": 13.180012,
+      "latitude": 32.8925,
+      "reference": "Natural Earth 1159151415 · Tripoli"
+    },
+    {
+      "placeId": "town6105",
+      "longitude": 13.800026,
+      "latitude": 45.650378,
+      "reference": "Natural Earth 1159139587 · Trieste"
+    },
+    {
+      "placeId": "town7102",
+      "longitude": 32.290008,
+      "latitude": 31.25999,
+      "reference": "Natural Earth 1159149855 · Bur Said"
+    },
+    {
+      "placeId": "town8101",
+      "longitude": 27.895289,
+      "latitude": 43.215643,
+      "reference": "Natural Earth 1159145075 · Varna"
+    },
+    {
+      "placeId": "town8105",
+      "longitude": 22.883055,
+      "latitude": 40.698052,
+      "reference": "Natural Earth 1159150955 · Thessaloniki"
+    },
+    {
+      "placeId": "town9101",
+      "longitude": -90.528911,
+      "latitude": 14.623081,
+      "reference": "Natural Earth 1159150909 · Guatemala City"
+    },
+    {
+      "placeId": "town9103",
+      "longitude": -61.686045,
+      "latitude": 56.547351,
+      "reference": "Natural Earth 1159151073 · Nain"
+    },
+    {
+      "placeId": "town9104",
+      "longitude": -89.618579,
+      "latitude": 20.968585,
+      "reference": "Natural Earth 1159150769 · Mérida"
+    },
+    {
+      "placeId": "town9105",
+      "longitude": -94.058607,
+      "latitude": 61.108592,
+      "reference": "Natural Earth 1159150249 · Arviat"
+    },
+    {
+      "placeId": "town9106",
+      "longitude": -99.915979,
+      "latitude": 16.849991,
+      "reference": "Natural Earth 1159150759 · Acapulco"
+    },
+    {
+      "placeId": "townU016",
+      "longitude": -105.033315,
+      "latitude": 69.116956,
+      "reference": "Natural Earth 1159150243 · Cambridge Bay"
+    },
+    {
+      "placeId": "townU018",
+      "longitude": 73.508901,
+      "latitude": 4.172037,
+      "reference": "Natural Earth 1159151201 · Malé"
+    },
+    {
+      "placeId": "townU019",
+      "longitude": 6.948059,
+      "latitude": 50.93195,
+      "reference": "Natural Earth 1159148451 · Cologne"
+    },
+    {
+      "placeId": "townU020",
+      "longitude": 7.750007,
+      "latitude": 48.579966,
+      "reference": "Natural Earth 1159147229 · Strasbourg"
+    },
+    {
+      "placeId": "discov01c025",
+      "longitude": -64.759444,
+      "latitude": 32.302222,
+      "reference": "GeoNames · Bermuda Main Island · https://www.geonames.org/3573343/main-island.html",
+      "kind": "representative"
+    },
+    {
+      "placeId": "discov19cT118",
+      "longitude": -175.18061,
+      "latitude": -21.17374,
+      "reference": "GeoNames · Tongatapu Island · https://www.geonames.org/4032277/tongatapu.html",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town20112",
+      "longitude": 144.616667,
+      "latitude": 13.45,
+      "reference": "NGA World Port Index 56550 · Apra Harbor",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town1105",
+      "longitude": -16.916667,
+      "latitude": 32.633333,
+      "reference": "NGA World Port Index 38130 · Funchal",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town1104",
+      "longitude": -25.15,
+      "latitude": 36.933333,
+      "reference": "NGA World Port Index 38110 · Vila Do Porto",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town15104",
+      "longitude": 79.85,
+      "latitude": 6.95,
+      "reference": "NGA World Port Index 49240 · Colombo",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town22103",
+      "longitude": 140.716667,
+      "latitude": 41.783333,
+      "reference": "NGA World Port Index 61190 · Hakodate Ko",
+      "kind": "representative"
+    },
+    {
+      "placeId": "discov01b068",
+      "longitude": -155.833333,
+      "latitude": 20.033333,
+      "reference": "NGA World Port Index 56160 · Kawaihae",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town14105",
+      "longitude": 54.023927,
+      "latitude": 12.651875,
+      "reference": "Natural Earth 1159134267 · Hadiboh",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town20113",
+      "longitude": -159.66893,
+      "latitude": 21.95707,
+      "reference": "GeoNames · Waimea, Kauaʻi · https://www.geonames.org/5854564/waimea.html",
+      "kind": "representative"
+    },
+    {
+      "placeId": "discov01a023",
+      "longitude": 144.75311,
+      "latitude": 13.43103,
+      "reference": "GeoNames · Guam Island · https://www.geonames.org/4043542/guam-island.html",
+      "kind": "representative"
+    },
+    {
+      "placeId": "town12109",
+      "longitude": -23.605194,
+      "latitude": 14.915139,
+      "reference": "UNESCO 1310 · Cidade Velha · https://whc.unesco.org/en/list/1310/maps/",
+      "kind": "representative"
+    }
+  ]
+}

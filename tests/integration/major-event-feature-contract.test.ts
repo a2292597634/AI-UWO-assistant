@@ -37,12 +37,13 @@ describe('major-event feature integration contract', () => {
   it('keeps the home entry route and keeps its fallback inside the primary tile', () => {
     const homeSource = readFileSync('miniprogram/pages/home/index.ts', 'utf8')
     const homeWxml = readFileSync('miniprogram/pages/home/index.wxml', 'utf8')
+    const primaryGrid = homeWxml.split('class="feature-hub__secondary"')[0]
 
     expect(homeSource).toContain("id: 'major-events'")
     expect(homeSource).toContain("name: '大流行時刻表'")
     expect(homeSource).toContain("route: '/subpkg-trade/pages/popularity/index'")
-    expect(homeWxml).toContain('index < 6')
-    expect(homeWxml).toContain('module-grid__icon-fallback')
+    expect(primaryGrid).toContain('wx:for="{{modules}}"')
+    expect(primaryGrid).toContain('module-grid__icon-fallback')
     expect(homeWxml).toContain('wx:for="{{supportEntries}}"')
     expect(homeSource).toContain("id: 'error-report'")
   })

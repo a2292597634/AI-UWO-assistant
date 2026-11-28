@@ -8,6 +8,15 @@ import { buildGameServerOutputs } from '../data-pipeline/build-game-servers'
 import { validateTradeDataset } from '../import/validate-trades'
 import { validateMajorEvents } from './validate-major-events'
 import { buildWorldMapPlaces } from '../data-pipeline/build-world-map'
+import { buildWorldMapIconLocations } from '../data-pipeline/build-world-map-icon-locations'
+import {
+  createWorldMapCalibrator,
+  type WorldMapCalibration,
+} from '../data-pipeline/world-map-calibration'
+import {
+  createWorldMapLandCheck,
+  type WorldMapLandMask,
+} from '../data-pipeline/world-map-land-mask'
 import type { WorldMapData } from '../../miniprogram/subpkg-world-map/map-data'
 import type { CanonicalTradeDataset, CanonicalMajorEventsDataset } from '../import/types'
 
@@ -39,7 +48,14 @@ export function checkMasterDataset(masterDir = 'data/master'): AuditFinding[] {
     )
     if (findings.some((finding) => finding.severity === 'error')) return findings
     try {
-      buildWorldMapPlaces(read<WorldMapData>('world-map'), trade.ports, trade.tradeGoods)
+      const mapData = read<WorldMapData>('world-map')
+      buildWorldMapPlaces(mapData, trade.ports, trade.tradeGoods)
+      createWorldMapCalibrator(mapData.places, read<WorldMapCalibration>('world-map-calibration'))
+      createWorldMapLandCheck(read<WorldMapLandMask>('ui-assets/world-map-land-mask'))
+      buildWorldMapIconLocations(
+        trade.tradeGoods,
+        read<string[]>('ui-assets/world-map-trade-atlas'),
+      )
     } catch (error) {
       findings.push({
         severity: 'error',

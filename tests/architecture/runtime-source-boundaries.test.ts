@@ -54,6 +54,7 @@ const JS_ALLOWED_PATTERNS = [
   /[\\/]miniprogram[\\/]subpkg-trade[\\/]trade-(details-\d+|detail-index|detail-loaders|goods|reference)\.js$/, // 貿易品生成資料
   /[\\/]miniprogram[\\/]subpkg-trade[\\/]major-event-reference\.js$/, // 大流行生成參照資料
   /[\\/]miniprogram[\\/]subpkg-world-map[\\/]generated[\\/]places\.js$/, // 世界地圖點位生成資料
+  /[\\/]miniprogram[\\/]subpkg-world-map[\\/]generated[\\/]trade-icons\.js$/, // 世界地圖交易品圖集索引
   /[\\/]miniprogram[\\/]data[\\/]/, // legacy data directory
   /[\\/]miniprogram[\\/]typings[\\/]/, // type declarations
   /[\\/]miniprogram[\\/]pages[\\/]test[\\/]/, // dev-only test page (pending removal)
