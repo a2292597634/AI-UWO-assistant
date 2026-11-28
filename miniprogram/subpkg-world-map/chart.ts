@@ -1,4 +1,5 @@
 import type { RuntimeMapPlace } from './map-data'
+import { WorldChartDetail } from './chart-detail'
 import {
   fitMap,
   focusMap,
@@ -23,6 +24,7 @@ const HIT_RADIUS = 22
 export class WorldChart {
   private readonly context: Context
   private readonly image: WechatMiniprogram.Image
+  private readonly detail: WorldChartDetail
   private imageLoaded = false
   private points: IndexedPoint[] = []
   private names = new Map<string, string>()
@@ -40,6 +42,7 @@ export class WorldChart {
   ) {
     this.context = canvas.getContext('2d') as Context
     this.image = canvas.createImage()
+    this.detail = new WorldChartDetail(canvas, () => this.draw())
     this.camera = fitMap(size)
     this.renderedCamera = this.camera
     this.size = size
@@ -79,6 +82,7 @@ export class WorldChart {
 
   destroy(): void {
     this.disposed = true
+    this.detail.destroy()
     if (this.frame !== undefined) this.canvas.cancelAnimationFrame(this.frame)
   }
 
@@ -164,6 +168,7 @@ export class WorldChart {
       MAP_WIDTH * camera.scale,
       MAP_HEIGHT * camera.scale,
     )
+    this.detail.render(context, camera, size)
     this.markers = getMapMarkers(this.points, camera, size)
     context.textAlign = 'center'
     context.textBaseline = 'middle'

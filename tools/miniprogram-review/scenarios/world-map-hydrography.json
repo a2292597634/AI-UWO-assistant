@@ -1,0 +1,52 @@
+{
+  "name": "世界地圖河流與湖泊細節",
+  "entry": "/subpkg-world-map/pages/index/index",
+  "watchPaths": ["miniprogram/subpkg-world-map/", "tools/ui-assets/build-world-map-chart.ts"],
+  "state": "normal",
+  "devices": ["iphone-small", "iphone-standard", "android-large"],
+  "steps": [
+    { "action": "waitFor", "selector": "#map-reset" },
+    { "action": "screenshot", "name": "hydrography-overview" },
+    { "action": "input", "selector": ".map-search__input", "value": "開羅" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "開羅" }
+    },
+    { "action": "tap", "selector": ".map-results__row" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "開羅" }
+    },
+    { "action": "tap", "selector": ".map-sheet__close" },
+    { "action": "waitFor", "selector": "#map-zoom-in" },
+    { "action": "tap", "selector": "#map-zoom-in" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "24×" }
+    },
+    { "action": "screenshot", "name": "nile-delta" },
+    { "action": "tap", "selector": "#map-reset" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "1×" }
+    },
+    { "action": "input", "selector": ".map-search__input", "value": "杭州" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-results__row", "contains": "杭州" }
+    },
+    { "action": "tap", "selector": ".map-results__row" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map-sheet__title", "equals": "杭州" }
+    },
+    { "action": "tap", "selector": ".map-sheet__close" },
+    { "action": "waitFor", "selector": "#map-zoom-in" },
+    { "action": "tap", "selector": "#map-zoom-in" },
+    {
+      "action": "waitUntil",
+      "condition": { "kind": "text", "selector": ".map__zoom", "equals": "24×" }
+    },
+    { "action": "screenshot", "name": "yangtze-and-taihu" }
+  ]
+}
